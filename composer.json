@@ -1,6 +1,6 @@
 {
     "name": "nowo-tech/dashboard-menu-bundle",
-    "version": "1.0.x-dev",
+    "version": "0.0.1",
     "description": "Symfony bundle for configurable dashboard menus with i18n (JSON translations), tree structure (parent/position), permissions, Twig and JSON API. No external ORM extensions.",
     "type": "symfony-bundle",
     "license": "MIT",

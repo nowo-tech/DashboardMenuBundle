@@ -12,6 +12,7 @@
   - [menus.{code}](#menuscode)
   - [menu_code_resolver](#menu_code_resolver)
   - [api](#api)
+  - [dashboard](#dashboard)
 - [Example](#example)
 - [Symfony UX Icons](#symfony-ux-icons)
 - [Collapsible menus](#collapsible-menus)
@@ -24,6 +25,7 @@
 - **defaults**: Default values for all menus (each menu can override).
 - **menus** (optional): Per-menu overrides in YAML. **Menus are defined in the database** (dashboard or fixtures): code, name, optional context (JSON key-value for variant resolution), icon, CSS classes. You do not need to list each menu here unless you want to override connection, permission_checker, cache, etc. for a given menu code.
 - **api**: API route options.
+- **dashboard**: Dashboard (admin CRUD) options; see [Dashboard](#dashboard).
 
 ## Options
 
@@ -107,6 +109,19 @@ Optional. Only add an entry here when you need to override defaults for a specif
 |---------------|--------------|--------------------|
 | `enabled`     | `true`       | Enable JSON API    |
 | `path_prefix` | `/api/menu`  | Path prefix for API route |
+
+### dashboard
+
+Options for the admin dashboard (list/create/edit menus and items). Import routes from `routes_dashboard.yaml` with the desired prefix (e.g. `/admin/menus`).
+
+| Option                         | Default        | Description |
+|--------------------------------|----------------|-------------|
+| `enabled`                      | `false`        | Enable dashboard routes (set to `true` in app config to use the admin UI) |
+| `path_prefix`                  | `/admin/menus` | URL prefix for dashboard routes (applied when importing the dashboard routes) |
+| `route_name_exclude_patterns`  | `[]`           | Regex patterns to hide route names from the route selector (e.g. `['^_', '^web_profiler']`) |
+| `pagination.enabled`          | `true`         | Paginate the menus list |
+| `pagination.per_page`         | `20`           | Menus per page when pagination is enabled |
+| `modals`                       | see [dashboard.modals](#dashboardmodals) | Modal sizes (normal, lg, xl) for menu form, copy, item form, delete |
 
 ## Example
 

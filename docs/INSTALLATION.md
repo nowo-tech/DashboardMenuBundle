@@ -27,7 +27,7 @@ This guide covers installing Dashboard Menu Bundle in a Symfony application.
 composer require nowo-tech/dashboard-menu-bundle
 ```
 
-Use `^1.0` (or the latest stable) to stay on the current major version.
+Use `^0.0` for the 0.x line (or the latest stable constraint).
 
 ## Register the bundle
 

@@ -5,21 +5,26 @@ parameters:
         - tests
     excludePaths:
         - demo/*
+        # Form types reference Symfony Form/Validator; analyse when bundle is used in an app
+        - src/Form/*
     bootstrapFiles:
         - vendor/autoload.php
     reportUnmatchedIgnoredErrors: false
     ignoreErrors:
-        # Symfony Form/Validator classes loaded from vendor; PHPStan may not resolve them in bundle-only analysis
-        - '#Class Symfony\\Component\Form\\\.* not found#'
-        - '#extends unknown class Symfony\\Component\\Form\\\.*#'
-        - '#Call to method .* on an unknown class Symfony\\Component\\Form\\\.*#'
-        - '#Parameter \$builder.*Symfony\\Component\\Form\\FormBuilderInterface#'
-        - '#Parameter #1 \$type of method.*createForm\(\) expects class-string<.*>, string given#'
-        - '#Instantiated class Symfony\\Component\\Form\\\.* not found#'
-        - '#implements unknown interface Symfony\\Component\\Form\\\.*#'
-        - '#Class Symfony\\Component\\Validator\\\.* not found#'
-        # Tree shape: list<array> vs list<array{item, children}> when passing through helpers
-        - '#Parameter #1 \$nodes of method.*markNodesWithChildren.*list<array> given#'
-        - '#Parameter #1 \$nodes of method.*pruneEmptySections.*list<array> given#'
-        - '#Parameter #1 \$node of method.*decorateNode.*array given#'
-        - '#Parameter #1 \$tree of method.*treeToArray.*list<array> given#'
+        # Symfony Form/Validator: classes in vendor not resolved when analysing bundle alone
+        - identifier: class.notFound
+          path: src/Controller/Dashboard/*.php
+        - identifier: class.notFound
+          path: src/Controller/Api/*.php
+        - identifier: argument.type
+          path: src/Controller/Dashboard/MenuDashboardController.php
+        - identifier: argument.type
+          path: src/Controller/Dashboard/MenuDashboardController.php
+          message: '~CopyMenuType~'
+        # Tree shape when passing through helpers
+        - identifier: argument.type
+          path: src/Service/MenuTreeLoader.php
+        - identifier: argument.type
+          path: src/Service/CurrentRouteTreeDecorator.php
+        - identifier: argument.type
+          path: src/Controller/Api/MenuApiController.php

@@ -926,11 +926,11 @@
         },
         {
             "name": "nowo-tech/dashboard-menu-bundle",
-            "version": "1.0.x-dev",
+            "version": "0.0.1",
             "dist": {
                 "type": "path",
                 "url": "/var/dashboard-menu-bundle",
-                "reference": "1d6edc419a3d7a530e332f9a30c05b498b532475"
+                "reference": "b70dee31565fc9d7697eec2d49cb1b1dfa3eb056"
             },
             "require": {
                 "doctrine/doctrine-bundle": "^2.8 || ^3.0",

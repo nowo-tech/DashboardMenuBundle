@@ -49,6 +49,7 @@ class MenuItemRepository extends ServiceEntityRepository
             $item->setLabel($item->getLabelForLocale($locale));
         }
 
+        /** @var list<MenuItem> $result */
         return $result;
     }
 
@@ -73,6 +74,7 @@ class MenuItemRepository extends ServiceEntityRepository
         $result = $qb->getQuery()->getResult();
         assert(is_array($result));
 
+        /** @var list<MenuItem> $result */
         return $result;
     }
 

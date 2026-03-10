@@ -1,3 +1,39 @@
 # Release
 
-Run `make release-check` (cs-fix, cs-check, rector-dry, phpstan, test-coverage, demo verify). Tag and push; CI will handle the rest if configured.
+## Before releasing
+
+1. **Run full checks**
+
+   ```bash
+   make release-check
+   ```
+
+   This runs: `composer-sync`, `cs-fix`, `cs-check`, `rector-dry`, `phpstan`, `test-coverage`, and `release-check-demos` (each demo is started, HTTP-verified, then stopped).
+
+2. **Update version and changelog**
+
+   - Set the new version in `composer.json` (`version` field).
+   - Add a new section in `docs/CHANGELOG.md` for the release (e.g. `## [0.0.2] - YYYY-MM-DD`) and move any “Unreleased” entries into it. Update the comparison links at the bottom of the file.
+
+## Creating the release
+
+1. **Commit all changes** (changelog, version, etc.).
+
+2. **Create an annotated tag** (replace `0.0.1` with the version):
+
+   ```bash
+   git tag -a v0.0.1 -m "Release 0.0.1"
+   ```
+
+3. **Push the tag**
+
+   ```bash
+   git push origin v0.0.1
+   ```
+
+4. **GitHub Actions** (if `.github/workflows/release.yml` is configured) will create or update the GitHub Release for that tag, using the tag message and the corresponding section from `docs/CHANGELOG.md` as the release body.
+
+## After releasing
+
+- Ensure the new version appears on [Packagist](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) (auto-update from GitHub tags, or trigger manually).
+- Bump the development version in `composer.json` if you use a dev version string (e.g. `0.0.2-dev` or `1.0.x-dev` for the next cycle).
