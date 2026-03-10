@@ -1,0 +1,65 @@
+{
+    "name": "nowo-tech/dashboard-menu-demo-symfony7",
+    "description": "Demo for Dashboard Menu Bundle - Symfony 7",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.2",
+        "doctrine/doctrine-bundle": "^2.11",
+        "doctrine/orm": "^2.17 || ^3.0",
+        "nowo-tech/dashboard-menu-bundle": "@dev",
+        "symfony/asset": "^7.0",
+        "symfony/console": "^7.0",
+        "symfony/dotenv": "^7.0",
+        "symfony/flex": "^2.0",
+        "symfony/framework-bundle": "^7.0",
+        "symfony/runtime": "^7.0",
+        "symfony/security-bundle": "^7.0",
+        "symfony/translation": "^7.0",
+        "symfony/twig-bundle": "^7.0",
+        "symfony/validator": "^7.0",
+        "symfony/yaml": "^7.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "symfony/flex": true,
+            "symfony/runtime": true
+        },
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "scripts": {
+        "auto-scripts": {
+            "cache:clear": "symfony-cmd"
+        },
+        "post-install-cmd": ["@auto-scripts"],
+        "post-update-cmd": ["@auto-scripts"]
+    },
+    "conflict": {
+        "symfony/symfony": "*"
+    },
+    "extra": {
+        "symfony": {
+            "allow-contrib": false,
+            "require": "7.0.*"
+        }
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "/var/dashboard-menu-bundle"
+        }
+    ],
+    "require-dev": {
+        "doctrine/doctrine-fixtures-bundle": "^3.2",
+        "symfony/debug-bundle": "^7.0",
+        "symfony/var-dumper": "^7.0",
+        "symfony/web-profiler-bundle": "^7.0"
+    }
+}

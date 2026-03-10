@@ -1,0 +1,48 @@
+name: dashboard-menu-bundle
+
+services:
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dashboard-menu-bundle-php
+    working_dir: /app
+    volumes:
+      - .:/app
+      - composer-cache:/root/.composer/cache
+      - coverage-data:/app/coverage
+    environment:
+      - COMPOSER_ALLOW_SUPERUSER=1
+      - DATABASE_URL=mysql://root:password@mysql:3306/dashboard_menu_test?serverVersion=8.0
+    command: ["tail", "-f", "/dev/null"]
+    networks:
+      - dashboard-menu-bundle-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  mysql:
+    image: mysql:8.0
+    container_name: dashboard-menu-bundle-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=dashboard_menu_test
+    ports:
+      - "3308:3306"
+    networks:
+      - dashboard-menu-bundle-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  composer-cache:
+    driver: local
+  coverage-data:
+    driver: local
+
+networks:
+  dashboard-menu-bundle-network:
+    driver: bridge

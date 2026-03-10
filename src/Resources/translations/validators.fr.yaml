@@ -1,0 +1,2 @@
+# Messages de validation (domaine validators de Symfony)
+form.copy_menu_type.code.regex_message: "Le code ne peut contenir que des lettres, chiffres, tiret bas et trait d'union."

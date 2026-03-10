@@ -1,0 +1,8 @@
+{
+    "bundles": {
+        "Nowo\\DashboardMenuBundle\\NowoDashboardMenuBundle": ["all"]
+    },
+    "copy-from-recipe": {
+        "config/": "%CONFIG_DIR%/"
+    }
+}

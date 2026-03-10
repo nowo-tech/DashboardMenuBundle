@@ -1,0 +1,249 @@
+{% extends '@NowoDashboardMenuBundle/dashboard/layout.html.twig' %}
+
+{% block dashboard_title %}{{ 'dashboard.menu'|trans }}: {{ menu.code }}{% endblock %}
+
+{% block dashboard_body %}
+    {% for msg in app.flashes('success') %}
+        <div class="alert alert-success">{{ msg }}</div>
+    {% endfor %}
+    {% for msg in app.flashes('error') %}
+        <div class="alert alert-danger">{{ msg }}</div>
+    {% endfor %}
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <a href="{{ path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index')) }}" class="btn btn-link text-decoration-none">{{ 'dashboard.menus_back'|trans }}</a>
+            <h1 class="h3 d-inline">{% if menu.icon %}<span class="text-muted me-1" title="{{ menu.icon }}">🔣</span>{% endif %}{{ menu.code }}{% if menu.name %} <span class="text-muted">({{ menu.name }})</span>{% endif %}</h1>
+        </div>
+        <div>
+            <button type="button" class="btn btn-outline-info btn-copy-menu" data-id="{{ menu.id }}" data-copy-url="{{ path(dashboard_routes.menu_copy|default('nowo_dashboard_menu_dashboard_menu_copy'), { id: menu.id }) }}?_partial=1" data-bs-toggle="modal" data-bs-target="#modal-menu-copy">{{ 'dashboard.copy'|trans }}</button>
+            <button type="button" class="btn btn-outline-secondary btn-edit-menu" data-id="{{ menu.id }}" data-bs-toggle="modal" data-bs-target="#modal-menu-form">{{ 'dashboard.edit_menu'|trans }}</button>
+            <button type="button" class="btn btn-primary btn-add-item" data-id="{{ menu.id }}" data-parent="" data-bs-toggle="modal" data-bs-target="#modal-item-form">{{ 'dashboard.add_item'|trans }}</button>
+        </div>
+    </div>
+
+    {% if menu.permissionChecker or menu.depthLimit is not null or menu.collapsible is not null or menu.collapsibleExpanded is not null or menu.nestedCollapsible is not null %}
+        <div class="alert alert-light border mb-3 py-2">
+            {% if menu.permissionChecker %}<strong>{{ 'dashboard.permission_checker'|trans }}:</strong> <code>{{ menu.permissionChecker }}</code>{% endif %}
+            {% if menu.depthLimit is not null %} {% if menu.permissionChecker %}·{% endif %} <strong>{{ 'dashboard.depth_limit'|trans }}:</strong> {{ menu.depthLimit }}{% endif %}
+            {% if menu.collapsible is not null %} · <strong>{{ 'dashboard.collapsible'|trans }}:</strong> {{ menu.collapsible ? 'dashboard.yes'|trans : 'dashboard.no'|trans }}{% endif %}
+            {% if menu.collapsibleExpanded is not null %} · <strong>{{ 'dashboard.collapsible_expanded'|trans }}:</strong> {{ menu.collapsibleExpanded ? 'dashboard.yes'|trans : 'dashboard.no'|trans }}{% endif %}
+            {% if menu.nestedCollapsible is not null %} · <strong>{{ 'dashboard.nested_collapsible'|trans }}:</strong> {{ menu.nestedCollapsible ? 'dashboard.yes'|trans : 'dashboard.no'|trans }}{% endif %}
+        </div>
+    {% endif %}
+    {% if menu.classMenu or menu.classItem or menu.classLink or menu.classChildren or menu.classCurrent or menu.classBranchExpanded or menu.classHasChildren or menu.classExpanded or menu.classCollapsed %}
+        <div class="alert alert-light border mb-3 py-2">
+            <strong>{{ 'dashboard.css_classes'|trans }}</strong>: {% if menu.classMenu %}<code>menu: {{ menu.classMenu }}</code>{% endif %}
+            {% if menu.classItem %} <code>item: {{ menu.classItem }}</code>{% endif %}
+            {% if menu.classLink %} <code>link: {{ menu.classLink }}</code>{% endif %}
+            {% if menu.classChildren %} <code>children: {{ menu.classChildren }}</code>{% endif %}
+            {% if menu.classCurrent %} <code>current: {{ menu.classCurrent }}</code>{% endif %}
+            {% if menu.classBranchExpanded %} <code>branch: {{ menu.classBranchExpanded }}</code>{% endif %}
+            {% if menu.classHasChildren %} <code>has-children: {{ menu.classHasChildren }}</code>{% endif %}
+            {% if menu.classExpanded %} <code>expanded: {{ menu.classExpanded }}</code>{% endif %}
+            {% if menu.classCollapsed %} <code>collapsed: {{ menu.classCollapsed }}</code>{% endif %}
+        </div>
+    {% endif %}
+
+    {% if items|length == 0 %}
+        <p class="text-muted">{{ 'dashboard.no_items'|trans }} <button type="button" class="btn btn-link p-0 align-baseline btn-add-item" data-id="{{ menu.id }}" data-parent="" data-bs-toggle="modal" data-bs-target="#modal-item-form">{{ 'dashboard.add_one'|trans }}</button>.</p>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 1%; white-space: nowrap;">{{ 'dashboard.parent'|trans }}</th>
+                        <th style="white-space: nowrap;">{{ 'dashboard.route_url'|trans }}</th>
+                        <th>{{ 'dashboard.item'|trans }}</th>
+                        <th class="text-end" style="width: 1%; white-space: nowrap;">{{ 'dashboard.actions'|trans }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                        {% set depth = item_depths[item.id] is defined ? item_depths[item.id] : 0 %}
+                        <tr id="item-{{ item.id }}">
+                            <td class="text-muted small">{{ item_parent_labels[item.id] is defined ? item_parent_labels[item.id] : '—' }}</td>
+                            <td class="small">
+                                {% if item.itemType == 'link' %}
+                                    {% if item.linkType == 'route' and item.routeName %}
+                                        {% set item_url = dashboard_menu_href(item) %}
+                                        <code class="d-block text-muted">{{ item.routeName }}{% if item.routeParams and item.routeParams|length > 0 %} {{ item.routeParams|json_encode }}{% endif %}</code>
+                                        <a href="{{ item_url }}" target="_blank" rel="noopener noreferrer" class="text-break">{{ item_url }}</a>
+                                    {% elseif item.externalUrl %}
+                                        <a href="{{ item.externalUrl }}" target="_blank" rel="noopener noreferrer" class="text-break">{{ item.externalUrl }}</a>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td style="padding-left: {{ 0.5 + depth * 1.25 }}rem;">
+                                {% if item.icon %}<span class="text-muted me-1" title="{{ item.icon }}">🔣</span>{% endif %}
+                                <span class="badge bg-secondary me-2">{{ item.itemType }}</span>
+                                {{ item.label ?: ('dashboard.no_label'|trans) }}
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex align-items-center justify-content-end gap-1">
+                                    {% if prev_sibling[item.id] is defined and prev_sibling[item.id] is not null %}
+                                        <a href="{{ path(dashboard_routes.item_move_up|default('nowo_dashboard_menu_dashboard_item_move_up'), { id: menu.id, itemId: item.id }) }}" class="btn btn-sm btn-outline-secondary" title="{{ 'dashboard.move_up'|trans }}" aria-label="{{ 'dashboard.move_up'|trans }}">↑</a>
+                                    {% else %}
+                                        <span class="btn btn-sm btn-outline-secondary disabled" title="{{ 'dashboard.first'|trans }}" aria-hidden="true">↑</span>
+                                    {% endif %}
+                                    {% if next_sibling[item.id] is defined and next_sibling[item.id] is not null %}
+                                        <a href="{{ path(dashboard_routes.item_move_down|default('nowo_dashboard_menu_dashboard_item_move_down'), { id: menu.id, itemId: item.id }) }}" class="btn btn-sm btn-outline-secondary" title="{{ 'dashboard.move_down'|trans }}" aria-label="{{ 'dashboard.move_down'|trans }}">↓</a>
+                                    {% else %}
+                                        <span class="btn btn-sm btn-outline-secondary disabled" title="{{ 'dashboard.last'|trans }}" aria-hidden="true">↓</span>
+                                    {% endif %}
+                                    <button type="button" class="btn btn-sm btn-outline-success btn-add-item" title="{{ 'dashboard.add_child'|trans }}" aria-label="{{ 'dashboard.add_child'|trans }}" data-id="{{ menu.id }}" data-parent="{{ item.id }}" data-bs-toggle="modal" data-bs-target="#modal-item-form">+</button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary btn-edit-item" title="{{ 'dashboard.edit'|trans }}" aria-label="{{ 'dashboard.edit'|trans }}" data-id="{{ menu.id }}" data-item-id="{{ item.id }}" data-bs-toggle="modal" data-bs-target="#modal-item-form">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/></svg>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger btn-delete-item" title="{{ 'dashboard.delete'|trans }}" aria-label="{{ 'dashboard.delete'|trans }}" data-id="{{ menu.id }}" data-item-id="{{ item.id }}" data-name="{{ item.label ?: ('dashboard.no_label'|trans) }}" data-url="{{ path(dashboard_routes.item_delete|default('nowo_dashboard_menu_dashboard_item_delete'), { id: menu.id, itemId: item.id }) }}" data-token="{{ csrf_token('delete_item_' ~ item.id) }}" data-bs-toggle="modal" data-bs-target="#modal-delete-item-confirm">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+    {# Modal: Edit menu (content loaded via fetch) #}
+    <div class="modal fade" id="modal-menu-form" tabindex="-1" aria-labelledby="modal-menu-form-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable {{ modal_classes.menu_form|default('') }}">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-menu-form-label">{{ 'dashboard.edit_menu'|trans }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'dashboard.close'|trans }}"></button>
+                </div>
+                <div class="modal-body" id="modal-menu-form-body">
+                    <div class="text-center py-4 text-muted">{{ 'dashboard.loading'|trans }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Modal: Copy menu (content loaded via fetch) #}
+    <div class="modal fade" id="modal-menu-copy" tabindex="-1" aria-labelledby="modal-menu-copy-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable {{ modal_classes.copy|default('') }}">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-menu-copy-label">{{ 'dashboard.copy_menu'|trans }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'dashboard.close'|trans }}"></button>
+                </div>
+                <div class="modal-body" id="modal-menu-copy-body">
+                    <div class="text-center py-4 text-muted">{{ 'dashboard.loading'|trans }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Modal: Add/Edit item (content loaded via fetch) #}
+    <div class="modal fade" id="modal-item-form" tabindex="-1" aria-labelledby="modal-item-form-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable {{ modal_classes.item_form|default('modal-lg') }}">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-item-form-label">{{ 'dashboard.item'|trans }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'dashboard.close'|trans }}"></button>
+                </div>
+                <div class="modal-body" id="modal-item-form-body">
+                    <div class="text-center py-4 text-muted">{{ 'dashboard.loading'|trans }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Modal: Delete item confirm #}
+    <div class="modal fade" id="modal-delete-item-confirm" tabindex="-1" aria-labelledby="modal-delete-item-label" aria-hidden="true">
+        <div class="modal-dialog {{ modal_classes.delete|default('') }}">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-delete-item-label">{{ 'dashboard.confirm_delete'|trans }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'dashboard.close'|trans }}"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="modal-delete-item-message">{{ 'dashboard.delete_item_message'|trans }}</p>
+                    <form id="form-delete-item-confirm" method="post" action="">
+                        <input type="hidden" name="_token" value="">
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'dashboard.cancel'|trans }}</button>
+                            <button type="submit" class="btn btn-danger">{{ 'dashboard.delete'|trans }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        var menuId = {{ menu.id }};
+        var baseUrl = '{{ path(dashboard_show_route|default(dashboard_routes.show|default('nowo_dashboard_menu_dashboard_show')), { id: menu.id }) }}'.replace(/\/[^/]+$/, '');
+
+        document.getElementById('modal-menu-form').addEventListener('show.bs.modal', function(e) {
+            var btn = e.relatedTarget;
+            if (!btn || !btn.classList.contains('btn-edit-menu')) return;
+            var body = document.getElementById('modal-menu-form-body');
+            var id = btn.getAttribute('data-id') || menuId;
+            body.innerHTML = '<div class="text-center py-4 text-muted">' + (window.dashboardMenuI18n && window.dashboardMenuI18n.loading || 'Loading…') + '</div>';
+            fetch(baseUrl + '/' + id + '/edit?_partial=1')
+                .then(function(r) { return r.text(); })
+                .then(function(html) { body.innerHTML = html; })
+                .catch(function() { body.innerHTML = '<div class="alert alert-danger">' + (window.dashboardMenuI18n && window.dashboardMenuI18n.errorLoadingForm || 'Error loading form.') + '</div>'; });
+        });
+
+        var copyMenuModal = document.getElementById('modal-menu-copy');
+        if (copyMenuModal) {
+            copyMenuModal.addEventListener('show.bs.modal', function(e) {
+                var btn = e.relatedTarget;
+                if (!btn || !btn.classList.contains('btn-copy-menu')) return;
+                var copyUrl = btn.getAttribute('data-copy-url');
+                var body = document.getElementById('modal-menu-copy-body');
+                if (!body || !copyUrl) return;
+                body.innerHTML = '<div class="text-center py-4 text-muted">' + (window.dashboardMenuI18n && window.dashboardMenuI18n.loading || 'Loading…') + '</div>';
+                fetch(copyUrl)
+                    .then(function(r) { return r.text(); })
+                    .then(function(html) { body.innerHTML = html; })
+                    .catch(function() { body.innerHTML = '<div class="alert alert-danger">' + (window.dashboardMenuI18n && window.dashboardMenuI18n.errorLoadingForm || 'Error loading form.') + '</div>'; });
+            });
+        }
+
+        document.getElementById('modal-item-form').addEventListener('show.bs.modal', function(e) {
+            var btn = e.relatedTarget;
+            if (!btn || !btn.classList.contains('btn-add-item') && !btn.classList.contains('btn-edit-item')) return;
+            var body = document.getElementById('modal-item-form-body');
+            var title = document.getElementById('modal-item-form-label');
+            var isEdit = btn.classList.contains('btn-edit-item');
+            var mid = btn.getAttribute('data-id') || menuId;
+            var itemId = btn.getAttribute('data-item-id');
+            var parent = btn.getAttribute('data-parent') || '';
+            title.textContent = isEdit ? (window.dashboardMenuI18n && window.dashboardMenuI18n.editItem || 'Edit item') : (window.dashboardMenuI18n && window.dashboardMenuI18n.addItem || 'Add item');
+            body.innerHTML = '<div class="text-center py-4 text-muted">' + (window.dashboardMenuI18n && window.dashboardMenuI18n.loading || 'Loading…') + '</div>';
+            var url = isEdit
+                ? baseUrl + '/' + mid + '/item/' + itemId + '/edit?_partial=1'
+                : baseUrl + '/' + mid + '/item/new?_partial=1' + (parent ? '&parent=' + encodeURIComponent(parent) : '');
+            fetch(url)
+                .then(function(r) { return r.text(); })
+                .then(function(html) {
+                    body.innerHTML = '<div id="modal-item-form-container">' + html + '</div>';
+                })
+                .catch(function() { body.innerHTML = '<div class="alert alert-danger">' + (window.dashboardMenuI18n && window.dashboardMenuI18n.errorLoadingForm || 'Error loading form.') + '</div>'; });
+        });
+
+        document.getElementById('modal-delete-item-confirm').addEventListener('show.bs.modal', function(e) {
+            var btn = e.relatedTarget;
+            if (!btn || !btn.classList.contains('btn-delete-item')) return;
+            var form = document.getElementById('form-delete-item-confirm');
+            var msg = document.getElementById('modal-delete-item-message');
+            if (form && msg) {
+                form.action = btn.getAttribute('data-url') || '';
+                form.querySelector('input[name="_token"]').value = btn.getAttribute('data-token') || '';
+                msg.textContent = (window.dashboardMenuI18n && window.dashboardMenuI18n.deleteItemConfirm ? window.dashboardMenuI18n.deleteItemConfirm.replace('%name%', btn.getAttribute('data-name') || '') : 'Delete this item and its children?');
+            }
+        });
+    })();
+    </script>
+{% endblock %}

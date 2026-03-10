@@ -1,0 +1,17 @@
+# Rutas de la app: prefijo /{_locale} definido en cada controlador
+controllers:
+    resource:
+        path: ../src/Controller/
+        namespace: App\Controller
+    type: attribute
+
+nowo_dashboard_menu:
+    resource: '@NowoDashboardMenuBundle/Resources/config/routes.yaml'
+
+nowo_dashboard_menu_dashboard:
+    resource: '@NowoDashboardMenuBundle/Resources/config/routes_dashboard.yaml'
+    prefix: /admin/menus
+
+# Dev/test: Web Profiler & Debug toolbar
+_web_profiler:
+    resource: routes/web_profiler.yaml

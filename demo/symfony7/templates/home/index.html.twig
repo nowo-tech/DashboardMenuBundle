@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'demo.home_title'|trans({}, _demo_domain) }}{% endblock %}
+
+{% block body %}
+<h1>{{ 'demo.bundle_demo'|trans({}, _demo_domain) }}</h1>
+<p>{{ 'demo.sidebar_rendered_short'|trans({}, _demo_domain)|raw }}</p>
+<p>{{ 'demo.api_json'|trans({}, _demo_domain) }} <a href="{{ path('nowo_dashboard_menu_api', { code: 'sidebar' }) }}">GET /api/menu/sidebar</a></p>
+
+<div class="card mb-4 mt-4">
+    <div class="card-header fw-bold">{{ 'demo.context_resolution_title'|trans({}, _demo_domain) }}</div>
+    <div class="card-body">
+        <p class="text-muted small mb-3">{{ 'demo.context_resolution_intro'|trans({}, _demo_domain)|raw }}</p>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <h6 class="text-secondary">{{ 'demo.context_example_second_result'|trans({}, _demo_domain) }}</h6>
+                <p class="small text-muted"><code>dashboard_menu_tree('sidebar', null, [{'partnerId': 99}, {}])</code></p>
+                {% set contextSetsSecond = [{ 'partnerId': 99 }, {}] %}
+                {% set treeSecond = dashboard_menu_tree('sidebar', null, contextSetsSecond) %}
+                {% set _cfg1 = dashboard_menu_config('sidebar', contextSetsSecond)|default({}) %}
+                {% set configSecond = _cfg1|merge({ classes: (_cfg1.classes|default({}))|merge({ menu: 'nav flex-column small', item: 'nav-item', link: 'nav-link', children: 'nav flex-column ms-2' }) }) %}
+                <nav class="border rounded p-2 bg-light">
+                    {% if treeSecond is not empty %}
+                        {% include '@NowoDashboardMenuBundle/menu.html.twig' with { menuTree: treeSecond, menuCode: 'sidebar', menuConfig: configSecond } %}
+                    {% else %}
+                        <span class="text-muted">{{ 'demo.context_no_menu'|trans({}, _demo_domain) }}</span>
+                    {% endif %}
+                </nav>
+            </div>
+            <div class="col-md-6 mb-3">
+                <h6 class="text-secondary">{{ 'demo.context_example_random'|trans({}, _demo_domain) }}</h6>
+                <p class="small text-muted"><code>dashboard_menu_tree('sidebar', null, contextSets)</code></p>
+                {% set _first = random(2) == 0 ? [{ 'partnerId': 1, 'operatorId': 1 }, { 'partnerId': 1 }, null] : [{ 'partnerId': 1 }, { 'partnerId': 1, 'operatorId': 1 }, null] %}
+                {% set treeRandom = dashboard_menu_tree('sidebar', null, _first) %}
+                {% set _cfg2 = dashboard_menu_config('sidebar', _first)|default({}) %}
+                {% set configRandom = _cfg2|merge({ classes: (_cfg2.classes|default({}))|merge({ menu: 'nav flex-column small', item: 'nav-item', link: 'nav-link', children: 'nav flex-column ms-2' }) }) %}
+                <nav class="border rounded p-2 bg-light">
+                    {% if treeRandom is not empty %}
+                        {% include '@NowoDashboardMenuBundle/menu.html.twig' with { menuTree: treeRandom, menuCode: 'sidebar', menuConfig: configRandom } %}
+                    {% else %}
+                        <span class="text-muted">{{ 'demo.context_no_menu'|trans({}, _demo_domain) }}</span>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

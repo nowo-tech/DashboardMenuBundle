@@ -1,0 +1,27 @@
+# Only these keys can be set in YAML: project, locales, default_locale.
+# Menus are registered and configured only in the database (dashboard or fixtures).
+nowo_dashboard_menu:
+    project: demo_app
+    locales: ['en', 'es', 'fr']
+    default_locale: 'en'
+    dashboard:
+        enabled: true
+        path_prefix: /admin/menus
+        # route_name_exclude_patterns: ['^_', '^web_profiler']  # regex: hide internal/profiler routes from selector
+        pagination:
+            enabled: true
+            per_page: 20
+        # CSS class options: when set, the menu form shows dropdowns instead of free text for each slot
+        css_class_options:
+            menu: ['nav flex-column', 'nav flex-row', 'dropdown-menu dropdown-menu-end', 'nav flex-wrap gap-2']
+            item: ['nav-item', 'dropdown-item', '']
+            link: ['nav-link', 'dropdown-item', 'nav-link link-secondary']
+            children: ['nav flex-column ms-2', 'nav flex-column', 'dropdown-menu']
+            current: ['active', '']
+            branch_expanded: ['active-branch', 'active-branch-has-children', '']
+            has_children: ['dropdown', 'has-children', '']
+            expanded: ['expanded', '']
+            collapsed: ['collapsed', '']
+    api:
+        enabled: true
+        path_prefix: /api/menu

@@ -1,0 +1,96 @@
+{# Renders a dashboard menu tree. Optional: pass menuConfig or use dashboard_menu_config(menuCode). #}
+{# Usage: {% set tree = dashboard_menu_tree('sidebar') %} {% set menuConfig = menuConfig|default(dashboard_menu_config('sidebar')) %} {{ include('@NowoDashboardMenuBundle/menu.html.twig', { menuTree: tree, menuCode: menuCode|default('sidebar'), menuConfig: menuConfig }) }} #}
+{% macro render_node(node, menuConfig, depth, idPrefix) %}
+    {% set idPrefix = idPrefix|default('menu') %}
+    {% set item = node.item %}
+    {% set itemType = item.itemType|default('link') %}
+    {% set depthLimit = menuConfig.depth_limit %}
+    {% set maxReached = depthLimit is not null and depth >= depthLimit %}
+    {% set itemClasses = menuConfig.classes.item is defined ? menuConfig.classes.item : '' %}
+    {% set linkClasses = menuConfig.classes.link is defined ? menuConfig.classes.link : '' %}
+    {% set childrenClasses = menuConfig.classes.children is defined ? menuConfig.classes.children : '' %}
+    {% set iconName = item.icon|default(menuConfig.icons.default) %}
+    {% set showIcon = menuConfig.icons.enabled and iconName is not empty and itemType == 'link' %}
+    {% set classCurrent = menuConfig.classes.class_current is defined ? menuConfig.classes.class_current : 'active' %}
+    {% set classBranchExpanded = menuConfig.classes.class_branch_expanded is defined ? menuConfig.classes.class_branch_expanded : 'active-branch' %}
+    {% set classHasChildren = menuConfig.classes.class_has_children is defined ? menuConfig.classes.class_has_children : '' %}
+    {% set classExpanded = menuConfig.classes.class_expanded is defined ? menuConfig.classes.class_expanded : '' %}
+    {% set classCollapsed = menuConfig.classes.class_collapsed is defined ? menuConfig.classes.class_collapsed : '' %}
+    {% set isCurrent = node.isCurrent|default(false) %}
+    {% set hasCurrentInBranch = node.hasCurrentInBranch|default(false) %}
+    {% set nestedCollapsible = menuConfig.nested_collapsible|default(false) %}
+    {% set hasChildren = not maxReached and node.children|length > 0 %}
+    {% set liExtra = (hasCurrentInBranch ? classBranchExpanded : '') %}
+    {% set liExtra = liExtra ~ (hasChildren and classHasChildren is not empty ? ' ' ~ classHasChildren : '') %}
+    {% set liExtra = liExtra ~ (hasChildren and hasCurrentInBranch and classExpanded is not empty ? ' ' ~ classExpanded : '') %}
+    {% set liExtra = liExtra ~ (hasChildren and not hasCurrentInBranch and classCollapsed is not empty ? ' ' ~ classCollapsed : '') %}
+    {% set liExtra = liExtra|trim %}
+    {% set liClass = (itemClasses ~ (itemType == 'section' ? ' menu-section' : '') ~ (itemType == 'divider' ? ' menu-divider' : '') ~ (liExtra is not empty ? ' ' ~ liExtra : ''))|trim %}
+    {% set aClass = (linkClasses ~ (isCurrent and classCurrent is not empty ? ' ' ~ classCurrent : ''))|trim %}
+    {% set collapseId = idPrefix ~ '-item-' ~ item.id %}
+    <li{% if liClass %} class="{{ liClass }}"{% endif %}>
+        {% if itemType == 'divider' %}
+            <hr>
+        {% elseif itemType == 'section' %}
+            <span class="menu-section-label">{{ item.label|trans }}</span>
+        {% else %}
+            <span class="d-flex align-items-center flex-nowrap">
+                <a href="{{ dashboard_menu_href(item) }}"{% if aClass %} class="{{ aClass }}"{% endif %}{% if item.targetBlank %} target="_blank" rel="noopener noreferrer"{% endif %}>
+                    {% if showIcon %}
+                        <span class="menu-item-icon" data-icon="{{ iconName }}" aria-hidden="true"></span>
+                    {% endif %}
+                    {{ item.label|trans }}
+                </a>
+                {% if nestedCollapsible and hasChildren %}
+                    <button type="button" class="btn btn-link btn-sm p-0 ms-1 menu-nested-toggle" data-bs-toggle="collapse" data-bs-target="#{{ collapseId }}" aria-expanded="true" aria-controls="{{ collapseId }}" title="{{ 'dashboard.toggle'|trans }}">
+                        <span class="menu-nested-toggle-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M2.5 5.5L8 11l5.5-5.5H2.5z"/></svg></span>
+                    </button>
+                {% endif %}
+            </span>
+        {% endif %}
+        {% if hasChildren %}
+            {% if nestedCollapsible %}
+                <div id="{{ collapseId }}" class="collapse show">
+                    <ul{% if childrenClasses %} class="{{ childrenClasses }}"{% endif %}>
+                        {% for child in node.children %}
+                            {{ _self.render_node(child, menuConfig, depth + 1, idPrefix) }}
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% else %}
+                <ul{% if childrenClasses %} class="{{ childrenClasses }}"{% endif %}>
+                    {% for child in node.children %}
+                        {{ _self.render_node(child, menuConfig, depth + 1, idPrefix) }}
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endif %}
+    </li>
+{% endmacro %}
+
+{% if menuTree is defined and menuTree|length > 0 %}
+{% set menuConfig = menuConfig|default(dashboard_menu_config(menuCode|default('main'))) %}
+{% set code = menuCode|default('main') %}
+{% set rootClasses = menuConfig.classes.menu is defined ? menuConfig.classes.menu : 'dashboard-menu' %}
+{% set collapsible = menuConfig.collapsible|default(false) %}
+{% set collapseId = 'dashboard-menu-' ~ code %}
+{% set expanded = collapsible ? (menuConfig.collapsible_expanded|default(true)) : true %}
+{% if collapsible %}
+<div class="dashboard-menu-collapsible">
+    <button type="button" class="dashboard-menu-toggle btn btn-link text-start w-100 d-flex align-items-center justify-content-between" data-bs-toggle="collapse" data-bs-target="#{{ collapseId }}" aria-expanded="{{ expanded ? 'true' : 'false' }}" aria-controls="{{ collapseId }}">
+        <span>{{ menuConfig.menu_name|default(code)|trans }}</span>
+        <span class="dashboard-menu-toggle-icon" aria-hidden="true"></span>
+    </button>
+    <div id="{{ collapseId }}" class="collapse{{ expanded ? ' show' : '' }}">
+{% endif %}
+{% set menuAttrs = menuConfig.context is defined and menuConfig.context is iterable ? menuConfig.context : [] %}
+<ul class="{{ rootClasses }} {{ code }} dashboard-menu-tree"{% for key, value in menuAttrs %} {{ key }}="{{ value is same as(true) ? 'true' : (value is same as(false) ? 'false' : value) }}"{% endfor %}>
+    {% for node in menuTree %}
+        {{ _self.render_node(node, menuConfig, 1, code) }}
+    {% endfor %}
+</ul>
+{% if collapsible %}
+    </div>
+</div>
+{% endif %}
+{% endif %}

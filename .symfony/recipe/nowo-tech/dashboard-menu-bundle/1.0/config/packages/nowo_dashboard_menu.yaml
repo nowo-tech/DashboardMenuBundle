@@ -1,0 +1,52 @@
+# Dashboard Menu Bundle – reference configuration.
+# Menus and items are stored in the database (created via dashboard or fixtures).
+# Per-menu options (name, context, CSS classes, etc.) are set when creating/editing each menu in the dashboard, not here.
+# Uncomment and adjust only what you need.
+
+nowo_dashboard_menu:
+    # Optional project id when multiple apps share the same DB.
+    # project: null
+
+    # Locales for menu item labels (i18n). If set, request locale is used only when in this list.
+    # locales: []
+    # locales: ['en', 'es', 'fr']
+
+    # Fallback locale when request locale is not in locales. If null, first of locales is used.
+    # default_locale: null
+    # default_locale: 'en'
+
+    api:
+        enabled: true
+        path_prefix: /api/menu
+
+    dashboard:
+        enabled: false
+        path_prefix: /admin/menus
+
+        # Regex patterns to hide routes from the "Route" selector when editing menu items.
+        # route_name_exclude_patterns: []
+        # route_name_exclude_patterns: ['^_', '^web_profiler']
+
+        # Pagination for the menus list in the dashboard.
+        pagination:
+            enabled: true
+            per_page: 20
+
+        # Modal sizes: normal (default), lg, or xl (Bootstrap 5). Affects new/edit menu, copy menu, add/edit item, delete confirm.
+        # modals:
+        #     menu_form: normal
+        #     copy: normal
+        #     item_form: lg
+        #     delete: normal
+
+        # CSS class options: choices shown as dropdowns when editing a menu. Override to customize.
+        # css_class_options:
+        #     menu: ['nav flex-column', 'nav flex-row', 'dropdown-menu dropdown-menu-end', 'nav flex-wrap gap-2']
+        #     item: ['nav-item', 'dropdown-item', '']
+        #     link: ['nav-link', 'dropdown-item', 'nav-link link-secondary']
+        #     children: ['nav flex-column ms-2', 'nav flex-column', 'dropdown-menu']
+        #     current: ['active', '']
+        #     branch_expanded: ['active-branch', 'active-branch-has-children', '']
+        #     has_children: ['dropdown', 'has-children', '']
+        #     expanded: ['expanded', '']
+        #     collapsed: ['collapsed', '']

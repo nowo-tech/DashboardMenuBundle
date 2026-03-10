@@ -1,0 +1,19 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\EventSubscriber\LocaleSubscriber:
+        arguments:
+            $allowedLocales: '%nowo_dashboard_menu.locales%'
+
+    App\Controller\:
+        resource: '../src/Controller/'
+        tags: ['controller.service_arguments']
+
+    App\DataFixtures\:
+        resource: '../src/DataFixtures/'
+
+    App\Service\DemoMenuPermissionChecker:
+        tags:
+            - { name: nowo_dashboard_menu.permission_checker, label: 'Demo (user, path, permission key)' }

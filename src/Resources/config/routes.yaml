@@ -1,0 +1,7 @@
+# Import in app config/routes.yaml: NowoDashboardMenuBundle::class (or resource: '@NowoDashboardMenuBundle/config/routes.yaml')
+nowo_dashboard_menu_api:
+    path: /api/menu/{code}
+    controller: Nowo\DashboardMenuBundle\Controller\Api\MenuApiController
+    requirements:
+        code: '[a-zA-Z0-9_-]+'
+    methods: [GET]

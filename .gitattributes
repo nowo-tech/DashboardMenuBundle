@@ -1,0 +1,3 @@
+# Exclude demo apps from distribution when installing the bundle (e.g. git archive / Packagist dist).
+# Composer "archive" exclude in composer.json also excludes /demo when running composer archive.
+demo/ export-ignore

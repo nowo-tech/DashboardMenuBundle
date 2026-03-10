@@ -1,0 +1,14 @@
+nowo_dashboard_menu:
+    # Igual que en la demo de Symfony 8:
+    #   - Los menús (códigos, nombre, clases CSS, colapsables, etc.) se configuran solo en BD
+    #     mediante el dashboard o los fixtures.
+    #   - Aquí solo se definen opciones de proyecto, locales, dashboard y API.
+    project: demo_app
+    locales: ['en', 'es', 'fr']
+    default_locale: 'en'
+    dashboard:
+        enabled: true
+        path_prefix: /admin/menus
+    api:
+        enabled: true
+        path_prefix: /api/menu

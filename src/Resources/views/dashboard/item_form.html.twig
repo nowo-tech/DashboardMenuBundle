@@ -1,0 +1,111 @@
+{% extends '@NowoDashboardMenuBundle/dashboard/layout.html.twig' %}
+
+{% block dashboard_title %}{{ (is_edit ? 'dashboard.edit_item' : 'dashboard.new_item')|trans }}{% endblock %}
+
+{% block dashboard_body %}
+    {% for msg in app.flashes('error') %}
+        <div class="alert alert-danger">{{ msg }}</div>
+    {% endfor %}
+
+    <p>
+        <a href="{{ path(dashboard_show_route|default(dashboard_routes.show|default('nowo_dashboard_menu_dashboard_show')), { id: menu.id }) }}" class="btn btn-link text-decoration-none">← {{ menu.code }}</a>
+    </p>
+
+    {{ form_start(form, { attr: {} }) }}
+        {{ form_row(form.label, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-3' } }) }}
+        {% if locales is defined and locales is not empty %}
+            <div class="row mb-3">
+                {% for locale in locales %}
+                    {% set fieldName = 'label_' ~ locale %}
+                    {% if attribute(form, fieldName) is defined %}
+                        <div class="col-md-6">
+                            {{ form_row(attribute(form, fieldName), { label_attr: { class: 'form-label' } }) }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% if form.parent is defined %}
+        <div class="mb-3">
+            {{ form_row(form.parent, { label_attr: { class: 'form-label' } }) }}
+        </div>
+        {% endif %}
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                {{ form_row(form.itemType, { label_attr: { class: 'form-label' } }) }}
+            </div>
+            <div class="col-md-6 mb-3">
+                {{ form_row(form.position, { label_attr: { class: 'form-label' } }) }}
+            </div>
+        </div>
+        {{ form_row(form.linkType, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-3' } }) }}
+        <div class="mb-3" id="route_fields">
+            {{ form_row(form.routeName, { label_attr: { class: 'form-label' } }) }}
+            {{ form_row(form.routeParams, { label_attr: { class: 'form-label mt-2' } }) }}
+            <small class="form-text text-muted d-block mt-1" id="route_params_hint"></small>
+        </div>
+        <div class="mb-3" id="external_field" style="display: none;">
+            {{ form_row(form.externalUrl, { label_attr: { class: 'form-label' } }) }}
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                {{ form_row(form.permissionKey, { label_attr: { class: 'form-label' } }) }}
+            </div>
+            <div class="col-md-6 mb-3">
+                {{ form_row(form.icon, { label_attr: { class: 'form-label' } }) }}
+            </div>
+        </div>
+        {{ form_rest(form) }}
+        <button type="submit" class="btn btn-primary">{{ (is_edit ? 'dashboard.update' : 'dashboard.create')|trans }}</button>
+    {{ form_end(form) }}
+
+    <script>
+        (function() {
+            var appRoutes = {{ app_routes|json_encode|raw }};
+            var form = document.querySelector('form');
+            if (!form) return;
+            var linkType = form.querySelector('[name*="[linkType]"]');
+            var routeFields = document.getElementById('route_fields');
+            var externalField = document.getElementById('external_field');
+            function toggle() {
+                var isExternal = linkType && linkType.value === 'external';
+                if (routeFields) routeFields.style.display = isExternal ? 'none' : 'block';
+                if (externalField) externalField.style.display = isExternal ? 'block' : 'none';
+            }
+            if (linkType) { linkType.addEventListener('change', toggle); toggle(); }
+
+            var routeNameSelect = form.querySelector('[name*="[routeName]"]');
+            var routeParamsInput = form.querySelector('[name*="[routeParams]"]');
+            var routeParamsHint = document.getElementById('route_params_hint');
+            function suggestParams() {
+                if (!routeParamsHint) return;
+                var routeName = (routeNameSelect && routeNameSelect.value) ? routeNameSelect.value.trim() : '';
+                if (!routeName || !appRoutes[routeName]) {
+                    routeParamsHint.textContent = '';
+                    return;
+                }
+                var params = appRoutes[routeName].params || [];
+                if (params.length === 0) {
+                    routeParamsHint.textContent = '';
+                    return;
+                }
+                var suggested = {};
+                for (var i = 0; i < params.length; i++) {
+                    suggested[params[i]] = '';
+                }
+                var suggestedStr = JSON.stringify(suggested, null, 2);
+                routeParamsHint.textContent = 'Suggested: ' + suggestedStr;
+                if (routeParamsInput && (!routeParamsInput.value || routeParamsInput.value === '{}' || routeParamsInput.value.trim() === '')) {
+                    routeParamsInput.value = suggestedStr;
+                    routeParamsInput.placeholder = suggestedStr;
+                } else if (routeParamsInput) {
+                    routeParamsInput.placeholder = suggestedStr;
+                }
+            }
+            if (routeNameSelect) {
+                routeNameSelect.addEventListener('change', suggestParams);
+                suggestParams();
+            }
+        })();
+    </script>
+{% endblock %}

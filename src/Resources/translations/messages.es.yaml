@@ -1,0 +1,175 @@
+# Dashboard Menu Bundle – Español (claves semánticas)
+
+# Dashboard UI
+dashboard:
+  title: Panel de menús
+  title_suffix: Menús del panel
+  menus: Menús
+  menu: Menú
+  menus_back: "← Menús"
+  new_menu: Nuevo menú
+  edit_menu: Editar menú
+  edit_item: Editar ítem
+  edit_items: Editar ítems
+  copy: Copiar
+  copy_menu: Copiar menú
+  copy_menu_help: "Copiar el menú y todos sus ítems. Puedes cambiar el código y el nombre del nuevo menú."
+  delete: Borrar
+  cancel: Cancelar
+  close: Cerrar
+  confirm_delete: Confirmar borrado
+  delete_menu_confirm: '¿Borrar el menú "%name%" y todos sus ítems?'
+  delete_menu_message: ¿Borrar este menú y todos sus ítems?
+  delete_item_confirm: '¿Borrar "%name%" y sus hijos?'
+  delete_item_message: ¿Borrar este ítem y sus hijos?
+  add_item: Añadir ítem
+  new_item: Nuevo ítem
+  add_one: Añadir uno
+  add_child: Añadir hijo
+  search: Buscar
+  search_placeholder: "Buscar por código o nombre…"
+  clear: Limpiar
+  no_menus_yet: "Aún no hay menús. Crea uno para empezar."
+  no_items: Sin ítems.
+  context: Contexto
+  parent: Padre
+  route_url: "Ruta / URL"
+  item: Ítem
+  actions: Acciones
+  first: Primero
+  last: Último
+  move_up: Subir
+  move_down: Bajar
+  edit: Editar
+  create: Crear
+  update: Actualizar
+  loading: "Cargando…"
+  error_loading_form: Error al cargar el formulario.
+  previous: Anterior
+  next: Siguiente
+  pagination_menus: Paginación de menús
+  showing_from_to_of_total: "Mostrando %from%-%to% de %total%"
+  depth_limit: Límite de profundidad
+  permission_checker: Comprobador de permisos
+  collapsible: Colapsible
+  collapsible_expanded: Colapsible expandido
+  nested_collapsible: Colapsible anidado
+  css_classes: Clases CSS
+  root: "— Raíz —"
+  no_label: "(sin etiqueta)"
+  unique_code_context_error: Ya existe un menú con este código y contexto.
+  base: Base
+  base_badge_title: "Menú base: el código no se puede cambiar tras la creación."
+  toggle: Alternar
+  yes: Sí
+  no: No
+
+# Form: MenuType
+form:
+  menu_type:
+    code:
+      label: Código
+      help: "Identificador único (letras, números, _ -). En menús base el código no se puede cambiar tras la creación."
+      placeholder: "ej. sidebar"
+    base:
+      label: "Menú base"
+      help: "Si está marcado, el código de este menú no podrá cambiarse tras la creación."
+    name:
+      label: Nombre
+      placeholder: "ej. Sidebar"
+    context:
+      label: Contexto
+      help: "Pares clave-valor JSON opcionales que identifican esta variante del menú. Al resolver por code se usa el primer menú que coincida en la lista ordenada de contextos; vacío = fallback para ese code."
+      placeholder: '{"partnerId": 1, "operatorId": 1}'
+    icon:
+      label: Icono
+      help: "Identificador de icono opcional (ej. Symfony UX Icons: heroicons:home, bootstrap:house)."
+      placeholder: "ej. heroicons:bars-3, bootstrap:list"
+    permission_checker:
+      label: Comprobador de permisos
+      placeholder: "— Permitir todo —"
+      allow_all: "— Permitir todo —"
+      help: "Servicio que implementa MenuPermissionCheckerInterface (vacío = permitir todo)."
+    depth_limit:
+      label: Límite de profundidad
+      placeholder: "vacío = sin límite"
+      help: "Profundidad máxima a renderizar (1 = solo raíz, 2 = raíz + un nivel; vacío = sin límite)."
+    collapsible:
+      label: "Colapsible (menú en bloque con alternar)"
+    collapsible_expanded:
+      label: "Colapsible expandido (abierto por defecto)"
+    nested_collapsible:
+      label: "Colapsible anidado (los ítems con hijos tienen alternar)"
+    class_menu:
+      label: "Clase menú (<ul> raíz)"
+      placeholder: "ej. nav flex-column"
+    class_item:
+      label: "Clase ítem (<li>)"
+      placeholder: "ej. nav-item"
+    class_link:
+      label: "Clase enlace (<a>)"
+      placeholder: "ej. nav-link"
+    class_children:
+      label: "Clase hijos (<ul> anidado)"
+      placeholder: "ej. nav flex-column ms-2"
+    class_current:
+      label: "Clase actual (enlace que coincide con la ruta actual)"
+      placeholder: "ej. active"
+    class_branch_expanded:
+      label: "Clase rama expandida (<li> cuando la ruta está en la rama)"
+      placeholder: "ej. active-branch"
+    class_has_children:
+      label: "Clase con hijos (<li> cuando el ítem tiene hijos)"
+      placeholder: "ej. has-children"
+    class_expanded:
+      label: "Clase expandido (<li> cuando el bloque de hijos está abierto)"
+      placeholder: "ej. is-expanded"
+    class_collapsed:
+      label: "Clase colapsado (<li> cuando el bloque de hijos está cerrado)"
+      placeholder: "ej. is-collapsed"
+    empty_choice: "— Vacío —"
+    css_section_heading: "Clases CSS para renderizado (sobrescriben la config si se definen)."
+
+  menu_item_type:
+    label:
+      label: Etiqueta
+    label_locale: "Etiqueta (%locale%)"
+    type:
+      label: Tipo
+      link: Enlace
+      section: Sección
+      divider: Divisor
+    position:
+      label: Posición
+    link_type:
+      label: Tipo de enlace
+      route: Ruta
+      external_url: URL externa
+    route_name:
+      label: Nombre de ruta
+      placeholder: "— Seleccionar ruta —"
+    route_params:
+      label: "Parámetros de ruta (JSON)"
+      placeholder: "{}"
+    external_url:
+      label: URL externa
+      placeholder: "https://..."
+    target_blank:
+      label: Abrir en nueva pestaña
+    permission_key:
+      label: Clave de permiso
+    icon:
+      label: Icono
+      placeholder: "heroicons:home"
+    parent:
+      label: Padre
+      placeholder: "— Raíz (sin padre) —"
+
+  copy_menu_type:
+    code:
+      label: Código
+      placeholder: "ej. sidebar_copia"
+      regex_message: "El código solo puede contener letras, números, guión bajo y guión."
+    name:
+      label: Nombre
+      placeholder: "ej. Sidebar (copia)"

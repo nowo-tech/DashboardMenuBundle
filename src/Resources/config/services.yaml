@@ -1,0 +1,68 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  Nowo\DashboardMenuBundle\Repository\MenuRepository:
+    public: true
+
+  Nowo\DashboardMenuBundle\Repository\MenuItemRepository:
+    public: true
+
+  Nowo\DashboardMenuBundle\Form\MenuItemType:
+    arguments:
+      $menuItemRepository: '@Nowo\DashboardMenuBundle\Repository\MenuItemRepository'
+      $defaultLocale: '%nowo_dashboard_menu.default_locale_resolved%'
+      $availableLocales: '%nowo_dashboard_menu.locales%'
+      $translator: '@translator'
+
+  Nowo\DashboardMenuBundle\Form\CopyMenuType:
+    arguments:
+      $translator: '@translator'
+
+  Nowo\DashboardMenuBundle\Form\MenuType:
+    arguments:
+      $permissionCheckerChoices: '%nowo_dashboard_menu.permission_checker_choices%'
+      $cssClassOptions: '%nowo_dashboard_menu.dashboard.css_class_options%'
+      $translator: '@translator'
+
+  Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker:
+    tags:
+      - { name: nowo_dashboard_menu.permission_checker, label: 'form.menu_type.permission_checker.allow_all' }
+    public: false
+
+  Nowo\DashboardMenuBundle\Service\MenuTreeLoader:
+    arguments:
+      $container: '@service_container'
+    public: true
+
+  Nowo\DashboardMenuBundle\Service\MenuUrlResolver:
+    public: true
+
+  Nowo\DashboardMenuBundle\Service\CurrentRouteTreeDecorator:
+    class: Nowo\DashboardMenuBundle\Service\CurrentRouteTreeDecorator
+    public: false
+
+  Nowo\DashboardMenuBundle\Twig\MenuExtension:
+    tags:
+      - { name: twig.extension }
+    public: false
+
+  Nowo\DashboardMenuBundle\Controller\Api\MenuApiController:
+    public: true
+
+  Nowo\DashboardMenuBundle\Controller\Dashboard\MenuDashboardController:
+    arguments:
+      $routeNameExcludePatterns: '%nowo_dashboard_menu.dashboard.route_name_exclude_patterns%'
+      $locales: '%nowo_dashboard_menu.locales%'
+      $paginationEnabled: '%nowo_dashboard_menu.dashboard.pagination.enabled%'
+      $paginationPerPage: '%nowo_dashboard_menu.dashboard.pagination.per_page%'
+      $modalSizes: '%nowo_dashboard_menu.dashboard.modals%'
+    public: true
+
+  Nowo\DashboardMenuBundle\EventSubscriber\TablePrefixSubscriber:
+    arguments:
+      $tablePrefix: '%nowo_dashboard_menu.table_prefix%'
+    tags:
+      - { name: doctrine.event_subscriber }

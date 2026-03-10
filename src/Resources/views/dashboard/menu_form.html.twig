@@ -1,0 +1,42 @@
+{% extends '@NowoDashboardMenuBundle/dashboard/layout.html.twig' %}
+
+{% block dashboard_title %}{{ (is_edit ? 'Edit menu' : 'New menu')|trans }}{% endblock %}
+
+{% block dashboard_body %}
+    {% for msg in app.flashes('error') %}
+        <div class="alert alert-danger">{{ msg }}</div>
+    {% endfor %}
+
+    <p><a href="{{ path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index')) }}" class="btn btn-link text-decoration-none">{{ 'dashboard.menus_back'|trans }}</a></p>
+
+    {{ form_start(form, { attr: { style: 'max-width: 32rem;' } }) }}
+        {{ form_row(form.code, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
+        {{ form_row(form.name, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
+        {{ form_row(form.context, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
+        {{ form_row(form.icon, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
+        {{ form_row(form.permissionChecker, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
+        {{ form_row(form.depthLimit, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
+        <div class="mb-3">
+            {{ form_row(form.collapsible, { row_attr: { class: 'form-check' }, label_attr: { class: 'form-check-label' } }) }}
+        </div>
+        <div class="mb-3">
+            {{ form_row(form.collapsibleExpanded, { row_attr: { class: 'form-check' }, label_attr: { class: 'form-check-label' } }) }}
+        </div>
+        <div class="mb-3">
+            {{ form_row(form.nestedCollapsible, { row_attr: { class: 'form-check' }, label_attr: { class: 'form-check-label' } }) }}
+        </div>
+        <hr class="my-3">
+        <p class="text-muted small mb-2">CSS classes for rendering (override config when set).</p>
+        {{ form_row(form.classMenu, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
+        {{ form_row(form.classItem, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
+        {{ form_row(form.classLink, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
+        {{ form_row(form.classChildren, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
+        {{ form_row(form.classCurrent, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
+        {{ form_row(form.classBranchExpanded, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
+        {{ form_row(form.classHasChildren, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
+        {{ form_row(form.classExpanded, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
+        {{ form_row(form.classCollapsed, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
+        {{ form_rest(form) }}
+        <button type="submit" class="btn btn-primary">{{ (is_edit ? 'Update' : 'Create')|trans }}</button>
+    {{ form_end(form) }}
+{% endblock %}
