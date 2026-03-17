@@ -1,5 +1,5 @@
 # Root Dockerfile: dev + tests (§2.1 BUNDLES_STANDARDS_PROMPT)
-FROM php:8.4-cli-alpine
+FROM php:8.2-cli-alpine
 
 RUN apk add --no-cache git unzip bash icu-dev libzip-dev \
     && docker-php-ext-configure intl \
