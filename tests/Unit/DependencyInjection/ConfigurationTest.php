@@ -80,7 +80,7 @@ final class ConfigurationTest extends TestCase
         $config    = $processor->processConfiguration(new Configuration(), [
             [
                 'permission_checker_choices' => [
-                    'Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker',
+                    \Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker::class,
                     'App\Service\DemoMenuPermissionChecker',
                 ],
             ],
@@ -88,10 +88,10 @@ final class ConfigurationTest extends TestCase
 
         self::assertSame(
             [
-                'order'  => ['Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker', 'App\Service\DemoMenuPermissionChecker'],
+                'order'  => [\Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker::class, 'App\Service\DemoMenuPermissionChecker'],
                 'labels' => [],
             ],
-            $config['permission_checker_choices']
+            $config['permission_checker_choices'],
         );
     }
 

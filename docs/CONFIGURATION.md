@@ -26,7 +26,7 @@ Menus are **defined in the database** (dashboard at `/admin/menus` or fixtures):
 - **cache**: Tree cache (TTL and pool) to avoid N+1 and repeated DB hits.
 - **icon_library_prefix_map**: Map full icon library names to short prefixes (e.g. `bootstrap-icons` → `bi`) for rendering.
 - **locales** / **default_locale**: Enabled locales for menu item labels and fallback.
-- **permission_checker_choices** (optional): Service id → label map for the dashboard menu form dropdown; merged with tagged permission checkers.
+- **permission_checker_choices** (optional): List of service IDs (to order/filter) and/or map (service id → label) for the dashboard menu form dropdown; merged with tagged permission checkers.
 - **api**: Enable JSON API and path prefix.
 - **dashboard**: Enable admin CRUD, path prefix, route exclude patterns, pagination, modals, CSS class options, icon selector script.
 
@@ -115,11 +115,27 @@ nowo_dashboard_menu:
 
 ### permission_checker_choices
 
-Optional map of **service id → label** for the “Permission checker” dropdown in the dashboard menu form. Services tagged with `nowo_dashboard_menu.permission_checker` are included automatically; this option lets you add entries or override labels from YAML.
+Services shown in the dashboard "Permission checker" dropdown when creating/editing a Menu. Each must implement `MenuPermissionCheckerInterface` (`canView(MenuItem, $context)`). Tagged services (`nowo_dashboard_menu.permission_checker`) are included automatically; this option adds or orders them and optionally overrides labels.
+
+You can use either format:
+
+- **List:** ordered service IDs (FQCN). Labels come from the service tag unless overridden in a map.
+- **Map:** service id → display label. Use to override labels or to define order (map keys define order).
 
 | Option                      | Default | Description |
 |-----------------------------|---------|-------------|
-| `permission_checker_choices` | `[]`    | Map of permission checker service id to display label (e.g. `App\Service\MyChecker: 'My checker'`). Merged with tagged services; YAML values override or add to the list. |
+| `permission_checker_choices` | `[]`    | List of service IDs, or map (service id => label). Merged with tagged services; list defines order; map overrides labels. |
+
+**List format (order; labels from tags):**
+
+```yaml
+nowo_dashboard_menu:
+    permission_checker_choices:
+        - Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker   # Allow all (no filter)
+        - App\Service\MyPermissionChecker                                  # By role and path
+```
+
+**Map format (custom labels and order):**
 
 ```yaml
 nowo_dashboard_menu:
@@ -128,8 +144,9 @@ nowo_dashboard_menu:
         App\Service\MyPermissionChecker: 'By role and path'
 ```
 
-### api
+The bundle also provides `PermissionKeyAwareMenuPermissionChecker` (structure example: items with a permission key are hidden unless you extend or replace with your own logic).
 
+### api
 | Option        | Default      | Description        |
 |---------------|--------------|--------------------|
 | `enabled`     | `true`       | Enable JSON API.   |

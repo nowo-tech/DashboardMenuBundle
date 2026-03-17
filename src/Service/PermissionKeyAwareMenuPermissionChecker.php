@@ -27,11 +27,9 @@ final class PermissionKeyAwareMenuPermissionChecker implements MenuPermissionChe
     {
         $key = $item->getPermissionKey();
 
-        if ($key === null || $key === '') {
-            return true;
-        }
+        return $key === null || $key === ''
 
         // Structure: resolve key against $context (e.g. current user/request) in your app.
-        return false;
+        ;
     }
 }

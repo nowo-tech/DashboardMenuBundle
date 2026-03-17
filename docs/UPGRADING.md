@@ -2,6 +2,10 @@
 
 This document describes breaking changes and upgrade notes between versions.
 
+## From 0.3.1 to 0.3.2
+
+No breaking changes. `permission_checker_choices` now accepts a **list** of service IDs (to order/filter the dropdown) as well as the existing map (service id => label). The bundle includes a new checker: `PermissionKeyAwareMenuPermissionChecker` (structure example). Demos use the list format and are aligned.
+
 ## From 0.3.0 to 0.3.1
 
 No breaking changes. New optional config: `permission_checker_choices` (service id => label map) to customize the “Permission checker” dropdown in the dashboard menu form. Demos updated (Symfony 7 has `DemoMenuPermissionChecker`; both demos show permission keys `path:/`, `authenticated`, `admin` in fixtures).

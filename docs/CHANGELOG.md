@@ -11,6 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Config:** `dashboard.path_prefix` is deprecated. Set the dashboard URL prefix in your app routing when importing `@NowoDashboardMenuBundle/Resources/config/routes_dashboard.yaml` (e.g. in `config/routes.yaml` or the recipe’s `config/routes_nowo_dashboard_menu.yaml`). The Flex recipe now adds `config/routes_nowo_dashboard_menu.yaml`; import it from `config/routes.yaml` to enable the dashboard under `/admin/menus`.
 
+## [0.3.2] - 2026-03-17
+
+### Added
+
+- **Config:** `permission_checker_choices` now accepts a **list** of service IDs (to order and filter the dropdown) in addition to the existing map (service id => label). List format uses labels from the service tag; map overrides labels. See [CONFIGURATION](CONFIGURATION.md#permission_checker_choices).
+- **Bundle:** `PermissionKeyAwareMenuPermissionChecker` — permission checker that hides items with a non-empty `permission_key` (structure/example for extending or replacing with your own logic). Tagged and available in the dashboard dropdown.
+- **Demos:** Both symfony7 and symfony8 demos use the list format for `permission_checker_choices` (AllowAll, PermissionKeyAware, Demo) and are aligned in structure and formatting.
+
+### Changed
+
+- **Docs:** CONFIGURATION.md documents list and map formats for `permission_checker_choices` and mentions `PermissionKeyAwareMenuPermissionChecker`. USAGE.md updated to reference list or map.
+
 ## [0.3.1] - 2026-03-17
 
 ### Added
@@ -89,7 +101,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.1.0...v0.2.0

@@ -35,6 +35,5 @@ final class PermissionKeyAwareMenuPermissionCheckerTest extends TestCase
         $item->setPermissionKey('ROLE_ADMIN');
 
         self::assertFalse($checker->canView($item));
-        self::assertFalse($checker->canView($item, null));
     }
 }
