@@ -18,10 +18,10 @@ This guide covers installing Dashboard Menu Bundle in a Symfony application.
 ## Requirements
 
 - **PHP** >= 8.2, < 8.6
-- **Symfony** 7.x or 8.x (the bundle supports both via `^7.0 || ^8.0`)
+- **Symfony** 6.4 (LTS), 7.x or 8.x (the bundle supports all via `^6.4 || ^7.0 || ^8.0`)
 - **Doctrine ORM** ^2.13 || ^3.0 (no Gedmo/Stof or other ORM extensions required)
 
-**Note:** Symfony **8.0** requires **PHP >= 8.4**. If you use PHP 8.2 or 8.3, Composer will install Symfony **7.x**. With PHP 8.4+ you can use either Symfony 7 or 8.
+**Note:** Symfony **8.0** requires **PHP >= 8.4**. With PHP 8.2 or 8.3, Composer will resolve to Symfony **6.4** or **7.x**. With PHP 8.4+ you can use Symfony 6.4, 7 or 8.
 
 ## Install with Composer
 

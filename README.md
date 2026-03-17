@@ -1,10 +1,10 @@
 # Nowo Dashboard Menu Bundle
 
-[![CI](https://github.com/nowo-tech/DashboardMenuBundle/actions/workflows/ci.yml/badge.svg)](https://github.com/nowo-tech/DashboardMenuBundle/actions/workflows/ci.yml) [![Packagist Version](https://img.shields.io/packagist/v/nowo-tech/dashboard-menu-bundle.svg?style=flat)](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) [![Packagist Downloads](https://img.shields.io/packagist/dt/nowo-tech/dashboard-menu-bundle.svg)](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php)](https://php.net) [![Symfony](https://img.shields.io/badge/Symfony-7%20%7C%208-000000?logo=symfony)](https://symfony.com) [![GitHub stars](https://img.shields.io/github/stars/nowo-tech/dashboard-menu-bundle.svg?style=social&label=Star)](https://github.com/nowo-tech/DashboardMenuBundle)
+[![CI](https://github.com/nowo-tech/DashboardMenuBundle/actions/workflows/ci.yml/badge.svg)](https://github.com/nowo-tech/DashboardMenuBundle/actions/workflows/ci.yml) [![Packagist Version](https://img.shields.io/packagist/v/nowo-tech/dashboard-menu-bundle.svg?style=flat)](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) [![Packagist Downloads](https://img.shields.io/packagist/dt/nowo-tech/dashboard-menu-bundle.svg)](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php)](https://php.net) [![Symfony](https://img.shields.io/badge/Symfony-6.4%20%7C%207%20%7C%208-000000?logo=symfony)](https://symfony.com) [![GitHub stars](https://img.shields.io/github/stars/nowo-tech/dashboard-menu-bundle.svg?style=social&label=Star)](https://github.com/nowo-tech/DashboardMenuBundle)
 
 > ⭐ **Found this useful?** [Install from Packagist](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) · Give it a **star** on [GitHub](https://github.com/nowo-tech/DashboardMenuBundle) so more developers can find it.
 
-**Nowo Dashboard Menu Bundle** — Configurable dashboard menus with i18n (JSON translations), tree structure (parent + position), permissions, Twig rendering and JSON API. No external ORM extensions (Gedmo/Stof). For Symfony 7 and 8 · PHP 8.2+.
+**Nowo Dashboard Menu Bundle** — Configurable dashboard menus with i18n (JSON translations), tree structure (parent + position), permissions, Twig rendering and JSON API. No external ORM extensions (Gedmo/Stof). For Symfony 6.4, 7 and 8 · PHP 8.2+.
 
 ## Table of contents
 
@@ -111,7 +111,7 @@ See [docs/INSTALLATION.md](docs/INSTALLATION.md#requirements) and [docs/UPGRADIN
 
 ## Demo
 
-Demos (Symfony 7 and 8) are in `demo/symfony7` and `demo/symfony8`. Each uses **FrankenPHP** with **Caddy** (worker mode) serving HTTP. Quick start: [docs/DEMO.md](docs/DEMO.md).
+Demos (Symfony 7 and 8; the bundle also supports Symfony 6.4) are in `demo/symfony7` and `demo/symfony8`. Each uses **FrankenPHP** with **Caddy** (worker mode) serving HTTP. Quick start: [docs/DEMO.md](docs/DEMO.md).
 
 **FrankenPHP worker:** The demos are configured to run with FrankenPHP in runtime worker mode (Caddyfile `:80`, `php_server { worker /app/public/index.php 2 }`). The bundle is compatible with and tested in this setup.
 
