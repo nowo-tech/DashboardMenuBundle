@@ -2,6 +2,10 @@
 
 This document describes breaking changes and upgrade notes between versions.
 
+## From 0.3.2 to 0.3.3
+
+No breaking changes. Permission checkers are now **auto-tagged**: any service implementing `MenuPermissionCheckerInterface` is included in the dashboard dropdown without adding the tag in `services.yaml`. Optionally set the label via the class constant `DASHBOARD_LABEL` or the attribute `#[PermissionCheckerLabel('...')]`. You can remove the manual tag from your checker service and, if you use service discovery (e.g. `App\Service\`: `resource: '../src/Service/'`), you do not need to register the checker explicitly.
+
 ## From 0.3.1 to 0.3.2
 
 No breaking changes. `permission_checker_choices` now accepts a **list** of service IDs (to order/filter the dropdown) as well as the existing map (service id => label). The bundle includes a new checker: `PermissionKeyAwareMenuPermissionChecker` (structure example). Demos use the list format and are aligned.

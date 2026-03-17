@@ -11,6 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Config:** `dashboard.path_prefix` is deprecated. Set the dashboard URL prefix in your app routing when importing `@NowoDashboardMenuBundle/Resources/config/routes_dashboard.yaml` (e.g. in `config/routes.yaml` or the recipe’s `config/routes_nowo_dashboard_menu.yaml`). The Flex recipe now adds `config/routes_nowo_dashboard_menu.yaml`; import it from `config/routes.yaml` to enable the dashboard under `/admin/menus`.
 
+## [0.3.3] - 2026-03-17
+
+### Added
+
+- **Auto-tag permission checkers:** Any service whose class implements `MenuPermissionCheckerInterface` is automatically tagged with `nowo_dashboard_menu.permission_checker` (no need to add the tag in `services.yaml`). Label is taken from the class constant `DASHBOARD_LABEL`, the attribute `#[PermissionCheckerLabel('...')]`, or the service id. See [USAGE](USAGE.md#permissions) and [CONFIGURATION](CONFIGURATION.md#permission_checker_choices).
+- **Attribute:** `Nowo\DashboardMenuBundle\Attribute\PermissionCheckerLabel` — use on the checker class to set the dashboard dropdown label without a constant.
+- **Tests:** `AutoTagPermissionCheckersPassTest` — auto-tag, label from constant/attribute, no override of existing tag, integration with `PermissionCheckerPass`.
+
+### Changed
+
+- **Bundle checkers:** `AllowAllMenuPermissionChecker` and `PermissionKeyAwareMenuPermissionChecker` now use the `DASHBOARD_LABEL` constant; the tag is no longer defined in the bundle `services.yaml` (added by `AutoTagPermissionCheckersPass`).
+- **Demos:** `DemoMenuPermissionChecker` uses `DASHBOARD_LABEL` and is discovered via `App\Service\` resource (no explicit service definition). Both demos document auto-tag and service discovery in `services.yaml`.
+
 ## [0.3.2] - 2026-03-17
 
 ### Added
@@ -101,7 +114,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.2...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.3...HEAD
+[0.3.3]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.2.0...v0.3.0

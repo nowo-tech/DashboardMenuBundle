@@ -16,10 +16,10 @@ use Attribute;
  * @copyright 2026 Nowo.tech
  */
 #[Attribute(Attribute::TARGET_CLASS)]
-final class PermissionCheckerLabel
+final readonly class PermissionCheckerLabel
 {
     public function __construct(
-        public readonly string $label,
+        public string $label,
     ) {
     }
 }

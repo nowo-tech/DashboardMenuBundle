@@ -62,7 +62,7 @@ final class AutoTagPermissionCheckersPassTest extends TestCase
     public function testProcessSkipsServiceNotImplementingInterface(): void
     {
         $container = new ContainerBuilder();
-        $container->register('app.other_service', \stdClass::class);
+        $container->register('app.other_service', StubNotAChecker::class);
 
         $this->processAutoTag($container);
 
@@ -121,4 +121,9 @@ class StubCheckerWithAttribute implements MenuPermissionCheckerInterface
     {
         return true;
     }
+}
+
+/** Class that does not implement MenuPermissionCheckerInterface (for testProcessSkipsServiceNotImplementingInterface). */
+class StubNotAChecker
+{
 }

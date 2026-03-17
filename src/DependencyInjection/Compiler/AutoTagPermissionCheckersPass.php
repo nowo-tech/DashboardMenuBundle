@@ -6,6 +6,8 @@ namespace Nowo\DashboardMenuBundle\DependencyInjection\Compiler;
 
 use Nowo\DashboardMenuBundle\Attribute\PermissionCheckerLabel;
 use Nowo\DashboardMenuBundle\Service\MenuPermissionCheckerInterface;
+use ReflectionClass;
+use ReflectionClassConstant;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -65,9 +67,12 @@ final class AutoTagPermissionCheckersPass implements CompilerPassInterface
             || str_starts_with($id, '.instanceof.');
     }
 
+    /**
+     * @param class-string $class
+     */
     private function resolveLabel(string $class, string $serviceId): string
     {
-        $reflection = new \ReflectionClass($class);
+        $reflection = new ReflectionClass($class);
 
         $label = $this->labelFromConstant($reflection);
         if (is_string($label)) {
@@ -82,7 +87,10 @@ final class AutoTagPermissionCheckersPass implements CompilerPassInterface
         return $serviceId;
     }
 
-    private function labelFromAttribute(\ReflectionClass $reflection): ?string
+    /**
+     * @param ReflectionClass<object> $reflection
+     */
+    private function labelFromAttribute(ReflectionClass $reflection): ?string
     {
         $attrs = $reflection->getAttributes(PermissionCheckerLabel::class);
         foreach ($attrs as $attr) {
@@ -95,14 +103,17 @@ final class AutoTagPermissionCheckersPass implements CompilerPassInterface
         return null;
     }
 
-    private function labelFromConstant(\ReflectionClass $reflection): ?string
+    /**
+     * @param ReflectionClass<object> $reflection
+     */
+    private function labelFromConstant(ReflectionClass $reflection): ?string
     {
         if (!$reflection->hasConstant('DASHBOARD_LABEL')) {
             return null;
         }
 
         $const = $reflection->getReflectionConstant('DASHBOARD_LABEL');
-        if ($const === null || !$const->isPublic()) {
+        if (!$const instanceof ReflectionClassConstant || !$const->isPublic()) {
             return null;
         }
 
