@@ -9,8 +9,9 @@ use Nowo\DashboardMenuBundle\Entity\MenuItem;
 /**
  * Customizable permission check for menu items (e.g. by role, feature flag, or custom logic).
  *
- * Implement this interface and register your service id in nowo_dashboard_menu.permission_checker
- * to filter which items are visible for the current context.
+ * Any service whose class implements this interface is automatically included in the dashboard
+ * "Permission checker" dropdown (no need to add the tag in services.yaml). Optionally set the
+ * dropdown label via the class constant DASHBOARD_LABEL or the attribute #[PermissionCheckerLabel('...')].
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech

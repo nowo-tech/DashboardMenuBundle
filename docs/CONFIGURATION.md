@@ -115,7 +115,7 @@ nowo_dashboard_menu:
 
 ### permission_checker_choices
 
-Services shown in the dashboard "Permission checker" dropdown when creating/editing a Menu. Each must implement `MenuPermissionCheckerInterface` (`canView(MenuItem, $context)`). Tagged services (`nowo_dashboard_menu.permission_checker`) are included automatically; this option adds or orders them and optionally overrides labels.
+Services shown in the dashboard "Permission checker" dropdown when creating/editing a Menu. Any service whose class implements `MenuPermissionCheckerInterface` is **automatically** tagged and included (no need to add the tag in `services.yaml`). The dropdown label for auto-discovered checkers can be set with the class constant `DASHBOARD_LABEL` or the attribute `#[PermissionCheckerLabel('...')]`; if unset, the service id is used. This option adds or orders them and optionally overrides labels.
 
 You can use either format:
 

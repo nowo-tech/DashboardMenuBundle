@@ -14,6 +14,7 @@ services:
     App\DataFixtures\:
         resource: '../src/DataFixtures/'
 
-    App\Service\DemoMenuPermissionChecker:
-        tags:
-            - { name: nowo_dashboard_menu.permission_checker, label: 'Demo (user, path, permission key)' }
+    App\Service\:
+        resource: '../src/Service/'
+        # DemoMenuPermissionChecker (and any class implementing MenuPermissionCheckerInterface)
+        # is auto-tagged by the bundle; label from DASHBOARD_LABEL or #[PermissionCheckerLabel].

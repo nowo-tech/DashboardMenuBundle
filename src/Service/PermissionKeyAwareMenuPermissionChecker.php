@@ -19,6 +19,8 @@ use Nowo\DashboardMenuBundle\Entity\MenuItem;
  */
 final class PermissionKeyAwareMenuPermissionChecker implements MenuPermissionCheckerInterface
 {
+    public const DASHBOARD_LABEL = 'form.menu_type.permission_checker.permission_key_aware';
+
     /**
      * Items without a permission_key are visible; items with a key are hidden by default.
      * Override or replace with a custom checker that resolves the key (e.g. via Security).

@@ -127,4 +127,9 @@ public function canView(MenuItem $item, mixed $context = null): bool
 }
 ```
 
-Register your service and tag it with `nowo_dashboard_menu.permission_checker` (optionally with a `label` attribute for the dashboard form). You can also order or override labels via config: `permission_checker_choices` as a list of service IDs or a map (service id => label) in `nowo_dashboard_menu.yaml` (see [CONFIGURATION](CONFIGURATION.md#permission_checker_choices)). Then assign it to a menu in the dashboard (per-menu) or leave the menu with no checker for default allow-all behaviour.
+**Auto-registration:** Any service whose class implements `MenuPermissionCheckerInterface` is automatically included in the dashboard "Permission checker" dropdown; you do not need to add the tag in `services.yaml`. The label in the dropdown can be set in either of these ways (optional):
+
+- **Class constant:** `public const string DASHBOARD_LABEL = 'Your label';`
+- **Attribute:** `#[PermissionCheckerLabel('Your label')]` on the class (use `Nowo\DashboardMenuBundle\Attribute\PermissionCheckerLabel`)
+
+If neither is set, the service id (e.g. FQCN) is used as the label. You can still order or override labels via config: `permission_checker_choices` as a list of service IDs or a map (service id => label) in `nowo_dashboard_menu.yaml` (see [CONFIGURATION](CONFIGURATION.md#permission_checker_choices)). Assign a checker to a menu in the dashboard (per-menu) or leave the menu with no checker for default allow-all behaviour. Manually tagging with `nowo_dashboard_menu.permission_checker` in `services.yaml` or using `#[AsTaggedItem]` remains supported.

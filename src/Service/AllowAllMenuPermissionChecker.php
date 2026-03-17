@@ -14,6 +14,8 @@ use Nowo\DashboardMenuBundle\Entity\MenuItem;
  */
 final class AllowAllMenuPermissionChecker implements MenuPermissionCheckerInterface
 {
+    public const DASHBOARD_LABEL = 'form.menu_type.permission_checker.allow_all';
+
     public function canView(MenuItem $item, mixed $context = null): bool
     {
         return true;

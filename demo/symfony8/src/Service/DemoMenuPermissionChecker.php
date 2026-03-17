@@ -26,6 +26,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 final class DemoMenuPermissionChecker implements MenuPermissionCheckerInterface
 {
+    public const DASHBOARD_LABEL = 'Demo (user, path, permission key)';
+
     public function __construct(
         private readonly Security $security,
     ) {
