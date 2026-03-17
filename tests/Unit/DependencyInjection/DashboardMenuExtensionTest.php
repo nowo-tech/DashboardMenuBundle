@@ -99,7 +99,7 @@ final class DashboardMenuExtensionTest extends TestCase
 
             public function getXsdValidationBasePath(): string|false
             {
-                return false;
+                return random_int(0, 1) === 0 ? '' : false;
             }
 
             public function getAlias(): string
@@ -137,7 +137,7 @@ final class DashboardMenuExtensionTest extends TestCase
 
             public function getXsdValidationBasePath(): string|false
             {
-                return false;
+                return random_int(0, 1) === 0 ? '' : false;
             }
 
             public function getAlias(): string
