@@ -37,7 +37,7 @@ jobs:
         id: version
         run: |
           TAG_NAME=${GITHUB_REF#refs/tags/}
-          # Remover el prefijo 'v' si existe
+          # Remove 'v' prefix if present
           VERSION=${TAG_NAME#v}
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
@@ -45,7 +45,7 @@ jobs:
         id: changelog
         run: |
           VERSION="${{ steps.version.outputs.VERSION }}"
-          # Escapar puntos para usar versión en regex (ej. 1.0.10 -> 1\.0\.10)
+          # Escape dots for version in regex (e.g. 1.0.10 -> 1\.0\.10)
           VERSION_RE=$(echo "$VERSION" | sed 's/\./\\./g')
           CHANGELOG_FILE="docs/CHANGELOG.md"
           
@@ -85,7 +85,7 @@ jobs:
           body: ${{ steps.body.outputs.content }}
           draft: false
           prerelease: ${{ contains(steps.tag.outputs.TAG_NAME, '-alpha') || contains(steps.tag.outputs.TAG_NAME, '-beta') || contains(steps.tag.outputs.TAG_NAME, '-rc') }}
-          generate_release_notes: true  # GitHub generará notas automáticas basadas en los commits
+          generate_release_notes: true  # GitHub will generate release notes from commits
 
 # Maintainer: Héctor Franco Aceituno (@HecFranco)
 # Organization: nowo-tech (https://github.com/nowo-tech)

@@ -16,9 +16,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-use function assert;
-use function is_array;
-
 use const SORT_NATURAL;
 
 /**
@@ -59,7 +56,7 @@ final class MenuType extends AbstractType
                 ksort($choices, SORT_NATURAL);
             }
         }
-        $t = fn (string $id): string => $this->translator instanceof \Symfony\Contracts\Translation\TranslatorInterface ? $this->translator->trans($id) : $id;
+        $t = fn (string $id): string => $this->translator instanceof TranslatorInterface ? $this->translator->trans($id) : $id;
         $builder
             ->add('code', TextType::class, [
                 'required' => true,
@@ -155,7 +152,7 @@ final class MenuType extends AbstractType
         if ($options !== []) {
             /** @var array<string, string> $choices */
             $choices = array_combine($options, $options);
-            $data = $builder->getData();
+            $data    = $builder->getData();
             if ($data instanceof Menu) {
                 $getter = 'get' . ucfirst($fieldName);
                 if (method_exists($data, $getter)) {
@@ -167,7 +164,7 @@ final class MenuType extends AbstractType
                 }
             }
             $emptyKey    = 'form.menu_type.empty_choice';
-            $placeholder = $this->translator instanceof \Symfony\Contracts\Translation\TranslatorInterface ? $this->translator->trans($emptyKey) : $emptyKey;
+            $placeholder = $this->translator instanceof TranslatorInterface ? $this->translator->trans($emptyKey) : $emptyKey;
             $builder->add($fieldName, ChoiceType::class, [
                 'required'                  => false,
                 'label'                     => $label,
@@ -177,7 +174,7 @@ final class MenuType extends AbstractType
                 'attr'                      => ['class' => 'form-select'],
             ]);
         } else {
-            $placeholderText = $this->translator instanceof \Symfony\Contracts\Translation\TranslatorInterface ? $this->translator->trans($placeholder) : $placeholder;
+            $placeholderText = $this->translator instanceof TranslatorInterface ? $this->translator->trans($placeholder) : $placeholder;
             $builder->add($fieldName, TextType::class, [
                 'required' => false,
                 'label'    => $label,

@@ -1,0 +1,169 @@
+# Dashboard Menu Bundle – Italiano (chiavi semantiche)
+dashboard:
+  title: Dashboard menu
+  title_suffix: Menu dashboard
+  menus: Menu
+  menu: Menu
+  menus_back: "← Menu"
+  new_menu: Nuovo menu
+  edit_menu: Modifica menu
+  edit_item: Modifica voce
+  edit_items: Modifica voci
+  copy: Copia
+  copy_menu: Copia menu
+  copy_menu_help: "Copia il menu e tutte le voci. Puoi modificare codice e nome del nuovo menu."
+  delete: Elimina
+  cancel: Annulla
+  close: Chiudi
+  confirm_delete: Conferma eliminazione
+  delete_menu_confirm: 'Eliminare il menu "%name%" e tutte le voci?'
+  delete_menu_message: Eliminare questo menu e tutte le voci?
+  delete_item_confirm: 'Eliminare "%name%" e le sottovoci?'
+  delete_item_message: Eliminare questa voce e le sottovoci?
+  add_item: Aggiungi voce
+  new_item: Nuova voce
+  add_one: Aggiungi una
+  add_child: Aggiungi figlio
+  search: Cerca
+  search_placeholder: "Cerca per codice o nome…"
+  clear: Pulisci
+  no_menus_yet: "Nessun menu. Creane uno per iniziare."
+  no_items: Nessuna voce.
+  context: Contesto
+  parent: Padre
+  route_url: "Route / URL"
+  item: Voce
+  actions: Azioni
+  first: Prima
+  last: Ultima
+  move_up: Sposta su
+  move_down: Sposta giù
+  edit: Modifica
+  create: Crea
+  update: Aggiorna
+  loading: "Caricamento…"
+  error_loading_form: Errore nel caricamento del modulo.
+  previous: Precedente
+  next: Successiva
+  pagination_menus: Paginazione menu
+  showing_from_to_of_total: "Mostra %from%-%to% di %total%"
+  depth_limit: Limite profondità
+  permission_checker: Controllo permessi
+  collapsible: Comprimibile
+  collapsible_expanded: Comprimibile espanso
+  nested_collapsible: Comprimibile annidato
+  css_classes: Classi CSS
+  root: "— Radice —"
+  no_label: "(nessuna etichetta)"
+  unique_code_context_error: Esiste già un menu con questo codice e contesto.
+  base: Base
+  base_badge_title: "Menu base: il codice non può essere modificato dopo la creazione."
+  toggle: Attiva/disattiva
+  yes: Sì
+  no: No
+form:
+  menu_type:
+    code:
+      label: Codice
+      help: "Identificatore univoco (lettere, numeri, _ -). Per i menu base il codice non può essere modificato."
+      placeholder: "es. sidebar"
+    base:
+      label: "Menu base"
+      help: "Se attivo, il codice di questo menu non potrà essere modificato dopo la creazione."
+    name:
+      label: Nome
+      placeholder: "es. Sidebar"
+    context:
+      label: Contesto
+      help: "Coppie chiave-valore JSON opzionali per identificare questa variante di menu."
+      placeholder: '{"partnerId": 1, "operatorId": 1}'
+    icon:
+      label: Icona
+      help: "Identificativo icona opzionale (es. Symfony UX Icons: heroicons:home, bootstrap:house)."
+      placeholder: "es. heroicons:bars-3"
+    permission_checker:
+      label: Controllo permessi
+      placeholder: "— Consenti tutto —"
+      allow_all: "— Consenti tutto —"
+      help: "Servizio che implementa MenuPermissionCheckerInterface (vuoto = consenti tutto)."
+    depth_limit:
+      label: Limite profondità
+      placeholder: "vuoto = illimitato"
+      help: "Profondità massima (1 = solo radice; vuoto = illimitato)."
+    collapsible:
+      label: "Comprimibile (menu in blocco con toggle)"
+    collapsible_expanded:
+      label: "Comprimibile espanso (aperto di default)"
+    nested_collapsible:
+      label: "Comprimibile annidato"
+    class_menu:
+      label: "Classe menu (<ul> radice)"
+      placeholder: "es. nav flex-column"
+    class_item:
+      label: "Classe voce (<li>)"
+      placeholder: "es. nav-item"
+    class_link:
+      label: "Classe link (<a>)"
+      placeholder: "es. nav-link"
+    class_children:
+      label: "Classe figli (<ul> annidato)"
+      placeholder: "es. nav flex-column ms-2"
+    class_current:
+      label: "Classe corrente (link alla route corrente)"
+      placeholder: "es. active"
+    class_branch_expanded:
+      label: "Classe ramo espanso"
+      placeholder: "es. active-branch"
+    class_has_children:
+      label: "Classe ha figli"
+      placeholder: "es. has-children"
+    class_expanded:
+      label: "Classe espanso"
+      placeholder: "es. is-expanded"
+    class_collapsed:
+      label: "Classe compresso"
+      placeholder: "es. is-collapsed"
+    empty_choice: "— Vuoto —"
+    css_section_heading: "Classi CSS per il rendering."
+  menu_item_type:
+    label:
+      label: Etichetta
+    label_locale: "Etichetta (%locale%)"
+    type:
+      label: Tipo
+      link: Link
+      section: Sezione
+      divider: Divisore
+    position:
+      label: Posizione
+    link_type:
+      label: Tipo link
+      route: Route
+      external_url: URL esterna
+    route_name:
+      label: Nome route
+      placeholder: "— Seleziona route —"
+    route_params:
+      label: "Parametri route (JSON)"
+      placeholder: "{}"
+    external_url:
+      label: URL esterna
+      placeholder: "https://..."
+    target_blank:
+      label: Apri in nuova scheda
+    permission_key:
+      label: Chiave permesso
+    icon:
+      label: Icona
+      placeholder: "heroicons:home"
+    parent:
+      label: Padre
+      placeholder: "— Radice —"
+  copy_menu_type:
+    code:
+      label: Codice
+      placeholder: "es. sidebar_copia"
+      regex_message: "Il codice deve contenere solo lettere, numeri, underscore e trattino."
+    name:
+      label: Nome
+      placeholder: "es. Sidebar (copia)"

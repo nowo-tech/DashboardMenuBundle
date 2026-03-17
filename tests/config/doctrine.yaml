@@ -1,0 +1,14 @@
+doctrine:
+    dbal:
+        driver: pdo_sqlite
+        url: 'sqlite:///:memory:'
+    orm:
+        auto_generate_proxy_classes: true
+        naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
+        auto_mapping: false
+        mappings:
+            NowoDashboardMenuBundle:
+                type: attribute
+                dir: '%kernel.project_dir%/src/Entity'
+                prefix: 'Nowo\DashboardMenuBundle\Entity'
+                alias: NowoDashboardMenuBundle

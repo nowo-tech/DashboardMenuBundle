@@ -102,7 +102,7 @@ validate: ensure-up
 release-check: ensure-up composer-sync cs-fix cs-check rector-dry phpstan test-coverage release-check-demos
 
 release-check-demos:
-	@$(MAKE) -C demo release-verify 2>/dev/null || true
+	@$(MAKE) -C demo release-check 2>/dev/null || true
 
 assets:
 	@echo "No frontend assets in this bundle."

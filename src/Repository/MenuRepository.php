@@ -5,9 +5,14 @@ declare(strict_types=1);
 namespace Nowo\DashboardMenuBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Nowo\DashboardMenuBundle\Entity\Menu;
+use Nowo\DashboardMenuBundle\Entity\MenuItem;
+
+use function count;
+use function is_array;
 
 /**
  * @extends ServiceEntityRepository<Menu>
@@ -59,6 +64,75 @@ class MenuRepository extends ServiceEntityRepository
         }
 
         return null;
+    }
+
+    /**
+     * Loads menu and all its items in two SQL queries (no N+1). Returns raw rows for caching.
+     * First query: menu by code and context_keys; second: items by menu_id ordered by parent_id, position.
+     *
+     * @param list<array<string, bool|int|string>|null> $contextSets
+     *
+     * @return array{menu: array<string, mixed>, items: list<array<string, mixed>>}|null
+     */
+    public function findMenuAndItemsRaw(string $code, array $contextSets): ?array
+    {
+        $em   = $this->getEntityManager();
+        $conn = $em->getConnection();
+        $meta = $em->getClassMetadata(Menu::class);
+        $menuTable = $meta->getTableName();
+        $itemMeta  = $em->getClassMetadata(MenuItem::class);
+        $itemTable = $itemMeta->getTableName();
+
+        $contextKeys = [];
+        foreach ($contextSets as $ctx) {
+            $contextKeys[] = Menu::canonicalContextKey($ctx);
+        }
+        if ($contextKeys === []) {
+            return null;
+        }
+
+        $placeholders = implode(',', array_fill(0, count($contextKeys), '?'));
+        $quotedMenu   = $this->quoteTableName($conn, $menuTable);
+        $sql          = "SELECT * FROM {$quotedMenu} WHERE code = ? AND attributes_key IN ({$placeholders})";
+        $params       = array_merge([$code], $contextKeys);
+        $menuRows     = $conn->fetchAllAssociative($sql, $params);
+        if ($menuRows === []) {
+            return null;
+        }
+
+        $menuRow = null;
+        foreach ($contextSets as $ctx) {
+            $wantKey = Menu::canonicalContextKey($ctx);
+            foreach ($menuRows as $row) {
+                $key = $row['attributes_key'] ?? '';
+                if ($key === $wantKey) {
+                    $menuRow = $row;
+                    break 2;
+                }
+            }
+        }
+        if ($menuRow === null) {
+            $menuRow = $menuRows[0];
+        }
+
+        $menuId = $menuRow['id'] ?? null;
+        if ($menuId === null) {
+            return null;
+        }
+
+        $quotedItem = $this->quoteTableName($conn, $itemTable);
+        $itemsSql   = "SELECT * FROM {$quotedItem} WHERE menu_id = ? ORDER BY parent_id ASC, position ASC";
+        $itemRows   = $conn->fetchAllAssociative($itemsSql, [$menuId]);
+
+        return ['menu' => $menuRow, 'items' => $itemRows];
+    }
+
+    /**
+     * Quotes a table name for raw SQL using the database platform (avoids deprecated Connection::quoteIdentifier).
+     */
+    private function quoteTableName(Connection $conn, string $tableName): string
+    {
+        return $conn->getDatabasePlatform()->quoteSingleIdentifier($tableName);
     }
 
     /**

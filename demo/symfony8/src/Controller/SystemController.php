@@ -11,31 +11,37 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+use function in_array;
+use function strlen;
+
+use const PHP_URL_PATH;
+
 /**
- * Rutas sin prefijo de locale: raíz, switch de idioma, favicon, well-known.
+ * Routes without locale prefix: root, locale switch, favicon, well-known.
  */
 class SystemController extends AbstractController
 {
-    public const APP_ROOT_ROUTE = 'app_root';
-    public const APP_SWITCH_LOCALE_ROUTE = 'app_switch_locale';
-    public const APP_FAVICON_ROUTE = 'app_favicon';
+    public const APP_ROOT_ROUTE              = 'app_root';
+    public const APP_SWITCH_LOCALE_ROUTE     = 'app_switch_locale';
+    public const APP_FAVICON_ROUTE           = 'app_favicon';
     public const APP_WELL_KNOWN_CHROME_ROUTE = 'app_well_known_chrome';
 
-    /** Redirige la raíz / a la home con locale (sesión o en). */
+    /** Redirects root / to home with locale (session or en). */
     #[Route(path: '/', name: self::APP_ROOT_ROUTE, methods: ['GET'])]
     public function root(Request $request): RedirectResponse
     {
         $locale = AppLocale::DEFAULT;
         if ($request->hasSession()) {
             $s = $request->getSession()->get('_locale');
-            if ($s !== null && \in_array($s, AppLocale::values(), true)) {
+            if ($s !== null && in_array($s, AppLocale::values(), true)) {
                 $locale = $s;
             }
         }
+
         return $this->redirectToRoute('app_home', ['_locale' => $locale]);
     }
 
-    /** Cambia el idioma redirigiendo a la misma ruta con el nuevo locale en la URL. */
+    /** Switches language by redirecting to the same path with the new locale in the URL. */
     #[Route(path: '/switch/{_locale}', name: self::APP_SWITCH_LOCALE_ROUTE, methods: ['GET'], requirements: ['_locale' => AppLocale::ROUTE_REQUIREMENT])]
     public function switchLocale(Request $request, string $_locale): RedirectResponse
     {
@@ -43,15 +49,16 @@ class SystemController extends AbstractController
         $baseUrl = $request->getSchemeAndHttpHost() . $request->getBasePath();
 
         if ($referer !== null && str_starts_with($referer, $baseUrl)) {
-            $path = (string) parse_url($referer, PHP_URL_PATH);
-            $basePath = $request->getBasePath();
+            $path            = (string) parse_url($referer, PHP_URL_PATH);
+            $basePath        = $request->getBasePath();
             $pathWithoutBase = $basePath !== '' && str_starts_with($path, $basePath)
-                ? substr($path, \strlen($basePath)) : $path;
-            $pathWithoutBase = '/'.trim($pathWithoutBase, '/');
+                ? substr($path, strlen($basePath)) : $path;
+            $pathWithoutBase = '/' . trim($pathWithoutBase, '/');
             // Reemplazar el primer segmento (locale) por el nuevo
             if (preg_match('#^/(' . AppLocale::ROUTE_REQUIREMENT . ')(/|$)#', $pathWithoutBase, $m)) {
-                $rest = substr($pathWithoutBase, \strlen($m[1]) + 1);
+                $rest    = substr($pathWithoutBase, strlen($m[1]) + 1);
                 $newPath = $basePath . '/' . $_locale . ($rest !== '' ? $rest : '');
+
                 return $this->redirect($baseUrl . $newPath);
             }
         }

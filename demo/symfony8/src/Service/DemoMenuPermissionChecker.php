@@ -6,8 +6,8 @@ namespace App\Service;
 
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Service\MenuPermissionCheckerInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Demo permission checker: uses logged-in user, current path and item permission key.
@@ -55,6 +55,7 @@ final class DemoMenuPermissionChecker implements MenuPermissionCheckerInterface
             if ($prefix === '/') {
                 return $path === '/' || $path === '';
             }
+
             return str_starts_with($path, $prefix);
         }
 

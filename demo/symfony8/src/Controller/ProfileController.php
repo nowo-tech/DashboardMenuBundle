@@ -18,9 +18,8 @@ class ProfileController extends AbstractController
     public function profile(): Response
     {
         return $this->render('home/page.html.twig', [
-            'page' => 'profile',
+            'page'  => 'profile',
             'title' => 'Profile',
         ]);
     }
 }
-

@@ -20,10 +20,9 @@ class SecurityController extends AbstractController
     public function security(string $section = 'overview'): Response
     {
         return $this->render('home/page.html.twig', [
-            'page' => 'security',
-            'title' => 'Security',
+            'page'    => 'security',
+            'title'   => 'Security',
             'section' => $section,
         ]);
     }
 }
-

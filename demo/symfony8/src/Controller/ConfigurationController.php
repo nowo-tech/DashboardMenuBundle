@@ -12,8 +12,8 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route(path: '/{_locale}', requirements: ['_locale' => AppLocale::ROUTE_REQUIREMENT], defaults: ['_locale' => AppLocale::DEFAULT])]
 class ConfigurationController extends AbstractController
 {
-    public const APP_CONFIGURATION_ROUTE = 'app_configuration';
-    public const APP_SETTINGS_ROUTE = 'app_settings';
+    public const APP_CONFIGURATION_ROUTE  = 'app_configuration';
+    public const APP_SETTINGS_ROUTE       = 'app_settings';
     public const APP_ADMINISTRATION_ROUTE = 'app_administration';
 
     /** Slug con valor por defecto: /configuration y /configuration/{section}. */
@@ -22,8 +22,8 @@ class ConfigurationController extends AbstractController
     public function configuration(string $section = 'general'): Response
     {
         return $this->render('home/page.html.twig', [
-            'page' => 'configuration',
-            'title' => 'Configuration',
+            'page'    => 'configuration',
+            'title'   => 'Configuration',
             'section' => $section,
         ]);
     }
@@ -32,7 +32,7 @@ class ConfigurationController extends AbstractController
     public function settings(): Response
     {
         return $this->render('home/page.html.twig', [
-            'page' => 'settings',
+            'page'  => 'settings',
             'title' => 'Settings',
         ]);
     }
@@ -41,9 +41,8 @@ class ConfigurationController extends AbstractController
     public function administration(): Response
     {
         return $this->render('home/page.html.twig', [
-            'page' => 'administration',
+            'page'  => 'administration',
             'title' => 'Administration',
         ]);
     }
 }
-

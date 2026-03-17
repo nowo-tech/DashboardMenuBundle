@@ -13,9 +13,9 @@ use Symfony\Component\Routing\Attribute\Route;
 class PageController extends AbstractController
 {
     public const APP_PAGE_INDEX_ROUTE = 'app_page_index';
-    public const APP_PAGE_ROUTE = 'app_page';
+    public const APP_PAGE_ROUTE       = 'app_page';
 
-    /** Ruta con slug y valor por defecto: /page → overview, /page/{page} → slug. Compatible con routeParams ['page' => '...']. */
+    /** Route with slug and default value: /page → overview, /page/{page} → slug. Compatible with routeParams ['page' => '...']. */
     #[Route(path: '/page', name: self::APP_PAGE_INDEX_ROUTE, methods: ['GET'], defaults: ['page' => 'overview'])]
     #[Route(path: '/page/{page}', name: self::APP_PAGE_ROUTE, methods: ['GET'], requirements: ['page' => '[a-z0-9_-]+'], defaults: ['page' => 'overview'])]
     public function page(string $page = 'overview'): Response
@@ -23,9 +23,8 @@ class PageController extends AbstractController
         $title = str_replace('-', ' ', ucwords($page, '-'));
 
         return $this->render('home/page.html.twig', [
-            'page' => $page,
+            'page'  => $page,
             'title' => $title,
         ]);
     }
 }
-

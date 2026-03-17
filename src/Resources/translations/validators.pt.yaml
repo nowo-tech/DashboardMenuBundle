@@ -1,0 +1,2 @@
+# Mensagens de validação (domínio validators Symfony)
+form.copy_menu_type.code.regex_message: "O código deve conter apenas letras, números, underscore e hífen."

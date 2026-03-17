@@ -3,9 +3,11 @@
 .env
 .env.local
 .env.*.local
+.env.dev
 
 /var
 /vendor
+/.pnpm-store
 
 ###> symfony/framework-bundle ###
 /.env.local
@@ -16,3 +18,9 @@
 /var/
 /vendor/
 ###< symfony/framework-bundle ###
+
+###> pentatrion/vite-bundle ###
+/node_modules/
+/public/build/
+/package-lock.json
+###< pentatrion/vite-bundle ###

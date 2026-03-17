@@ -1,0 +1,21 @@
+# Dev-only: DataCollector for dashboard menus (toolbar + profiler panel). Not loaded in prod.
+services:
+  Nowo\DashboardMenuBundle\DataCollector\DashboardMenuDataCollector:
+    arguments:
+      $profiler: '@profiler'
+      $menuIconNameResolver: '@Nowo\DashboardMenuBundle\Service\MenuIconNameResolver'
+      $bundleConfig: '%nowo_dashboard_menu.config%'
+      $permissionCheckerChoices: '%nowo_dashboard_menu.permission_checker_choices%'
+      $connectionName: '%nowo_dashboard_menu.doctrine.connection%'
+      $tablePrefix: '%nowo_dashboard_menu.doctrine.table_prefix%'
+      $cacheTtl: '%nowo_dashboard_menu.cache.ttl%'
+      $cachePool: '%nowo_dashboard_menu.cache.pool%'
+      $locales: '%nowo_dashboard_menu.locales%'
+      $defaultLocale: '%nowo_dashboard_menu.default_locale_resolved%'
+      $iconLibraryPrefixMap: '%nowo_dashboard_menu.icon_library_prefix_map%'
+    tags:
+      - { name: data_collector, template: '@NowoDashboardMenuBundle/Collector/dashboard_menu.html.twig', id: 'nowo_dashboard_menu' }
+
+  Nowo\DashboardMenuBundle\DataCollector\MenuQueryCounter:
+    tags:
+      - { name: kernel.reset, method: reset }

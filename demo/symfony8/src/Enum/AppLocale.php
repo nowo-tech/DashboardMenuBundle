@@ -10,7 +10,7 @@ enum AppLocale: string
     case ES = 'es';
     case FR = 'fr';
 
-    /** Patrón para requirements de rutas (_locale). */
+    /** Pattern for route requirements (_locale). */
     public const ROUTE_REQUIREMENT = 'en|es|fr';
 
     /** Locale por defecto. */

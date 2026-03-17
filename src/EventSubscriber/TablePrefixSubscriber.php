@@ -29,16 +29,12 @@ final readonly class TablePrefixSubscriber
         $metadata = $args->getClassMetadata();
         $class    = $metadata->getName();
 
-        if ($class === Menu::class && $this->tablePrefix !== '') {
-            $metadata->setPrimaryTable([
-                'name' => $this->tablePrefix . 'menu',
-            ]);
+        if ($this->tablePrefix === '' || ($class !== Menu::class && $class !== MenuItem::class)) {
+            return;
         }
 
-        if ($class === MenuItem::class && $this->tablePrefix !== '') {
-            $metadata->setPrimaryTable([
-                'name' => $this->tablePrefix . 'menu_item',
-            ]);
-        }
+        $metadata->setPrimaryTable([
+            'name' => $this->tablePrefix . $metadata->getTableName(),
+        ]);
     }
 }

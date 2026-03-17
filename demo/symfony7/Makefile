@@ -1,8 +1,11 @@
-.PHONY: help build up down restart shell install setup clean logs ensure-up update-bundle verify cache-clear test test-coverage
+.PHONY: help build up down restart shell install setup clean logs ensure-up update-bundle verify cache-clear test test-coverage ts-assets
 
 help:
 	@echo "Dashboard Menu Bundle Demo - Symfony 7"
-	@echo "  ensure-up, up, down, restart, build, shell, install, setup, clean, logs, update-bundle, test, test-coverage, verify, cache-clear"
+	@echo "  ensure-up, up, down, restart, build, shell, install, setup, clean, logs, update-bundle, test, test-coverage, ts-assets, verify, cache-clear"
+
+ts-assets:
+	@sh scripts/create-ts-assets.sh
 
 build:
 	docker-compose build --no-cache
@@ -26,8 +29,9 @@ up:
 	$(MAKE) install
 	@echo "Clearing cache..."
 	docker-compose exec -T php php bin/console cache:clear --no-interaction
-	@echo "Creating database and schema..."
-	docker-compose exec -T php php bin/console doctrine:database:create --if-not-exists --no-interaction
+	@echo "Recreating database and schema (fresh)..."
+	docker-compose exec -T php php bin/console doctrine:database:drop --if-exists --force --no-interaction
+	docker-compose exec -T php php bin/console doctrine:database:create --no-interaction
 	docker-compose exec -T php php bin/console doctrine:schema:update --force --no-interaction
 	@echo "Loading fixtures..."
 	docker-compose exec -T php php bin/console doctrine:fixtures:load --no-interaction
@@ -50,7 +54,7 @@ ensure-up:
 		docker-compose exec -T php sh -c "composer install --no-interaction || composer update --no-interaction"; \
 	fi
 
-update-bundle:
+update-bundle: ensure-up
 	@if docker-compose exec -T php true 2>/dev/null; then \
 		docker-compose exec -T php sh -c "if [ -f composer.lock ]; then composer update nowo-tech/dashboard-menu-bundle --no-interaction; else composer update --no-interaction; fi"; \
 		docker-compose exec -T php php bin/console cache:clear; \
@@ -64,8 +68,9 @@ install: ensure-up
 setup: ensure-up install
 	@echo "Clearing cache..."
 	docker-compose exec -T php php bin/console cache:clear --no-interaction
-	@echo "Creating database and schema..."
-	docker-compose exec -T php php bin/console doctrine:database:create --if-not-exists --no-interaction
+	@echo "Recreating database and schema (fresh)..."
+	docker-compose exec -T php php bin/console doctrine:database:drop --if-exists --force --no-interaction
+	docker-compose exec -T php php bin/console doctrine:database:create --no-interaction
 	docker-compose exec -T php php bin/console doctrine:schema:update --force --no-interaction
 	@echo "Loading fixtures..."
 	docker-compose exec -T php php bin/console doctrine:fixtures:load --no-interaction

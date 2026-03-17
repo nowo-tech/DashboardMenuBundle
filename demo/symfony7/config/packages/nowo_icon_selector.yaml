@@ -1,0 +1,9 @@
+nowo_icon_selector:
+    debug: true
+    icon_sets:
+        - bootstrap-icons
+        - heroicons
+    # Fetch full icon list from api.iconify.design for each library (requires symfony/http-client)
+    use_iconify_collection: true
+    icons_api_path: /api/icon-selector/icons
+    form_theme: 'form_div_layout.html.twig'

@@ -1,0 +1,221 @@
+{% extends '@WebProfiler/Profiler/layout.html.twig' %}
+
+{% block toolbar %}
+    {% set menus = collector.menus|default([]) %}
+    {% set count = menus|length %}
+    {% set query_count = collector.menuQueryCount %}
+    {% set icon %}
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Dashboard menus"><title>Dashboard menus</title><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+        <span class="sf-toolbar-value">{{ count }}</span>
+        <span class="sf-toolbar-label">menu{{ count != 1 ? 's' : '' }}</span>
+        {% if query_count is not null %}
+            <span class="sf-toolbar-info-piece-additional-detail">
+                <span class="sf-toolbar-label">·</span>
+                <span class="sf-toolbar-value">{{ query_count }}</span>
+                <span class="sf-toolbar-label">queries</span>
+            </span>
+        {% endif %}
+    {% endset %}
+    {% set text %}
+        <div class="sf-toolbar-info-group">
+            <div class="sf-toolbar-info-piece">
+                <b>Menus on page</b>
+                <span>{{ count }}</span>
+            </div>
+            {% if query_count is not null %}
+                <div class="sf-toolbar-info-piece">
+                    <b>Menu-related queries</b>
+                    <span>{{ query_count }}</span>
+                </div>
+            {% endif %}
+        </div>
+    {% endset %}
+    {{ include('@WebProfiler/Profiler/toolbar_item.html.twig', { link: profiler_url, icon: icon, text: text }) }}
+{% endblock %}
+
+{% block menu %}
+    <span class="label">
+        <span class="icon">{{ source('@NowoDashboardMenuBundle/Collector/icon.svg') }}</span>
+        <strong>Dashboard menus</strong>
+        {% set count = collector.menus|default([])|length %}
+        <span class="count">{{ count }}</span>
+    </span>
+{% endblock %}
+
+{% block panel %}
+    {% set menus = collector.menus|default([]) %}
+    {% set query_count = collector.menuQueryCount %}
+    {% set cache = collector.cacheConfig %}
+    {% set connection = collector.connectionName %}
+    {% set table_prefix = collector.tablePrefix %}
+    {% set locales = collector.locales %}
+    {% set default_locale = collector.defaultLocale %}
+    {% set icon_map = collector.iconLibraryPrefixMap %}
+    {% set permission_checkers = collector.permissionCheckerChoices %}
+
+    <div class="sf-tabs">
+        <div class="tab">
+            <h3 class="tab-title">
+                Menus <span class="badge">{{ menus|length }}</span>
+            </h3>
+            <div class="tab-content">
+                <h2>Dashboard menus on this page</h2>
+                {% if query_count is not null %}
+                    <div class="metrics">
+                        <div class="metric">
+                            <span class="value">{{ query_count }}</span>
+                            <span class="label">DB queries (dashboard_menu* tables)</span>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if menus is empty %}
+                    <p>No menus were rendered (no <code>dashboard_menu_tree()</code> calls).</p>
+                {% else %}
+                    <table class="sf-table">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Context (resolved)</th>
+                                <th>Root items</th>
+                                <th>Queries</th>
+                                <th>Items tree</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for m in menus %}
+                                <tr>
+                                    <td><code>{{ m.code }}</code></td>
+                                    <td>
+                                        {% if m.resolved_context is defined and m.resolved_context is not null and m.resolved_context is not empty %}
+                                            <code>{{ m.resolved_context is iterable ? m.resolved_context|json_encode(320) : m.resolved_context }}</code>
+                                        {% elseif m.context_sets is defined and m.context_sets is iterable and m.context_sets is not empty %}
+                                            <span class="text-muted">context sets: {{ m.context_sets|length }} option(s)</span>
+                                        {% else %}
+                                            <span class="text-muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ m.root_count }}</td>
+                                    <td>
+                                        {% if m.query_count is defined and m.query_count is not null %}
+                                            <span class="sf-toolbar-status sf-toolbar-status-{{ m.query_count > 10 ? 'red' : (m.query_count > 3 ? 'yellow' : 'green') }}">{{ m.query_count }}</span>
+                                        {% else %}
+                                            <span class="text-muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {{ _self.tree_summary(m.items_summary) }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="tab">
+            <h3 class="tab-title">Configuration</h3>
+            <div class="tab-content">
+                <h2>Bundle configuration</h2>
+
+                <div class="metrics">
+                    <div class="metric">
+                        <span class="value"><code>{{ connection ?? 'default' }}</code></span>
+                        <span class="label">Doctrine connection</span>
+                    </div>
+                    <div class="metric">
+                        <span class="value"><code>{{ table_prefix is not empty ? table_prefix : '∅' }}</code></span>
+                        <span class="label">Table prefix</span>
+                    </div>
+                    <div class="metric">
+                        <span class="value">{{ cache.ttl ?? '∅' }}</span>
+                        <span class="label">Cache TTL (s)</span>
+                    </div>
+                    <div class="metric">
+                        <span class="value"><code>{{ cache.pool ?? '∅' }}</code></span>
+                        <span class="label">Cache pool</span>
+                    </div>
+                </div>
+
+                <h3>Locales</h3>
+                <p>
+                    <strong>Enabled locales:</strong>
+                    {% if locales is not empty %}
+                        {{ locales|join(', ') }}
+                    {% else %}
+                        <span class="text-muted">none (uses application defaults)</span>
+                    {% endif %}
+                    <br>
+                    <strong>Default locale:</strong>
+                    <code>{{ default_locale ?? '∅' }}</code>
+                </p>
+
+                <h3>Icon library prefix map</h3>
+                {% if icon_map is empty %}
+                    <p class="text-muted">No icon prefix map configured (icons are used as-is).</p>
+                {% else %}
+                    <table class="sf-table">
+                        <thead>
+                            <tr>
+                                <th>Library</th>
+                                <th>Prefix</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for lib, prefix in icon_map %}
+                                <tr>
+                                    <td><code>{{ lib }}</code></td>
+                                    <td><code>{{ prefix }}</code></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+
+                <h3>Permission checker services</h3>
+                {% if permission_checkers is empty %}
+                    <p class="text-muted">No tagged permission checker services were found.</p>
+                {% else %}
+                    <table class="sf-table">
+                        <thead>
+                            <tr>
+                                <th>Service id</th>
+                                <th>Label (form choice)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for id, label in permission_checkers %}
+                                <tr>
+                                    <td><code>{{ id }}</code></td>
+                                    <td>{{ label }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% macro tree_summary(items, depth) %}
+    {% set depth = depth|default(0) %}
+    {% if items is defined and items is iterable and items|length > 0 %}
+        <ul class="menu-tree-summary" style="margin: 0; padding-left: {{ 0.25 + depth }}rem; list-style: disc;">
+            {% for node in items %}
+                <li>
+                    <span class="badge badge-secondary">{{ node.type }}</span>
+                    {% if node.icon|default('') != '' %}
+                        <code class="sf-dump-str" title="icon">{{ node.icon|e }}</code>
+                    {% endif %}
+                    {{ node.label|default('—')|e }}
+                    {% if node.children_count > 0 %}
+                        <span class="text-muted">({{ node.children_count }})</span>
+                        {{ _self.tree_summary(node.children, depth + 0.25) }}
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endmacro %}

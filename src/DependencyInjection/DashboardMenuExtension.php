@@ -4,11 +4,17 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\DependencyInjection;
 
+use Nowo\DashboardMenuBundle\DataCollector\DashboardMenuDataCollector;
+use Nowo\DashboardMenuBundle\DataCollector\MenuQueryCounter;
+use Nowo\DashboardMenuBundle\DataCollector\MenuQueryCountMiddleware;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 use Nowo\DashboardMenuBundle\Service\DefaultMenuCodeResolver;
 use Nowo\DashboardMenuBundle\Service\MenuCodeResolverInterface;
 use Nowo\DashboardMenuBundle\Service\MenuConfigResolver;
+use Nowo\DashboardMenuBundle\Service\MenuIconNameResolver;
 use Nowo\DashboardMenuBundle\Service\MenuLocaleResolver;
+use Nowo\DashboardMenuBundle\Service\MenuTreeLoader;
+use Nowo\DashboardMenuBundle\Twig\MenuExtension;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
@@ -32,13 +38,32 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.yaml');
 
-        $config = $this->processConfiguration(new Configuration(), $configs);
+        $config         = $this->processConfiguration(new Configuration(), $configs);
+        $connectionName = $config['doctrine']['connection'] ?? 'default';
+
+        if ($container->getParameter('kernel.environment') === 'dev') {
+            $loader->load('services_dev.yaml');
+            $menuExtensionDef = $container->getDefinition(MenuExtension::class);
+            $menuExtensionDef->setArgument('$dataCollector', new Reference(DashboardMenuDataCollector::class));
+            $menuExtensionDef->setArgument('$menuQueryCounter', new Reference(MenuQueryCounter::class));
+            $menuExtensionDef->setArgument('$connection', new Reference('doctrine.dbal.' . $connectionName . '_connection'));
+            // Register query-count middleware when DBAL exposes Middleware (3.3+); DBAL 4 has no SQLLogger.
+            if (class_exists(\Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware::class)) {
+                $container->register(MenuQueryCountMiddleware::class, MenuQueryCountMiddleware::class)
+                    ->setArguments([new Reference(MenuQueryCounter::class)])
+                    ->addTag('doctrine.middleware', ['connection' => $connectionName, 'priority' => 20]);
+            }
+        }
 
         $fullConfig = [
             'project' => $config['project'] ?? null,
         ];
 
         $container->setParameter(Configuration::ALIAS . '.config', $fullConfig);
+        $container->setParameter(Configuration::ALIAS . '.icon_library_prefix_map', $config['icon_library_prefix_map'] ?? ['bootstrap-icons' => 'bi']);
+        $container->register(MenuIconNameResolver::class, MenuIconNameResolver::class)
+            ->setArguments(['%' . Configuration::ALIAS . '.icon_library_prefix_map%'])
+            ->setPublic(false);
         $locales       = $config['locales'] ?? [];
         $locales       = is_array($locales) ? $locales : [];
         $defaultLocale = $config['default_locale'] ?? null;
@@ -67,12 +92,26 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
             'item_form' => 'lg',
             'delete'    => 'normal',
         ]);
-        $container->setParameter(Configuration::ALIAS . '.table_prefix', '');
+        $container->setParameter(Configuration::ALIAS . '.dashboard.icon_selector_script_url', $config['dashboard']['icon_selector_script_url'] ?? null);
+        $cacheConfig = $config['cache'] ?? ['ttl' => 60, 'pool' => 'cache.app'];
+        $container->setParameter(Configuration::ALIAS . '.cache.ttl', $cacheConfig['ttl'] ?? 60);
+        $container->setParameter(Configuration::ALIAS . '.cache.pool', $cacheConfig['pool'] ?? 'cache.app');
+        $menuTreeLoaderDef = $container->getDefinition(MenuTreeLoader::class);
+        $menuTreeLoaderDef->setArgument('$cacheTtl', $container->getParameter(Configuration::ALIAS . '.cache.ttl'));
+        $poolName = $cacheConfig['pool'] ?? null;
+        if ($poolName !== null && $poolName !== '') {
+            $menuTreeLoaderDef->setArgument('$cachePool', new Reference($poolName));
+        }
+        $container->setParameter(Configuration::ALIAS . '.doctrine.connection', $config['doctrine']['connection'] ?? 'default');
+        $container->setParameter(Configuration::ALIAS . '.doctrine.table_prefix', $config['doctrine']['table_prefix'] ?? '');
+        $container->setParameter(Configuration::ALIAS . '.table_prefix', $config['doctrine']['table_prefix'] ?? '');
 
         $container->register(MenuConfigResolver::class, MenuConfigResolver::class)
             ->setArguments([
                 '%' . Configuration::ALIAS . '.config%',
                 new Reference(MenuRepository::class),
+                '%' . Configuration::ALIAS . '.doctrine.connection%',
+                '%' . Configuration::ALIAS . '.doctrine.table_prefix%',
             ])
             ->setPublic(false);
 

@@ -8,6 +8,7 @@ use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Form\DataTransformer\JsonToArrayTransformer;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
+use Nowo\IconSelectorBundle\Form\IconSelectorType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -47,7 +48,7 @@ final class MenuItemType extends AbstractType
         $routeChoices = $this->buildRouteChoices($appRoutes);
         /** @var list<string> $availableLocales */
         $availableLocales = $options['available_locales'];
-        $t                = fn (string $id): string => $this->translator instanceof \Symfony\Contracts\Translation\TranslatorInterface ? $this->translator->trans($id) : $id;
+        $t                = fn (string $id): string => $this->translator instanceof TranslatorInterface ? $this->translator->trans($id) : $id;
 
         $builder
             ->add('label', TextType::class, [
@@ -110,10 +111,11 @@ final class MenuItemType extends AbstractType
                 'label'    => 'form.menu_item_type.permission_key.label',
                 'attr'     => ['class' => 'form-control'],
             ])
-            ->add('icon', TextType::class, [
+            ->add('icon', IconSelectorType::class, [
                 'required' => false,
+                'mode'     => IconSelectorType::MODE_TOM_SELECT,
                 'label'    => 'form.menu_item_type.icon.label',
-                'attr'     => ['class' => 'form-control', 'placeholder' => $t('form.menu_item_type.icon.placeholder')],
+                'attr'     => [/* 'class' => 'form-control', */ 'placeholder' => $t('form.menu_item_type.icon.placeholder')],
             ]);
 
         if ($availableLocales !== []) {

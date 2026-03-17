@@ -22,12 +22,13 @@
 
 - **Menu & MenuItem entities**: Tree (parent/children, ordered by position), labels with optional JSON translations per locale, optional icon per item (e.g. Symfony UX Icons)
 - **Context resolution**: Same `code` can have multiple menus with different JSON context (e.g. `partnerId`, `operatorId`); pass an ordered list of context sets and the first match is used; empty context = fallback
-- **Config**: Locales, Doctrine connection, optional permission checker, menu_code_resolver; per-menu: classes, depth_limit, icons, collapsible (Bootstrap-friendly)
-- **Permissions**: `MenuPermissionCheckerInterface` — implement and configure to filter items per user/context
+- **Config**: Doctrine connection and table prefix; cache (TTL + pool) for the menu tree; `icon_library_prefix_map` (e.g. `bootstrap-icons` → `bi`); locales; per-menu options (classes, permission checker, depth limit, icons, collapsible) in the database
+- **Permissions**: `MenuPermissionCheckerInterface` — implement and tag to filter items per user/context
 - **Twig**: `dashboard_menu_tree(menuCode, permissionContext?, contextSets?)`, `dashboard_menu_href(item)`, `dashboard_menu_config(menuCode, contextSets?)`; include `@NowoDashboardMenuBundle/menu.html.twig`
-- **JSON API**: `GET /api/menu/{code}` for SPA consumption (optional `_context_sets` query param)
+- **JSON API**: `GET /api/menu/{code}` for SPA consumption (optional `_locale`, `_context_sets` query params)
 - **Dashboard**: CRUD at `/admin/menus` (list, create, edit, copy menu, manage items)
-- **Performance**: One query per menu; labels by locale from JSON; tree built in PHP
+- **Performance**: Two SQL queries per menu (menu + items), optional PSR-6 cache (configurable TTL); labels by locale from JSON; tree built in PHP
+- **Dev**: Web Profiler panel “Dashboard menus” (menus on page, query count, configuration tab: connection, cache, locales, icon map, permission checkers)
 
 ## Installation
 
@@ -47,6 +48,14 @@ Menus are **defined in the database** (dashboard at `/admin/menus` or fixtures):
 # config/packages/nowo_dashboard_menu.yaml
 nowo_dashboard_menu:
     project: my_app
+    doctrine:
+        connection: default
+        table_prefix: ''
+    cache:
+        ttl: 60
+        pool: cache.app
+    icon_library_prefix_map:
+        bootstrap-icons: bi
     locales: ['es', 'en']
     api:
         enabled: true
@@ -76,6 +85,7 @@ Full details: [docs/USAGE.md](docs/USAGE.md).
 
 ## Documentation
 
+- [Demo with FrankenPHP (development and production)](docs/DEMO-FRANKENPHP.md)
 - [Installation](docs/INSTALLATION.md)
 - [Configuration](docs/CONFIGURATION.md)
 - [Usage](docs/USAGE.md)

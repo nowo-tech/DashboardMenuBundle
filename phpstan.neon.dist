@@ -28,3 +28,30 @@ parameters:
           path: src/Service/CurrentRouteTreeDecorator.php
         - identifier: argument.type
           path: src/Controller/Api/MenuApiController.php
+        # Árbol recursivo: children tiene la misma forma que nodes
+        - identifier: argument.type
+          path: src/DataCollector/DashboardMenuDataCollector.php
+          message: '~summarizeTree~'
+        # Tests: mocks PHPUnit, tipos genéricos y assertions
+        - identifier: assign.propertyType
+          path: tests/*
+        - identifier: argument.type
+          path: tests/*
+        - identifier: missingType.iterableValue
+          path: tests/*
+        - identifier: staticMethod.alreadyNarrowedType
+          path: tests/*
+        - identifier: method.notFound
+          path: tests/*
+        - identifier: missingType.generics
+          path: tests/*
+        - identifier: missingType.parameter
+          path: tests/*
+        - identifier: property.onlyWritten
+          path: tests/*
+        - identifier: method.nonObject
+          path: tests/*
+        - identifier: offsetAccess.nonOffsetAccessible
+          path: tests/*
+        - identifier: argument.type
+          path: tests/Unit/DependencyInjection/Compiler/*

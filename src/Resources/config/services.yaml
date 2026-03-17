@@ -35,6 +35,9 @@ services:
   Nowo\DashboardMenuBundle\Service\MenuTreeLoader:
     arguments:
       $container: '@service_container'
+      $menuIconNameResolver: '@Nowo\DashboardMenuBundle\Service\MenuIconNameResolver'
+      $cachePool: null
+      $cacheTtl: 60
     public: true
 
   Nowo\DashboardMenuBundle\Service\MenuUrlResolver:
@@ -45,6 +48,9 @@ services:
     public: false
 
   Nowo\DashboardMenuBundle\Twig\MenuExtension:
+    arguments:
+      $dataCollector: null
+      $menuIconNameResolver: '@Nowo\DashboardMenuBundle\Service\MenuIconNameResolver'
     tags:
       - { name: twig.extension }
     public: false
@@ -59,6 +65,7 @@ services:
       $paginationEnabled: '%nowo_dashboard_menu.dashboard.pagination.enabled%'
       $paginationPerPage: '%nowo_dashboard_menu.dashboard.pagination.per_page%'
       $modalSizes: '%nowo_dashboard_menu.dashboard.modals%'
+      $iconSelectorScriptUrl: '%nowo_dashboard_menu.dashboard.icon_selector_script_url%'
     public: true
 
   Nowo\DashboardMenuBundle\EventSubscriber\TablePrefixSubscriber:
@@ -66,3 +73,10 @@ services:
       $tablePrefix: '%nowo_dashboard_menu.table_prefix%'
     tags:
       - { name: doctrine.event_subscriber }
+
+  Nowo\DashboardMenuBundle\Command\GenerateDashboardMenuMigrationCommand:
+    arguments:
+      $connectionName: '%nowo_dashboard_menu.doctrine.connection%'
+      $tablePrefix: '%nowo_dashboard_menu.table_prefix%'
+    tags:
+      - { name: console.command }

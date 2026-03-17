@@ -4,6 +4,11 @@
 # Uncomment and adjust only what you need.
 
 nowo_dashboard_menu:
+    # Doctrine DBAL connection and table prefix for menu entities.
+    # doctrine:
+    #     connection: default
+    #     table_prefix: ''
+
     # Optional project id when multiple apps share the same DB.
     # project: null
 
@@ -14,6 +19,15 @@ nowo_dashboard_menu:
     # Fallback locale when request locale is not in locales. If null, first of locales is used.
     # default_locale: null
     # default_locale: 'en'
+
+    # Map full icon library names to short prefixes when rendering the menu (e.g. for Symfony UX Icons).
+    # icon_library_prefix_map:
+    #     bootstrap-icons: bi
+
+    # Cache for the menu tree (avoids N+1 and repeated DB). TTL in seconds (min 60). Set pool to null to disable.
+    # cache:
+    #     ttl: 60
+    #     pool: cache.app
 
     api:
         enabled: true

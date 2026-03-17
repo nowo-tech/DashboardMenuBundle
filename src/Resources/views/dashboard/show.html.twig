@@ -229,9 +229,55 @@
                 .then(function(r) { return r.text(); })
                 .then(function(html) {
                     body.innerHTML = '<div id="modal-item-form-container">' + html + '</div>';
+                    var container = document.getElementById('modal-item-form-container');
+                    if (container) {
+                        runScriptsInElement(container);
+                        reinitIconSelectorInContainer(container);
+                        connectStimulusControllersInContainer(container);
+                        document.dispatchEvent(new CustomEvent('dashboard-menu:modal-content-loaded', { detail: { element: container } }));
+                    }
                 })
                 .catch(function() { body.innerHTML = '<div class="alert alert-danger">' + (window.dashboardMenuI18n && window.dashboardMenuI18n.errorLoadingForm || 'Error loading form.') + '</div>'; });
         });
+
+        function runScriptsInElement(el) {
+            var scripts = el.querySelectorAll('script');
+            scripts.forEach(function(oldScript) {
+                var newScript = document.createElement('script');
+                if (oldScript.src) { newScript.src = oldScript.src; } else { newScript.textContent = oldScript.textContent; }
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        }
+
+        function reinitIconSelectorInContainer(container) {
+            var url = (typeof window.dashboardMenuIconSelectorScriptUrl !== 'undefined' && window.dashboardMenuIconSelectorScriptUrl) || (container.getAttribute('data-icon-selector-script-url') || '').trim();
+            if (!url) {
+                var existing = document.querySelector('script[src*="icon-selector"], script[src*="icon_selector"]');
+                if (existing && existing.src) url = existing.src;
+            }
+            if (!url) return;
+            var script = document.createElement('script');
+            script.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_=' + Date.now();
+            script.async = false;
+            script.onload = function() { connectStimulusControllersInContainer(container); script.remove(); };
+            (document.head || document.documentElement).appendChild(script);
+        }
+
+        /**
+         * Connect Symfony UX / Stimulus controllers inside dynamically loaded content (e.g. modal form with icon selector).
+         * Call this after injecting HTML that contains data-controller="...". Uses window.Stimulus if set by @symfony/stimulus-bundle.
+         */
+        function connectStimulusControllersInContainer(container) {
+            if (!container || !window.Stimulus || !window.Stimulus.router) return;
+            var nodes = container.querySelectorAll('[data-controller]');
+            nodes.forEach(function(el) {
+                try {
+                    if (window.Stimulus.router.elementConnected) {
+                        window.Stimulus.router.elementConnected(el);
+                    }
+                } catch (e) { /* ignore */ }
+            });
+        }
 
         document.getElementById('modal-delete-item-confirm').addEventListener('show.bs.modal', function(e) {
             var btn = e.relatedTarget;

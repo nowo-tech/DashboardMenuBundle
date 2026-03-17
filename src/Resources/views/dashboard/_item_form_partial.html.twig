@@ -1,4 +1,7 @@
 {{ form_start(form) }}
+    <div class="mb-3">
+        {{ form_row(form.icon, { label_attr: { class: 'form-label' } }) }}
+    </div>
     {{ form_row(form.label, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-3' } }) }}
     {% if locales is defined and locales is not empty %}
         <div class="row mb-3">
@@ -37,13 +40,8 @@
     <div class="mb-3">
         {{ form_row(form.targetBlank, { label_attr: { class: 'form-check-label' }, row_attr: { class: 'form-check' } }) }}
     </div>
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            {{ form_row(form.permissionKey, { label_attr: { class: 'form-label' } }) }}
-        </div>
-        <div class="col-md-6 mb-3">
-            {{ form_row(form.icon, { label_attr: { class: 'form-label' } }) }}
-        </div>
+    <div class="mb-3">
+        {{ form_row(form.permissionKey, { label_attr: { class: 'form-label' } }) }}
     </div>
     {{ form_rest(form) }}
     <button type="submit" class="btn btn-primary">{{ (is_edit|default(false) ? 'dashboard.update' : 'dashboard.create')|trans }}</button>

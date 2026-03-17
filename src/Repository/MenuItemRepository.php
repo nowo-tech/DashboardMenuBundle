@@ -43,13 +43,13 @@ class MenuItemRepository extends ServiceEntityRepository
             ->addOrderBy('i.position', 'ASC');
 
         $result = $qb->getQuery()->getResult();
-        assert(is_array($result));
+        assert(is_array($result) && array_is_list($result));
 
         foreach ($result as $item) {
             $item->setLabel($item->getLabelForLocale($locale));
         }
 
-        /** @var list<MenuItem> $result */
+        /* @var list<MenuItem> $result */
         return $result;
     }
 
@@ -72,9 +72,9 @@ class MenuItemRepository extends ServiceEntityRepository
         }
         $qb->orderBy('i.position', 'ASC');
         $result = $qb->getQuery()->getResult();
-        assert(is_array($result));
+        assert(is_array($result) && array_is_list($result));
 
-        /** @var list<MenuItem> $result */
+        /* @var list<MenuItem> $result */
         return $result;
     }
 

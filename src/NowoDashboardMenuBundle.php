@@ -23,9 +23,6 @@ final class NowoDashboardMenuBundle extends Bundle
         $container->addCompilerPass(new PermissionCheckerPass());
     }
 
-    /**
-     * @return ExtensionInterface
-     */
     public function getContainerExtension(): ExtensionInterface
     {
         if ($this->extension === null) {

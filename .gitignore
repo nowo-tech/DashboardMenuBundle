@@ -1,16 +1,25 @@
-# Dependencias de Composer (no versionar; se instalan con composer install)
+/var
+# Dependencies
 /vendor
 
-# Environment (never commit secrets; §2.5 BUNDLES_STANDARDS_PROMPT)
+# Environment and secrets
 .env
 .env.local
 .env.*.local
 
-# Salida de cobertura de tests (generada por PHPUnit u otras herramientas)
+# Test coverage
 /coverage
 /coverage.xml
 
-# Cachés de herramientas de desarrollo (opcional, se regeneran solas)
+# PHP tool caches
 /.php-cs-fixer.cache
 /.phpunit.cache
 /.phpunit.result.cache
+
+# Archives / compressed
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z

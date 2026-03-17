@@ -3,165 +3,184 @@
 ## Table of contents
 
 - [Structure](#structure)
-- [Options](#options)
-  - [Root](#root)
-  - [defaults](#defaults)
-  - [defaults.classes](#defaultsclasses)
-  - [defaults.icons](#defaultsicons)
-  - [dashboard.modals](#dashboardmodals)
-  - [menus.{code}](#menuscode)
-  - [menu_code_resolver](#menu_code_resolver)
+- [Root options](#root-options)
+  - [project](#project)
+  - [doctrine](#doctrine)
+  - [cache](#cache)
+  - [icon_library_prefix_map](#icon_library_prefix_map)
+  - [locales and default_locale](#locales-and-default_locale)
   - [api](#api)
   - [dashboard](#dashboard)
+- [Per-menu options (database)](#per-menu-options-database)
 - [Example](#example)
-- [Symfony UX Icons](#symfony-ux-icons)
+- [Symfony UX Icons and icon prefix map](#symfony-ux-icons-and-icon-prefix-map)
 - [Collapsible menus](#collapsible-menus)
 
 ## Structure
 
-- **project** (optional): Identifier to differentiate menus when multiple apps share the same DB (e.g. table scope).
-- **locales** (optional): List of enabled locales for menu labels; request locale is validated against this list (see Root options).
-- **default_locale** (optional): Fallback when the request locale is not in `locales`.
-- **defaults**: Default values for all menus (each menu can override).
-- **menus** (optional): Per-menu overrides in YAML. **Menus are defined in the database** (dashboard or fixtures): code, name, optional context (JSON key-value for variant resolution), icon, CSS classes. You do not need to list each menu here unless you want to override connection, permission_checker, cache, etc. for a given menu code.
-- **api**: API route options.
-- **dashboard**: Dashboard (admin CRUD) options; see [Dashboard](#dashboard).
+Menus are **defined in the database** (dashboard at `/admin/menus` or fixtures): code, name, optional context (JSON), icon, CSS classes, permission checker, depth limit, collapsible options. In YAML you configure only **global** options:
 
-## Options
+- **project** (optional): Identifier when multiple apps share the same DB.
+- **doctrine**: DBAL connection name and table prefix for menu entities.
+- **cache**: Tree cache (TTL and pool) to avoid N+1 and repeated DB hits.
+- **icon_library_prefix_map**: Map full icon library names to short prefixes (e.g. `bootstrap-icons` → `bi`) for rendering.
+- **locales** / **default_locale**: Enabled locales for menu item labels and fallback.
+- **api**: Enable JSON API and path prefix.
+- **dashboard**: Enable admin CRUD, path prefix, route exclude patterns, pagination, modals, CSS class options, icon selector script.
 
-### Root
+## Root options
+
+### project
+
+| Option    | Default | Description |
+|-----------|---------|-------------|
+| `project` | `null`  | Optional project identifier (e.g. when the same DB holds several apps). |
+
+### doctrine
+
+| Option         | Default   | Description |
+|----------------|-----------|-------------|
+| `connection`   | `default` | Doctrine DBAL connection name for menu entities. |
+| `table_prefix` | `''`      | Prefix for table names (`dashboard_menu`, `dashboard_menu_item`). Empty = no prefix. |
+
+```yaml
+nowo_dashboard_menu:
+    doctrine:
+        connection: default
+        table_prefix: ''   # or e.g. 'app_'
+```
+
+**Generating a migration**
+
+To create the menu tables with the configured **connection** and **table_prefix**, use the bundle command (recommended instead of `doctrine:schema:update` when you use a custom connection or prefix):
+
+```bash
+php bin/console nowo_dashboard_menu:generate-migration
+```
+
+By default this writes a migration file into the `migrations/` directory. Options:
+
+- `--path=src/Migrations` — directory where to write the file
+- `--namespace=App\Migrations` — PHP namespace for the migration class (default: `DoctrineMigrations`)
+- `--dump` — only print the SQL without writing a file (useful if you do not use Doctrine Migrations)
+
+If you use a non-default **connection**, run the migration with that connection:
+
+```bash
+php bin/console doctrine:migrations:migrate --conn=YOUR_CONNECTION
+```
+
+The generated migration uses `Doctrine\Migrations\AbstractMigration`; your project must have `doctrine/doctrine-migrations-bundle` (or `doctrine/migrations`) to run it. Otherwise use `--dump` and run the SQL manually.
+
+### cache
+
+Tree cache stores the raw menu + items result per (menuCode, locale, contextSets). Reduces DB queries and avoids N+1 when the same menu is rendered multiple times.
+
+| Option | Default       | Description |
+|--------|---------------|-------------|
+| `ttl`  | `60`          | Time-to-live in seconds. Minimum 60. |
+| `pool` | `cache.app`   | PSR-6 cache pool name. Set to `null` or empty to disable tree cache. |
+
+```yaml
+nowo_dashboard_menu:
+    cache:
+        ttl: 60
+        pool: cache.app
+```
+
+### icon_library_prefix_map
+
+Maps full icon library names to short prefixes so the template can pass the correct identifier to `ux_icon()` (e.g. Symfony UX Icons expects `bi:house` when using Bootstrap Icons). Keys are library names (the part before `:` in the icon string); values are the short prefix.
+
+| Example key (YAML)      | Value | Effect on icon string                |
+|-------------------------|-------|--------------------------------------|
+| `bootstrap-icons`       | `bi`  | `bootstrap-icons:house` → `bi:house` |
+
+Config keys may be normalized (e.g. `bootstrap-icons` becomes `bootstrap_icons`); the bundle accepts both when resolving.
+
+```yaml
+nowo_dashboard_menu:
+    icon_library_prefix_map:
+        bootstrap-icons: bi
+```
+
+### locales and default_locale
 
 | Option           | Default | Description |
 |------------------|---------|-------------|
-| `project`        | `null`  | Optional project identifier (e.g. when same DB holds several apps) |
-| `locales`        | `[]`    | List of enabled locales for menu labels (e.g. `['es', 'en', 'fr']`). When empty, the request locale is used as-is. When set, the request locale is used only if in this list; otherwise `default_locale` or the first locale is used. |
-| `default_locale`| `null`  | Fallback locale when the request locale is not in `locales`. If null, the first entry in `locales` is used. |
-
-### defaults
-
-| Option               | Default   | Description                          |
-|----------------------|-----------|--------------------------------------|
-| `connection`         | `default` | Doctrine connection name             |
-| `table_prefix`       | `''`      | Table name prefix (e.g. `app_`)      |
-| `permission_checker` | `null`    | Default permission checker service id |
-| `cache_pool`         | `null`    | Cache pool for menu trees            |
-| `cache_ttl`          | `300`     | Cache TTL in seconds                 |
-| `classes`            | see below | CSS classes (menu, item, link, children) |
-| `depth_limit`        | `null`    | Max depth to render (null = unlimited) |
-| `icons`              | see below | Icon support (enabled, use_ux_icons, default) |
-| `collapsible`        | `false`   | When true, the menu is wrapped in a collapsible block (toggle button + content). Requires Bootstrap collapse JS or similar. |
-| `collapsible_expanded` | `true`   | When collapsible is true: open by default (true) or collapsed (false). |
-| `nested_collapsible` | `false`   | When true, each item that has children gets a toggle; children are inside a Bootstrap collapse. The branch stays open when the current route is in that branch. |
-
-### defaults.classes
-
-| Key                    | Default          | Description                                                                 |
-|------------------------|------------------|-----------------------------------------------------------------------------|
-| `menu`                 | `dashboard-menu` | Class for the root `<ul>`                                                   |
-| `item`                 | `''`             | Class for each `<li>`                                                       |
-| `link`                 | `''`             | Class for each `<a>`                                                        |
-| `children`             | `''`             | Class for nested `<ul>`                                                     |
-| `class_current`        | `active`         | Class added to the `<a>` when its URL matches the current request path      |
-| `class_branch_expanded`| `active-branch`  | Class added to the `<li>` when the current route is in that branch (e.g. to keep a collapsible open or style the parent) |
-
-**Entity override:** The `Menu` entity has optional fields `classMenu`, `classItem`, `classLink`, `classChildren`, `classCurrent`, `classBranchExpanded`. When set in the database (e.g. via the dashboard or fixtures), they override the config classes for that menu. So you can define all CSS classes per menu in the admin instead of in YAML.
-
-### defaults.icons
-
-| Key            | Default | Description |
-|----------------|---------|-------------|
-| `enabled`      | `false` | Whether to show icons (uses `MenuItem::icon` or `default`) |
-| `use_ux_icons` | `false` | When true, template calls `ux_icon()` (requires `symfony/ux-icons`) |
-| `default`      | `null`  | Default icon name when item has no icon (e.g. `heroicons:home`) |
-
-### dashboard.modals
-
-When the dashboard is enabled, modal dialog sizes can be set per type (Bootstrap 5: `normal`, `lg`, `xl`):
-
-| Key         | Default  | Description                    |
-|------------|----------|--------------------------------|
-| `menu_form`| `normal` | New menu and edit menu modals  |
-| `copy`     | `normal` | Copy menu modal                |
-| `item_form`| `lg`     | Add/edit menu item modal       |
-| `delete`   | `normal` | Delete confirmation modals     |
-
-Example: `modals: { menu_form: xl, item_form: xl }` to use extra-wide modals for forms.
-
-### menus.{code}
-
-Optional. Only add an entry here when you need to override defaults for a specific menu code (e.g. another connection, a permission checker). **Menu code, name, icon and CSS classes are taken from the `Menu` entity in the database** (created via the dashboard or fixtures). All options from **defaults** can be overridden per menu. Additionally:
-
-| Option                 | Default | Description |
-|------------------------|---------|-------------|
-| `menu_name`            | `null`  | Optional display name (used as toggle label when collapsible) |
-| `collapsible`          | (defaults) | Override: wrap this menu in a collapsible block |
-| `collapsible_expanded` | (defaults) | Override: start open (true) or collapsed (false) |
-
-### menu_code_resolver
-
-| Option               | Default | Description |
-|----------------------|---------|-------------|
-| `menu_code_resolver` | `null`  | Service id of `MenuCodeResolverInterface`. Resolves the effective menu code from the request and hint (e.g. by operatorId, partnerId, menu name). When null, the hint is used as the menu code. |
+| `locales`        | `[]`    | List of enabled locales for menu item labels (e.g. `['en', 'es', 'fr']`). When empty, the request locale is used as-is. When set, the request locale is used only if in this list; otherwise `default_locale` or the first locale is used. |
+| `default_locale` | `null`  | Fallback when the request locale is not in `locales`. If null, the first entry in `locales` is used. |
 
 ### api
 
 | Option        | Default      | Description        |
 |---------------|--------------|--------------------|
-| `enabled`     | `true`       | Enable JSON API    |
-| `path_prefix` | `/api/menu`  | Path prefix for API route |
+| `enabled`     | `true`       | Enable JSON API.   |
+| `path_prefix` | `/api/menu`  | Path prefix for the API route (`GET {path_prefix}/{code}`). |
 
 ### dashboard
 
-Options for the admin dashboard (list/create/edit menus and items). Import routes from `routes_dashboard.yaml` with the desired prefix (e.g. `/admin/menus`).
+Options for the admin dashboard (list, create, edit, copy menus and manage items).
 
-| Option                         | Default        | Description |
-|--------------------------------|----------------|-------------|
-| `enabled`                      | `false`        | Enable dashboard routes (set to `true` in app config to use the admin UI) |
-| `path_prefix`                  | `/admin/menus` | URL prefix for dashboard routes (applied when importing the dashboard routes) |
-| `route_name_exclude_patterns`  | `[]`           | Regex patterns to hide route names from the route selector (e.g. `['^_', '^web_profiler']`) |
-| `pagination.enabled`          | `true`         | Paginate the menus list |
-| `pagination.per_page`         | `20`           | Menus per page when pagination is enabled |
-| `modals`                       | see [dashboard.modals](#dashboardmodals) | Modal sizes (normal, lg, xl) for menu form, copy, item form, delete |
+| Option                        | Default        | Description |
+|-------------------------------|----------------|-------------|
+| `enabled`                     | `false`        | Enable dashboard routes. Set to `true` in app config to use the admin UI. |
+| `path_prefix`                 | `/admin/menus` | URL prefix for dashboard routes. |
+| `route_name_exclude_patterns`  | `[]`           | Regex patterns to hide route names from the route selector (e.g. `['^_', '^web_profiler']`). |
+| `pagination.enabled`         | `true`         | Paginate the menus list. |
+| `pagination.per_page`        | `20`           | Menus per page. |
+| `modals`                      | see below      | Modal sizes: `menu_form`, `copy`, `item_form`, `delete` (Bootstrap 5: `normal`, `lg`, `xl`). |
+| `css_class_options`           | (defaults)     | Arrays of CSS class choices shown as dropdowns when editing a menu (menu, item, link, children, current, branch_expanded, has_children, expanded, collapsed). |
+| `icon_selector_script_url`   | `null`         | Optional URL of the icon-selector script (e.g. with `nowo-tech/icon-selector-bundle`). When set, the item form can show an icon selector. |
+
+**Modal defaults:** `menu_form: normal`, `copy: normal`, `item_form: lg`, `delete: normal`.
+
+## Per-menu options (database)
+
+Each **Menu** entity in the database can override:
+
+- **Name**, **code**, **context** (JSON), **icon**
+- **CSS classes**: classMenu, classItem, classLink, classChildren, classCurrent, classBranchExpanded, classHasChildren, classExpanded, classCollapsed
+- **Permission checker**: service id of a `MenuPermissionCheckerInterface` implementation
+- **Depth limit**: max depth to render (null = unlimited)
+- **Collapsible**, **collapsible_expanded**, **nested_collapsible**
+
+These are set when creating or editing the menu in the dashboard (or via fixtures). There is no per-menu YAML override; the bundle merges entity values with internal defaults when loading the tree.
 
 ## Example
 
 ```yaml
+# config/packages/nowo_dashboard_menu.yaml
 nowo_dashboard_menu:
     project: my_app
-    defaults:
+    doctrine:
         connection: default
         table_prefix: ''
-        permission_checker: null
-        cache_pool: null
-        cache_ttl: 300
-        classes:
-            menu: dashboard-menu
-            item: nav-item
-            link: nav-link
-            children: submenu
-        depth_limit: null
-        icons:
-            enabled: true
-            use_ux_icons: true
-            default: heroicons:home
-    menus:
-        sidebar:
-            menu_name: Sidebar
-            classes:
-                menu: sidebar-menu list-unstyled
-            depth_limit: 3
-        topbar:
-            permission_checker: app.menu.topbar_checker
-            icons:
-                enabled: true
-                use_ux_icons: true
-    menu_code_resolver: null   # optional: service id of MenuCodeResolverInterface
+    cache:
+        ttl: 60
+        pool: cache.app
+    icon_library_prefix_map:
+        bootstrap-icons: bi
+    locales: ['es', 'en', 'fr']
+    default_locale: 'en'
     api:
         enabled: true
         path_prefix: /api/menu
+    dashboard:
+        enabled: true
+        path_prefix: /admin/menus
+        route_name_exclude_patterns: ['^_', '^web_profiler']
+        pagination:
+            enabled: true
+            per_page: 20
+        modals:
+            menu_form: normal
+            copy: normal
+            item_form: lg
+            delete: normal
 ```
 
-## Symfony UX Icons
+## Symfony UX Icons and icon prefix map
 
 For SVG icons (e.g. Heroicons, Bootstrap Icons) install [Symfony UX Icons](https://symfony.com/bundles/ux-icons/current/index.html):
 
@@ -169,19 +188,18 @@ For SVG icons (e.g. Heroicons, Bootstrap Icons) install [Symfony UX Icons](https
 composer require symfony/ux-icons
 ```
 
-Then set `icons.enabled: true` and `icons.use_ux_icons: true` for the menu, and set `icon` on each `MenuItem` (e.g. `heroicons:home`, `bootstrap:house`). When `use_ux_icons` is false, the template outputs a `<span data-icon="...">` so you can style or replace with your own icon library.
+Then set the **icon** on each MenuItem in the dashboard (e.g. `bootstrap-icons:house`). Configure `icon_library_prefix_map` so the bundle converts that to the short form expected by your setup (e.g. `bi:house`). The default map includes `bootstrap-icons: bi`. When `use_ux_icons` is false (or you don’t use UX Icons), the template can still output a `<span data-icon="...">` for custom styling.
 
 ## Collapsible menus
 
-Set `collapsible: true` (in `defaults` or per menu) to wrap the menu in a block with a toggle button and a collapsible content area. The template uses Bootstrap 5–compatible markup (`data-bs-toggle="collapse"`, `data-bs-target`, class `collapse` / `collapse show`). Ensure Bootstrap’s collapse JS is loaded (or equivalent).
+Set **collapsible** on the Menu entity (in the dashboard) to wrap the menu in a block with a toggle button and collapsible content. The template uses Bootstrap 5–compatible markup (`data-bs-toggle="collapse"`, `data-bs-target`, class `collapse` / `collapse show`). Ensure Bootstrap’s collapse JS is loaded.
 
-The toggle button uses the menu’s `menu_name` (or the menu code) as label and includes a span with class `dashboard-menu-toggle-icon` for an optional chevron. You can style it with CSS, for example:
+- **collapsible_expanded**: open by default (true) or collapsed (false).
+- **nested_collapsible**: when true, each item with children gets a toggle; children are inside a collapse. The branch stays open when the current route is in that branch.
+
+The toggle button uses the menu’s **name** (or code) as label and a span with class `dashboard-menu-toggle-icon` for an optional chevron. Example CSS:
 
 ```css
-.dashboard-menu-toggle-icon::after {
-    content: "▾";
-}
-.dashboard-menu-toggle[aria-expanded="false"] .dashboard-menu-toggle-icon::after {
-    content: "▸";
-}
+.dashboard-menu-toggle-icon::after { content: "▾"; }
+.dashboard-menu-toggle[aria-expanded="false"] .dashboard-menu-toggle-icon::after { content: "▸"; }
 ```

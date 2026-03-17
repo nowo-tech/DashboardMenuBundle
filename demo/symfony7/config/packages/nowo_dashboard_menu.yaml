@@ -1,14 +1,43 @@
+# Only these keys can be set in YAML: project, locales, default_locale, doctrine, icon_library_prefix_map, api, dashboard.
+# Menus are registered and configured only in the database (dashboard or fixtures).
 nowo_dashboard_menu:
-    # Igual que en la demo de Symfony 8:
-    #   - Los menús (códigos, nombre, clases CSS, colapsables, etc.) se configuran solo en BD
-    #     mediante el dashboard o los fixtures.
-    #   - Aquí solo se definen opciones de proyecto, locales, dashboard y API.
+    doctrine:
+        connection: default
+        table_prefix: ''
     project: demo_app
     locales: ['en', 'es', 'fr']
     default_locale: 'en'
+    icon_library_prefix_map:
+        bootstrap-icons: bi
+    cache:
+        ttl: 60
+        pool: cache.app
     dashboard:
         enabled: true
         path_prefix: /admin/menus
+        # URL or asset path for the icon-selector script (Stimulus/UX). Enables the icon field in the item form modal.
+        icon_selector_script_url: 'bundles/nowoiconselector/icon-selector.js'
+        # route_name_exclude_patterns: ['^_', '^web_profiler']  # regex: hide internal/profiler routes from selector
+        pagination:
+            enabled: true
+            per_page: 20
+        # Modal sizes: normal, lg, or xl (Bootstrap 5). Affects new/edit menu, copy menu, add/edit item, delete confirm.
+        modals:
+            menu_form: lg
+            copy: normal
+            item_form: lg
+            delete: normal
+        # CSS class options: when set, the menu form shows dropdowns instead of free text for each slot
+        css_class_options:
+            menu: ['nav flex-column', 'nav flex-row', 'dropdown-menu dropdown-menu-end', 'nav flex-wrap gap-2']
+            item: ['nav-item', 'dropdown-item', '']
+            link: ['nav-link', 'dropdown-item', 'nav-link link-secondary']
+            children: ['nav flex-column ms-2', 'nav flex-column', 'dropdown-menu']
+            current: ['active', '']
+            branch_expanded: ['active-branch', 'active-branch-has-children', '']
+            has_children: ['dropdown', 'has-children', '']
+            expanded: ['expanded', '']
+            collapsed: ['collapsed', '']
     api:
         enabled: true
         path_prefix: /api/menu

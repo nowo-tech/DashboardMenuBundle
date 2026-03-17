@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\Controller\Dashboard;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Form\CopyMenuType;
@@ -19,7 +20,6 @@ use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Doctrine\ORM\EntityManagerInterface;
 
 use function count;
 
@@ -73,6 +73,7 @@ final class MenuDashboardController extends AbstractController
      * @param list<string> $routeNameExcludePatterns Regex patterns to exclude route names from the selector
      * @param list<string> $locales Enabled locales for item labels configured in the bundle
      * @param array<string, string> $modalSizes Modal size per type: menu_form, copy, item_form, delete (values: normal, lg, xl)
+     * @param string|null $iconSelectorScriptUrl Optional URL of the icon-selector script (Stimulus/UX) for the item form modal
      */
     public function __construct(
         private readonly MenuRepository $menuRepository,
@@ -85,6 +86,7 @@ final class MenuDashboardController extends AbstractController
         private readonly bool $paginationEnabled = true,
         private readonly int $paginationPerPage = 20,
         private readonly array $modalSizes = [],
+        private readonly ?string $iconSelectorScriptUrl = null,
     ) {
     }
 
@@ -140,13 +142,14 @@ final class MenuDashboardController extends AbstractController
         ]);
 
         return $this->render('@NowoDashboardMenuBundle/dashboard/index.html.twig', [
-            'menus'                => $menus,
-            'search'               => $search,
-            'pagination'           => $pagination,
-            'new_menu_form'        => $newMenuForm,
-            'dashboard_show_route' => self::ROUTE_SHOW,
-            'dashboard_routes'     => $this->getDashboardRoutes(),
-            'modal_classes'        => $this->getModalClasses(),
+            'menus'                    => $menus,
+            'search'                   => $search,
+            'pagination'               => $pagination,
+            'new_menu_form'            => $newMenuForm,
+            'dashboard_show_route'     => self::ROUTE_SHOW,
+            'dashboard_routes'         => $this->getDashboardRoutes(),
+            'modal_classes'            => $this->getModalClasses(),
+            'icon_selector_script_url' => $this->iconSelectorScriptUrl,
         ]);
     }
 
@@ -158,10 +161,11 @@ final class MenuDashboardController extends AbstractController
             'action' => $this->generateUrl(self::ROUTE_MENU_NEW),
         ]);
         $form->handleRequest($request);
+        $menu = $form->getData() ?? $menu;
         if ($form->isSubmitted() && $form->isValid()) {
             if ($menu->getCode() !== '') {
                 $existing = $this->menuRepository->findOneByCodeAndContext($menu->getCode(), $menu->getContext());
-                if ($existing instanceof \Nowo\DashboardMenuBundle\Entity\Menu) {
+                if ($existing instanceof Menu) {
                     $form->addError(new FormError($this->translator->trans('dashboard.unique_code_context_error')));
                 } else {
                     $this->entityManager->persist($menu);
@@ -184,9 +188,10 @@ final class MenuDashboardController extends AbstractController
         }
 
         return $this->render('@NowoDashboardMenuBundle/dashboard/menu_form.html.twig', [
-            'form'             => $form,
-            'is_edit'          => false,
-            'dashboard_routes' => $this->getDashboardRoutes(),
+            'form'                     => $form,
+            'is_edit'                  => false,
+            'dashboard_routes'         => $this->getDashboardRoutes(),
+            'icon_selector_script_url' => $this->iconSelectorScriptUrl,
         ]);
     }
 
@@ -203,15 +208,16 @@ final class MenuDashboardController extends AbstractController
         $itemParentLabels = $this->computeParentLabels($items, 'en');
 
         return $this->render('@NowoDashboardMenuBundle/dashboard/show.html.twig', [
-            'menu'                 => $menu,
-            'items'                => $items,
-            'modal_classes'        => $this->getModalClasses(),
-            'prev_sibling'         => $siblings['prev'],
-            'next_sibling'         => $siblings['next'],
-            'item_depths'          => $itemDepths,
-            'item_parent_labels'   => $itemParentLabels,
-            'dashboard_show_route' => self::ROUTE_SHOW,
-            'dashboard_routes'     => $this->getDashboardRoutes(),
+            'menu'                     => $menu,
+            'items'                    => $items,
+            'modal_classes'            => $this->getModalClasses(),
+            'prev_sibling'             => $siblings['prev'],
+            'next_sibling'             => $siblings['next'],
+            'item_depths'              => $itemDepths,
+            'item_parent_labels'       => $itemParentLabels,
+            'dashboard_show_route'     => self::ROUTE_SHOW,
+            'dashboard_routes'         => $this->getDashboardRoutes(),
+            'icon_selector_script_url' => $this->iconSelectorScriptUrl,
         ]);
     }
 
@@ -270,7 +276,7 @@ final class MenuDashboardController extends AbstractController
     /**
      * @param list<MenuItem> $items Flat list ordered by parent then position
      *
-     * @return array<int, string> Map item id => parent label (or "— Raíz —" for root)
+     * @return array<int, string> Map item id => parent label (or the translated root label, e.g. "— Root —", for root)
      */
     private function computeParentLabels(array $items, string $locale = 'en'): array
     {
@@ -378,7 +384,7 @@ final class MenuDashboardController extends AbstractController
                 $menu->setCode($originalCode);
             }
             $existing = $this->menuRepository->findOneByCodeAndContext($menu->getCode(), $menu->getContext());
-            if ($existing instanceof \Nowo\DashboardMenuBundle\Entity\Menu && $existing->getId() !== $menu->getId()) {
+            if ($existing instanceof Menu && $existing->getId() !== $menu->getId()) {
                 $form->addError(new FormError($this->translator->trans('dashboard.unique_code_context_error')));
             } else {
                 $this->entityManager->flush();
@@ -397,9 +403,10 @@ final class MenuDashboardController extends AbstractController
         }
 
         return $this->render('@NowoDashboardMenuBundle/dashboard/menu_form.html.twig', [
-            'form'             => $form,
-            'is_edit'          => true,
-            'dashboard_routes' => $this->getDashboardRoutes(),
+            'form'                     => $form,
+            'is_edit'                  => true,
+            'dashboard_routes'         => $this->getDashboardRoutes(),
+            'icon_selector_script_url' => $this->iconSelectorScriptUrl,
         ]);
     }
 
@@ -439,14 +446,15 @@ final class MenuDashboardController extends AbstractController
             $newName    = isset($data['name']) && $data['name'] !== '' ? trim((string) $data['name']) : null;
             $newContext = $menu->getContext();
             $existing   = $this->menuRepository->findOneByCodeAndContext($newCode, $newContext);
-            if ($existing instanceof \Nowo\DashboardMenuBundle\Entity\Menu) {
+            if ($existing instanceof Menu) {
                 $this->addFlash('error', 'A menu with this code and context already exists.');
 
                 return $this->render('@NowoDashboardMenuBundle/dashboard/copy_menu.html.twig', [
-                    'menu'                 => $menu,
-                    'form'                 => $form,
-                    'dashboard_show_route' => self::ROUTE_SHOW,
-                    'dashboard_routes'     => $this->getDashboardRoutes(),
+                    'menu'                     => $menu,
+                    'form'                     => $form,
+                    'dashboard_show_route'     => self::ROUTE_SHOW,
+                    'dashboard_routes'         => $this->getDashboardRoutes(),
+                    'icon_selector_script_url' => $this->iconSelectorScriptUrl,
                 ]);
             }
             $copy = $this->cloneMenuWithItems($menu, $newCode, $newName);
@@ -463,10 +471,11 @@ final class MenuDashboardController extends AbstractController
         }
 
         return $this->render('@NowoDashboardMenuBundle/dashboard/copy_menu.html.twig', [
-            'menu'                 => $menu,
-            'form'                 => $form,
-            'dashboard_show_route' => self::ROUTE_SHOW,
-            'dashboard_routes'     => $this->getDashboardRoutes(),
+            'menu'                     => $menu,
+            'form'                     => $form,
+            'dashboard_show_route'     => self::ROUTE_SHOW,
+            'dashboard_routes'         => $this->getDashboardRoutes(),
+            'icon_selector_script_url' => $this->iconSelectorScriptUrl,
         ]);
     }
 
@@ -586,13 +595,14 @@ final class MenuDashboardController extends AbstractController
         }
 
         return $this->render('@NowoDashboardMenuBundle/dashboard/item_form.html.twig', [
-            'menu'                 => $menu,
-            'form'                 => $form,
-            'is_edit'              => false,
-            'app_routes'           => $appRoutes,
-            'locales'              => $this->locales,
-            'dashboard_show_route' => self::ROUTE_SHOW,
-            'dashboard_routes'     => $this->getDashboardRoutes(),
+            'menu'                     => $menu,
+            'form'                     => $form,
+            'is_edit'                  => false,
+            'app_routes'               => $appRoutes,
+            'locales'                  => $this->locales,
+            'dashboard_show_route'     => self::ROUTE_SHOW,
+            'dashboard_routes'         => $this->getDashboardRoutes(),
+            'icon_selector_script_url' => $this->iconSelectorScriptUrl,
         ]);
     }
 
@@ -638,13 +648,14 @@ final class MenuDashboardController extends AbstractController
         }
 
         return $this->render('@NowoDashboardMenuBundle/dashboard/item_form.html.twig', [
-            'menu'                 => $menu,
-            'form'                 => $form,
-            'is_edit'              => true,
-            'app_routes'           => $appRoutes,
-            'locales'              => $this->locales,
-            'dashboard_show_route' => self::ROUTE_SHOW,
-            'dashboard_routes'     => $this->getDashboardRoutes(),
+            'menu'                     => $menu,
+            'form'                     => $form,
+            'is_edit'                  => true,
+            'app_routes'               => $appRoutes,
+            'locales'                  => $this->locales,
+            'dashboard_show_route'     => self::ROUTE_SHOW,
+            'dashboard_routes'         => $this->getDashboardRoutes(),
+            'icon_selector_script_url' => $this->iconSelectorScriptUrl,
         ]);
     }
 

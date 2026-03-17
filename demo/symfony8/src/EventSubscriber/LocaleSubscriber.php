@@ -8,8 +8,10 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
+use function in_array;
+
 /**
- * Establece el locale de la petición desde la sesión (_locale) para que el cambio de idioma persista.
+ * Sets the request locale from the session (_locale) so that language switching persists.
  */
 class LocaleSubscriber implements EventSubscriberInterface
 {
@@ -28,18 +30,19 @@ class LocaleSubscriber implements EventSubscriberInterface
     public function onKernelRequest(RequestEvent $event): void
     {
         $request = $event->getRequest();
-        // Prioridad: locale de la ruta (URL) > sesión
+        // Priority: route (URL) locale > session
         $locale = $request->attributes->get('_locale');
-        if ($locale !== null && \in_array($locale, $this->allowedLocales, true)) {
+        if ($locale !== null && in_array($locale, $this->allowedLocales, true)) {
             $request->setLocale($locale);
             if ($request->hasSession()) {
                 $request->getSession()->set('_locale', $locale);
             }
+
             return;
         }
         if ($request->hasSession()) {
             $locale = $request->getSession()->get('_locale');
-            if ($locale !== null && \in_array($locale, $this->allowedLocales, true)) {
+            if ($locale !== null && in_array($locale, $this->allowedLocales, true)) {
                 $request->setLocale($locale);
             }
         }

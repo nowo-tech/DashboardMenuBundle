@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\Service;
 
+use Exception;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -38,10 +39,15 @@ final readonly class MenuUrlResolver
 
         $params  = $item->getRouteParams() ?? [];
         $request = $this->requestStack->getCurrentRequest();
+
         if ($request instanceof \Symfony\Component\HttpFoundation\Request && !array_key_exists('_locale', $params)) {
             $params = ['_locale' => $request->getLocale()] + $params;
         }
 
-        return $this->urlGenerator->generate($routeName, $params, $referenceType);
+        try {
+            return $this->urlGenerator->generate($routeName, $params, $referenceType);
+        } catch (Exception) {
+            return '#';
+        }
     }
 }

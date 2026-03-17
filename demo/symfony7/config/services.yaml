@@ -6,3 +6,6 @@ services:
     App\EventSubscriber\LocaleSubscriber:
         arguments:
             $allowedLocales: '%nowo_dashboard_menu.locales%'
+
+    App\DataFixtures\:
+        resource: '../src/DataFixtures/'

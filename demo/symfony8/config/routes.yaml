@@ -1,4 +1,4 @@
-# Rutas de la app: prefijo /{_locale} definido en cada controlador
+# App routes: /{_locale} prefix defined on each controller
 controllers:
     resource:
         path: ../src/Controller/
@@ -11,6 +11,10 @@ nowo_dashboard_menu:
 nowo_dashboard_menu_dashboard:
     resource: '@NowoDashboardMenuBundle/Resources/config/routes_dashboard.yaml'
     prefix: /admin/menus
+
+# Icon Selector Bundle - API for icon list (/api/icon-selector/icons)
+nowo_icon_selector:
+    resource: '@NowoIconSelectorBundle/Resources/config/routes.yaml'
 
 # Dev/test: Web Profiler & Debug toolbar
 _web_profiler:

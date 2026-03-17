@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class InfoController extends AbstractController
 {
     public const APP_INFO_INDEX_ROUTE = 'app_info_index';
-    public const APP_INFO_ROUTE = 'app_info';
+    public const APP_INFO_ROUTE       = 'app_info';
 
     /** Footer / info: cada slug es un posible valor de section (about, privacy, terms, contact, support, status). */
     public const INFO_SECTIONS = ['about', 'privacy', 'terms', 'contact', 'support', 'status'];
@@ -30,4 +30,3 @@ class InfoController extends AbstractController
         ]);
     }
 }
-

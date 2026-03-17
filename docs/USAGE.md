@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Twig](#twig)
+- [Items with children (parent, link vs section)](#items-with-children-parent-link-vs-section)
 - [Resolving by context (context sets)](#resolving-by-context-context-sets)
 - [JSON API](#json-api)
 - [Resolving menu by criteria](#resolving-menu-by-criteria-operatorid-partnerid-menu-name)
@@ -25,13 +26,22 @@ If you omit `menuConfig`, the template will call `dashboard_menu_config(menuCode
 {% include '@NowoDashboardMenuBundle/menu.html.twig' with { menuTree: tree, menuCode: 'sidebar' } %}
 ```
 
-**Render options** (from config): the template uses `menuConfig` for CSS **classes** (menu, item, link, children), **depth_limit** (stops rendering below that level), and **icons** (enabled, use_ux_icons, default). Configure these per menu in `nowo_dashboard_menu.menus.{code}` (see [CONFIGURATION.md](CONFIGURATION.md)).
+**Render options** (from config): the template uses `menuConfig` for CSS **classes** (menu, item, link, children), **depth_limit** (stops rendering below that level), and **icons** (enabled, use_ux_icons, default). Per-menu options (including classes and icons) are set on the Menu entity in the database (see [CONFIGURATION.md](CONFIGURATION.md)). Icon identifiers (e.g. `bootstrap-icons:house`) are converted using `icon_library_prefix_map` (e.g. to `bi:house`) before being passed to `ux_icon()`.
 
 Generate href for an item:
 
 ```twig
 {{ dashboard_menu_href(item) }}
 ```
+
+## Items with children (parent, link vs section)
+
+Hierarchy is defined by the **Parent** field when creating or editing an item in the dashboard: each item can have a parent (or “— Root —” for top-level). No extra “type” is needed to mark something as a parent; if any item has this one as parent, it will have children in the tree.
+
+- **Parent with link:** Use type **Link** and set a route or URL. The item is clickable and, when the menu has **nested collapsible** enabled, it shows a chevron to expand/collapse its children. Children are rendered in a nested list (and stay visible by default when the current route is in that branch).
+- **Parent without link:** Use type **Section**. The label is not a link; when it has children and the menu has **nested collapsible** enabled, only the chevron toggles the nested list. Use this for group headers that open/close a block of links.
+
+So: **Link** = clickable, can have children (optional chevron + collapse). **Section** = label only, can have children (optional chevron + collapse). Both support any depth (children, grandchildren, etc.). Enable **nested_collapsible** on the menu (in config or in the dashboard) so that items with children get the expand/collapse control.
 
 ## Resolving by context (context sets)
 
@@ -52,12 +62,14 @@ In the API, send the same list as the `_context_sets` query parameter (JSON-enco
 
 `GET /api/menu/{code}` returns a JSON array of root nodes. Each node has:
 
-- `label` (translated)
+- `label` (translated for the request locale)
 - `href` (resolved URL)
-- `routeName` (if internal route)
+- `routeName` (if internal route, else null)
+- `icon` (resolved icon identifier, e.g. after `icon_library_prefix_map`; null if none)
+- `itemType` (e.g. `link`, `section`)
 - `children` (same structure, recursively)
 
-Query parameter `_locale` overrides the request locale for the response.
+Query parameters: `_locale` overrides the request locale; `_context_sets` (JSON array of context objects) resolves which menu variant to use, same as in Twig.
 
 ## Resolving menu by criteria (operatorId, partnerId, menu name)
 
@@ -115,4 +127,4 @@ public function canView(MenuItem $item, mixed $context = null): bool
 }
 ```
 
-Register your service and set `nowo_dashboard_menu.permission_checker` to its id.
+Register your service and tag it with `nowo_dashboard_menu.permission_checker` (optionally with a `label` attribute for the dashboard form). Then assign it to a menu in the dashboard (per-menu) or leave the menu with no checker for default allow-all behaviour.

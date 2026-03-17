@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // This file is auto-generated and is for apps only. Bundles SHOULD NOT rely on its content.
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
@@ -465,7 +467,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     },
  *     disallow_search_engine_index?: bool|Param, // Enabled by default when debug is enabled. // Default: true
  *     http_client?: bool|array{ // HTTP Client configuration
- *         enabled?: bool|Param, // Default: false
+ *         enabled?: bool|Param, // Default: true
  *         max_host_connections?: int|Param, // The maximum number of connections to a single host.
  *         default_options?: array{
  *             headers?: array<string, mixed>,
@@ -1222,8 +1224,49 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     intercept_redirects?: bool|Param, // Default: false
  *     excluded_ajax_paths?: scalar|Param|null, // Default: "^/((index|app(_[\\w]+)?)\\.php/)?_wdt"
  * }
+ * @psalm-type PentatrionViteConfig = array{
+ *     public_directory?: scalar|Param|null, // Default: "public"
+ *     build_directory?: scalar|Param|null, // we only need build_directory to locate entrypoints.json file, it's the "base" vite config parameter without slashes. // Default: "build"
+ *     proxy_origin?: scalar|Param|null, // Allows to use different origin for asset proxy, eg. http://host.docker.internal:5173 // Default: null
+ *     absolute_url?: bool|Param, // Prepend the rendered link and script tags with an absolute URL. // Default: false
+ *     throw_on_missing_entry?: scalar|Param|null, // Throw exception when entry is not present in the entrypoints file // Default: false
+ *     throw_on_missing_asset?: scalar|Param|null, // Throw exception when asset is not present in the manifest file // Default: true
+ *     cache?: bool|Param, // Enable caching of the entry point file(s) // Default: false
+ *     preload?: "none"|"link-tag"|"link-header"|Param, // preload all rendered script and link tags automatically via the http2 Link header. (symfony/web-link is required) Instead <link rel="modulepreload"> will be used. // Default: "link-tag"
+ *     crossorigin?: false|true|"anonymous"|"use-credentials"|Param, // crossorigin value, can be false, true (default), anonymous (same as true) or use-credentials // Default: true
+ *     script_attributes?: list<scalar|Param|null>,
+ *     link_attributes?: list<scalar|Param|null>,
+ *     preload_attributes?: list<scalar|Param|null>,
+ *     default_build?: scalar|Param|null, // Deprecated: The "default_build" option is deprecated. Use "default_config" instead. // Default: null
+ *     builds?: array<string, array{ // Default: []
+ *         build_directory?: scalar|Param|null, // Default: "build"
+ *         script_attributes?: list<scalar|Param|null>,
+ *         link_attributes?: list<scalar|Param|null>,
+ *         preload_attributes?: list<scalar|Param|null>,
+ *     }>,
+ *     default_config?: scalar|Param|null, // Default: null
+ *     configs?: array<string, array{ // Default: []
+ *         build_directory?: scalar|Param|null, // Default: "build"
+ *         script_attributes?: list<scalar|Param|null>,
+ *         link_attributes?: list<scalar|Param|null>,
+ *         preload_attributes?: list<scalar|Param|null>,
+ *     }>,
+ * }
+ * @psalm-type StimulusConfig = array{
+ *     controller_paths?: list<scalar|Param|null>,
+ *     controllers_json?: scalar|Param|null, // Default: "%kernel.project_dir%/assets/controllers.json"
+ * }
  * @psalm-type NowoDashboardMenuConfig = array{
  *     project?: scalar|Param|null, // Optional project identifier to differentiate menus when multiple apps share the same DB // Default: null
+ *     doctrine?: array{ // Doctrine DBAL connection and table prefix for menu entities.
+ *         connection?: scalar|Param|null, // Name of the Doctrine DBAL connection to use (e.g. default, or a custom connection). // Default: "default"
+ *         table_prefix?: scalar|Param|null, // Prefix prepended to table names (dashboard_menu, dashboard_menu_item). Empty = no prefix. // Default: ""
+ *     },
+ *     cache?: array{ // Cache for the resolved menu tree (avoids N+1 and repeated DB hits). Uses filesystem when cache_pool is the default.
+ *         ttl?: int|Param, // Time-to-live in seconds for the menu tree cache. Minimum 60. // Default: 60
+ *         pool?: scalar|Param|null, // Cache pool name (e.g. cache.app). Set to null or empty to disable tree cache. // Default: "cache.app"
+ *     },
+ *     icon_library_prefix_map?: array<string, scalar|Param|null>,
  *     locales?: list<scalar|Param|null>,
  *     default_locale?: scalar|Param|null, // Fallback locale when the request locale is not in locales. If null, the first entry in locales is used. // Default: null
  *     api?: array{
@@ -1244,6 +1287,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             item_form?: scalar|Param|null, // Add/edit item modal. // Default: "lg"
  *             delete?: scalar|Param|null, // Delete confirmation modals. // Default: "normal"
  *         },
+ *         icon_selector_script_url?: scalar|Param|null, // Optional URL of the icon-selector Stimulus/script asset. When set, the dashboard layout sets window.dashboardMenuIconSelectorScriptUrl so the item form modal can init the icon selector. Use with nowo-tech/icon-selector-bundle and Symfony UX (Stimulus). // Default: null
  *         css_class_options?: array{ // Lists of CSS classes shown as selectors in the dashboard when editing a menu. Override in app config to customize options.
  *             menu?: list<scalar|Param|null>,
  *             item?: list<scalar|Param|null>,
@@ -1257,6 +1301,37 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         },
  *     },
  * }
+ * @psalm-type NowoTwigInspectorConfig = array{
+ *     enabled_extensions?: list<scalar|Param|null>,
+ *     excluded_templates?: list<scalar|Param|null>,
+ *     excluded_blocks?: list<scalar|Param|null>,
+ *     enable_metrics?: bool|Param, // Enable collection of template usage metrics in DataCollector // Default: true
+ *     optimize_output_buffering?: bool|Param, // Skip output buffering when inspector is disabled (performance optimization) // Default: true
+ *     cookie_name?: scalar|Param|null, // Name of the cookie used to enable/disable the inspector // Default: "twig_inspector_is_active"
+ * }
+ * @psalm-type UxIconsConfig = array{
+ *     icon_dir?: scalar|Param|null, // The local directory where icons are stored. // Default: "%kernel.project_dir%/assets/icons"
+ *     default_icon_attributes?: array<string, scalar|Param|null>,
+ *     icon_sets?: array<string, array{ // the icon set prefix (e.g. "acme") // Default: []
+ *         path?: scalar|Param|null, // The local icon set directory path. (cannot be used with 'alias')
+ *         alias?: scalar|Param|null, // The remote icon set identifier. (cannot be used with 'path')
+ *         icon_attributes?: array<string, scalar|Param|null>,
+ *     }>,
+ *     aliases?: array<string, string|Param>,
+ *     iconify?: bool|array{ // Configuration for the remote icon service.
+ *         enabled?: bool|Param, // Default: true
+ *         on_demand?: bool|Param, // Whether to download icons "on demand". // Default: true
+ *         endpoint?: scalar|Param|null, // The endpoint for the Iconify icons API. // Default: "https://api.iconify.design"
+ *     },
+ *     ignore_not_found?: bool|Param, // Ignore error when an icon is not found. Set to 'true' to fail silently. // Default: false
+ * }
+ * @psalm-type NowoIconSelectorConfig = array{
+ *     icon_sets?: list<scalar|Param|null>,
+ *     use_iconify_collection?: bool|Param, // When true, fetch the full icon list from api.iconify.design/collection for each icon_sets entry (requires symfony/http-client). When false, use the bundle static list. // Default: false
+ *     icons_api_path?: scalar|Param|null, // Path for the JSON API that returns available icons. Used by the frontend to fetch the list. // Default: "/api/icon-selector/icons"
+ *     form_theme?: scalar|Param|null, // Base form layout so the icon selector theme matches your app (e.g. form_div_layout.html.twig, bootstrap_5_layout.html.twig). Must match twig.form_themes. // Default: "form_div_layout.html.twig"
+ *     debug?: bool|Param, // When true, the frontend logs all debug/info/warn messages to the console. When false, only the initial "script loaded" message is shown. // Default: false
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -1265,7 +1340,11 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     security?: SecurityConfig,
  *     doctrine?: DoctrineConfig,
  *     twig?: TwigConfig,
+ *     pentatrion_vite?: PentatrionViteConfig,
+ *     stimulus?: StimulusConfig,
  *     nowo_dashboard_menu?: NowoDashboardMenuConfig,
+ *     ux_icons?: UxIconsConfig,
+ *     nowo_icon_selector?: NowoIconSelectorConfig,
  *     "when@dev"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -1276,7 +1355,12 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         twig?: TwigConfig,
  *         debug?: DebugConfig,
  *         web_profiler?: WebProfilerConfig,
+ *         pentatrion_vite?: PentatrionViteConfig,
+ *         stimulus?: StimulusConfig,
  *         nowo_dashboard_menu?: NowoDashboardMenuConfig,
+ *         nowo_twig_inspector?: NowoTwigInspectorConfig,
+ *         ux_icons?: UxIconsConfig,
+ *         nowo_icon_selector?: NowoIconSelectorConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -1286,7 +1370,11 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         security?: SecurityConfig,
  *         doctrine?: DoctrineConfig,
  *         twig?: TwigConfig,
+ *         pentatrion_vite?: PentatrionViteConfig,
+ *         stimulus?: StimulusConfig,
  *         nowo_dashboard_menu?: NowoDashboardMenuConfig,
+ *         ux_icons?: UxIconsConfig,
+ *         nowo_icon_selector?: NowoIconSelectorConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
@@ -1298,7 +1386,12 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         twig?: TwigConfig,
  *         debug?: DebugConfig,
  *         web_profiler?: WebProfilerConfig,
+ *         pentatrion_vite?: PentatrionViteConfig,
+ *         stimulus?: StimulusConfig,
  *         nowo_dashboard_menu?: NowoDashboardMenuConfig,
+ *         nowo_twig_inspector?: NowoTwigInspectorConfig,
+ *         ux_icons?: UxIconsConfig,
+ *         nowo_icon_selector?: NowoIconSelectorConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,

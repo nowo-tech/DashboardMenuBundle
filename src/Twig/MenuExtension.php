@@ -4,15 +4,22 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\Twig;
 
+use Doctrine\DBAL\Connection;
+use Nowo\DashboardMenuBundle\DataCollector\DashboardMenuDataCollector;
+use Nowo\DashboardMenuBundle\DataCollector\MenuQueryCounter;
+use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Service\CurrentRouteTreeDecorator;
 use Nowo\DashboardMenuBundle\Service\MenuCodeResolverInterface;
 use Nowo\DashboardMenuBundle\Service\MenuConfigResolver;
+use Nowo\DashboardMenuBundle\Service\MenuIconNameResolver;
 use Nowo\DashboardMenuBundle\Service\MenuLocaleResolver;
 use Nowo\DashboardMenuBundle\Service\MenuTreeLoader;
 use Nowo\DashboardMenuBundle\Service\MenuUrlResolver;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
 use Twig\TwigFunction;
 
 /**
@@ -32,6 +39,10 @@ final class MenuExtension extends AbstractExtension
         private readonly RequestStack $requestStack,
         private readonly CurrentRouteTreeDecorator $currentRouteTreeDecorator,
         private readonly MenuLocaleResolver $localeResolver,
+        private readonly MenuIconNameResolver $menuIconNameResolver,
+        private readonly ?DashboardMenuDataCollector $dataCollector = null,
+        private readonly ?MenuQueryCounter $menuQueryCounter = null,
+        private readonly ?Connection $connection = null,
     ) {
     }
 
@@ -48,6 +59,16 @@ final class MenuExtension extends AbstractExtension
     }
 
     /**
+     * @return TwigFilter[]
+     */
+    public function getFilters(): array
+    {
+        return [
+            new TwigFilter('dashboard_menu_icon_name', $this->menuIconNameResolver->resolve(...)),
+        ];
+    }
+
+    /**
      * Returns render config for the menu (classes, depth_limit, icons). When multiple menus share the same code,
      * pass contextSets (ordered list of context objects) to resolve the first match; null/[] = no context.
      *
@@ -58,7 +79,7 @@ final class MenuExtension extends AbstractExtension
     public function getMenuConfig(string $menuCode, ?array $contextSets = null): array
     {
         $request = $this->requestStack->getCurrentRequest();
-        $code    = $request instanceof \Symfony\Component\HttpFoundation\Request ? $this->menuCodeResolver->resolveMenuCode($request, $menuCode) : $menuCode;
+        $code    = $request instanceof Request ? $this->menuCodeResolver->resolveMenuCode($request, $menuCode) : $menuCode;
         $config  = $this->configResolver->getConfig($code, $contextSets);
 
         return [
@@ -89,15 +110,34 @@ final class MenuExtension extends AbstractExtension
     {
         $request = $this->requestStack->getCurrentRequest();
         $context = $permissionContext;
-        if ($context === null && $request instanceof \Symfony\Component\HttpFoundation\Request) {
+        if ($context === null && $request instanceof Request) {
             $context = $request;
         }
-        if (!$request instanceof \Symfony\Component\HttpFoundation\Request) {
+        if (!$request instanceof Request) {
             return $this->menuTreeLoader->loadTree($menuCode, 'en', $context, $contextSets);
         }
         $resolvedCode = $this->menuCodeResolver->resolveMenuCode($request, $menuCode);
         $locale       = $this->localeResolver->resolveLocale($request->getLocale());
-        $tree         = $this->menuTreeLoader->loadTree($resolvedCode, $locale, $context, $contextSets);
+        $queryCount   = null;
+        if ($this->dataCollector instanceof DashboardMenuDataCollector && $this->menuQueryCounter instanceof \Nowo\DashboardMenuBundle\DataCollector\MenuQueryCounter && $this->connection instanceof \Doctrine\DBAL\Connection) {
+            $this->menuQueryCounter->wrapConnection($this->connection);
+            $this->menuQueryCounter->startSegment();
+        }
+        $tree = $this->menuTreeLoader->loadTree($resolvedCode, $locale, $context, $contextSets);
+        if ($this->menuQueryCounter instanceof \Nowo\DashboardMenuBundle\DataCollector\MenuQueryCounter) {
+            $queryCount = $this->menuQueryCounter->getSegmentCount();
+        }
+
+        if ($this->dataCollector instanceof DashboardMenuDataCollector) {
+            $resolvedContext = null;
+            if ($tree !== []) {
+                $first = $tree[0]['item'];
+                if ($first->getMenu() instanceof Menu) {
+                    $resolvedContext = $first->getMenu()->getContext();
+                }
+            }
+            $this->dataCollector->addMenuLoad($resolvedCode, $contextSets, $tree, $resolvedContext, $queryCount);
+        }
 
         return $this->currentRouteTreeDecorator->decorate($tree, $request);
     }

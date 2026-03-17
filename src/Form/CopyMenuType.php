@@ -27,7 +27,7 @@ final class CopyMenuType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $t = fn (string $id): string => $this->translator instanceof \Symfony\Contracts\Translation\TranslatorInterface ? $this->translator->trans($id) : $id;
+        $t = fn (string $id): string => $this->translator instanceof TranslatorInterface ? $this->translator->trans($id) : $id;
         $builder
             ->add('code', TextType::class, [
                 'required' => true,

@@ -53,7 +53,7 @@ return [
 ];
 ```
 
-2. **Create config**: Add `config/packages/nowo_dashboard_menu.yaml` with at least project/locales and api options. See [CONFIGURATION.md](CONFIGURATION.md) for a minimal example.
+2. **Create config**: Add `config/packages/nowo_dashboard_menu.yaml` with at least `doctrine`, `api` (and optionally `project`, `locales`, `cache`, `icon_library_prefix_map`, `dashboard`). See [CONFIGURATION.md](CONFIGURATION.md) for a minimal example.
 
 ## Import routes
 
@@ -68,18 +68,20 @@ If the recipe already added this, skip. The bundle exposes dashboard routes (e.g
 
 ## Schema
 
-Create or update the database schema for the `Menu` and `MenuItem` entities:
+Create the menu tables using the **connection** and **table_prefix** from your config:
 
 ```bash
-php bin/console doctrine:schema:update --force
-```
-
-Or use migrations:
-
-```bash
-php bin/console doctrine:migrations:diff
+php bin/console nowo_dashboard_menu:generate-migration
 php bin/console doctrine:migrations:migrate
 ```
+
+If you use a non-default `doctrine.connection`, run the migration with that connection:
+
+```bash
+php bin/console doctrine:migrations:migrate --conn=YOUR_CONNECTION
+```
+
+Alternatively you can use `doctrine:schema:update --force` if you use the default connection and no table prefix; the bundle command is recommended so the migration matches your YAML config.
 
 ## Verify
 

@@ -34,6 +34,8 @@ final readonly class MenuConfigResolver
     public function __construct(
         private array $config,
         private MenuRepository $menuRepository,
+        private string $connection = 'default',
+        private string $tablePrefix = '',
     ) {
     }
 
@@ -41,24 +43,26 @@ final readonly class MenuConfigResolver
      * Returns config for the given menu code: YAML values + Menu entity (DB) for name and classes.
      * When multiple menus share the same code (different context), pass $contextSets to try
      * combinations in order; the first matching menu is used. Use null/empty for "no context".
+     * Pass $menu when already loaded (e.g. from cache) to avoid an extra DB query.
      *
      * @param list<array<string, bool|int|string>|null>|null $contextSets Ordered list of context objects to try; null = try [null, []] (no context first)
+     * @param Menu|null $menu Optional pre-loaded menu entity to use instead of querying
      *
      * @return array{connection: string, table_prefix: string, menu_name: string|null, permission_checker: string|null, cache_pool: string|null, cache_ttl: int, classes: array<string, string>, depth_limit: int|null, icons: array{enabled: bool, use_ux_icons: bool, default: string|null}, collapsible: bool, collapsible_expanded: bool, nested_collapsible: bool, context: array<string, bool|int|string>}
      */
-    public function getConfig(string $menuCode, ?array $contextSets = null): array
+    public function getConfig(string $menuCode, ?array $contextSets = null, ?Menu $menu = null): array
     {
         $classes = self::DEFAULT_CLASSES;
 
         $sets   = $contextSets ?? [null, []];
-        $entity = $this->menuRepository->findForCodeWithContextSets($menuCode, $sets);
+        $entity = $menu ?? $this->menuRepository->findForCodeWithContextSets($menuCode, $sets);
         if ($entity instanceof Menu) {
             $classes = $this->mergeEntityClasses($classes, $entity);
         }
 
         return [
-            'connection'         => 'default',
-            'table_prefix'       => '',
+            'connection'         => $this->connection,
+            'table_prefix'       => $this->tablePrefix,
             'menu_name'          => $entity?->getName(),
             'permission_checker' => $entity?->getPermissionChecker(),
             'cache_pool'         => null,

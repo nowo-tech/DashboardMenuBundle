@@ -1,0 +1,169 @@
+# Dashboard Menu Bundle – Deutsch (semantische Schlüssel)
+dashboard:
+  title: Menü-Dashboard
+  title_suffix: Dashboard-Menü
+  menus: Menüs
+  menu: Menü
+  menus_back: "← Menüs"
+  new_menu: Neues Menü
+  edit_menu: Menü bearbeiten
+  edit_item: Eintrag bearbeiten
+  edit_items: Einträge bearbeiten
+  copy: Kopieren
+  copy_menu: Menü kopieren
+  copy_menu_help: "Menü und alle Einträge kopieren. Code und Name des neuen Menüs können geändert werden."
+  delete: Löschen
+  cancel: Abbrechen
+  close: Schließen
+  confirm_delete: Löschen bestätigen
+  delete_menu_confirm: 'Menü "%name%" und alle Einträge löschen?'
+  delete_menu_message: Dieses Menü und alle Einträge löschen?
+  delete_item_confirm: '"%name%" und untergeordnete Einträge löschen?'
+  delete_item_message: Diesen Eintrag und untergeordnete löschen?
+  add_item: Eintrag hinzufügen
+  new_item: Neuer Eintrag
+  add_one: Einen hinzufügen
+  add_child: Untereintrag hinzufügen
+  search: Suchen
+  search_placeholder: "Nach Code oder Name suchen…"
+  clear: Zurücksetzen
+  no_menus_yet: "Noch keine Menüs. Erstellen Sie eines."
+  no_items: Keine Einträge.
+  context: Kontext
+  parent: Übergeordnet
+  route_url: "Route / URL"
+  item: Eintrag
+  actions: Aktionen
+  first: Erste
+  last: Letzte
+  move_up: Nach oben
+  move_down: Nach unten
+  edit: Bearbeiten
+  create: Erstellen
+  update: Aktualisieren
+  loading: "Laden…"
+  error_loading_form: Fehler beim Laden des Formulars.
+  previous: Zurück
+  next: Weiter
+  pagination_menus: Menü-Seitennummerierung
+  showing_from_to_of_total: "%from%-%to% von %total%"
+  depth_limit: Tiefenlimit
+  permission_checker: Berechtigungsprüfung
+  collapsible: Einklappbar
+  collapsible_expanded: Einklappbar (standardmäßig offen)
+  nested_collapsible: Verschachtelt einklappbar
+  css_classes: CSS-Klassen
+  root: "— Wurzel —"
+  no_label: "(keine Bezeichnung)"
+  unique_code_context_error: Ein Menü mit diesem Code und Kontext existiert bereits.
+  base: Basis
+  base_badge_title: "Basis-Menü: Code kann nach der Erstellung nicht geändert werden."
+  toggle: Um schalten
+  yes: Ja
+  no: Nein
+form:
+  menu_type:
+    code:
+      label: Code
+      help: "Eindeutige Kennung (Buchstaben, Zahlen, _ -). Bei Basis-Menüs kann der Code nach der Erstellung nicht geändert werden."
+      placeholder: "z. B. sidebar"
+    base:
+      label: "Basis-Menü"
+      help: "Wenn aktiviert, kann der Code dieses Menüs nach der Erstellung nicht geändert werden."
+    name:
+      label: Name
+      placeholder: "z. B. Sidebar"
+    context:
+      label: Kontext
+      help: "Optionale JSON-Schlüssel-Wert-Paare zur Identifikation dieser Menüvariante."
+      placeholder: '{"partnerId": 1, "operatorId": 1}'
+    icon:
+      label: Icon
+      help: "Optionale Icon-Kennung (z. B. Symfony UX Icons: heroicons:home, bootstrap:house)."
+      placeholder: "z. B. heroicons:bars-3"
+    permission_checker:
+      label: Berechtigungsprüfung
+      placeholder: "— Alle erlauben —"
+      allow_all: "— Alle erlauben —"
+      help: "Service, der MenuPermissionCheckerInterface implementiert (leer = alle erlauben)."
+    depth_limit:
+      label: Tiefenlimit
+      placeholder: "leer = unbegrenzt"
+      help: "Maximale Tiefe (1 = nur Wurzel; leer = unbegrenzt)."
+    collapsible:
+      label: "Einklappbar (Menü in ein-/ausblendbarem Block)"
+    collapsible_expanded:
+      label: "Einklappbar geöffnet (standardmäßig offen)"
+    nested_collapsible:
+      label: "Verschachtelt einklappbar"
+    class_menu:
+      label: "Klasse Menü (Stamm-<ul>)"
+      placeholder: "z. B. nav flex-column"
+    class_item:
+      label: "Klasse Eintrag (<li>)"
+      placeholder: "z. B. nav-item"
+    class_link:
+      label: "Klasse Link (<a>)"
+      placeholder: "z. B. nav-link"
+    class_children:
+      label: "Klasse Kinder (verschachteltes <ul>)"
+      placeholder: "z. B. nav flex-column ms-2"
+    class_current:
+      label: "Klasse aktuell (Link zur aktuellen Route)"
+      placeholder: "z. B. active"
+    class_branch_expanded:
+      label: "Klasse Zweig ausgeklappt"
+      placeholder: "z. B. active-branch"
+    class_has_children:
+      label: "Klasse hat Kinder"
+      placeholder: "z. B. has-children"
+    class_expanded:
+      label: "Klasse ausgeklappt"
+      placeholder: "z. B. is-expanded"
+    class_collapsed:
+      label: "Klasse eingeklappt"
+      placeholder: "z. B. is-collapsed"
+    empty_choice: "— Leer —"
+    css_section_heading: "CSS-Klassen für die Ausgabe."
+  menu_item_type:
+    label:
+      label: Bezeichnung
+    label_locale: "Bezeichnung (%locale%)"
+    type:
+      label: Typ
+      link: Link
+      section: Abschnitt
+      divider: Trennlinie
+    position:
+      label: Position
+    link_type:
+      label: Linktyp
+      route: Route
+      external_url: Externe URL
+    route_name:
+      label: Routenname
+      placeholder: "— Route wählen —"
+    route_params:
+      label: "Routenparameter (JSON)"
+      placeholder: "{}"
+    external_url:
+      label: Externe URL
+      placeholder: "https://..."
+    target_blank:
+      label: In neuem Tab öffnen
+    permission_key:
+      label: Berechtigungsschlüssel
+    icon:
+      label: Icon
+      placeholder: "heroicons:home"
+    parent:
+      label: Übergeordnet
+      placeholder: "— Wurzel —"
+  copy_menu_type:
+    code:
+      label: Code
+      placeholder: "z. B. sidebar_kopie"
+      regex_message: "Der Code darf nur Buchstaben, Zahlen, Unterstrich und Bindestrich enthalten."
+    name:
+      label: Name
+      placeholder: "z. B. Sidebar (Kopie)"

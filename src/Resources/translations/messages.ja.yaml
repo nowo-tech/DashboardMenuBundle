@@ -1,0 +1,175 @@
+# Dashboard Menu Bundle – locale ja (fallback: messages.en)
+
+# Dashboard UI
+dashboard:
+  title: Menu dashboard
+  title_suffix: Dashboard Menu
+  menus: Menus
+  menu: Menu
+  menus_back: "← Menus"
+  new_menu: New menu
+  edit_menu: Edit menu
+  edit_item: Edit item
+  edit_items: Edit items
+  copy: Copy
+  copy_menu: Copy menu
+  copy_menu_help: "Copy menu and all its items. You can change the code and name for the new menu."
+  delete: Delete
+  cancel: Cancel
+  close: Close
+  confirm_delete: Confirm delete
+  delete_menu_confirm: 'Delete menu "%name%" and all its items?'
+  delete_menu_message: Delete this menu and all its items?
+  delete_item_confirm: 'Delete "%name%" and its children?'
+  delete_item_message: Delete this item and its children?
+  add_item: Add item
+  new_item: New item
+  add_one: Add one
+  add_child: Add child
+  search: Search
+  search_placeholder: "Search by code or name…"
+  clear: Clear
+  no_menus_yet: "No menus yet. Create one to get started."
+  no_items: No items.
+  context: Context
+  parent: Parent
+  route_url: "Route / URL"
+  item: Item
+  actions: Actions
+  first: First
+  last: Last
+  move_up: Move up
+  move_down: Move down
+  edit: Edit
+  create: Create
+  update: Update
+  loading: "Loading…"
+  error_loading_form: Error loading form.
+  previous: Previous
+  next: Next
+  pagination_menus: Menus pagination
+  showing_from_to_of_total: "Showing %from%-%to% of %total%"
+  depth_limit: Depth limit
+  permission_checker: Permission checker
+  collapsible: Collapsible
+  collapsible_expanded: Collapsible expanded
+  nested_collapsible: Nested collapsible
+  css_classes: CSS classes
+  root: "— Root —"
+  no_label: "(no label)"
+  unique_code_context_error: A menu with this code and context already exists.
+  base: Base
+  base_badge_title: "Base menu: code cannot be changed after creation."
+  toggle: Toggle
+  yes: Yes
+  no: No
+
+# Form: MenuType
+form:
+  menu_type:
+    code:
+      label: Code
+      help: "Unique identifier (letters, numbers, _ -). For base menus, code cannot be changed after creation."
+      placeholder: "e.g. sidebar"
+    base:
+      label: "Base menu"
+      help: "When checked, this menu's code cannot be changed after creation."
+    name:
+      label: Name
+      placeholder: "e.g. Sidebar"
+    context:
+      label: Context
+      help: "Optional JSON key-value pairs to identify this menu variant. When resolving by code, the first matching menu in the ordered context sets is used; empty = fallback for that code."
+      placeholder: '{"partnerId": 1, "operatorId": 1}'
+    icon:
+      label: Icon
+      help: "Optional icon identifier (e.g. Symfony UX Icons: heroicons:home, bootstrap:house)."
+      placeholder: "e.g. heroicons:bars-3, bootstrap:list"
+    permission_checker:
+      label: Permission checker
+      placeholder: "— Allow all —"
+      allow_all: "— Allow all —"
+      help: "Service implementing MenuPermissionCheckerInterface (empty = allow all)."
+    depth_limit:
+      label: Depth limit
+      placeholder: "empty = unlimited"
+      help: "Max depth to render (1 = root only, 2 = root + one level; empty = unlimited)."
+    collapsible:
+      label: "Collapsible (wrap menu in toggle block)"
+    collapsible_expanded:
+      label: "Collapsible expanded (open by default)"
+    nested_collapsible:
+      label: "Nested collapsible (items with children have toggle)"
+    class_menu:
+      label: "Class menu (root <ul>)"
+      placeholder: "e.g. nav flex-column"
+    class_item:
+      label: "Class item (<li>)"
+      placeholder: "e.g. nav-item"
+    class_link:
+      label: "Class link (<a>)"
+      placeholder: "e.g. nav-link"
+    class_children:
+      label: "Class children (nested <ul>)"
+      placeholder: "e.g. nav flex-column ms-2"
+    class_current:
+      label: "Class current (link matching current route)"
+      placeholder: "e.g. active"
+    class_branch_expanded:
+      label: "Class branch expanded (<li> when route in branch)"
+      placeholder: "e.g. active-branch"
+    class_has_children:
+      label: "Class has children (<li> when item has children)"
+      placeholder: "e.g. has-children"
+    class_expanded:
+      label: "Class expanded (<li> when children block is open)"
+      placeholder: "e.g. is-expanded"
+    class_collapsed:
+      label: "Class collapsed (<li> when children block is closed)"
+      placeholder: "e.g. is-collapsed"
+    empty_choice: "— Empty —"
+    css_section_heading: "CSS classes for rendering (override config when set)."
+
+  menu_item_type:
+    label:
+      label: Label
+    label_locale: "Label (%locale%)"
+    type:
+      label: Type
+      link: Link
+      section: Section
+      divider: Divider
+    position:
+      label: Position
+    link_type:
+      label: Link type
+      route: Route
+      external_url: External URL
+    route_name:
+      label: Route name
+      placeholder: "— Select route —"
+    route_params:
+      label: "Route params (JSON)"
+      placeholder: "{}"
+    external_url:
+      label: External URL
+      placeholder: "https://..."
+    target_blank:
+      label: Open in new tab
+    permission_key:
+      label: Permission key
+    icon:
+      label: Icon
+      placeholder: "heroicons:home"
+    parent:
+      label: Parent
+      placeholder: "— Root (no parent) —"
+
+  copy_menu_type:
+    code:
+      label: Code
+      placeholder: "e.g. sidebar_copy"
+      regex_message: "Code must contain only letters, numbers, underscore and hyphen."
+    name:
+      label: Name
+      placeholder: "e.g. Sidebar (copy)"

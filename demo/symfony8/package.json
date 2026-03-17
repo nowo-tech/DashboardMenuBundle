@@ -1,0 +1,19 @@
+{
+  "name": "dashboard-menu-demo-symfony8",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "watch": "vite build --watch"
+  },
+  "devDependencies": {
+    "@hotwired/stimulus": "^3.2.2",
+    "@symfony/stimulus-bridge": "^4.0.1",
+    "@types/node": "^22.19.15",
+    "typescript": "^5.9.3",
+    "vite": "^6.4.1",
+    "vite-plugin-symfony": "^8.2.3"
+  }
+}
