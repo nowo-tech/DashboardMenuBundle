@@ -1,4 +1,4 @@
-# Only these keys can be set in YAML: project, locales, default_locale, doctrine, icon_library_prefix_map, api, dashboard.
+# Only these keys can be set in YAML: project, locales, default_locale, doctrine, icon_library_prefix_map, api, dashboard, permission_checker_choices.
 # Menus are registered and configured only in the database (dashboard or fixtures).
 nowo_dashboard_menu:
     doctrine:
@@ -7,6 +7,10 @@ nowo_dashboard_menu:
     project: demo_app
     locales: ['en', 'es', 'fr']
     default_locale: 'en'
+    # Labels for the "Permission checker" dropdown in the menu form (service id => label). Merged with tagged services.
+    permission_checker_choices:
+        Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker: 'Allow all (no filter)'
+        App\Service\DemoMenuPermissionChecker: 'Demo (user, path, permission key)'
     icon_library_prefix_map:
         bootstrap-icons: bi
     cache:
@@ -14,7 +18,7 @@ nowo_dashboard_menu:
         pool: cache.app
     dashboard:
         enabled: true
-        path_prefix: /admin/menus
+        # URL prefix is set in config/routes.yaml (nowo_dashboard_menu_dashboard.prefix).
         # URL or asset path for the icon-selector script (Stimulus/UX). Enables the icon field in the item form modal.
         icon_selector_script_url: 'bundles/nowoiconselector/icon-selector.js'
         # route_name_exclude_patterns: ['^_', '^web_profiler']  # regex: hide internal/profiler routes from selector

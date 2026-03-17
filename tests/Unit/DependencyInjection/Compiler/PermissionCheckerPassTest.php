@@ -63,4 +63,23 @@ final class PermissionCheckerPassTest extends TestCase
 
         self::assertSame([], $container->getParameter('nowo_dashboard_menu.permission_checker_choices'));
     }
+
+    public function testProcessMergesConfigPermissionCheckerChoices(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('nowo_dashboard_menu.permission_checker_choices', [
+            'checker_a'     => 'Label from YAML',
+            'extra_checker' => 'Only in config',
+        ]);
+        $container->register('checker_a')->addTag('nowo_dashboard_menu.permission_checker', ['label' => 'From tag']);
+        $container->register('checker_b')->addTag('nowo_dashboard_menu.permission_checker');
+
+        $pass = new PermissionCheckerPass();
+        $pass->process($container);
+
+        $choices = $container->getParameter('nowo_dashboard_menu.permission_checker_choices');
+        self::assertSame('Label from YAML', $choices['checker_a'], 'Config overrides tag label');
+        self::assertSame('checker_b', $choices['checker_b']);
+        self::assertSame('Only in config', $choices['extra_checker'], 'Config can add entries without tag');
+    }
 }

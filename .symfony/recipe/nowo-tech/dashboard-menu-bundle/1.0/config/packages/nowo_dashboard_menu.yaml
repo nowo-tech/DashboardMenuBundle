@@ -35,7 +35,7 @@ nowo_dashboard_menu:
 
     dashboard:
         enabled: false
-        path_prefix: /admin/menus
+        # URL prefix is set in config/routes_nowo_dashboard_menu.yaml (import it from config/routes.yaml).
 
         # Regex patterns to hide routes from the "Route" selector when editing menu items.
         # route_name_exclude_patterns: []

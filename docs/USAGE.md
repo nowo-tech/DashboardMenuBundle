@@ -127,4 +127,4 @@ public function canView(MenuItem $item, mixed $context = null): bool
 }
 ```
 
-Register your service and tag it with `nowo_dashboard_menu.permission_checker` (optionally with a `label` attribute for the dashboard form). Then assign it to a menu in the dashboard (per-menu) or leave the menu with no checker for default allow-all behaviour.
+Register your service and tag it with `nowo_dashboard_menu.permission_checker` (optionally with a `label` attribute for the dashboard form). You can also add or override labels via config: `permission_checker_choices` (service id => label) in `nowo_dashboard_menu.yaml` (see [CONFIGURATION](CONFIGURATION.md#permission_checker_choices)). Then assign it to a menu in the dashboard (per-menu) or leave the menu with no checker for default allow-all behaviour.

@@ -38,6 +38,7 @@ final class ConfigurationTest extends TestCase
         self::assertSame('normal', $config['dashboard']['modals']['delete']);
         self::assertArrayHasKey('menu', $config['dashboard']['css_class_options']);
         self::assertArrayHasKey('item', $config['dashboard']['css_class_options']);
+        self::assertSame([], $config['permission_checker_choices']);
     }
 
     public function testProcessConfigurationMergesCustomConfig(): void
@@ -51,11 +52,11 @@ final class ConfigurationTest extends TestCase
                 'api'            => ['enabled' => false, 'path_prefix' => '/menus/api'],
                 'dashboard'      => [
                     'enabled'                     => true,
-                    'path_prefix'                 => '/admin/nav',
                     'route_name_exclude_patterns' => ['^_'],
                     'pagination'                  => ['enabled' => false, 'per_page' => 50],
                     'modals'                      => ['menu_form' => 'lg', 'item_form' => 'xl'],
                 ],
+                'permission_checker_choices' => ['app.my_checker' => 'My checker'],
             ],
         ]);
 
@@ -65,12 +66,12 @@ final class ConfigurationTest extends TestCase
         self::assertFalse($config['api']['enabled']);
         self::assertSame('/menus/api', $config['api']['path_prefix']);
         self::assertTrue($config['dashboard']['enabled']);
-        self::assertSame('/admin/nav', $config['dashboard']['path_prefix']);
         self::assertSame(['^_'], $config['dashboard']['route_name_exclude_patterns']);
         self::assertFalse($config['dashboard']['pagination']['enabled']);
         self::assertSame(50, $config['dashboard']['pagination']['per_page']);
         self::assertSame('lg', $config['dashboard']['modals']['menu_form']);
         self::assertSame('xl', $config['dashboard']['modals']['item_form']);
+        self::assertSame(['app.my_checker' => 'My checker'], $config['permission_checker_choices']);
     }
 
     public function testProcessConfigurationValidatesModalValues(): void

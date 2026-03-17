@@ -4,5 +4,9 @@
     },
     "copy-from-recipe": {
         "config/": "%CONFIG_DIR%/"
-    }
+    },
+    "post-install-output": [
+        "To enable the dashboard, set dashboard.enabled to true in config/packages/nowo_dashboard_menu.yaml and add to config/routes.yaml:",
+        "  _nowo_dashboard_menu_dashboard:\n    resource: routes_nowo_dashboard_menu.yaml"
+    ]
 }

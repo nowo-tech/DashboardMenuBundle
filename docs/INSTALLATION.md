@@ -68,7 +68,14 @@ nowo_dashboard_menu:
     resource: '@NowoDashboardMenuBundle/Resources/config/routes.yaml'
 ```
 
-If the recipe already added this, skip. The bundle exposes dashboard routes (e.g. `/admin/menus`) and the JSON API route (e.g. `/api/menu/{code}`). Configure the dashboard path prefix in the bundle config if needed.
+If you use the **dashboard** (admin UI), import the dashboard routes and set the URL prefix there. The Flex recipe adds `config/routes_nowo_dashboard_menu.yaml` (prefix `/admin/menus`); add to `config/routes.yaml`:
+
+```yaml
+_nowo_dashboard_menu_dashboard:
+    resource: routes_nowo_dashboard_menu.yaml
+```
+
+Without Flex, add the same import manually and create a file that imports `@NowoDashboardMenuBundle/Resources/config/routes_dashboard.yaml` with `prefix: /admin/menus` (or your chosen path). The dashboard URL prefix is **only** configured in routing, not in `nowo_dashboard_menu` config.
 
 ## Schema
 

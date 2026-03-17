@@ -207,6 +207,7 @@ class MenuFixtures extends Fixture
         $manager->persist($configSecurity);
         $manager->persist($this->item($menu, $configSecurity, 0, 'Two-factor', MenuItem::ITEM_TYPE_LINK, HomeController::APP_SECURITY_ROUTE, ['section' => '2fa'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:shield-check'));
         $manager->persist($this->item($menu, $configSecurity, 1, 'Sessions', MenuItem::ITEM_TYPE_LINK, HomeController::APP_SECURITY_ROUTE, ['section' => 'sessions'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:person-badge'));
+        $manager->persist($this->item($menu, $configuration, 2, 'Admin only', MenuItem::ITEM_TYPE_LINK, HomeController::APP_CONFIGURATION_ROUTE, ['section' => 'general'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:shield-lock', 'admin', ['en' => 'Admin only', 'es' => 'Solo admin']));
 
         // Level 1 → 2 → 3 → 4: Documents → Doc A → A.1 → A.1.1, A.1.2; Doc B → B.1, B.2; Doc C → C.1 → C.1.a, C.1.b
         $documents = $this->item($menu, null, 5, 'Documents', MenuItem::ITEM_TYPE_LINK, HomeController::APP_HOME_ROUTE, ['page' => 'documents'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:folder', null, ['en' => 'Documents', 'es' => 'Documentos']);

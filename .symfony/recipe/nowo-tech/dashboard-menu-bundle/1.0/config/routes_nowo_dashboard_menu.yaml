@@ -1,0 +1,12 @@
+# Dashboard Menu Bundle – dashboard admin routes.
+# The URL prefix is set here; change it if you need a different path.
+# Ensure this file is imported from your main config/routes.yaml, e.g.:
+#   _nowo_dashboard_menu_dashboard:
+#     resource: routes_nowo_dashboard_menu.yaml
+
+nowo_dashboard_menu:
+    resource: '@NowoDashboardMenuBundle/Resources/config/routes.yaml'
+
+nowo_dashboard_menu_dashboard:
+    resource: '@NowoDashboardMenuBundle/Resources/config/routes_dashboard.yaml'
+    prefix: /admin/menus

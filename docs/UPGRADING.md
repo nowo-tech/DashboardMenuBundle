@@ -2,6 +2,10 @@
 
 This document describes breaking changes and upgrade notes between versions.
 
+## From 0.3.0 to 0.3.1
+
+No breaking changes. New optional config: `permission_checker_choices` (service id => label map) to customize the “Permission checker” dropdown in the dashboard menu form. Demos updated (Symfony 7 has `DemoMenuPermissionChecker`; both demos show permission keys `path:/`, `authenticated`, `admin` in fixtures).
+
 ## From 0.2.x to 0.3.0
 
 - **Restored support:** PHP 8.2 and 8.3, and Symfony 6.4 and 7, are supported again. You can downgrade from PHP 8.4 to 8.2 or use Symfony 6.4/7 if needed.

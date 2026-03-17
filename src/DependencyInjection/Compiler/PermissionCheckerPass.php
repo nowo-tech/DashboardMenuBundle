@@ -7,6 +7,7 @@ namespace Nowo\DashboardMenuBundle\DependencyInjection\Compiler;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
+use function is_array;
 use function is_string;
 
 use const SORT_NATURAL;
@@ -14,6 +15,7 @@ use const SORT_NATURAL;
 /**
  * Collects all services tagged "nowo_dashboard_menu.permission_checker" and
  * builds the permission_checker_choices parameter (id => label) for the menu form.
+ * Merges with permission_checker_choices from bundle config (YAML adds/overrides labels).
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
@@ -35,6 +37,16 @@ final class PermissionCheckerPass implements CompilerPassInterface
                 }
             }
             $choices[$id] = $label;
+        }
+        if ($container->hasParameter(self::PARAM_CHOICES)) {
+            $override = $container->getParameter(self::PARAM_CHOICES);
+            if (is_array($override)) {
+                foreach ($override as $id => $label) {
+                    if (is_string($label)) {
+                        $choices[$id] = $label;
+                    }
+                }
+            }
         }
         ksort($choices, SORT_NATURAL);
         $container->setParameter(self::PARAM_CHOICES, $choices);

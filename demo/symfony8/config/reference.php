@@ -1267,13 +1267,14 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     icon_library_prefix_map?: array<string, scalar|Param|null>,
  *     locales?: list<scalar|Param|null>,
  *     default_locale?: scalar|Param|null, // Fallback locale when the request locale is not in locales. If null, the first entry in locales is used. // Default: null
+ *     permission_checker_choices?: array<string, scalar|Param|null>,
  *     api?: array{
  *         enabled?: bool|Param, // Default: true
  *         path_prefix?: scalar|Param|null, // Default: "/api/menu"
  *     },
  *     dashboard?: array{ // Admin dashboard to manage menus and items. Import routes with prefix (e.g. /admin/menus).
  *         enabled?: bool|Param, // Default: false
- *         path_prefix?: scalar|Param|null, // URL prefix for dashboard routes when imported (e.g. /admin/menus). Applied by the app when importing routes_dashboard.yaml. // Default: "/admin/menus"
+ *         path_prefix?: scalar|Param|null, // Deprecated: The option "nowo_dashboard_menu.dashboard.path_prefix" is deprecated. Configure the dashboard URL prefix in your app routing (e.g. config/routes.yaml or config/routes_nowo_dashboard_menu.yaml) when importing @NowoDashboardMenuBundle/Resources/config/routes_dashboard.yaml. // Deprecated: set the dashboard URL prefix in config/routes.yaml when importing routes_dashboard.yaml (e.g. prefix: /admin/menus). // Default: "/admin/menus"
  *         route_name_exclude_patterns?: list<scalar|Param|null>,
  *         pagination?: array{ // Pagination for the menus list in the dashboard.
  *             enabled?: bool|Param, // When true, the menus list is paginated. // Default: true

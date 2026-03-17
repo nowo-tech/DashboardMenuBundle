@@ -9,6 +9,7 @@
   - [cache](#cache)
   - [icon_library_prefix_map](#icon_library_prefix_map)
   - [locales and default_locale](#locales-and-default_locale)
+  - [permission_checker_choices](#permission_checker_choices)
   - [api](#api)
   - [dashboard](#dashboard)
 - [Per-menu options (database)](#per-menu-options-database)
@@ -25,6 +26,7 @@ Menus are **defined in the database** (dashboard at `/admin/menus` or fixtures):
 - **cache**: Tree cache (TTL and pool) to avoid N+1 and repeated DB hits.
 - **icon_library_prefix_map**: Map full icon library names to short prefixes (e.g. `bootstrap-icons` → `bi`) for rendering.
 - **locales** / **default_locale**: Enabled locales for menu item labels and fallback.
+- **permission_checker_choices** (optional): Service id → label map for the dashboard menu form dropdown; merged with tagged permission checkers.
 - **api**: Enable JSON API and path prefix.
 - **dashboard**: Enable admin CRUD, path prefix, route exclude patterns, pagination, modals, CSS class options, icon selector script.
 
@@ -111,6 +113,21 @@ nowo_dashboard_menu:
 | `locales`        | `[]`    | List of enabled locales for menu item labels (e.g. `['en', 'es', 'fr']`). When empty, the request locale is used as-is. When set, the request locale is used only if in this list; otherwise `default_locale` or the first locale is used. |
 | `default_locale` | `null`  | Fallback when the request locale is not in `locales`. If null, the first entry in `locales` is used. |
 
+### permission_checker_choices
+
+Optional map of **service id → label** for the “Permission checker” dropdown in the dashboard menu form. Services tagged with `nowo_dashboard_menu.permission_checker` are included automatically; this option lets you add entries or override labels from YAML.
+
+| Option                      | Default | Description |
+|-----------------------------|---------|-------------|
+| `permission_checker_choices` | `[]`    | Map of permission checker service id to display label (e.g. `App\Service\MyChecker: 'My checker'`). Merged with tagged services; YAML values override or add to the list. |
+
+```yaml
+nowo_dashboard_menu:
+    permission_checker_choices:
+        Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker: 'Allow all'
+        App\Service\MyPermissionChecker: 'By role and path'
+```
+
 ### api
 
 | Option        | Default      | Description        |
@@ -125,7 +142,7 @@ Options for the admin dashboard (list, create, edit, copy menus and manage items
 | Option                        | Default        | Description |
 |-------------------------------|----------------|-------------|
 | `enabled`                     | `false`        | Enable dashboard routes. Set to `true` in app config to use the admin UI. |
-| `path_prefix`                 | `/admin/menus` | URL prefix for dashboard routes. |
+| `path_prefix`                 | *(deprecated)* | **Deprecated.** Set the dashboard URL prefix in your app routing when importing `routes_dashboard.yaml` (e.g. in `config/routes.yaml` or the recipe’s `config/routes_nowo_dashboard_menu.yaml`). |
 | `route_name_exclude_patterns`  | `[]`           | Regex patterns to hide route names from the route selector (e.g. `['^_', '^web_profiler']`). |
 | `pagination.enabled`         | `true`         | Paginate the menus list. |
 | `pagination.per_page`        | `20`           | Menus per page. |
@@ -168,7 +185,7 @@ nowo_dashboard_menu:
         path_prefix: /api/menu
     dashboard:
         enabled: true
-        path_prefix: /admin/menus
+        # Prefix is set in config/routes.yaml when importing routes_dashboard.yaml (e.g. prefix: /admin/menus).
         route_name_exclude_patterns: ['^_', '^web_profiler']
         pagination:
             enabled: true

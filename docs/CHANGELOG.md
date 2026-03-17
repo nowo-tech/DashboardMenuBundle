@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Deprecated
+
+- **Config:** `dashboard.path_prefix` is deprecated. Set the dashboard URL prefix in your app routing when importing `@NowoDashboardMenuBundle/Resources/config/routes_dashboard.yaml` (e.g. in `config/routes.yaml` or the recipe’s `config/routes_nowo_dashboard_menu.yaml`). The Flex recipe now adds `config/routes_nowo_dashboard_menu.yaml`; import it from `config/routes.yaml` to enable the dashboard under `/admin/menus`.
+
+## [0.3.1] - 2026-03-17
+
+### Added
+
+- **Config:** `permission_checker_choices` — optional map (service id => label) in `nowo_dashboard_menu.yaml` to add or override labels in the dashboard menu form “Permission checker” dropdown. Merged with services tagged `nowo_dashboard_menu.permission_checker`. See [CONFIGURATION](CONFIGURATION.md#permission_checker_choices).
+- **Demos:** Symfony 7 demo now includes `DemoMenuPermissionChecker` (class, service registration with tag, and `permission_checker_choices` in config). Both demos have fixture items demonstrating the three permission key types: `path:/`, `authenticated`, and `admin` (“Admin only” item added under Configuration).
+
+### Changed
+
+- **Docs:** CONFIGURATION.md documents `permission_checker_choices`; USAGE.md references it for permission checker labels. Demo permission checker classes document that the bundle passes the current Request as context when rendering from Twig.
+
+### Fixed
+
+- **Tests:** PHPUnit 10+ compatibility — removed `expectDeprecation()` from `ConfigurationTest` and `DashboardMenuExtensionTest` (deprecation API was removed in PHPUnit 10). Config merge tests no longer use the deprecated `dashboard.path_prefix` option.
+
 ## [0.3.0] - 2026-03-17
 
 ### Added
@@ -70,7 +89,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.0.1...v0.1.0

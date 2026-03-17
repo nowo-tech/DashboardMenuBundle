@@ -26,6 +26,8 @@ final class DashboardMenuExtensionTest extends TestCase
         self::assertSame(['project' => null], $container->getParameter(Configuration::ALIAS . '.config'));
         self::assertTrue($container->hasParameter(Configuration::ALIAS . '.locales'));
         self::assertSame([], $container->getParameter(Configuration::ALIAS . '.locales'));
+        self::assertTrue($container->hasParameter(Configuration::ALIAS . '.permission_checker_choices'));
+        self::assertSame([], $container->getParameter(Configuration::ALIAS . '.permission_checker_choices'));
         self::assertTrue($container->hasParameter(Configuration::ALIAS . '.default_locale_resolved'));
         self::assertSame('en', $container->getParameter(Configuration::ALIAS . '.default_locale_resolved'));
         self::assertTrue($container->hasDefinition(MenuExtension::class));
@@ -58,10 +60,10 @@ final class DashboardMenuExtensionTest extends TestCase
             'default_locale' => 'es',
             'api'            => ['enabled' => false, 'path_prefix' => '/api/custom'],
             'dashboard'      => [
-                'enabled'     => true,
-                'path_prefix' => '/admin/custom',
-                'pagination'  => ['enabled' => false, 'per_page' => 10],
+                'enabled'    => true,
+                'pagination' => ['enabled' => false, 'per_page' => 10],
             ],
+            'permission_checker_choices' => ['checker.id' => 'Custom label'],
         ];
 
         $extension = new DashboardMenuExtension();
@@ -74,9 +76,9 @@ final class DashboardMenuExtensionTest extends TestCase
         self::assertFalse($container->getParameter(Configuration::ALIAS . '.api.enabled'));
         self::assertSame('/api/custom', $container->getParameter(Configuration::ALIAS . '.api.path_prefix'));
         self::assertTrue($container->getParameter(Configuration::ALIAS . '.dashboard.enabled'));
-        self::assertSame('/admin/custom', $container->getParameter(Configuration::ALIAS . '.dashboard.path_prefix'));
         self::assertFalse($container->getParameter(Configuration::ALIAS . '.dashboard.pagination.enabled'));
         self::assertSame(10, $container->getParameter(Configuration::ALIAS . '.dashboard.pagination.per_page'));
+        self::assertSame(['checker.id' => 'Custom label'], $container->getParameter(Configuration::ALIAS . '.permission_checker_choices'));
     }
 
     public function testGetAlias(): void

@@ -68,7 +68,10 @@ final class MenuItemTypeTest extends TestCase
         self::assertNotNull($this->findAddCall($addCalls, 'label'));
         self::assertNotNull($this->findAddCall($addCalls, 'itemType'));
         self::assertNotNull($this->findAddCall($addCalls, 'routeName'));
-        self::assertNotNull($this->findAddCall($addCalls, 'icon'));
+        $iconCall = $this->findAddCall($addCalls, 'icon');
+        self::assertNotNull($iconCall);
+        // When nowo-tech/icon-selector-bundle is not installed, icon field is TextType (else branch)
+        self::assertSame(\Symfony\Component\Form\Extension\Core\Type\TextType::class, $iconCall['type']);
     }
 
     public function testBuildFormWithMenuAddsParentField(): void

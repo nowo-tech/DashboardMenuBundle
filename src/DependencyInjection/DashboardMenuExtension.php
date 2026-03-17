@@ -70,6 +70,7 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
         $container->setParameter(Configuration::ALIAS . '.locales', $locales);
         $container->setParameter(Configuration::ALIAS . '.default_locale', $defaultLocale);
         $container->setParameter(Configuration::ALIAS . '.default_locale_resolved', $defaultLocale ?? ($locales[0] ?? 'en'));
+        $container->setParameter(Configuration::ALIAS . '.permission_checker_choices', $config['permission_checker_choices'] ?? []);
 
         $container->register(MenuLocaleResolver::class, MenuLocaleResolver::class)
             ->setArguments([
