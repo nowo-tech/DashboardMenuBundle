@@ -89,6 +89,7 @@ form:
       label: Permission checker
       placeholder: "— Allow all —"
       allow_all: "— Allow all —"
+      permission_key_aware: "— By permission key (structure) —"
       help: "Service implementing MenuPermissionCheckerInterface (empty = allow all)."
     depth_limit:
       label: Depth limit

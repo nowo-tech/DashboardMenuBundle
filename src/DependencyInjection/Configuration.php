@@ -77,10 +77,33 @@ final class Configuration implements ConfigurationInterface
                     ->defaultNull()
                 ->end()
                 ->arrayNode('permission_checker_choices')
-                    ->info('Optional map of permission checker service id => label to add or override choices in the dashboard menu form. Services tagged with nowo_dashboard_menu.permission_checker are included automatically; this allows extra entries or custom labels from YAML.')
-                    ->useAttributeAsKey('service_id')
-                    ->scalarPrototype()->end()
-                    ->defaultValue([])
+                    ->info('Services shown in the dashboard "Permission checker" dropdown when creating/editing a Menu. Each must implement MenuPermissionCheckerInterface (canView(MenuItem, $context)). Tagged services (nowo_dashboard_menu.permission_checker) are included automatically; this list adds or orders them. Use a list of service IDs, or a map for custom labels: "FQCN: \'Display label\'".')
+                    ->beforeNormalization()
+                        ->ifArray()
+                        ->then(function (array $v): array {
+                            if (isset($v['order'], $v['labels'])) {
+                                return $v;
+                            }
+                            if (array_is_list($v)) {
+                                return ['order' => $v, 'labels' => []];
+                            }
+                            return ['order' => array_keys($v), 'labels' => $v];
+                        })
+                    ->end()
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->arrayNode('order')
+                            ->info('Ordered list of permission checker service IDs (FQCN). Labels come from the service tag unless overridden in labels.')
+                            ->scalarPrototype()->end()
+                            ->defaultValue([])
+                        ->end()
+                        ->arrayNode('labels')
+                            ->info('Optional map of service_id => label to override labels in the dropdown.')
+                            ->useAttributeAsKey('service_id')
+                            ->scalarPrototype()->end()
+                            ->defaultValue([])
+                        ->end()
+                    ->end()
                 ->end()
                 ->arrayNode('api')
                     ->addDefaultsIfNotSet()

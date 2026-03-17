@@ -89,6 +89,7 @@ form:
       label: Vérificateur de permissions
       placeholder: "— Tout autoriser —"
       allow_all: "— Tout autoriser —"
+      permission_key_aware: "— Par clé de permission (structure) —"
       help: "Service implémentant MenuPermissionCheckerInterface (vide = tout autoriser)."
     depth_limit:
       label: Limite de profondeur

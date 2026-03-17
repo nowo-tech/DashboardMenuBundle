@@ -68,8 +68,8 @@ final class PermissionCheckerPassTest extends TestCase
     {
         $container = new ContainerBuilder();
         $container->setParameter('nowo_dashboard_menu.permission_checker_choices', [
-            'checker_a'     => 'Label from YAML',
-            'extra_checker' => 'Only in config',
+            'order'  => ['checker_a', 'checker_b'],
+            'labels' => ['checker_a' => 'Label from YAML'],
         ]);
         $container->register('checker_a')->addTag('nowo_dashboard_menu.permission_checker', ['label' => 'From tag']);
         $container->register('checker_b')->addTag('nowo_dashboard_menu.permission_checker');
@@ -80,6 +80,24 @@ final class PermissionCheckerPassTest extends TestCase
         $choices = $container->getParameter('nowo_dashboard_menu.permission_checker_choices');
         self::assertSame('Label from YAML', $choices['checker_a'], 'Config overrides tag label');
         self::assertSame('checker_b', $choices['checker_b']);
-        self::assertSame('Only in config', $choices['extra_checker'], 'Config can add entries without tag');
+    }
+
+    public function testProcessRespectsConfigOrder(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('nowo_dashboard_menu.permission_checker_choices', [
+            'order'  => ['z_first', 'a_second'],
+            'labels' => [],
+        ]);
+        $container->register('a_second')->addTag('nowo_dashboard_menu.permission_checker', ['label' => 'A']);
+        $container->register('z_first')->addTag('nowo_dashboard_menu.permission_checker', ['label' => 'Z']);
+
+        $pass = new PermissionCheckerPass();
+        $pass->process($container);
+
+        $choices = $container->getParameter('nowo_dashboard_menu.permission_checker_choices');
+        $ids     = array_keys($choices);
+        self::assertSame('z_first', $ids[0]);
+        self::assertSame('a_second', $ids[1]);
     }
 }

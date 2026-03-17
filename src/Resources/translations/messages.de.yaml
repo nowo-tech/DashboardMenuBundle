@@ -85,6 +85,7 @@ form:
       label: Berechtigungsprüfung
       placeholder: "— Alle erlauben —"
       allow_all: "— Alle erlauben —"
+      permission_key_aware: "— Nach Berechtigungsschlüssel (Struktur) —"
       help: "Service, der MenuPermissionCheckerInterface implementiert (leer = alle erlauben)."
     depth_limit:
       label: Tiefenlimit

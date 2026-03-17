@@ -7,15 +7,22 @@ nowo_dashboard_menu:
     project: demo_app
     locales: ['en', 'es', 'fr']
     default_locale: 'en'
-    # Labels for the "Permission checker" dropdown in the menu form (service id => label). Merged with tagged services.
+    # Services shown in the dashboard "Permission checker" dropdown when creating/editing a Menu.
+    # Each must implement MenuPermissionCheckerInterface (canView(MenuItem, $context)). Tagged
+    # services (nowo_dashboard_menu.permission_checker) are included automatically; this list adds
+    # or orders them. Optional: use a map for custom labels, e.g. "FQCN: 'Display label'".
     permission_checker_choices:
-        Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker: 'Allow all (no filter)'
-        App\Service\DemoMenuPermissionChecker: 'Demo (user, path, permission key)'
+        - Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker   # Allow all items (no filter)
+        - Nowo\DashboardMenuBundle\Service\PermissionKeyAwareMenuPermissionChecker   # By permission key (structure)
+        - App\Service\DemoMenuPermissionChecker                            # By user/role and path (authenticated, admin, path:/…)
+
     icon_library_prefix_map:
-        bootstrap-icons: bi
+        'bootstrap-icons': bi
+
     cache:
         ttl: 60
         pool: cache.app
+
     dashboard:
         enabled: true
         # URL prefix is set in config/routes.yaml (nowo_dashboard_menu_dashboard.prefix).

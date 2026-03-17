@@ -89,6 +89,7 @@ form:
       label: Comprobador de permisos
       placeholder: "— Permitir todo —"
       allow_all: "— Permitir todo —"
+      permission_key_aware: "— Por clave de permiso (estructura) —"
       help: "Servicio que implementa MenuPermissionCheckerInterface (vacío = permitir todo)."
     depth_limit:
       label: Límite de profundidad

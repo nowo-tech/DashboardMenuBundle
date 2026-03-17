@@ -38,7 +38,7 @@ final class ConfigurationTest extends TestCase
         self::assertSame('normal', $config['dashboard']['modals']['delete']);
         self::assertArrayHasKey('menu', $config['dashboard']['css_class_options']);
         self::assertArrayHasKey('item', $config['dashboard']['css_class_options']);
-        self::assertSame([], $config['permission_checker_choices']);
+        self::assertSame(['order' => [], 'labels' => []], $config['permission_checker_choices']);
     }
 
     public function testProcessConfigurationMergesCustomConfig(): void
@@ -71,7 +71,28 @@ final class ConfigurationTest extends TestCase
         self::assertSame(50, $config['dashboard']['pagination']['per_page']);
         self::assertSame('lg', $config['dashboard']['modals']['menu_form']);
         self::assertSame('xl', $config['dashboard']['modals']['item_form']);
-        self::assertSame(['app.my_checker' => 'My checker'], $config['permission_checker_choices']);
+        self::assertSame(['order' => ['app.my_checker'], 'labels' => ['app.my_checker' => 'My checker']], $config['permission_checker_choices']);
+    }
+
+    public function testProcessConfigurationNormalizesPermissionCheckerChoicesList(): void
+    {
+        $processor = new Processor();
+        $config    = $processor->processConfiguration(new Configuration(), [
+            [
+                'permission_checker_choices' => [
+                    'Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker',
+                    'App\Service\DemoMenuPermissionChecker',
+                ],
+            ],
+        ]);
+
+        self::assertSame(
+            [
+                'order'  => ['Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker', 'App\Service\DemoMenuPermissionChecker'],
+                'labels' => [],
+            ],
+            $config['permission_checker_choices']
+        );
     }
 
     public function testProcessConfigurationValidatesModalValues(): void

@@ -32,6 +32,11 @@ services:
       - { name: nowo_dashboard_menu.permission_checker, label: 'form.menu_type.permission_checker.allow_all' }
     public: false
 
+  Nowo\DashboardMenuBundle\Service\PermissionKeyAwareMenuPermissionChecker:
+    tags:
+      - { name: nowo_dashboard_menu.permission_checker, label: 'form.menu_type.permission_checker.permission_key_aware' }
+    public: false
+
   Nowo\DashboardMenuBundle\Service\MenuTreeLoader:
     arguments:
       $container: '@service_container'
