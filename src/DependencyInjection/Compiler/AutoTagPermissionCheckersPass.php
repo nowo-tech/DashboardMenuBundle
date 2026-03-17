@@ -11,6 +11,7 @@ use ReflectionClassConstant;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
+use Throwable;
 
 use function is_string;
 
@@ -48,7 +49,7 @@ final class AutoTagPermissionCheckersPass implements CompilerPassInterface
                 if (!is_subclass_of($class, $interface)) {
                     continue;
                 }
-            } catch (\Throwable) {
+            } catch (Throwable) {
                 // Skip definitions whose class cannot be loaded (e.g. TransMethodVisitor
                 // triggers PhpParser autoload and may fail in some environments).
                 continue;
@@ -60,7 +61,7 @@ final class AutoTagPermissionCheckersPass implements CompilerPassInterface
 
             try {
                 $label = $this->resolveLabel($class, $id);
-            } catch (\Throwable) {
+            } catch (Throwable) {
                 $label = $id;
             }
 
