@@ -23,6 +23,8 @@ This guide covers installing Dashboard Menu Bundle in a Symfony application.
 
 **Note:** Symfony **8.0** requires **PHP >= 8.4**. With PHP 8.2 or 8.3, Composer will resolve to Symfony **6.4** or **7.x**. With PHP 8.4+ you can use Symfony 6.4, 7 or 8.
 
+The bundle does **not** require `nowo-tech/icon-selector-bundle`. The dashboard item form uses it when installed (Symfony ^7.0 || ^8.0); otherwise the icon field is a plain text input.
+
 ## Install with Composer
 
 ```bash

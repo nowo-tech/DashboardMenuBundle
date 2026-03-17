@@ -104,8 +104,8 @@ Full details: [docs/USAGE.md](docs/USAGE.md).
 ## Requirements
 
 - PHP >= 8.2, < 8.6
-- Symfony >= 7.0 || >= 8.0
-- Doctrine ORM (no Gedmo/Stof required)
+- Symfony 6.4 (LTS), 7.x or 8.x (^6.4 || ^7.0 || ^8.0)
+- Doctrine ORM ^2.13 || ^3.0 (no Gedmo/Stof required)
 
 See [docs/INSTALLATION.md](docs/INSTALLATION.md#requirements) and [docs/UPGRADING.md](docs/UPGRADING.md) for compatibility notes.
 

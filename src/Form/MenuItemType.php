@@ -110,13 +110,22 @@ final class MenuItemType extends AbstractType
                 'required' => false,
                 'label'    => 'form.menu_item_type.permission_key.label',
                 'attr'     => ['class' => 'form-control'],
-            ])
-            ->add('icon', IconSelectorType::class, [
+            ]);
+
+        if (class_exists('Nowo\IconSelectorBundle\Form\IconSelectorType')) {
+            $builder->add('icon', IconSelectorType::class, [
                 'required' => false,
                 'mode'     => IconSelectorType::MODE_TOM_SELECT,
                 'label'    => 'form.menu_item_type.icon.label',
                 'attr'     => [/* 'class' => 'form-control', */ 'placeholder' => $t('form.menu_item_type.icon.placeholder')],
             ]);
+        } else {
+            $builder->add('icon', TextType::class, [
+                'required' => false,
+                'label'    => 'form.menu_item_type.icon.label',
+                'attr'     => ['class' => 'form-control', 'placeholder' => $t('form.menu_item_type.icon.placeholder')],
+            ]);
+        }
 
         if ($availableLocales !== []) {
             $builder->addEventListener(FormEvents::PRE_SET_DATA, static function (FormEvent $event) use ($availableLocales): void {

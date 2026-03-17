@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-03-17
+
+### Added
+
+- **Symfony 6.4 LTS:** Bundle supports Symfony ^6.4 || ^7.0 || ^8.0 again; CI tests PHP 8.2–8.5 × Symfony 6.4, 7.0 and 8.0 (Symfony 8 job overrides platform to PHP 8.4).
+
+### Changed
+
+- **nowo-tech/icon-selector-bundle** is now **optional** (moved from `require` to `suggest`). The dashboard item form uses `IconSelectorType` when the bundle is installed (Symfony ^7.0 || ^8.0); otherwise the icon field is a plain text input. This allows using the bundle on Symfony 6.4 without that dependency.
+- **Composer:** `config.platform.php` set to `8.2` so the lock file is resolvable on the minimum supported PHP; CI overrides to 8.4 for the Symfony 8.0 job.
+- **Docs:** INSTALLATION notes that the bundle does not require icon-selector-bundle; README and requirements reflect Symfony 6.4 | 7 | 8.
+
+### Fixed
+
+- **CI:** Symfony 6.4 and 7.0 jobs no longer fail on dependency resolution (icon-selector-bundle was requiring ^7.0||^8.0 and blocking 6.4).
+
 ## [0.2.0] - 2026-03-18
 
 ### Changed (breaking)
@@ -54,7 +70,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.0.1...v0.1.0
 [0.0.1]: https://github.com/nowo-tech/DashboardMenuBundle/releases/tag/v0.0.1
