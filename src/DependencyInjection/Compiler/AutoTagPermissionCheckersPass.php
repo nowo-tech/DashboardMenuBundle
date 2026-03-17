@@ -40,11 +40,17 @@ final class AutoTagPermissionCheckersPass implements CompilerPassInterface
                 continue;
             }
 
-            if (!class_exists($class)) {
-                continue;
-            }
+            try {
+                if (!class_exists($class)) {
+                    continue;
+                }
 
-            if (!is_subclass_of($class, $interface)) {
+                if (!is_subclass_of($class, $interface)) {
+                    continue;
+                }
+            } catch (\Throwable) {
+                // Skip definitions whose class cannot be loaded (e.g. TransMethodVisitor
+                // triggers PhpParser autoload and may fail in some environments).
                 continue;
             }
 
@@ -52,7 +58,12 @@ final class AutoTagPermissionCheckersPass implements CompilerPassInterface
                 continue;
             }
 
-            $label = $this->resolveLabel($class, $id);
+            try {
+                $label = $this->resolveLabel($class, $id);
+            } catch (\Throwable) {
+                $label = $id;
+            }
+
             $definition->addTag(self::TAG, ['label' => $label]);
         }
     }

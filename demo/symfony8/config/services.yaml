@@ -1,3 +1,8 @@
+parameters:
+    # Avoid "Attempted to load interface NodeVisitor from namespace PhpParser" when
+    # the container is built (e.g. cache:clear) and a dependency triggers PhpParser autoload.
+    container.dumper.inline_class_loader: false
+
 services:
     _defaults:
         autowire: true
