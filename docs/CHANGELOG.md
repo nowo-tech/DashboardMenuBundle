@@ -7,13 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.1.0] - 2026-03-17
+
 ### Added
 
 - **Cache**: Configurable tree cache (`cache.ttl` min 60s, `cache.pool`) to avoid N+1 and repeated DB hits; cache key includes menu code, locale and context sets.
 - **Icon prefix map**: `icon_library_prefix_map` (e.g. `bootstrap-icons: bi`) so icon identifiers are converted before rendering (e.g. for Symfony UX Icons); resolver accepts normalized config keys (hyphen/underscore).
 - **Menu loading**: Two-query SQL path (menu + items) in `MenuRepository::findMenuAndItemsRaw()`; optional cache; legacy path when raw returns null.
-- **Web Profiler**: “Dashboard menus” panel with two tabs: “Menus” (summary of menus on page, query count, items tree) and “Configuration” (connection, table prefix, cache, locales, icon map, permission checker services).
+- **Web Profiler**: "Dashboard menus" panel with two tabs: "Menus" (summary of menus on page, query count, items tree) and "Configuration" (connection, table prefix, cache, locales, icon map, permission checker services).
 - **Doctrine**: Table name quoting uses `Platform::quoteSingleIdentifier()` (avoids deprecated `Connection::quoteIdentifier()`).
+- **Demos**: Twig Inspector (`nowo-tech/twig-inspector-bundle`) in symfony7 and symfony8 demos for development.
 
 ## [0.0.1] - 2026-03-10
 
@@ -33,5 +37,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.0.1...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.0.1...v0.1.0
 [0.0.1]: https://github.com/nowo-tech/DashboardMenuBundle/releases/tag/v0.0.1
