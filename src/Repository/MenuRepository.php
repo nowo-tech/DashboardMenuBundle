@@ -12,7 +12,6 @@ use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 
 use function count;
-use function is_array;
 
 /**
  * @extends ServiceEntityRepository<Menu>
@@ -76,9 +75,9 @@ class MenuRepository extends ServiceEntityRepository
      */
     public function findMenuAndItemsRaw(string $code, array $contextSets): ?array
     {
-        $em   = $this->getEntityManager();
-        $conn = $em->getConnection();
-        $meta = $em->getClassMetadata(Menu::class);
+        $em        = $this->getEntityManager();
+        $conn      = $em->getConnection();
+        $meta      = $em->getClassMetadata(Menu::class);
         $menuTable = $meta->getTableName();
         $itemMeta  = $em->getClassMetadata(MenuItem::class);
         $itemTable = $itemMeta->getTableName();

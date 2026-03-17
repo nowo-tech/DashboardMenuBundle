@@ -246,7 +246,7 @@ final class DashboardMenuDataCollector extends DataCollector implements LateData
             $out[]    = [
                 'label'          => $item->getLabel(),
                 'type'           => $item->getItemType(),
-                'icon'           => $this->menuIconNameResolver instanceof \Nowo\DashboardMenuBundle\Service\MenuIconNameResolver ? $this->menuIconNameResolver->resolve($item->getIcon()) : $item->getIcon(),
+                'icon'           => $this->menuIconNameResolver instanceof MenuIconNameResolver ? $this->menuIconNameResolver->resolve($item->getIcon()) : $item->getIcon(),
                 'children_count' => count($children),
                 'children'       => $this->summarizeTree($children),
             ];

@@ -169,7 +169,7 @@ final class MenuApiControllerTest extends TestCase
         $loader = $this->createLoaderWithTree([$root, $child]);
 
         $urlGenerator = $this->createStub(UrlGeneratorInterface::class);
-        $urlGenerator->method('generate')->willReturnCallback(static fn(string $route): string => $route === 'home' ? '/' : '/child');
+        $urlGenerator->method('generate')->willReturnCallback(static fn (string $route): string => $route === 'home' ? '/' : '/child');
         $requestStack = $this->createStub(\Symfony\Component\HttpFoundation\RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn(null);
         $urlResolver  = new MenuUrlResolver($urlGenerator, $requestStack);

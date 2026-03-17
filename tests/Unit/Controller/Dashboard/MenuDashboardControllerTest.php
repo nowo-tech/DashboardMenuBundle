@@ -237,7 +237,7 @@ final class MenuDashboardControllerTest extends TestCase
         $menu->setCode('one');
         $menuRepo = $this->createStub(MenuRepository::class);
         $menuRepo->method('countForDashboard')->with('')->willReturn(5);
-        $menuRepo->method('findForDashboard')->willReturnCallback(function (string $search, int $offset, int $limit) use ($menu): array {
+        $menuRepo->method('findForDashboard')->willReturnCallback(static function (string $search, int $offset, int $limit) use ($menu): array {
             self::assertLessThanOrEqual(2, $limit);
 
             return $offset === 0 ? [$menu] : [];

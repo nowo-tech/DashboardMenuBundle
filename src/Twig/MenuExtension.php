@@ -119,12 +119,12 @@ final class MenuExtension extends AbstractExtension
         $resolvedCode = $this->menuCodeResolver->resolveMenuCode($request, $menuCode);
         $locale       = $this->localeResolver->resolveLocale($request->getLocale());
         $queryCount   = null;
-        if ($this->dataCollector instanceof DashboardMenuDataCollector && $this->menuQueryCounter instanceof \Nowo\DashboardMenuBundle\DataCollector\MenuQueryCounter && $this->connection instanceof \Doctrine\DBAL\Connection) {
+        if ($this->dataCollector instanceof DashboardMenuDataCollector && $this->menuQueryCounter instanceof MenuQueryCounter && $this->connection instanceof Connection) {
             $this->menuQueryCounter->wrapConnection($this->connection);
             $this->menuQueryCounter->startSegment();
         }
         $tree = $this->menuTreeLoader->loadTree($resolvedCode, $locale, $context, $contextSets);
-        if ($this->menuQueryCounter instanceof \Nowo\DashboardMenuBundle\DataCollector\MenuQueryCounter) {
+        if ($this->menuQueryCounter instanceof MenuQueryCounter) {
             $queryCount = $this->menuQueryCounter->getSegmentCount();
         }
 

@@ -591,19 +591,19 @@ class MenuTreeLoaderTest extends TestCase
     {
         $raw = [
             'menu' => [
-                'id' => 1, 'code' => 'invalid-cache', 'attributes_key' => '', 'name' => null, 'icon' => null,
-                'class_menu' => null, 'class_item' => null, 'class_link' => null, 'class_children' => null,
-                'class_current' => null, 'class_branch_expanded' => null, 'class_has_children' => null,
+                'id'             => 1, 'code' => 'invalid-cache', 'attributes_key' => '', 'name' => null, 'icon' => null,
+                'class_menu'     => null, 'class_item' => null, 'class_link' => null, 'class_children' => null,
+                'class_current'  => null, 'class_branch_expanded' => null, 'class_has_children' => null,
                 'class_expanded' => null, 'class_collapsed' => null, 'permission_checker' => null,
-                'depth_limit' => null, 'collapsible' => null, 'collapsible_expanded' => null, 'nested_collapsible' => null,
-                'attributes' => null, 'base' => false,
+                'depth_limit'    => null, 'collapsible' => null, 'collapsible_expanded' => null, 'nested_collapsible' => null,
+                'attributes'     => null, 'base' => false,
             ],
             'items' => [
                 [
-                    'id' => 1, 'menu_id' => 1, 'parent_id' => null, 'position' => 0,
-                    'label' => 'From repo', 'translations' => null, 'link_type' => 'route', 'route_name' => null,
+                    'id'           => 1, 'menu_id' => 1, 'parent_id' => null, 'position' => 0,
+                    'label'        => 'From repo', 'translations' => null, 'link_type' => 'route', 'route_name' => null,
                     'route_params' => null, 'external_url' => null, 'permission_key' => null,
-                    'icon' => null, 'item_type' => 'link', 'target_blank' => false,
+                    'icon'         => null, 'item_type' => 'link', 'target_blank' => false,
                 ],
             ],
         ];
@@ -645,34 +645,34 @@ class MenuTreeLoaderTest extends TestCase
     {
         $raw = [
             'menu' => [
-                'id'                   => 1,
-                'code'                 => 'styled',
+                'id'                    => 1,
+                'code'                  => 'styled',
                 'attributes_key'        => '',
-                'name'                 => 'Styled',
-                'icon'                 => 'bi:list',
-                'class_menu'           => 'nav flex-column',
-                'class_item'           => 'nav-item',
-                'class_link'           => 'nav-link',
-                'class_children'       => 'nav flex-column ms-2',
-                'class_current'        => 'active',
+                'name'                  => 'Styled',
+                'icon'                  => 'bi:list',
+                'class_menu'            => 'nav flex-column',
+                'class_item'            => 'nav-item',
+                'class_link'            => 'nav-link',
+                'class_children'        => 'nav flex-column ms-2',
+                'class_current'         => 'active',
                 'class_branch_expanded' => 'open',
                 'class_has_children'    => 'has-children',
-                'class_expanded'       => 'expanded',
-                'class_collapsed'      => 'collapsed',
+                'class_expanded'        => 'expanded',
+                'class_collapsed'       => 'collapsed',
                 'permission_checker'    => null,
-                'depth_limit'          => 2,
-                'collapsible'          => true,
+                'depth_limit'           => 2,
+                'collapsible'           => true,
                 'collapsible_expanded'  => true,
-                'nested_collapsible'   => true,
-                'attributes'           => '{"locale":"en"}',
-                'base'                 => true,
+                'nested_collapsible'    => true,
+                'attributes'            => '{"locale":"en"}',
+                'base'                  => true,
             ],
             'items' => [
                 [
-                    'id' => 1, 'menu_id' => 1, 'parent_id' => null, 'position' => 0,
-                    'label' => 'Root', 'translations' => null, 'link_type' => 'route', 'route_name' => null,
+                    'id'           => 1, 'menu_id' => 1, 'parent_id' => null, 'position' => 0,
+                    'label'        => 'Root', 'translations' => null, 'link_type' => 'route', 'route_name' => null,
                     'route_params' => null, 'external_url' => null, 'permission_key' => null,
-                    'icon' => null, 'item_type' => 'link', 'target_blank' => false,
+                    'icon'         => null, 'item_type' => 'link', 'target_blank' => false,
                 ],
             ],
         ];
@@ -715,12 +715,12 @@ class MenuTreeLoaderTest extends TestCase
     {
         $raw = [
             'menu' => [
-                'id' => 1, 'code' => 'json-items', 'attributes_key' => '', 'name' => null, 'icon' => null,
-                'class_menu' => null, 'class_item' => null, 'class_link' => null, 'class_children' => null,
-                'class_current' => null, 'class_branch_expanded' => null, 'class_has_children' => null,
+                'id'             => 1, 'code' => 'json-items', 'attributes_key' => '', 'name' => null, 'icon' => null,
+                'class_menu'     => null, 'class_item' => null, 'class_link' => null, 'class_children' => null,
+                'class_current'  => null, 'class_branch_expanded' => null, 'class_has_children' => null,
                 'class_expanded' => null, 'class_collapsed' => null, 'permission_checker' => null,
-                'depth_limit' => null, 'collapsible' => null, 'collapsible_expanded' => null, 'nested_collapsible' => null,
-                'attributes' => null, 'base' => false,
+                'depth_limit'    => null, 'collapsible' => null, 'collapsible_expanded' => null, 'nested_collapsible' => null,
+                'attributes'     => null, 'base' => false,
             ],
             'items' => [
                 [

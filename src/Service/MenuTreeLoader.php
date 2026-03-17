@@ -54,7 +54,7 @@ final readonly class MenuTreeLoader
     {
         $sets = $contextSets ?? [null, []];
 
-        $cacheKey = $this->cachePool instanceof \Psr\Cache\CacheItemPoolInterface
+        $cacheKey = $this->cachePool instanceof CacheItemPoolInterface
             ? self::CACHE_KEY_PREFIX . md5($menuCode . '.' . $locale . '.' . serialize($sets))
             : null;
 

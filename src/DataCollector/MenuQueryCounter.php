@@ -26,8 +26,7 @@ final class MenuQueryCounter implements ResetInterface
     public function __construct(
         /** @var Closure(object): bool|null Optional; when null, uses default check (getSQLLogger/setSQLLogger). Used for testing no-op path. */
         private readonly ?Closure $configSupportsSQLLogger = null
-    )
-    {
+    ) {
     }
 
     public function startSegment(): void
