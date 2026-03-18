@@ -49,20 +49,62 @@
     {% if items|length == 0 %}
         <p class="text-muted">{{ 'dashboard.no_items'|trans({}, 'NowoDashboardMenuBundle') }} <button type="button" class="btn btn-link p-0 align-baseline btn-add-item" data-id="{{ menu.id }}" data-parent="" data-bs-toggle="modal" data-bs-target="#modal-item-form">{{ 'dashboard.add_one'|trans({}, 'NowoDashboardMenuBundle') }}</button>.</p>
     {% else %}
+        <style>
+            /* Responsive item table: keep actions compact on narrow screens */
+            .nowo-dashboard-menu-actions-col { width: 1%; white-space: nowrap; }
+            .nowo-dashboard-menu-move-stack { display: inline-flex; flex-direction: column; gap: .25rem; }
+            .nowo-dashboard-menu-actions { display: inline-flex; align-items: center; gap: .5rem; }
+            .nowo-dashboard-menu-actions .btn { padding-left: .4rem; padding-right: .4rem; }
+            .nowo-dashboard-menu-route { min-width: 18rem; }
+            @media (max-width: 992px) {
+                .nowo-dashboard-menu-route { min-width: 14rem; }
+            }
+        </style>
         <div class="table-responsive">
             <table class="table table-hover align-middle">
                 <thead>
                     <tr>
+                        <th class="nowo-dashboard-menu-actions-col">{{ 'dashboard.actions'|trans({}, 'NowoDashboardMenuBundle') }}</th>
                         <th style="width: 1%; white-space: nowrap;">{{ 'dashboard.parent'|trans({}, 'NowoDashboardMenuBundle') }}</th>
-                        <th style="white-space: nowrap;">{{ 'dashboard.route_url'|trans({}, 'NowoDashboardMenuBundle') }}</th>
+                        <th class="nowo-dashboard-menu-route" style="white-space: nowrap;">{{ 'dashboard.route_url'|trans({}, 'NowoDashboardMenuBundle') }}</th>
                         <th>{{ 'dashboard.item'|trans({}, 'NowoDashboardMenuBundle') }}</th>
-                        <th class="text-end" style="width: 1%; white-space: nowrap;">{{ 'dashboard.actions'|trans({}, 'NowoDashboardMenuBundle') }}</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for item in items %}
                         {% set depth = item_depths[item.id] is defined ? item_depths[item.id] : 0 %}
                         <tr id="item-{{ item.id }}">
+                            <td class="nowo-dashboard-menu-actions-col">
+                                <div class="nowo-dashboard-menu-actions">
+                                    <div class="nowo-dashboard-menu-move-stack" aria-label="{{ 'dashboard.actions'|trans({}, 'NowoDashboardMenuBundle') }}">
+                                        {% if prev_sibling[item.id] is defined and prev_sibling[item.id] is not null %}
+                                            <form method="post" action="{{ path(dashboard_routes.item_move_up|default('nowo_dashboard_menu_dashboard_item_move_up'), { id: menu.id, itemId: item.id }) }}">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('item_move_up_' ~ item.id) }}">
+                                                <button type="submit" class="btn btn-sm btn-outline-secondary" title="{{ 'dashboard.move_up'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.move_up'|trans({}, 'NowoDashboardMenuBundle') }}">↑</button>
+                                            </form>
+                                        {% else %}
+                                            <span class="btn btn-sm btn-outline-secondary disabled" title="{{ 'dashboard.first'|trans({}, 'NowoDashboardMenuBundle') }}" aria-hidden="true">↑</span>
+                                        {% endif %}
+                                        {% if next_sibling[item.id] is defined and next_sibling[item.id] is not null %}
+                                            <form method="post" action="{{ path(dashboard_routes.item_move_down|default('nowo_dashboard_menu_dashboard_item_move_down'), { id: menu.id, itemId: item.id }) }}">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('item_move_down_' ~ item.id) }}">
+                                                <button type="submit" class="btn btn-sm btn-outline-secondary" title="{{ 'dashboard.move_down'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.move_down'|trans({}, 'NowoDashboardMenuBundle') }}">↓</button>
+                                            </form>
+                                        {% else %}
+                                            <span class="btn btn-sm btn-outline-secondary disabled" title="{{ 'dashboard.last'|trans({}, 'NowoDashboardMenuBundle') }}" aria-hidden="true">↓</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="d-inline-flex align-items-center gap-1">
+                                        <button type="button" class="btn btn-sm btn-outline-success btn-add-item" title="{{ 'dashboard.add_child'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.add_child'|trans({}, 'NowoDashboardMenuBundle') }}" data-id="{{ menu.id }}" data-parent="{{ item.id }}" data-bs-toggle="modal" data-bs-target="#modal-item-form">+</button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary btn-edit-item" title="{{ 'dashboard.edit'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.edit'|trans({}, 'NowoDashboardMenuBundle') }}" data-id="{{ menu.id }}" data-item-id="{{ item.id }}" data-bs-toggle="modal" data-bs-target="#modal-item-form">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/></svg>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger btn-delete-item" title="{{ 'dashboard.delete'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.delete'|trans({}, 'NowoDashboardMenuBundle') }}" data-id="{{ menu.id }}" data-item-id="{{ item.id }}" data-name="{{ item.label ?: ('dashboard.no_label'|trans) }}" data-url="{{ path(dashboard_routes.item_delete|default('nowo_dashboard_menu_dashboard_item_delete'), { id: menu.id, itemId: item.id }) }}" data-token="{{ csrf_token('delete_item_' ~ item.id) }}" data-bs-toggle="modal" data-bs-target="#modal-delete-item-confirm">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
                             <td class="text-muted small">{{ item_parent_labels[item.id] is defined ? item_parent_labels[item.id] : '—' }}</td>
                             <td class="small">
                                 {% if item.itemType == 'link' %}
@@ -83,33 +125,6 @@
                                 {% if item.icon %}<span class="text-muted me-1" title="{{ item.icon }}">🔣</span>{% endif %}
                                 <span class="badge bg-secondary me-2">{{ item.itemType }}</span>
                                 {{ item.label ?: ('dashboard.no_label'|trans) }}
-                            </td>
-                            <td class="text-end">
-                                <div class="d-flex align-items-center justify-content-end gap-1">
-                                    {% if prev_sibling[item.id] is defined and prev_sibling[item.id] is not null %}
-                                        <form method="post" action="{{ path(dashboard_routes.item_move_up|default('nowo_dashboard_menu_dashboard_item_move_up'), { id: menu.id, itemId: item.id }) }}" class="d-inline">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('item_move_up_' ~ item.id) }}">
-                                            <button type="submit" class="btn btn-sm btn-outline-secondary" title="{{ 'dashboard.move_up'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.move_up'|trans({}, 'NowoDashboardMenuBundle') }}">↑</button>
-                                        </form>
-                                    {% else %}
-                                        <span class="btn btn-sm btn-outline-secondary disabled" title="{{ 'dashboard.first'|trans({}, 'NowoDashboardMenuBundle') }}" aria-hidden="true">↑</span>
-                                    {% endif %}
-                                    {% if next_sibling[item.id] is defined and next_sibling[item.id] is not null %}
-                                        <form method="post" action="{{ path(dashboard_routes.item_move_down|default('nowo_dashboard_menu_dashboard_item_move_down'), { id: menu.id, itemId: item.id }) }}" class="d-inline">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('item_move_down_' ~ item.id) }}">
-                                            <button type="submit" class="btn btn-sm btn-outline-secondary" title="{{ 'dashboard.move_down'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.move_down'|trans({}, 'NowoDashboardMenuBundle') }}">↓</button>
-                                        </form>
-                                    {% else %}
-                                        <span class="btn btn-sm btn-outline-secondary disabled" title="{{ 'dashboard.last'|trans({}, 'NowoDashboardMenuBundle') }}" aria-hidden="true">↓</span>
-                                    {% endif %}
-                                    <button type="button" class="btn btn-sm btn-outline-success btn-add-item" title="{{ 'dashboard.add_child'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.add_child'|trans({}, 'NowoDashboardMenuBundle') }}" data-id="{{ menu.id }}" data-parent="{{ item.id }}" data-bs-toggle="modal" data-bs-target="#modal-item-form">+</button>
-                                    <button type="button" class="btn btn-sm btn-outline-primary btn-edit-item" title="{{ 'dashboard.edit'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.edit'|trans({}, 'NowoDashboardMenuBundle') }}" data-id="{{ menu.id }}" data-item-id="{{ item.id }}" data-bs-toggle="modal" data-bs-target="#modal-item-form">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/></svg>
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-outline-danger btn-delete-item" title="{{ 'dashboard.delete'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.delete'|trans({}, 'NowoDashboardMenuBundle') }}" data-id="{{ menu.id }}" data-item-id="{{ item.id }}" data-name="{{ item.label ?: ('dashboard.no_label'|trans) }}" data-url="{{ path(dashboard_routes.item_delete|default('nowo_dashboard_menu_dashboard_item_delete'), { id: menu.id, itemId: item.id }) }}" data-token="{{ csrf_token('delete_item_' ~ item.id) }}" data-bs-toggle="modal" data-bs-target="#modal-delete-item-confirm">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>
-                                    </button>
-                                </div>
                             </td>
                         </tr>
                     {% endfor %}

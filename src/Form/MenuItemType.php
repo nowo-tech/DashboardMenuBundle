@@ -65,6 +65,7 @@ final class MenuItemType extends AbstractType
                 ],
                 'label' => 'form.menu_item_type.type.label',
                 'attr'  => ['class' => 'form-select'],
+                'autocomplete' => true,
             ])
             ->add('position', IntegerType::class, [
                 'required' => false,
@@ -78,6 +79,7 @@ final class MenuItemType extends AbstractType
                 ],
                 'label' => 'form.menu_item_type.link_type.label',
                 'attr'  => ['class' => 'form-select'],
+                'autocomplete' => true,
             ])
             ->add('routeName', ChoiceType::class, [
                 'required'    => false,
@@ -90,6 +92,7 @@ final class MenuItemType extends AbstractType
 
                     return ['data-params' => json_encode($params)];
                 },
+                'autocomplete' => true,
             ])
             ->add('routeParams', TextType::class, [
                 'required' => false,
@@ -193,10 +196,11 @@ final class MenuItemType extends AbstractType
 
                     return implode(' > ', $parts);
                 },
-                'placeholder' => $t('form.menu_item_type.parent.placeholder'),
-                'required'    => false,
-                'label'       => 'form.menu_item_type.parent.label',
-                'attr'        => ['class' => 'form-select'],
+                'placeholder'  => $t('form.menu_item_type.parent.placeholder'),
+                'required'     => false,
+                'label'        => 'form.menu_item_type.parent.label',
+                'attr'         => ['class' => 'form-select'],
+                'autocomplete' => true,
             ]);
         }
     }

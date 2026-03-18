@@ -165,6 +165,14 @@ final class MenuDashboardController extends AbstractController
             $pagination = null;
         }
 
+        $menuIds = [];
+        foreach ($menus as $menu) {
+            if ($menu->getId() !== null) {
+                $menuIds[] = (int) $menu->getId();
+            }
+        }
+        $menuItemCounts = $this->menuItemRepository->countForMenus($menuIds);
+
         $newMenu     = new Menu();
         $newMenuForm = $this->createForm(MenuType::class, $newMenu, [
             'action' => $this->generateUrl(self::ROUTE_MENU_NEW),
@@ -172,6 +180,7 @@ final class MenuDashboardController extends AbstractController
 
         return $this->render('@NowoDashboardMenuBundle/dashboard/index.html.twig', [
             'menus'                    => $menus,
+            'menu_item_counts'         => $menuItemCounts,
             'search'                   => $search,
             'pagination'               => $pagination,
             'new_menu_form'            => $newMenuForm,

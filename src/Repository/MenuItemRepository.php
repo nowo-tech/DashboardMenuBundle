@@ -119,4 +119,38 @@ class MenuItemRepository extends ServiceEntityRepository
 
         return $qb;
     }
+
+    /**
+     * Returns a map of menuId => itemCount for the given menus.
+     *
+     * @param list<int> $menuIds
+     *
+     * @return array<int, int>
+     */
+    public function countForMenus(array $menuIds): array
+    {
+        if ($menuIds === []) {
+            return [];
+        }
+
+        $qb = $this->createQueryBuilder('i')
+            ->select('IDENTITY(i.menu) AS menu_id, COUNT(i.id) AS item_count')
+            ->where('i.menu IN (:menuIds)')
+            ->setParameter('menuIds', $menuIds)
+            ->groupBy('i.menu');
+
+        $rows = $qb->getQuery()->getArrayResult();
+        assert(is_array($rows));
+
+        $out = [];
+        foreach ($rows as $row) {
+            $menuId = isset($row['menu_id']) ? (int) $row['menu_id'] : 0;
+            if ($menuId <= 0) {
+                continue;
+            }
+            $out[$menuId] = isset($row['item_count']) ? (int) $row['item_count'] : 0;
+        }
+
+        return $out;
+    }
 }

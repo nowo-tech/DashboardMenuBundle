@@ -95,12 +95,13 @@ final class MenuType extends AbstractType
                 'help'     => 'form.menu_type.icon.help',
             ])
             ->add('permissionChecker', ChoiceType::class, [
-                'required'    => false,
-                'label'       => 'form.menu_type.permission_checker.label',
-                'placeholder' => 'form.menu_type.permission_checker.placeholder',
-                'choices'     => $choices,
-                'attr'        => ['class' => 'form-select'],
-                'help'        => 'form.menu_type.permission_checker.help',
+                'required'     => false,
+                'label'        => 'form.menu_type.permission_checker.label',
+                'placeholder'  => 'form.menu_type.permission_checker.placeholder',
+                'choices'      => $choices,
+                'attr'         => ['class' => 'form-select'],
+                'autocomplete' => true,
+                'help'         => 'form.menu_type.permission_checker.help',
             ])
             ->add('depthLimit', IntegerType::class, [
                 'required' => false,
@@ -173,6 +174,7 @@ final class MenuType extends AbstractType
                 'choices'                   => $choices,
                 'choice_translation_domain' => false,
                 'attr'                      => ['class' => 'form-select'],
+                'autocomplete'              => true,
             ]);
         } else {
             $placeholderText = $this->translator instanceof TranslatorInterface ? $this->translator->trans($placeholder, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN) : $placeholder;

@@ -32,6 +32,8 @@
                     <div>
                         {% if menu.icon %}<span class="text-muted me-1" title="{{ menu.icon }}">🔣</span>{% endif %}
                         <strong>{{ menu.code }}</strong>
+                        {% set _itemsCount = menu_item_counts[menu.id]|default(0) %}
+                        <span class="badge bg-light text-dark border ms-2" title="{{ _itemsCount }}">{{ _itemsCount }}</span>
                         {% if menu.base %}<span class="badge bg-secondary ms-1" title="{{ 'dashboard.base_badge_title'|trans({}, 'NowoDashboardMenuBundle') }}">{{ 'dashboard.base'|trans({}, 'NowoDashboardMenuBundle') }}</span>{% endif %}
                         {% if menu.name %}<span class="text-muted"> — {{ menu.name }}</span>{% endif %}
                         {% if menu.context is defined and menu.context is iterable and menu.context is not empty %}
