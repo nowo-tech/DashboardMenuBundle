@@ -1,2 +1,0 @@
-# Mensajes de validación (dominio validators de Symfony)
-form.copy_menu_type.code.regex_message: "El código solo puede contener letras, números, guión bajo y guión."

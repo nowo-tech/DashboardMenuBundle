@@ -97,6 +97,28 @@ final class AutoTagPermissionCheckersPassTest extends TestCase
         self::assertSame('app.stub_fallback', $tags[0]['label'] ?? null);
     }
 
+    public function testProcessUsesAttributeWhenConstantIsEmptyString(): void
+    {
+        $container = new ContainerBuilder();
+        $container->register('app.stub_empty_constant', StubCheckerEmptyConstantWithAttribute::class);
+
+        $this->processAutoTag($container);
+
+        $tags = $container->getDefinition('app.stub_empty_constant')->getTag('nowo_dashboard_menu.permission_checker');
+        self::assertSame('Label when constant empty', $tags[0]['label'] ?? null);
+    }
+
+    public function testProcessFallsBackToServiceIdWhenConstantEmptyAndNoAttribute(): void
+    {
+        $container = new ContainerBuilder();
+        $container->register('app.stub_empty_only', StubCheckerEmptyConstantOnly::class);
+
+        $this->processAutoTag($container);
+
+        $tags = $container->getDefinition('app.stub_empty_only')->getTag('nowo_dashboard_menu.permission_checker');
+        self::assertSame('app.stub_empty_only', $tags[0]['label'] ?? null);
+    }
+
     public function testAutoTagRunsBeforePermissionCheckerPassSoChoicesIncludeAutoTagged(): void
     {
         $container = new ContainerBuilder();
@@ -161,6 +183,29 @@ class StubCheckerFallbackLabel implements MenuPermissionCheckerInterface
 {
     /** @phpstan-ignore classConstant.unused */
     private const DASHBOARD_LABEL = 'private label';
+
+    public function canView(MenuItem $item, mixed $context = null): bool
+    {
+        return true;
+    }
+}
+
+// Coverage: public constant exists but is empty string => labelFromConstant returns null, use attribute.
+#[PermissionCheckerLabel('Label when constant empty')]
+class StubCheckerEmptyConstantWithAttribute implements MenuPermissionCheckerInterface
+{
+    public const DASHBOARD_LABEL = '';
+
+    public function canView(MenuItem $item, mixed $context = null): bool
+    {
+        return true;
+    }
+}
+
+// Coverage: public constant empty string, no attribute => fallback to service id.
+class StubCheckerEmptyConstantOnly implements MenuPermissionCheckerInterface
+{
+    public const DASHBOARD_LABEL = '';
 
     public function canView(MenuItem $item, mixed $context = null): bool
     {

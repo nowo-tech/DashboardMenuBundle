@@ -20,6 +20,9 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
  */
 final class NowoDashboardMenuBundle extends Bundle
 {
+    /** Translation domain for bundle strings (dashboard UI, form labels, validation messages). */
+    public const TRANSLATION_DOMAIN = 'NowoDashboardMenuBundle';
+
     public function build(ContainerBuilder $container): void
     {
         $container->addCompilerPass(new AutoTagPermissionCheckersPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 200);

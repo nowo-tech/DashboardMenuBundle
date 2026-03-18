@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Twig](#twig)
+- [Overriding templates and translations](#overriding-templates-and-translations)
 - [Items with children (parent, link vs section)](#items-with-children-parent-link-vs-section)
 - [Resolving by context (context sets)](#resolving-by-context-context-sets)
 - [JSON API](#json-api)
@@ -33,6 +34,71 @@ Generate href for an item:
 ```twig
 {{ dashboard_menu_href(item) }}
 ```
+
+## Overriding templates and translations
+
+The bundle does not register its views or translations via config prepend, so Symfony’s default behaviour applies: your app’s templates and translation files take precedence. You can override any template or translation by placing files in the standard locations.
+
+### Overriding templates
+
+Place a file in your project under `templates/bundles/NowoDashboardMenuBundle/` with the **same path** as inside the bundle. Symfony will use your template instead of the bundle’s.
+
+**Example:** to override the menu template used when rendering the tree, create:
+
+```
+templates/
+  bundles/
+    NowoDashboardMenuBundle/
+      menu.html.twig
+```
+
+Copy the original from `vendor/nowo-tech/dashboard-menu-bundle/src/Resources/views/menu.html.twig` and adjust markup, blocks or variables as needed. The bundle passes `menuTree`, `menuCode` and `menuConfig` (and optional `menuConfig` is resolved by the template if omitted).
+
+**Templates you can override:**
+
+| Path | Purpose |
+|------|---------|
+| `menu.html.twig` | Frontend menu tree (sidebar, nav, etc.). Receives `menuTree`, `menuCode`, `menuConfig`. |
+| `dashboard/layout.html.twig` | Layout that all dashboard pages extend. Defines the `content` block. |
+| `dashboard/index.html.twig` | Dashboard menu list. |
+| `dashboard/show.html.twig` | Single menu detail and item tree. |
+| `dashboard/menu_form.html.twig` | Create/edit menu form. |
+| `dashboard/item_form.html.twig` | Create/edit menu item form. |
+| `dashboard/copy_menu.html.twig` | Copy menu form. |
+| `dashboard/import.html.twig` | Import menus from JSON. |
+| `dashboard/_menu_form_partial.html.twig` | Partial used in menu form. |
+| `dashboard/_item_form_partial.html.twig` | Partial used in item form. |
+| `dashboard/_copy_menu_partial.html.twig` | Partial used in copy form. |
+| `Collector/dashboard_menu.html.twig` | Web debug toolbar / profiler panel. |
+
+**Dashboard layout:** besides overriding `dashboard/layout.html.twig` in the bundle path above, you can keep using the bundle layout and only change the **wrapper** via config: set `dashboard.layout_template` in `nowo_dashboard_menu.yaml` to your app layout (e.g. `base.html.twig`) so the dashboard uses your shell (see [CONFIGURATION.md](CONFIGURATION.md#dashboard)). Overriding the file gives full control over the dashboard HTML; the config option only swaps the extended template.
+
+After adding or changing template overrides, clear the Twig cache if needed: `php bin/console cache:clear`.
+
+### Overriding translations
+
+The bundle uses the translation domain **NowoDashboardMenuBundle** for all its strings: dashboard UI (titles, buttons, labels, pagination), form labels and validation messages. Translation files in the bundle are named `NowoDashboardMenuBundle.{locale}.yaml` (e.g. `NowoDashboardMenuBundle.en.yaml`, `NowoDashboardMenuBundle.es.yaml`).
+
+Keys are structured in YAML under `dashboard` (e.g. `dashboard.title`, `dashboard.new_menu`) and under `form` for form labels and validation (e.g. `form.copy_menu_type.code.regex_message`). To override a string, add the same key in your app's translation files for that domain; your app's translations take precedence.
+
+**Override bundle strings** — create or edit `translations/NowoDashboardMenuBundle.{locale}.yaml` in your project (e.g. `NowoDashboardMenuBundle.en.yaml`, `NowoDashboardMenuBundle.es.yaml`):
+
+```yaml
+# Override bundle strings – same domain (NowoDashboardMenuBundle) and key structure
+dashboard:
+  title: My menu admin
+  title_suffix: Menus
+  menus: Menu list
+  new_menu: Create menu
+  search_placeholder: "Search…"
+
+form:
+  copy_menu_type:
+    code:
+      regex_message: "Custom validation message."
+```
+
+You only need to define the keys you want to change; the rest fall back to the bundle’s translations. Clear the cache after changing translations: `php bin/console cache:clear`.
 
 ## Items with children (parent, link vs section)
 

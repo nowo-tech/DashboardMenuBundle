@@ -100,4 +100,69 @@ final class PermissionCheckerPassTest extends TestCase
         self::assertSame('z_first', $ids[0]);
         self::assertSame('a_second', $ids[1]);
     }
+
+    public function testProcessWhenParameterIsNotArrayNormalizesToEmpty(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('nowo_dashboard_menu.permission_checker_choices', 'invalid');
+
+        $pass = new PermissionCheckerPass();
+        $pass->process($container);
+
+        $choices = $container->getParameter('nowo_dashboard_menu.permission_checker_choices');
+        self::assertSame([], $choices);
+    }
+
+    public function testProcessWhenConfigOrderIsNotArrayUsesNaturalSort(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('nowo_dashboard_menu.permission_checker_choices', [
+            'order'  => 'not_an_array',
+            'labels' => [],
+        ]);
+        $container->register('z_checker')->addTag('nowo_dashboard_menu.permission_checker');
+        $container->register('a_checker')->addTag('nowo_dashboard_menu.permission_checker');
+
+        $pass = new PermissionCheckerPass();
+        $pass->process($container);
+
+        $choices = $container->getParameter('nowo_dashboard_menu.permission_checker_choices');
+        $ids     = array_keys($choices);
+        self::assertSame('a_checker', $ids[0]);
+        self::assertSame('z_checker', $ids[1]);
+    }
+
+    public function testProcessWhenConfigLabelsIsNotArrayIgnoresLabelsOverride(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('nowo_dashboard_menu.permission_checker_choices', [
+            'order'  => [],
+            'labels' => 'not_an_array',
+        ]);
+        $container->register('my_checker')->addTag('nowo_dashboard_menu.permission_checker', ['label' => 'From tag']);
+
+        $pass = new PermissionCheckerPass();
+        $pass->process($container);
+
+        $choices = $container->getParameter('nowo_dashboard_menu.permission_checker_choices');
+        self::assertSame('From tag', $choices['my_checker']);
+    }
+
+    public function testProcessOrderOmitsIdsNotInTaggedChoices(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('nowo_dashboard_menu.permission_checker_choices', [
+            'order'  => ['nonexistent', 'checker_a'],
+            'labels' => [],
+        ]);
+        $container->register('checker_a')->addTag('nowo_dashboard_menu.permission_checker', ['label' => 'A']);
+
+        $pass = new PermissionCheckerPass();
+        $pass->process($container);
+
+        $choices = $container->getParameter('nowo_dashboard_menu.permission_checker_choices');
+        $ids     = array_keys($choices);
+        self::assertSame('checker_a', $ids[0]);
+        self::assertCount(1, $choices);
+    }
 }

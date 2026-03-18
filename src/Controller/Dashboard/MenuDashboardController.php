@@ -11,6 +11,7 @@ use Nowo\DashboardMenuBundle\Form\CopyMenuType;
 use Nowo\DashboardMenuBundle\Form\ImportMenuType;
 use Nowo\DashboardMenuBundle\Form\MenuItemType;
 use Nowo\DashboardMenuBundle\Form\MenuType;
+use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 use Nowo\DashboardMenuBundle\Service\MenuExporter;
@@ -185,7 +186,7 @@ final class MenuDashboardController extends AbstractController
             if ($menu->getCode() !== '') {
                 $existing = $this->menuRepository->findOneByCodeAndContext($menu->getCode(), $menu->getContext());
                 if ($existing instanceof Menu) {
-                    $form->addError(new FormError($this->translator->trans('dashboard.unique_code_context_error')));
+                    $form->addError(new FormError($this->translator->trans('dashboard.unique_code_context_error', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN)));
                 } else {
                     $this->entityManager->persist($menu);
                     $this->entityManager->flush();
@@ -306,7 +307,7 @@ final class MenuDashboardController extends AbstractController
                 continue;
             }
             $parent      = $item->getParent();
-            $labels[$id] = $parent !== null ? $parent->getLabelForLocale($locale) : $this->translator->trans('dashboard.root');
+            $labels[$id] = $parent !== null ? $parent->getLabelForLocale($locale) : $this->translator->trans('dashboard.root', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN);
         }
 
         return $labels;
@@ -404,7 +405,7 @@ final class MenuDashboardController extends AbstractController
             }
             $existing = $this->menuRepository->findOneByCodeAndContext($menu->getCode(), $menu->getContext());
             if ($existing instanceof Menu && $existing->getId() !== $menu->getId()) {
-                $form->addError(new FormError($this->translator->trans('dashboard.unique_code_context_error')));
+                $form->addError(new FormError($this->translator->trans('dashboard.unique_code_context_error', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN)));
             } else {
                 $this->entityManager->flush();
                 $this->addFlash('success', 'Menu updated.');
@@ -495,7 +496,7 @@ final class MenuDashboardController extends AbstractController
                 $content = $file->getContent();
                 $decoded = json_decode($content, true);
                 if (!is_array($decoded)) {
-                    $this->addFlash('error', $this->translator->trans('dashboard.import_json_invalid'));
+                    $this->addFlash('error', $this->translator->trans('dashboard.import_json_invalid', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN));
                 } else {
                     $strategy = is_string($data['strategy'] ?? '') ? $data['strategy'] : MenuImporter::STRATEGY_SKIP_EXISTING;
                     $result   = $this->menuImporter->import($decoded, $strategy);
@@ -507,7 +508,7 @@ final class MenuDashboardController extends AbstractController
                             '%created%' => $result['created'],
                             '%updated%' => $result['updated'],
                             '%skipped%' => $result['skipped'],
-                        ]);
+                        ], NowoDashboardMenuBundle::TRANSLATION_DOMAIN);
                         $this->addFlash('success', $msg);
                     }
 

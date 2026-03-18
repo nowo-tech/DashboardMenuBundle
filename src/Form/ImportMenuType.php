@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\Form;
 
+use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
 use Nowo\DashboardMenuBundle\Service\MenuImporter;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -30,7 +31,7 @@ final class ImportMenuType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $t = fn (string $id, array $params = []): string => $this->translator instanceof TranslatorInterface
-            ? $this->translator->trans($id, $params) : $id;
+            ? $this->translator->trans($id, $params, NowoDashboardMenuBundle::TRANSLATION_DOMAIN) : $id;
 
         $builder
             ->add('file', FileType::class, [
@@ -60,7 +61,8 @@ final class ImportMenuType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'method' => 'POST',
+            'method'             => 'POST',
+            'translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
         ]);
     }
 }

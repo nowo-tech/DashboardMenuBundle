@@ -7,6 +7,7 @@ namespace Nowo\DashboardMenuBundle\Form;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Form\DataTransformer\JsonToArrayTransformer;
+use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use Nowo\IconSelectorBundle\Form\IconSelectorType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -48,7 +49,7 @@ final class MenuItemType extends AbstractType
         $routeChoices = $this->buildRouteChoices($appRoutes);
         /** @var list<string> $availableLocales */
         $availableLocales = $options['available_locales'];
-        $t                = fn (string $id): string => $this->translator instanceof TranslatorInterface ? $this->translator->trans($id) : $id;
+        $t                = fn (string $id): string => $this->translator instanceof TranslatorInterface ? $this->translator->trans($id, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN) : $id;
 
         $builder
             ->add('label', TextType::class, [
@@ -203,13 +204,14 @@ final class MenuItemType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class'        => MenuItem::class,
-            'app_routes'        => [],
-            'menu'              => null,
-            'exclude_ids'       => [],
-            'locale'            => $this->defaultLocale,
-            'available_locales' => $this->availableLocales,
-            'method'            => 'POST',
+            'data_class'         => MenuItem::class,
+            'app_routes'         => [],
+            'menu'               => null,
+            'exclude_ids'        => [],
+            'locale'             => $this->defaultLocale,
+            'available_locales'  => $this->availableLocales,
+            'method'             => 'POST',
+            'translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
         ]);
         $resolver->setDefined(['action']);
         $resolver->setAllowedTypes('app_routes', 'array');

@@ -18,11 +18,9 @@ use Nowo\DashboardMenuBundle\Twig\MenuExtension;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
-use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 
-use function dirname;
 use function is_array;
 
 /**
@@ -31,7 +29,7 @@ use function is_array;
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
  */
-final class DashboardMenuExtension extends Extension implements PrependExtensionInterface
+final class DashboardMenuExtension extends Extension
 {
     public function load(array $configs, ContainerBuilder $container): void
     {
@@ -126,28 +124,5 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
     public function getAlias(): string
     {
         return Configuration::ALIAS;
-    }
-
-    public function prepend(ContainerBuilder $container): void
-    {
-        $bundleDir = dirname(__DIR__, 2);
-        $viewsPath = $bundleDir . '/src/Resources/views';
-
-        if ($container->hasExtension('twig')) {
-            $container->prependExtensionConfig('twig', [
-                'paths' => [
-                    $viewsPath => 'NowoDashboardMenuBundle',
-                ],
-            ]);
-        }
-
-        $translationsPath = $bundleDir . '/src/Resources/translations';
-        if ($container->hasExtension('framework') && is_dir($translationsPath)) {
-            $container->prependExtensionConfig('framework', [
-                'translator' => [
-                    'paths' => [$translationsPath],
-                ],
-            ]);
-        }
     }
 }

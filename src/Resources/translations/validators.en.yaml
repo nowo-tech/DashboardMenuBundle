@@ -1,2 +1,0 @@
-# Validation messages (Symfony validator domain)
-form.copy_menu_type.code.regex_message: "Code must contain only letters, numbers, underscore and hyphen."

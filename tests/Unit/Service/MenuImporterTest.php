@@ -181,4 +181,52 @@ final class MenuImporterTest extends TestCase
 
         self::assertSame([], $result['errors']);
     }
+
+    public function testImportItemWithoutRouteParamsLeavesRouteParamsNull(): void
+    {
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::atLeastOnce())->method('persist');
+        $em->expects(self::atLeastOnce())->method('flush');
+
+        $importer = new MenuImporter($menuRepo, $em);
+        $result   = $importer->import([
+            'menu'  => ['code' => 'no-params'],
+            'items' => [['label' => 'Item without routeParams', 'position' => 0]],
+        ]);
+
+        self::assertSame(1, $result['created']);
+        self::assertSame([], $result['errors']);
+    }
+
+    public function testImportMenuWithZeroDepthLimitAndFalseCollapsible(): void
+    {
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::atLeastOnce())->method('persist')->with(self::logicalOr(
+            self::isInstanceOf(Menu::class),
+            self::isInstanceOf(MenuItem::class),
+        ));
+        $em->expects(self::atLeastOnce())->method('flush');
+
+        $importer = new MenuImporter($menuRepo, $em);
+        $result   = $importer->import([
+            'menu' => [
+                'code'                => 'flags',
+                'name'                => 'Flags',
+                'depthLimit'          => 0,
+                'collapsible'         => false,
+                'collapsibleExpanded' => false,
+                'nestedCollapsible'   => false,
+            ],
+            'items' => [],
+        ]);
+
+        self::assertSame(1, $result['created']);
+        self::assertSame([], $result['errors']);
+    }
 }

@@ -9,7 +9,6 @@ use Nowo\DashboardMenuBundle\DependencyInjection\DashboardMenuExtension;
 use Nowo\DashboardMenuBundle\Twig\MenuExtension;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\DependencyInjection\Reference;
 
 final class DashboardMenuExtensionTest extends TestCase
@@ -85,75 +84,5 @@ final class DashboardMenuExtensionTest extends TestCase
     {
         $extension = new DashboardMenuExtension();
         self::assertSame('nowo_dashboard_menu', $extension->getAlias());
-    }
-
-    public function testPrependAddsTwigPathWhenTwigExtensionPresent(): void
-    {
-        $twigExtension = new class implements ExtensionInterface {
-            public function load(array $configs, ContainerBuilder $container): void
-            {
-            }
-
-            public function getNamespace(): string
-            {
-                return 'http://example.com/schema';
-            }
-
-            public function getXsdValidationBasePath(): string|false
-            {
-                return random_int(0, 1) === 0 ? '' : false;
-            }
-
-            public function getAlias(): string
-            {
-                return 'twig';
-            }
-        };
-        $container = new ContainerBuilder();
-        $container->registerExtension($twigExtension);
-
-        $extension = new DashboardMenuExtension();
-        $extension->prepend($container);
-
-        $config = $container->getExtensionConfig('twig');
-        self::assertNotEmpty($config);
-        self::assertArrayHasKey('paths', $config[0]);
-        $paths = $config[0]['paths'];
-        self::assertIsArray($paths);
-        $pathKey = array_keys($paths)[0];
-        self::assertStringContainsString('Resources/views', $pathKey);
-        self::assertSame('NowoDashboardMenuBundle', $paths[$pathKey]);
-    }
-
-    public function testPrependAddsTranslatorPathWhenFrameworkExtensionPresentAndTranslationsDirExists(): void
-    {
-        $frameworkExtension = new class implements ExtensionInterface {
-            public function load(array $configs, ContainerBuilder $container): void
-            {
-            }
-
-            public function getNamespace(): string
-            {
-                return 'http://example.com/schema';
-            }
-
-            public function getXsdValidationBasePath(): string|false
-            {
-                return random_int(0, 1) === 0 ? '' : false;
-            }
-
-            public function getAlias(): string
-            {
-                return 'framework';
-            }
-        };
-        $container = new ContainerBuilder();
-        $container->registerExtension($frameworkExtension);
-
-        $extension = new DashboardMenuExtension();
-        $extension->prepend($container);
-
-        $config = $container->getExtensionConfig('framework');
-        self::assertNotEmpty($config);
     }
 }

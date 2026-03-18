@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\Form;
 
+use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -27,7 +28,7 @@ final class CopyMenuType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $t = fn (string $id): string => $this->translator instanceof TranslatorInterface ? $this->translator->trans($id) : $id;
+        $t = fn (string $id): string => $this->translator instanceof TranslatorInterface ? $this->translator->trans($id, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN) : $id;
         $builder
             ->add('code', TextType::class, [
                 'required' => true,
@@ -52,8 +53,9 @@ final class CopyMenuType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => null,
-            'method'     => 'POST',
+            'data_class'         => null,
+            'method'             => 'POST',
+            'translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
         ]);
         $resolver->setDefined(['action']);
     }

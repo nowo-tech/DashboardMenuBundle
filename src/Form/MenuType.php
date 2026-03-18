@@ -6,6 +6,7 @@ namespace Nowo\DashboardMenuBundle\Form;
 
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Form\DataTransformer\JsonToArrayTransformer;
+use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -56,7 +57,7 @@ final class MenuType extends AbstractType
                 ksort($choices, SORT_NATURAL);
             }
         }
-        $t = fn (string $id): string => $this->translator instanceof TranslatorInterface ? $this->translator->trans($id) : $id;
+        $t = fn (string $id): string => $this->translator instanceof TranslatorInterface ? $this->translator->trans($id, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN) : $id;
         $builder
             ->add('code', TextType::class, [
                 'required' => true,
@@ -164,7 +165,7 @@ final class MenuType extends AbstractType
                 }
             }
             $emptyKey    = 'form.menu_type.empty_choice';
-            $placeholder = $this->translator instanceof TranslatorInterface ? $this->translator->trans($emptyKey) : $emptyKey;
+            $placeholder = $this->translator instanceof TranslatorInterface ? $this->translator->trans($emptyKey, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN) : $emptyKey;
             $builder->add($fieldName, ChoiceType::class, [
                 'required'                  => false,
                 'label'                     => $label,
@@ -174,7 +175,7 @@ final class MenuType extends AbstractType
                 'attr'                      => ['class' => 'form-select'],
             ]);
         } else {
-            $placeholderText = $this->translator instanceof TranslatorInterface ? $this->translator->trans($placeholder) : $placeholder;
+            $placeholderText = $this->translator instanceof TranslatorInterface ? $this->translator->trans($placeholder, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN) : $placeholder;
             $builder->add($fieldName, TextType::class, [
                 'required' => false,
                 'label'    => $label,
@@ -186,9 +187,10 @@ final class MenuType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Menu::class,
-            'is_edit'    => false,
-            'method'     => 'POST',
+            'data_class'         => Menu::class,
+            'is_edit'            => false,
+            'method'             => 'POST',
+            'translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
         ]);
         $resolver->setDefined(['action']);
         $resolver->setAllowedTypes('is_edit', 'bool');
