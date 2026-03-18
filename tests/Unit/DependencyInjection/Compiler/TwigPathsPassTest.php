@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\Tests\Unit\DependencyInjection\Compiler;
 
-use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\RegisterTwigNamespacePass;
+use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\TwigPathsPass;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
-final class RegisterTwigNamespacePassTest extends TestCase
+final class TwigPathsPassTest extends TestCase
 {
     public function testProcessAddsTwigPathToNativeFilesystemLoader(): void
     {
@@ -17,7 +17,7 @@ final class RegisterTwigNamespacePassTest extends TestCase
         $loaderDef = new Definition();
         $container->setDefinition('twig.loader.native_filesystem', $loaderDef);
 
-        $pass = new RegisterTwigNamespacePass();
+        $pass = new TwigPathsPass();
         $pass->process($container);
 
         $calls = $loaderDef->getMethodCalls();
@@ -42,11 +42,27 @@ final class RegisterTwigNamespacePassTest extends TestCase
         self::assertTrue($found, 'Expected addPath call for NowoDashboardMenuBundle namespace.');
     }
 
+    public function testProcessUsesTwigLoaderNativeWhenAliasExists(): void
+    {
+        $container = new ContainerBuilder();
+        $loaderDef = new Definition();
+        $container->setDefinition('twig.loader.native_filesystem', $loaderDef);
+        $container->setAlias('twig.loader.native', 'twig.loader.native_filesystem');
+
+        $pass = new TwigPathsPass();
+        $pass->process($container);
+
+        $calls = $loaderDef->getMethodCalls();
+        self::assertNotEmpty($calls);
+        $addPathCalls = array_filter($calls, static fn ($c) => $c[0] === 'addPath' && ($c[1][1] ?? '') === 'NowoDashboardMenuBundle');
+        self::assertCount(1, $addPathCalls);
+    }
+
     public function testProcessDoesNothingWhenTwigLoaderNotDefined(): void
     {
         $container = new ContainerBuilder();
 
-        $pass = new RegisterTwigNamespacePass();
+        $pass = new TwigPathsPass();
         $pass->process($container);
 
         self::assertTrue(true);
