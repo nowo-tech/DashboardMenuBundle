@@ -20,7 +20,9 @@
     {% set isCurrent = node.isCurrent|default(false) %}
     {% set hasCurrentInBranch = node.hasCurrentInBranch|default(false) %}
     {% set nestedCollapsible = menuConfig.nested_collapsible|default(false) %}
+    {% set nestedCollapsibleSections = menuConfig.nested_collapsible_sections|default(true) %}
     {% set hasChildren = not maxReached and node.children|length > 0 %}
+    {% set useNestedCollapsibleForChildren = nestedCollapsible and (itemType != 'section' or nestedCollapsibleSections) %}
     {% set liExtra = (hasCurrentInBranch ? classBranchExpanded : '') %}
     {% set liExtra = liExtra ~ (hasChildren and classHasChildren is not empty ? ' ' ~ classHasChildren : '') %}
     {% set liExtra = liExtra ~ (hasChildren and hasCurrentInBranch and classExpanded is not empty ? ' ' ~ classExpanded : '') %}
@@ -35,7 +37,7 @@
         {% elseif itemType == 'section' %}
             <span class="d-flex align-items-center flex-nowrap">
                 <span class="{{ sectionLabelClasses }}">{{ item.label|trans({}, 'NowoDashboardMenuBundle') }}</span>
-                {% if nestedCollapsible and hasChildren %}
+                {% if useNestedCollapsibleForChildren and hasChildren %}
                     <button type="button" class="btn btn-link btn-sm p-0 ms-1 menu-nested-toggle" data-bs-toggle="collapse" data-bs-target="#{{ collapseId }}" aria-expanded="true" aria-controls="{{ collapseId }}" title="{{ 'dashboard.toggle'|trans({}, 'NowoDashboardMenuBundle') }}">
                         <span class="menu-nested-toggle-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M2.5 5.5L8 11l5.5-5.5H2.5z"/></svg></span>
                     </button>
@@ -53,7 +55,7 @@
                     {% endif %}
                     {{ item.label|trans({}, 'NowoDashboardMenuBundle') }}
                 </a>
-                {% if nestedCollapsible and hasChildren %}
+                {% if useNestedCollapsibleForChildren and hasChildren %}
                     <button type="button" class="btn btn-link btn-sm p-0 ms-1 menu-nested-toggle" data-bs-toggle="collapse" data-bs-target="#{{ collapseId }}" aria-expanded="true" aria-controls="{{ collapseId }}" title="{{ 'dashboard.toggle'|trans({}, 'NowoDashboardMenuBundle') }}">
                         <span class="menu-nested-toggle-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M2.5 5.5L8 11l5.5-5.5H2.5z"/></svg></span>
                     </button>
@@ -61,7 +63,7 @@
             </span>
         {% endif %}
         {% if hasChildren %}
-            {% if nestedCollapsible %}
+            {% if useNestedCollapsibleForChildren %}
                 <div id="{{ collapseId }}" class="collapse show">
                     <ul{% if childrenClasses %} class="{{ childrenClasses }}"{% endif %}>
                         {% for child in node.children %}

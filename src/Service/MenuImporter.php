@@ -129,6 +129,7 @@ final readonly class MenuImporter
         $menu->setClassItem($this->stringOrNull($menuData['classItem'] ?? null));
         $menu->setClassLink($this->stringOrNull($menuData['classLink'] ?? null));
         $menu->setClassChildren($this->stringOrNull($menuData['classChildren'] ?? null));
+        $menu->setClassSectionLabel($this->stringOrNull($menuData['classSectionLabel'] ?? null));
         $menu->setClassCurrent($this->stringOrNull($menuData['classCurrent'] ?? null));
         $menu->setClassBranchExpanded($this->stringOrNull($menuData['classBranchExpanded'] ?? null));
         $menu->setClassHasChildren($this->stringOrNull($menuData['classHasChildren'] ?? null));
@@ -139,6 +140,7 @@ final readonly class MenuImporter
         $menu->setCollapsible($this->boolOrNull($menuData['collapsible'] ?? null));
         $menu->setCollapsibleExpanded($this->boolOrNull($menuData['collapsibleExpanded'] ?? null));
         $menu->setNestedCollapsible($this->boolOrNull($menuData['nestedCollapsible'] ?? null));
+        $menu->setNestedCollapsibleSections($this->boolOrNull($menuData['nestedCollapsibleSections'] ?? null));
     }
 
     /**

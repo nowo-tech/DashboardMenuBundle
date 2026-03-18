@@ -127,6 +127,13 @@ final class MenuType extends AbstractType
                 'attr'       => ['class' => 'form-check-input'],
                 'label_attr' => ['class' => 'form-check-label'],
             ]);
+        $builder->add('nestedCollapsibleSections', CheckboxType::class, [
+            'required'   => false,
+            'label'      => 'form.menu_type.nested_collapsible_sections.label',
+            'attr'       => ['class' => 'form-check-input'],
+            'label_attr' => ['class' => 'form-check-label'],
+            'help'       => 'form.menu_type.nested_collapsible_sections.help',
+        ]);
         $this->addCssClassField($builder, 'classMenu', 'menu', 'form.menu_type.class_menu.label', 'form.menu_type.class_menu.placeholder');
         $this->addCssClassField($builder, 'classItem', 'item', 'form.menu_type.class_item.label', 'form.menu_type.class_item.placeholder');
         $this->addCssClassField($builder, 'classLink', 'link', 'form.menu_type.class_link.label', 'form.menu_type.class_link.placeholder');

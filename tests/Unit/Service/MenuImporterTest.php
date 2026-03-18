@@ -127,10 +127,12 @@ final class MenuImporterTest extends TestCase
                 'context'             => null,
                 'icon'                => '',
                 'classMenu'           => 'm',
+                'classSectionLabel'   => 'section-label',
                 'depthLimit'          => '2',
                 'collapsible'         => 1,
                 'collapsibleExpanded' => 0,
                 'nestedCollapsible'   => true,
+                'nestedCollapsibleSections' => false,
             ],
             'items' => [[
                 'label'         => 'Home',

@@ -59,6 +59,7 @@ final class MenuConfigResolverTest extends TestCase
         self::assertFalse($config['collapsible']);
         self::assertTrue($config['collapsible_expanded']);
         self::assertFalse($config['nested_collapsible']);
+        self::assertTrue($config['nested_collapsible_sections']);
         self::assertSame([], $config['context']);
     }
 
@@ -71,6 +72,7 @@ final class MenuConfigResolverTest extends TestCase
         $menu->setCollapsible(true);
         $menu->setCollapsibleExpanded(false);
         $menu->setNestedCollapsible(true);
+        $menu->setNestedCollapsibleSections(false);
         $menu->setContext(['section' => 'admin']);
 
         $menu->setClassMenu('root-ul');
@@ -100,6 +102,7 @@ final class MenuConfigResolverTest extends TestCase
         self::assertTrue($config['collapsible']);
         self::assertFalse($config['collapsible_expanded']);
         self::assertTrue($config['nested_collapsible']);
+        self::assertFalse($config['nested_collapsible_sections']);
         self::assertSame(['section' => 'admin'], $config['context']);
 
         self::assertSame(

@@ -109,6 +109,9 @@ form:
       label: "Colapsible expandido (abierto por defecto)"
     nested_collapsible:
       label: "Colapsible anidado (los ítems con hijos tienen alternar)"
+    nested_collapsible_sections:
+      label: "Permitir que las secciones sean colapsables"
+      help: "Cuando el colapsado anidado está activo, las secciones pueden mostrar un toggle y colapsar sus hijos. Desactívalo para mostrar siempre los hijos de las secciones (sin toggle)."
     class_menu:
       label: "Clase menú (<ul> raíz)"
       placeholder: "ej. nav flex-column"

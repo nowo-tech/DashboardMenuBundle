@@ -69,6 +69,7 @@ final readonly class MenuExporter
             'classItem'           => $menu->getClassItem(),
             'classLink'           => $menu->getClassLink(),
             'classChildren'       => $menu->getClassChildren(),
+            'classSectionLabel'   => $menu->getClassSectionLabel(),
             'classCurrent'        => $menu->getClassCurrent(),
             'classBranchExpanded' => $menu->getClassBranchExpanded(),
             'classHasChildren'    => $menu->getClassHasChildren(),
@@ -79,6 +80,7 @@ final readonly class MenuExporter
             'collapsible'         => $menu->getCollapsible(),
             'collapsibleExpanded' => $menu->getCollapsibleExpanded(),
             'nestedCollapsible'   => $menu->getNestedCollapsible(),
+            'nestedCollapsibleSections' => $menu->getNestedCollapsibleSections(),
         ], static fn (mixed $v): bool => $v !== null && $v !== '');
     }
 

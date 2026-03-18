@@ -42,7 +42,8 @@ up:
 	docker-compose exec -T php composer update --no-interaction --no-scripts
 	@echo "Restarting PHP so workers load vendor without Gedmo..."
 	docker-compose restart php
-	@sleep 3
+	@echo "Waiting for PHP container..."
+	@for i in 1 2 3 4 5 6 7 8 9 10; do docker-compose exec -T php true 2>/dev/null && break || sleep 2; done
 	@echo "Clearing cache..."
 	docker-compose exec -T php php bin/console cache:clear --no-interaction
 	@echo "Recreating database and running migrations (fresh)..."

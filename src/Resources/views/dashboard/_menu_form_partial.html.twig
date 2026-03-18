@@ -17,12 +17,16 @@
     <div class="mb-3">
         {{ form_row(form.nestedCollapsible, { row_attr: { class: 'form-check' }, label_attr: { class: 'form-check-label' } }) }}
     </div>
+    <div class="mb-3">
+        {{ form_row(form.nestedCollapsibleSections, { row_attr: { class: 'form-check' }, label_attr: { class: 'form-check-label' } }) }}
+    </div>
     <hr class="my-3">
     <p class="text-muted small mb-2">{{ 'form.menu_type.css_section_heading'|trans({}, 'NowoDashboardMenuBundle') }}</p>
     {{ form_row(form.classMenu, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
     {{ form_row(form.classItem, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
     {{ form_row(form.classLink, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
     {{ form_row(form.classChildren, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
+    {{ form_row(form.classSectionLabel, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
     {{ form_row(form.classCurrent, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
     {{ form_row(form.classBranchExpanded, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
     {{ form_row(form.classHasChildren, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}

@@ -19,10 +19,12 @@ final class MenuExporterTest extends TestCase
         $menu = new Menu();
         $menu->setCode('sidebar');
         $menu->setName('Main sidebar');
+        $menu->setClassSectionLabel('section-label');
+        $menu->setNestedCollapsibleSections(false);
 
         $menuRepo = $this->createStub(MenuRepository::class);
         $itemRepo = $this->createStub(MenuItemRepository::class);
-        $itemRepo->method('findAllForMenuOrderedByTreeForExport')->with($menu)->willReturn([]);
+        $itemRepo->method('findAllForMenuOrderedByTreeForExport')->willReturn([]);
 
         $exporter = new MenuExporter($menuRepo, $itemRepo);
         $data     = $exporter->exportMenu($menu);
@@ -31,6 +33,8 @@ final class MenuExporterTest extends TestCase
         self::assertArrayHasKey('items', $data);
         self::assertSame('sidebar', $data['menu']['code']);
         self::assertSame('Main sidebar', $data['menu']['name']);
+        self::assertSame('section-label', $data['menu']['classSectionLabel']);
+        self::assertFalse($data['menu']['nestedCollapsibleSections']);
         self::assertSame([], $data['items']);
     }
 
@@ -46,7 +50,7 @@ final class MenuExporterTest extends TestCase
 
         $menuRepo = $this->createStub(MenuRepository::class);
         $itemRepo = $this->createStub(MenuItemRepository::class);
-        $itemRepo->method('findAllForMenuOrderedByTreeForExport')->with($menu)->willReturn([$item]);
+        $itemRepo->method('findAllForMenuOrderedByTreeForExport')->willReturn([$item]);
 
         $exporter = new MenuExporter($menuRepo, $itemRepo);
         $data     = $exporter->exportMenu($menu);
@@ -80,7 +84,7 @@ final class MenuExporterTest extends TestCase
 
         $menuRepo = $this->createStub(MenuRepository::class);
         $itemRepo = $this->createStub(MenuItemRepository::class);
-        $itemRepo->method('findAllForMenuOrderedByTreeForExport')->with($menu)->willReturn([$root, $child]);
+        $itemRepo->method('findAllForMenuOrderedByTreeForExport')->willReturn([$root, $child]);
 
         $exporter = new MenuExporter($menuRepo, $itemRepo);
         $data     = $exporter->exportMenu($menu);

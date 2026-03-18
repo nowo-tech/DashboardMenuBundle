@@ -23,21 +23,23 @@
         </div>
     </div>
 
-    {% if menu.permissionChecker or menu.depthLimit is not null or menu.collapsible is not null or menu.collapsibleExpanded is not null or menu.nestedCollapsible is not null %}
+    {% if menu.permissionChecker or menu.depthLimit is not null or menu.collapsible is not null or menu.collapsibleExpanded is not null or menu.nestedCollapsible is not null or menu.nestedCollapsibleSections is not null %}
         <div class="alert alert-light border mb-3 py-2">
             {% if menu.permissionChecker %}<strong>{{ 'dashboard.permission_checker'|trans({}, 'NowoDashboardMenuBundle') }}:</strong> <code>{{ menu.permissionChecker }}</code>{% endif %}
             {% if menu.depthLimit is not null %} {% if menu.permissionChecker %}·{% endif %} <strong>{{ 'dashboard.depth_limit'|trans({}, 'NowoDashboardMenuBundle') }}:</strong> {{ menu.depthLimit }}{% endif %}
             {% if menu.collapsible is not null %} · <strong>{{ 'dashboard.collapsible'|trans({}, 'NowoDashboardMenuBundle') }}:</strong> {{ menu.collapsible ? 'dashboard.yes'|trans : 'dashboard.no'|trans({}, 'NowoDashboardMenuBundle') }}{% endif %}
             {% if menu.collapsibleExpanded is not null %} · <strong>{{ 'dashboard.collapsible_expanded'|trans({}, 'NowoDashboardMenuBundle') }}:</strong> {{ menu.collapsibleExpanded ? 'dashboard.yes'|trans : 'dashboard.no'|trans({}, 'NowoDashboardMenuBundle') }}{% endif %}
             {% if menu.nestedCollapsible is not null %} · <strong>{{ 'dashboard.nested_collapsible'|trans({}, 'NowoDashboardMenuBundle') }}:</strong> {{ menu.nestedCollapsible ? 'dashboard.yes'|trans : 'dashboard.no'|trans({}, 'NowoDashboardMenuBundle') }}{% endif %}
+            {% if menu.nestedCollapsibleSections is not null %} · <strong>{{ 'form.menu_type.nested_collapsible_sections.label'|trans({}, 'NowoDashboardMenuBundle') }}:</strong> {{ menu.nestedCollapsibleSections ? 'dashboard.yes'|trans : 'dashboard.no'|trans({}, 'NowoDashboardMenuBundle') }}{% endif %}
         </div>
     {% endif %}
-    {% if menu.classMenu or menu.classItem or menu.classLink or menu.classChildren or menu.classCurrent or menu.classBranchExpanded or menu.classHasChildren or menu.classExpanded or menu.classCollapsed %}
+    {% if menu.classMenu or menu.classItem or menu.classLink or menu.classChildren or menu.classSectionLabel or menu.classCurrent or menu.classBranchExpanded or menu.classHasChildren or menu.classExpanded or menu.classCollapsed %}
         <div class="alert alert-light border mb-3 py-2">
             <strong>{{ 'dashboard.css_classes'|trans({}, 'NowoDashboardMenuBundle') }}</strong>: {% if menu.classMenu %}<code>menu: {{ menu.classMenu }}</code>{% endif %}
             {% if menu.classItem %} <code>item: {{ menu.classItem }}</code>{% endif %}
             {% if menu.classLink %} <code>link: {{ menu.classLink }}</code>{% endif %}
             {% if menu.classChildren %} <code>children: {{ menu.classChildren }}</code>{% endif %}
+            {% if menu.classSectionLabel %} <code>section-label: {{ menu.classSectionLabel }}</code>{% endif %}
             {% if menu.classCurrent %} <code>current: {{ menu.classCurrent }}</code>{% endif %}
             {% if menu.classBranchExpanded %} <code>branch: {{ menu.classBranchExpanded }}</code>{% endif %}
             {% if menu.classHasChildren %} <code>has-children: {{ menu.classHasChildren }}</code>{% endif %}

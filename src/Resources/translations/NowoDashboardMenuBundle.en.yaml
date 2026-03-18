@@ -109,6 +109,9 @@ form:
       label: "Collapsible expanded (open by default)"
     nested_collapsible:
       label: "Nested collapsible (items with children have toggle)"
+    nested_collapsible_sections:
+      label: "Allow section items to be collapsible"
+      help: "When nested collapsible is enabled, section items can show a toggle and collapse their children. Disable to always show section children (no toggle)."
     class_menu:
       label: "Class menu (root <ul>)"
       placeholder: "e.g. nav flex-column"

@@ -39,12 +39,12 @@ final class ImportMenuType extends AbstractType
                 'label'       => $t('form.import_menu_type.file.label'),
                 'attr'        => ['accept' => '.json,application/json'],
                 'constraints' => [
-                    new NotBlank(['message' => $t('form.import_menu_type.file.required')]),
-                    new File([
-                        'maxSize'          => '2M',
-                        'mimeTypes'        => ['application/json', 'text/plain'],
-                        'mimeTypesMessage' => $t('form.import_menu_type.file.mime_message'),
-                    ]),
+                    new NotBlank(message: $t('form.import_menu_type.file.required')),
+                    new File(
+                        maxSize: '2M',
+                        mimeTypes: ['application/json', 'text/plain'],
+                        mimeTypesMessage: $t('form.import_menu_type.file.mime_message'),
+                    ),
                 ],
             ])
             ->add('strategy', ChoiceType::class, [

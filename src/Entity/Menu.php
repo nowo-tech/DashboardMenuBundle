@@ -143,6 +143,13 @@ class Menu
     private ?bool $nestedCollapsible = null;
 
     /**
+     * When nestedCollapsible is true: controls whether items of type "section" render a collapse toggle
+     * and wrap their children inside a collapsible container. True by default for backwards compatibility.
+     */
+    #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
+    private ?bool $nestedCollapsibleSections = null;
+
+    /**
      * Root-level items (children of null). Fetched via repository; not persisted as inverse side.
      *
      * @var Collection<int, MenuItem>
@@ -388,6 +395,18 @@ class Menu
     public function setNestedCollapsible(?bool $nestedCollapsible): self
     {
         $this->nestedCollapsible = $nestedCollapsible;
+
+        return $this;
+    }
+
+    public function getNestedCollapsibleSections(): ?bool
+    {
+        return $this->nestedCollapsibleSections;
+    }
+
+    public function setNestedCollapsibleSections(?bool $nestedCollapsibleSections): self
+    {
+        $this->nestedCollapsibleSections = $nestedCollapsibleSections;
 
         return $this;
     }

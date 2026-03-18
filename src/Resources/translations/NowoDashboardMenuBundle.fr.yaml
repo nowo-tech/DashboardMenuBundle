@@ -101,6 +101,9 @@ form:
       label: "Repliable ouvert (ouvert par défaut)"
     nested_collapsible:
       label: "Repliable imbriqué (les éléments avec enfants ont une bascule)"
+    nested_collapsible_sections:
+      label: "Autoriser les sections à être repliables"
+      help: "Lorsque le repliable imbriqué est activé, les sections peuvent afficher une bascule et replier leurs enfants. Désactivez pour toujours afficher les enfants des sections (sans bascule)."
     class_menu:
       label: "Classe menu (<ul> racine)"
       placeholder: "ex. nav flex-column"

@@ -11,17 +11,28 @@
     "classExpanded": "open",
     "classCollapsed": "closed",
     "classBranchExpanded": "open",
-    "nestedCollapsible": true
+    "nestedCollapsible": true,
+    "nestedCollapsibleSections": false
   },
   "items": [
     {
       "label": "app.operator.dashboard.index",
-      "icon": "trello",
+      "translations": {
+        "en_GB": "operators",
+        "es": "Operadores",
+        "fr": "Opérateurs"
+      },
+      "icon": "heroicons-outline:squares-2x2",
       "itemType": "section",
       "children": [
         {
           "label": "app.operator.marketing.general.control_panel.index",
-          "icon": "activity",
+          "translations": {
+            "en_GB": "app.operator.marketing.general.control_panel.index",
+            "es": "app.operator.marketing.general.control_panel.index",
+            "fr": "app.operator.marketing.general.control_panel.index"
+          },
+          "icon": "heroicons-outline:chart-bar",
           "linkType": "route",
           "routeName": "app.operator.marketing.general.control_panel.index",
           "routeParams": {},
@@ -30,7 +41,12 @@
         },
         {
           "label": "app.operator.kpis.global.index",
-          "icon": "activity",
+          "translations": {
+            "en_GB": "app.operator.kpis.global.index",
+            "es": "app.operator.kpis.global.index",
+            "fr": "app.operator.kpis.global.index"
+          },
+          "icon": "heroicons-outline:chart-bar",
           "linkType": "route",
           "routeName": "app.operator.kpis.global.index",
           "routeParams": {},
@@ -39,7 +55,12 @@
         },
         {
           "label": "app.operator.kpis.protect.index",
-          "icon": "activity",
+          "translations": {
+            "en_GB": "app.operator.kpis.protect.index",
+            "es": "app.operator.kpis.protect.index",
+            "fr": "app.operator.kpis.protect.index"
+          },
+          "icon": "heroicons-outline:chart-bar",
           "linkType": "route",
           "routeName": "app.operator.kpis.protect.index",
           "routeParams": {},
@@ -48,7 +69,12 @@
         },
         {
           "label": "app.operator.kpis.insurances.index",
-          "icon": "activity",
+          "translations": {
+            "en_GB": "app.operator.kpis.insurances.index",
+            "es": "app.operator.kpis.insurances.index",
+            "fr": "app.operator.kpis.insurances.index"
+          },
+          "icon": "heroicons-outline:chart-bar",
           "linkType": "route",
           "routeName": "app.operator.kpis.insurances.index",
           "routeParams": {},
@@ -57,7 +83,12 @@
         },
         {
           "label": "app.operator.kpis.performance",
-          "icon": "activity",
+          "translations": {
+            "en_GB": "app.operator.kpis.performance",
+            "es": "app.operator.kpis.performance",
+            "fr": "app.operator.kpis.performance"
+          },
+          "icon": "heroicons-outline:chart-bar",
           "linkType": "route",
           "routeName": "app.operator.kpis.performance",
           "routeParams": {},
@@ -66,7 +97,12 @@
         },
         {
           "label": "app.operator.kpis.goals",
-          "icon": "activity",
+          "translations": {
+            "en_GB": "app.operator.kpis.goals",
+            "es": "app.operator.kpis.goals",
+            "fr": "app.operator.kpis.goals"
+          },
+          "icon": "heroicons-outline:chart-bar",
           "linkType": "route",
           "routeName": "app.operator.kpis.goals",
           "routeParams": {},
@@ -77,16 +113,31 @@
     },
     {
       "label": "app.operator.insurance.index",
+      "translations": {
+        "en_GB": "app.operator.insurance.index",
+        "es": "app.operator.insurance.index",
+        "fr": "app.operator.insurance.index"
+      },
       "itemType": "section"
     },
     {
       "label": "app.operator.quote.index",
-      "icon": "trello",
+      "translations": {
+        "en_GB": "app.operator.quote.index",
+        "es": "app.operator.quote.index",
+        "fr": "app.operator.quote.index"
+      },
+      "icon": "heroicons-outline:squares-2x2",
       "itemType": "section",
       "children": [
         {
           "label": "app.operator.quote.index",
-          "icon": "trello",
+          "translations": {
+            "en_GB": "app.operator.quote.index",
+            "es": "app.operator.quote.index",
+            "fr": "app.operator.quote.index"
+          },
+          "icon": "heroicons-outline:squares-2x2",
           "linkType": "route",
           "routeName": "app.operator.quote.index",
           "routeParams": {},
@@ -95,7 +146,12 @@
         },
         {
           "label": "app.operator.contract.offer.index",
-          "icon": "pen-tool",
+          "translations": {
+            "en_GB": "app.operator.contract.offer.index",
+            "es": "app.operator.contract.offer.index",
+            "fr": "app.operator.contract.offer.index"
+          },
+          "icon": "heroicons-outline:pencil-square",
           "linkType": "route",
           "routeName": "app.operator.contract.offer.index",
           "routeParams": {},
@@ -104,7 +160,12 @@
         },
         {
           "label": "app.operator.contract.export.exported",
-          "icon": "pen-tool",
+          "translations": {
+            "en_GB": "app.operator.contract.export.exported",
+            "es": "app.operator.contract.export.exported",
+            "fr": "app.operator.contract.export.exported"
+          },
+          "icon": "heroicons-outline:pencil-square",
           "linkType": "route",
           "routeName": "app.operator.contract.export.exported",
           "routeParams": {},
@@ -115,7 +176,12 @@
     },
     {
       "label": "app.operator.policy.index",
-      "icon": "shield",
+      "translations": {
+        "en_GB": "app.operator.policy.index",
+        "es": "app.operator.policy.index",
+        "fr": "app.operator.policy.index"
+      },
+      "icon": "heroicons-outline:shield-check",
       "linkType": "route",
       "routeName": "app.operator.policy.index",
       "routeParams": {},
@@ -124,12 +190,22 @@
     },
     {
       "label": "app.operator.receipt.index",
-      "icon": "trello",
+      "translations": {
+        "en_GB": "app.operator.receipt.index",
+        "es": "app.operator.receipt.index",
+        "fr": "app.operator.receipt.index"
+      },
+      "icon": "heroicons-outline:squares-2x2",
       "itemType": "section",
       "children": [
         {
           "label": "app.operator.receipt.index",
-          "icon": "file-text",
+          "translations": {
+            "en_GB": "app.operator.receipt.index",
+            "es": "app.operator.receipt.index",
+            "fr": "app.operator.receipt.index"
+          },
+          "icon": "heroicons-outline:document-text",
           "linkType": "route",
           "routeName": "app.operator.receipt.index",
           "routeParams": {},
@@ -138,7 +214,12 @@
         },
         {
           "label": "app.operator.receipt.collection.index",
-          "icon": "file-text",
+          "translations": {
+            "en_GB": "app.operator.receipt.collection.index",
+            "es": "app.operator.receipt.collection.index",
+            "fr": "app.operator.receipt.collection.index"
+          },
+          "icon": "heroicons-outline:document-text",
           "linkType": "route",
           "routeName": "app.operator.receipt.collection.index",
           "routeParams": {},
@@ -147,7 +228,12 @@
         },
         {
           "label": "app.operator.receipt.bank_remittance.index",
-          "icon": "file-text",
+          "translations": {
+            "en_GB": "app.operator.receipt.bank_remittance.index",
+            "es": "app.operator.receipt.bank_remittance.index",
+            "fr": "app.operator.receipt.bank_remittance.index"
+          },
+          "icon": "heroicons-outline:document-text",
           "linkType": "route",
           "routeName": "app.operator.receipt.bank_remittance.index",
           "routeParams": {},
@@ -156,7 +242,12 @@
         },
         {
           "label": "app.operator.receipt.refund.bank_remittance.index",
-          "icon": "file-text",
+          "translations": {
+            "en_GB": "app.operator.receipt.refund.bank_remittance.index",
+            "es": "app.operator.receipt.refund.bank_remittance.index",
+            "fr": "app.operator.receipt.refund.bank_remittance.index"
+          },
+          "icon": "heroicons-outline:document-text",
           "linkType": "route",
           "routeName": "app.operator.receipt.refund.bank_remittance.index",
           "routeParams": {},
@@ -167,7 +258,12 @@
     },
     {
       "label": "app.operator.risk.index",
-      "icon": "triangle",
+      "translations": {
+        "en_GB": "app.operator.risk.index",
+        "es": "app.operator.risk.index",
+        "fr": "app.operator.risk.index"
+      },
+      "icon": "heroicons-outline:exclamation-circle",
       "linkType": "route",
       "routeName": "app.operator.risk.index",
       "routeParams": {},
@@ -176,12 +272,22 @@
     },
     {
       "label": "app.operator.claim.index",
-      "icon": "zap",
+      "translations": {
+        "en_GB": "app.operator.claim.index",
+        "es": "app.operator.claim.index",
+        "fr": "app.operator.claim.index"
+      },
+      "icon": "heroicons-outline:bolt",
       "itemType": "section",
       "children": [
         {
           "label": "app.operator.claim.index",
-          "icon": "zap",
+          "translations": {
+            "en_GB": "app.operator.claim.index",
+            "es": "app.operator.claim.index",
+            "fr": "app.operator.claim.index"
+          },
+          "icon": "heroicons-outline:bolt",
           "linkType": "route",
           "routeName": "app.operator.claim.index",
           "routeParams": {},
@@ -190,7 +296,12 @@
         },
         {
           "label": "app.operator.claim.bank_remittance.index",
-          "icon": "file-text",
+          "translations": {
+            "en_GB": "app.operator.claim.bank_remittance.index",
+            "es": "app.operator.claim.bank_remittance.index",
+            "fr": "app.operator.claim.bank_remittance.index"
+          },
+          "icon": "heroicons-outline:document-text",
           "linkType": "route",
           "routeName": "app.operator.claim.bank_remittance.index",
           "routeParams": {},
@@ -199,7 +310,12 @@
         },
         {
           "label": "app.operator.claim.bill.index",
-          "icon": "file-text",
+          "translations": {
+            "en_GB": "app.operator.claim.bill.index",
+            "es": "app.operator.claim.bill.index",
+            "fr": "app.operator.claim.bill.index"
+          },
+          "icon": "heroicons-outline:document-text",
           "linkType": "route",
           "routeName": "app.operator.claim.bill.index",
           "routeParams": {},
@@ -209,11 +325,21 @@
     },
     {
       "label": "app.operator.general.index",
+      "translations": {
+        "en_GB": "app.operator.general.index",
+        "es": "app.operator.general.index",
+        "fr": "app.operator.general.index"
+      },
       "itemType": "section"
     },
     {
       "label": "app.operator.customer.index.menu",
-      "icon": "user-check",
+      "translations": {
+        "en_GB": "app.operator.customer.index.menu",
+        "es": "app.operator.customer.index.menu",
+        "fr": "app.operator.customer.index.menu"
+      },
+      "icon": "heroicons-outline:user",
       "linkType": "route",
       "routeName": "app.operator.customer.index",
       "routeParams": {},
@@ -222,7 +348,12 @@
     },
     {
       "label": "app.operator.contract.customer.index",
-      "icon": "folder",
+      "translations": {
+        "en_GB": "app.operator.contract.customer.index",
+        "es": "app.operator.contract.customer.index",
+        "fr": "app.operator.contract.customer.index"
+      },
+      "icon": "heroicons-outline:folder",
       "linkType": "route",
       "routeName": "app.operator.contract.customer.index",
       "routeParams": {},
@@ -231,11 +362,21 @@
     },
     {
       "label": "app.operator.marketing.index",
+      "translations": {
+        "en_GB": "app.operator.marketing.index",
+        "es": "app.operator.marketing.index",
+        "fr": "app.operator.marketing.index"
+      },
       "itemType": "section"
     },
     {
       "label": "app.operator.marketing.general.flow.index",
-      "icon": "list",
+      "translations": {
+        "en_GB": "app.operator.marketing.general.flow.index",
+        "es": "app.operator.marketing.general.flow.index",
+        "fr": "app.operator.marketing.general.flow.index"
+      },
+      "icon": "heroicons-outline:list-bullet",
       "linkType": "route",
       "routeName": "app.operator.marketing.general.flow.index",
       "routeParams": {},
@@ -244,7 +385,12 @@
     },
     {
       "label": "app.operator.marketing.general.email.index",
-      "icon": "send",
+      "translations": {
+        "en_GB": "app.operator.marketing.general.email.index",
+        "es": "app.operator.marketing.general.email.index",
+        "fr": "app.operator.marketing.general.email.index"
+      },
+      "icon": "heroicons-outline:paper-airplane",
       "linkType": "route",
       "routeName": "app.operator.marketing.general.email.index",
       "routeParams": {},
@@ -253,7 +399,12 @@
     },
     {
       "label": "app.operator.marketing.general.sms.index",
-      "icon": "smartphone",
+      "translations": {
+        "en_GB": "app.operator.marketing.general.sms.index",
+        "es": "app.operator.marketing.general.sms.index",
+        "fr": "app.operator.marketing.general.sms.index"
+      },
+      "icon": "heroicons-outline:device-phone-mobile",
       "linkType": "route",
       "routeName": "app.operator.marketing.general.sms.index",
       "routeParams": {},
@@ -262,7 +413,12 @@
     },
     {
       "label": "app.operator.marketing.general.action.index",
-      "icon": "smile",
+      "translations": {
+        "en_GB": "app.operator.marketing.general.action.index",
+        "es": "app.operator.marketing.general.action.index",
+        "fr": "app.operator.marketing.general.action.index"
+      },
+      "icon": "heroicons-outline:face-smile",
       "linkType": "route",
       "routeName": "app.operator.marketing.general.action.index",
       "routeParams": {},
@@ -271,11 +427,21 @@
     },
     {
       "label": "app.operator.administration.index",
+      "translations": {
+        "en_GB": "app.operator.administration.index",
+        "es": "app.operator.administration.index",
+        "fr": "app.operator.administration.index"
+      },
       "itemType": "section"
     },
     {
       "label": "app.operator.partner.index",
-      "icon": "key",
+      "translations": {
+        "en_GB": "app.operator.partner.index",
+        "es": "app.operator.partner.index",
+        "fr": "app.operator.partner.index"
+      },
+      "icon": "heroicons-outline:key",
       "linkType": "route",
       "routeName": "app.operator.partner.management.mastered_partner.index",
       "routeParams": {},
@@ -284,7 +450,12 @@
     },
     {
       "label": "app.operator.operator.index",
-      "icon": "user",
+      "translations": {
+        "en_GB": "app.operator.operator.index",
+        "es": "app.operator.operator.index",
+        "fr": "app.operator.operator.index"
+      },
+      "icon": "heroicons-outline:user",
       "linkType": "route",
       "routeName": "app.operator.partner.management.operator.index",
       "routeParams": {},
@@ -293,7 +464,12 @@
     },
     {
       "label": "app.operator.intervener.holders.index",
-      "icon": "users",
+      "translations": {
+        "en_GB": "app.operator.intervener.holders.index",
+        "es": "app.operator.intervener.holders.index",
+        "fr": "app.operator.intervener.holders.index"
+      },
+      "icon": "heroicons-outline:users",
       "linkType": "route",
       "routeName": "app.operator.partner.management.intervener.list.holder",
       "routeParams": {},
@@ -302,7 +478,12 @@
     },
     {
       "label": "app.operator.intervener.brokers.index",
-      "icon": "users",
+      "translations": {
+        "en_GB": "app.operator.intervener.brokers.index",
+        "es": "app.operator.intervener.brokers.index",
+        "fr": "app.operator.intervener.brokers.index"
+      },
+      "icon": "heroicons-outline:users",
       "linkType": "route",
       "routeName": "app.operator.partner.management.intervener.list.broker",
       "routeParams": {},
@@ -311,7 +492,12 @@
     },
     {
       "label": "app.operator.intervener.collaborators.index",
-      "icon": "users",
+      "translations": {
+        "en_GB": "app.operator.intervener.collaborators.index",
+        "es": "app.operator.intervener.collaborators.index",
+        "fr": "app.operator.intervener.collaborators.index"
+      },
+      "icon": "heroicons-outline:users",
       "linkType": "route",
       "routeName": "app.operator.partner.management.intervener.list.collaborator",
       "routeParams": {},
@@ -320,11 +506,21 @@
     },
     {
       "label": "app.operator.intervener.index",
-      "icon": "users",
+      "translations": {
+        "en_GB": "app.operator.intervener.index",
+        "es": "app.operator.intervener.index",
+        "fr": "app.operator.intervener.index"
+      },
+      "icon": "heroicons-outline:users",
       "itemType": "section",
       "children": [
         {
           "label": "app.operator.intervener.others.index",
+          "translations": {
+            "en_GB": "app.operator.intervener.others.index",
+            "es": "app.operator.intervener.others.index",
+            "fr": "app.operator.intervener.others.index"
+          },
           "linkType": "route",
           "routeName": "app.operator.partner.management.intervener.list.other",
           "routeParams": {},
@@ -332,6 +528,11 @@
         },
         {
           "label": "app.operator.intervener.agency",
+          "translations": {
+            "en_GB": "app.operator.intervener.agency",
+            "es": "app.operator.intervener.agency",
+            "fr": "app.operator.intervener.agency"
+          },
           "linkType": "route",
           "routeName": "app.operator.partner.management.intervener.agency",
           "routeParams": {},
@@ -339,6 +540,11 @@
         },
         {
           "label": "app.operator.intervener_settlement.index",
+          "translations": {
+            "en_GB": "app.operator.intervener_settlement.index",
+            "es": "app.operator.intervener_settlement.index",
+            "fr": "app.operator.intervener_settlement.index"
+          },
           "linkType": "route",
           "routeName": "app.operator.partner.management.intervener_settlement.index",
           "routeParams": {},
@@ -347,6 +553,11 @@
         },
         {
           "label": "app.operator.partner.management.intervener_settlement.bank_remittance.index",
+          "translations": {
+            "en_GB": "app.operator.partner.management.intervener_settlement.bank_remittance.index",
+            "es": "app.operator.partner.management.intervener_settlement.bank_remittance.index",
+            "fr": "app.operator.partner.management.intervener_settlement.bank_remittance.index"
+          },
           "linkType": "route",
           "routeName": "app.operator.partner.management.intervener_settlement.bank_remittance.index",
           "routeParams": {},
@@ -355,6 +566,11 @@
         },
         {
           "label": "app.operator.partner.management.intervener_settlement.refund.bank_remittance.index",
+          "translations": {
+            "en_GB": "app.operator.partner.management.intervener_settlement.refund.bank_remittance.index",
+            "es": "app.operator.partner.management.intervener_settlement.refund.bank_remittance.index",
+            "fr": "app.operator.partner.management.intervener_settlement.refund.bank_remittance.index"
+          },
           "linkType": "route",
           "routeName": "app.operator.partner.management.intervener_settlement.refund.bank_remittance.index",
           "routeParams": {},
@@ -365,7 +581,12 @@
     },
     {
       "label": "app.operator.company_settlement.index",
-      "icon": "briefcase",
+      "translations": {
+        "en_GB": "app.operator.company_settlement.index",
+        "es": "app.operator.company_settlement.index",
+        "fr": "app.operator.company_settlement.index"
+      },
+      "icon": "heroicons-outline:briefcase",
       "linkType": "route",
       "routeName": "app.operator.partner.management.company_settlement.index",
       "routeParams": {},
@@ -373,7 +594,12 @@
     },
     {
       "label": "app.operator.authorised_users.index",
-      "icon": "user-check",
+      "translations": {
+        "en_GB": "app.operator.authorised_users.index",
+        "es": "app.operator.authorised_users.index",
+        "fr": "app.operator.authorised_users.index"
+      },
+      "icon": "heroicons-outline:user",
       "linkType": "route",
       "routeName": "app.operator.partner.management.user.index",
       "routeParams": {},
@@ -382,7 +608,12 @@
     },
     {
       "label": "app.operator.quoter.index",
-      "icon": "shopping-cart",
+      "translations": {
+        "en_GB": "app.operator.quoter.index",
+        "es": "app.operator.quoter.index",
+        "fr": "app.operator.quoter.index"
+      },
+      "icon": "heroicons-outline:shopping-cart",
       "linkType": "route",
       "routeName": "app.operator.partner.management.quoter.index",
       "routeParams": {},
@@ -391,7 +622,12 @@
     },
     {
       "label": "app.operator.discount.index",
-      "icon": "tag",
+      "translations": {
+        "en_GB": "app.operator.discount.index",
+        "es": "app.operator.discount.index",
+        "fr": "app.operator.discount.index"
+      },
+      "icon": "heroicons-outline:tag",
       "linkType": "route",
       "routeName": "app.operator.partner.management.discount.index",
       "routeParams": {},
@@ -400,7 +636,12 @@
     },
     {
       "label": "app.operator.payment_transaction.index",
-      "icon": "credit-card",
+      "translations": {
+        "en_GB": "app.operator.payment_transaction.index",
+        "es": "app.operator.payment_transaction.index",
+        "fr": "app.operator.payment_transaction.index"
+      },
+      "icon": "heroicons-outline:credit-card",
       "linkType": "route",
       "routeName": "app.operator.partner.management.payment_transaction.index",
       "routeParams": {},
@@ -409,7 +650,12 @@
     },
     {
       "label": "app.operator.goal.index",
-      "icon": "activity",
+      "translations": {
+        "en_GB": "app.operator.goal.index",
+        "es": "app.operator.goal.index",
+        "fr": "app.operator.goal.index"
+      },
+      "icon": "heroicons-outline:chart-bar",
       "linkType": "route",
       "routeName": "app.operator.partner.management.goal.index",
       "routeParams": {},
@@ -418,11 +664,21 @@
     },
     {
       "label": "app.operator.configuration.index",
+      "translations": {
+        "en_GB": "app.operator.configuration.index",
+        "es": "app.operator.configuration.index",
+        "fr": "app.operator.configuration.index"
+      },
       "itemType": "section"
     },
     {
       "label": "app.operator.main_information.edit",
-      "icon": "home",
+      "translations": {
+        "en_GB": "app.operator.main_information.edit",
+        "es": "app.operator.main_information.edit",
+        "fr": "app.operator.main_information.edit"
+      },
+      "icon": "heroicons-outline:home",
       "linkType": "route",
       "routeName": "app.operator.partner.configuration.edit",
       "routeParams": {},
@@ -431,7 +687,12 @@
     },
     {
       "label": "app.operator.partner.configuration.configuration.edit",
-      "icon": "globe",
+      "translations": {
+        "en_GB": "app.operator.partner.configuration.configuration.edit",
+        "es": "app.operator.partner.configuration.configuration.edit",
+        "fr": "app.operator.partner.configuration.configuration.edit"
+      },
+      "icon": "heroicons-outline:globe-alt",
       "linkType": "route",
       "routeName": "app.operator.partner.configuration.configuration.edit",
       "routeParams": {},
@@ -440,7 +701,12 @@
     },
     {
       "label": "app.operator.widget.index",
-      "icon": "code",
+      "translations": {
+        "en_GB": "app.operator.widget.index",
+        "es": "app.operator.widget.index",
+        "fr": "app.operator.widget.index"
+      },
+      "icon": "heroicons-outline:code-bracket",
       "linkType": "route",
       "routeName": "app.operator.partner.configuration.widget.index",
       "routeParams": {},
@@ -449,7 +715,12 @@
     },
     {
       "label": "app.operator.external_service_configuration.index",
-      "icon": "server",
+      "translations": {
+        "en_GB": "app.operator.external_service_configuration.index",
+        "es": "app.operator.external_service_configuration.index",
+        "fr": "app.operator.external_service_configuration.index"
+      },
+      "icon": "heroicons-outline:server",
       "linkType": "route",
       "routeName": "app.operator.partner.configuration.external_service.index",
       "routeParams": {},
@@ -458,7 +729,12 @@
     },
     {
       "label": "app.operator.templates.index",
-      "icon": "pen-tool",
+      "translations": {
+        "en_GB": "app.operator.templates.index",
+        "es": "app.operator.templates.index",
+        "fr": "app.operator.templates.index"
+      },
+      "icon": "heroicons-outline:pencil-square",
       "linkType": "route",
       "routeName": "app.operator.partner.configuration.template.email.index",
       "routeParams": {},
@@ -467,7 +743,12 @@
     },
     {
       "label": "app.operator.pipeline.index",
-      "icon": "git-commit",
+      "translations": {
+        "en_GB": "app.operator.pipeline.index",
+        "es": "app.operator.pipeline.index",
+        "fr": "app.operator.pipeline.index"
+      },
+      "icon": "heroicons-outline:code-bracket-square",
       "linkType": "route",
       "routeName": "app.operator.partner.configuration.pipeline.index",
       "routeParams": {},
@@ -476,7 +757,12 @@
     },
     {
       "label": "app.operator.partner.configuration.notification.edit",
-      "icon": "mail",
+      "translations": {
+        "en_GB": "app.operator.partner.configuration.notification.edit",
+        "es": "app.operator.partner.configuration.notification.edit",
+        "fr": "app.operator.partner.configuration.notification.edit"
+      },
+      "icon": "heroicons-outline:envelope",
       "linkType": "route",
       "routeName": "app.operator.partner.configuration.notification.edit",
       "routeParams": {},
@@ -485,7 +771,12 @@
     },
     {
       "label": "app.operator.kpi.index",
-      "icon": "activity",
+      "translations": {
+        "en_GB": "app.operator.kpi.index",
+        "es": "app.operator.kpi.index",
+        "fr": "app.operator.kpi.index"
+      },
+      "icon": "heroicons-outline:chart-bar",
       "linkType": "route",
       "routeName": "app.operator.partner.configuration.kpi.index",
       "routeParams": {},
@@ -494,11 +785,21 @@
     },
     {
       "label": "app.operator.developer.index",
+      "translations": {
+        "en_GB": "app.operator.developer.index",
+        "es": "app.operator.developer.index",
+        "fr": "app.operator.developer.index"
+      },
       "itemType": "section"
     },
     {
       "label": "app.operator.documentation.api_doc.swagger_ui",
-      "icon": "book",
+      "translations": {
+        "en_GB": "app.operator.documentation.api_doc.swagger_ui",
+        "es": "app.operator.documentation.api_doc.swagger_ui",
+        "fr": "app.operator.documentation.api_doc.swagger_ui"
+      },
+      "icon": "heroicons-outline:book-open",
       "linkType": "route",
       "routeName": "app.operator.documentation.api_doc.swagger_ui",
       "routeParams": {},
