@@ -37,11 +37,11 @@ Generate href for an item:
 
 ## Overriding templates and translations
 
-The bundle does not register its views or translations via config prepend, so Symfony’s default behaviour applies: your app’s templates and translation files take precedence. You can override any template or translation by placing files in the standard locations.
+The bundle registers its Twig views so that `@NowoDashboardMenuBundle/...` works, but it adds its path **after** the application paths. Your overrides in **`templates/bundles/NowoDashboardMenuBundle/`** are therefore checked first: you can "pisar" (override) any bundle template by placing a file there with the same relative path. Translations are not prepended, so your app's translation files for the domain `NowoDashboardMenuBundle` take precedence by default.
 
-### Overriding templates
+### Overriding templates (pisar vistas)
 
-Place a file in your project under `templates/bundles/NowoDashboardMenuBundle/` with the **same path** as inside the bundle. Symfony will use your template instead of the bundle’s.
+Place a file in your project under **`templates/bundles/NowoDashboardMenuBundle/`** with the **same relative path** as inside the bundle. Twig will use your template instead of the bundle’s. The bundle registers its view path after the app paths, so your overrides in `templates/bundles/NowoDashboardMenuBundle/` take precedence.
 
 **Example:** to override the menu template used when rendering the tree, create:
 

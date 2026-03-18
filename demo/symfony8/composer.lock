@@ -930,7 +930,7 @@
             "dist": {
                 "type": "path",
                 "url": "/var/dashboard-menu-bundle",
-                "reference": "e7a44fe89bcddc2ec9966dd0be3f801440300c83"
+                "reference": "0245edc1b74a76c1b4994d11af503fb3b165347f"
             },
             "require": {
                 "doctrine/doctrine-bundle": "^2.8 || ^3.0",

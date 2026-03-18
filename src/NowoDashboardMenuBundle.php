@@ -6,6 +6,7 @@ namespace Nowo\DashboardMenuBundle;
 
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\AutoTagPermissionCheckersPass;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\PermissionCheckerPass;
+use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\RegisterTwigNamespacePass;
 use Nowo\DashboardMenuBundle\DependencyInjection\DashboardMenuExtension;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -26,6 +27,7 @@ final class NowoDashboardMenuBundle extends Bundle
     public function build(ContainerBuilder $container): void
     {
         $container->addCompilerPass(new AutoTagPermissionCheckersPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 200);
+        $container->addCompilerPass(new RegisterTwigNamespacePass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 100);
         $container->addCompilerPass(new PermissionCheckerPass());
     }
 

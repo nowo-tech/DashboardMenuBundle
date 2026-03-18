@@ -8,6 +8,10 @@ This document describes breaking changes and upgrade notes between versions.
 - **Templates and translations override:** The extension no longer prepends paths; your app’s `templates/bundles/NowoDashboardMenuBundle/` and translation files take precedence by default. No config change needed unless you relied on the previous prepend order.
 - No other breaking changes.
 
+## From 0.3.5 to 0.3.6
+
+No breaking changes. The bundle registers the Twig namespace `@NowoDashboardMenuBundle` in a way that keeps the standard override behaviour: templates in your app under `templates/bundles/NowoDashboardMenuBundle/` take precedence.
+
 ## From 0.3.3 to 0.3.4
 
 No breaking changes. New: dashboard **export/import** (JSON), config **`dashboard.layout_template`** to choose the Twig layout dashboard views extend (default unchanged), and **MenuUrlResolver** now fills missing route path params from the current request and adds a flash message on URL generation failure. Dashboard content block is now `content` (was `dashboard_body`); if you override the bundle’s dashboard layout template, ensure it defines `{% block content %}`.
