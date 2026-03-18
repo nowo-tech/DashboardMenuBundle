@@ -47,6 +47,7 @@ nowo_dashboard_menu:
             item: ['nav-item', 'dropdown-item', '']
             link: ['nav-link', 'dropdown-item', 'nav-link link-secondary']
             children: ['nav flex-column ms-2', 'nav flex-column', 'dropdown-menu']
+            section_label: ['menu-section-label', 'navigation-header', '']
             current: ['active', '']
             branch_expanded: ['active-branch', 'active-branch-has-children', '']
             has_children: ['dropdown', 'has-children', '']

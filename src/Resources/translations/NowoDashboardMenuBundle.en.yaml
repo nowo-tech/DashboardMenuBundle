@@ -121,6 +121,9 @@ form:
     class_children:
       label: "Class children (nested <ul>)"
       placeholder: "e.g. nav flex-column ms-2"
+    class_section_label:
+      label: "Class section label (itemType \"section\")"
+      placeholder: "e.g. navigation-header"
     class_current:
       label: "Class current (link matching current route)"
       placeholder: "e.g. active"

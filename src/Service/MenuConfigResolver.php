@@ -21,6 +21,7 @@ final readonly class MenuConfigResolver
         'item'                  => '',
         'link'                  => '',
         'children'              => '',
+        'section_label'         => 'menu-section-label',
         'class_current'         => 'active',
         'class_branch_expanded' => 'active-branch',
         'class_has_children'    => '',
@@ -99,6 +100,9 @@ final readonly class MenuConfigResolver
         }
         if ($entity->getClassChildren() !== null && $entity->getClassChildren() !== '') {
             $classes['children'] = $entity->getClassChildren();
+        }
+        if ($entity->getClassSectionLabel() !== null && $entity->getClassSectionLabel() !== '') {
+            $classes['section_label'] = $entity->getClassSectionLabel();
         }
         if ($entity->getClassCurrent() !== null && $entity->getClassCurrent() !== '') {
             $classes['class_current'] = $entity->getClassCurrent();

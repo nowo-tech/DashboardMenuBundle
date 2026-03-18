@@ -2,7 +2,7 @@
 
 help:
 	@echo "Dashboard Menu Bundle Demo - Symfony 7"
-	@echo "  ensure-up, up, down, restart, build, shell, install, setup, clean, logs, update-bundle, test, test-coverage, ts-assets, verify, cache-clear"
+	@echo "  ensure-up, up, down, restart, build, shell, install, setup, clean, logs, update-bundle, test, test-coverage, ts-assets, verify, cache-clear, migrations-status, migrate"
 
 ts-assets:
 	@sh scripts/create-ts-assets.sh
@@ -29,10 +29,10 @@ up:
 	$(MAKE) install
 	@echo "Clearing cache..."
 	docker-compose exec -T php php bin/console cache:clear --no-interaction
-	@echo "Recreating database and schema (fresh)..."
+	@echo "Recreating database and running migrations (fresh)..."
 	docker-compose exec -T php php bin/console doctrine:database:drop --if-exists --force --no-interaction
 	docker-compose exec -T php php bin/console doctrine:database:create --no-interaction
-	docker-compose exec -T php php bin/console doctrine:schema:update --force --no-interaction
+	docker-compose exec -T php php bin/console doctrine:migrations:migrate --no-interaction
 	@echo "Loading fixtures..."
 	docker-compose exec -T php php bin/console doctrine:fixtures:load --no-interaction
 	@echo "Demo ready. Open http://localhost:8010"
@@ -68,10 +68,10 @@ install: ensure-up
 setup: ensure-up install
 	@echo "Clearing cache..."
 	docker-compose exec -T php php bin/console cache:clear --no-interaction
-	@echo "Recreating database and schema (fresh)..."
+	@echo "Recreating database and running migrations (fresh)..."
 	docker-compose exec -T php php bin/console doctrine:database:drop --if-exists --force --no-interaction
 	docker-compose exec -T php php bin/console doctrine:database:create --no-interaction
-	docker-compose exec -T php php bin/console doctrine:schema:update --force --no-interaction
+	docker-compose exec -T php php bin/console doctrine:migrations:migrate --no-interaction
 	@echo "Loading fixtures..."
 	docker-compose exec -T php php bin/console doctrine:fixtures:load --no-interaction
 	@echo "Demo ready. Open http://localhost:8010"
@@ -81,6 +81,12 @@ clean:
 
 logs:
 	docker-compose logs -f
+
+migrations-status: ensure-up
+	docker-compose exec -T php php bin/console doctrine:migrations:status
+
+migrate: ensure-up
+	docker-compose exec -T php php bin/console doctrine:migrations:migrate --no-interaction
 
 test: ensure-up
 	docker-compose exec -e APP_ENV=test php php bin/phpunit 2>/dev/null || docker-compose exec -e APP_ENV=test php vendor/bin/phpunit 2>/dev/null || echo "No PHPUnit config in demo; run tests from bundle root."

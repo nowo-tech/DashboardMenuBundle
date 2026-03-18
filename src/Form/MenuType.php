@@ -131,6 +131,7 @@ final class MenuType extends AbstractType
         $this->addCssClassField($builder, 'classItem', 'item', 'form.menu_type.class_item.label', 'form.menu_type.class_item.placeholder');
         $this->addCssClassField($builder, 'classLink', 'link', 'form.menu_type.class_link.label', 'form.menu_type.class_link.placeholder');
         $this->addCssClassField($builder, 'classChildren', 'children', 'form.menu_type.class_children.label', 'form.menu_type.class_children.placeholder');
+        $this->addCssClassField($builder, 'classSectionLabel', 'section_label', 'form.menu_type.class_section_label.label', 'form.menu_type.class_section_label.placeholder');
         $this->addCssClassField($builder, 'classCurrent', 'current', 'form.menu_type.class_current.label', 'form.menu_type.class_current.placeholder');
         $this->addCssClassField($builder, 'classBranchExpanded', 'branch_expanded', 'form.menu_type.class_branch_expanded.label', 'form.menu_type.class_branch_expanded.placeholder');
         $this->addCssClassField($builder, 'classHasChildren', 'has_children', 'form.menu_type.class_has_children.label', 'form.menu_type.class_has_children.placeholder');

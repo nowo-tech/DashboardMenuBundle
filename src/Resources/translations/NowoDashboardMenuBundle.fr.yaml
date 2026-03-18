@@ -113,6 +113,9 @@ form:
     class_children:
       label: "Classe enfants (<ul> imbriqué)"
       placeholder: "ex. nav flex-column ms-2"
+    class_section_label:
+      label: "Classe libellé de section (itemType \"section\")"
+      placeholder: "ex. navigation-header"
     class_current:
       label: "Classe actuel (lien correspondant à la route actuelle)"
       placeholder: "ex. active"

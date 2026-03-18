@@ -1,8 +1,8 @@
-.PHONY: help build up down restart shell install setup clean logs ensure-up update-bundle verify cache-clear schema-update test test-coverage ts-assets
+.PHONY: help build up down restart shell install setup clean logs ensure-up update-bundle verify cache-clear schema-update migrations-status migrate test test-coverage ts-assets
 
 help:
 	@echo "Dashboard Menu Bundle Demo - Symfony 8"
-	@echo "  ensure-up, up, down, restart, build, shell, install, setup, clean, logs, update-bundle, schema-update, test, test-coverage, ts-assets, verify, cache-clear"
+	@echo "  ensure-up, up, down, restart, build, shell, install, setup, clean, logs, update-bundle, schema-update, migrations-status, migrate, test, test-coverage, ts-assets, verify, cache-clear"
 
 ts-assets:
 	@sh scripts/create-ts-assets.sh
@@ -14,6 +14,12 @@ schema-update: ensure-up
 	@echo "Updating database schema (adds missing columns, e.g. icon, class_* in dashboard_menu)..."
 	docker-compose exec -T php php bin/console doctrine:schema:update --force --no-interaction
 	@echo "Done. If you still see 'Unknown column' errors, run: make setup"
+
+migrations-status: ensure-up
+	docker-compose exec -T php php bin/console doctrine:migrations:status
+
+migrate: ensure-up
+	docker-compose exec -T php php bin/console doctrine:migrations:migrate --no-interaction
 
 build:
 	docker-compose build --no-cache
@@ -39,10 +45,10 @@ up:
 	@sleep 3
 	@echo "Clearing cache..."
 	docker-compose exec -T php php bin/console cache:clear --no-interaction
-	@echo "Recreating database and schema (fresh)..."
+	@echo "Recreating database and running migrations (fresh)..."
 	docker-compose exec -T php php bin/console doctrine:database:drop --if-exists --force --no-interaction
 	docker-compose exec -T php php bin/console doctrine:database:create --no-interaction
-	docker-compose exec -T php php bin/console doctrine:schema:update --force --no-interaction
+	docker-compose exec -T php php bin/console doctrine:migrations:migrate --no-interaction
 	@echo "Loading fixtures..."
 	docker-compose exec -T php php bin/console doctrine:fixtures:load --no-interaction
 	@echo "Demo ready. Open http://localhost:8011"
@@ -83,10 +89,10 @@ setup: ensure-up install
 	@sleep 3
 	@echo "Clearing cache..."
 	docker-compose exec -T php php bin/console cache:clear --no-interaction
-	@echo "Recreating database and schema (fresh)..."
+	@echo "Recreating database and running migrations (fresh)..."
 	docker-compose exec -T php php bin/console doctrine:database:drop --if-exists --force --no-interaction
 	docker-compose exec -T php php bin/console doctrine:database:create --no-interaction
-	docker-compose exec -T php php bin/console doctrine:schema:update --force --no-interaction
+	docker-compose exec -T php php bin/console doctrine:migrations:migrate --no-interaction
 	@echo "Loading fixtures..."
 	docker-compose exec -T php php bin/console doctrine:fixtures:load --no-interaction
 	@echo "Demo ready. Open http://localhost:8011"

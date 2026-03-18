@@ -121,6 +121,9 @@ form:
     class_children:
       label: "Clase hijos (<ul> anidado)"
       placeholder: "ej. nav flex-column ms-2"
+    class_section_label:
+      label: "Clase etiqueta de sección (itemType \"section\")"
+      placeholder: "ej. navigation-header"
     class_current:
       label: "Clase actual (enlace que coincide con la ruta actual)"
       placeholder: "ej. active"

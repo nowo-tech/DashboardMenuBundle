@@ -77,6 +77,12 @@ class Menu
     private ?string $classChildren = null;
 
     /**
+     * CSS class for section label span (itemType "section") (e.g. "navigation-header"). Overrides config when set.
+     */
+    #[ORM\Column(type: Types::STRING, length: 512, nullable: true)]
+    private ?string $classSectionLabel = null;
+
+    /**
      * Class added to the <a> when its route matches the current request (e.g. "active"). Overrides config when set.
      */
     #[ORM\Column(type: Types::STRING, length: 128, nullable: true)]
@@ -250,6 +256,18 @@ class Menu
     public function setClassChildren(?string $classChildren): self
     {
         $this->classChildren = $classChildren;
+
+        return $this;
+    }
+
+    public function getClassSectionLabel(): ?string
+    {
+        return $this->classSectionLabel;
+    }
+
+    public function setClassSectionLabel(?string $classSectionLabel): self
+    {
+        $this->classSectionLabel = $classSectionLabel;
 
         return $this;
     }

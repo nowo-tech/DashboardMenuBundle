@@ -9,6 +9,7 @@
     {% set itemClasses = menuConfig.classes.item is defined ? menuConfig.classes.item : '' %}
     {% set linkClasses = menuConfig.classes.link is defined ? menuConfig.classes.link : '' %}
     {% set childrenClasses = menuConfig.classes.children is defined ? menuConfig.classes.children : '' %}
+    {% set sectionLabelClasses = menuConfig.classes.section_label is defined ? menuConfig.classes.section_label : 'navigation-header' %}
     {% set iconName = item.icon|default(menuConfig.icons.default) %}
     {% set showIcon = menuConfig.icons.enabled and iconName is not empty and itemType == 'link' %}
     {% set classCurrent = menuConfig.classes.class_current is defined ? menuConfig.classes.class_current : 'active' %}
@@ -33,7 +34,7 @@
             <hr>
         {% elseif itemType == 'section' %}
             <span class="d-flex align-items-center flex-nowrap">
-                <span class="menu-section-label">{{ item.label|trans({}, 'NowoDashboardMenuBundle') }}</span>
+                <span class="{{ sectionLabelClasses }}">{{ item.label|trans({}, 'NowoDashboardMenuBundle') }}</span>
                 {% if nestedCollapsible and hasChildren %}
                     <button type="button" class="btn btn-link btn-sm p-0 ms-1 menu-nested-toggle" data-bs-toggle="collapse" data-bs-target="#{{ collapseId }}" aria-expanded="true" aria-controls="{{ collapseId }}" title="{{ 'dashboard.toggle'|trans({}, 'NowoDashboardMenuBundle') }}">
                         <span class="menu-nested-toggle-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M2.5 5.5L8 11l5.5-5.5H2.5z"/></svg></span>
