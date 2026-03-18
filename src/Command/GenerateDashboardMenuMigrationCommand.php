@@ -135,7 +135,7 @@ PHP;
         $path      = $input->getOption('path');
         $namespace = trim((string) $input->getOption('namespace'), '\\');
         $version   = date('YmdHis');
-        $className = 'Version' . $version.'_CreateDashboardMenuTablesByConfiguration';
+        $className = 'Version' . $version . '_CreateDashboardMenuTablesByConfiguration';
 
         $sqlLines = array_map(
             static fn (string $statement): string => '        $this->addSql(' . var_export($statement, true) . ');',
