@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 // This file is auto-generated and is for apps only. Bundles SHOULD NOT rely on its content.
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
@@ -1293,6 +1291,13 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             delete?: scalar|Param|null, // Delete confirmation modals. // Default: "normal"
  *         },
  *         icon_selector_script_url?: scalar|Param|null, // Optional URL of the icon-selector Stimulus/script asset. When set, the dashboard layout sets window.dashboardMenuIconSelectorScriptUrl so the item form modal can init the icon selector. Use with nowo-tech/icon-selector-bundle and Symfony UX (Stimulus). // Default: null
+ *         import_max_bytes?: int|Param, // Maximum size in bytes for JSON import file uploads. Default 2 MiB. Prevents DoS from very large uploads. // Default: 2097152
+ *         required_role?: scalar|Param|null, // When set (e.g. ROLE_ADMIN), all dashboard routes require this role. Requires SecurityBundle. Leave null to rely on app access_control. // Default: null
+ *         import_export_rate_limit?: bool|array{ // Optional rate limit for import and export actions: limit requests per interval per user/IP. E.g. { limit: 10, interval: 60 } = 10 per minute.
+ *             enabled?: bool|Param, // Default: true
+ *             limit?: int|Param, // Default: 10
+ *             interval?: int|Param, // Time window in seconds. // Default: 60
+ *         },
  *         css_class_options?: array{ // Lists of CSS classes shown as selectors in the dashboard when editing a menu. Override in app config to customize options.
  *             menu?: list<scalar|Param|null>,
  *             item?: list<scalar|Param|null>,

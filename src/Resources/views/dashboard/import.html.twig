@@ -2,7 +2,7 @@
 
 {% block dashboard_title %}{{ 'dashboard.import'|trans }}{% endblock %}
 
-{% block content %}
+{% block nowo_dashboard_menu_content %}
     {% for msg in app.flashes('success') %}
         <div class="alert alert-success">{{ msg }}</div>
     {% endfor %}

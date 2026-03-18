@@ -11,6 +11,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Config:** `dashboard.path_prefix` is deprecated. Set the dashboard URL prefix in your app routing when importing `@NowoDashboardMenuBundle/Resources/config/routes_dashboard.yaml` (e.g. in `config/routes.yaml` or the recipe’s `config/routes_nowo_dashboard_menu.yaml`). The Flex recipe now adds `config/routes_nowo_dashboard_menu.yaml`; import it from `config/routes.yaml` to enable the dashboard under `/admin/menus`.
 
+## [0.3.7] - 2026-03-18
+
+### Added
+
+- **Security:** CSRF validation in `deleteMenu()` and `deleteItem()`; invalid or missing token returns 403.
+- **Security:** Move up/down actions now use **POST** (no longer GET) with CSRF tokens; dashboard forms updated accordingly.
+- **Security:** Import size limit: config `dashboard.import_max_bytes` (default 2 MiB); controller rejects larger uploads before reading. Clearer JSON errors via `JSON_THROW_ON_ERROR` and `dashboard.import_json_error` / `dashboard.import_file_too_large` messages.
+- **Security (sensitive environments):** Optional `dashboard.required_role` (e.g. `ROLE_ADMIN`) so all dashboard routes require that role (requires SecurityBundle). Optional `dashboard.import_export_rate_limit` with `limit` and `interval` to rate-limit import/export per user or IP (returns 429 when exceeded). See [SECURITY](SECURITY.md) and [CONFIGURATION](CONFIGURATION.md#dashboard).
+- **Event subscriber:** `DashboardAccessSubscriber` enforces `required_role` when set.
+- **Service:** `ImportExportRateLimiter` (cache-based, fixed window) for import/export actions.
+- **Translations:** `dashboard.import_json_error`, `dashboard.import_file_too_large` (en, es).
+
+### Changed
+
+- **Dashboard:** Move up/down buttons in `show.html.twig` are now POST forms with hidden `_token` instead of links.
+- **Docs:** [CONFIGURATION](CONFIGURATION.md) documents `import_max_bytes`, `required_role`, `import_export_rate_limit`. [SECURITY](SECURITY.md) explains dashboard hardening for production.
+
 ## [0.3.6] - 2026-03-18
 
 ### Fixed
@@ -161,7 +178,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.6...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.7...HEAD
+[0.3.7]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.6...v0.3.7
 [0.3.6]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.5...v0.3.6
 [0.3.5]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.4...v0.3.5
 [0.3.4]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.3...v0.3.4

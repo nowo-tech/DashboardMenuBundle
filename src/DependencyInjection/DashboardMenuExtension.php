@@ -7,8 +7,10 @@ namespace Nowo\DashboardMenuBundle\DependencyInjection;
 use Nowo\DashboardMenuBundle\DataCollector\DashboardMenuDataCollector;
 use Nowo\DashboardMenuBundle\DataCollector\MenuQueryCounter;
 use Nowo\DashboardMenuBundle\DataCollector\MenuQueryCountMiddleware;
+use Nowo\DashboardMenuBundle\EventSubscriber\DashboardAccessSubscriber;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 use Nowo\DashboardMenuBundle\Service\DefaultMenuCodeResolver;
+use Nowo\DashboardMenuBundle\Service\ImportExportRateLimiter;
 use Nowo\DashboardMenuBundle\Service\MenuCodeResolverInterface;
 use Nowo\DashboardMenuBundle\Service\MenuConfigResolver;
 use Nowo\DashboardMenuBundle\Service\MenuIconNameResolver;
@@ -93,6 +95,13 @@ final class DashboardMenuExtension extends Extension
             'delete'    => 'normal',
         ]);
         $container->setParameter(Configuration::ALIAS . '.dashboard.icon_selector_script_url', $config['dashboard']['icon_selector_script_url'] ?? null);
+        $container->setParameter(Configuration::ALIAS . '.dashboard.import_max_bytes', $config['dashboard']['import_max_bytes'] ?? 2097152);
+        $container->setParameter(Configuration::ALIAS . '.dashboard.required_role', $config['dashboard']['required_role'] ?? null);
+        $rateLimitConfig   = $config['dashboard']['import_export_rate_limit'] ?? false;
+        $rateLimitLimit    = is_array($rateLimitConfig) ? ($rateLimitConfig['limit'] ?? 10) : 0;
+        $rateLimitInterval = is_array($rateLimitConfig) ? ($rateLimitConfig['interval'] ?? 60) : 60;
+        $container->setParameter(Configuration::ALIAS . '.dashboard.import_export_rate_limit_limit', $rateLimitLimit);
+        $container->setParameter(Configuration::ALIAS . '.dashboard.import_export_rate_limit_interval', $rateLimitInterval);
         $cacheConfig = $config['cache'] ?? ['ttl' => 60, 'pool' => 'cache.app'];
         $container->setParameter(Configuration::ALIAS . '.cache.ttl', $cacheConfig['ttl'] ?? 60);
         $container->setParameter(Configuration::ALIAS . '.cache.pool', $cacheConfig['pool'] ?? 'cache.app');
@@ -118,6 +127,25 @@ final class DashboardMenuExtension extends Extension
         $container->register(DefaultMenuCodeResolver::class, DefaultMenuCodeResolver::class)
             ->setPublic(false);
         $container->setAlias(MenuCodeResolverInterface::class, DefaultMenuCodeResolver::class)
+            ->setPublic(false);
+
+        $requiredRole = $config['dashboard']['required_role'] ?? null;
+        if ($requiredRole !== null && $requiredRole !== '') {
+            $container->register(DashboardAccessSubscriber::class, DashboardAccessSubscriber::class)
+                ->setArguments([
+                    $requiredRole,
+                    new Reference('security.authorization_checker'),
+                ])
+                ->addTag('kernel.event_subscriber');
+        }
+
+        $cachePoolName = $cacheConfig['pool'] ?? 'cache.app';
+        $container->register(ImportExportRateLimiter::class, ImportExportRateLimiter::class)
+            ->setArguments([
+                new Reference($cachePoolName),
+                '%' . Configuration::ALIAS . '.dashboard.import_export_rate_limit_limit%',
+                '%' . Configuration::ALIAS . '.dashboard.import_export_rate_limit_interval%',
+            ])
             ->setPublic(false);
     }
 

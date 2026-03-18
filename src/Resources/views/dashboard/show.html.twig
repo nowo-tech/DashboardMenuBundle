@@ -2,7 +2,7 @@
 
 {% block dashboard_title %}{{ 'dashboard.menu'|trans }}: {{ menu.code }}{% endblock %}
 
-{% block content %}
+{% block nowo_dashboard_menu_content %}
     {% for msg in app.flashes('success') %}
         <div class="alert alert-success">{{ msg }}</div>
     {% endfor %}
@@ -87,12 +87,18 @@
                             <td class="text-end">
                                 <div class="d-flex align-items-center justify-content-end gap-1">
                                     {% if prev_sibling[item.id] is defined and prev_sibling[item.id] is not null %}
-                                        <a href="{{ path(dashboard_routes.item_move_up|default('nowo_dashboard_menu_dashboard_item_move_up'), { id: menu.id, itemId: item.id }) }}" class="btn btn-sm btn-outline-secondary" title="{{ 'dashboard.move_up'|trans }}" aria-label="{{ 'dashboard.move_up'|trans }}">↑</a>
+                                        <form method="post" action="{{ path(dashboard_routes.item_move_up|default('nowo_dashboard_menu_dashboard_item_move_up'), { id: menu.id, itemId: item.id }) }}" class="d-inline">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('item_move_up_' ~ item.id) }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary" title="{{ 'dashboard.move_up'|trans }}" aria-label="{{ 'dashboard.move_up'|trans }}">↑</button>
+                                        </form>
                                     {% else %}
                                         <span class="btn btn-sm btn-outline-secondary disabled" title="{{ 'dashboard.first'|trans }}" aria-hidden="true">↑</span>
                                     {% endif %}
                                     {% if next_sibling[item.id] is defined and next_sibling[item.id] is not null %}
-                                        <a href="{{ path(dashboard_routes.item_move_down|default('nowo_dashboard_menu_dashboard_item_move_down'), { id: menu.id, itemId: item.id }) }}" class="btn btn-sm btn-outline-secondary" title="{{ 'dashboard.move_down'|trans }}" aria-label="{{ 'dashboard.move_down'|trans }}">↓</a>
+                                        <form method="post" action="{{ path(dashboard_routes.item_move_down|default('nowo_dashboard_menu_dashboard_item_move_down'), { id: menu.id, itemId: item.id }) }}" class="d-inline">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('item_move_down_' ~ item.id) }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary" title="{{ 'dashboard.move_down'|trans }}" aria-label="{{ 'dashboard.move_down'|trans }}">↓</button>
+                                        </form>
                                     {% else %}
                                         <span class="btn btn-sm btn-outline-secondary disabled" title="{{ 'dashboard.last'|trans }}" aria-hidden="true">↓</span>
                                     {% endif %}

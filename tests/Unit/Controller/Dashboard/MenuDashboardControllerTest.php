@@ -10,6 +10,7 @@ use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
+use Nowo\DashboardMenuBundle\Service\ImportExportRateLimiter;
 use Nowo\DashboardMenuBundle\Service\MenuExporter;
 use Nowo\DashboardMenuBundle\Service\MenuImporter;
 use PHPUnit\Framework\TestCase;
@@ -295,7 +296,7 @@ final class MenuDashboardControllerTest extends TestCase
         $this->setControllerContainer($controller);
 
         $this->expectException(\Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class);
-        $controller->deleteMenu(999);
+        $controller->deleteMenu($this->createPostRequestWithCsrf(), 999);
     }
 
     public function testDeleteMenuRemovesAndRedirects(): void
@@ -314,7 +315,7 @@ final class MenuDashboardControllerTest extends TestCase
         $controller = $this->createController(menuRepository: $menuRepo, entityManager: $em);
         $this->setControllerContainer($controller);
 
-        $response = $controller->deleteMenu(1);
+        $response = $controller->deleteMenu($this->createPostRequestWithCsrf(), 1);
         self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
         self::assertSame(302, $response->getStatusCode());
     }
@@ -336,7 +337,7 @@ final class MenuDashboardControllerTest extends TestCase
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
         $this->setControllerContainer($controller);
 
-        $response = $controller->itemMoveUp(1, 10);
+        $response = $controller->itemMoveUp($this->createPostRequestWithCsrf(), 1, 10);
         self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
     }
 
@@ -356,7 +357,7 @@ final class MenuDashboardControllerTest extends TestCase
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
         $this->setControllerContainer($controller);
 
-        $response = $controller->itemMoveDown(1, 10);
+        $response = $controller->itemMoveDown($this->createPostRequestWithCsrf(), 1, 10);
         self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
     }
 
@@ -369,7 +370,7 @@ final class MenuDashboardControllerTest extends TestCase
         $this->setControllerContainer($controller);
 
         $this->expectException(\Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class);
-        $controller->itemMoveUp(999, 1);
+        $controller->itemMoveUp($this->createPostRequestWithCsrf(), 999, 1);
     }
 
     public function testItemMoveUpWhenItemNotFoundRedirectsWithError(): void
@@ -383,7 +384,7 @@ final class MenuDashboardControllerTest extends TestCase
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
         $this->setControllerContainer($controller);
 
-        $response = $controller->itemMoveUp(1, 999);
+        $response = $controller->itemMoveUp($this->createPostRequestWithCsrf(), 1, 999);
         self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
     }
 
@@ -396,7 +397,7 @@ final class MenuDashboardControllerTest extends TestCase
         $this->setControllerContainer($controller);
 
         $this->expectException(\Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class);
-        $controller->itemMoveDown(999, 1);
+        $controller->itemMoveDown($this->createPostRequestWithCsrf(), 999, 1);
     }
 
     public function testItemMoveUpWhenItemBelongsToOtherMenuRedirectsWithError(): void
@@ -417,7 +418,7 @@ final class MenuDashboardControllerTest extends TestCase
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
         $this->setControllerContainer($controller);
 
-        $response = $controller->itemMoveUp(1, 10);
+        $response = $controller->itemMoveUp($this->createPostRequestWithCsrf(), 1, 10);
         self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
     }
 
@@ -438,7 +439,7 @@ final class MenuDashboardControllerTest extends TestCase
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
         $this->setControllerContainer($controller);
 
-        $response = $controller->itemMoveDown(1, 10);
+        $response = $controller->itemMoveDown($this->createPostRequestWithCsrf(), 1, 10);
         self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
     }
 
@@ -762,7 +763,7 @@ final class MenuDashboardControllerTest extends TestCase
         $em->expects(self::once())->method('flush');
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, entityManager: $em);
         $this->setControllerContainer($controller);
-        $response = $controller->itemMoveUp(1, 2);
+        $response = $controller->itemMoveUp($this->createPostRequestWithCsrf(), 1, 2);
         self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
         self::assertSame(302, $response->getStatusCode());
     }
@@ -787,7 +788,7 @@ final class MenuDashboardControllerTest extends TestCase
         $em->expects(self::once())->method('flush');
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, entityManager: $em);
         $this->setControllerContainer($controller);
-        $response = $controller->itemMoveDown(1, 1);
+        $response = $controller->itemMoveDown($this->createPostRequestWithCsrf(), 1, 1);
         self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
         self::assertSame(302, $response->getStatusCode());
     }
@@ -1051,7 +1052,7 @@ final class MenuDashboardControllerTest extends TestCase
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
         $this->setControllerContainer($controller);
         $this->expectException(\Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class);
-        $controller->deleteItem(999, 1);
+        $controller->deleteItem($this->createPostRequestWithCsrf(), 999, 1);
     }
 
     public function testDeleteItemRedirectsWhenItemNotFound(): void
@@ -1063,7 +1064,7 @@ final class MenuDashboardControllerTest extends TestCase
         $itemRepo->method('find')->with(999)->willReturn(null);
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
         $this->setControllerContainer($controller);
-        $response = $controller->deleteItem(1, 999);
+        $response = $controller->deleteItem($this->createPostRequestWithCsrf(), 1, 999);
         self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
     }
 
@@ -1083,7 +1084,7 @@ final class MenuDashboardControllerTest extends TestCase
         $em->expects(self::once())->method('flush');
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, entityManager: $em);
         $this->setControllerContainer($controller);
-        $response = $controller->deleteItem(1, 5);
+        $response = $controller->deleteItem($this->createPostRequestWithCsrf(), 1, 5);
         self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
         self::assertSame(302, $response->getStatusCode());
     }
@@ -1104,6 +1105,7 @@ final class MenuDashboardControllerTest extends TestCase
             router: $router,
             translator: $translator,
         );
+        $this->setControllerContainer($controller);
 
         $request  = Request::create('/dashboard/menu/export');
         $response = $controller->exportAll($request);
@@ -1125,6 +1127,7 @@ final class MenuDashboardControllerTest extends TestCase
         $itemRepo->method('findAllForMenuOrderedByTreeForExport')->with($menu)->willReturn([]);
 
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
+        $this->setControllerContainer($controller);
 
         $request  = Request::create('/dashboard/menu/123/export');
         $response = $controller->exportMenu($request, 123);
@@ -1147,12 +1150,15 @@ final class MenuDashboardControllerTest extends TestCase
         int $paginationPerPage = 20,
         array $modalSizes = [],
         ?string $iconSelectorScriptUrl = null,
+        int $importMaxBytes = 2_097_152,
+        ?ImportExportRateLimiter $importExportRateLimiter = null,
     ): MenuDashboardController {
-        $menuRepo = $menuRepository ?? $this->createStub(MenuRepository::class);
-        $itemRepo = $menuItemRepository ?? $this->createStub(MenuItemRepository::class);
-        $em       = $entityManager ?? $this->createStub(EntityManagerInterface::class);
-        $exporter = $menuExporter ?? new MenuExporter($menuRepo, $itemRepo);
-        $importer = $menuImporter ?? new MenuImporter($menuRepo, $em);
+        $menuRepo    = $menuRepository ?? $this->createStub(MenuRepository::class);
+        $itemRepo    = $menuItemRepository ?? $this->createStub(MenuItemRepository::class);
+        $em          = $entityManager ?? $this->createStub(EntityManagerInterface::class);
+        $exporter    = $menuExporter ?? new MenuExporter($menuRepo, $itemRepo);
+        $importer    = $menuImporter ?? new MenuImporter($menuRepo, $em);
+        $rateLimiter = $importExportRateLimiter ?? new ImportExportRateLimiter(null, 0, 60);
 
         return new MenuDashboardController(
             $menuRepo,
@@ -1168,6 +1174,8 @@ final class MenuDashboardControllerTest extends TestCase
             $paginationPerPage,
             $modalSizes,
             $iconSelectorScriptUrl,
+            $importMaxBytes,
+            $rateLimiter,
         );
     }
 
@@ -1191,31 +1199,36 @@ final class MenuDashboardControllerTest extends TestCase
         $request->setSession($session);
         $requestStack->push($request);
 
-        $container = new class($router, $formFactory, $session, $twig, $requestStack) implements \Psr\Container\ContainerInterface {
+        $csrfManager = $this->createStub(\Symfony\Component\Security\Csrf\CsrfTokenManagerInterface::class);
+        $csrfManager->method('isTokenValid')->willReturn(true);
+
+        $container = new class($router, $formFactory, $session, $twig, $requestStack, $csrfManager) implements \Psr\Container\ContainerInterface {
             public function __construct(
                 private readonly RouterInterface $router,
                 private readonly FormFactoryInterface $formFactory,
                 private readonly Session $session,
                 private readonly \Twig\Environment $twig,
                 private readonly RequestStack $requestStack,
+                private readonly \Symfony\Component\Security\Csrf\CsrfTokenManagerInterface $csrfTokenManager,
             ) {
             }
 
             public function get(string $id): mixed
             {
                 return match ($id) {
-                    'router'        => $this->router,
-                    'form.factory'  => $this->formFactory,
-                    'session'       => $this->session,
-                    'twig'          => $this->twig,
-                    'request_stack' => $this->requestStack,
-                    default         => throw new \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException($id),
+                    'router'                      => $this->router,
+                    'form.factory'                => $this->formFactory,
+                    'session'                     => $this->session,
+                    'twig'                        => $this->twig,
+                    'request_stack'               => $this->requestStack,
+                    'security.csrf.token_manager' => $this->csrfTokenManager,
+                    default                       => throw new \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException($id),
                 };
             }
 
             public function has(string $id): bool
             {
-                return in_array($id, ['router', 'form.factory', 'session', 'twig', 'request_stack'], true);
+                return in_array($id, ['router', 'form.factory', 'session', 'twig', 'request_stack', 'security.csrf.token_manager'], true);
             }
         };
 
@@ -1244,5 +1257,13 @@ final class MenuDashboardControllerTest extends TestCase
     {
         $ref = new ReflectionProperty(MenuItem::class, 'id');
         $ref->setValue($item, $id);
+    }
+
+    private function createPostRequestWithCsrf(): Request
+    {
+        $request = Request::create('/', 'POST');
+        $request->request->set('_token', 'test-csrf-token');
+
+        return $request;
     }
 }

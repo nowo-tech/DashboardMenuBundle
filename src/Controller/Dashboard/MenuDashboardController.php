@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nowo\DashboardMenuBundle\Controller\Dashboard;
 
 use Doctrine\ORM\EntityManagerInterface;
+use JsonException;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Form\CopyMenuType;
@@ -14,6 +15,7 @@ use Nowo\DashboardMenuBundle\Form\MenuType;
 use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
+use Nowo\DashboardMenuBundle\Service\ImportExportRateLimiter;
 use Nowo\DashboardMenuBundle\Service\MenuExporter;
 use Nowo\DashboardMenuBundle\Service\MenuImporter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,7 +27,10 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Throwable;
 
 use function count;
 use function is_array;
@@ -92,6 +97,8 @@ final class MenuDashboardController extends AbstractController
      * @param list<string> $locales Enabled locales for item labels configured in the bundle
      * @param array<string, string> $modalSizes Modal size per type: menu_form, copy, item_form, delete (values: normal, lg, xl)
      * @param string|null $iconSelectorScriptUrl Optional URL of the icon-selector script (Stimulus/UX) for the item form modal
+     * @param int $importMaxBytes Maximum allowed size in bytes for JSON import uploads (default 2 MiB)
+     * @param ImportExportRateLimiter $importExportRateLimiter Rate limiter for import/export (no-op when disabled in config)
      */
     public function __construct(
         private readonly MenuRepository $menuRepository,
@@ -101,12 +108,14 @@ final class MenuDashboardController extends AbstractController
         private readonly TranslatorInterface $translator,
         private readonly MenuExporter $menuExporter,
         private readonly MenuImporter $menuImporter,
-        private readonly array $routeNameExcludePatterns = [],
-        private readonly array $locales = [],
-        private readonly bool $paginationEnabled = true,
-        private readonly int $paginationPerPage = 20,
-        private readonly array $modalSizes = [],
-        private readonly ?string $iconSelectorScriptUrl = null,
+        private readonly array $routeNameExcludePatterns,
+        private readonly array $locales,
+        private readonly bool $paginationEnabled,
+        private readonly int $paginationPerPage,
+        private readonly array $modalSizes,
+        private readonly ?string $iconSelectorScriptUrl,
+        private readonly int $importMaxBytes,
+        private readonly ImportExportRateLimiter $importExportRateLimiter,
     ) {
     }
 
@@ -313,9 +322,12 @@ final class MenuDashboardController extends AbstractController
         return $labels;
     }
 
-    #[Route(path: '/{id}/item/{itemId}/move-up', name: 'item_move_up', requirements: ['id' => '\d+', 'itemId' => '\d+'], methods: ['GET'])]
-    public function itemMoveUp(int $id, int $itemId): \Symfony\Component\HttpFoundation\RedirectResponse
+    #[Route(path: '/{id}/item/{itemId}/move-up', name: 'item_move_up', requirements: ['id' => '\d+', 'itemId' => '\d+'], methods: ['POST'])]
+    public function itemMoveUp(Request $request, int $id, int $itemId): \Symfony\Component\HttpFoundation\RedirectResponse
     {
+        if (!$this->isCsrfTokenValid('item_move_up_' . $itemId, $request->request->getString('_token'))) {
+            throw new AccessDeniedException('Invalid CSRF token.');
+        }
         $menu = $this->menuRepository->findOneById($id);
         if (!$menu instanceof Menu) {
             throw $this->createNotFoundException('Menu not found.');
@@ -350,9 +362,12 @@ final class MenuDashboardController extends AbstractController
         return $this->redirectToRoute(self::ROUTE_SHOW, ['id' => $id, '_fragment' => 'item-' . $itemId]);
     }
 
-    #[Route(path: '/{id}/item/{itemId}/move-down', name: 'item_move_down', requirements: ['id' => '\d+', 'itemId' => '\d+'], methods: ['GET'])]
-    public function itemMoveDown(int $id, int $itemId): \Symfony\Component\HttpFoundation\RedirectResponse
+    #[Route(path: '/{id}/item/{itemId}/move-down', name: 'item_move_down', requirements: ['id' => '\d+', 'itemId' => '\d+'], methods: ['POST'])]
+    public function itemMoveDown(Request $request, int $id, int $itemId): \Symfony\Component\HttpFoundation\RedirectResponse
     {
+        if (!$this->isCsrfTokenValid('item_move_down_' . $itemId, $request->request->getString('_token'))) {
+            throw new AccessDeniedException('Invalid CSRF token.');
+        }
         $menu = $this->menuRepository->findOneById($id);
         if (!$menu instanceof Menu) {
             throw $this->createNotFoundException('Menu not found.');
@@ -431,8 +446,11 @@ final class MenuDashboardController extends AbstractController
     }
 
     #[Route(path: '/{id}/delete', name: 'menu_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
-    public function deleteMenu(int $id): \Symfony\Component\HttpFoundation\RedirectResponse
+    public function deleteMenu(Request $request, int $id): \Symfony\Component\HttpFoundation\RedirectResponse
     {
+        if (!$this->isCsrfTokenValid('delete_menu_' . $id, $request->request->getString('_token'))) {
+            throw new AccessDeniedException('Invalid CSRF token.');
+        }
         $menu = $this->menuRepository->findOneById($id);
         if (!$menu instanceof Menu) {
             throw $this->createNotFoundException('Menu not found.');
@@ -448,6 +466,7 @@ final class MenuDashboardController extends AbstractController
     #[Route(path: '/export', name: 'export_all', methods: ['GET'])]
     public function exportAll(Request $request): StreamedResponse
     {
+        $this->importExportRateLimiter->consume($this->getRateLimitKey($request));
         $data = $this->menuExporter->exportAll();
         $json = json_encode($data, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
@@ -463,6 +482,7 @@ final class MenuDashboardController extends AbstractController
     #[Route(path: '/{id}/export', name: 'export_menu', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function exportMenu(Request $request, int $id): StreamedResponse|Response
     {
+        $this->importExportRateLimiter->consume($this->getRateLimitKey($request));
         $menu = $this->menuRepository->findOneById($id);
         if (!$menu instanceof Menu) {
             throw $this->createNotFoundException('Menu not found.');
@@ -493,8 +513,31 @@ final class MenuDashboardController extends AbstractController
             $data = $form->getData();
             $file = $data['file'] ?? null;
             if ($file instanceof UploadedFile) {
-                $content = $file->getContent();
-                $decoded = json_decode($content, true);
+                $this->importExportRateLimiter->consume($this->getRateLimitKey($request));
+                $size = $file->getSize();
+                if ($size !== false && $size > $this->importMaxBytes) {
+                    $this->addFlash('error', $this->translator->trans('dashboard.import_file_too_large', [
+                        '%max%' => (string) (int) ($this->importMaxBytes / 1024 / 1024),
+                    ], NowoDashboardMenuBundle::TRANSLATION_DOMAIN));
+
+                    return $this->render('@NowoDashboardMenuBundle/dashboard/import.html.twig', [
+                        'form'             => $form,
+                        'dashboard_routes' => $this->getDashboardRoutes(),
+                    ]);
+                }
+                try {
+                    $content = $file->getContent();
+                    $decoded = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
+                } catch (JsonException $e) {
+                    $this->addFlash('error', $this->translator->trans('dashboard.import_json_error', [
+                        '%message%' => $e->getMessage(),
+                    ], NowoDashboardMenuBundle::TRANSLATION_DOMAIN));
+
+                    return $this->render('@NowoDashboardMenuBundle/dashboard/import.html.twig', [
+                        'form'             => $form,
+                        'dashboard_routes' => $this->getDashboardRoutes(),
+                    ]);
+                }
                 if (!is_array($decoded)) {
                     $this->addFlash('error', $this->translator->trans('dashboard.import_json_invalid', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN));
                 } else {
@@ -758,8 +801,11 @@ final class MenuDashboardController extends AbstractController
     }
 
     #[Route(path: '/{id}/item/{itemId}/delete', name: 'item_delete', requirements: ['id' => '\d+', 'itemId' => '\d+'], methods: ['POST'])]
-    public function deleteItem(int $id, int $itemId): \Symfony\Component\HttpFoundation\RedirectResponse
+    public function deleteItem(Request $request, int $id, int $itemId): \Symfony\Component\HttpFoundation\RedirectResponse
     {
+        if (!$this->isCsrfTokenValid('delete_item_' . $itemId, $request->request->getString('_token'))) {
+            throw new AccessDeniedException('Invalid CSRF token.');
+        }
         $menu = $this->menuRepository->findOneById($id);
         if (!$menu instanceof Menu) {
             throw $this->createNotFoundException('Menu not found.');
@@ -844,5 +890,19 @@ final class MenuDashboardController extends AbstractController
         }
 
         return $ids;
+    }
+
+    private function getRateLimitKey(Request $request): string
+    {
+        try {
+            $user = $this->getUser();
+            if ($user instanceof UserInterface) {
+                return 'user:' . $user->getUserIdentifier();
+            }
+        } catch (Throwable) {
+            // No SecurityBundle or no token storage: use IP only
+        }
+
+        return 'ip:' . ($request->getClientIp() ?? 'anon');
     }
 }

@@ -12,6 +12,16 @@ This document describes breaking changes and upgrade notes between versions.
 
 No breaking changes. The bundle registers the Twig namespace `@NowoDashboardMenuBundle` in a way that keeps the standard override behaviour: templates in your app under `templates/bundles/NowoDashboardMenuBundle/` take precedence.
 
+## From 0.3.6 to 0.3.7
+
+No breaking changes. New optional security options for sensitive environments:
+
+- **`dashboard.required_role`** — When set (e.g. `ROLE_ADMIN`), all dashboard routes require this role. Requires Symfony SecurityBundle. Leave unset to keep using your app’s `access_control` or firewall.
+- **`dashboard.import_export_rate_limit`** — Optional rate limit for import and export (e.g. `{ limit: 10, interval: 60 }`). When exceeded, the app returns HTTP 429. Disabled by default.
+- **`dashboard.import_max_bytes`** — Max size in bytes for JSON import uploads (default 2 MiB). Existing form validation remains; this adds a controller-level check.
+
+Dashboard delete and move-up/move-down actions now validate CSRF and use POST for move actions; no change needed if you use the bundle’s dashboard templates.
+
 ## From 0.3.3 to 0.3.4
 
 No breaking changes. New: dashboard **export/import** (JSON), config **`dashboard.layout_template`** to choose the Twig layout dashboard views extend (default unchanged), and **MenuUrlResolver** now fills missing route path params from the current request and adds a flash message on URL generation failure. Dashboard content block is now `content` (was `dashboard_body`); if you override the bundle’s dashboard layout template, ensure it defines `{% block content %}`.

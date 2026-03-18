@@ -167,6 +167,9 @@ Options for the admin dashboard (list, create, edit, copy menus and manage items
 | `modals`                      | see below      | Modal sizes: `menu_form`, `copy`, `item_form`, `delete` (Bootstrap 5: `normal`, `lg`, `xl`). |
 | `css_class_options`           | (defaults)     | Arrays of CSS class choices shown as dropdowns when editing a menu (menu, item, link, children, current, branch_expanded, has_children, expanded, collapsed). |
 | `icon_selector_script_url`   | `null`         | Optional URL of the icon-selector script (e.g. with `nowo-tech/icon-selector-bundle`). When set, the item form can show an icon selector. |
+| `import_max_bytes`           | `2097152` (2 MiB) | Maximum size in bytes for JSON import uploads. Reduces DoS risk from very large files. |
+| `required_role`              | `null`         | When set (e.g. `ROLE_ADMIN`), **all** dashboard routes require this role. Requires Symfony SecurityBundle. Leave `null` to rely on your app’s `access_control` or firewall. |
+| `import_export_rate_limit`   | disabled      | Rate limit for import and export actions. When set, use `limit` (requests per window) and `interval` (seconds). E.g. `{ limit: 10, interval: 60 }` = 10 requests per minute per user/IP. Set to `false` or omit to disable. |
 
 **Modal defaults:** `menu_form: normal`, `copy: normal`, `item_form: lg`, `delete: normal`.
 

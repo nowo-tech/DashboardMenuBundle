@@ -68,6 +68,8 @@ dashboard:
   import: Importar
   import_help: "Sube un archivo JSON exportado desde este panel (un menú o todos). Elige si omitir menús que ya existan (mismo código y contexto) o reemplazar sus ítems."
   import_json_invalid: Archivo JSON no válido.
+  import_json_error: "JSON no válido: %message%"
+  import_file_too_large: "El archivo es demasiado grande. Tamaño máximo %max% MiB."
   import_done: "Importación completada: %created% creados, %updated% actualizados, %skipped% omitidos."
 
 # Form: MenuType

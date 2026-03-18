@@ -78,6 +78,8 @@ services:
       $paginationPerPage: '%nowo_dashboard_menu.dashboard.pagination.per_page%'
       $modalSizes: '%nowo_dashboard_menu.dashboard.modals%'
       $iconSelectorScriptUrl: '%nowo_dashboard_menu.dashboard.icon_selector_script_url%'
+      $importMaxBytes: '%nowo_dashboard_menu.dashboard.import_max_bytes%'
+      $importExportRateLimiter: '@Nowo\DashboardMenuBundle\Service\ImportExportRateLimiter'
     public: true
 
   Nowo\DashboardMenuBundle\EventSubscriber\TablePrefixSubscriber:
