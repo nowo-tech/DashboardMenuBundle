@@ -16,6 +16,14 @@ No breaking changes. The bundle registers the Twig namespace `@NowoDashboardMenu
 
 No breaking changes. Unit tests were updated after replacing `RegisterTwigNamespacePass` with `TwigPathsPass`.
 
+## From 0.3.10 to 0.3.11
+
+No breaking changes.
+
+- The dashboard menu list shows the number of items per menu.
+- The dashboard menu items table is more responsive (actions moved left, up/down stacked).
+- New required dependency: `symfony/ux-autocomplete`.
+
 ## From 0.3.8 to 0.3.9
 
 No breaking changes. The bundle now registers its Twig views via the compiler pass `TwigPathsPass` (replacing `RegisterTwigNamespacePass`). Application overrides in `templates/bundles/NowoDashboardMenuBundle/` continue to take precedence.
