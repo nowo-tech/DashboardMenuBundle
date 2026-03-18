@@ -44,7 +44,7 @@
         {{ form_row(form.permissionKey, { label_attr: { class: 'form-label' } }) }}
     </div>
     {{ form_rest(form) }}
-    <button type="submit" class="btn btn-primary">{{ (is_edit|default(false) ? 'dashboard.update' : 'dashboard.create')|trans }}</button>
+    <button type="submit" class="btn btn-primary">{{ (is_edit|default(false) ? 'dashboard.update' : 'dashboard.create')|trans({}, 'NowoDashboardMenuBundle') }}</button>
 {{ form_end(form) }}
 
 <script>

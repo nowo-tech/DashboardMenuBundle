@@ -1,6 +1,6 @@
 {% extends nowo_dashboard_layout_template|default('@NowoDashboardMenuBundle/dashboard/layout.html.twig') %}
 
-{% block dashboard_title %}{{ (is_edit ? 'dashboard.edit_item' : 'dashboard.new_item')|trans }}{% endblock %}
+{% block dashboard_title %}{{ (is_edit ? 'dashboard.edit_item' : 'dashboard.new_item')|trans({}, 'NowoDashboardMenuBundle') }}{% endblock %}
 
 {% block nowo_dashboard_menu_content %}
     {% for msg in app.flashes('error') %}
@@ -56,7 +56,7 @@
             </div>
         </div>
         {{ form_rest(form) }}
-        <button type="submit" class="btn btn-primary">{{ (is_edit ? 'dashboard.update' : 'dashboard.create')|trans }}</button>
+        <button type="submit" class="btn btn-primary">{{ (is_edit ? 'dashboard.update' : 'dashboard.create')|trans({}, 'NowoDashboardMenuBundle') }}</button>
     {{ form_end(form) }}
 
     <script>

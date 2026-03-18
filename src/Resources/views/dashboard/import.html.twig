@@ -1,6 +1,6 @@
 {% extends nowo_dashboard_layout_template|default('@NowoDashboardMenuBundle/dashboard/layout.html.twig') %}
 
-{% block dashboard_title %}{{ 'dashboard.import'|trans }}{% endblock %}
+{% block dashboard_title %}{{ 'dashboard.import'|trans({}, 'NowoDashboardMenuBundle') }}{% endblock %}
 
 {% block nowo_dashboard_menu_content %}
     {% for msg in app.flashes('success') %}
@@ -10,15 +10,15 @@
         <div class="alert alert-danger">{{ msg }}</div>
     {% endfor %}
 
-    <p><a href="{{ path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index')) }}" class="btn btn-link text-decoration-none">{{ 'dashboard.menus_back'|trans }}</a></p>
+    <p><a href="{{ path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index')) }}" class="btn btn-link text-decoration-none">{{ 'dashboard.menus_back'|trans({}, 'NowoDashboardMenuBundle') }}</a></p>
 
-    <p class="text-muted">{{ 'dashboard.import_help'|trans }}</p>
+    <p class="text-muted">{{ 'dashboard.import_help'|trans({}, 'NowoDashboardMenuBundle') }}</p>
 
     {{ form_start(form, { attr: { enctype: 'multipart/form-data', style: 'max-width: 32rem;' } }) }}
         {{ form_row(form.file, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
         {{ form_row(form.strategy, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
         {{ form_rest(form) }}
-        <button type="submit" class="btn btn-primary">{{ 'dashboard.import'|trans }}</button>
-        <a href="{{ path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index')) }}" class="btn btn-secondary">{{ 'dashboard.cancel'|trans }}</a>
+        <button type="submit" class="btn btn-primary">{{ 'dashboard.import'|trans({}, 'NowoDashboardMenuBundle') }}</button>
+        <a href="{{ path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index')) }}" class="btn btn-secondary">{{ 'dashboard.cancel'|trans({}, 'NowoDashboardMenuBundle') }}</a>
     {{ form_end(form) }}
 {% endblock %}

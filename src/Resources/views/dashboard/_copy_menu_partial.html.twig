@@ -1,11 +1,11 @@
 {% for msg in app.flashes('error') %}
     <div class="alert alert-danger">{{ msg }}</div>
 {% endfor %}
-<p class="text-muted small">{{ 'dashboard.copy_menu_help'|trans }}</p>
+<p class="text-muted small">{{ 'dashboard.copy_menu_help'|trans({}, 'NowoDashboardMenuBundle') }}</p>
 {{ form_start(form, { attr: { style: 'max-width: 32rem;' } }) }}
     {{ form_row(form.code, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
     {{ form_row(form.name, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
     {{ form_rest(form) }}
-    <button type="submit" class="btn btn-primary">{{ 'dashboard.copy_menu'|trans }}</button>
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'dashboard.cancel'|trans }}</button>
+    <button type="submit" class="btn btn-primary">{{ 'dashboard.copy_menu'|trans({}, 'NowoDashboardMenuBundle') }}</button>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'dashboard.cancel'|trans({}, 'NowoDashboardMenuBundle') }}</button>
 {{ form_end(form) }}
