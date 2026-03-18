@@ -11,6 +11,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Config:** `dashboard.path_prefix` is deprecated. Set the dashboard URL prefix in your app routing when importing `@NowoDashboardMenuBundle/Resources/config/routes_dashboard.yaml` (e.g. in `config/routes.yaml` or the recipe’s `config/routes_nowo_dashboard_menu.yaml`). The Flex recipe now adds `config/routes_nowo_dashboard_menu.yaml`; import it from `config/routes.yaml` to enable the dashboard under `/admin/menus`.
 
+## [0.3.5] - 2026-03-18
+
+### Added
+
+- **Translation domain:** Bundle uses domain **NowoDashboardMenuBundle** for all UI strings (dashboard, form labels, validation). Constant `NowoDashboardMenuBundle::TRANSLATION_DOMAIN` for use in code; form types and controller use it.
+- **Docs:** [USAGE](USAGE.md#overriding-templates-and-translations) documents overriding templates (`templates/bundles/NowoDashboardMenuBundle/`) and translations (`translations/NowoDashboardMenuBundle.{locale}.yaml` with same key structure).
+
+### Changed
+
+- **Translations (breaking for overrides):** Bundle translation files are now `NowoDashboardMenuBundle.{locale}.yaml` (replacing `messages.*` and `validators.*`). To override strings in your app, create `translations/NowoDashboardMenuBundle.{locale}.yaml` with the same keys (e.g. `dashboard.title`, `form.copy_menu_type.code.regex_message`). See [UPGRADING](UPGRADING.md#from-034-to-035).
+- **Extension:** `DashboardMenuExtension` no longer prepends Twig or translator paths; Symfony’s default behaviour applies so your app’s `templates/bundles/NowoDashboardMenuBundle/` and translation files take precedence over the bundle’s.
+- **Dashboard layout:** `{% trans_default_domain 'NowoDashboardMenuBundle' %}` set in the bundle’s dashboard layout so all dashboard views use the bundle domain.
+
+### Fixed
+
+- **Tests:** Additional coverage for PermissionCheckerPass (config/order/labels not array), AutoTagPermissionCheckersPass (empty or non-string constant), MenuImporter and MenuRepository edge cases.
+
 ## [0.3.4] - 2026-03-18
 
 ### Added
@@ -133,7 +150,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.4...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.5...HEAD
+[0.3.5]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.4...v0.3.5
 [0.3.4]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.1...v0.3.2

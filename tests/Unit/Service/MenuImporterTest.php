@@ -10,6 +10,7 @@ use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 use Nowo\DashboardMenuBundle\Service\MenuImporter;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
 final class MenuImporterTest extends TestCase
 {
@@ -20,9 +21,8 @@ final class MenuImporterTest extends TestCase
 
         $importer = new MenuImporter($menuRepo, $em);
 
-        $ref = new \ReflectionClass($importer);
+        $ref = new ReflectionClass($importer);
         $m   = $ref->getMethod('stringOrNull');
-        $m->setAccessible(true);
 
         self::assertSame('42', $m->invoke($importer, 42));
         self::assertNull($m->invoke($importer, ''));

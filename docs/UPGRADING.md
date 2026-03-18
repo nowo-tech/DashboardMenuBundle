@@ -2,6 +2,12 @@
 
 This document describes breaking changes and upgrade notes between versions.
 
+## From 0.3.4 to 0.3.5
+
+- **Translation domain:** The bundle now uses the domain **NowoDashboardMenuBundle** (no longer `messages` or `validators`). Bundle files are `NowoDashboardMenuBundle.{locale}.yaml`. If you override bundle strings in your app, rename or create `translations/NowoDashboardMenuBundle.{locale}.yaml` (e.g. `NowoDashboardMenuBundle.en.yaml`) and use the same key structure (`dashboard.*`, `form.*`). Remove any app overrides under `messages.*` or `validators.*` that were only for this bundle.
+- **Templates and translations override:** The extension no longer prepends paths; your app’s `templates/bundles/NowoDashboardMenuBundle/` and translation files take precedence by default. No config change needed unless you relied on the previous prepend order.
+- No other breaking changes.
+
 ## From 0.3.3 to 0.3.4
 
 No breaking changes. New: dashboard **export/import** (JSON), config **`dashboard.layout_template`** to choose the Twig layout dashboard views extend (default unchanged), and **MenuUrlResolver** now fills missing route path params from the current request and adds a flash message on URL generation failure. Dashboard content block is now `content` (was `dashboard_body`); if you override the bundle’s dashboard layout template, ensure it defines `{% block content %}`.
