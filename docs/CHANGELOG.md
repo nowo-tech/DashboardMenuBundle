@@ -15,7 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Internal:** Twig view path registration now uses compiler pass `TwigPathsPass` (replacing `RegisterTwigNamespacePass`). The bundle’s views path is added at the end of the native loader so that application overrides in `templates/bundles/NowoDashboardMenuBundle/` are always consulted first; no behaviour change for users.
+- **Internal:** Twig view path registration uses compiler pass `TwigPathsPass` (replacing `RegisterTwigNamespacePass`). The bundle’s views path is added at the end of the native loader so that application overrides in `templates/bundles/NowoDashboardMenuBundle/` are always consulted first; no behaviour change for users.
+- **Internal:** `TwigPathsPass` resolves the loader via `twig.loader.native` when present, then falls back to `twig.loader.native_filesystem`. Extension docblock clarifies that no Twig paths are prepended.
 
 ## [0.3.8] - 2026-03-18
 
