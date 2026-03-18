@@ -63,6 +63,12 @@ dashboard:
   toggle: Alternar
   yes: Sí
   no: No
+  export: Exportar
+  export_all: Exportar todos los menús
+  import: Importar
+  import_help: "Sube un archivo JSON exportado desde este panel (un menú o todos). Elige si omitir menús que ya existan (mismo código y contexto) o reemplazar sus ítems."
+  import_json_invalid: Archivo JSON no válido.
+  import_done: "Importación completada: %created% creados, %updated% actualizados, %skipped% omitidos."
 
 # Form: MenuType
 form:
@@ -165,6 +171,16 @@ form:
     parent:
       label: Padre
       placeholder: "— Raíz (sin padre) —"
+
+  import_menu_type:
+    file:
+      label: Archivo JSON
+      required: Elige un archivo.
+      mime_message: El archivo debe ser JSON.
+    strategy:
+      label: Si ya existe un menú con el mismo código y contexto
+      skip_existing: Omitir (no importar)
+      replace: Reemplazar (borrar ítems existentes e importar)
 
   copy_menu_type:
     code:

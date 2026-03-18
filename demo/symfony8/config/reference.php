@@ -1279,6 +1279,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     },
  *     dashboard?: array{ // Admin dashboard to manage menus and items. Import routes with prefix (e.g. /admin/menus).
  *         enabled?: bool|Param, // Default: false
+ *         layout_template?: scalar|Param|null, // Twig template that dashboard views extend (e.g. @App/base.html.twig). Must define block "content". If not set or template does not exist, the bundle layout is used. // Default: "@NowoDashboardMenuBundle/dashboard/layout.html.twig"
  *         path_prefix?: scalar|Param|null, // Deprecated: The option "nowo_dashboard_menu.dashboard.path_prefix" is deprecated. Configure the dashboard URL prefix in your app routing (e.g. config/routes.yaml or config/routes_nowo_dashboard_menu.yaml) when importing @NowoDashboardMenuBundle/Resources/config/routes_dashboard.yaml. // Deprecated: set the dashboard URL prefix in config/routes.yaml when importing routes_dashboard.yaml (e.g. prefix: /admin/menus). // Default: "/admin/menus"
  *         route_name_exclude_patterns?: list<scalar|Param|null>,
  *         pagination?: array{ // Pagination for the menus list in the dashboard.

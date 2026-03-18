@@ -1,8 +1,8 @@
-{% extends '@NowoDashboardMenuBundle/dashboard/layout.html.twig' %}
+{% extends nowo_dashboard_layout_template|default('@NowoDashboardMenuBundle/dashboard/layout.html.twig') %}
 
 {% block dashboard_title %}{{ 'dashboard.copy_menu'|trans }}: {{ menu.code }}{% endblock %}
 
-{% block dashboard_body %}
+{% block content %}
     {% for msg in app.flashes('error') %}
         <div class="alert alert-danger">{{ msg }}</div>
     {% endfor %}

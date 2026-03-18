@@ -145,6 +145,28 @@ final class MenuItemRepositoryIntegrationTest extends KernelTestCase
         self::assertSame('C2', $siblings[1]->getLabel());
     }
 
+    public function testFindAllForMenuOrderedByTreeForExportDoesNotResolveLabel(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('export');
+        $this->entityManager->persist($menu);
+        $this->entityManager->flush();
+
+        $item = new MenuItem();
+        $item->setMenu($menu);
+        $item->setLabel('Fallback');
+        $item->setTranslations(['en' => 'Home', 'es' => 'Inicio']);
+        $item->setPosition(0);
+        $this->entityManager->persist($item);
+        $this->entityManager->flush();
+
+        $items = $this->repository->findAllForMenuOrderedByTreeForExport($menu);
+        self::assertCount(1, $items);
+        // Export method should not mutate label based on locale.
+        self::assertSame('Fallback', $items[0]->getLabel());
+        self::assertSame(['en' => 'Home', 'es' => 'Inicio'], $items[0]->getTranslations());
+    }
+
     public function testGetPossibleParentsQueryBuilderWithoutExclude(): void
     {
         $menu = new Menu();

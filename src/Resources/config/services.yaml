@@ -21,6 +21,10 @@ services:
     arguments:
       $translator: '@translator'
 
+  Nowo\DashboardMenuBundle\Form\ImportMenuType:
+    arguments:
+      $translator: '@translator'
+
   Nowo\DashboardMenuBundle\Form\MenuType:
     arguments:
       $permissionCheckerChoices: '%nowo_dashboard_menu.permission_checker_choices%'
@@ -53,6 +57,7 @@ services:
     arguments:
       $dataCollector: null
       $menuIconNameResolver: '@Nowo\DashboardMenuBundle\Service\MenuIconNameResolver'
+      $dashboardLayoutTemplate: '%nowo_dashboard_menu.dashboard.layout_template%'
     tags:
       - { name: twig.extension }
     public: false
@@ -60,8 +65,13 @@ services:
   Nowo\DashboardMenuBundle\Controller\Api\MenuApiController:
     public: true
 
+  Nowo\DashboardMenuBundle\Service\MenuExporter: ~
+  Nowo\DashboardMenuBundle\Service\MenuImporter: ~
+
   Nowo\DashboardMenuBundle\Controller\Dashboard\MenuDashboardController:
     arguments:
+      $menuExporter: '@Nowo\DashboardMenuBundle\Service\MenuExporter'
+      $menuImporter: '@Nowo\DashboardMenuBundle\Service\MenuImporter'
       $routeNameExcludePatterns: '%nowo_dashboard_menu.dashboard.route_name_exclude_patterns%'
       $locales: '%nowo_dashboard_menu.locales%'
       $paginationEnabled: '%nowo_dashboard_menu.dashboard.pagination.enabled%'

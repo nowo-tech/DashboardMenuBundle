@@ -54,6 +54,27 @@ class MenuItemRepository extends ServiceEntityRepository
     }
 
     /**
+     * Load all menu items for the given menu in tree order, without resolving label by locale.
+     * Use for export so the stored label and translations are preserved.
+     *
+     * @return list<MenuItem>
+     */
+    public function findAllForMenuOrderedByTreeForExport(Menu $menu): array
+    {
+        $qb = $this->createQueryBuilder('i')
+            ->where('i.menu = :menu')
+            ->setParameter('menu', $menu)
+            ->orderBy('i.parent', 'ASC')
+            ->addOrderBy('i.position', 'ASC');
+
+        $result = $qb->getQuery()->getResult();
+        assert(is_array($result) && array_is_list($result));
+
+        /* @var list<MenuItem> $result */
+        return $result;
+    }
+
+    /**
      * Siblings of the given item (same parent), ordered by position.
      *
      * @return list<MenuItem>

@@ -1,8 +1,8 @@
-{% extends '@NowoDashboardMenuBundle/dashboard/layout.html.twig' %}
+{% extends nowo_dashboard_layout_template|default('@NowoDashboardMenuBundle/dashboard/layout.html.twig') %}
 
 {% block dashboard_title %}{{ 'dashboard.menu'|trans }}: {{ menu.code }}{% endblock %}
 
-{% block dashboard_body %}
+{% block content %}
     {% for msg in app.flashes('success') %}
         <div class="alert alert-success">{{ msg }}</div>
     {% endfor %}
@@ -16,6 +16,7 @@
             <h1 class="h3 d-inline">{% if menu.icon %}<span class="text-muted me-1" title="{{ menu.icon }}">🔣</span>{% endif %}{{ menu.code }}{% if menu.name %} <span class="text-muted">({{ menu.name }})</span>{% endif %}</h1>
         </div>
         <div>
+            <a href="{{ path(dashboard_routes.export_menu|default('nowo_dashboard_menu_dashboard_export_menu'), { id: menu.id }) }}" class="btn btn-outline-secondary">{{ 'dashboard.export'|trans }}</a>
             <button type="button" class="btn btn-outline-info btn-copy-menu" data-id="{{ menu.id }}" data-copy-url="{{ path(dashboard_routes.menu_copy|default('nowo_dashboard_menu_dashboard_menu_copy'), { id: menu.id }) }}?_partial=1" data-bs-toggle="modal" data-bs-target="#modal-menu-copy">{{ 'dashboard.copy'|trans }}</button>
             <button type="button" class="btn btn-outline-secondary btn-edit-menu" data-id="{{ menu.id }}" data-bs-toggle="modal" data-bs-target="#modal-menu-form">{{ 'dashboard.edit_menu'|trans }}</button>
             <button type="button" class="btn btn-primary btn-add-item" data-id="{{ menu.id }}" data-parent="" data-bs-toggle="modal" data-bs-target="#modal-item-form">{{ 'dashboard.add_item'|trans }}</button>

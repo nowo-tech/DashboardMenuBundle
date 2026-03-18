@@ -6,6 +6,7 @@ namespace Nowo\DashboardMenuBundle\Tests\DependencyInjection\Compiler;
 
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\AutoTagPermissionCheckersPass;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\PermissionCheckerPass;
+use Nowo\DashboardMenuBundle\Service\MenuPermissionCheckerInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -69,6 +70,33 @@ final class AutoTagPermissionCheckersPassTest extends TestCase
         self::assertFalse($container->getDefinition('app.other_service')->hasTag('nowo_dashboard_menu.permission_checker'));
     }
 
+    public function testProcessSkipsInstanceofAndAbstractAndSyntheticDefinitions(): void
+    {
+        $container = new ContainerBuilder();
+        $container->register('.instanceof.' . MenuPermissionCheckerInterface::class, StubCheckerWithConstant::class);
+        $container->register('.instanceof.foo', StubCheckerWithConstant::class);
+        $container->register('app.abstract', StubCheckerWithConstant::class)->setAbstract(true);
+        $container->register('app.synthetic', StubCheckerWithConstant::class)->setSynthetic(true);
+
+        $this->processAutoTag($container);
+
+        self::assertFalse($container->getDefinition('.instanceof.' . MenuPermissionCheckerInterface::class)->hasTag('nowo_dashboard_menu.permission_checker'));
+        self::assertFalse($container->getDefinition('.instanceof.foo')->hasTag('nowo_dashboard_menu.permission_checker'));
+        self::assertFalse($container->getDefinition('app.abstract')->hasTag('nowo_dashboard_menu.permission_checker'));
+        self::assertFalse($container->getDefinition('app.synthetic')->hasTag('nowo_dashboard_menu.permission_checker'));
+    }
+
+    public function testProcessFallsBackToServiceIdWhenConstantNotPublicAndAttributeEmpty(): void
+    {
+        $container = new ContainerBuilder();
+        $container->register('app.stub_fallback', StubCheckerFallbackLabel::class);
+
+        $this->processAutoTag($container);
+
+        $tags = $container->getDefinition('app.stub_fallback')->getTag('nowo_dashboard_menu.permission_checker');
+        self::assertSame('app.stub_fallback', $tags[0]['label'] ?? null);
+    }
+
     public function testAutoTagRunsBeforePermissionCheckerPassSoChoicesIncludeAutoTagged(): void
     {
         $container = new ContainerBuilder();
@@ -94,7 +122,6 @@ final class AutoTagPermissionCheckersPassTest extends TestCase
 
 use Nowo\DashboardMenuBundle\Attribute\PermissionCheckerLabel;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
-use Nowo\DashboardMenuBundle\Service\MenuPermissionCheckerInterface;
 
 class StubCheckerNoLabel implements MenuPermissionCheckerInterface
 {
@@ -126,4 +153,17 @@ class StubCheckerWithAttribute implements MenuPermissionCheckerInterface
 /** Class that does not implement MenuPermissionCheckerInterface (for testProcessSkipsServiceNotImplementingInterface). */
 class StubNotAChecker
 {
+}
+
+// Coverage: constant is not public and attribute label empty => fallback to service id.
+#[PermissionCheckerLabel('')]
+class StubCheckerFallbackLabel implements MenuPermissionCheckerInterface
+{
+    /** @phpstan-ignore classConstant.unused */
+    private const DASHBOARD_LABEL = 'private label';
+
+    public function canView(MenuItem $item, mixed $context = null): bool
+    {
+        return true;
+    }
 }

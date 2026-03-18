@@ -26,6 +26,8 @@ use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RouteCollection;
+use Symfony\Component\Routing\RouterInterface;
 
 final class MenuExtensionTest extends TestCase
 {
@@ -48,13 +50,21 @@ final class MenuExtensionTest extends TestCase
         self::assertSame('dashboard_menu_icon_name', $filters[0]->getName());
     }
 
+    public function testGetGlobalsReturnsDashboardLayoutTemplate(): void
+    {
+        $extension = $this->createExtension();
+        $globals   = $extension->getGlobals();
+        self::assertArrayHasKey('nowo_dashboard_layout_template', $globals);
+        self::assertSame('@NowoDashboardMenuBundle/dashboard/layout.html.twig', $globals['nowo_dashboard_layout_template']);
+    }
+
     public function testGetHrefDelegatesToUrlResolver(): void
     {
         $urlGenerator = $this->createStub(UrlGeneratorInterface::class);
         $urlGenerator->method('generate')->willReturn('/home');
         $requestStack = $this->createStub(RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn(null);
-        $urlResolver = new MenuUrlResolver($urlGenerator, $requestStack);
+        $urlResolver = $this->createMenuUrlResolver($urlGenerator, $requestStack);
 
         $item = new MenuItem();
         $item->setRouteName('app_home');
@@ -236,12 +246,12 @@ final class MenuExtensionTest extends TestCase
         $urlGenerator->method('generate')->willReturn('#');
         $reqStack = $this->createStub(RequestStack::class);
         $reqStack->method('getCurrentRequest')->willReturn(null);
-        $urlResolver ??= new MenuUrlResolver($urlGenerator, $reqStack);
+        $urlResolver ??= $this->createMenuUrlResolver($urlGenerator, $reqStack);
 
         $requestStack ??= new RequestStack();
         $urlGenForDecorator = $this->createStub(UrlGeneratorInterface::class);
         $urlGenForDecorator->method('generate')->willReturn('#');
-        $decorator      = new CurrentRouteTreeDecorator(new MenuUrlResolver($urlGenForDecorator, $reqStack));
+        $decorator      = new CurrentRouteTreeDecorator($this->createMenuUrlResolver($urlGenForDecorator, $reqStack));
         $localeResolver = new MenuLocaleResolver([]);
 
         $iconResolver = new MenuIconNameResolver([]);
@@ -255,10 +265,19 @@ final class MenuExtensionTest extends TestCase
             $decorator,
             $localeResolver,
             $iconResolver,
+            '@NowoDashboardMenuBundle/dashboard/layout.html.twig',
             $dataCollector,
             $menuQueryCounter,
             $connection,
         );
+    }
+
+    private function createMenuUrlResolver(UrlGeneratorInterface $urlGenerator, RequestStack $requestStack): MenuUrlResolver
+    {
+        $router = $this->createStub(RouterInterface::class);
+        $router->method('getRouteCollection')->willReturn(new RouteCollection());
+
+        return new MenuUrlResolver($urlGenerator, $requestStack, $router);
     }
 
     private function createMenuTreeLoader(MenuRepository $menuRepo, MenuItemRepository $itemRepo, MenuConfigResolver $config, ContainerInterface $container): MenuTreeLoader

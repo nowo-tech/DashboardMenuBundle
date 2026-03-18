@@ -10,6 +10,8 @@ use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
+use Nowo\DashboardMenuBundle\Service\MenuExporter;
+use Nowo\DashboardMenuBundle\Service\MenuImporter;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionProperty;
@@ -1086,12 +1088,59 @@ final class MenuDashboardControllerTest extends TestCase
         self::assertSame(302, $response->getStatusCode());
     }
 
+    public function testExportAllReturnsJsonStreamWithAttachmentHeaders(): void
+    {
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findAll')->willReturn([]);
+        $itemRepo   = $this->createStub(MenuItemRepository::class);
+        $em         = $this->createStub(EntityManagerInterface::class);
+        $router     = $this->createStub(RouterInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
+
+        $controller = $this->createController(
+            menuRepository: $menuRepo,
+            menuItemRepository: $itemRepo,
+            entityManager: $em,
+            router: $router,
+            translator: $translator,
+        );
+
+        $request  = Request::create('/dashboard/menu/export');
+        $response = $controller->exportAll($request);
+
+        self::assertSame('application/json', $response->headers->get('Content-Type'));
+        self::assertStringContainsString('attachment', (string) $response->headers->get('Content-Disposition'));
+    }
+
+    public function testExportMenuReturnsJsonStreamWithSafeFilename(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('weird code!');
+        $ref = new ReflectionProperty(Menu::class, 'id');
+        $ref->setValue($menu, 123);
+
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findOneById')->with(123)->willReturn($menu);
+        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo->method('findAllForMenuOrderedByTreeForExport')->with($menu)->willReturn([]);
+
+        $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
+
+        $request  = Request::create('/dashboard/menu/123/export');
+        $response = $controller->exportMenu($request, 123);
+
+        self::assertSame('application/json', $response->headers->get('Content-Type'));
+        self::assertStringContainsString('menu-weird_code_-export.json', (string) $response->headers->get('Content-Disposition'));
+    }
+
     private function createController(
         ?MenuRepository $menuRepository = null,
         ?MenuItemRepository $menuItemRepository = null,
         ?EntityManagerInterface $entityManager = null,
         ?RouterInterface $router = null,
         ?TranslatorInterface $translator = null,
+        ?MenuExporter $menuExporter = null,
+        ?MenuImporter $menuImporter = null,
         array $routeNameExcludePatterns = [],
         array $locales = [],
         bool $paginationEnabled = true,
@@ -1099,12 +1148,20 @@ final class MenuDashboardControllerTest extends TestCase
         array $modalSizes = [],
         ?string $iconSelectorScriptUrl = null,
     ): MenuDashboardController {
+        $menuRepo = $menuRepository ?? $this->createStub(MenuRepository::class);
+        $itemRepo = $menuItemRepository ?? $this->createStub(MenuItemRepository::class);
+        $em       = $entityManager ?? $this->createStub(EntityManagerInterface::class);
+        $exporter = $menuExporter ?? new MenuExporter($menuRepo, $itemRepo);
+        $importer = $menuImporter ?? new MenuImporter($menuRepo, $em);
+
         return new MenuDashboardController(
-            $menuRepository ?? $this->createStub(MenuRepository::class),
-            $menuItemRepository ?? $this->createStub(MenuItemRepository::class),
-            $entityManager ?? $this->createStub(EntityManagerInterface::class),
+            $menuRepo,
+            $itemRepo,
+            $em,
             $router ?? $this->createStub(RouterInterface::class),
             $translator ?? $this->createStub(TranslatorInterface::class),
+            $exporter,
+            $importer,
             $routeNameExcludePatterns,
             $locales,
             $paginationEnabled,

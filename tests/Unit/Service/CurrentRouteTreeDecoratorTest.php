@@ -11,6 +11,8 @@ use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RouteCollection;
+use Symfony\Component\Routing\RouterInterface;
 
 final class CurrentRouteTreeDecoratorTest extends TestCase
 {
@@ -53,7 +55,7 @@ final class CurrentRouteTreeDecoratorTest extends TestCase
             });
         $requestStack = $this->createMock(\Symfony\Component\HttpFoundation\RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn(null);
-        $urlResolver = new MenuUrlResolver($urlGenerator, $requestStack);
+        $urlResolver = $this->createMenuUrlResolver($urlGenerator, $requestStack);
 
         $decorator = new CurrentRouteTreeDecorator($urlResolver);
 
@@ -83,7 +85,7 @@ final class CurrentRouteTreeDecoratorTest extends TestCase
         $urlGenerator->method('generate')->willReturn('/page');
         $requestStack = $this->createMock(\Symfony\Component\HttpFoundation\RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn(null);
-        $urlResolver = new MenuUrlResolver($urlGenerator, $requestStack);
+        $urlResolver = $this->createMenuUrlResolver($urlGenerator, $requestStack);
         $decorator   = new CurrentRouteTreeDecorator($urlResolver);
 
         $ref    = new ReflectionClass(CurrentRouteTreeDecorator::class);
@@ -102,7 +104,7 @@ final class CurrentRouteTreeDecoratorTest extends TestCase
         $urlGenerator->method('generate')->willReturn('');
         $requestStack = $this->createMock(\Symfony\Component\HttpFoundation\RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn(null);
-        $urlResolver = new MenuUrlResolver($urlGenerator, $requestStack);
+        $urlResolver = $this->createMenuUrlResolver($urlGenerator, $requestStack);
         $decorator   = new CurrentRouteTreeDecorator($urlResolver);
 
         $ref    = new ReflectionClass(CurrentRouteTreeDecorator::class);
@@ -121,7 +123,7 @@ final class CurrentRouteTreeDecoratorTest extends TestCase
         $urlGenerator->method('generate')->willReturn('#');
         $requestStack = $this->createMock(\Symfony\Component\HttpFoundation\RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn(null);
-        $urlResolver = new MenuUrlResolver($urlGenerator, $requestStack);
+        $urlResolver = $this->createMenuUrlResolver($urlGenerator, $requestStack);
         $decorator   = new CurrentRouteTreeDecorator($urlResolver);
 
         $ref    = new ReflectionClass(CurrentRouteTreeDecorator::class);
@@ -136,7 +138,7 @@ final class CurrentRouteTreeDecoratorTest extends TestCase
         $urlGenerator->method('generate')->willReturn('#');
         $requestStack = $this->createMock(\Symfony\Component\HttpFoundation\RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn(null);
-        $urlResolver = new MenuUrlResolver($urlGenerator, $requestStack);
+        $urlResolver = $this->createMenuUrlResolver($urlGenerator, $requestStack);
         $decorator   = new CurrentRouteTreeDecorator($urlResolver);
 
         $ref    = new ReflectionClass(CurrentRouteTreeDecorator::class);
@@ -155,7 +157,7 @@ final class CurrentRouteTreeDecoratorTest extends TestCase
         $urlGenerator->method('generate')->willReturn('#');
         $requestStack = $this->createMock(\Symfony\Component\HttpFoundation\RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn(null);
-        $urlResolver = new MenuUrlResolver($urlGenerator, $requestStack);
+        $urlResolver = $this->createMenuUrlResolver($urlGenerator, $requestStack);
         $decorator   = new CurrentRouteTreeDecorator($urlResolver);
 
         $ref    = new ReflectionClass(CurrentRouteTreeDecorator::class);
@@ -178,7 +180,7 @@ final class CurrentRouteTreeDecoratorTest extends TestCase
         $urlGenerator->method('generate')->willReturn('#');
         $requestStack = $this->createMock(\Symfony\Component\HttpFoundation\RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn(null);
-        $urlResolver = new MenuUrlResolver($urlGenerator, $requestStack);
+        $urlResolver = $this->createMenuUrlResolver($urlGenerator, $requestStack);
         $decorator   = new CurrentRouteTreeDecorator($urlResolver);
 
         $ref    = new ReflectionClass(CurrentRouteTreeDecorator::class);
@@ -199,7 +201,7 @@ final class CurrentRouteTreeDecoratorTest extends TestCase
         $urlGenerator->method('generate')->willReturn('/page?foo=1');
         $requestStack = $this->createMock(\Symfony\Component\HttpFoundation\RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn(null);
-        $urlResolver = new MenuUrlResolver($urlGenerator, $requestStack);
+        $urlResolver = $this->createMenuUrlResolver($urlGenerator, $requestStack);
         $decorator   = new CurrentRouteTreeDecorator($urlResolver);
 
         $tree    = [['item' => $item, 'children' => []]];
@@ -222,7 +224,7 @@ final class CurrentRouteTreeDecoratorTest extends TestCase
         $urlGenerator->method('generate')->willReturn('/other-page');
         $requestStack = $this->createMock(\Symfony\Component\HttpFoundation\RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn(null);
-        $urlResolver = new MenuUrlResolver($urlGenerator, $requestStack);
+        $urlResolver = $this->createMenuUrlResolver($urlGenerator, $requestStack);
         $decorator   = new CurrentRouteTreeDecorator($urlResolver);
 
         $tree    = [['item' => $item, 'children' => []]];
@@ -242,7 +244,7 @@ final class CurrentRouteTreeDecoratorTest extends TestCase
         $urlGenerator->method('generate')->willReturn('/page?view=overview');
         $requestStack = $this->createMock(\Symfony\Component\HttpFoundation\RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn(null);
-        $urlResolver = new MenuUrlResolver($urlGenerator, $requestStack);
+        $urlResolver = $this->createMenuUrlResolver($urlGenerator, $requestStack);
         $decorator   = new CurrentRouteTreeDecorator($urlResolver);
 
         $tree    = [['item' => $item, 'children' => []]];
@@ -262,7 +264,7 @@ final class CurrentRouteTreeDecoratorTest extends TestCase
         $urlGenerator->method('generate')->willReturn('/page?view=overview');
         $requestStack = $this->createMock(\Symfony\Component\HttpFoundation\RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn(null);
-        $urlResolver = new MenuUrlResolver($urlGenerator, $requestStack);
+        $urlResolver = $this->createMenuUrlResolver($urlGenerator, $requestStack);
         $decorator   = new CurrentRouteTreeDecorator($urlResolver);
 
         $tree    = [['item' => $item, 'children' => []]];
@@ -285,7 +287,7 @@ final class CurrentRouteTreeDecoratorTest extends TestCase
         $urlGenerator->method('generate')->willReturn('/page');
         $requestStack = $this->createMock(\Symfony\Component\HttpFoundation\RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn(null);
-        $urlResolver = new MenuUrlResolver($urlGenerator, $requestStack);
+        $urlResolver = $this->createMenuUrlResolver($urlGenerator, $requestStack);
         $decorator   = new CurrentRouteTreeDecorator($urlResolver);
 
         $tree    = [['item' => $item, 'children' => []]];
@@ -305,7 +307,7 @@ final class CurrentRouteTreeDecoratorTest extends TestCase
         $urlGenerator->method('generate')->willReturn('/page?tags[]=a&tags[]=b');
         $requestStack = $this->createMock(\Symfony\Component\HttpFoundation\RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn(null);
-        $urlResolver = new MenuUrlResolver($urlGenerator, $requestStack);
+        $urlResolver = $this->createMenuUrlResolver($urlGenerator, $requestStack);
         $decorator   = new CurrentRouteTreeDecorator($urlResolver);
 
         $tree    = [['item' => $item, 'children' => []]];
@@ -325,7 +327,7 @@ final class CurrentRouteTreeDecoratorTest extends TestCase
         $urlGenerator->method('generate')->willReturn('/page?tags[]=a&tags[]=b');
         $requestStack = $this->createMock(\Symfony\Component\HttpFoundation\RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn(null);
-        $urlResolver = new MenuUrlResolver($urlGenerator, $requestStack);
+        $urlResolver = $this->createMenuUrlResolver($urlGenerator, $requestStack);
         $decorator   = new CurrentRouteTreeDecorator($urlResolver);
 
         $tree    = [['item' => $item, 'children' => []]];
@@ -345,7 +347,7 @@ final class CurrentRouteTreeDecoratorTest extends TestCase
         $urlGenerator->method('generate')->willReturn('/page?tags[]=a&tags[]=b');
         $requestStack = $this->createMock(\Symfony\Component\HttpFoundation\RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn(null);
-        $urlResolver = new MenuUrlResolver($urlGenerator, $requestStack);
+        $urlResolver = $this->createMenuUrlResolver($urlGenerator, $requestStack);
         $decorator   = new CurrentRouteTreeDecorator($urlResolver);
 
         $tree    = [['item' => $item, 'children' => []]];
@@ -361,7 +363,7 @@ final class CurrentRouteTreeDecoratorTest extends TestCase
         $urlGenerator->method('generate')->willReturn('#');
         $requestStack = $this->createMock(\Symfony\Component\HttpFoundation\RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn(null);
-        $urlResolver = new MenuUrlResolver($urlGenerator, $requestStack);
+        $urlResolver = $this->createMenuUrlResolver($urlGenerator, $requestStack);
         $decorator   = new CurrentRouteTreeDecorator($urlResolver);
 
         $ref    = new ReflectionClass(CurrentRouteTreeDecorator::class);
@@ -384,7 +386,7 @@ final class CurrentRouteTreeDecoratorTest extends TestCase
         $urlGenerator->method('generate')->willReturn('/page?tags[]=a&tags[]=b');
         $requestStack = $this->createMock(\Symfony\Component\HttpFoundation\RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn(null);
-        $urlResolver = new MenuUrlResolver($urlGenerator, $requestStack);
+        $urlResolver = $this->createMenuUrlResolver($urlGenerator, $requestStack);
         $decorator   = new CurrentRouteTreeDecorator($urlResolver);
 
         $ref    = new ReflectionClass(CurrentRouteTreeDecorator::class);
@@ -408,7 +410,7 @@ final class CurrentRouteTreeDecoratorTest extends TestCase
         $urlGenerator->method('generate')->willReturn('/page?tags[]=a&tags[]=b');
         $requestStack = $this->createMock(\Symfony\Component\HttpFoundation\RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn(null);
-        $urlResolver = new MenuUrlResolver($urlGenerator, $requestStack);
+        $urlResolver = $this->createMenuUrlResolver($urlGenerator, $requestStack);
         $decorator   = new CurrentRouteTreeDecorator($urlResolver);
 
         $ref    = new ReflectionClass(CurrentRouteTreeDecorator::class);
@@ -417,5 +419,13 @@ final class CurrentRouteTreeDecoratorTest extends TestCase
         $normalizedPath = '/page';
         $currentQuery   = ['tags' => ['a', 'c']];
         self::assertFalse($method->invoke($decorator, $item, $normalizedPath, $currentQuery));
+    }
+
+    private function createMenuUrlResolver(UrlGeneratorInterface $urlGenerator, \Symfony\Component\HttpFoundation\RequestStack $requestStack): MenuUrlResolver
+    {
+        $router = $this->createStub(RouterInterface::class);
+        $router->method('getRouteCollection')->willReturn(new RouteCollection());
+
+        return new MenuUrlResolver($urlGenerator, $requestStack, $router);
     }
 }

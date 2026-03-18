@@ -26,7 +26,7 @@
 - **Permissions**: `MenuPermissionCheckerInterface` — implement and tag to filter items per user/context
 - **Twig**: `dashboard_menu_tree(menuCode, permissionContext?, contextSets?)`, `dashboard_menu_href(item)`, `dashboard_menu_config(menuCode, contextSets?)`; include `@NowoDashboardMenuBundle/menu.html.twig`
 - **JSON API**: `GET /api/menu/{code}` for SPA consumption (optional `_locale`, `_context_sets` query params)
-- **Dashboard**: CRUD at `/admin/menus` (list, create, edit, copy menu, manage items)
+- **Dashboard**: CRUD at `/admin/menus` (list, create, edit, copy menu, manage items); export/import menus as JSON
 - **Performance**: Two SQL queries per menu (menu + items), optional PSR-6 cache (configurable TTL); labels by locale from JSON; tree built in PHP
 - **Dev**: Web Profiler panel “Dashboard menus” (menus on page, query count, configuration tab: connection, cache, locales, icon map, permission checkers)
 

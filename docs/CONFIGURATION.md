@@ -159,6 +159,7 @@ Options for the admin dashboard (list, create, edit, copy menus and manage items
 | Option                        | Default        | Description |
 |-------------------------------|----------------|-------------|
 | `enabled`                     | `false`        | Enable dashboard routes. Set to `true` in app config to use the admin UI. |
+| `layout_template`             | `@NowoDashboardMenuBundle/dashboard/layout.html.twig` | Twig template that dashboard views extend. Must define a `content` block. Override to use your app base layout (e.g. `base.html.twig`) so the dashboard matches your app shell. |
 | `path_prefix`                 | *(deprecated)* | **Deprecated.** Set the dashboard URL prefix in your app routing when importing `routes_dashboard.yaml` (e.g. in `config/routes.yaml` or the recipe’s `config/routes_nowo_dashboard_menu.yaml`). |
 | `route_name_exclude_patterns`  | `[]`           | Regex patterns to hide route names from the route selector (e.g. `['^_', '^web_profiler']`). |
 | `pagination.enabled`         | `true`         | Paginate the menus list. |
@@ -202,6 +203,7 @@ nowo_dashboard_menu:
         path_prefix: /api/menu
     dashboard:
         enabled: true
+        layout_template: '@NowoDashboardMenuBundle/dashboard/layout.html.twig'  # or e.g. base.html.twig
         # Prefix is set in config/routes.yaml when importing routes_dashboard.yaml (e.g. prefix: /admin/menus).
         route_name_exclude_patterns: ['^_', '^web_profiler']
         pagination:

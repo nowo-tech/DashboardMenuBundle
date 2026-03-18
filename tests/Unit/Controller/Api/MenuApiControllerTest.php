@@ -22,6 +22,9 @@ use ReflectionProperty;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RouterInterface;
+
+use function is_callable;
 
 final class MenuApiControllerTest extends TestCase
 {
@@ -32,11 +35,7 @@ final class MenuApiControllerTest extends TestCase
         $item   = $this->createItem('Home', 'app_home', 'link', null);
         $loader = $this->createLoaderWithTree([$item]);
 
-        $urlGenerator = $this->createStub(UrlGeneratorInterface::class);
-        $urlGenerator->method('generate')->willReturn('/');
-        $requestStack = $this->createStub(\Symfony\Component\HttpFoundation\RequestStack::class);
-        $requestStack->method('getCurrentRequest')->willReturn(null);
-        $urlResolver = new MenuUrlResolver($urlGenerator, $requestStack);
+        $urlResolver = $this->createMenuUrlResolver('/');
 
         $codeResolver = $this->createStub(MenuCodeResolverInterface::class);
         $codeResolver->method('resolveMenuCode')->willReturn('nav');
@@ -64,10 +63,7 @@ final class MenuApiControllerTest extends TestCase
         $request->setLocale('fr');
 
         $loader       = $this->createLoaderWithTree([]);
-        $urlGenerator = $this->createStub(UrlGeneratorInterface::class);
-        $requestStack = $this->createStub(\Symfony\Component\HttpFoundation\RequestStack::class);
-        $requestStack->method('getCurrentRequest')->willReturn(null);
-        $urlResolver  = new MenuUrlResolver($urlGenerator, $requestStack);
+        $urlResolver  = $this->createMenuUrlResolver('/');
         $codeResolver = $this->createStub(MenuCodeResolverInterface::class);
         $codeResolver->method('resolveMenuCode')->willReturn('nav');
         $localeResolver = new MenuLocaleResolver(['fr', 'en'], 'en');
@@ -86,10 +82,7 @@ final class MenuApiControllerTest extends TestCase
         ]);
 
         $loader       = $this->createLoaderWithTree([]);
-        $urlGenerator = $this->createStub(UrlGeneratorInterface::class);
-        $requestStack = $this->createStub(\Symfony\Component\HttpFoundation\RequestStack::class);
-        $requestStack->method('getCurrentRequest')->willReturn(null);
-        $urlResolver  = new MenuUrlResolver($urlGenerator, $requestStack);
+        $urlResolver  = $this->createMenuUrlResolver('/');
         $codeResolver = $this->createStub(MenuCodeResolverInterface::class);
         $codeResolver->method('resolveMenuCode')->willReturn('nav');
         $localeResolver = new MenuLocaleResolver(['en'], 'en');
@@ -105,10 +98,7 @@ final class MenuApiControllerTest extends TestCase
         $request = Request::create('/api/menu/nav', 'GET', ['_context_sets' => '']);
 
         $loader       = $this->createLoaderWithTree([]);
-        $urlGenerator = $this->createStub(UrlGeneratorInterface::class);
-        $requestStack = $this->createStub(\Symfony\Component\HttpFoundation\RequestStack::class);
-        $requestStack->method('getCurrentRequest')->willReturn(null);
-        $urlResolver  = new MenuUrlResolver($urlGenerator, $requestStack);
+        $urlResolver  = $this->createMenuUrlResolver('/');
         $codeResolver = $this->createStub(MenuCodeResolverInterface::class);
         $codeResolver->method('resolveMenuCode')->willReturn('nav');
         $localeResolver = new MenuLocaleResolver(['en'], 'en');
@@ -124,10 +114,7 @@ final class MenuApiControllerTest extends TestCase
         $request = Request::create('/api/menu/nav', 'GET', ['_context_sets' => 'not-json']);
 
         $loader       = $this->createLoaderWithTree([]);
-        $urlGenerator = $this->createStub(UrlGeneratorInterface::class);
-        $requestStack = $this->createStub(\Symfony\Component\HttpFoundation\RequestStack::class);
-        $requestStack->method('getCurrentRequest')->willReturn(null);
-        $urlResolver  = new MenuUrlResolver($urlGenerator, $requestStack);
+        $urlResolver  = $this->createMenuUrlResolver('/');
         $codeResolver = $this->createStub(MenuCodeResolverInterface::class);
         $codeResolver->method('resolveMenuCode')->willReturn('nav');
         $localeResolver = new MenuLocaleResolver(['en'], 'en');
@@ -145,10 +132,7 @@ final class MenuApiControllerTest extends TestCase
         ]);
 
         $loader       = $this->createLoaderWithTree([]);
-        $urlGenerator = $this->createStub(UrlGeneratorInterface::class);
-        $requestStack = $this->createStub(\Symfony\Component\HttpFoundation\RequestStack::class);
-        $requestStack->method('getCurrentRequest')->willReturn(null);
-        $urlResolver  = new MenuUrlResolver($urlGenerator, $requestStack);
+        $urlResolver  = $this->createMenuUrlResolver('/');
         $codeResolver = $this->createStub(MenuCodeResolverInterface::class);
         $codeResolver->method('resolveMenuCode')->willReturn('nav');
         $localeResolver = new MenuLocaleResolver(['en'], 'en');
@@ -168,11 +152,7 @@ final class MenuApiControllerTest extends TestCase
         $child->setParent($root);
         $loader = $this->createLoaderWithTree([$root, $child]);
 
-        $urlGenerator = $this->createStub(UrlGeneratorInterface::class);
-        $urlGenerator->method('generate')->willReturnCallback(static fn (string $route): string => $route === 'home' ? '/' : '/child');
-        $requestStack = $this->createStub(\Symfony\Component\HttpFoundation\RequestStack::class);
-        $requestStack->method('getCurrentRequest')->willReturn(null);
-        $urlResolver  = new MenuUrlResolver($urlGenerator, $requestStack);
+        $urlResolver  = $this->createMenuUrlResolver(static fn (string $r): string => $r === 'home' ? '/' : '/child');
         $codeResolver = $this->createStub(MenuCodeResolverInterface::class);
         $codeResolver->method('resolveMenuCode')->willReturn('nav');
         $localeResolver = new MenuLocaleResolver(['en'], 'en');
@@ -233,5 +213,17 @@ final class MenuApiControllerTest extends TestCase
         $ref->setValue($item, $id);
 
         return $item;
+    }
+
+    private function createMenuUrlResolver(string|callable $generateReturn = '/'): MenuUrlResolver
+    {
+        $urlGenerator = $this->createStub(UrlGeneratorInterface::class);
+        $urlGenerator->method('generate')->willReturnCallback(is_callable($generateReturn) ? $generateReturn : static fn (): string => $generateReturn);
+        $requestStack = $this->createStub(\Symfony\Component\HttpFoundation\RequestStack::class);
+        $requestStack->method('getCurrentRequest')->willReturn(null);
+        $router = $this->createStub(RouterInterface::class);
+        $router->method('getRouteCollection')->willReturn(new \Symfony\Component\Routing\RouteCollection());
+
+        return new MenuUrlResolver($urlGenerator, $requestStack, $router);
     }
 }

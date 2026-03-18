@@ -71,6 +71,18 @@ In the API, send the same list as the `_context_sets` query parameter (JSON-enco
 
 Query parameters: `_locale` overrides the request locale; `_context_sets` (JSON array of context objects) resolves which menu variant to use, same as in Twig.
 
+**Link URLs:** Menu hrefs are built from the item’s route name and params. If a route needs path parameters (e.g. `id`, `slug`) that are not set on the item, the bundle fills them from the current request’s route params when available, so links keep the same context (e.g. same entity id). On URL generation failure, an error is added to the flash bag.
+
+## Dashboard export and import
+
+From the dashboard (list of menus) you can:
+
+- **Export all menus** — downloads a single JSON file with every menu and its items (config + tree). Use for backup or moving menus between environments.
+- **Export one menu** — same structure for a single menu (e.g. `menu-{code}-export.json`).
+- **Import** — upload a JSON file produced by export. Choose strategy: **Skip existing** (do not overwrite menus that already exist for the same code+context) or **Replace** (replace items of existing menus). Errors (e.g. invalid format or missing `code`) are shown as flash messages.
+
+The JSON format is the same for one menu (`menu` + `items`) or multiple (`menus` array of `{ menu, items }`). Item trees and translations are preserved.
+
 ## Resolving menu by criteria (operatorId, partnerId, menu name)
 
 You can resolve which menu to show using custom criteria (e.g. first try operatorId + partnerId + menu name, then partnerId + menu name, then menu name). Implement `Nowo\DashboardMenuBundle\Service\MenuCodeResolverInterface` and set `nowo_dashboard_menu.menu_code_resolver` to your service id.

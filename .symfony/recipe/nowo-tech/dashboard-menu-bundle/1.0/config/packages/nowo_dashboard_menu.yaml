@@ -43,6 +43,10 @@ nowo_dashboard_menu:
 
     dashboard:
         enabled: false
+        # Layout that dashboard views extend. Must define block "content". Default: @NowoDashboardMenuBundle/dashboard/layout.html.twig
+        # layout_template: '@NowoDashboardMenuBundle/dashboard/layout.html.twig'
+        # layout_template: 'base.html.twig'   # e.g. use your app base
+
         # URL prefix is set in config/routes_nowo_dashboard_menu.yaml (import it from config/routes.yaml).
 
         # Regex patterns to hide routes from the "Route" selector when editing menu items.

@@ -82,6 +82,7 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
         $container->setParameter(Configuration::ALIAS . '.api.enabled', $config['api']['enabled']);
         $container->setParameter(Configuration::ALIAS . '.api.path_prefix', $config['api']['path_prefix']);
         $container->setParameter(Configuration::ALIAS . '.dashboard.enabled', $config['dashboard']['enabled'] ?? false);
+        $container->setParameter(Configuration::ALIAS . '.dashboard.layout_template', $config['dashboard']['layout_template'] ?? '@NowoDashboardMenuBundle/dashboard/layout.html.twig');
         $container->setParameter(Configuration::ALIAS . '.dashboard.path_prefix', $config['dashboard']['path_prefix'] ?? '/admin/menus');
         $container->setParameter(Configuration::ALIAS . '.dashboard.route_name_exclude_patterns', $config['dashboard']['route_name_exclude_patterns'] ?? []);
         $container->setParameter(Configuration::ALIAS . '.dashboard.pagination.enabled', $config['dashboard']['pagination']['enabled'] ?? true);

@@ -19,17 +19,19 @@ use Nowo\DashboardMenuBundle\Service\MenuUrlResolver;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Extension\AbstractExtension;
+use Twig\Extension\GlobalsInterface;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 
 /**
  * Twig extension: dashboard_menu_tree(menuCode, permissionContext?, contextSets?), dashboard_menu_href(item), dashboard_menu_config(menuCode, contextSets?).
  * contextSets: ordered list of JSON key-value objects to try when resolving menu (code + context); use null/[] for no context.
+ * Global nowo_dashboard_layout_template: layout template that dashboard views extend (from nowo_dashboard_menu.dashboard.layout_template).
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
  */
-final class MenuExtension extends AbstractExtension
+final class MenuExtension extends AbstractExtension implements GlobalsInterface
 {
     public function __construct(
         private readonly MenuTreeLoader $menuTreeLoader,
@@ -40,10 +42,18 @@ final class MenuExtension extends AbstractExtension
         private readonly CurrentRouteTreeDecorator $currentRouteTreeDecorator,
         private readonly MenuLocaleResolver $localeResolver,
         private readonly MenuIconNameResolver $menuIconNameResolver,
+        private readonly string $dashboardLayoutTemplate,
         private readonly ?DashboardMenuDataCollector $dataCollector = null,
         private readonly ?MenuQueryCounter $menuQueryCounter = null,
         private readonly ?Connection $connection = null,
     ) {
+    }
+
+    public function getGlobals(): array
+    {
+        return [
+            'nowo_dashboard_layout_template' => $this->dashboardLayoutTemplate,
+        ];
     }
 
     /**

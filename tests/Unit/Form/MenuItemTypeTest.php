@@ -74,6 +74,59 @@ final class MenuItemTypeTest extends TestCase
         self::assertSame(\Symfony\Component\Form\Extension\Core\Type\TextType::class, $iconCall['type']);
     }
 
+    public function testBuildFormUsesIconSelectorTypeWhenClassExists(): void
+    {
+        if (!class_exists('Nowo\\IconSelectorBundle\\Form\\IconSelectorType')) {
+            eval(<<<'PHP'
+namespace Nowo\IconSelectorBundle\Form;
+final class IconSelectorType
+{
+    public const MODE_TOM_SELECT = 'tom_select';
+}
+PHP);
+        }
+
+        $repo     = $this->createStub(MenuItemRepository::class);
+        $addCalls = [];
+        $builder  = $this->createFormBuilderMock($addCalls, null);
+        $type     = new MenuItemType($repo, 'en', []);
+
+        $type->buildForm($builder, [
+            'app_routes'        => [],
+            'available_locales' => [],
+            'menu'              => null,
+            'exclude_ids'       => [],
+            'locale'            => 'en',
+        ]);
+
+        $iconCall = $this->findAddCall($addCalls, 'icon');
+        self::assertNotNull($iconCall);
+        self::assertSame('Nowo\\IconSelectorBundle\\Form\\IconSelectorType', $iconCall['type']);
+    }
+
+    public function testBuildFormUsesTranslatorForPlaceholdersWhenProvided(): void
+    {
+        $repo = $this->createStub(MenuItemRepository::class);
+        $t    = $this->createStub(TranslatorInterface::class);
+        $t->method('trans')->willReturnCallback(static fn (string $id): string => 't:' . $id);
+
+        $addCalls = [];
+        $builder  = $this->createFormBuilderMock($addCalls, null);
+        $type     = new MenuItemType($repo, 'en', [], $t);
+
+        $type->buildForm($builder, [
+            'app_routes'        => [],
+            'available_locales' => [],
+            'menu'              => null,
+            'exclude_ids'       => [],
+            'locale'            => 'en',
+        ]);
+
+        $routeNameRaw = $this->findAddCallRaw($addCalls, 'routeName');
+        $placeholder  = $routeNameRaw['options']['placeholder'] ?? null;
+        self::assertSame('t:form.menu_item_type.route_name.placeholder', $placeholder);
+    }
+
     public function testBuildFormWithMenuAddsParentField(): void
     {
         $menu = new Menu();

@@ -2,6 +2,10 @@
 
 This document describes breaking changes and upgrade notes between versions.
 
+## From 0.3.3 to 0.3.4
+
+No breaking changes. New: dashboard **export/import** (JSON), config **`dashboard.layout_template`** to choose the Twig layout dashboard views extend (default unchanged), and **MenuUrlResolver** now fills missing route path params from the current request and adds a flash message on URL generation failure. Dashboard content block is now `content` (was `dashboard_body`); if you override the bundle’s dashboard layout template, ensure it defines `{% block content %}`.
+
 ## From 0.3.2 to 0.3.3
 
 No breaking changes. Permission checkers are now **auto-tagged**: any service implementing `MenuPermissionCheckerInterface` is included in the dashboard dropdown without adding the tag in `services.yaml`. Optionally set the label via the class constant `DASHBOARD_LABEL` or the attribute `#[PermissionCheckerLabel('...')]`. You can remove the manual tag from your checker service and, if you use service discovery (e.g. `App\Service\`: `resource: '../src/Service/'`), you do not need to register the checker explicitly.

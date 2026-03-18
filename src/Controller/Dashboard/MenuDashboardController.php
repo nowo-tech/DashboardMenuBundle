@@ -8,21 +8,32 @@ use Doctrine\ORM\EntityManagerInterface;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Form\CopyMenuType;
+use Nowo\DashboardMenuBundle\Form\ImportMenuType;
 use Nowo\DashboardMenuBundle\Form\MenuItemType;
 use Nowo\DashboardMenuBundle\Form\MenuType;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
+use Nowo\DashboardMenuBundle\Service\MenuExporter;
+use Nowo\DashboardMenuBundle\Service\MenuImporter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function count;
+use function is_array;
+use function is_string;
+use function json_encode;
 
+use const JSON_PRETTY_PRINT;
+use const JSON_THROW_ON_ERROR;
+use const JSON_UNESCAPED_UNICODE;
 use const SORT_NATURAL;
 
 /**
@@ -48,9 +59,12 @@ final class MenuDashboardController extends AbstractController
     public const ROUTE_ITEM_DELETE    = 'nowo_dashboard_menu_dashboard_item_delete';
     public const ROUTE_ITEM_MOVE_UP   = 'nowo_dashboard_menu_dashboard_item_move_up';
     public const ROUTE_ITEM_MOVE_DOWN = 'nowo_dashboard_menu_dashboard_item_move_down';
+    public const ROUTE_EXPORT_MENU    = 'nowo_dashboard_menu_dashboard_export_menu';
+    public const ROUTE_EXPORT_ALL     = 'nowo_dashboard_menu_dashboard_export_all';
+    public const ROUTE_IMPORT         = 'nowo_dashboard_menu_dashboard_import';
 
     /**
-     * @return array{index: string, show: string, menu_new: string, menu_edit: string, menu_delete: string, menu_copy: string, item_new: string, item_edit: string, item_delete: string, item_move_up: string, item_move_down: string}
+     * @return array<string, string>
      */
     private function getDashboardRoutes(): array
     {
@@ -66,6 +80,9 @@ final class MenuDashboardController extends AbstractController
             'item_delete'    => self::ROUTE_ITEM_DELETE,
             'item_move_up'   => self::ROUTE_ITEM_MOVE_UP,
             'item_move_down' => self::ROUTE_ITEM_MOVE_DOWN,
+            'export_menu'    => self::ROUTE_EXPORT_MENU,
+            'export_all'     => self::ROUTE_EXPORT_ALL,
+            'import'         => self::ROUTE_IMPORT,
         ];
     }
 
@@ -81,6 +98,8 @@ final class MenuDashboardController extends AbstractController
         private readonly EntityManagerInterface $entityManager,
         private readonly RouterInterface $router,
         private readonly TranslatorInterface $translator,
+        private readonly MenuExporter $menuExporter,
+        private readonly MenuImporter $menuImporter,
         private readonly array $routeNameExcludePatterns = [],
         private readonly array $locales = [],
         private readonly bool $paginationEnabled = true,
@@ -423,6 +442,84 @@ final class MenuDashboardController extends AbstractController
         $this->addFlash('success', 'Menu deleted.');
 
         return $this->redirectToRoute(self::ROUTE_INDEX);
+    }
+
+    #[Route(path: '/export', name: 'export_all', methods: ['GET'])]
+    public function exportAll(Request $request): StreamedResponse
+    {
+        $data = $this->menuExporter->exportAll();
+        $json = json_encode($data, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+
+        $response = new StreamedResponse(static function () use ($json): void {
+            echo $json;
+        });
+        $response->headers->set('Content-Type', 'application/json');
+        $response->headers->set('Content-Disposition', 'attachment; filename="dashboard-menus-export.json"');
+
+        return $response;
+    }
+
+    #[Route(path: '/{id}/export', name: 'export_menu', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function exportMenu(Request $request, int $id): StreamedResponse|Response
+    {
+        $menu = $this->menuRepository->findOneById($id);
+        if (!$menu instanceof Menu) {
+            throw $this->createNotFoundException('Menu not found.');
+        }
+        $data = $this->menuExporter->exportMenu($menu);
+        $json = json_encode($data, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+
+        $safeCode = preg_replace('/[^a-zA-Z0-9_-]/', '_', $menu->getCode());
+        $filename = 'menu-' . $safeCode . '-export.json';
+
+        $response = new StreamedResponse(static function () use ($json): void {
+            echo $json;
+        });
+        $response->headers->set('Content-Type', 'application/json');
+        $response->headers->set('Content-Disposition', 'attachment; filename="' . $filename . '"');
+
+        return $response;
+    }
+
+    #[Route(path: '/import', name: 'import', methods: ['GET', 'POST'])]
+    public function import(Request $request): Response
+    {
+        $form = $this->createForm(ImportMenuType::class, null, [
+            'action' => $this->generateUrl(self::ROUTE_IMPORT),
+        ]);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+            $file = $data['file'] ?? null;
+            if ($file instanceof UploadedFile) {
+                $content = $file->getContent();
+                $decoded = json_decode($content, true);
+                if (!is_array($decoded)) {
+                    $this->addFlash('error', $this->translator->trans('dashboard.import_json_invalid'));
+                } else {
+                    $strategy = is_string($data['strategy'] ?? '') ? $data['strategy'] : MenuImporter::STRATEGY_SKIP_EXISTING;
+                    $result   = $this->menuImporter->import($decoded, $strategy);
+                    foreach ($result['errors'] as $err) {
+                        $this->addFlash('error', $err);
+                    }
+                    if ($result['errors'] === []) {
+                        $msg = $this->translator->trans('dashboard.import_done', [
+                            '%created%' => $result['created'],
+                            '%updated%' => $result['updated'],
+                            '%skipped%' => $result['skipped'],
+                        ]);
+                        $this->addFlash('success', $msg);
+                    }
+
+                    return $this->redirectToRoute(self::ROUTE_INDEX);
+                }
+            }
+        }
+
+        return $this->render('@NowoDashboardMenuBundle/dashboard/import.html.twig', [
+            'form'             => $form,
+            'dashboard_routes' => $this->getDashboardRoutes(),
+        ]);
     }
 
     #[Route(path: '/{id}/copy', name: 'menu_copy', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]

@@ -1,0 +1,112 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Nowo\DashboardMenuBundle\Tests\Service;
+
+use Nowo\DashboardMenuBundle\Entity\Menu;
+use Nowo\DashboardMenuBundle\Entity\MenuItem;
+use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
+use Nowo\DashboardMenuBundle\Repository\MenuRepository;
+use Nowo\DashboardMenuBundle\Service\MenuExporter;
+use PHPUnit\Framework\TestCase;
+use ReflectionProperty;
+
+final class MenuExporterTest extends TestCase
+{
+    public function testExportMenuReturnsMenuConfigAndEmptyItemsWhenNoItems(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('sidebar');
+        $menu->setName('Main sidebar');
+
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo->method('findAllForMenuOrderedByTreeForExport')->with($menu)->willReturn([]);
+
+        $exporter = new MenuExporter($menuRepo, $itemRepo);
+        $data     = $exporter->exportMenu($menu);
+
+        self::assertArrayHasKey('menu', $data);
+        self::assertArrayHasKey('items', $data);
+        self::assertSame('sidebar', $data['menu']['code']);
+        self::assertSame('Main sidebar', $data['menu']['name']);
+        self::assertSame([], $data['items']);
+    }
+
+    public function testExportMenuIncludesItemTree(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('nav');
+        $item = new MenuItem();
+        $item->setMenu($menu);
+        $item->setLabel('Home');
+        $item->setRouteName('app_home');
+        $item->setPosition(0);
+
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo->method('findAllForMenuOrderedByTreeForExport')->with($menu)->willReturn([$item]);
+
+        $exporter = new MenuExporter($menuRepo, $itemRepo);
+        $data     = $exporter->exportMenu($menu);
+
+        self::assertCount(1, $data['items']);
+        self::assertSame('Home', $data['items'][0]['label']);
+        self::assertSame('app_home', $data['items'][0]['routeName']);
+        self::assertSame(0, $data['items'][0]['position']);
+    }
+
+    public function testExportMenuIncludesChildrenKeyWhenChildrenNotEmpty(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('tree');
+
+        $root = new MenuItem();
+        $root->setMenu($menu);
+        $root->setLabel('Root');
+        $root->setPosition(0);
+
+        $child = new MenuItem();
+        $child->setMenu($menu);
+        $child->setParent($root);
+        $child->setLabel('Child');
+        $child->setPosition(0);
+
+        // Ensure parent has an id so exporter can link children by parent id.
+        $ref = new ReflectionProperty(MenuItem::class, 'id');
+        $ref->setValue($root, 10);
+        $ref->setValue($child, 11);
+
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo->method('findAllForMenuOrderedByTreeForExport')->with($menu)->willReturn([$root, $child]);
+
+        $exporter = new MenuExporter($menuRepo, $itemRepo);
+        $data     = $exporter->exportMenu($menu);
+
+        self::assertCount(1, $data['items']);
+        self::assertArrayHasKey('children', $data['items'][0]);
+        self::assertCount(1, $data['items'][0]['children']);
+        self::assertSame('Child', $data['items'][0]['children'][0]['label']);
+    }
+
+    public function testExportAllReturnsMenusKeyWithArray(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('foo');
+
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findAll')->willReturn([$menu]);
+        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo->method('findAllForMenuOrderedByTreeForExport')->willReturn([]);
+
+        $exporter = new MenuExporter($menuRepo, $itemRepo);
+        $data     = $exporter->exportAll();
+
+        self::assertArrayHasKey('menus', $data);
+        self::assertIsArray($data['menus']);
+        self::assertCount(1, $data['menus']);
+        self::assertSame('foo', $data['menus'][0]['menu']['code']);
+    }
+}
