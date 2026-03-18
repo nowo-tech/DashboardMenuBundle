@@ -32,15 +32,15 @@ final class TwigPathsPass implements CompilerPassInterface
 
     private function getNativeLoaderServiceId(ContainerBuilder $container): ?string
     {
-        if ($container->hasDefinition('twig.loader.native_filesystem')) {
-            return 'twig.loader.native_filesystem';
-        }
         if ($container->hasAlias('twig.loader.native')) {
             $alias = $container->getAlias('twig.loader.native');
             return (string) $alias;
         }
         if ($container->hasDefinition('twig.loader.native')) {
             return 'twig.loader.native';
+        }
+        if ($container->hasDefinition('twig.loader.native_filesystem')) {
+            return 'twig.loader.native_filesystem';
         }
 
         return null;

@@ -28,6 +28,10 @@ use function is_array;
 /**
  * Loads bundle configuration and services.
  *
+ * Twig views are not registered here (no prepend). They are added at the end of the
+ * native loader by TwigPathsPass so that app overrides in templates/bundles/NowoDashboardMenuBundle/
+ * are consulted first.
+ *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
  */
