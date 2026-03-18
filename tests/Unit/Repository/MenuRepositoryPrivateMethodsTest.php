@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\Tests\Repository;
 
-use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
 final class MenuRepositoryPrivateMethodsTest extends TestCase
 {
@@ -28,11 +29,10 @@ final class MenuRepositoryPrivateMethodsTest extends TestCase
             ->getMock();
         $conn->method('getDatabasePlatform')->willReturn(new PostgreSQLPlatform());
 
-        $ref = new \ReflectionClass($repo);
+        $ref = new ReflectionClass($repo);
         $m   = $ref->getMethod('quoteTableName');
         $m->setAccessible(true);
 
         self::assertSame('"dashboard_menu"', $m->invoke($repo, $conn, 'dashboard_menu'));
     }
 }
-
