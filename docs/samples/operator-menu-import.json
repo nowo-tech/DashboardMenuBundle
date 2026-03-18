@@ -1,0 +1,509 @@
+{
+  "menu": {
+    "code": "operator",
+    "name": "Operator",
+    "classMenu": "navigation navigation-main",
+    "classItem": "nav-item",
+    "classLink": "d-flex align-items-center",
+    "classChildren": "menu-content",
+    "classCurrent": "active",
+    "classHasChildren": "has-sub",
+    "classExpanded": "open",
+    "classCollapsed": "closed",
+    "classBranchExpanded": "open",
+    "nestedCollapsible": true
+  },
+  "items": [
+    {
+      "label": "app.operator.dashboard.index",
+      "icon": "trello",
+      "itemType": "section",
+      "children": [
+        {
+          "label": "app.operator.marketing.general.control_panel.index",
+          "icon": "activity",
+          "linkType": "route",
+          "routeName": "app.operator.marketing.general.control_panel.index",
+          "routeParams": {},
+          "permissionKey": "app.marketing.control_panel.view",
+          "itemType": "link"
+        },
+        {
+          "label": "app.operator.kpis.global.index",
+          "icon": "activity",
+          "linkType": "route",
+          "routeName": "app.operator.kpis.global.index",
+          "routeParams": {},
+          "permissionKey": "app.kpi.view",
+          "itemType": "link"
+        },
+        {
+          "label": "app.operator.kpis.protect.index",
+          "icon": "activity",
+          "linkType": "route",
+          "routeName": "app.operator.kpis.protect.index",
+          "routeParams": {},
+          "permissionKey": "app.kpi.view",
+          "itemType": "link"
+        },
+        {
+          "label": "app.operator.kpis.insurances.index",
+          "icon": "activity",
+          "linkType": "route",
+          "routeName": "app.operator.kpis.insurances.index",
+          "routeParams": {},
+          "permissionKey": "app.kpi.view",
+          "itemType": "link"
+        },
+        {
+          "label": "app.operator.kpis.performance",
+          "icon": "activity",
+          "linkType": "route",
+          "routeName": "app.operator.kpis.performance",
+          "routeParams": {},
+          "permissionKey": "app.kpi.view",
+          "itemType": "link"
+        },
+        {
+          "label": "app.operator.kpis.goals",
+          "icon": "activity",
+          "linkType": "route",
+          "routeName": "app.operator.kpis.goals",
+          "routeParams": {},
+          "permissionKey": "app.kpi.view",
+          "itemType": "link"
+        }
+      ]
+    },
+    {
+      "label": "app.operator.insurance.index",
+      "itemType": "section"
+    },
+    {
+      "label": "app.operator.quote.index",
+      "icon": "trello",
+      "itemType": "section",
+      "children": [
+        {
+          "label": "app.operator.quote.index",
+          "icon": "trello",
+          "linkType": "route",
+          "routeName": "app.operator.quote.index",
+          "routeParams": {},
+          "permissionKey": "app.quote.list",
+          "itemType": "link"
+        },
+        {
+          "label": "app.operator.contract.offer.index",
+          "icon": "pen-tool",
+          "linkType": "route",
+          "routeName": "app.operator.contract.offer.index",
+          "routeParams": {},
+          "permissionKey": "app.offer.contract.list",
+          "itemType": "link"
+        },
+        {
+          "label": "app.operator.contract.export.exported",
+          "icon": "pen-tool",
+          "linkType": "route",
+          "routeName": "app.operator.contract.export.exported",
+          "routeParams": {},
+          "permissionKey": "app.offer.contract.list",
+          "itemType": "link"
+        }
+      ]
+    },
+    {
+      "label": "app.operator.policy.index",
+      "icon": "shield",
+      "linkType": "route",
+      "routeName": "app.operator.policy.index",
+      "routeParams": {},
+      "permissionKey": "app.policy.list",
+      "itemType": "link"
+    },
+    {
+      "label": "app.operator.receipt.index",
+      "icon": "trello",
+      "itemType": "section",
+      "children": [
+        {
+          "label": "app.operator.receipt.index",
+          "icon": "file-text",
+          "linkType": "route",
+          "routeName": "app.operator.receipt.index",
+          "routeParams": {},
+          "permissionKey": "app.receipt.list",
+          "itemType": "link"
+        },
+        {
+          "label": "app.operator.receipt.collection.index",
+          "icon": "file-text",
+          "linkType": "route",
+          "routeName": "app.operator.receipt.collection.index",
+          "routeParams": {},
+          "permissionKey": "app.receipt.collect",
+          "itemType": "link"
+        },
+        {
+          "label": "app.operator.receipt.bank_remittance.index",
+          "icon": "file-text",
+          "linkType": "route",
+          "routeName": "app.operator.receipt.bank_remittance.index",
+          "routeParams": {},
+          "permissionKey": "app.receipt.bank_remittance",
+          "itemType": "link"
+        },
+        {
+          "label": "app.operator.receipt.refund.bank_remittance.index",
+          "icon": "file-text",
+          "linkType": "route",
+          "routeName": "app.operator.receipt.refund.bank_remittance.index",
+          "routeParams": {},
+          "permissionKey": "app.receipt.bank_remittance",
+          "itemType": "link"
+        }
+      ]
+    },
+    {
+      "label": "app.operator.risk.index",
+      "icon": "triangle",
+      "linkType": "route",
+      "routeName": "app.operator.risk.index",
+      "routeParams": {},
+      "permissionKey": "app.risk.list",
+      "itemType": "link"
+    },
+    {
+      "label": "app.operator.claim.index",
+      "icon": "zap",
+      "itemType": "section",
+      "children": [
+        {
+          "label": "app.operator.claim.index",
+          "icon": "zap",
+          "linkType": "route",
+          "routeName": "app.operator.claim.index",
+          "routeParams": {},
+          "permissionKey": "app.claim.list",
+          "itemType": "link"
+        },
+        {
+          "label": "app.operator.claim.bank_remittance.index",
+          "icon": "file-text",
+          "linkType": "route",
+          "routeName": "app.operator.claim.bank_remittance.index",
+          "routeParams": {},
+          "permissionKey": "app.claim.bank_remittance",
+          "itemType": "link"
+        },
+        {
+          "label": "app.operator.claim.bill.index",
+          "icon": "file-text",
+          "linkType": "route",
+          "routeName": "app.operator.claim.bill.index",
+          "routeParams": {},
+          "itemType": "link"
+        }
+      ]
+    },
+    {
+      "label": "app.operator.general.index",
+      "itemType": "section"
+    },
+    {
+      "label": "app.operator.customer.index.menu",
+      "icon": "user-check",
+      "linkType": "route",
+      "routeName": "app.operator.customer.index",
+      "routeParams": {},
+      "permissionKey": "app.customer.list",
+      "itemType": "link"
+    },
+    {
+      "label": "app.operator.contract.customer.index",
+      "icon": "folder",
+      "linkType": "route",
+      "routeName": "app.operator.contract.customer.index",
+      "routeParams": {},
+      "permissionKey": "app.customer.contract.list",
+      "itemType": "link"
+    },
+    {
+      "label": "app.operator.marketing.index",
+      "itemType": "section"
+    },
+    {
+      "label": "app.operator.marketing.general.flow.index",
+      "icon": "list",
+      "linkType": "route",
+      "routeName": "app.operator.marketing.general.flow.index",
+      "routeParams": {},
+      "permissionKey": "app.marketing.flow.list",
+      "itemType": "link"
+    },
+    {
+      "label": "app.operator.marketing.general.email.index",
+      "icon": "send",
+      "linkType": "route",
+      "routeName": "app.operator.marketing.general.email.index",
+      "routeParams": {},
+      "permissionKey": "app.marketing.email.list",
+      "itemType": "link"
+    },
+    {
+      "label": "app.operator.marketing.general.sms.index",
+      "icon": "smartphone",
+      "linkType": "route",
+      "routeName": "app.operator.marketing.general.sms.index",
+      "routeParams": {},
+      "permissionKey": "app.marketing.sms.list",
+      "itemType": "link"
+    },
+    {
+      "label": "app.operator.marketing.general.action.index",
+      "icon": "smile",
+      "linkType": "route",
+      "routeName": "app.operator.marketing.general.action.index",
+      "routeParams": {},
+      "permissionKey": "app.marketing.user_action.list",
+      "itemType": "link"
+    },
+    {
+      "label": "app.operator.administration.index",
+      "itemType": "section"
+    },
+    {
+      "label": "app.operator.partner.index",
+      "icon": "key",
+      "linkType": "route",
+      "routeName": "app.operator.partner.management.mastered_partner.index",
+      "routeParams": {},
+      "permissionKey": "app.partner.list",
+      "itemType": "link"
+    },
+    {
+      "label": "app.operator.operator.index",
+      "icon": "user",
+      "linkType": "route",
+      "routeName": "app.operator.partner.management.operator.index",
+      "routeParams": {},
+      "permissionKey": "app.operator.list",
+      "itemType": "link"
+    },
+    {
+      "label": "app.operator.intervener.holders.index",
+      "icon": "users",
+      "linkType": "route",
+      "routeName": "app.operator.partner.management.intervener.list.holder",
+      "routeParams": {},
+      "permissionKey": "app.intervener.list",
+      "itemType": "link"
+    },
+    {
+      "label": "app.operator.intervener.brokers.index",
+      "icon": "users",
+      "linkType": "route",
+      "routeName": "app.operator.partner.management.intervener.list.broker",
+      "routeParams": {},
+      "permissionKey": "app.intervener.list",
+      "itemType": "link"
+    },
+    {
+      "label": "app.operator.intervener.collaborators.index",
+      "icon": "users",
+      "linkType": "route",
+      "routeName": "app.operator.partner.management.intervener.list.collaborator",
+      "routeParams": {},
+      "permissionKey": "app.intervener.list",
+      "itemType": "link"
+    },
+    {
+      "label": "app.operator.intervener.index",
+      "icon": "users",
+      "itemType": "section",
+      "children": [
+        {
+          "label": "app.operator.intervener.others.index",
+          "linkType": "route",
+          "routeName": "app.operator.partner.management.intervener.list.other",
+          "routeParams": {},
+          "itemType": "link"
+        },
+        {
+          "label": "app.operator.intervener.agency",
+          "linkType": "route",
+          "routeName": "app.operator.partner.management.intervener.agency",
+          "routeParams": {},
+          "itemType": "link"
+        },
+        {
+          "label": "app.operator.intervener_settlement.index",
+          "linkType": "route",
+          "routeName": "app.operator.partner.management.intervener_settlement.index",
+          "routeParams": {},
+          "permissionKey": "app.intervener_settlement.list",
+          "itemType": "link"
+        },
+        {
+          "label": "app.operator.partner.management.intervener_settlement.bank_remittance.index",
+          "linkType": "route",
+          "routeName": "app.operator.partner.management.intervener_settlement.bank_remittance.index",
+          "routeParams": {},
+          "permissionKey": "app.intervener_settlement.list",
+          "itemType": "link"
+        },
+        {
+          "label": "app.operator.partner.management.intervener_settlement.refund.bank_remittance.index",
+          "linkType": "route",
+          "routeName": "app.operator.partner.management.intervener_settlement.refund.bank_remittance.index",
+          "routeParams": {},
+          "permissionKey": "app.intervener_settlement.list",
+          "itemType": "link"
+        }
+      ]
+    },
+    {
+      "label": "app.operator.company_settlement.index",
+      "icon": "briefcase",
+      "linkType": "route",
+      "routeName": "app.operator.partner.management.company_settlement.index",
+      "routeParams": {},
+      "itemType": "link"
+    },
+    {
+      "label": "app.operator.authorised_users.index",
+      "icon": "user-check",
+      "linkType": "route",
+      "routeName": "app.operator.partner.management.user.index",
+      "routeParams": {},
+      "permissionKey": "app.partner.authorised.list",
+      "itemType": "link"
+    },
+    {
+      "label": "app.operator.quoter.index",
+      "icon": "shopping-cart",
+      "linkType": "route",
+      "routeName": "app.operator.partner.management.quoter.index",
+      "routeParams": {},
+      "permissionKey": "app.product.list",
+      "itemType": "link"
+    },
+    {
+      "label": "app.operator.discount.index",
+      "icon": "tag",
+      "linkType": "route",
+      "routeName": "app.operator.partner.management.discount.index",
+      "routeParams": {},
+      "permissionKey": "app.discount.list",
+      "itemType": "link"
+    },
+    {
+      "label": "app.operator.payment_transaction.index",
+      "icon": "credit-card",
+      "linkType": "route",
+      "routeName": "app.operator.partner.management.payment_transaction.index",
+      "routeParams": {},
+      "permissionKey": "app.payment_transaction.list",
+      "itemType": "link"
+    },
+    {
+      "label": "app.operator.goal.index",
+      "icon": "activity",
+      "linkType": "route",
+      "routeName": "app.operator.partner.management.goal.index",
+      "routeParams": {},
+      "permissionKey": "app.operator_goal.create",
+      "itemType": "link"
+    },
+    {
+      "label": "app.operator.configuration.index",
+      "itemType": "section"
+    },
+    {
+      "label": "app.operator.main_information.edit",
+      "icon": "home",
+      "linkType": "route",
+      "routeName": "app.operator.partner.configuration.edit",
+      "routeParams": {},
+      "permissionKey": "app.partner.edit",
+      "itemType": "link"
+    },
+    {
+      "label": "app.operator.partner.configuration.configuration.edit",
+      "icon": "globe",
+      "linkType": "route",
+      "routeName": "app.operator.partner.configuration.configuration.edit",
+      "routeParams": {},
+      "permissionKey": "app.partner.edit.configuration",
+      "itemType": "link"
+    },
+    {
+      "label": "app.operator.widget.index",
+      "icon": "code",
+      "linkType": "route",
+      "routeName": "app.operator.partner.configuration.widget.index",
+      "routeParams": {},
+      "permissionKey": "app.partner.edit.configuration",
+      "itemType": "link"
+    },
+    {
+      "label": "app.operator.external_service_configuration.index",
+      "icon": "server",
+      "linkType": "route",
+      "routeName": "app.operator.partner.configuration.external_service.index",
+      "routeParams": {},
+      "permissionKey": "app.partner.edit.configuration",
+      "itemType": "link"
+    },
+    {
+      "label": "app.operator.templates.index",
+      "icon": "pen-tool",
+      "linkType": "route",
+      "routeName": "app.operator.partner.configuration.template.email.index",
+      "routeParams": {},
+      "permissionKey": "app.partner.edit.configuration",
+      "itemType": "link"
+    },
+    {
+      "label": "app.operator.pipeline.index",
+      "icon": "git-commit",
+      "linkType": "route",
+      "routeName": "app.operator.partner.configuration.pipeline.index",
+      "routeParams": {},
+      "permissionKey": "app.partner.edit.pipeline",
+      "itemType": "link"
+    },
+    {
+      "label": "app.operator.partner.configuration.notification.edit",
+      "icon": "mail",
+      "linkType": "route",
+      "routeName": "app.operator.partner.configuration.notification.edit",
+      "routeParams": {},
+      "permissionKey": "app.partner.edit",
+      "itemType": "link"
+    },
+    {
+      "label": "app.operator.kpi.index",
+      "icon": "activity",
+      "linkType": "route",
+      "routeName": "app.operator.partner.configuration.kpi.index",
+      "routeParams": {},
+      "permissionKey": "app.kpi.create",
+      "itemType": "link"
+    },
+    {
+      "label": "app.operator.developer.index",
+      "itemType": "section"
+    },
+    {
+      "label": "app.operator.documentation.api_doc.swagger_ui",
+      "icon": "book",
+      "linkType": "route",
+      "routeName": "app.operator.documentation.api_doc.swagger_ui",
+      "routeParams": {},
+      "permissionKey": "app.developer.api_partner",
+      "itemType": "link"
+    }
+  ]
+}
