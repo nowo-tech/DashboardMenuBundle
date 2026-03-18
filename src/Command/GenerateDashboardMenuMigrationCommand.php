@@ -16,7 +16,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 
-use function array_merge;
 use function sprintf;
 
 use const DIRECTORY_SEPARATOR;
@@ -116,7 +115,7 @@ PHP;
                 $alterSql = [];
                 $table    = $sm->introspectTable($menuTable);
                 if (!$table->hasColumn('class_section_label')) {
-                    $quoted = $platform->quoteSingleIdentifier($menuTable);
+                    $quoted     = $platform->quoteSingleIdentifier($menuTable);
                     $alterSql[] = sprintf('ALTER TABLE %s ADD class_section_label VARCHAR(512) DEFAULT NULL', $quoted);
                 }
                 // Only output ALTER statements for update mode.
