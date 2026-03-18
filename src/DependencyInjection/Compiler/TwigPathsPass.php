@@ -34,6 +34,7 @@ final class TwigPathsPass implements CompilerPassInterface
     {
         if ($container->hasAlias('twig.loader.native')) {
             $alias = $container->getAlias('twig.loader.native');
+
             return (string) $alias;
         }
         if ($container->hasDefinition('twig.loader.native')) {
