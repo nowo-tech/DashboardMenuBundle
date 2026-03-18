@@ -63,8 +63,8 @@ final class MenuItemType extends AbstractType
                     'form.menu_item_type.type.section' => MenuItem::ITEM_TYPE_SECTION,
                     'form.menu_item_type.type.divider' => MenuItem::ITEM_TYPE_DIVIDER,
                 ],
-                'label' => 'form.menu_item_type.type.label',
-                'attr'  => ['class' => 'form-select'],
+                'label'        => 'form.menu_item_type.type.label',
+                'attr'         => ['class' => 'form-select'],
                 'autocomplete' => true,
             ])
             ->add('position', IntegerType::class, [
@@ -77,8 +77,8 @@ final class MenuItemType extends AbstractType
                     'form.menu_item_type.link_type.route'        => MenuItem::LINK_TYPE_ROUTE,
                     'form.menu_item_type.link_type.external_url' => MenuItem::LINK_TYPE_EXTERNAL,
                 ],
-                'label' => 'form.menu_item_type.link_type.label',
-                'attr'  => ['class' => 'form-select'],
+                'label'        => 'form.menu_item_type.link_type.label',
+                'attr'         => ['class' => 'form-select'],
                 'autocomplete' => true,
             ])
             ->add('routeName', ChoiceType::class, [
