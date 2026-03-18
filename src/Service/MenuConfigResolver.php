@@ -75,11 +75,11 @@ final readonly class MenuConfigResolver
                 'use_ux_icons' => false,
                 'default'      => null,
             ],
-            'collapsible'          => $entity?->getCollapsible() ?? false,
-            'collapsible_expanded' => $entity?->getCollapsibleExpanded() ?? true,
-            'nested_collapsible'   => $entity?->getNestedCollapsible() ?? false,
+            'collapsible'                 => $entity?->getCollapsible() ?? false,
+            'collapsible_expanded'        => $entity?->getCollapsibleExpanded() ?? true,
+            'nested_collapsible'          => $entity?->getNestedCollapsible() ?? false,
             'nested_collapsible_sections' => $entity?->getNestedCollapsibleSections() ?? true,
-            'context'              => $entity?->getContext() ?? [],
+            'context'                     => $entity?->getContext() ?? [],
         ];
     }
 

@@ -122,16 +122,16 @@ final class MenuImporterTest extends TestCase
         $importer = new MenuImporter($menuRepo, $em);
         $result   = $importer->import([
             'menu' => [
-                'code'                => 'nav',
-                'name'                => 'New name',
-                'context'             => null,
-                'icon'                => '',
-                'classMenu'           => 'm',
-                'classSectionLabel'   => 'section-label',
-                'depthLimit'          => '2',
-                'collapsible'         => 1,
-                'collapsibleExpanded' => 0,
-                'nestedCollapsible'   => true,
+                'code'                      => 'nav',
+                'name'                      => 'New name',
+                'context'                   => null,
+                'icon'                      => '',
+                'classMenu'                 => 'm',
+                'classSectionLabel'         => 'section-label',
+                'depthLimit'                => '2',
+                'collapsible'               => 1,
+                'collapsibleExpanded'       => 0,
+                'nestedCollapsible'         => true,
                 'nestedCollapsibleSections' => false,
             ],
             'items' => [[
