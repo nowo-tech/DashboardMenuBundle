@@ -119,6 +119,17 @@ final class AutoTagPermissionCheckersPassTest extends TestCase
         self::assertSame('app.stub_empty_only', $tags[0]['label'] ?? null);
     }
 
+    public function testProcessFallsBackToServiceIdWhenConstantIsNotStringAndNoAttribute(): void
+    {
+        $container = new ContainerBuilder();
+        $container->register('app.stub_non_string', StubCheckerNonStringConstant::class);
+
+        $this->processAutoTag($container);
+
+        $tags = $container->getDefinition('app.stub_non_string')->getTag('nowo_dashboard_menu.permission_checker');
+        self::assertSame('app.stub_non_string', $tags[0]['label'] ?? null);
+    }
+
     public function testAutoTagRunsBeforePermissionCheckerPassSoChoicesIncludeAutoTagged(): void
     {
         $container = new ContainerBuilder();
@@ -206,6 +217,17 @@ class StubCheckerEmptyConstantWithAttribute implements MenuPermissionCheckerInte
 class StubCheckerEmptyConstantOnly implements MenuPermissionCheckerInterface
 {
     public const DASHBOARD_LABEL = '';
+
+    public function canView(MenuItem $item, mixed $context = null): bool
+    {
+        return true;
+    }
+}
+
+// Coverage: public constant is not a string => ignored, fallback to service id.
+class StubCheckerNonStringConstant implements MenuPermissionCheckerInterface
+{
+    public const DASHBOARD_LABEL = 123;
 
     public function canView(MenuItem $item, mixed $context = null): bool
     {

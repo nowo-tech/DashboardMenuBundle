@@ -13,6 +13,22 @@ use PHPUnit\Framework\TestCase;
 
 final class MenuImporterTest extends TestCase
 {
+    public function testStringOrNullCastsNonEmptyScalarToString(): void
+    {
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $em       = $this->createStub(EntityManagerInterface::class);
+
+        $importer = new MenuImporter($menuRepo, $em);
+
+        $ref = new \ReflectionClass($importer);
+        $m   = $ref->getMethod('stringOrNull');
+        $m->setAccessible(true);
+
+        self::assertSame('42', $m->invoke($importer, 42));
+        self::assertNull($m->invoke($importer, ''));
+        self::assertNull($m->invoke($importer, null));
+    }
+
     public function testImportInvalidFormatAddsError(): void
     {
         $menuRepo = $this->createStub(MenuRepository::class);
