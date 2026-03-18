@@ -12,6 +12,10 @@ This document describes breaking changes and upgrade notes between versions.
 
 No breaking changes. The bundle registers the Twig namespace `@NowoDashboardMenuBundle` in a way that keeps the standard override behaviour: templates in your app under `templates/bundles/NowoDashboardMenuBundle/` take precedence.
 
+## From 0.3.9 to 0.3.10
+
+No breaking changes. Unit tests were updated after replacing `RegisterTwigNamespacePass` with `TwigPathsPass`.
+
 ## From 0.3.8 to 0.3.9
 
 No breaking changes. The bundle now registers its Twig views via the compiler pass `TwigPathsPass` (replacing `RegisterTwigNamespacePass`). Application overrides in `templates/bundles/NowoDashboardMenuBundle/` continue to take precedence.
