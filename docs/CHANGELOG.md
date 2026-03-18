@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Config:** `dashboard.path_prefix` is deprecated. Set the dashboard URL prefix in your app routing when importing `@NowoDashboardMenuBundle/Resources/config/routes_dashboard.yaml` (e.g. in `config/routes.yaml` or the recipe’s `config/routes_nowo_dashboard_menu.yaml`). The Flex recipe now adds `config/routes_nowo_dashboard_menu.yaml`; import it from `config/routes.yaml` to enable the dashboard under `/admin/menus`.
 
+## [0.3.8] - 2026-03-18
+
+### Changed
+
+- **Dashboard:** Export links (“Export” on menu show, “Export all” on index) now open in a new tab (`target="_blank"` with `rel="noopener noreferrer"`).
+
 ## [0.3.7] - 2026-03-18
 
 ### Added
@@ -178,7 +184,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.7...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.8...HEAD
+[0.3.8]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.7...v0.3.8
 [0.3.7]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.6...v0.3.7
 [0.3.6]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.5...v0.3.6
 [0.3.5]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.4...v0.3.5

@@ -12,6 +12,10 @@ This document describes breaking changes and upgrade notes between versions.
 
 No breaking changes. The bundle registers the Twig namespace `@NowoDashboardMenuBundle` in a way that keeps the standard override behaviour: templates in your app under `templates/bundles/NowoDashboardMenuBundle/` take precedence.
 
+## From 0.3.7 to 0.3.8
+
+No breaking changes. Dashboard export links (export one menu and “Export all”) now open in a new browser tab.
+
 ## From 0.3.6 to 0.3.7
 
 No breaking changes. New optional security options for sensitive environments:
