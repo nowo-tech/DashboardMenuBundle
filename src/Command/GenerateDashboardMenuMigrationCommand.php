@@ -110,8 +110,9 @@ PHP;
         if ((bool) $input->getOption('update')) {
             $conn     = $this->em->getConnection();
             $platform = $conn->getDatabasePlatform();
-            $sm       = method_exists($conn, 'createSchemaManager') ? $conn->createSchemaManager() : null;
-            if ($sm !== null && $sm->tablesExist([$menuTable])) {
+            /** @phpstan-ignore function.alreadyNarrowedType (DBAL 2.x has no createSchemaManager) */
+            $sm = method_exists($conn, 'createSchemaManager') ? $conn->createSchemaManager() : null;
+            if ($sm instanceof \Doctrine\DBAL\Schema\AbstractSchemaManager && $sm->tablesExist([$menuTable])) {
                 $alterSql = [];
                 $table    = $sm->introspectTable($menuTable);
                 if (!$table->hasColumn('class_section_label')) {

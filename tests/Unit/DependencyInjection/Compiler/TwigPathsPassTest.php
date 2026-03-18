@@ -54,7 +54,7 @@ final class TwigPathsPassTest extends TestCase
 
         $calls = $loaderDef->getMethodCalls();
         self::assertNotEmpty($calls);
-        $addPathCalls = array_filter($calls, static fn ($c) => $c[0] === 'addPath' && ($c[1][1] ?? '') === 'NowoDashboardMenuBundle');
+        $addPathCalls = array_filter($calls, static fn (array $c): bool => $c[0] === 'addPath' && ($c[1][1] ?? '') === 'NowoDashboardMenuBundle');
         self::assertCount(1, $addPathCalls);
     }
 

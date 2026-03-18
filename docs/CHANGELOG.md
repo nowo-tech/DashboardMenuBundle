@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.14] - 2026-03-16
+
+_(No notable changes yet.)_
+
+## [0.3.13] - 2026-03-18
+
+### Added
+
+- **Menu option:** `nestedCollapsibleSections` — when disabled, section-type items do not show a collapse toggle and their children are always visible even if `nested_collapsible` is enabled. Configurable per menu in the dashboard form and in import JSON.
+- **Dependency:** `symfony/mime` (required) for the `File` validator used in the import form.
+
+### Changed
+
+- **Export/import:** Menu export and import now include `classSectionLabel` and `nestedCollapsibleSections`. Sample `docs/samples/operator-menu-import.json` updated with full label translations (en, es, fr), `heroicons-outline:*` icon format, and `nestedCollapsibleSections`.
+- **Import form:** `ImportMenuType` constraints (`NotBlank`, `File`) use named arguments for Symfony 7/8 compatibility.
+- **Docs:** UPGRADING sections reordered from newest to oldest.
+
 ### Deprecated
 
 - **Config:** `dashboard.path_prefix` is deprecated. Set the dashboard URL prefix in your app routing when importing `@NowoDashboardMenuBundle/Resources/config/routes_dashboard.yaml` (e.g. in `config/routes.yaml` or the recipe’s `config/routes_nowo_dashboard_menu.yaml`). The Flex recipe now adds `config/routes_nowo_dashboard_menu.yaml`; import it from `config/routes.yaml` to enable the dashboard under `/admin/menus`.
@@ -219,7 +236,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.12...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.14...HEAD
+[0.3.14]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.13...v0.3.14
+[0.3.13]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.12...v0.3.13
 [0.3.12]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.11...v0.3.12
 [0.3.11]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.10...v0.3.11
 [0.3.10]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.9...v0.3.10

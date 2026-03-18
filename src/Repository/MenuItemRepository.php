@@ -140,7 +140,6 @@ class MenuItemRepository extends ServiceEntityRepository
             ->groupBy('i.menu');
 
         $rows = $qb->getQuery()->getArrayResult();
-        assert(is_array($rows));
 
         $out = [];
         foreach ($rows as $row) {
