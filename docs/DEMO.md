@@ -36,7 +36,7 @@ make -C symfony8 install
 # or: make -C symfony8 setup
 ```
 
-Each demo’s `install` (or `setup`) will run `composer install`, create the database, load schema and fixtures (menus and menu items). After that you can:
+Each demo’s `install` (or `setup`) will run `composer install`, create the database, run migrations and load fixtures (menus and menu items). After that you can:
 
 - Open the home page to see the rendered menus (sidebar, context resolution examples).
 - Open `/admin/menus` to use the dashboard (list, create, edit, copy menu, manage items).

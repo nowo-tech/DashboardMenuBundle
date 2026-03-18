@@ -24,6 +24,13 @@ No breaking changes.
 - The dashboard menu items table is more responsive (actions moved left, up/down stacked).
 - New required dependency: `symfony/ux-autocomplete`.
 
+## From 0.3.11 to 0.3.12
+
+No breaking changes.
+
+- Demos now rely on Doctrine Migrations (instead of schema update) and ship a single “create tables” migration matching the current schema.
+- The migration generator command supports `--update` to create ALTER migrations for existing installations.
+
 ## From 0.3.8 to 0.3.9
 
 No breaking changes. The bundle now registers its Twig views via the compiler pass `TwigPathsPass` (replacing `RegisterTwigNamespacePass`). Application overrides in `templates/bundles/NowoDashboardMenuBundle/` continue to take precedence.
