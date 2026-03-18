@@ -51,8 +51,8 @@ use Doctrine\Migrations\AbstractMigration;
  * After generating this file, run migrations:
  *   php bin/console doctrine:migrations:migrate
  *
- * If you use a non-default connection, run:
- *   php bin/console doctrine:migrations:migrate --conn=%s
+ * If you use a non-default connection, run (replace CONNECTION):
+ *   php bin/console doctrine:migrations:migrate --conn=CONNECTION
  */
 final class Version%s_CreateDashboardMenuTablesByConfiguration extends AbstractMigration
 {
