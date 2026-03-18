@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Config:** `dashboard.path_prefix` is deprecated. Set the dashboard URL prefix in your app routing when importing `@NowoDashboardMenuBundle/Resources/config/routes_dashboard.yaml` (e.g. in `config/routes.yaml` or the recipe’s `config/routes_nowo_dashboard_menu.yaml`). The Flex recipe now adds `config/routes_nowo_dashboard_menu.yaml`; import it from `config/routes.yaml` to enable the dashboard under `/admin/menus`.
 
+## [0.3.9] - 2026-03-19
+
+### Changed
+
+- **Internal:** Twig view path registration now uses compiler pass `TwigPathsPass` (replacing `RegisterTwigNamespacePass`). The bundle’s views path is added at the end of the native loader so that application overrides in `templates/bundles/NowoDashboardMenuBundle/` are always consulted first; no behaviour change for users.
+
 ## [0.3.8] - 2026-03-18
 
 ### Changed
@@ -184,7 +190,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.8...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.9...HEAD
+[0.3.9]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.8...v0.3.9
 [0.3.8]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.7...v0.3.8
 [0.3.7]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.6...v0.3.7
 [0.3.6]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.5...v0.3.6
