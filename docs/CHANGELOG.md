@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.17] - 2026-03-19
+
+### Added
+
+- **UX Autocomplete detection:** new Twig global `nowo_dashboard_ux_autocomplete_available` computed from the presence of `Symfony\UX\Autocomplete\AutocompleteBundle`. Dashboard item form templates apply the autocomplete form theme only when it is available.
+- **CSRF consistency:** dashboard menu item forms set `csrf_token_id` to `submit` (controller + LiveComponent) to keep CSRF behaviour aligned across Symfony versions.
+
+### Changed
+
+- **MenuDashboardController:** when creating a child item, uses `_query` to include `parent` id in the generated URL.
+- **Templates:** wrap `{% form_theme '@SymfonyUXAutocomplete/autocomplete_form_theme.html.twig' %}` in the new availability guard in:
+  - `dashboard/_item_form_partial.html.twig`
+  - `dashboard/item_form.html.twig`
+  - `components/ItemFormLiveComponent.html.twig`
+
+### Fixed
+
+- Avoid warnings/errors when the Symfony UX Autocomplete bundle is not installed.
+- Demo Symfony 7: enable sessions and CSRF support (`framework.csrf_protection.enabled`, `framework.session: true`) and enable `framework.property_info` for older Symfony configs.
+
 ## [0.3.16] - 2026-03-20
 
 ### Added
@@ -267,7 +287,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.16...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.17...HEAD
+[0.3.17]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.16...v0.3.17
 [0.3.16]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.15...v0.3.16
 [0.3.15]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.14...v0.3.15
 [0.3.14]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.13...v0.3.14

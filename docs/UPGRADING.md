@@ -2,6 +2,14 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 0.3.16 to 0.3.17
+
+No breaking changes.
+
+- **CSRF:** dashboard item forms explicitly set `csrf_token_id` to `submit` to keep CSRF consistent across Symfony versions (controller + LiveComponent).
+- **Dashboard templates:** autocomplete form theme is applied only when `Symfony\UX\Autocomplete` is available; overrides of `_item_form_partial.html.twig`, `item_form.html.twig` or `components/ItemFormLiveComponent.html.twig` should keep the same conditional if you rely on autocomplete.
+- **Demo Symfony 7:** sessions + CSRF and `framework.property_info` are enabled to avoid config option errors on older Symfony versions.
+
 ## From 0.3.15 to 0.3.16
 
 No breaking changes.
