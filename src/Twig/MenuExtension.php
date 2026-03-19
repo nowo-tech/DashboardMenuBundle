@@ -53,7 +53,7 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
     public function getGlobals(): array
     {
         return [
-            'nowo_dashboard_layout_template'   => $this->dashboardLayoutTemplate,
+            'nowo_dashboard_layout_template'           => $this->dashboardLayoutTemplate,
             'nowo_dashboard_ux_autocomplete_available' => $this->uxAutocompleteAvailable,
         ];
     }

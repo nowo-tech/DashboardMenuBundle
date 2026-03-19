@@ -22,6 +22,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
+use Throwable;
 
 use function array_key_exists;
 use function is_array;
@@ -64,9 +65,9 @@ final class DashboardMenuExtension extends Extension
         if (class_exists(\Symfony\UX\Autocomplete\AutocompleteBundle::class)) {
             try {
                 /** @var array<string, mixed> $bundles */
-                $bundles = $container->getParameter('kernel.bundles');
+                $bundles                 = $container->getParameter('kernel.bundles');
                 $uxAutocompleteAvailable = is_array($bundles) && array_key_exists(\Symfony\UX\Autocomplete\AutocompleteBundle::class, $bundles);
-            } catch (\Throwable) {
+            } catch (Throwable) {
                 $uxAutocompleteAvailable = false;
             }
         }
