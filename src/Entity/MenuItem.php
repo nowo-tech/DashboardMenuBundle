@@ -112,10 +112,10 @@ class MenuItem implements TranslatableInterface
     private ?string $icon = null;
 
     /**
-     * Display type: "link" (default), "section" (label only), "divider" (horizontal rule).
+     * Display type: "link" (default), "section" (label only), "divider" (horizontal rule). Nullable for form/import.
      */
-    #[ORM\Column(type: Types::STRING, length: 20, options: ['default' => 'link'])]
-    private string $itemType = self::ITEM_TYPE_LINK;
+    #[ORM\Column(type: Types::STRING, length: 20, nullable: true, options: ['default' => 'link'])]
+    private ?string $itemType = self::ITEM_TYPE_LINK;
 
     /**
      * When true, the link opens in a new tab (target="_blank" with rel="noopener noreferrer").
@@ -299,10 +299,10 @@ class MenuItem implements TranslatableInterface
 
     public function getItemType(): string
     {
-        return $this->itemType;
+        return $this->itemType ?? self::ITEM_TYPE_LINK;
     }
 
-    public function setItemType(string $itemType): self
+    public function setItemType(?string $itemType): self
     {
         $this->itemType = $itemType;
 

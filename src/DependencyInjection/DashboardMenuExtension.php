@@ -139,6 +139,7 @@ final class DashboardMenuExtension extends Extension
         $rateLimitInterval = is_array($rateLimitConfig) ? ($rateLimitConfig['interval'] ?? 60) : 60;
         $container->setParameter(Configuration::ALIAS . '.dashboard.import_export_rate_limit_limit', $rateLimitLimit);
         $container->setParameter(Configuration::ALIAS . '.dashboard.import_export_rate_limit_interval', $rateLimitInterval);
+        $container->setParameter(Configuration::ALIAS . '.dashboard.permission_key_choices', $config['dashboard']['permission_key_choices'] ?? []);
         $cacheConfig = $config['cache'] ?? ['ttl' => 60, 'pool' => 'cache.app'];
         $container->setParameter(Configuration::ALIAS . '.cache.ttl', $cacheConfig['ttl'] ?? 60);
         $container->setParameter(Configuration::ALIAS . '.cache.pool', $cacheConfig['pool'] ?? 'cache.app');

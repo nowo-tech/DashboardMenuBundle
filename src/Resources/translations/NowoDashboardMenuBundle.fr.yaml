@@ -28,6 +28,7 @@ dashboard:
   new_item: Nouvel élément
   add_one: En ajouter un
   add_child: Ajouter un enfant
+  add_child_disabled: "Les éléments section et séparateur ne peuvent pas avoir d'enfants"
   search: Rechercher
   search_placeholder: "Rechercher par code ou nom…"
   clear: Effacer
@@ -172,6 +173,11 @@ form:
       label: Ouvrir dans un nouvel onglet
     permission_key:
       label: Clé de permission
+      placeholder: "— Tout autoriser —"
+      choice:
+        authenticated: "Authentifié uniquement"
+        admin: "Admin uniquement"
+        path__: "Chemin : / (accueil uniquement)"
     icon:
       label: Icône
       placeholder: "heroicons:home"

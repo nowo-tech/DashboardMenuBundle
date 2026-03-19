@@ -3,6 +3,7 @@
 {% block dashboard_title %}{{ (is_edit ? 'dashboard.edit_item' : 'dashboard.new_item')|trans({}, 'NowoDashboardMenuBundle') }}{% endblock %}
 
 {% block nowo_dashboard_menu_content %}
+    {% form_theme form '@SymfonyUXAutocomplete/autocomplete_form_theme.html.twig' %}
     {% for msg in app.flashes('error') %}
         <div class="alert alert-danger">{{ msg }}</div>
     {% endfor %}
@@ -19,9 +20,9 @@
                     {{ 'form.menu_item_type.section_basic'|trans({}, 'NowoDashboardMenuBundle') }}
                 </h6>
                 <div class="col-md-6 mb-3">{{ form_row(form.basic.itemType) }}</div>
+                <div class="col-md-6 mb-3">{{ form_row(form.basic.icon) }}</div>
                 <div id="item_basic_label_icon_fields" class="mb-3">
                     {{ form_row(form.basic.label) }}
-                    {{ form_row(form.basic.icon) }}
                     {% if locales is defined and locales is not empty %}
                         {% for locale in locales %}
                             {% set fieldName = 'label_' ~ locale %}

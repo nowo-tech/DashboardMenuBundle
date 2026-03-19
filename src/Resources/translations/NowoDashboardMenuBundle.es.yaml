@@ -28,6 +28,7 @@ dashboard:
   new_item: Nuevo ítem
   add_one: Añadir uno
   add_child: Añadir hijo
+  add_child_disabled: "Los ítems tipo sección y divisor no pueden tener hijos"
   search: Buscar
   search_placeholder: "Buscar por código o nombre…"
   clear: Limpiar
@@ -180,6 +181,11 @@ form:
       label: Abrir en nueva pestaña
     permission_key:
       label: Clave de permiso
+      placeholder: "— Permitir todos —"
+      choice:
+        authenticated: "Solo autenticados"
+        admin: "Solo admin"
+        path__: "Ruta: / (solo inicio)"
     icon:
       label: Icono
       placeholder: "heroicons:home"

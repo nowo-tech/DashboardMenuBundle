@@ -4,6 +4,7 @@ help:
 	@echo "Dashboard Menu Bundle Demo - Symfony 7"
 	@echo "  ensure-up, up, down, restart, build, shell, install, setup, clean, logs, update-bundle, test, test-coverage, ts-assets, verify, cache-clear, migrations-status, migrate"
 
+# If assets/ is root-owned (e.g. after Docker): sudo chown -R $$(whoami) assets && make ts-assets
 ts-assets:
 	@sh scripts/create-ts-assets.sh
 

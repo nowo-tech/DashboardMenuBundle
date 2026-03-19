@@ -749,6 +749,10 @@ final class MenuDashboardController extends AbstractController
         $appRoutes     = $this->getAppRoutes();
         $locale        = $request->getLocale();
         $redirectToUrl = $this->generateUrl(self::ROUTE_SHOW, ['id' => $id]);
+        $parent        = $item->getParent();
+        $actionUrl     = $parent !== null && $parent->getId() !== null
+            ? $this->generateUrl(self::ROUTE_ITEM_NEW, ['id' => $id], ['query' => ['parent' => $parent->getId()]])
+            : $this->generateUrl(self::ROUTE_ITEM_NEW, ['id' => $id]);
 
         if ($request->query->get('_partial')) {
             if ($this->itemFormLiveComponentEnabled) {
@@ -760,7 +764,7 @@ final class MenuDashboardController extends AbstractController
                     'locale'            => $locale,
                     'is_edit'           => false,
                     'item_has_children' => false,
-                    'action_url'        => $this->generateUrl(self::ROUTE_ITEM_NEW, ['id' => $id]),
+                    'action_url'        => $actionUrl,
                     'redirect_to_url'   => $redirectToUrl,
                     'locales'           => $this->locales,
                     'section_focus'     => 'basic',
@@ -772,7 +776,7 @@ final class MenuDashboardController extends AbstractController
                 'exclude_ids'       => [],
                 'locale'            => $locale,
                 'available_locales' => $this->locales,
-                'action'            => $this->generateUrl(self::ROUTE_ITEM_NEW, ['id' => $id]),
+                'action'            => $actionUrl,
                 'section'           => 'basic',
             ]);
 
@@ -793,7 +797,7 @@ final class MenuDashboardController extends AbstractController
             'exclude_ids'       => [],
             'locale'            => $locale,
             'available_locales' => $this->locales,
-            'action'            => $this->generateUrl(self::ROUTE_ITEM_NEW, ['id' => $id]),
+            'action'            => $actionUrl,
             'section'           => 'basic',
         ]);
         $form->handleRequest($request);

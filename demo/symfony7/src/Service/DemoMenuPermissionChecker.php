@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use Nowo\DashboardMenuBundle\Attribute\PermissionCheckerLabel;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Service\MenuPermissionCheckerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -24,11 +26,13 @@ use Symfony\Component\HttpFoundation\Request;
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
  */
+#[PermissionCheckerLabel('By user/role and path (operator)')]
 final class DemoMenuPermissionChecker implements MenuPermissionCheckerInterface
 {
     public const DASHBOARD_LABEL = 'Demo (user, path, permission key)';
 
     public function __construct(
+        #[Autowire(service: 'security.helper')]
         private readonly Security $security,
     ) {
     }

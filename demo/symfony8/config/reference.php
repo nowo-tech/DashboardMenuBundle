@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 // This file is auto-generated and is for apps only. Bundles SHOULD NOT rely on its content.
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
@@ -1325,6 +1323,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             limit?: int|Param, // Default: 10
  *             interval?: int|Param, // Time window in seconds. // Default: 60
  *         },
+ *         permission_key_choices?: list<scalar|Param|null>,
  *         css_class_options?: array{ // Lists of CSS classes shown as selectors in the dashboard when editing a menu. Override in app config to customize options.
  *             menu?: list<scalar|Param|null>,
  *             item?: list<scalar|Param|null>,

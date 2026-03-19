@@ -28,6 +28,7 @@ dashboard:
   new_item: New item
   add_one: Add one
   add_child: Add child
+  add_child_disabled: "Section and divider items cannot have children"
   search: Search
   search_placeholder: "Search by code or name…"
   clear: Clear
@@ -180,6 +181,11 @@ form:
       label: Open in new tab
     permission_key:
       label: Permission key
+      placeholder: "— Allow all —"
+      choice:
+        authenticated: "Authenticated only"
+        admin: "Admin only"
+        path__: "Path: / (home only)"
     icon:
       label: Icon
       placeholder: "heroicons:home"

@@ -37,7 +37,7 @@ Generate href for an item:
 
 ## Overriding templates and translations
 
-The bundle registers its Twig views so that `@NowoDashboardMenuBundle/...` works, but it adds its path **after** the application paths. Your overrides in **`templates/bundles/NowoDashboardMenuBundle/`** are therefore checked first: you can "pisar" (override) any bundle template by placing a file there with the same relative path. Translations are not prepended, so your app's translation files for the domain `NowoDashboardMenuBundle` take precedence by default.
+The bundle registers its Twig views so that `@NowoDashboardMenuBundle/...` works, but it adds its path **after** the application paths. Your overrides in **`templates/bundles/NowoDashboardMenuBundle/`** are therefore checked first: you can "pisar" (override) any bundle template by placing a file there with the same relative path. **Overriding is never blocked** — the controller always uses logical names (e.g. `@NowoDashboardMenuBundle/dashboard/show.html.twig`); Twig resolves them via the loader, so your app templates in `templates/bundles/NowoDashboardMenuBundle/` always take precedence. Translations are not prepended, so your app's translation files for the domain `NowoDashboardMenuBundle` take precedence by default.
 
 ### Overriding templates (pisar vistas)
 

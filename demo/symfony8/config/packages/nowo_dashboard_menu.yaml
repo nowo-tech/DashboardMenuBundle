@@ -36,6 +36,8 @@ nowo_dashboard_menu:
         pagination:
             enabled: true
             per_page: 20
+        # Permission keys offered in the item form selector (same as in MenuFixtures: authenticated, admin, path:/).
+        permission_key_choices: ['authenticated', 'admin', 'path:/']
         # Modal sizes: normal, lg, or xl (Bootstrap 5). Affects new/edit menu, copy menu, add/edit item, delete confirm.
         modals:
             menu_form: lg

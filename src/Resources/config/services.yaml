@@ -21,6 +21,7 @@ services:
   Nowo\DashboardMenuBundle\Form\MenuItemConfigType:
     arguments:
       $menuItemRepository: '@Nowo\DashboardMenuBundle\Repository\MenuItemRepository'
+      $permissionKeyChoices: '%nowo_dashboard_menu.dashboard.permission_key_choices%'
       $defaultLocale: '%nowo_dashboard_menu.default_locale_resolved%'
       $translator: '@translator'
 
@@ -44,11 +45,14 @@ services:
       $cssClassOptions: '%nowo_dashboard_menu.dashboard.css_class_options%'
       $translator: '@translator'
 
-  # Auto-tagged by AutoTagPermissionCheckersPass; label from DASHBOARD_LABEL constant.
   Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker:
+    tags:
+      - { name: nowo_dashboard_menu.permission_checker, label: 'form.menu_type.permission_checker.allow_all' }
     public: false
 
   Nowo\DashboardMenuBundle\Service\PermissionKeyAwareMenuPermissionChecker:
+    tags:
+      - { name: nowo_dashboard_menu.permission_checker, label: 'form.menu_type.permission_checker.permission_key_aware' }
     public: false
 
   Nowo\DashboardMenuBundle\Service\MenuTreeLoader:

@@ -54,7 +54,8 @@ final class MenuItemBasicType extends AbstractType
                 'label_attr' => ['class' => 'form-label'],
             ])
             ->add('itemType', ChoiceType::class, [
-                'choices' => [
+                'required'     => false,
+                'choices'      => [
                     'form.menu_item_type.type.link'    => MenuItem::ITEM_TYPE_LINK,
                     'form.menu_item_type.type.section' => MenuItem::ITEM_TYPE_SECTION,
                     'form.menu_item_type.type.divider' => MenuItem::ITEM_TYPE_DIVIDER,
@@ -71,6 +72,7 @@ final class MenuItemBasicType extends AbstractType
                 'required'   => false,
                 'mode'       => IconSelectorType::MODE_TOM_SELECT,
                 'label'      => 'form.menu_item_type.icon.label',
+                'translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
                 'attr'       => ['placeholder' => $t('form.menu_item_type.icon.placeholder')],
                 'row_attr'   => ['class' => 'mb-1'],
                 'label_attr' => ['class' => 'form-label'],
@@ -79,6 +81,7 @@ final class MenuItemBasicType extends AbstractType
             $builder->add('icon', TextType::class, [
                 'required'   => false,
                 'label'      => 'form.menu_item_type.icon.label',
+                'translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
                 'attr'       => ['class' => 'form-control', 'placeholder' => $t('form.menu_item_type.icon.placeholder')],
                 'row_attr'   => ['class' => 'mb-1'],
                 'label_attr' => ['class' => 'form-label'],
@@ -86,30 +89,26 @@ final class MenuItemBasicType extends AbstractType
         }
 
         if ($availableLocales !== []) {
-            $builder->addEventListener(FormEvents::PRE_SET_DATA, static function (FormEvent $event) use ($availableLocales): void {
-                $data = $event->getData();
-                if (!$data instanceof MenuItem) {
-                    return;
-                }
-                $translations = $data->getTranslations() ?? [];
-                $form         = $event->getForm();
-                foreach ($availableLocales as $locale) {
-                    $fieldName = 'label_' . $locale;
-                    $form->add($fieldName, TextType::class, [
-                        'required'                     => false,
-                        'mapped'                       => false,
-                        'label'                        => 'form.menu_item_type.label_locale',
-                        'label_translation_parameters' => ['%locale%' => $locale],
-                        'data'                         => $translations[$locale] ?? null,
-                        'attr'                         => ['class' => 'form-control'],
-                        'row_attr'                     => ['class' => 'mb-1'],
-                        'label_attr'                   => ['class' => 'form-label'],
-                    ]);
-                }
-            });
-
+            $data         = $builder->getData();
+            $translations = $data instanceof MenuItem ? ($data->getTranslations() ?? []) : [];
+            foreach ($availableLocales as $locale) {
+                $fieldName = 'label_' . $locale;
+                $builder->add($fieldName, TextType::class, [
+                    'required'                     => false,
+                    'mapped'                       => false,
+                    'label'                        => 'form.menu_item_type.label_locale',
+                    'label_translation_parameters' => ['%locale%' => $locale],
+                    'data'                         => $translations[$locale] ?? null,
+                    'attr'                         => ['class' => 'form-control'],
+                    'row_attr'                     => ['class' => 'mb-1'],
+                    'label_attr'                   => ['class' => 'form-label'],
+                ]);
+            }
             $builder->addEventListener(FormEvents::SUBMIT, static function (FormEvent $event) use ($availableLocales): void {
                 $data = $event->getData();
+                if (!$data instanceof MenuItem) {
+                    $data = $event->getForm()->getParent()?->getData();
+                }
                 if (!$data instanceof MenuItem) {
                     return;
                 }

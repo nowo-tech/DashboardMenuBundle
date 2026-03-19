@@ -29,8 +29,12 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  */
 final class MenuItemConfigType extends AbstractType
 {
+    /**
+     * @param list<string> $permissionKeyChoices
+     */
     public function __construct(
         private readonly MenuItemRepository $menuItemRepository,
+        private readonly array $permissionKeyChoices = [],
         private readonly string $defaultLocale = 'en',
         private readonly ?TranslatorInterface $translator = null,
     ) {
@@ -57,7 +61,7 @@ final class MenuItemConfigType extends AbstractType
                     'form.menu_item_type.link_type.external_url' => MenuItem::LINK_TYPE_EXTERNAL,
                 ],
                 'label'        => 'form.menu_item_type.link_type.label',
-                'required'     => false,
+                // 'required'     => false,
                 'attr'         => ['class' => 'form-select'],
                 'row_attr'     => ['class' => 'mb-1'],
                 'label_attr'   => ['class' => 'form-label'],
@@ -98,14 +102,26 @@ final class MenuItemConfigType extends AbstractType
                 'attr'       => ['class' => 'form-check-input'],
                 'row_attr'   => ['class' => 'ms-3 mb-1 form-check'],
                 'label_attr' => ['class' => 'form-check-label'],
-            ])
-            ->add('permissionKey', TextType::class, [
-                'required'   => false,
-                'label'      => 'form.menu_item_type.permission_key.label',
-                'attr'       => ['class' => 'form-control'],
-                'row_attr'   => ['class' => 'mb-1'],
-                'label_attr' => ['class' => 'form-label'],
             ]);
+
+        $permissionKeyOptions = [
+            'required'   => false,
+            'label'      => 'form.menu_item_type.permission_key.label',
+            'row_attr'   => ['class' => 'mb-1'],
+            'label_attr' => ['class' => 'form-label'],
+        ];
+        if ($this->permissionKeyChoices !== []) {
+            $choices = $this->buildPermissionKeyChoices($t, $builder->getData());
+            $permissionKeyOptions['choices'] = $choices;
+            $permissionKeyOptions['placeholder'] = $t('form.menu_item_type.permission_key.placeholder');
+            $permissionKeyOptions['choice_translation_domain'] = false;
+            $permissionKeyOptions['attr'] = ['class' => 'form-select'];
+            $permissionKeyOptions['autocomplete'] = true;
+            $builder->add('permissionKey', ChoiceType::class, $permissionKeyOptions);
+        } else {
+            $permissionKeyOptions['attr'] = ['class' => 'form-control'];
+            $builder->add('permissionKey', TextType::class, $permissionKeyOptions);
+        }
 
         $builder->get('routeParams')->addModelTransformer(new JsonToArrayTransformer());
 
@@ -152,6 +168,31 @@ final class MenuItemConfigType extends AbstractType
         $resolver->setAllowedTypes('menu', [Menu::class, 'null']);
         $resolver->setAllowedTypes('exclude_ids', 'array');
         $resolver->setAllowedTypes('locale', 'string');
+    }
+
+    /**
+     * Build choices for the permission key field (label => value). Translates via form.menu_item_type.permission_key.choice.{safe_key}.
+     *
+     * @return array<string, string> label => permission key
+     */
+    private function buildPermissionKeyChoices(\Closure $t, mixed $data): array
+    {
+        $choices = [];
+        foreach ($this->permissionKeyChoices as $key) {
+            $safe   = str_replace(['/', ':'], '_', $key);
+            $trKey  = 'form.menu_item_type.permission_key.choice.' . $safe;
+            $label  = $t($trKey);
+
+            $choices[$label === $trKey ? $key : $label] = $key;
+        }
+        if ($data instanceof MenuItem) {
+            $current = $data->getPermissionKey();
+            if ($current !== null && $current !== '' && !\in_array($current, $this->permissionKeyChoices, true)) {
+                $choices[$current . ' (current)'] = $current;
+            }
+        }
+
+        return $choices;
     }
 
     /**
