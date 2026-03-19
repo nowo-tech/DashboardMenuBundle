@@ -2,6 +2,17 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 0.3.14 to 0.3.15
+
+No breaking changes.
+
+- **Dashboard:** Menu and item forms are split into **definition** (pencil) and **configuration** (gear). New menu / new item show only definition; after creation you can edit configuration via the gear button. Edit definition and edit configuration open separate modals with only the relevant fields.
+- **Redirect:** After any successful dashboard action (create/update/delete menu or item, copy, import, move), the app redirects to the request **Referer** when it is same-origin; otherwise to the usual route.
+- **Import:** The import form can be opened in a modal (AJAX) from the dashboard index; submission redirects to referer on success.
+- **MenuItem:** The `label` property is now nullable (for divider items). If you extend or reflect on the entity, update type hints; the getter still returns a string (empty string when null).
+- **Twig overrides:** If you override `_menu_form_partial.html.twig` or `_item_form_partial.html.twig`, ensure you handle `form.definition` / `form.config` (menu) and `form.basic` / `form.config` (item), and the `section_focus` variable for section-specific rendering.
+- **Dockerfile:** The bundle Dockerfile now installs Node.js, npm and pnpm for building dashboard assets.
+
 ## From 0.3.13 to 0.3.14
 
 No breaking changes.

@@ -7,9 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.3.14] - 2026-03-16
+## [0.3.15] - 2026-03-16
 
-_(No notable changes yet.)_
+### Added
+
+- **Dashboard menu form:** Split into **definition** (code, base, name, context, icon) and **configuration** (permission checker, depth, collapsible, CSS classes). `MenuType` composes `MenuDefinitionType` and `MenuConfigType`. New menu and “edit definition” (pencil) show only definition; “edit configuration” (gear) shows only configuration. Option `section` (`basic` | `config` | `null`) on `MenuType`.
+- **Dashboard item form:** Same split. `MenuItemType` accepts option `section`; “add item” and “edit identity” (pencil) show only definition (type, icon, labels); “edit configuration” (gear) shows only configuration (position, parent, link, permission). Partial and Live component support `section_focus`; form only includes the requested section when opened from the corresponding modal.
+- **Redirect to referer:** After successful form submission (create/update menu or item, delete, copy, import, move up/down), the controller redirects to the request **Referer** when it is a same-origin URL; otherwise redirects to the usual route. Preserves fragment for move actions (e.g. `#item-123`).
+- **Import in modal:** Import form is loaded and submitted via AJAX in a modal; on success the page redirects to referer (or index).
+- **Dashboard UI:** Two actions per menu row (pencil = edit definition, gear = edit configuration) and per item row (pencil = edit identity, gear = edit configuration). Modal title and scroll target follow the opened section.
+- **Translations:** `dashboard.edit_identity`, `dashboard.edit_config`, `form.menu_type.section_definition`, `form.menu_type.section_config` (en, es, fr).
+- **Dockerfile:** Added Node.js, npm and pnpm for building dashboard assets inside the container.
+
+### Changed
+
+- **MenuItem:** Property `label` is now **nullable** (for divider items). Getter `getLabel()` returns `''` when null; setter accepts `?string`. Database column `label` is nullable.
+- **Twig:** `_menu_form_partial` and `_item_form_partial` no longer use `field.vars.rendered` (removed in Symfony 6.3+); they iterate and render each field once. Menu and item partials render only the section that matches `section_focus` (and only that block is present in the form when `section` is set).
+- **Full-page forms:** `menu_form.html.twig` and `item_form.html.twig` show the config section only when `form.config` is defined (new menu / new item use `section => basic`, so config is omitted).
 
 ## [0.3.13] - 2026-03-18
 
@@ -236,7 +250,8 @@ _(No notable changes yet.)_
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.14...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.15...HEAD
+[0.3.15]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.14...v0.3.15
 [0.3.14]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.13...v0.3.14
 [0.3.13]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.12...v0.3.13
 [0.3.12]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.11...v0.3.12

@@ -65,7 +65,8 @@ Copy the original from `vendor/nowo-tech/dashboard-menu-bundle/src/Resources/vie
 | `dashboard/menu_form.html.twig` | Create/edit menu form. |
 | `dashboard/item_form.html.twig` | Create/edit menu item form. |
 | `dashboard/copy_menu.html.twig` | Copy menu form. |
-| `dashboard/import.html.twig` | Import menus from JSON. |
+| `dashboard/import.html.twig` | Import menus from JSON (standalone page). |
+| `dashboard/_import_partial.html.twig` | Partial for import form (loaded in modal). |
 | `dashboard/_menu_form_partial.html.twig` | Partial used in menu form. |
 | `dashboard/_item_form_partial.html.twig` | Partial used in item form. |
 | `dashboard/_copy_menu_partial.html.twig` | Partial used in copy form. |
@@ -145,7 +146,9 @@ From the dashboard (list of menus) you can:
 
 - **Export all menus** — downloads a single JSON file with every menu and its items (config + tree). Use for backup or moving menus between environments.
 - **Export one menu** — same structure for a single menu (e.g. `menu-{code}-export.json`).
-- **Import** — upload a JSON file produced by export. Choose strategy: **Skip existing** (do not overwrite menus that already exist for the same code+context) or **Replace** (replace items of existing menus). Errors (e.g. invalid format or missing `code`) are shown as flash messages.
+- **Import** — upload a JSON file produced by export (from a dedicated page or from the **Import** modal on the index). Choose strategy: **Skip existing** (do not overwrite menus that already exist for the same code+context) or **Replace** (replace items of existing menus). Errors (e.g. invalid format or missing `code`) are shown as flash messages.
+
+**Dashboard forms:** Menu and item forms are split into **definition** (pencil icon: code, name, context, icon for menus; type, icon, labels for items) and **configuration** (gear icon: permission checker, depth, collapsible, CSS for menus; position, parent, link, permission for items). New menu and new item show only definition; after saving you can edit configuration via the gear button. After any successful action (create, update, delete, copy, import, move), the app redirects to the request **Referer** when it is same-origin, otherwise to the usual list or show page.
 
 The JSON format is the same for one menu (`menu` + `items`) or multiple (`menus` array of `{ menu, items }`). Item trees and translations are preserved.
 

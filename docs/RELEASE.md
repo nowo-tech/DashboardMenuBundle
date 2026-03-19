@@ -10,10 +10,10 @@
 
    This runs: `composer-sync`, `cs-fix`, `cs-check`, `rector-dry`, `phpstan`, `test-coverage`, and `release-check-demos` (each demo is started, HTTP-verified, then stopped).
 
-2. **Update version and changelog**
+2. **Update changelog**
 
-   - Set the new version in `composer.json` (`version` field).
-   - Add a new section in `docs/CHANGELOG.md` for the release (e.g. `## [0.0.2] - YYYY-MM-DD`) and move any “Unreleased” entries into it. Update the comparison links at the bottom of the file.
+   - Add a new section in `docs/CHANGELOG.md` for the release (e.g. `## [0.3.15] - YYYY-MM-DD`) and move any “Unreleased” entries into it. Update the comparison links at the bottom of the file.
+   - The package version for Packagist is taken from the git tag (e.g. `v0.3.15`); you do not need to set `version` in `composer.json`.
 
 ## Creating the release
 
