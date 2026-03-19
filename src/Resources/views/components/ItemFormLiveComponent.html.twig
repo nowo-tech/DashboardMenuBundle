@@ -1,4 +1,6 @@
+{% if nowo_dashboard_ux_autocomplete_available|default(false) %}
 {% form_theme form '@SymfonyUXAutocomplete/autocomplete_form_theme.html.twig' %}
+{% endif %}
 {% set _section_focus = sectionFocus|default('') %}
 {% set _show_basic = form.basic is defined and (_section_focus == '' or _section_focus == 'basic') %}
 {% set _show_config = form.config is defined and (_section_focus == 'config' or (_section_focus == '' and isEdit)) %}

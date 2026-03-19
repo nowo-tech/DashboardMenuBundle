@@ -1,8 +1,8 @@
-.PHONY: help build up down restart shell install setup clean logs ensure-up update-bundle verify cache-clear test test-coverage ts-assets assets
+.PHONY: help build up down restart shell install setup clean logs ensure-up update-bundle verify cache-clear schema-update migrations-status migrate test test-coverage ts-assets assets
 
 help:
 	@echo "Dashboard Menu Bundle Demo - Symfony 7"
-	@echo "  ensure-up, up, down, restart, build, shell, install, setup, clean, logs, update-bundle, assets, test, test-coverage, ts-assets, verify, cache-clear, migrations-status, migrate"
+	@echo "  ensure-up, up, down, restart, build, shell, install, setup, clean, logs, update-bundle, assets, schema-update, migrations-status, migrate, test, test-coverage, ts-assets, verify, cache-clear"
 
 assets:
 	pnpm install
@@ -12,11 +12,22 @@ assets:
 ts-assets:
 	@sh scripts/create-ts-assets.sh
 
-build:
-	docker-compose build --no-cache
-
 restart: ensure-up
 	docker-compose restart
+
+schema-update: ensure-up
+	@echo "Updating database schema (adds missing columns, e.g. icon, class_* in dashboard_menu)..."
+	docker-compose exec -T php php bin/console doctrine:schema:update --force --no-interaction
+	@echo "Done. If you still see 'Unknown column' errors, run: make setup"
+
+migrations-status: ensure-up
+	docker-compose exec -T php php bin/console doctrine:migrations:status
+
+migrate: ensure-up
+	docker-compose exec -T php php bin/console doctrine:migrations:migrate --no-interaction
+
+build:
+	docker-compose build --no-cache
 
 cache-clear: ensure-up
 	docker-compose exec -T php php bin/console cache:clear
@@ -32,6 +43,12 @@ up:
 	@sleep 5
 	$(MAKE) ensure-up
 	$(MAKE) install
+	@echo "Syncing composer.lock (remove gedmo/stof if present)..."
+	docker-compose exec -T php composer update --no-interaction --no-scripts
+	@echo "Restarting PHP so workers load vendor without Gedmo..."
+	docker-compose restart php
+	@echo "Waiting for PHP container..."
+	@for i in 1 2 3 4 5 6 7 8 9 10; do docker-compose exec -T php true 2>/dev/null && break || sleep 2; done
 	@echo "Clearing cache..."
 	docker-compose exec -T php php bin/console cache:clear --no-interaction
 	@echo "Recreating database and running migrations (fresh)..."
@@ -71,6 +88,11 @@ install: ensure-up
 	docker-compose exec -T php composer install --no-interaction
 
 setup: ensure-up install
+	@echo "Syncing composer.lock (remove gedmo/stof if present)..."
+	docker-compose exec -T php composer update --no-interaction --no-scripts
+	@echo "Restarting PHP so workers load vendor without Gedmo..."
+	docker-compose restart php
+	@sleep 3
 	@echo "Clearing cache..."
 	docker-compose exec -T php php bin/console cache:clear --no-interaction
 	@echo "Recreating database and running migrations (fresh)..."
@@ -86,12 +108,6 @@ clean:
 
 logs:
 	docker-compose logs -f
-
-migrations-status: ensure-up
-	docker-compose exec -T php php bin/console doctrine:migrations:status
-
-migrate: ensure-up
-	docker-compose exec -T php php bin/console doctrine:migrations:migrate --no-interaction
 
 test: ensure-up
 	docker-compose exec -e APP_ENV=test php php bin/phpunit 2>/dev/null || docker-compose exec -e APP_ENV=test php vendor/bin/phpunit 2>/dev/null || echo "No PHPUnit config in demo; run tests from bundle root."

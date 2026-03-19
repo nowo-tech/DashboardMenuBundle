@@ -43,6 +43,7 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
         private readonly MenuLocaleResolver $localeResolver,
         private readonly MenuIconNameResolver $menuIconNameResolver,
         private readonly string $dashboardLayoutTemplate,
+        private readonly bool $uxAutocompleteAvailable = false,
         private readonly ?DashboardMenuDataCollector $dataCollector = null,
         private readonly ?MenuQueryCounter $menuQueryCounter = null,
         private readonly ?Connection $connection = null,
@@ -52,7 +53,8 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
     public function getGlobals(): array
     {
         return [
-            'nowo_dashboard_layout_template' => $this->dashboardLayoutTemplate,
+            'nowo_dashboard_layout_template'   => $this->dashboardLayoutTemplate,
+            'nowo_dashboard_ux_autocomplete_available' => $this->uxAutocompleteAvailable,
         ];
     }
 

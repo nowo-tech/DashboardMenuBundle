@@ -60,6 +60,17 @@ final class DashboardMenuExtension extends Extension
             Configuration::ALIAS . '.dashboard.item_form_live_component_enabled',
             class_exists(\Symfony\UX\LiveComponent\Attribute\AsLiveComponent::class),
         );
+        $uxAutocompleteAvailable = false;
+        if (class_exists(\Symfony\UX\Autocomplete\AutocompleteBundle::class)) {
+            try {
+                /** @var array<string, mixed> $bundles */
+                $bundles = $container->getParameter('kernel.bundles');
+                $uxAutocompleteAvailable = is_array($bundles) && array_key_exists(\Symfony\UX\Autocomplete\AutocompleteBundle::class, $bundles);
+            } catch (\Throwable) {
+                $uxAutocompleteAvailable = false;
+            }
+        }
+        $container->setParameter(Configuration::ALIAS . '.ux_autocomplete_available', $uxAutocompleteAvailable);
 
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.yaml');

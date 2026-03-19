@@ -1,0 +1,11 @@
+# Enable CSRF protection for forms.
+# Note: `framework.csrf_protection.stateless_token_ids` is only available in Symfony 7.2+.
+# Keeping it session-based avoids "Unrecognized option stateless_token_ids" errors
+# when the demo resolves Symfony 7.0/7.1.
+framework:
+    csrf_protection:
+        enabled: true
+    form:
+        csrf_protection:
+            enabled: true
+            field_name: _token

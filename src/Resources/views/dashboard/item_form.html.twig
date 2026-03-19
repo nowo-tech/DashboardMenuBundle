@@ -3,7 +3,9 @@
 {% block dashboard_title %}{{ (is_edit ? 'dashboard.edit_item' : 'dashboard.new_item')|trans({}, 'NowoDashboardMenuBundle') }}{% endblock %}
 
 {% block nowo_dashboard_menu_content %}
-    {% form_theme form '@SymfonyUXAutocomplete/autocomplete_form_theme.html.twig' %}
+    {% if nowo_dashboard_ux_autocomplete_available|default(false) %}
+{% form_theme form '@SymfonyUXAutocomplete/autocomplete_form_theme.html.twig' %}
+{% endif %}
     {% for msg in app.flashes('error') %}
         <div class="alert alert-danger">{{ msg }}</div>
     {% endfor %}

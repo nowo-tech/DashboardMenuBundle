@@ -75,6 +75,7 @@ services:
       $dataCollector: null
       $menuIconNameResolver: '@Nowo\DashboardMenuBundle\Service\MenuIconNameResolver'
       $dashboardLayoutTemplate: '%nowo_dashboard_menu.dashboard.layout_template%'
+      $uxAutocompleteAvailable: '%nowo_dashboard_menu.ux_autocomplete_available%'
     tags:
       - { name: twig.extension }
     public: false

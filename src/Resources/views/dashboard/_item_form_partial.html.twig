@@ -1,4 +1,6 @@
+{% if nowo_dashboard_ux_autocomplete_available|default(false) %}
 {% form_theme form '@SymfonyUXAutocomplete/autocomplete_form_theme.html.twig' %}
+{% endif %}
 {% set _section_focus = section_focus|default('') %}
 {# Lápiz / Add item: solo definición. Engranaje: solo configuración. Edición completa: ambas si existen. #}
 {% set _show_basic = form.basic is defined and (_section_focus == '' or _section_focus == 'basic') %}

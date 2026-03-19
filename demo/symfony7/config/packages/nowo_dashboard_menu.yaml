@@ -25,10 +25,9 @@ nowo_dashboard_menu:
 
     dashboard:
         enabled: true
-        # Layout that dashboard views extend. Must define block "content". Omit to use the bundle default.
+        # Layout that dashboard views extend. Must define block "nowo_dashboard_menu_content".
+        # Override in templates/bundles/NowoDashboardMenuBundle/dashboard/layout.html.twig to inject your app's CSS/JS (e.g. Vite).
         layout_template: '@NowoDashboardMenuBundle/dashboard/layout.html.twig'
-        # layout_template: 'base.html.twig'   # e.g. use your app base and override in templates/bundles/.../layout.html.twig
-        # URL prefix is set in config/routes.yaml (nowo_dashboard_menu_dashboard.prefix).
         # URL or asset path for the icon-selector script (Stimulus/UX). Enables the icon field in the item form modal.
         icon_selector_script_url: 'bundles/nowoiconselector/icon-selector.js'
         # Stimulus for Live form: use the bundle's script so window.Stimulus is always available when opening the item modal. Set to null only if your layout loads Stimulus (e.g. Vite) and exposes window.Stimulus before the modal is used.

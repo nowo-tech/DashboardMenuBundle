@@ -751,7 +751,7 @@ final class MenuDashboardController extends AbstractController
         $redirectToUrl = $this->generateUrl(self::ROUTE_SHOW, ['id' => $id]);
         $parent        = $item->getParent();
         $actionUrl     = $parent !== null && $parent->getId() !== null
-            ? $this->generateUrl(self::ROUTE_ITEM_NEW, ['id' => $id], ['query' => ['parent' => $parent->getId()]])
+            ? $this->generateUrl(self::ROUTE_ITEM_NEW, ['id' => $id, '_query' => ['parent' => $parent->getId()]])
             : $this->generateUrl(self::ROUTE_ITEM_NEW, ['id' => $id]);
 
         if ($request->query->get('_partial')) {
@@ -777,6 +777,8 @@ final class MenuDashboardController extends AbstractController
                 'locale'            => $locale,
                 'available_locales' => $this->locales,
                 'action'            => $actionUrl,
+                // Keep CSRF consistent across Symfony versions.
+                'csrf_token_id'    => 'submit',
                 'section'           => 'basic',
             ]);
 
@@ -798,6 +800,8 @@ final class MenuDashboardController extends AbstractController
             'locale'            => $locale,
             'available_locales' => $this->locales,
             'action'            => $actionUrl,
+            // Keep CSRF consistent across Symfony versions.
+            'csrf_token_id'    => 'submit',
             'section'           => 'basic',
         ]);
         $form->handleRequest($request);
@@ -877,6 +881,8 @@ final class MenuDashboardController extends AbstractController
                 'locale'            => $locale,
                 'available_locales' => $this->locales,
                 'action'            => $this->generateUrl(self::ROUTE_ITEM_EDIT, ['id' => $id, 'itemId' => $itemId]),
+                // Keep CSRF consistent across Symfony versions.
+                'csrf_token_id'    => 'submit',
                 'section'           => $sectionFocus,
             ]);
 
@@ -898,6 +904,8 @@ final class MenuDashboardController extends AbstractController
             'locale'            => $locale,
             'available_locales' => $this->locales,
             'action'            => $this->generateUrl(self::ROUTE_ITEM_EDIT, ['id' => $id, 'itemId' => $itemId]),
+            // Keep CSRF consistent across Symfony versions.
+            'csrf_token_id'    => 'submit',
         ]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {

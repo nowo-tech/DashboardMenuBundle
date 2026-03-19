@@ -86,6 +86,8 @@ final class ItemFormLiveComponent
             'exclude_ids'       => $this->excludeIds,
             'locale'            => $this->locale,
             'available_locales' => $this->locales,
+            // Keep CSRF consistent across Symfony versions (and match stateless_token_ids in the demos).
+            'csrf_token_id'    => 'submit',
             'section'           => $this->sectionFocus,
         ]);
     }
@@ -209,6 +211,7 @@ final class ItemFormLiveComponent
         $this->entityManager->persist($item);
         $this->entityManager->flush();
 
+        /** @var \Symfony\Component\HttpFoundation\Session\Session $session */
         $session = $this->requestStack->getSession();
         $session->getFlashBag()->add('success', $this->isEdit ? 'Item updated.' : 'Item created.');
 

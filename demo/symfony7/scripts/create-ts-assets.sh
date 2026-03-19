@@ -21,4 +21,4 @@ if ! do_cp 2>/dev/null; then
 fi
 rm -f assets/app.js assets/stimulus_bootstrap.js \
   assets/controllers/hello_controller.js assets/controllers/csrf_protection_controller.js 2>/dev/null || true
-echo "Done: TS assets in place."
+echo "Done: TS assets in place, old .js removed."
