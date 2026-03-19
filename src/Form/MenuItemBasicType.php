@@ -54,8 +54,8 @@ final class MenuItemBasicType extends AbstractType
                 'label_attr' => ['class' => 'form-label'],
             ])
             ->add('itemType', ChoiceType::class, [
-                'required'     => false,
-                'choices'      => [
+                'required' => false,
+                'choices'  => [
                     'form.menu_item_type.type.link'    => MenuItem::ITEM_TYPE_LINK,
                     'form.menu_item_type.type.section' => MenuItem::ITEM_TYPE_SECTION,
                     'form.menu_item_type.type.divider' => MenuItem::ITEM_TYPE_DIVIDER,
@@ -69,22 +69,22 @@ final class MenuItemBasicType extends AbstractType
 
         if (class_exists('Nowo\IconSelectorBundle\Form\IconSelectorType')) {
             $builder->add('icon', IconSelectorType::class, [
-                'required'   => false,
-                'mode'       => IconSelectorType::MODE_TOM_SELECT,
-                'label'      => 'form.menu_item_type.icon.label',
+                'required'           => false,
+                'mode'               => IconSelectorType::MODE_TOM_SELECT,
+                'label'              => 'form.menu_item_type.icon.label',
                 'translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
-                'attr'       => ['placeholder' => $t('form.menu_item_type.icon.placeholder')],
-                'row_attr'   => ['class' => 'mb-1'],
-                'label_attr' => ['class' => 'form-label'],
+                'attr'               => ['placeholder' => $t('form.menu_item_type.icon.placeholder')],
+                'row_attr'           => ['class' => 'mb-1'],
+                'label_attr'         => ['class' => 'form-label'],
             ]);
         } else {
             $builder->add('icon', TextType::class, [
-                'required'   => false,
-                'label'      => 'form.menu_item_type.icon.label',
+                'required'           => false,
+                'label'              => 'form.menu_item_type.icon.label',
                 'translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
-                'attr'       => ['class' => 'form-control', 'placeholder' => $t('form.menu_item_type.icon.placeholder')],
-                'row_attr'   => ['class' => 'mb-1'],
-                'label_attr' => ['class' => 'form-label'],
+                'attr'               => ['class' => 'form-control', 'placeholder' => $t('form.menu_item_type.icon.placeholder')],
+                'row_attr'           => ['class' => 'mb-1'],
+                'label_attr'         => ['class' => 'form-label'],
             ]);
         }
 

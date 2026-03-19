@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\Form;
 
+use Closure;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Form\DataTransformer\JsonToArrayTransformer;
@@ -19,6 +20,8 @@ use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Contracts\Translation\TranslatorInterface;
+
+use function in_array;
 
 /**
  * Form type for menu item configuration: position, parent, link (route / external URL), target, permission.
@@ -60,7 +63,7 @@ final class MenuItemConfigType extends AbstractType
                     'form.menu_item_type.link_type.route'        => MenuItem::LINK_TYPE_ROUTE,
                     'form.menu_item_type.link_type.external_url' => MenuItem::LINK_TYPE_EXTERNAL,
                 ],
-                'label'        => 'form.menu_item_type.link_type.label',
+                'label' => 'form.menu_item_type.link_type.label',
                 // 'required'     => false,
                 'attr'         => ['class' => 'form-select'],
                 'row_attr'     => ['class' => 'mb-1'],
@@ -111,12 +114,12 @@ final class MenuItemConfigType extends AbstractType
             'label_attr' => ['class' => 'form-label'],
         ];
         if ($this->permissionKeyChoices !== []) {
-            $choices = $this->buildPermissionKeyChoices($t, $builder->getData());
-            $permissionKeyOptions['choices'] = $choices;
-            $permissionKeyOptions['placeholder'] = $t('form.menu_item_type.permission_key.placeholder');
+            $choices                                           = $this->buildPermissionKeyChoices($t, $builder->getData());
+            $permissionKeyOptions['choices']                   = $choices;
+            $permissionKeyOptions['placeholder']               = $t('form.menu_item_type.permission_key.placeholder');
             $permissionKeyOptions['choice_translation_domain'] = false;
-            $permissionKeyOptions['attr'] = ['class' => 'form-select'];
-            $permissionKeyOptions['autocomplete'] = true;
+            $permissionKeyOptions['attr']                      = ['class' => 'form-select'];
+            $permissionKeyOptions['autocomplete']              = true;
             $builder->add('permissionKey', ChoiceType::class, $permissionKeyOptions);
         } else {
             $permissionKeyOptions['attr'] = ['class' => 'form-control'];
@@ -175,19 +178,19 @@ final class MenuItemConfigType extends AbstractType
      *
      * @return array<string, string> label => permission key
      */
-    private function buildPermissionKeyChoices(\Closure $t, mixed $data): array
+    private function buildPermissionKeyChoices(Closure $t, mixed $data): array
     {
         $choices = [];
         foreach ($this->permissionKeyChoices as $key) {
-            $safe   = str_replace(['/', ':'], '_', $key);
-            $trKey  = 'form.menu_item_type.permission_key.choice.' . $safe;
-            $label  = $t($trKey);
+            $safe  = str_replace(['/', ':'], '_', $key);
+            $trKey = 'form.menu_item_type.permission_key.choice.' . $safe;
+            $label = $t($trKey);
 
             $choices[$label === $trKey ? $key : $label] = $key;
         }
         if ($data instanceof MenuItem) {
             $current = $data->getPermissionKey();
-            if ($current !== null && $current !== '' && !\in_array($current, $this->permissionKeyChoices, true)) {
+            if ($current !== null && $current !== '' && !in_array($current, $this->permissionKeyChoices, true)) {
                 $choices[$current . ' (current)'] = $current;
             }
         }

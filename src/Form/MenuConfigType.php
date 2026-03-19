@@ -52,16 +52,16 @@ final class MenuConfigType extends AbstractType
 
         $builder
             ->add('permissionChecker', ChoiceType::class, [
-                'required'                   => false,
-                'label'                      => 'form.menu_type.permission_checker.label',
-                'placeholder'                => 'form.menu_type.permission_checker.placeholder',
-                'choices'                    => $choices,
-                'choice_translation_domain'  => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
-                'attr'                       => ['class' => 'form-select'],
-                'row_attr'                   => ['class' => 'mb-1'],
-                'label_attr'                 => ['class' => 'form-label'],
-                'autocomplete'               => true,
-                'help'                       => 'form.menu_type.permission_checker.help',
+                'required'                  => false,
+                'label'                     => 'form.menu_type.permission_checker.label',
+                'placeholder'               => 'form.menu_type.permission_checker.placeholder',
+                'choices'                   => $choices,
+                'choice_translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
+                'attr'                      => ['class' => 'form-select'],
+                'row_attr'                  => ['class' => 'mb-1'],
+                'label_attr'                => ['class' => 'form-label'],
+                'autocomplete'              => true,
+                'help'                      => 'form.menu_type.permission_checker.help',
             ])
             ->add('depthLimit', IntegerType::class, [
                 'required'   => false,
