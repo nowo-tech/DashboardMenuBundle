@@ -1,0 +1,14 @@
+# Loaded only when symfony/ux-live-component is installed (see DashboardMenuExtension)
+# _defaults ensure autoconfigure runs so the Live Component bundle can tag this service
+services:
+  _defaults:
+    autoconfigure: true
+
+  Nowo\DashboardMenuBundle\LiveComponent\ItemFormLiveComponent:
+    arguments:
+      $formFactory: '@form.factory'
+      $entityManager: '@doctrine.orm.entity_manager'
+      $requestStack: '@request_stack'
+    tags:
+      - { name: twig.component, key: dashboard_menu_item_form }
+    public: true

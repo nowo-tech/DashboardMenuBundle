@@ -23,6 +23,7 @@ use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 
+use function array_key_exists;
 use function is_array;
 
 /**
@@ -37,10 +38,35 @@ use function is_array;
  */
 final class DashboardMenuExtension extends Extension
 {
+    /**
+     * Prepend twig_component.defaults so the bundle's Live Component has a matching namespace
+     * (avoids "Could not generate a component name ... no matching namespace found").
+     */
+    public function prepend(ContainerBuilder $container): void
+    {
+        if (!class_exists(\Symfony\UX\LiveComponent\Attribute\AsLiveComponent::class)) {
+            return;
+        }
+        $container->prependExtensionConfig('twig_component', [
+            'defaults' => [
+                'Nowo\\DashboardMenuBundle\\LiveComponent\\' => 'components/',
+            ],
+        ]);
+    }
+
     public function load(array $configs, ContainerBuilder $container): void
     {
+        $container->setParameter(
+            Configuration::ALIAS . '.dashboard.item_form_live_component_enabled',
+            class_exists(\Symfony\UX\LiveComponent\Attribute\AsLiveComponent::class),
+        );
+
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.yaml');
+
+        if (class_exists(\Symfony\UX\LiveComponent\Attribute\AsLiveComponent::class)) {
+            $loader->load('services_live_component.yaml');
+        }
 
         $config         = $this->processConfiguration(new Configuration(), $configs);
         $connectionName = $config['doctrine']['connection'] ?? 'default';
@@ -99,6 +125,13 @@ final class DashboardMenuExtension extends Extension
             'delete'    => 'normal',
         ]);
         $container->setParameter(Configuration::ALIAS . '.dashboard.icon_selector_script_url', $config['dashboard']['icon_selector_script_url'] ?? null);
+        $dashboardConfig = $config['dashboard'] ?? [];
+        $stimulusUrl     = $dashboardConfig['stimulus_script_url'] ?? null;
+        $liveEnabled     = class_exists(\Symfony\UX\LiveComponent\Attribute\AsLiveComponent::class);
+        if (!array_key_exists('stimulus_script_url', $dashboardConfig) && $stimulusUrl === null && $liveEnabled) {
+            $stimulusUrl = 'bundles/nowodashboardmenu/js/stimulus-live.js';
+        }
+        $container->setParameter(Configuration::ALIAS . '.dashboard.stimulus_script_url', $stimulusUrl);
         $container->setParameter(Configuration::ALIAS . '.dashboard.import_max_bytes', $config['dashboard']['import_max_bytes'] ?? 2097152);
         $container->setParameter(Configuration::ALIAS . '.dashboard.required_role', $config['dashboard']['required_role'] ?? null);
         $rateLimitConfig   = $config['dashboard']['import_export_rate_limit'] ?? false;

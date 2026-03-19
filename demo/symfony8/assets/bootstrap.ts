@@ -6,6 +6,13 @@ registerControllers(app, import.meta.glob('./controllers/*_controller.ts', {
   eager: true,
 }));
 
-if (import.meta.hot) {
-  (window as unknown as { $$stimulusApp$$: typeof app }).$$stimulusApp$$ = app;
+// Expose Stimulus app so dashboard menu bundle can connect Live Component when modal content is injected via fetch.
+if (typeof window !== 'undefined') {
+  const w = window as unknown as { $$stimulusApp$$: typeof app; Stimulus: typeof app };
+  w.$$stimulusApp$$ = app;
+  w.Stimulus = app;
+  console.log('[demo symfony8] bootstrap.ts: Stimulus exported to window', {
+    hasStimulusApp: !!(w as any).$$stimulusApp$$,
+    hasStimulus: !!(w as any).Stimulus,
+  });
 }

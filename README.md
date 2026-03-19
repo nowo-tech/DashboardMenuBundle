@@ -127,6 +127,18 @@ make -C demo/symfony8 install
 
 Run tests and QA with Docker: `make up && make install && make test` (or `make test-coverage`, `make qa`). Without Docker: `composer install && composer test`. Full details: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
+**Dashboard assets (TS → JS):** Built with **Vite** (as in [IconSelectorBundle](https://github.com/nowo-tech/icon-selector-bundle)). Sources under `src/Resources/assets/src/` (dashboard.ts, stimulus-live.ts, logger.ts). Output: `src/Resources/public/js/dashboard.js` (IIFE) and `js/stimulus-live.js` (ESM), installed by Symfony to `public/bundles/nowodashboardmenu/js/`.
+
+```bash
+pnpm install
+pnpm run build        # production build (dashboard.js + stimulus-live.js)
+pnpm run dev          # watch dashboard.js
+pnpm run build:dashboard        # only dashboard.js
+pnpm run build:stimulus-live    # only stimulus-live.js
+```
+
+Then run `php bin/console assets:install` in the app so `public/bundles/nowodashboardmenu/js/` is updated.
+
 ## License
 
 The MIT License (MIT). Please see [LICENSE](LICENSE) for more information.

@@ -21,7 +21,7 @@ importers:
         specifier: ^22.19.15
         version: 22.19.15
       tom-select:
-        specifier: ^2.2.2
+        specifier: ^2.5.2
         version: 2.5.2
       typescript:
         specifier: ^5.9.3

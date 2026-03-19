@@ -13,7 +13,7 @@ help:
 	@echo "  build           Rebuild Docker image (no cache)"
 	@echo "  shell           Open shell in container"
 	@echo "  install         Install Composer dependencies"
-	@echo "  assets          No frontend assets (no-op)"
+	@echo "  assets          Build frontend assets (Vite: dashboard.js + stimulus-live.js)"
 	@echo "  test            Run PHPUnit tests"
 	@echo "  test-coverage   Run PHPUnit tests with code coverage"
 	@echo "  cs-check        Check code style"
@@ -105,7 +105,9 @@ release-check-demos:
 	@$(MAKE) -C demo release-check 2>/dev/null || true
 
 assets:
-	@echo "No frontend assets in this bundle."
+	@if [ ! -d node_modules ]; then pnpm install; fi
+	@pnpm run build
+	@echo "✅ Assets built: src/Resources/public/js/dashboard.js, js/stimulus-live.js"
 
 clean:
 	rm -rf vendor .phpunit.cache coverage coverage.xml .php-cs-fixer.cache

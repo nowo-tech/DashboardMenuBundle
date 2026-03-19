@@ -11,6 +11,8 @@ dashboard:
   edit_menu: Editar menú
   edit_item: Editar ítem
   edit_items: Editar ítems
+  edit_identity: "Editar (icono, etiqueta, tipo)"
+  edit_config: "Editar configuración (posición, enlace, permiso)"
   copy: Copiar
   copy_menu: Copiar menú
   copy_menu_help: "Copiar el menú y todos sus ítems. Puedes cambiar el código y el nombre del nuevo menú."
@@ -144,8 +146,13 @@ form:
       placeholder: "ej. is-collapsed"
     empty_choice: "— Vacío —"
     css_section_heading: "Clases CSS para renderizado (sobrescriben la config si se definen)."
+    section_definition: "Definición (código, base, nombre, contexto, icono)"
+    section_config: "Configuración (permisos, profundidad, colapsable, CSS)"
 
   menu_item_type:
+    section_basic: "Identidad (tipo, icono, etiquetas)"
+    section_config: "Configuración (enlace, posición, permiso)"
+    label_required: "La etiqueta es obligatoria para Enlace y Sección."
     label:
       label: Etiqueta
     label_locale: "Etiqueta (%locale%)"

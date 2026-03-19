@@ -11,6 +11,8 @@ dashboard:
   edit_menu: Edit menu
   edit_item: Edit item
   edit_items: Edit items
+  edit_identity: "Edit (icon, label, type)"
+  edit_config: "Edit configuration (position, link, permission)"
   copy: Copy
   copy_menu: Copy menu
   copy_menu_help: "Copy menu and all its items. You can change the code and name for the new menu."
@@ -144,8 +146,13 @@ form:
       placeholder: "e.g. is-collapsed"
     empty_choice: "— Empty —"
     css_section_heading: "CSS classes for rendering (override config when set)."
+    section_definition: "Definition (code, base, name, context, icon)"
+    section_config: "Configuration (permissions, depth, collapsible, CSS)"
 
   menu_item_type:
+    section_basic: "Identity (type, icon, labels)"
+    section_config: "Configuration (link, position, permission)"
+    label_required: "Label is required for Link and Section."
     label:
       label: Label
     label_locale: "Label (%locale%)"

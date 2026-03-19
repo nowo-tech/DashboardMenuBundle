@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // This file is auto-generated and is for apps only. Bundles SHOULD NOT rely on its content.
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
@@ -1301,7 +1303,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     },
  *     dashboard?: array{ // Admin dashboard to manage menus and items. Import routes with prefix (e.g. /admin/menus).
  *         enabled?: bool|Param, // Default: false
- *         layout_template?: scalar|Param|null, // Twig template that dashboard views extend (e.g. @App/base.html.twig). Must define block "content". If not set or template does not exist, the bundle layout is used. // Default: "@NowoDashboardMenuBundle/dashboard/layout.html.twig"
+ *         layout_template?: scalar|Param|null, // Twig template that dashboard views extend (e.g. @App/base.html.twig). Must define block "nowo_dashboard_menu_content". If not set or template does not exist, the bundle layout is used. // Default: "@NowoDashboardMenuBundle/dashboard/layout.html.twig"
  *         path_prefix?: scalar|Param|null, // Deprecated: The option "nowo_dashboard_menu.dashboard.path_prefix" is deprecated. Configure the dashboard URL prefix in your app routing (e.g. config/routes.yaml or config/routes_nowo_dashboard_menu.yaml) when importing @NowoDashboardMenuBundle/Resources/config/routes_dashboard.yaml. // Deprecated: set the dashboard URL prefix in config/routes.yaml when importing routes_dashboard.yaml (e.g. prefix: /admin/menus). // Default: "/admin/menus"
  *         route_name_exclude_patterns?: list<scalar|Param|null>,
  *         pagination?: array{ // Pagination for the menus list in the dashboard.
@@ -1315,6 +1317,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             delete?: scalar|Param|null, // Delete confirmation modals. // Default: "normal"
  *         },
  *         icon_selector_script_url?: scalar|Param|null, // Optional URL of the icon-selector Stimulus/script asset. When set, the dashboard layout sets window.dashboardMenuIconSelectorScriptUrl so the item form modal can init the icon selector. Use with nowo-tech/icon-selector-bundle and Symfony UX (Stimulus). // Default: null
+ *         stimulus_script_url?: scalar|Param|null, // Optional URL of a script that loads Stimulus and the Live controller and sets window.Stimulus. When set, the dashboard layout includes this script so the item form Live Component works in the modal. Use the bundle default (null = use bundled script), or your app entry (e.g. Vite) that exposes window.Stimulus. // Default: null
  *         import_max_bytes?: int|Param, // Maximum size in bytes for JSON import file uploads. Default 2 MiB. Prevents DoS from very large uploads. // Default: 2097152
  *         required_role?: scalar|Param|null, // When set (e.g. ROLE_ADMIN), all dashboard routes require this role. Requires SecurityBundle. Leave null to rely on app access_control. // Default: null
  *         import_export_rate_limit?: bool|array{ // Optional rate limit for import and export actions: limit requests per interval per user/IP. E.g. { limit: 10, interval: 60 } = 10 per minute.
@@ -1341,8 +1344,16 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     excluded_templates?: list<scalar|Param|null>,
  *     excluded_blocks?: list<scalar|Param|null>,
  *     enable_metrics?: bool|Param, // Enable collection of template usage metrics in DataCollector // Default: true
- *     optimize_output_buffering?: bool|Param, // Skip output buffering when inspector is disabled (performance optimization) // Default: true
+ *     inject_on_sub_requests?: bool|Param, // When true, inject comments also during sub-requests (e.g. when main content is rendered as fragment). Enable if all templates show "sub-request" and none get inspected. // Default: false
  *     cookie_name?: scalar|Param|null, // Name of the cookie used to enable/disable the inspector // Default: "twig_inspector_is_active"
+ *     max_injection_depth?: int|Param, // Maximum nesting depth for comment injection (0 = unlimited). Reduces overhead on very deep template trees. // Default: 0
+ *     excluded_templates_regex?: list<scalar|Param|null>,
+ *     excluded_templates_prefixes?: list<scalar|Param|null>,
+ *     excluded_blocks_regex?: list<scalar|Param|null>,
+ *     overlay_theme?: scalar|Param|null, // Overlay theme: "light", "dark", or "auto" (follow system preference). // Default: "light"
+ *     overlay_compact?: bool|Param, // Use compact tooltip style for the overlay. // Default: false
+ *     reduced_motion?: bool|Param, // Respect reduced motion (accessibility). When true or system prefers-reduced-motion, animations are minimized. // Default: false
+ *     keyboard_shortcut?: scalar|Param|null, // Keyboard shortcut to toggle inspector (e.g. "Ctrl+Shift+T"). Empty to disable. // Default: "Ctrl+Shift+T"
  * }
  * @psalm-type UxIconsConfig = array{
  *     icon_dir?: scalar|Param|null, // The local directory where icons are stored. // Default: "%kernel.project_dir%/assets/icons"
@@ -1370,6 +1381,22 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     form_theme?: scalar|Param|null, // Base form layout so the icon selector theme matches your app (e.g. form_div_layout.html.twig, bootstrap_5_layout.html.twig). Must match twig.form_themes. // Default: "form_div_layout.html.twig"
  *     debug?: bool|Param, // When true, the frontend logs all debug/info/warn messages to the console. When false, only the initial "script loaded" message is shown. // Default: false
  * }
+ * @psalm-type TwigComponentConfig = array{
+ *     defaults?: array<string, string|array{ // Default: ["__deprecated__use_old_naming_behavior"]
+ *         template_directory?: scalar|Param|null, // Default: "components"
+ *         name_prefix?: scalar|Param|null, // Default: ""
+ *     }>,
+ *     anonymous_template_directory?: scalar|Param|null, // Defaults to `components`
+ *     profiler?: bool|array{ // Enables the profiler for Twig Component
+ *         enabled?: bool|Param, // Default: "%kernel.debug%"
+ *         collect_components?: bool|Param, // Collect components instances // Default: true
+ *     },
+ *     controllers_json?: scalar|Param|null, // Deprecated: The "twig_component.controllers_json" config option is deprecated, and will be removed in 3.0. // Default: null
+ * }
+ * @psalm-type LiveComponentConfig = array{
+ *     secret?: scalar|Param|null, // The secret used to compute fingerprints and checksums // Default: "%kernel.secret%"
+ *     fetch_credentials?: "same-origin"|"include"|"omit"|Param, // The default fetch credentials mode for all Live Components ('same-origin', 'include', 'omit') // Default: "same-origin"
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -1384,6 +1411,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     nowo_dashboard_menu?: NowoDashboardMenuConfig,
  *     ux_icons?: UxIconsConfig,
  *     nowo_icon_selector?: NowoIconSelectorConfig,
+ *     twig_component?: TwigComponentConfig,
+ *     live_component?: LiveComponentConfig,
  *     "when@dev"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -1401,6 +1430,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         nowo_twig_inspector?: NowoTwigInspectorConfig,
  *         ux_icons?: UxIconsConfig,
  *         nowo_icon_selector?: NowoIconSelectorConfig,
+ *         twig_component?: TwigComponentConfig,
+ *         live_component?: LiveComponentConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -1416,6 +1447,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         nowo_dashboard_menu?: NowoDashboardMenuConfig,
  *         ux_icons?: UxIconsConfig,
  *         nowo_icon_selector?: NowoIconSelectorConfig,
+ *         twig_component?: TwigComponentConfig,
+ *         live_component?: LiveComponentConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
@@ -1434,6 +1467,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         nowo_twig_inspector?: NowoTwigInspectorConfig,
  *         ux_icons?: UxIconsConfig,
  *         nowo_icon_selector?: NowoIconSelectorConfig,
+ *         twig_component?: TwigComponentConfig,
+ *         live_component?: LiveComponentConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,

@@ -12,6 +12,7 @@ use Psr\Cache\CacheItemPoolInterface;
 use Psr\Container\ContainerInterface;
 use ReflectionProperty;
 
+use function array_key_exists;
 use function count;
 use function is_array;
 use function json_decode;
@@ -197,7 +198,9 @@ final readonly class MenuTreeLoader
             }
             $label = $item->getLabelForLocale($locale);
             $item->setLabel($label);
-            $item->setLinkType((string) ($row['link_type'] ?? MenuItem::LINK_TYPE_ROUTE));
+            $item->setLinkType(array_key_exists('link_type', $row) && $row['link_type'] === null
+                ? null
+                : (string) ($row['link_type'] ?? MenuItem::LINK_TYPE_ROUTE));
             $item->setRouteName(isset($row['route_name']) ? (string) $row['route_name'] : null);
             if (isset($row['route_params'])) {
                 $item->setRouteParams(is_array($row['route_params']) ? $row['route_params'] : (json_decode((string) $row['route_params'], true) ?: null));

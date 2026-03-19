@@ -1,0 +1,112 @@
+{% set _section_focus = sectionFocus|default('') %}
+{% set _show_basic = form.basic is defined and (_section_focus == '' or _section_focus == 'basic') %}
+{% set _show_config = form.config is defined and (_section_focus == 'config' or (_section_focus == '' and isEdit)) %}
+<div {{ attributes }}>
+    {% if app.debug %}
+        <div id="dm-livecomponent-debug"
+             class="d-none"
+             data-php-item-type="{{ this.getItemType() }}"
+             data-php-link-type="{{ this.getLinkType() }}"
+             data-php-show-link-fields="{{ this.showLinkFields() ? '1' : '0' }}"
+             data-php-show-route-fields="{{ this.showRouteFields() ? '1' : '0' }}"
+             data-php-show-external-url="{{ this.showExternalUrlField() ? '1' : '0' }}"
+             data-php-item-has-children="{{ this.itemHasChildren ? '1' : '0' }}"
+        ></div>
+    {% endif %}
+    {{ form_start(form, {
+        method: 'POST',
+        action: this.actionUrl,
+        attr: {
+            class: 'form form-vertical',
+            'data-model': 'on(change)|*',
+            'data-action': 'live#action:prevent',
+            'data-live-action-param': 'save',
+        }
+    }) }}
+        {% if _section_focus != '' %}
+            <input type="hidden" name="_section" value="{{ _section_focus }}">
+        {% endif %}
+        {% if _show_basic %}
+        <div id="item_basic_section" class="mb-3">
+            {% set formName = form.vars.name %}
+            <h6 class="text-muted mb-2">
+                <i class="bi bi-pencil" aria-hidden="true"></i>
+                {{ 'form.menu_item_type.section_basic'|trans({}, 'NowoDashboardMenuBundle') }}
+            </h6>
+            <div class="row mb-3">
+                <div class="col-md-6">{{ form_row(form.basic.itemType, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.basic.itemType' } }) }}</div>
+            </div>
+            <div class="{{ this.getItemType() == 'divider' ? 'd-none' : '' }}">
+                <div class="row mb-3">
+                    {{ form_row(form.basic.label) }}
+                    {{ form_row(form.basic.icon) }}
+                </div>
+                {% if locales is not empty %}
+                    <div class="row mb-3">
+                        {% for locale in locales %}
+                            {% set fieldName = 'label_' ~ locale %}
+                            {% if attribute(form.basic, fieldName) is defined %}
+                                <div class="col-md-6">{{ form_row(attribute(form.basic, fieldName)) }}</div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if _show_config %}
+        <div id="item_config_section" class="mb-3">
+            {% if _show_basic %}<hr class="my-3">{% endif %}
+            {% set formName = form.vars.name %}
+            <h6 class="text-muted mb-2">
+                <i class="bi bi-gear" aria-hidden="true"></i>
+                {{ 'form.menu_item_type.section_config'|trans({}, 'NowoDashboardMenuBundle') }}
+            </h6>
+            {% if form.config.parent is defined %}
+                {% if this.showParentField() %}
+                    {{ form_row(form.config.parent) }}
+                {% else %}
+                    <div class="d-none">{{ form_row(form.config.parent) }}</div>
+                {% endif %}
+            {% endif %}
+            <div class="row mb-3">
+                <div class="col-md-6">{{ form_row(form.config.position) }}</div>
+            </div>
+            {% if this.showLinkFields() %}
+                {{ form_row(form.config.linkType, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.linkType' } }) }}
+                <div class="mb-3 {{ not this.showRouteFields() ? 'd-none' : '' }}">
+                    {{ form_row(form.config.routeName) }}
+                    {{ form_row(form.config.routeParams) }}
+                    {% set suggested = this.suggestedRouteParams %}
+                    {% if suggested is not empty %}
+                        <small class="form-text text-muted d-block mt-1">{{ 'Suggested:'|trans({}, 'NowoDashboardMenuBundle') }} {{ suggested|json_encode(2) }}</small>
+                    {% endif %}
+                </div>
+                <div class="mb-3 {{ not this.showExternalUrlField() ? 'd-none' : '' }}">
+                    {{ form_row(form.config.externalUrl) }}
+                </div>
+                {{ form_row(form.config.targetBlank) }}
+            {% else %}
+                <div class="d-none">
+                    {{ form_row(form.config.linkType, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.linkType' } }) }}
+                    {{ form_row(form.config.routeName) }}
+                    {{ form_row(form.config.routeParams) }}
+                    {{ form_row(form.config.externalUrl) }}
+                    {{ form_row(form.config.targetBlank) }}
+                </div>
+            {% endif %}
+            {{ form_row(form.config.permissionKey) }}
+        </div>
+        {% endif %}
+        {{ form_rest(form) }}
+        <button
+            type="submit"
+            class="btn btn-primary"
+            data-action="live#action:prevent"
+            data-live-action-param="save"
+        >
+            {{ (isEdit ? 'dashboard.update' : 'dashboard.create')|trans({}, 'NowoDashboardMenuBundle') }}
+        </button>
+    {{ form_end(form) }}
+</div>

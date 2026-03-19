@@ -31,6 +31,8 @@ nowo_dashboard_menu:
         # URL prefix is set in config/routes.yaml (nowo_dashboard_menu_dashboard.prefix).
         # URL or asset path for the icon-selector script (Stimulus/UX). Enables the icon field in the item form modal.
         icon_selector_script_url: 'bundles/nowoiconselector/icon-selector.js'
+        # Stimulus for Live form: use the bundle's script so window.Stimulus is always available when opening the item modal. Set to null only if your layout loads Stimulus (e.g. Vite) and exposes window.Stimulus before the modal is used.
+        stimulus_script_url: 'bundles/nowodashboardmenu/js/stimulus-live.js'
         # route_name_exclude_patterns: ['^_', '^web_profiler']  # regex: hide internal/profiler routes from selector
         pagination:
             enabled: true

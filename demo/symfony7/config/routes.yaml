@@ -16,6 +16,11 @@ nowo_dashboard_menu_dashboard:
 nowo_icon_selector:
     resource: '@NowoIconSelectorBundle/Resources/config/routes.yaml'
 
+# Optional: when symfony/ux-live-component is installed, copy routes/ux_live_component.yaml.example
+# to routes/ux_live_component.yaml and uncomment the block below (dashboard item form modal).
+# _ux_live_component:
+#     resource: routes/ux_live_component.yaml
+
 # Dev/test: Web Profiler & Debug toolbar
 _web_profiler:
     resource: routes/web_profiler.yaml

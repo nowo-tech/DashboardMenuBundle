@@ -81,6 +81,7 @@ final readonly class MenuExporter
             'collapsibleExpanded'       => $menu->getCollapsibleExpanded(),
             'nestedCollapsible'         => $menu->getNestedCollapsible(),
             'nestedCollapsibleSections' => $menu->getNestedCollapsibleSections(),
+            'base'                      => $menu->isBase(),
         ], static fn (mixed $v): bool => $v !== null && $v !== '');
     }
 

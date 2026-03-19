@@ -35,7 +35,24 @@ final class MenuExporterTest extends TestCase
         self::assertSame('Main sidebar', $data['menu']['name']);
         self::assertSame('section-label', $data['menu']['classSectionLabel']);
         self::assertFalse($data['menu']['nestedCollapsibleSections']);
+        self::assertFalse($data['menu']['base']);
         self::assertSame([], $data['items']);
+    }
+
+    public function testExportMenuIncludesBaseWhenTrue(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('nav');
+        $menu->setBase(true);
+
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo->method('findAllForMenuOrderedByTreeForExport')->willReturn([]);
+
+        $exporter = new MenuExporter($menuRepo, $itemRepo);
+        $data     = $exporter->exportMenu($menu);
+
+        self::assertTrue($data['menu']['base']);
     }
 
     public function testExportMenuIncludesItemTree(): void

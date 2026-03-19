@@ -91,6 +91,8 @@ final class MenuItemTest extends TestCase
         self::assertSame(MenuItem::LINK_TYPE_ROUTE, $item->getLinkType());
         $item->setLinkType(MenuItem::LINK_TYPE_EXTERNAL);
         self::assertSame(MenuItem::LINK_TYPE_EXTERNAL, $item->getLinkType());
+        $item->setLinkType(null);
+        self::assertNull($item->getLinkType());
     }
 
     public function testRouteNameGetterSetter(): void

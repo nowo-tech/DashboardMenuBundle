@@ -1,0 +1,19 @@
+<div id="modal-import-container">
+    {% for msg in app.flashes('error') %}
+        <div class="alert alert-danger">{{ msg }}</div>
+    {% endfor %}
+    {% for msg in app.flashes('success') %}
+        <div class="alert alert-success">{{ msg }}</div>
+    {% endfor %}
+    <p class="text-muted small">{{ 'dashboard.import_help'|trans({}, 'NowoDashboardMenuBundle') }}</p>
+    {{ form_start(form, { attr: { enctype: 'multipart/form-data', class: 'import-form', 'data-import-form': '1' } }) }}
+        <input type="hidden" name="_modal" value="1">
+        {{ form_row(form.file, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
+        {{ form_row(form.strategy, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
+        {{ form_rest(form) }}
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">{{ 'dashboard.import'|trans({}, 'NowoDashboardMenuBundle') }}</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'dashboard.cancel'|trans({}, 'NowoDashboardMenuBundle') }}</button>
+        </div>
+    {{ form_end(form) }}
+</div>

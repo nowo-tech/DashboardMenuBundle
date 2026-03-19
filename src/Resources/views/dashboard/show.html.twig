@@ -18,7 +18,10 @@
         <div>
             <a href="{{ path(dashboard_routes.export_menu|default('nowo_dashboard_menu_dashboard_export_menu'), { id: menu.id }) }}" class="btn btn-outline-secondary" target="_blank" rel="noopener noreferrer">{{ 'dashboard.export'|trans({}, 'NowoDashboardMenuBundle') }}</a>
             <button type="button" class="btn btn-outline-info btn-copy-menu" data-id="{{ menu.id }}" data-copy-url="{{ path(dashboard_routes.menu_copy|default('nowo_dashboard_menu_dashboard_menu_copy'), { id: menu.id }) }}?_partial=1" data-bs-toggle="modal" data-bs-target="#modal-menu-copy">{{ 'dashboard.copy'|trans({}, 'NowoDashboardMenuBundle') }}</button>
-            <button type="button" class="btn btn-outline-secondary btn-edit-menu" data-id="{{ menu.id }}" data-bs-toggle="modal" data-bs-target="#modal-menu-form">{{ 'dashboard.edit_menu'|trans({}, 'NowoDashboardMenuBundle') }}</button>
+            <button type="button" class="btn btn-outline-primary btn-edit-menu" data-id="{{ menu.id }}" data-section="basic" data-bs-toggle="modal" data-bs-target="#modal-menu-form" title="{{ 'dashboard.edit_identity'|trans({}, 'NowoDashboardMenuBundle') }}">{{ 'dashboard.edit_menu'|trans({}, 'NowoDashboardMenuBundle') }}</button>
+            <button type="button" class="btn btn-outline-secondary btn-edit-menu btn-edit-menu-config" data-id="{{ menu.id }}" data-section="config" data-bs-toggle="modal" data-bs-target="#modal-menu-form" title="{{ 'dashboard.edit_config'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.edit_config'|trans({}, 'NowoDashboardMenuBundle') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/></svg>
+            </button>
             <button type="button" class="btn btn-primary btn-add-item" data-id="{{ menu.id }}" data-parent="" data-bs-toggle="modal" data-bs-target="#modal-item-form">{{ 'dashboard.add_item'|trans({}, 'NowoDashboardMenuBundle') }}</button>
         </div>
     </div>
@@ -108,8 +111,11 @@
                                         <button type="button" class="btn btn-sm btn-outline-success btn-add-item" title="{{ 'dashboard.add_child'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.add_child'|trans({}, 'NowoDashboardMenuBundle') }}" data-id="{{ menu.id }}" data-parent="{{ item.id }}" data-bs-toggle="modal" data-bs-target="#modal-item-form">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1a.5.5 0 0 1 .5.5V7.5H14.5a.5.5 0 0 1 0 1H8.5V14.5a.5.5 0 0 1-1 0V8.5H1.5a.5.5 0 0 1 0-1H7.5V1.5A.5.5 0 0 1 8 1z"/></svg>
                                         </button>
-                                        <button type="button" class="btn btn-sm btn-outline-primary btn-edit-item" title="{{ 'dashboard.edit'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.edit'|trans({}, 'NowoDashboardMenuBundle') }}" data-id="{{ menu.id }}" data-item-id="{{ item.id }}" data-bs-toggle="modal" data-bs-target="#modal-item-form">
+                                        <button type="button" class="btn btn-sm btn-outline-primary btn-edit-item" title="{{ 'dashboard.edit_identity'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.edit_identity'|trans({}, 'NowoDashboardMenuBundle') }}" data-id="{{ menu.id }}" data-item-id="{{ item.id }}" data-section="basic" data-bs-toggle="modal" data-bs-target="#modal-item-form">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/></svg>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary btn-edit-item btn-edit-item-config" title="{{ 'dashboard.edit_config'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.edit_config'|trans({}, 'NowoDashboardMenuBundle') }}" data-id="{{ menu.id }}" data-item-id="{{ item.id }}" data-section="config" data-bs-toggle="modal" data-bs-target="#modal-item-form">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/></svg>
                                         </button>
                                         <button type="button" class="btn btn-sm btn-outline-danger btn-delete-item" title="{{ 'dashboard.delete'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.delete'|trans({}, 'NowoDashboardMenuBundle') }}" data-id="{{ menu.id }}" data-item-id="{{ item.id }}" data-name="{{ item.label ?: ('dashboard.no_label'|trans) }}" data-url="{{ path(dashboard_routes.item_delete|default('nowo_dashboard_menu_dashboard_item_delete'), { id: menu.id, itemId: item.id }) }}" data-token="{{ csrf_token('delete_item_' ~ item.id) }}" data-bs-toggle="modal" data-bs-target="#modal-delete-item-confirm">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>
@@ -213,117 +219,10 @@
     </div>
 
     <script>
-    (function() {
-        var menuId = {{ menu.id }};
-        var baseUrl = '{{ path(dashboard_show_route|default(dashboard_routes.show|default('nowo_dashboard_menu_dashboard_show')), { id: menu.id }) }}'.replace(/\/[^/]+$/, '');
-
-        document.getElementById('modal-menu-form').addEventListener('show.bs.modal', function(e) {
-            var btn = e.relatedTarget;
-            if (!btn || !btn.classList.contains('btn-edit-menu')) return;
-            var body = document.getElementById('modal-menu-form-body');
-            var id = btn.getAttribute('data-id') || menuId;
-            body.innerHTML = '<div class="text-center py-4 text-muted">' + (window.dashboardMenuI18n && window.dashboardMenuI18n.loading || 'Loading…') + '</div>';
-            fetch(baseUrl + '/' + id + '/edit?_partial=1')
-                .then(function(r) { return r.text(); })
-                .then(function(html) { body.innerHTML = html; })
-                .catch(function() { body.innerHTML = '<div class="alert alert-danger">' + (window.dashboardMenuI18n && window.dashboardMenuI18n.errorLoadingForm || 'Error loading form.') + '</div>'; });
-        });
-
-        var copyMenuModal = document.getElementById('modal-menu-copy');
-        if (copyMenuModal) {
-            copyMenuModal.addEventListener('show.bs.modal', function(e) {
-                var btn = e.relatedTarget;
-                if (!btn || !btn.classList.contains('btn-copy-menu')) return;
-                var copyUrl = btn.getAttribute('data-copy-url');
-                var body = document.getElementById('modal-menu-copy-body');
-                if (!body || !copyUrl) return;
-                body.innerHTML = '<div class="text-center py-4 text-muted">' + (window.dashboardMenuI18n && window.dashboardMenuI18n.loading || 'Loading…') + '</div>';
-                fetch(copyUrl)
-                    .then(function(r) { return r.text(); })
-                    .then(function(html) { body.innerHTML = html; })
-                    .catch(function() { body.innerHTML = '<div class="alert alert-danger">' + (window.dashboardMenuI18n && window.dashboardMenuI18n.errorLoadingForm || 'Error loading form.') + '</div>'; });
-            });
-        }
-
-        document.getElementById('modal-item-form').addEventListener('show.bs.modal', function(e) {
-            var btn = e.relatedTarget;
-            if (!btn || !btn.classList.contains('btn-add-item') && !btn.classList.contains('btn-edit-item')) return;
-            var body = document.getElementById('modal-item-form-body');
-            var title = document.getElementById('modal-item-form-label');
-            var isEdit = btn.classList.contains('btn-edit-item');
-            var mid = btn.getAttribute('data-id') || menuId;
-            var itemId = btn.getAttribute('data-item-id');
-            var parent = btn.getAttribute('data-parent') || '';
-            title.textContent = isEdit ? (window.dashboardMenuI18n && window.dashboardMenuI18n.editItem || 'Edit item') : (window.dashboardMenuI18n && window.dashboardMenuI18n.addItem || 'Add item');
-            body.innerHTML = '<div class="text-center py-4 text-muted">' + (window.dashboardMenuI18n && window.dashboardMenuI18n.loading || 'Loading…') + '</div>';
-            var url = isEdit
-                ? baseUrl + '/' + mid + '/item/' + itemId + '/edit?_partial=1'
-                : baseUrl + '/' + mid + '/item/new?_partial=1' + (parent ? '&parent=' + encodeURIComponent(parent) : '');
-            fetch(url)
-                .then(function(r) { return r.text(); })
-                .then(function(html) {
-                    body.innerHTML = '<div id="modal-item-form-container">' + html + '</div>';
-                    var container = document.getElementById('modal-item-form-container');
-                    if (container) {
-                        runScriptsInElement(container);
-                        reinitIconSelectorInContainer(container);
-                        connectStimulusControllersInContainer(container);
-                        document.dispatchEvent(new CustomEvent('dashboard-menu:modal-content-loaded', { detail: { element: container } }));
-                    }
-                })
-                .catch(function() { body.innerHTML = '<div class="alert alert-danger">' + (window.dashboardMenuI18n && window.dashboardMenuI18n.errorLoadingForm || 'Error loading form.') + '</div>'; });
-        });
-
-        function runScriptsInElement(el) {
-            var scripts = el.querySelectorAll('script');
-            scripts.forEach(function(oldScript) {
-                var newScript = document.createElement('script');
-                if (oldScript.src) { newScript.src = oldScript.src; } else { newScript.textContent = oldScript.textContent; }
-                oldScript.parentNode.replaceChild(newScript, oldScript);
-            });
-        }
-
-        function reinitIconSelectorInContainer(container) {
-            var url = (typeof window.dashboardMenuIconSelectorScriptUrl !== 'undefined' && window.dashboardMenuIconSelectorScriptUrl) || (container.getAttribute('data-icon-selector-script-url') || '').trim();
-            if (!url) {
-                var existing = document.querySelector('script[src*="icon-selector"], script[src*="icon_selector"]');
-                if (existing && existing.src) url = existing.src;
-            }
-            if (!url) return;
-            var script = document.createElement('script');
-            script.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_=' + Date.now();
-            script.async = false;
-            script.onload = function() { connectStimulusControllersInContainer(container); script.remove(); };
-            (document.head || document.documentElement).appendChild(script);
-        }
-
-        /**
-         * Connect Symfony UX / Stimulus controllers inside dynamically loaded content (e.g. modal form with icon selector).
-         * Call this after injecting HTML that contains data-controller="...". Uses window.Stimulus if set by @symfony/stimulus-bundle.
-         */
-        function connectStimulusControllersInContainer(container) {
-            if (!container || !window.Stimulus || !window.Stimulus.router) return;
-            var nodes = container.querySelectorAll('[data-controller]');
-            nodes.forEach(function(el) {
-                try {
-                    if (window.Stimulus.router.elementConnected) {
-                        window.Stimulus.router.elementConnected(el);
-                    }
-                } catch (e) { /* ignore */ }
-            });
-        }
-
-        document.getElementById('modal-delete-item-confirm').addEventListener('show.bs.modal', function(e) {
-            var btn = e.relatedTarget;
-            if (!btn || !btn.classList.contains('btn-delete-item')) return;
-            var form = document.getElementById('form-delete-item-confirm');
-            var msg = document.getElementById('modal-delete-item-message');
-            if (form && msg) {
-                form.action = btn.getAttribute('data-url') || '';
-                form.querySelector('input[name="_token"]').value = btn.getAttribute('data-token') || '';
-                msg.textContent = (window.dashboardMenuI18n && window.dashboardMenuI18n.deleteItemConfirm ? window.dashboardMenuI18n.deleteItemConfirm.replace('%name%', btn.getAttribute('data-name') || '') : 'Delete this item and its children?');
-            }
-        });
-    })();
+    window.__nowoDashboardMenuConfig = Object.assign(window.__nowoDashboardMenuConfig || {}, {
+        baseUrl: {{ path(dashboard_show_route|default(dashboard_routes.show|default('nowo_dashboard_menu_dashboard_show')), { id: menu.id }) |json_encode|raw }},
+        menuId: {{ menu.id }},
+        debug: {{ app.debug ? 'true' : 'false' }}
+    });
     </script>
 {% endblock %}

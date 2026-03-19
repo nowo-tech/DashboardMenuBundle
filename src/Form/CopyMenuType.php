@@ -38,15 +38,19 @@ final class CopyMenuType extends AbstractType
                     'pattern'     => '[a-zA-Z0-9_-]+',
                     'placeholder' => $t('form.copy_menu_type.code.placeholder'),
                 ],
+                'row_attr'    => ['class' => 'mb-1'],
+                'label_attr'  => ['class' => 'form-label'],
                 'constraints' => [
                     new NotBlank(),
                     new Regex(pattern: '#^[a-zA-Z0-9_-]+$#', message: 'form.copy_menu_type.code.regex_message'),
                 ],
             ])
             ->add('name', TextType::class, [
-                'required' => false,
-                'label'    => 'form.copy_menu_type.name.label',
-                'attr'     => ['class' => 'form-control', 'placeholder' => $t('form.copy_menu_type.name.placeholder')],
+                'required'   => false,
+                'label'      => 'form.copy_menu_type.name.label',
+                'attr'       => ['class' => 'form-control', 'placeholder' => $t('form.copy_menu_type.name.placeholder')],
+                'row_attr'   => ['class' => 'mb-1'],
+                'label_attr' => ['class' => 'form-label'],
             ]);
     }
 

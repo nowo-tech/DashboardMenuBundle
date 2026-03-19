@@ -10,11 +10,18 @@ services:
   Nowo\DashboardMenuBundle\Repository\MenuItemRepository:
     public: true
 
-  Nowo\DashboardMenuBundle\Form\MenuItemType:
+  Nowo\DashboardMenuBundle\Form\MenuItemType: ~
+
+  Nowo\DashboardMenuBundle\Form\MenuItemBasicType:
+    arguments:
+      $defaultLocale: '%nowo_dashboard_menu.default_locale_resolved%'
+      $availableLocales: '%nowo_dashboard_menu.locales%'
+      $translator: '@translator'
+
+  Nowo\DashboardMenuBundle\Form\MenuItemConfigType:
     arguments:
       $menuItemRepository: '@Nowo\DashboardMenuBundle\Repository\MenuItemRepository'
       $defaultLocale: '%nowo_dashboard_menu.default_locale_resolved%'
-      $availableLocales: '%nowo_dashboard_menu.locales%'
       $translator: '@translator'
 
   Nowo\DashboardMenuBundle\Form\CopyMenuType:
@@ -25,7 +32,13 @@ services:
     arguments:
       $translator: '@translator'
 
-  Nowo\DashboardMenuBundle\Form\MenuType:
+  Nowo\DashboardMenuBundle\Form\MenuType: ~
+
+  Nowo\DashboardMenuBundle\Form\MenuDefinitionType:
+    arguments:
+      $translator: '@translator'
+
+  Nowo\DashboardMenuBundle\Form\MenuConfigType:
     arguments:
       $permissionCheckerChoices: '%nowo_dashboard_menu.permission_checker_choices%'
       $cssClassOptions: '%nowo_dashboard_menu.dashboard.css_class_options%'
@@ -68,6 +81,8 @@ services:
   Nowo\DashboardMenuBundle\Service\MenuExporter: ~
   Nowo\DashboardMenuBundle\Service\MenuImporter: ~
 
+  # ItemFormLiveComponent is registered in services_live_component.yaml when symfony/ux-live-component is installed
+
   Nowo\DashboardMenuBundle\Controller\Dashboard\MenuDashboardController:
     arguments:
       $menuExporter: '@Nowo\DashboardMenuBundle\Service\MenuExporter'
@@ -78,8 +93,10 @@ services:
       $paginationPerPage: '%nowo_dashboard_menu.dashboard.pagination.per_page%'
       $modalSizes: '%nowo_dashboard_menu.dashboard.modals%'
       $iconSelectorScriptUrl: '%nowo_dashboard_menu.dashboard.icon_selector_script_url%'
+      $stimulusScriptUrl: '%nowo_dashboard_menu.dashboard.stimulus_script_url%'
       $importMaxBytes: '%nowo_dashboard_menu.dashboard.import_max_bytes%'
       $importExportRateLimiter: '@Nowo\DashboardMenuBundle\Service\ImportExportRateLimiter'
+      $itemFormLiveComponentEnabled: '%nowo_dashboard_menu.dashboard.item_form_live_component_enabled%'
     public: true
 
   Nowo\DashboardMenuBundle\EventSubscriber\TablePrefixSubscriber:

@@ -1,6 +1,8 @@
 /var
 # Dependencies
 /vendor
+/node_modules
+/.pnpm-store
 
 # Environment and secrets
 .env

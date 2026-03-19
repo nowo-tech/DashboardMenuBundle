@@ -31,7 +31,11 @@ final readonly class MenuUrlResolver
 
     public function getHref(MenuItem $item, int $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH): string
     {
-        if ($item->getLinkType() === MenuItem::LINK_TYPE_EXTERNAL && $item->getExternalUrl() !== null) {
+        $linkType = $item->getLinkType();
+        if ($linkType === null) {
+            return '#';
+        }
+        if ($linkType === MenuItem::LINK_TYPE_EXTERNAL && $item->getExternalUrl() !== null) {
             return $item->getExternalUrl();
         }
 

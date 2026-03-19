@@ -25,6 +25,7 @@
         "symfony/translation": "^8.0",
         "symfony/twig-bundle": "^8.0",
         "symfony/ux-autocomplete": "^2.33",
+        "symfony/ux-live-component": "^2.32",
         "symfony/validator": "^8.0",
         "symfony/yaml": "^8.0"
     },
@@ -67,7 +68,7 @@
     ],
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^4.0",
-        "nowo-tech/twig-inspector-bundle": "v1.0.5",
+        "nowo-tech/twig-inspector-bundle": "*",
         "symfony/debug-bundle": "^8.0",
         "symfony/var-dumper": "^8.0",
         "symfony/web-profiler-bundle": "^8.0"

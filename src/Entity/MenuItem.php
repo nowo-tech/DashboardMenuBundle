@@ -60,9 +60,10 @@ class MenuItem implements TranslatableInterface
 
     /**
      * Label (default/fallback). For i18n use translations JSON; repository resolves by locale on load.
+     * Null for divider items (no label).
      */
-    #[ORM\Column(type: Types::STRING, length: 255)]
-    private string $label = '';
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $label = null;
 
     /**
      * Optional translations: {"en": "Home", "es": "Inicio"}. Resolved in repository by locale.
@@ -73,10 +74,10 @@ class MenuItem implements TranslatableInterface
     private ?array $translations = null;
 
     /**
-     * Link type: "route" (Symfony route) or "external" (full URL).
+     * Link type: "route" (Symfony route) or "external" (full URL). Null when item type is "link" and has children (no destination).
      */
-    #[ORM\Column(type: Types::STRING, length: 20, options: ['default' => 'route'])]
-    private string $linkType = self::LINK_TYPE_ROUTE;
+    #[ORM\Column(type: Types::STRING, length: 20, nullable: true, options: ['default' => 'route'])]
+    private ?string $linkType = self::LINK_TYPE_ROUTE;
 
     /**
      * Symfony route name when linkType = route.
@@ -178,10 +179,10 @@ class MenuItem implements TranslatableInterface
 
     public function getLabel(): string
     {
-        return $this->label;
+        return $this->label ?? '';
     }
 
-    public function setLabel(string $label): self
+    public function setLabel(?string $label): self
     {
         $this->label = $label;
 
@@ -197,7 +198,7 @@ class MenuItem implements TranslatableInterface
             return $this->translations[$locale];
         }
 
-        return $this->label;
+        return $this->label ?? '';
     }
 
     /**
@@ -218,12 +219,12 @@ class MenuItem implements TranslatableInterface
         return $this->translations;
     }
 
-    public function getLinkType(): string
+    public function getLinkType(): ?string
     {
         return $this->linkType;
     }
 
-    public function setLinkType(string $linkType): self
+    public function setLinkType(?string $linkType): self
     {
         $this->linkType = $linkType;
 

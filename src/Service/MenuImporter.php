@@ -110,6 +110,23 @@ final readonly class MenuImporter
 
         $this->persistItemTree($itemsData, $menu, null, 0);
         $this->entityManager->flush();
+        $this->clearLinkDataForLinkItemsWithChildren($menu);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * When item type is "link" and the item has children, linkType (and route/external) must be null.
+     */
+    private function clearLinkDataForLinkItemsWithChildren(Menu $menu): void
+    {
+        foreach ($menu->getItems() as $item) {
+            if ($item->getItemType() === MenuItem::ITEM_TYPE_LINK && $item->getChildren()->count() > 0) {
+                $item->setLinkType(null);
+                $item->setRouteName(null);
+                $item->setRouteParams(null);
+                $item->setExternalUrl(null);
+            }
+        }
     }
 
     /**
@@ -141,6 +158,9 @@ final readonly class MenuImporter
         $menu->setCollapsibleExpanded($this->boolOrNull($menuData['collapsibleExpanded'] ?? null));
         $menu->setNestedCollapsible($this->boolOrNull($menuData['nestedCollapsible'] ?? null));
         $menu->setNestedCollapsibleSections($this->boolOrNull($menuData['nestedCollapsibleSections'] ?? null));
+        if (array_key_exists('base', $menuData)) {
+            $menu->setBase(!empty($menuData['base']));
+        }
     }
 
     /**
