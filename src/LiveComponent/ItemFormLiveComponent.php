@@ -87,8 +87,8 @@ final class ItemFormLiveComponent
             'locale'            => $this->locale,
             'available_locales' => $this->locales,
             // Keep CSRF consistent across Symfony versions (and match stateless_token_ids in the demos).
-            'csrf_token_id'    => 'submit',
-            'section'           => $this->sectionFocus,
+            'csrf_token_id' => 'submit',
+            'section'       => $this->sectionFocus,
         ]);
     }
 

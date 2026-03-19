@@ -778,8 +778,8 @@ final class MenuDashboardController extends AbstractController
                 'available_locales' => $this->locales,
                 'action'            => $actionUrl,
                 // Keep CSRF consistent across Symfony versions.
-                'csrf_token_id'    => 'submit',
-                'section'           => 'basic',
+                'csrf_token_id' => 'submit',
+                'section'       => 'basic',
             ]);
 
             return $this->render('@NowoDashboardMenuBundle/dashboard/_item_form_partial.html.twig', [
@@ -801,8 +801,8 @@ final class MenuDashboardController extends AbstractController
             'available_locales' => $this->locales,
             'action'            => $actionUrl,
             // Keep CSRF consistent across Symfony versions.
-            'csrf_token_id'    => 'submit',
-            'section'           => 'basic',
+            'csrf_token_id' => 'submit',
+            'section'       => 'basic',
         ]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -882,8 +882,8 @@ final class MenuDashboardController extends AbstractController
                 'available_locales' => $this->locales,
                 'action'            => $this->generateUrl(self::ROUTE_ITEM_EDIT, ['id' => $id, 'itemId' => $itemId]),
                 // Keep CSRF consistent across Symfony versions.
-                'csrf_token_id'    => 'submit',
-                'section'           => $sectionFocus,
+                'csrf_token_id' => 'submit',
+                'section'       => $sectionFocus,
             ]);
 
             return $this->render('@NowoDashboardMenuBundle/dashboard/_item_form_partial.html.twig', [
@@ -905,7 +905,7 @@ final class MenuDashboardController extends AbstractController
             'available_locales' => $this->locales,
             'action'            => $this->generateUrl(self::ROUTE_ITEM_EDIT, ['id' => $id, 'itemId' => $itemId]),
             // Keep CSRF consistent across Symfony versions.
-            'csrf_token_id'    => 'submit',
+            'csrf_token_id' => 'submit',
         ]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
