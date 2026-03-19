@@ -1,8 +1,12 @@
-.PHONY: help build up down restart shell install setup clean logs ensure-up update-bundle verify cache-clear schema-update migrations-status migrate test test-coverage ts-assets
+.PHONY: help build up down restart shell install setup clean logs ensure-up update-bundle verify cache-clear schema-update migrations-status migrate test test-coverage ts-assets assets
 
 help:
 	@echo "Dashboard Menu Bundle Demo - Symfony 8"
-	@echo "  ensure-up, up, down, restart, build, shell, install, setup, clean, logs, update-bundle, schema-update, migrations-status, migrate, test, test-coverage, ts-assets, verify, cache-clear"
+	@echo "  ensure-up, up, down, restart, build, shell, install, setup, clean, logs, update-bundle, assets, schema-update, migrations-status, migrate, test, test-coverage, ts-assets, verify, cache-clear"
+
+assets:
+	pnpm install
+	pnpm run build
 
 ts-assets:
 	@sh scripts/create-ts-assets.sh

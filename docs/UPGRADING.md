@@ -2,6 +2,18 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 0.3.15 to 0.3.16
+
+No breaking changes.
+
+- **Config:** Optional `dashboard.permission_key_choices` (array of strings) to turn the item form permission key field into a select with autocomplete. Demos set it to match fixture keys (e.g. `['authenticated', 'admin', 'path:/']`).
+- **Dashboard:** Route name and (when configured) permission key use the Symfony UX Autocomplete form theme; override templates can keep or replace the `form_theme` line.
+- **Add child:** Parent ID is sent in the form action URL so the new item is saved as a child; the "Add child" button is disabled for section and divider items.
+- **MenuItem:** `itemType` is now nullable (DB and entity); getter/setter handle null. No change needed unless you type-hint or reflect on the property.
+- **Permission checkers:** Bundle and demo checkers are explicitly tagged so they appear in the dropdown; if you add a custom checker, tag it with `nowo_dashboard_menu.permission_checker` and optional `label`.
+- **Docs:** Override and form-theme behaviour clarified in USAGE; `permission_key_choices` documented in CONFIGURATION.
+- **Demo Symfony 7:** Frontend is TypeScript (see demo README: `make ts-assets` after fixing `assets/` ownership if needed).
+
 ## From 0.3.14 to 0.3.15
 
 No breaking changes.

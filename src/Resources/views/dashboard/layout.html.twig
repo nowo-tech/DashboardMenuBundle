@@ -1,4 +1,3 @@
-{% trans_default_domain 'NowoDashboardMenuBundle' %}
 <!DOCTYPE html>
 <html lang="{{ app.request.locale }}">
 <head>
@@ -31,14 +30,14 @@
     window.dashboardMenuIconSelectorScriptUrl = {{ (icon_selector_script_url starts with 'http') ? icon_selector_script_url : asset(icon_selector_script_url) |json_encode|raw }};
     {% endif %}
     window.dashboardMenuI18n = {
-        loading: {{ 'dashboard.loading'|trans|json_encode|raw }},
-        errorLoadingForm: {{ 'dashboard.error_loading_form'|trans|json_encode|raw }},
-        deleteMenuConfirm: {{ 'dashboard.delete_menu_confirm'|trans|json_encode|raw }},
-        editItem: {{ 'dashboard.edit_item'|trans|json_encode|raw }},
-        editConfig: {{ 'dashboard.edit_config'|trans|json_encode|raw }},
-        editMenu: {{ 'dashboard.edit_menu'|trans|json_encode|raw }},
-        addItem: {{ 'dashboard.add_item'|trans|json_encode|raw }},
-        deleteItemConfirm: {{ 'dashboard.delete_item_confirm'|trans|json_encode|raw }}
+        loading: {{ 'dashboard.loading'|trans({}, 'NowoDashboardMenuBundle')|json_encode|raw }},
+        errorLoadingForm: {{ 'dashboard.error_loading_form'|trans({}, 'NowoDashboardMenuBundle')|json_encode|raw }},
+        deleteMenuConfirm: {{ 'dashboard.delete_menu_confirm'|trans({}, 'NowoDashboardMenuBundle')|json_encode|raw }},
+        editItem: {{ 'dashboard.edit_item'|trans({}, 'NowoDashboardMenuBundle')|json_encode|raw }},
+        editConfig: {{ 'dashboard.edit_config'|trans({}, 'NowoDashboardMenuBundle')|json_encode|raw }},
+        editMenu: {{ 'dashboard.edit_menu'|trans({}, 'NowoDashboardMenuBundle')|json_encode|raw }},
+        addItem: {{ 'dashboard.add_item'|trans({}, 'NowoDashboardMenuBundle')|json_encode|raw }},
+        deleteItemConfirm: {{ 'dashboard.delete_item_confirm'|trans({}, 'NowoDashboardMenuBundle')|json_encode|raw }}
     };
     </script>
 </body>

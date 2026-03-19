@@ -43,6 +43,8 @@ The bundle registers its Twig views so that `@NowoDashboardMenuBundle/...` works
 
 Place a file in your project under **`templates/bundles/NowoDashboardMenuBundle/`** with the **same relative path** as inside the bundle. Twig will use your template instead of the bundle’s. The bundle registers its view path after the app paths, so your overrides in `templates/bundles/NowoDashboardMenuBundle/` take precedence.
 
+**Form themes (e.g. autocomplete):** Some bundle templates use `{% form_theme form '@SymfonyUXAutocomplete/autocomplete_form_theme.html.twig' %}` so that route/permission selectors get a searchable dropdown. That reference points to the Symfony UX Autocomplete bundle, not to this bundle. When you override those templates (`item_form.html.twig`, `_item_form_partial.html.twig`, or the Live Component template), you can keep that line to keep the same behaviour, remove it, or replace it with your own form theme; it does not block or lock overrides.
+
 **Example:** to override the menu template used when rendering the tree, create:
 
 ```
@@ -70,6 +72,7 @@ Copy the original from `vendor/nowo-tech/dashboard-menu-bundle/src/Resources/vie
 | `dashboard/_menu_form_partial.html.twig` | Partial used in menu form. |
 | `dashboard/_item_form_partial.html.twig` | Partial used in item form. |
 | `dashboard/_copy_menu_partial.html.twig` | Partial used in copy form. |
+| `components/ItemFormLiveComponent.html.twig` | Live Component template for the item form (modal). |
 | `Collector/dashboard_menu.html.twig` | Web debug toolbar / profiler panel. |
 
 **Dashboard layout:** besides overriding `dashboard/layout.html.twig` in the bundle path above, you can keep using the bundle layout and only change the **wrapper** via config: set `dashboard.layout_template` in `nowo_dashboard_menu.yaml` to your app layout (e.g. `base.html.twig`) so the dashboard uses your shell (see [CONFIGURATION.md](CONFIGURATION.md#dashboard)). Overriding the file gives full control over the dashboard HTML; the config option only swaps the extended template.

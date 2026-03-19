@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.16] - 2026-03-20
+
+### Added
+
+- **Config:** `dashboard.permission_key_choices` — optional list of permission keys (strings) for the menu item form. When set, the permission key field becomes a select with autocomplete instead of a plain text input; keys can be translated via `form.menu_item_type.permission_key.choice.{key}` (e.g. `path__` for `path:/`).
+- **Dashboard item form:** Route name selector and (when configured) permission key selector use Symfony UX Autocomplete form theme for searchable dropdowns. Item form templates include `@SymfonyUXAutocomplete/autocomplete_form_theme.html.twig`.
+- **Dashboard:** "Add child" passes parent ID in the form action URL so the new item is correctly associated; "Add child" button is disabled for items of type section or divider (only link-type items can have children). Translation `dashboard.add_child_disabled`.
+- **Permission checkers:** Bundle services `AllowAllMenuPermissionChecker` and `PermissionKeyAwareMenuPermissionChecker` are explicitly tagged with `nowo_dashboard_menu.permission_checker` so they always appear in the dashboard menu form dropdown. Demos tag `DemoMenuPermissionChecker` in `services.yaml`.
+- **MenuItem:** Property `itemType` is now **nullable** (database column nullable). Getter returns default `link` when null; setter accepts `?string`.
+- **Demo Symfony 7:** TypeScript migration aligned with Symfony 8 demo: `ts-assets-template/` (app.ts, bootstrap.ts, controllers in .ts), single `vite.config.ts` (entry `app.ts`), `make ts-assets` copies to `assets/` and removes old .js. README and Makefile document `sudo chown -R $(whoami) assets && make ts-assets` when `assets/` is root-owned.
+- **Docs:** USAGE clarifies that template overrides are never blocked and that using the autocomplete form theme does not lock overrides; CONFIGURATION documents `permission_key_choices`.
+
+### Changed
+
+- **MenuItemBasicType:** Translated label fields (`label_{locale}`) are added in `buildForm()` when `availableLocales` is set, so they render correctly with multiple locales (fix for demos). `MenuConfigType` permission checker field uses `choice_translation_domain` for bundle translation keys.
+- **Demo Symfony 7:** Removed `vite.config.js`; build uses only `vite.config.ts`. Controllers in `assets/controllers/` are TypeScript (hello_controller.ts, csrf_protection_controller.ts).
+
 ## [0.3.15] - 2026-03-16
 
 ### Added
@@ -250,7 +267,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.15...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.16...HEAD
+[0.3.16]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.15...v0.3.16
 [0.3.15]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.14...v0.3.15
 [0.3.14]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.13...v0.3.14
 [0.3.13]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.12...v0.3.13

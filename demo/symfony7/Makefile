@@ -1,8 +1,12 @@
-.PHONY: help build up down restart shell install setup clean logs ensure-up update-bundle verify cache-clear test test-coverage ts-assets
+.PHONY: help build up down restart shell install setup clean logs ensure-up update-bundle verify cache-clear test test-coverage ts-assets assets
 
 help:
 	@echo "Dashboard Menu Bundle Demo - Symfony 7"
-	@echo "  ensure-up, up, down, restart, build, shell, install, setup, clean, logs, update-bundle, test, test-coverage, ts-assets, verify, cache-clear, migrations-status, migrate"
+	@echo "  ensure-up, up, down, restart, build, shell, install, setup, clean, logs, update-bundle, assets, test, test-coverage, ts-assets, verify, cache-clear, migrations-status, migrate"
+
+assets:
+	pnpm install
+	pnpm run build
 
 # If assets/ is root-owned (e.g. after Docker): sudo chown -R $$(whoami) assets && make ts-assets
 ts-assets:

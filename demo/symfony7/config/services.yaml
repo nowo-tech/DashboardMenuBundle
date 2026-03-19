@@ -12,6 +12,10 @@ services:
         arguments:
             $allowedLocales: '%nowo_dashboard_menu.locales%'
 
+    App\Controller\:
+        resource: '../src/Controller/'
+        tags: ['controller.service_arguments']
+
     App\DataFixtures\:
         resource: '../src/DataFixtures/'
 
