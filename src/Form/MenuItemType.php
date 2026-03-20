@@ -9,6 +9,8 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+use function in_array;
+
 /**
  * Form type for creating/editing a menu item.
  * Composes two sections: basic (type, icon, labels) and config (position, link, parent, permission).
