@@ -46,6 +46,7 @@ final readonly class MenuUrlResolver
 
         $params  = $item->getRouteParams() ?? [];
         $request = $this->requestStack->getCurrentRequest();
+        $routeNeedsLocale = false;
 
         // Complete missing path variables from current route params so links can reuse e.g. id/locale from the current URL
         try {
@@ -53,6 +54,7 @@ final readonly class MenuUrlResolver
             if ($route instanceof \Symfony\Component\Routing\Route && $request instanceof Request) {
                 $compiled      = $route->compile();
                 $pathVars      = $compiled->getPathVariables();
+                $routeNeedsLocale = in_array('_locale', $pathVars, true);
                 $currentParams = (array) $request->attributes->get('_route_params', []);
                 foreach ($pathVars as $var) {
                     if (!array_key_exists($var, $params) && array_key_exists($var, $currentParams)) {
@@ -64,7 +66,9 @@ final readonly class MenuUrlResolver
             $this->addFlashException($request, $e);
         }
 
-        if ($request instanceof Request && !array_key_exists('_locale', $params)) {
+        // Only inject `_locale` when the target route needs it as a path variable.
+        // Otherwise it would become a query parameter (e.g. `? _locale=...`) on routes that don't declare it.
+        if ($request instanceof Request && $routeNeedsLocale && !array_key_exists('_locale', $params)) {
             $params = ['_locale' => $request->getLocale()] + $params;
         }
 

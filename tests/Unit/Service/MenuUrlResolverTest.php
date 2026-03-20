@@ -93,12 +93,19 @@ final class MenuUrlResolverTest extends TestCase
             ->with('app_page', ['_locale' => 'es', 'section' => 'info'], UrlGeneratorInterface::ABSOLUTE_PATH)
             ->willReturn('/es/info');
 
+        $route = new \Symfony\Component\Routing\Route('/{_locale}/info');
+        $routeCollection = new RouteCollection();
+        $routeCollection->add('app_page', $route);
+
         $request = Request::create('/es/');
         $request->setLocale('es');
         $requestStack = new RequestStack();
         $requestStack->push($request);
 
-        $resolver = $this->createResolver($urlGenerator, $requestStack);
+        $router = $this->createStub(RouterInterface::class);
+        $router->method('getRouteCollection')->willReturn($routeCollection);
+
+        $resolver = new MenuUrlResolver($urlGenerator, $requestStack, $router);
 
         self::assertSame('/es/info', $resolver->getHref($item));
     }
@@ -217,7 +224,7 @@ final class MenuUrlResolverTest extends TestCase
         self::assertSame(42, $capturedParams['id']);
         self::assertArrayHasKey('tab', $capturedParams);
         self::assertSame('info', $capturedParams['tab']);
-        self::assertArrayHasKey('_locale', $capturedParams);
+        self::assertArrayNotHasKey('_locale', $capturedParams);
     }
 
     public function testGetHrefAddsFlashMessageWhenRouterLookupThrows(): void
