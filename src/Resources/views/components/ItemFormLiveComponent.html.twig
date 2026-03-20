@@ -75,9 +75,11 @@
             {% endif %}
             <div class="row">
                 <div class="col-md-6">{{ form_row(form.config.position) }}</div>
+                {% if this.showLinkFields() %}
+                    <div class="col-md-6">{{ form_row(form.config.linkType, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.linkType' } }) }}</div>
+                {% endif %}
             </div>
             {% if this.showLinkFields() %}
-                {{ form_row(form.config.linkType, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.linkType' } }) }}
                 <div class="mb-2 {{ not this.showRouteFields() ? 'd-none' : '' }}">
                     {{ form_row(form.config.routeName) }}
                     {{ form_row(form.config.routeParams) }}
