@@ -95,13 +95,11 @@ final class ItemFormLiveComponent
         if ($itemId === null) {
             $itemId = $initialData instanceof MenuItem ? $initialData->getId() : null;
         }
-        if ($itemId === null) {
-            // Parse itemId from actionUrl (route pattern: /{menuId}/item/{itemId}/edit)
-            if ($this->actionUrl !== '') {
-                $matches = [];
-                if (preg_match('#/item/(\d+)/edit#', $this->actionUrl, $matches) === 1) {
-                    $itemId = (int) ($matches[1] ?? 0);
-                }
+        // Parse itemId from actionUrl (route pattern: /{menuId}/item/{itemId}/edit)
+        if ($itemId === null && $this->actionUrl !== '') {
+            $matches = [];
+            if (preg_match('#/item/(\d+)/edit#', $this->actionUrl, $matches) === 1) {
+                $itemId = (int) ($matches[1] ?? 0);
             }
         }
         if ($itemId !== null) {
