@@ -130,6 +130,23 @@ final class DashboardMenuExtension extends Extension
         $container->setParameter(Configuration::ALIAS . '.dashboard.pagination.per_page', $config['dashboard']['pagination']['per_page'] ?? 20);
         $container->setParameter(Configuration::ALIAS . '.dashboard.id_options', $config['dashboard']['id_options'] ?? []);
         $container->setParameter(Configuration::ALIAS . '.dashboard.css_class_options', $config['dashboard']['css_class_options'] ?? []);
+        $container->setParameter(
+            Configuration::ALIAS . '.dashboard.item_span_active',
+            $config['dashboard']['item_span_active'] ?? false,
+        );
+        // `css_class_options.span` is configured as a list (same format as the other CSS dropdowns).
+        // For the front-end wrapper class we use the first non-empty choice.
+        $spanOptions     = $config['dashboard']['css_class_options']['span'] ?? [];
+        $itemSpanClass   = '';
+        if (is_array($spanOptions)) {
+            foreach ($spanOptions as $choice) {
+                if (is_string($choice) && $choice !== '') {
+                    $itemSpanClass = $choice;
+                    break;
+                }
+            }
+        }
+        $container->setParameter(Configuration::ALIAS . '.dashboard.item_span_class', $itemSpanClass);
         $container->setParameter(Configuration::ALIAS . '.dashboard.modals', $config['dashboard']['modals'] ?? [
             'menu_form' => 'normal',
             'copy'      => 'normal',

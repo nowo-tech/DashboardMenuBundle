@@ -44,7 +44,9 @@
                 {% endif %}
             </span>
         {% else %}
-            <span class="d-flex align-items-center flex-nowrap">
+            {% if menuConfig.item_span_active|default(false) %}
+                <span{% if menuConfig.item_span_class is not empty %} class="{{ menuConfig.item_span_class }}"{% endif %}>
+            {% endif %}
                 <a href="{{ dashboard_menu_href(item) }}"{% if aClass %} class="{{ aClass }}"{% endif %}{% if item.targetBlank %} target="_blank" rel="noopener noreferrer"{% endif %}>
                     {% if showIcon %}
                         {% if ':' in iconName %}
@@ -60,7 +62,9 @@
                         <span class="menu-nested-toggle-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M2.5 5.5L8 11l5.5-5.5H2.5z"/></svg></span>
                     </button>
                 {% endif %}
-            </span>
+            {% if menuConfig.item_span_active|default(false) %}
+                </span>
+            {% endif %}
         {% endif %}
         {% if hasChildren %}
             {% if useNestedCollapsibleForChildren %}

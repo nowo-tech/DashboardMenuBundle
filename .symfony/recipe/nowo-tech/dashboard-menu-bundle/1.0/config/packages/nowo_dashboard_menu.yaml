@@ -77,10 +77,13 @@ nowo_dashboard_menu:
         id_options:
             - 'main-menu-navigation'
 
+        item_span_active: false
+
         # CSS class options: choices shown as dropdowns when editing a menu. Override to customize.
         # css_class_options:
         #     menu: ['nav flex-column', 'nav flex-row', 'dropdown-menu dropdown-menu-end', 'nav flex-wrap gap-1']
         #     item: ['nav-item', 'dropdown-item', '']
+        #     span: ['ms-2 d-flex align-items-center flex-nowrap'] # classSpan: each item <span> label
         #     link: ['nav-link', 'dropdown-item', 'nav-link link-secondary']
         #     children: ['nav flex-column ms-2', 'nav flex-column', 'dropdown-menu']
         #     current: ['active', '']
