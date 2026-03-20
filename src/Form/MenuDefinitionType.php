@@ -17,7 +17,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Form type for menu definition: code, base, name, context, icon.
- * Shown in the dashboard with a pencil icon (definición / identidad).
+ * Shown in the dashboard with a pencil icon (definition / identity).
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech

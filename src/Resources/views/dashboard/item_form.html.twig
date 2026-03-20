@@ -15,25 +15,49 @@
     </p>
 
     {{ form_start(form, { attr: { class: 'form form-vertical' } }) }}
+        {% set show_translations = show_translations|default(is_edit|default(false)) %}
         <div class="row">
             <div class="mb-2">
                 <h6 class="text-muted mb-2">
                     <i class="bi bi-pencil" aria-hidden="true"></i>
                     {{ 'form.menu_item_type.section_basic'|trans({}, 'NowoDashboardMenuBundle') }}
                 </h6>
-                <div class="col-md-6 mb-2">{{ form_row(form.basic.itemType) }}</div>
-                <div class="col-md-6 mb-2">{{ form_row(form.basic.icon) }}</div>
                 <div id="item_basic_label_icon_fields" class="mb-2">
                     {{ form_row(form.basic.label) }}
-                    {% if locales is defined and locales is not empty %}
-                        {% for locale in locales %}
-                            {% set fieldName = 'label_' ~ locale %}
-                            {% if attribute(form.basic, fieldName) is defined %}
-                                <div class="col-md-6">{{ form_row(attribute(form.basic, fieldName)) }}</div>
-                            {% endif %}
-                        {% endfor %}
+                    {% if (show_translations|default(is_edit|default(false))) and locales is defined and locales is not empty %}
+                        <div class="row">
+                            {% for locale in locales %}
+                                {% set fieldName = 'label_' ~ locale %}
+                                {% if attribute(form.basic, fieldName) is defined %}
+                                    <div class="col-md-6">{{ form_row(attribute(form.basic, fieldName), { label_attr: { class: 'form-label' } }) }}</div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
                     {% endif %}
                 </div>
+                {% if form.icon is defined %}
+                    <div class="mb-2">
+                        <h6 class="text-muted mb-2">
+                            <i class="bi bi-image" aria-hidden="true"></i>
+                            {{ 'form.menu_item_type.section_icon'|trans({}, 'NowoDashboardMenuBundle') }}
+                        </h6>
+                        <div class="row">
+                        <div class="col-md-6 mb-2">{{ form_row(form.icon.itemType) }}</div>
+                        {% set positionAttr = {} %}
+                        {% if not is_edit|default(false) %}
+                            {% set positionAttr = positionAttr|merge({ 'disabled': 'disabled' }) %}
+                        {% endif %}
+                        <div class="col-md-6 mb-2 {{ is_edit|default(false) ? '' : 'd-none' }}">{{ form_row(form.icon.position, { attr: positionAttr }) }}</div>
+                        </div>
+                        <div class="{{ is_edit|default(false) ? '' : 'd-none' }}">
+                        {% set iconAttr = {} %}
+                        {% if not is_edit|default(false) %}
+                            {% set iconAttr = iconAttr|merge({ 'disabled': 'disabled' }) %}
+                        {% endif %}
+                        {{ form_row(form.icon.icon, { attr: iconAttr }) }}
+                        </div>
+                    </div>
+                {% endif %}
             </div>
             {% if form.config is defined %}
             <div class="mb-2">
@@ -44,7 +68,6 @@
                 {% if form.config.parent is defined %}
                     <div id="item_parent_field">{{ form_row(form.config.parent) }}</div>
                 {% endif %}
-                <div class="col-md-6">{{ form_row(form.config.position) }}</div>
                 <div id="item_link_fields" data-item-has-children="{{ item_has_children|default(false) ? 'true' : 'false' }}">
                     {{ form_row(form.config.linkType) }}
                     <div id="route_fields">

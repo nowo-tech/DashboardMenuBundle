@@ -19,7 +19,7 @@ use const SORT_NATURAL;
 
 /**
  * Form type for menu configuration: permission checker, depth, collapsible options, CSS classes.
- * Shown in the dashboard with a gear icon (configuración).
+ * Shown in the dashboard with a gear icon (configuration).
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech

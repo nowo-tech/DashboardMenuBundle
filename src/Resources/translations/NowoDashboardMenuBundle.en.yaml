@@ -154,8 +154,9 @@ form:
     section_config: "Configuration (permissions, depth, collapsible, CSS)"
 
   menu_item_type:
-    section_basic: "Identity (type, icon, labels)"
-    section_config: "Configuration (link, position, permission)"
+    section_basic: "Identity (labels)"
+    section_icon: "Identity (type, position, icon)"
+    section_config: "Configuration (link, permission)"
     label_required: "Label is required for Link and Section."
     label:
       label: Label

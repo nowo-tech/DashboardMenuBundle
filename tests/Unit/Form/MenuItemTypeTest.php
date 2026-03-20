@@ -110,7 +110,7 @@ final class MenuItemTypeTest extends TestCase
         self::assertContains('config', $names);
     }
 
-    public function testMenuItemBasicTypeBuildFormAddsCoreFieldsAndIconIsTextWhenIconSelectorMissing(): void
+    public function testMenuItemBasicTypeBuildFormAddsLabelField(): void
     {
         $availableLocales = [];
         $type             = new MenuItemBasicType(availableLocales: $availableLocales);
@@ -120,42 +120,16 @@ final class MenuItemTypeTest extends TestCase
 
         $type->buildForm($builder, ['available_locales' => $availableLocales]);
 
-        $iconCall = $this->findAddCall($addCalls, 'icon');
-        if (class_exists('Nowo\\IconSelectorBundle\\Form\\IconSelectorType')) {
-            self::assertNotNull($iconCall);
-            self::assertNotSame(TextType::class, $iconCall['type']);
-        } else {
-            self::assertNotNull($iconCall);
-            self::assertSame(TextType::class, $iconCall['type']);
-        }
+        $labelCall = $this->findAddCall($addCalls, 'label');
+        self::assertNotNull($labelCall);
+        self::assertSame(TextType::class, $labelCall['type']);
+
+        // type + position are now edited in MenuItemIconType
+        self::assertNull($this->findAddCall($addCalls, 'itemType'));
+        self::assertNull($this->findAddCall($addCalls, 'position'));
     }
 
-    public function testMenuItemBasicTypeBuildFormUsesIconSelectorWhenAvailable(): void
-    {
-        if (!class_exists('Nowo\\IconSelectorBundle\\Form\\IconSelectorType')) {
-            eval('namespace Nowo\\IconSelectorBundle\\Form; class IconSelectorType { public const MODE_TOM_SELECT = "tom_select"; }');
-        }
-
-        $availableLocales = [];
-        $type             = new MenuItemBasicType(availableLocales: $availableLocales);
-
-        $addCalls = [];
-        $builder  = $this->createFormBuilderMock($addCalls, new MenuItem());
-
-        $type->buildForm($builder, ['available_locales' => $availableLocales]);
-
-        $iconCall = $this->findAddCall($addCalls, 'icon');
-        self::assertNotNull($iconCall);
-        self::assertSame(\Nowo\IconSelectorBundle\Form\IconSelectorType::class, $iconCall['type']);
-        self::assertFalse($iconCall['required']);
-        self::assertSame([], $iconCall['constraints']);
-        self::assertSame(\Nowo\IconSelectorBundle\Form\IconSelectorType::MODE_TOM_SELECT, $iconCall['mode']);
-        self::assertSame(
-            NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
-            $iconCall['translation_domain'],
-        );
-        self::assertArrayHasKey('placeholder', $iconCall['attr']);
-    }
+    // Icon editing lives in MenuItemIconType now (icon-only partial).
 
     public function testMenuItemBasicTypeAddsLocaleFieldsAndPreSubmitClearsDividerValues(): void
     {
@@ -163,6 +137,7 @@ final class MenuItemTypeTest extends TestCase
 
         $menuItem = new MenuItem();
         $menuItem->setTranslations(['en' => 'Home']);
+        $menuItem->setItemType(MenuItem::ITEM_TYPE_DIVIDER);
 
         $type = new MenuItemBasicType(availableLocales: $availableLocales);
 
@@ -185,12 +160,16 @@ final class MenuItemTypeTest extends TestCase
 
         $event = $this->createMock(FormEvent::class);
         $event->method('getData')->willReturn([
-            'itemType' => MenuItem::ITEM_TYPE_DIVIDER,
             'label'    => 'X',
-            'icon'     => 'some-icon',
             'label_en' => 'should-clear',
             'label_es' => 'should-clear',
         ]);
+        $form       = $this->createMock(FormInterface::class);
+        $formParent = $this->createMock(FormInterface::class);
+        $formParent->method('getData')->willReturn($menuItem);
+        $form->method('getParent')->willReturn($formParent);
+        $event->method('getForm')->willReturn($form);
+
         $event->expects(self::once())
             ->method('setData')
             ->with(self::callback(static function (mixed $data): bool {
@@ -199,7 +178,6 @@ final class MenuItemTypeTest extends TestCase
                 }
 
                 return $data['label'] === ''
-                    && $data['icon'] === null
                     && $data['label_en'] === null
                     && $data['label_es'] === null;
             }));
@@ -263,8 +241,6 @@ final class MenuItemTypeTest extends TestCase
         $event->method('getData')->willReturn(new stdClass());
         $event->method('getForm')->willReturn($form);
 
-        $event->expects(self::once())->method('setData')->with($menuItem);
-
         $submitListener($event);
 
         self::assertSame(['en' => 'New Home', 'fr' => 'Old FR'], $menuItem->getTranslations());
@@ -322,7 +298,6 @@ final class MenuItemTypeTest extends TestCase
         $event = $this->createMock(FormEvent::class);
         $event->method('getData')->willReturn(new stdClass());
         $event->method('getForm')->willReturn($form);
-        $event->expects(self::once())->method('setData')->with($menuItem);
 
         $submitListener($event);
 
@@ -394,14 +369,21 @@ final class MenuItemTypeTest extends TestCase
         self::assertArrayHasKey(FormEvents::PRE_SUBMIT, $eventListeners);
         $preSubmitListener = $eventListeners[FormEvents::PRE_SUBMIT];
 
+        $parentItem = new MenuItem();
+        $parentItem->setItemType(MenuItem::ITEM_TYPE_LINK);
+
+        $form       = $this->createMock(FormInterface::class);
+        $formParent = $this->createMock(FormInterface::class);
+        $formParent->method('getData')->willReturn($parentItem);
+        $form->method('getParent')->willReturn($formParent);
+
         $event = $this->createMock(FormEvent::class);
         $event->method('getData')->willReturn([
-            'itemType' => MenuItem::ITEM_TYPE_LINK,
             'label'    => 'should-stay',
-            'icon'     => 'some-icon',
             'label_en' => 'keep',
             'label_es' => 'keep',
         ]);
+        $event->method('getForm')->willReturn($form);
 
         $event->expects(self::never())->method('setData');
         $preSubmitListener($event);

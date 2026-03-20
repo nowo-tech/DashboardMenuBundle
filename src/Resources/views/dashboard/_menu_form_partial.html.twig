@@ -1,5 +1,5 @@
 {% set _section_focus = section_focus|default('') %}
-{# Modal definición: solo form.definition. Modal configuración: solo form.config. Nuevo menú / edición completa: ambas si existen. #}
+{# Definition modal: only form.definition. Configuration modal: only form.config. New menu / full edit: both if available. #}
 {% set _show_definition = form.definition is defined and (_section_focus == '' or _section_focus == 'basic') %}
 {% set _show_config = form.config is defined and (_section_focus == 'config' or (_section_focus == '' and is_edit|default(false))) %}
 {{ form_start(form, { attr: { class: 'form form-vertical' } }) }}

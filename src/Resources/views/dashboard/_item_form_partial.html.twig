@@ -2,8 +2,10 @@
 {% form_theme form '@SymfonyUXAutocomplete/autocomplete_form_theme.html.twig' %}
 {% endif %}
 {% set _section_focus = section_focus|default('') %}
-{# Lápiz / Add item: solo definición. Engranaje: solo configuración. Edición completa: ambas si existen. #}
-{% set _show_basic = form.basic is defined and (_section_focus == '' or _section_focus == 'basic') %}
+{% set _show_translations = show_translations|default(is_edit|default(false)) %}
+{# Pencil / Add item: only definition. Gear: only configuration. Full edit: both if available. #}
+{% set _show_basic = form.basic is defined and (_section_focus == '' or _section_focus == 'basic' or _section_focus == 'identity') %}
+{% set _show_icon = form.icon is defined and (_section_focus == '' or _section_focus == 'icon' or _section_focus == 'identity') %}
 {% set _show_config = form.config is defined and (_section_focus == 'config' or (_section_focus == '' and is_edit|default(false))) %}
 <div id="modal-item-form-container" data-app-routes="{{ app_routes|default({})|json_encode|e('html_attr') }}" data-item-has-children="{{ item_has_children|default(false) ? 'true' : 'false' }}" data-section-focus="{{ _section_focus }}">
 {{ form_start(form) }}
@@ -16,13 +18,9 @@
             <i class="bi bi-pencil" aria-hidden="true"></i>
             {{ 'form.menu_item_type.section_basic'|trans({}, 'NowoDashboardMenuBundle') }}
         </h6>
-        <div class="row">
-            <div class="col-md-6">{{ form_row(form.basic.itemType, { label_attr: { class: 'form-label' } }) }}</div>
-        </div>
         <div id="item_basic_label_icon_fields" class="mb-2">
-            {{ form_row(form.basic.icon, { label_attr: { class: 'form-label' } }) }}
             {{ form_row(form.basic.label, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-2' } }) }}
-            {% if locales is defined and locales is not empty %}
+            {% if _show_translations and locales is defined and locales is not empty %}
                 <div class="row">
                     {% for locale in locales %}
                         {% set fieldName = 'label_' ~ locale %}
@@ -34,6 +32,29 @@
                     {% endfor %}
                 </div>
             {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if _show_icon %}
+    <div id="item_icon_section" class="mb-2">
+        <h6 class="text-muted mb-2">
+            <i class="bi bi-image" aria-hidden="true"></i>
+            {{ 'form.menu_item_type.section_icon'|trans({}, 'NowoDashboardMenuBundle') }}
+        </h6>
+        {{ form_row(form.icon.itemType, { label_attr: { class: 'form-label' } }) }}
+        <div class="{{ is_edit|default(false) ? '' : 'd-none' }}">
+            {% set positionAttr = {} %}
+            {% if not is_edit|default(false) %}
+                {% set positionAttr = positionAttr|merge({ 'disabled': 'disabled' }) %}
+            {% endif %}
+            {{ form_row(form.icon.position, { label_attr: { class: 'form-label' }, attr: positionAttr }) }}
+
+            {% set iconAttr = {} %}
+            {% if not is_edit|default(false) %}
+                {% set iconAttr = iconAttr|merge({ 'disabled': 'disabled' }) %}
+            {% endif %}
+            {{ form_row(form.icon.icon, { label_attr: { class: 'form-label' }, attr: iconAttr }) }}
         </div>
     </div>
     {% endif %}
@@ -50,9 +71,6 @@
             {{ form_row(form.config.parent, { label_attr: { class: 'form-label' } }) }}
         </div>
         {% endif %}
-        <div class="row">
-            <div class="col-md-6">{{ form_row(form.config.position, { label_attr: { class: 'form-label' } }) }}</div>
-        </div>
         <div id="item_link_fields" data-item-has-children="{{ item_has_children|default(false) ? 'true' : 'false' }}">
             {{ form_row(form.config.linkType, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-2' } }) }}
             <div class="mb-2" id="route_fields">

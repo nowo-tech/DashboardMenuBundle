@@ -146,8 +146,9 @@ form:
     section_config: "Configuration (permissions, profondeur, repliable, CSS)"
 
   menu_item_type:
-    section_basic: "Identité (type, icône, libellés)"
-    section_config: "Configuration (lien, position, permission)"
+    section_basic: "Identité (libellés)"
+    section_icon: "Identité (type, position, icône)"
+    section_config: "Configuration (lien, permission)"
     label_required: "Le libellé est requis pour Lien et Section."
     label:
       label: Libellé

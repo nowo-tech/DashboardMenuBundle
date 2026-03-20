@@ -2,7 +2,8 @@
 {% form_theme form '@SymfonyUXAutocomplete/autocomplete_form_theme.html.twig' %}
 {% endif %}
 {% set _section_focus = sectionFocus|default('') %}
-{% set _show_basic = form.basic is defined and (_section_focus == '' or _section_focus == 'basic') %}
+{% set _show_basic = form.basic is defined and (_section_focus == '' or _section_focus == 'basic' or _section_focus == 'identity') %}
+{% set _show_icon = form.icon is defined and (_section_focus == '' or _section_focus == 'icon' or _section_focus == 'identity') %}
 {% set _show_config = form.config is defined and (_section_focus == 'config' or (_section_focus == '' and isEdit)) %}
 <div {{ attributes }}>
     {% if app.debug %}
@@ -21,6 +22,10 @@
              data-php-locale-fields-json="{{ this.getLocaleFieldValuesDebug()|json_encode|e('html_attr') }}"
         ></div>
     {% endif %}
+    {#
+     # Re-render the LiveComponent only when "itemType" changes.
+     # This prevents wiping in-progress translation inputs when you switch fields.
+    #}
     {{ form_start(form, {
         method: 'POST',
         action: this.actionUrl,
@@ -41,28 +46,53 @@
                 <i class="bi bi-pencil" aria-hidden="true"></i>
                 {{ 'form.menu_item_type.section_basic'|trans({}, 'NowoDashboardMenuBundle') }}
             </h6>
-            <div class="row">
-                <div class="col-md-6">{{ form_row(form.basic.itemType, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.basic.itemType' } }) }}</div>
-                <div class="col-md-6">
-                    {{ form_row(form.basic.icon, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.basic.icon' } }) }}
-                </div>
-            </div>
             <div class="{{ this.getItemType() == 'divider' ? 'd-none' : '' }}">
                 <div class="row">
                     {{ form_row(form.basic.label, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.basic.label' } }) }}
                 </div>
-                {% if locales is not empty %}
+                {% if isEdit and locales is not empty %}
                     <div class="row mb-2">
                         {% for locale in locales %}
                             {% set fieldName = 'label_' ~ locale %}
                             {% if attribute(form.basic, fieldName) is defined %}
+                                {% set inputAttr = { 'data-model': 'on(change)|' ~ formName ~ '.basic.' ~ fieldName } %}
                                 <div class="col-md-6">
-                                    {{ form_row(attribute(form.basic, fieldName), { attr: { 'data-model': 'on(change)|' ~ formName ~ '.basic.' ~ fieldName } }) }}
+                                    {{ form_row(attribute(form.basic, fieldName), { attr: inputAttr }) }}
                                 </div>
                             {% endif %}
                         {% endfor %}
                     </div>
                 {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if _show_icon %}
+        <div id="item_icon_section" class="mb-2">
+            {% set formName = form.vars.name %}
+            <h6 class="text-muted mb-2">
+                <i class="bi bi-image" aria-hidden="true"></i>
+                {{ 'form.menu_item_type.section_icon'|trans({}, 'NowoDashboardMenuBundle') }}
+            </h6>
+            <div class="row">
+                <div class="col-md-6">
+                    {{ form_row(form.icon.itemType, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.icon.itemType' } }) }}
+                </div>
+                {% set positionAttr = { 'data-model': 'on(change)|' ~ formName ~ '.icon.position' } %}
+                {% if not isEdit %}
+                    {% set positionAttr = positionAttr|merge({ 'disabled': 'disabled' }) %}
+                {% endif %}
+                <div class="col-md-6 {{ isEdit ? '' : 'd-none' }}">
+                    {{ form_row(form.icon.position, { attr: positionAttr }) }}
+                </div>
+            </div>
+
+            {% set iconAttr = { 'data-model': 'on(change)|' ~ formName ~ '.icon.icon' } %}
+            {% if not isEdit %}
+                {% set iconAttr = iconAttr|merge({ 'disabled': 'disabled' }) %}
+            {% endif %}
+            <div class="{{ isEdit ? '' : 'd-none' }}">
+                {{ form_row(form.icon.icon, { attr: iconAttr }) }}
             </div>
         </div>
         {% endif %}
@@ -83,7 +113,6 @@
                 {% endif %}
             {% endif %}
             <div class="row">
-                <div class="col-md-6">{{ form_row(form.config.position) }}</div>
                 {% if this.showLinkFields() %}
                     <div class="col-md-6">{{ form_row(form.config.linkType, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.linkType' } }) }}</div>
                 {% endif %}

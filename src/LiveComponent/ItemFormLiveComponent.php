@@ -85,6 +85,15 @@ final class ItemFormLiveComponent
     #[LiveProp]
     public ?int $itemId = null;
 
+    /**
+     * Prevent refetching the MenuItem from DB on every LiveComponent update.
+     *
+     * LiveComponent re-renders when bound fields change; if we always refetch,
+     * we'd overwrite in-progress (unsaved) user edits (e.g. per-locale labels).
+     */
+    #[LiveProp(writable: false)]
+    public ?int $hydratedItemId = null;
+
     protected function instantiateForm(): FormInterface
     {
         $initialData = $this->initialFormData ?? new MenuItem();
@@ -103,13 +112,18 @@ final class ItemFormLiveComponent
             }
         }
         if ($itemId !== null) {
-            // Avoid returning a potentially stale managed instance from Doctrine's identity map.
-            // Using clear() + repository findOneBy() makes sure we fetch the current row.
-            $this->entityManager->clear(MenuItem::class);
-            $repo  = $this->entityManager->getRepository(MenuItem::class);
-            $fresh = $repo->findOneBy(['id' => $itemId]);
-            if ($fresh instanceof MenuItem) {
-                $initialData = $fresh;
+            $needsHydration = $this->hydratedItemId === null || $this->hydratedItemId !== $itemId;
+            if ($needsHydration) {
+                // Avoid returning a potentially stale managed instance from Doctrine's identity map.
+                // Using clear() + repository findOneBy() makes sure we fetch the current row.
+                $this->entityManager->clear(MenuItem::class);
+                $repo  = $this->entityManager->getRepository(MenuItem::class);
+                $fresh = $repo->findOneBy(['id' => $itemId]);
+                if ($fresh instanceof MenuItem) {
+                    $initialData = $fresh;
+                }
+
+                $this->hydratedItemId = $itemId;
             }
         }
 
@@ -136,9 +150,10 @@ final class ItemFormLiveComponent
         $values = $this->formValues;
         $root   = isset($values[$name]) && is_array($values[$name]) ? $values[$name] : (is_array($values) ? $values : []);
         $basic  = is_array($root['basic'] ?? null) ? $root['basic'] : [];
+        $icon   = is_array($root['icon'] ?? null) ? $root['icon'] : [];
         $config = is_array($root['config'] ?? null) ? $root['config'] : [];
 
-        return array_merge($basic, $config);
+        return array_merge($basic, $icon, $config);
     }
 
     public function getItemType(): string

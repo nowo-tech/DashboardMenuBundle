@@ -4,10 +4,8 @@
 <p class="text-muted small">{{ 'dashboard.copy_menu_help'|trans({}, 'NowoDashboardMenuBundle') }}</p>
 {{ form_start(form, { attr: { class: 'form form-vertical', style: 'max-width: 32rem;' } }) }}
     <div class="row mb-2">
-        {% for index, field in form.children %}
-            {% if field.rendered == false %}
-                {{ form_row(field) }}
-            {% endif %}
+        {% for field in form.children %}
+            {{ form_row(field) }}
         {% endfor %}
     </div>
     <button type="submit" class="btn btn-primary">{{ 'dashboard.copy_menu'|trans({}, 'NowoDashboardMenuBundle') }}</button>

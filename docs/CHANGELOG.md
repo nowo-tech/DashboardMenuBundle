@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **LiveComponent:** prevent Symfony “submitted form data” exceptions when saving items, and stabilize hydration of per-locale `label_{locale}` fields in the item modal.
-- **Dashboard UI:** item modal icon field prefill now uses a plain text input (icon is stored as a string) to ensure values are always shown reliably in LiveComponent editing.
+- **Dashboard UI:** item modal icon field prefill is normalized; when the optional icon-selector bundle is installed it uses `IconSelectorType`, otherwise it falls back to a plain text input (icon is stored as a string).
 
 ### Changed
 

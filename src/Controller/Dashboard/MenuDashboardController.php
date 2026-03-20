@@ -733,6 +733,21 @@ final class MenuDashboardController extends AbstractController
     }
 
     #[Route(path: '/{id}/item/new', name: 'item_new', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    /**
+     * Creates a new menu item.
+     *
+     * Supports both:
+     * - Full page rendering
+     * - Modal partial rendering via `?_partial=1`
+     *
+     * When creating a child item, the UI shows only `label` + per-locale translations
+     * (item type is fixed to Link in the form).
+     *
+     * @param Request $request Incoming request (GET/POST)
+     * @param int $id Dashboard menu id
+     *
+     * @return Response Rendered page/partial or redirect on success
+     */
     public function newItem(Request $request, int $id): Response
     {
         $menu = $this->menuRepository->findOneById($id);
@@ -750,29 +765,19 @@ final class MenuDashboardController extends AbstractController
         }
         $appRoutes     = $this->getAppRoutes();
         $locale        = $request->getLocale();
-        $redirectToUrl = $this->generateUrl(self::ROUTE_SHOW, ['id' => $id]);
+        $this->generateUrl(self::ROUTE_SHOW, ['id' => $id]);
         $parent        = $item->getParent();
+        $isChild       = $parent instanceof MenuItem;
         $actionUrl     = $parent instanceof MenuItem && $parent->getId() !== null
             ? $this->generateUrl(self::ROUTE_ITEM_NEW, ['id' => $id, '_query' => ['parent' => $parent->getId()]])
             : $this->generateUrl(self::ROUTE_ITEM_NEW, ['id' => $id]);
 
         if ($request->query->get('_partial')) {
-            if ($this->itemFormLiveComponentEnabled) {
-                return $this->render('@NowoDashboardMenuBundle/dashboard/_item_form_live_partial.html.twig', [
-                    'menu'              => $menu,
-                    'item'              => $item,
-                    'app_routes'        => $appRoutes,
-                    'exclude_ids'       => [],
-                    'locale'            => $locale,
-                    'is_edit'           => false,
-                    'item_has_children' => false,
-                    'action_url'        => $actionUrl,
-                    'redirect_to_url'   => $redirectToUrl,
-                    'locales'           => $this->locales,
-                    'section_focus'     => 'basic',
-                ]);
-            }
-            $form = $this->createForm(MenuItemType::class, $item, [
+            // "Add item" uses a normal Symfony form (not LiveComponent) to avoid translation save issues.
+            $sectionFocus        = $isChild ? 'basic' : 'identity';
+            $formSection         = $isChild ? 'basic' : 'identity';
+            $includeTranslations = $isChild;
+            $form                = $this->createForm(MenuItemType::class, $item, [
                 'app_routes'        => $appRoutes,
                 'menu'              => $menu,
                 'exclude_ids'       => [],
@@ -780,8 +785,9 @@ final class MenuDashboardController extends AbstractController
                 'available_locales' => $this->locales,
                 'action'            => $actionUrl,
                 // Keep CSRF consistent across Symfony versions.
-                'csrf_token_id' => 'submit',
-                'section'       => 'basic',
+                'csrf_token_id'        => 'submit',
+                'section'              => $formSection,
+                'include_translations' => $includeTranslations,
             ]);
 
             return $this->render('@NowoDashboardMenuBundle/dashboard/_item_form_partial.html.twig', [
@@ -791,7 +797,8 @@ final class MenuDashboardController extends AbstractController
                 'app_routes'        => $appRoutes,
                 'locales'           => $this->locales,
                 'item_has_children' => false,
-                'section_focus'     => 'basic',
+                'section_focus'     => $sectionFocus,
+                'show_translations' => $includeTranslations,
             ]);
         }
 
@@ -803,8 +810,9 @@ final class MenuDashboardController extends AbstractController
             'available_locales' => $this->locales,
             'action'            => $actionUrl,
             // Keep CSRF consistent across Symfony versions.
-            'csrf_token_id' => 'submit',
-            'section'       => 'basic',
+            'csrf_token_id'        => 'submit',
+            'section'              => $isChild ? 'basic' : 'identity',
+            'include_translations' => $isChild,
         ]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -830,6 +838,7 @@ final class MenuDashboardController extends AbstractController
             'is_edit'                  => false,
             'app_routes'               => $appRoutes,
             'locales'                  => $this->locales,
+            'show_translations'        => $isChild,
             'dashboard_show_route'     => self::ROUTE_SHOW,
             'dashboard_routes'         => $this->getDashboardRoutes(),
             'icon_selector_script_url' => $this->iconSelectorScriptUrl,
@@ -839,6 +848,21 @@ final class MenuDashboardController extends AbstractController
     }
 
     #[Route(path: '/{id}/item/{itemId}/edit', name: 'item_edit', requirements: ['id' => '\d+', 'itemId' => '\d+'], methods: ['GET', 'POST'])]
+    /**
+     * Updates an existing menu item.
+     *
+     * Supports both full page rendering and modal partial rendering via `?_partial=1`.
+     * The `section` / `_section` parameter controls which part of the item form is built:
+     * - `basic`/`identity`: labels and per-locale translations
+     * - `icon`: item type + position + icon
+     * - `config`: position + link + permission options
+     *
+     * @param Request $request Incoming request (GET/POST)
+     * @param int $id Dashboard menu id
+     * @param int $itemId Item id
+     *
+     * @return Response Rendered page/partial or redirect on success
+     */
     public function editItem(Request $request, int $id, int $itemId): Response
     {
         $menu = $this->menuRepository->findOneById($id);
@@ -855,13 +879,20 @@ final class MenuDashboardController extends AbstractController
         $locale          = $request->getLocale();
         $excludeIds      = $this->getDescendantIds($item);
         $itemHasChildren = $item->getChildren()->count() > 0;
-        $sectionFocus    = in_array($request->query->get('section'), ['basic', 'config'], true) ? $request->query->get('section') : null;
+        $sectionFocus    = in_array($request->query->get('section'), ['basic', 'icon', 'config', 'identity'], true)
+            ? $request->query->get('section')
+            : null;
         if ($sectionFocus === null && $request->isMethod('POST')) {
-            $sectionFocus = in_array($request->request->get('_section'), ['basic', 'config'], true) ? $request->request->get('_section') : null;
+            $sectionFocus = in_array($request->request->get('_section'), ['basic', 'icon', 'config', 'identity'], true)
+                ? $request->request->get('_section')
+                : null;
         }
 
         if ($request->query->get('_partial')) {
-            if ($this->itemFormLiveComponentEnabled) {
+            // Icon section uses a normal Symfony form to ensure the icon-selector widget refreshes correctly
+            // when the modal content changes.
+            $useLiveComponent = $this->itemFormLiveComponentEnabled && $sectionFocus === 'config';
+            if ($useLiveComponent) {
                 return $this->render('@NowoDashboardMenuBundle/dashboard/_item_form_live_partial.html.twig', [
                     'menu'              => $menu,
                     'item'              => $item,
@@ -908,6 +939,7 @@ final class MenuDashboardController extends AbstractController
             'action'            => $this->generateUrl(self::ROUTE_ITEM_EDIT, ['id' => $id, 'itemId' => $itemId]),
             // Keep CSRF consistent across Symfony versions.
             'csrf_token_id' => 'submit',
+            'section'       => $sectionFocus,
         ]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -925,6 +957,33 @@ final class MenuDashboardController extends AbstractController
                 $item->setRouteParams(null);
                 $item->setExternalUrl(null);
             }
+
+            // Guard against partial / unmapped form listeners: update translations directly
+            // from Symfony form field values when editing labels identity.
+            if (($sectionFocus === 'basic' || $sectionFocus === 'identity') && $form->has('basic')) {
+                $existingTranslations = $item->getTranslations() ?? [];
+                $foundAny             = false;
+                $basicForm = $form->get('basic');
+                foreach ($this->locales as $locale) {
+                    $fieldName = 'label_' . $locale;
+                    if (!$basicForm->has($fieldName)) {
+                        continue;
+                    }
+
+                    $foundAny = true;
+                    $value    = $basicForm->get($fieldName)->getData();
+                    if ($value === null || trim((string) $value) === '') {
+                        unset($existingTranslations[$locale]);
+                        continue;
+                    }
+
+                    $existingTranslations[$locale] = (string) $value;
+                }
+                if ($foundAny) {
+                    $item->setTranslations($existingTranslations === [] ? null : $existingTranslations);
+                }
+            }
+
             $this->entityManager->flush();
             $this->addFlash('success', 'Item updated.');
 

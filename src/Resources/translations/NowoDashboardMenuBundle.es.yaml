@@ -154,8 +154,9 @@ form:
     section_config: "Configuración (permisos, profundidad, colapsable, CSS)"
 
   menu_item_type:
-    section_basic: "Identidad (tipo, icono, etiquetas)"
-    section_config: "Configuración (enlace, posición, permiso)"
+    section_basic: "Identidad (etiquetas)"
+    section_icon: "Identidad (tipo, posición, icono)"
+    section_config: "Configuración (enlace, permiso)"
     label_required: "La etiqueta es obligatoria para Enlace y Sección."
     label:
       label: Etiqueta

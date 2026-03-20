@@ -17,6 +17,11 @@ services:
       $availableLocales: '%nowo_dashboard_menu.locales%'
       $translator: '@translator'
 
+  Nowo\DashboardMenuBundle\Form\MenuItemIconType:
+    arguments:
+      $menuIconNameResolver: '@Nowo\DashboardMenuBundle\Service\MenuIconNameResolver'
+      $translator: '@translator'
+
   Nowo\DashboardMenuBundle\Form\MenuItemConfigType:
     arguments:
       $menuItemRepository: '@Nowo\DashboardMenuBundle\Repository\MenuItemRepository'

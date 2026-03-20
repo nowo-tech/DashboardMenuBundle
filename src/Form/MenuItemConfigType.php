@@ -14,7 +14,6 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -24,8 +23,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use function in_array;
 
 /**
- * Form type for menu item configuration: position, parent, link (route / external URL), target, permission.
- * Shown in the dashboard with a gear icon (configuración).
+ * Form type for menu item configuration: parent, link (route / external URL), target, permission.
+ * Shown in the dashboard with a gear icon (configuration).
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
@@ -51,13 +50,6 @@ final class MenuItemConfigType extends AbstractType
         $t            = fn (string $id): string => $this->translator instanceof TranslatorInterface ? $this->translator->trans($id, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN) : $id;
 
         $builder
-            ->add('position', IntegerType::class, [
-                'required'   => false,
-                'label'      => 'form.menu_item_type.position.label',
-                'attr'       => ['min' => 0, 'class' => 'form-control'],
-                'row_attr'   => ['class' => 'mb-1'],
-                'label_attr' => ['class' => 'form-label'],
-            ])
             ->add('linkType', ChoiceType::class, [
                 'choices' => [
                     'form.menu_item_type.link_type.route'        => MenuItem::LINK_TYPE_ROUTE,
