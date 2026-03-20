@@ -7,9 +7,11 @@ namespace Nowo\DashboardMenuBundle\Service;
 use Doctrine\ORM\EntityManagerInterface;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
+use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 
 use function array_key_exists;
+use function count;
 use function is_array;
 use function is_int;
 use function is_string;
@@ -26,6 +28,7 @@ final readonly class MenuImporter
     public const STRATEGY_REPLACE       = 'replace';
 
     public function __construct(
+        private MenuItemRepository $menuItemRepository,
         private MenuRepository $menuRepository,
         private EntityManagerInterface $entityManager,
     ) {
@@ -112,6 +115,7 @@ final readonly class MenuImporter
         $this->entityManager->flush();
         $this->clearLinkDataForLinkItemsWithChildren($menu);
         $this->entityManager->flush();
+        $this->reindexImportedPositionsWithinSiblingGroupsIfDuplicates($menu);
     }
 
     /**
@@ -119,8 +123,19 @@ final readonly class MenuImporter
      */
     private function clearLinkDataForLinkItemsWithChildren(Menu $menu): void
     {
-        foreach ($menu->getItems() as $item) {
-            if ($item->getItemType() === MenuItem::ITEM_TYPE_LINK && $item->getChildren()->count() > 0) {
+        // Use repository query (menu->getItems may not be populated yet during import).
+        $items          = $this->menuItemRepository->findAllForMenuOrderedByTreeForExport($menu);
+        $hasChildrenMap = [];
+        foreach ($items as $item) {
+            $parentId = $item->getParent()?->getId();
+            if ($parentId !== null) {
+                $hasChildrenMap[$parentId] = true;
+            }
+        }
+
+        foreach ($items as $item) {
+            $itemId = $item->getId();
+            if ($item->getItemType() === MenuItem::ITEM_TYPE_LINK && $itemId !== null && isset($hasChildrenMap[$itemId])) {
                 $item->setLinkType(null);
                 $item->setRouteName(null);
                 $item->setRouteParams(null);
@@ -174,7 +189,18 @@ final readonly class MenuImporter
             $item = new MenuItem();
             $item->setMenu($menu);
             $item->setParent($parent);
-            $item->setPosition($position++);
+
+            // If `position` is provided in the JSON, honor it; otherwise fall back to
+            // the sequential `basePosition` used for the sibling list ordering.
+            $rowPosition = array_key_exists('position', $row) ? $this->intOrNull($row['position']) : null;
+            if ($rowPosition !== null) {
+                $item->setPosition($rowPosition);
+                // Keep a sensible pointer for subsequent siblings without `position`.
+                $position = $rowPosition + 1;
+            } else {
+                $item->setPosition($position++);
+            }
+
             $item->setLabel(is_string($row['label'] ?? '') ? $row['label'] : '');
             $item->setTranslations($this->translationsFromRow($row));
             $item->setLinkType($this->stringOrDefault($row['linkType'] ?? null, MenuItem::LINK_TYPE_ROUTE));
@@ -186,12 +212,55 @@ final readonly class MenuImporter
             $item->setItemType($this->stringOrDefault($row['itemType'] ?? null, MenuItem::ITEM_TYPE_LINK));
             $item->setTargetBlank(!empty($row['targetBlank']));
             $this->entityManager->persist($item);
-            $this->entityManager->flush();
 
             $children = isset($row['children']) && is_array($row['children']) ? array_values($row['children']) : [];
             if ($children !== []) {
                 $this->persistItemTree($children, $menu, $item, 0);
             }
+        }
+    }
+
+    /**
+     * Ensures ordering is deterministic after importing by reindexing sibling groups
+     * when duplicates are found (common when importing data that had all `position = 0`).
+     */
+    private function reindexImportedPositionsWithinSiblingGroupsIfDuplicates(Menu $menu): void
+    {
+        $items = $this->menuItemRepository->findAllForMenuOrderedByTreeForExport($menu);
+        if ($items === []) {
+            return;
+        }
+
+        /** @var array<string, list<MenuItem>> $byParent */
+        $byParent = [];
+        foreach ($items as $item) {
+            $pid = $item->getParent()?->getId();
+            $key = $pid !== null ? (string) $pid : '__root';
+            if (!isset($byParent[$key])) {
+                $byParent[$key] = [];
+            }
+            $byParent[$key][] = $item;
+        }
+
+        $changed = false;
+        foreach ($byParent as $siblings) {
+            $unique = [];
+            foreach ($siblings as $sibling) {
+                $unique[$sibling->getPosition()] = true;
+            }
+
+            if (count($unique) === count($siblings)) {
+                continue; // already unique
+            }
+
+            foreach ($siblings as $i => $sibling) {
+                $sibling->setPosition($i);
+                $changed = true;
+            }
+        }
+
+        if ($changed) {
+            $this->entityManager->flush();
         }
     }
 

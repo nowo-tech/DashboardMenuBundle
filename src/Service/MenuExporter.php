@@ -46,10 +46,17 @@ final readonly class MenuExporter
      */
     public function exportAll(): array
     {
-        $menus = $this->menuRepository->findAll();
-        $out   = [];
+        $menus       = $this->menuRepository->findAll();
+        $itemsByMenu = $this->menuItemRepository->findAllForMenusOrderedByTreeForExport($menus);
+        $out         = [];
         foreach ($menus as $menu) {
-            $out[] = $this->exportMenu($menu);
+            $menuId = $menu->getId();
+            $items  = $menuId !== null ? ($itemsByMenu[$menuId] ?? []) : [];
+            $tree   = $this->buildItemTree($items);
+            $out[]  = [
+                'menu'  => $this->menuToArray($menu),
+                'items' => $tree,
+            ];
         }
 
         return ['menus' => $out];

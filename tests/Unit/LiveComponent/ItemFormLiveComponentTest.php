@@ -12,6 +12,7 @@ use Nowo\DashboardMenuBundle\LiveComponent\ItemFormLiveComponent;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use ReflectionProperty;
+use stdClass;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
@@ -261,6 +262,52 @@ final class ItemFormLiveComponentTest extends TestCase
         self::assertSame($formMock, $result);
     }
 
+    public function testInstantiateFormHydratesItemIdFromActionUrlWhenItemIdMissing(): void
+    {
+        $formFactory  = $this->createMock(FormFactoryInterface::class);
+        $em           = $this->createMock(EntityManagerInterface::class);
+        $requestStack = $this->createMock(RequestStack::class);
+
+        $component                  = new ItemFormLiveComponent($formFactory, $em, $requestStack);
+        $component->menu            = new Menu();
+        $component->appRoutes       = [];
+        $component->excludeIds      = [1, 2];
+        $component->locale          = 'en';
+        $component->locales         = ['en', 'es'];
+        $component->sectionFocus    = 'basic';
+        $component->initialFormData = new MenuItem(); // id is expected to be null
+        $component->actionUrl       = '/dashboard/menu/1/item/55/edit';
+
+        $repo = $this->createMock(\Doctrine\ORM\EntityRepository::class);
+        $repo->expects(self::once())
+            ->method('findOneBy')
+            ->with(['id' => 55])
+            ->willReturn(new MenuItem());
+
+        $em->expects(self::once())->method('clear')->with(MenuItem::class);
+        $em->expects(self::once())->method('getRepository')->with(MenuItem::class)->willReturn($repo);
+
+        $formMock = $this->createMock(FormInterface::class);
+
+        $formFactory->expects(self::once())
+            ->method('create')
+            ->with(
+                MenuItemType::class,
+                self::isInstanceOf(MenuItem::class),
+                self::callback(static fn (array $options): bool => $options['menu'] instanceof Menu
+                    && $options['exclude_ids'] === [1, 2]
+                    && $options['locale'] === 'en'
+                    && $options['available_locales'] === ['en', 'es']
+                    && $options['csrf_token_id'] === 'submit'
+                    && $options['section'] === 'basic'),
+            )
+            ->willReturn($formMock);
+
+        $ref    = new ReflectionMethod($component, 'instantiateForm');
+        $result = $ref->invoke($component);
+        self::assertSame($formMock, $result);
+    }
+
     public function testSaveResetsDividerFieldsAndPersists(): void
     {
         $formFactory  = $this->createMock(FormFactoryInterface::class);
@@ -373,5 +420,99 @@ final class ItemFormLiveComponentTest extends TestCase
         self::assertNull($item->getRouteParams());
         self::assertNull($item->getExternalUrl());
         self::assertSame($component->menu, $item->getMenu());
+    }
+
+    public function testGetTranslationsDebugReturnsTranslationsWhenFormDataIsMenuItem(): void
+    {
+        $formFactory  = $this->createMock(FormFactoryInterface::class);
+        $em           = $this->createMock(EntityManagerInterface::class);
+        $requestStack = $this->createMock(RequestStack::class);
+
+        $component = new ItemFormLiveComponent($formFactory, $em, $requestStack);
+
+        $formMock = $this->createMock(FormInterface::class);
+        $menuItem = new MenuItem();
+        $menuItem->setTranslations(['en' => 'Hello', 'es' => 'Hola']);
+
+        $formMock->method('getData')->willReturn($menuItem);
+        $this->setPrivateTraitProperty($component, 'form', $formMock);
+
+        self::assertSame(['en' => 'Hello', 'es' => 'Hola'], $component->getTranslationsDebug());
+    }
+
+    public function testGetTranslationsDebugReturnsEmptyArrayWhenFormDataIsNotMenuItem(): void
+    {
+        $formFactory  = $this->createMock(FormFactoryInterface::class);
+        $em           = $this->createMock(EntityManagerInterface::class);
+        $requestStack = $this->createMock(RequestStack::class);
+
+        $component = new ItemFormLiveComponent($formFactory, $em, $requestStack);
+
+        $formMock = $this->createMock(FormInterface::class);
+        $formMock->method('getData')->willReturn(new stdClass());
+        $this->setPrivateTraitProperty($component, 'form', $formMock);
+
+        self::assertSame([], $component->getTranslationsDebug());
+    }
+
+    public function testGetTranslationsKeysDebugReturnsCommaJoinedKeys(): void
+    {
+        $formFactory  = $this->createMock(FormFactoryInterface::class);
+        $em           = $this->createMock(EntityManagerInterface::class);
+        $requestStack = $this->createMock(RequestStack::class);
+
+        $component = new ItemFormLiveComponent($formFactory, $em, $requestStack);
+
+        $menuItem = new MenuItem();
+        $menuItem->setTranslations(['en' => 'Hello', 'es' => 'Hola']);
+
+        $formMock = $this->createMock(FormInterface::class);
+        $formMock->method('getData')->willReturn($menuItem);
+        $this->setPrivateTraitProperty($component, 'form', $formMock);
+
+        self::assertSame('en,es', $component->getTranslationsKeysDebug());
+    }
+
+    public function testGetLocaleFieldValuesDebugReturnsEmptyArrayWhenBasicNotPresent(): void
+    {
+        $formFactory  = $this->createMock(FormFactoryInterface::class);
+        $em           = $this->createMock(EntityManagerInterface::class);
+        $requestStack = $this->createMock(RequestStack::class);
+
+        $component          = new ItemFormLiveComponent($formFactory, $em, $requestStack);
+        $component->locales = ['en', 'es'];
+
+        $formMock = $this->createMock(FormInterface::class);
+        $formMock->method('has')->willReturn(false);
+        $this->setPrivateTraitProperty($component, 'form', $formMock);
+
+        self::assertSame([], $component->getLocaleFieldValuesDebug());
+    }
+
+    public function testGetLocaleFieldValuesDebugReturnsValuesForLocaleFields(): void
+    {
+        $formFactory  = $this->createMock(FormFactoryInterface::class);
+        $em           = $this->createMock(EntityManagerInterface::class);
+        $requestStack = $this->createMock(RequestStack::class);
+
+        $component          = new ItemFormLiveComponent($formFactory, $em, $requestStack);
+        $component->locales = ['en', 'es'];
+
+        $fieldEn = $this->createMock(FormInterface::class);
+        $fieldEn->method('getData')->willReturn('ValueEn');
+
+        $basicForm = $this->createMock(FormInterface::class);
+        $basicForm->method('has')->willReturnCallback(static fn (string $name): bool => $name === 'label_en');
+        $basicForm->method('get')->willReturnCallback(static fn (string $name): FormInterface => match ($name) {
+            'label_en' => $fieldEn,
+            default    => $fieldEn,
+        });
+
+        $formMock = $this->createMock(FormInterface::class);
+        $formMock->method('has')->willReturnCallback(static fn (string $name): bool => $name === 'basic');
+        $formMock->method('get')->willReturn($basicForm);
+        $this->setPrivateTraitProperty($component, 'form', $formMock);
+
+        self::assertSame(['en' => 'ValueEn'], $component->getLocaleFieldValuesDebug());
     }
 }

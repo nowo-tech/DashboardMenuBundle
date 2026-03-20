@@ -18,6 +18,8 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Callback;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function in_array;
@@ -152,17 +154,84 @@ final class MenuItemConfigType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class'         => MenuItem::class,
-            'app_routes'         => [],
-            'menu'               => null,
-            'exclude_ids'        => [],
-            'locale'             => $this->defaultLocale,
+            'data_class'  => MenuItem::class,
+            'app_routes'  => [],
+            'menu'        => null,
+            'exclude_ids' => [],
+            'locale'      => $this->defaultLocale,
+            'constraints' => [
+                new Callback($this->validateParentNoCircular(...)),
+            ],
             'translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
         ]);
         $resolver->setAllowedTypes('app_routes', 'array');
         $resolver->setAllowedTypes('menu', [Menu::class, 'null']);
         $resolver->setAllowedTypes('exclude_ids', 'array');
         $resolver->setAllowedTypes('locale', 'string');
+    }
+
+    /**
+     * Prevent circular parent references:
+     * - an item cannot be its own parent
+     * - an item cannot be assigned as parent to one of its descendants
+     *
+     * @param MenuItem $item the menu item being validated
+     * @param ExecutionContextInterface $context validation context
+     */
+    public function validateParentNoCircular(MenuItem $item, ExecutionContextInterface $context): void
+    {
+        $parent = $item->getParent();
+        if (!$parent instanceof MenuItem) {
+            return;
+        }
+
+        // Direct cycle: parent is the same node.
+        if ($parent === $item) {
+            $context->buildViolation('form.menu_item_type.parent.circular_violation')
+                ->atPath('parent')
+                ->setTranslationDomain(NowoDashboardMenuBundle::TRANSLATION_DOMAIN)
+                ->addViolation();
+
+            return;
+        }
+
+        // Compare by id (covers detached objects).
+        $itemId   = $item->getId();
+        $parentId = $parent->getId();
+        if ($itemId !== null && $parentId !== null && $itemId === $parentId) {
+            $context->buildViolation('form.menu_item_type.parent.circular_violation')
+                ->atPath('parent')
+                ->setTranslationDomain(NowoDashboardMenuBundle::TRANSLATION_DOMAIN)
+                ->addViolation();
+
+            return;
+        }
+
+        // Walk upwards from the chosen parent. If we reach $item, the new parent
+        // would create a cycle.
+        $cursor  = $parent;
+        $visited = [];
+        while ($cursor instanceof MenuItem) {
+            if ($cursor === $item) {
+                $context->buildViolation('form.menu_item_type.parent.circular_violation')
+                    ->atPath('parent')
+                    ->setTranslationDomain(NowoDashboardMenuBundle::TRANSLATION_DOMAIN)
+                    ->addViolation();
+
+                return;
+            }
+
+            $cid = $cursor->getId();
+            if ($cid !== null) {
+                if (isset($visited[$cid])) {
+                    // Avoid infinite loops if the DB already contains a cycle.
+                    return;
+                }
+                $visited[$cid] = true;
+            }
+
+            $cursor = $cursor->getParent();
+        }
     }
 
     /**

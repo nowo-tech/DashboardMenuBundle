@@ -196,6 +196,7 @@ form:
     parent:
       label: Parent
       placeholder: "— Root (no parent) —"
+      circular_violation: "Circular parent hierarchy is not allowed."
 
   import_menu_type:
     file:

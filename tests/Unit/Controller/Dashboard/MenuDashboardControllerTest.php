@@ -1013,6 +1013,124 @@ final class MenuDashboardControllerTest extends TestCase
         self::assertSame(302, $response->getStatusCode());
     }
 
+    public function testEditItemUpdatesTranslationsFromBasicFormWhenSubmittedValidAndSectionFocusBasic(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('m');
+
+        $item = new MenuItem();
+        $item->setMenu($menu);
+        $item->setTranslations(['en' => 'Old EN', 'es' => 'Old ES']);
+        $this->setId($item, 5);
+
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findOneById')->with(1)->willReturn($menu);
+
+        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo->method('find')->with(5)->willReturn($item);
+        $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([]);
+
+        $router = $this->createStub(RouterInterface::class);
+        $router->method('getRouteCollection')->willReturn(new RouteCollection());
+        $router->method('generate')->willReturn('/generated');
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::once())->method('flush');
+
+        $form = $this->createMock(FormInterface::class);
+        $form->method('handleRequest')->willReturnSelf();
+        $form->method('isSubmitted')->willReturn(true);
+        $form->method('isValid')->willReturn(true);
+        $form->method('has')->willReturnCallback(static fn (string $name): bool => $name === 'basic');
+
+        $fieldEn = $this->createMock(FormInterface::class);
+        $fieldEn->method('getData')->willReturn('');
+
+        $fieldEs = $this->createMock(FormInterface::class);
+        $fieldEs->method('getData')->willReturn('New ES');
+
+        $basicForm = $this->createMock(FormInterface::class);
+        $basicForm->method('has')->willReturnCallback(static fn (string $name): bool => in_array($name, ['label_en', 'label_es'], true));
+        $basicForm->method('get')->willReturnCallback(static fn (string $name): \PHPUnit\Framework\MockObject\MockObject => $name === 'label_en' ? $fieldEn : $fieldEs);
+
+        $form->method('get')->willReturn($basicForm);
+
+        $controller = $this->createController(
+            menuRepository: $menuRepo,
+            menuItemRepository: $itemRepo,
+            entityManager: $em,
+            router: $router,
+            locales: ['en', 'es'],
+        );
+        $this->setControllerContainer($controller, $form);
+
+        $request = Request::create('/1/item/5/edit', 'POST');
+        $request->request->set('_section', 'basic');
+
+        $response = $controller->editItem($request, 1, 5);
+        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
+
+        // Empty value for EN should unset it; ES should be updated.
+        self::assertSame(['es' => 'New ES'], $item->getTranslations());
+    }
+
+    public function testEditItemUpdatesTranslationsFromBasicFormWhenLocaleFieldMissing(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('m');
+
+        $item = new MenuItem();
+        $item->setMenu($menu);
+        $item->setTranslations(['en' => 'Old EN', 'es' => 'Old ES']);
+        $this->setId($item, 5);
+
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findOneById')->with(1)->willReturn($menu);
+
+        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo->method('find')->with(5)->willReturn($item);
+        $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([]);
+
+        $router = $this->createStub(RouterInterface::class);
+        $router->method('getRouteCollection')->willReturn(new RouteCollection());
+        $router->method('generate')->willReturn('/generated');
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::once())->method('flush');
+
+        $form = $this->createMock(FormInterface::class);
+        $form->method('handleRequest')->willReturnSelf();
+        $form->method('isSubmitted')->willReturn(true);
+        $form->method('isValid')->willReturn(true);
+        $form->method('has')->willReturnCallback(static fn (string $name): bool => $name === 'basic');
+
+        $fieldEn = $this->createMock(FormInterface::class);
+        $fieldEn->method('getData')->willReturn('New EN');
+
+        $basicForm = $this->createMock(FormInterface::class);
+        $basicForm->method('has')->willReturnCallback(static fn (string $name): bool => $name === 'label_en');
+        $basicForm->method('get')->willReturnCallback(static fn (string $name): \PHPUnit\Framework\MockObject\MockObject => $fieldEn);
+
+        $form->method('get')->willReturn($basicForm);
+
+        $controller = $this->createController(
+            menuRepository: $menuRepo,
+            menuItemRepository: $itemRepo,
+            entityManager: $em,
+            router: $router,
+            locales: ['en', 'es'],
+        );
+        $this->setControllerContainer($controller, $form);
+
+        $request = Request::create('/1/item/5/edit', 'POST');
+        $request->request->set('_section', 'basic');
+
+        $controller->editItem($request, 1, 5);
+
+        // If `label_es` is missing from the form, controller keeps the existing ES translation.
+        self::assertSame(['en' => 'New EN', 'es' => 'Old ES'], $item->getTranslations());
+    }
+
     public function testEditItemWithPartialQueryRendersPartial(): void
     {
         $menu = new Menu();
@@ -1266,7 +1384,8 @@ final class MenuDashboardControllerTest extends TestCase
         $menuRepo = $this->createStub(MenuRepository::class);
         $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
         $em           = $this->createMock(EntityManagerInterface::class);
-        $menuImporter = new MenuImporter($menuRepo, $em);
+        $itemRepo     = $this->createStub(MenuItemRepository::class);
+        $menuImporter = new MenuImporter($itemRepo, $menuRepo, $em);
         $controller   = $this->createController(
             translator: $translator,
             menuImporter: $menuImporter,
@@ -1302,7 +1421,8 @@ final class MenuDashboardControllerTest extends TestCase
         $menuRepo = $this->createStub(MenuRepository::class);
         $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
         $em           = $this->createMock(EntityManagerInterface::class);
-        $menuImporter = new MenuImporter($menuRepo, $em);
+        $itemRepo     = $this->createStub(MenuItemRepository::class);
+        $menuImporter = new MenuImporter($itemRepo, $menuRepo, $em);
         $controller   = $this->createController(
             translator: $translator,
             menuImporter: $menuImporter,
@@ -1338,7 +1458,8 @@ final class MenuDashboardControllerTest extends TestCase
         $menuRepo = $this->createStub(MenuRepository::class);
         $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
         $em           = $this->createMock(EntityManagerInterface::class);
-        $menuImporter = new MenuImporter($menuRepo, $em);
+        $itemRepo     = $this->createStub(MenuItemRepository::class);
+        $menuImporter = new MenuImporter($itemRepo, $menuRepo, $em);
 
         $controller = $this->createController(
             translator: $translator,
@@ -1374,7 +1495,8 @@ final class MenuDashboardControllerTest extends TestCase
         $menuRepo = $this->createStub(MenuRepository::class);
         $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
         $em           = $this->createMock(EntityManagerInterface::class);
-        $menuImporter = new MenuImporter($menuRepo, $em);
+        $itemRepo     = $this->createStub(MenuItemRepository::class);
+        $menuImporter = new MenuImporter($itemRepo, $menuRepo, $em);
 
         $controller = $this->createController(
             translator: $translator,
@@ -1410,7 +1532,8 @@ final class MenuDashboardControllerTest extends TestCase
         $menuRepo = $this->createStub(MenuRepository::class);
         $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
         $em           = $this->createMock(EntityManagerInterface::class);
-        $menuImporter = new MenuImporter($menuRepo, $em);
+        $itemRepo     = $this->createStub(MenuItemRepository::class);
+        $menuImporter = new MenuImporter($itemRepo, $menuRepo, $em);
 
         $controller = $this->createController(
             translator: $translator,
@@ -1508,6 +1631,34 @@ final class MenuDashboardControllerTest extends TestCase
 
         $request = Request::create('/dashboard/menu/1/item/10/edit', 'GET', []);
         $request->query->set('_partial', '1');
+        $request->setLocale('en');
+
+        $response = $controller->editItem($request, 1, 10);
+        self::assertInstanceOf(Response::class, $response);
+    }
+
+    public function testEditItemRendersLiveComponentPartialWhenEnabledAndSectionFocusConfig(): void
+    {
+        $menu = new Menu();
+        $item = new MenuItem();
+        $item->setMenu($menu);
+
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findOneById')->willReturn($menu);
+
+        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo->method('find')->willReturn($item);
+
+        $controller = $this->createController(
+            menuRepository: $menuRepo,
+            menuItemRepository: $itemRepo,
+            itemFormLiveComponentEnabled: true,
+        );
+        $this->setControllerContainer($controller);
+
+        $request = Request::create('/dashboard/menu/1/item/10/edit', 'GET', []);
+        $request->query->set('_partial', '1');
+        $request->query->set('section', 'config');
         $request->setLocale('en');
 
         $response = $controller->editItem($request, 1, 10);
@@ -1699,7 +1850,7 @@ final class MenuDashboardControllerTest extends TestCase
         $itemRepo    = $menuItemRepository ?? $this->createStub(MenuItemRepository::class);
         $em          = $entityManager ?? $this->createStub(EntityManagerInterface::class);
         $exporter    = $menuExporter ?? new MenuExporter($menuRepo, $itemRepo);
-        $importer    = $menuImporter ?? new MenuImporter($menuRepo, $em);
+        $importer    = $menuImporter ?? new MenuImporter($itemRepo, $menuRepo, $em);
         $rateLimiter = $importExportRateLimiter ?? new ImportExportRateLimiter(null, 0, 60);
 
         return new MenuDashboardController(

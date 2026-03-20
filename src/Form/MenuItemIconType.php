@@ -87,19 +87,21 @@ final class MenuItemIconType extends AbstractType
                 return;
             }
 
-            if (!array_key_exists('position', $data) || $data['position'] === null || $data['position'] === '') {
+            // Do NOT inject `position` when the key is missing from the payload.
+            // If the field is absent (e.g. icon section hidden), setting it here would
+            // overwrite the entity value with `0`.
+            if (array_key_exists('position', $data) && ($data['position'] === null || $data['position'] === '')) {
                 $data['position'] = 0;
+                $event->setData($data);
             }
-
-            $event->setData($data);
         });
 
         if (class_exists('Nowo\\IconSelectorBundle\\Form\\IconSelectorType')) {
             $builder->add('icon', \Nowo\IconSelectorBundle\Form\IconSelectorType::class, [
-                'mapped'   => true,
+                // 'mapped'   => true,
                 'required' => false,
                 // Icon is optional: remove any default NotBlank/required constraints.
-                'constraints'        => [],
+                // 'constraints'        => [],
                 'mode'               => \Nowo\IconSelectorBundle\Form\IconSelectorType::MODE_TOM_SELECT,
                 'label'              => 'form.menu_item_type.icon.label',
                 'translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
@@ -107,7 +109,7 @@ final class MenuItemIconType extends AbstractType
                 'row_attr'           => ['class' => 'mb-1'],
                 'label_attr'         => ['class' => 'form-label'],
                 // Preselect normalized value so ChoiceType validation accepts it.
-                'data' => $normalizedIcon,
+                // 'data' => $normalizedIcon,
             ]);
         } else {
             $builder->add('icon', TextType::class, [

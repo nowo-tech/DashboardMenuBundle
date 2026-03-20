@@ -37,6 +37,7 @@ use Throwable;
 use function count;
 use function in_array;
 use function is_array;
+use function is_int;
 use function is_string;
 use function json_encode;
 use function strlen;
@@ -253,6 +254,7 @@ final class MenuDashboardController extends AbstractController
             throw $this->createNotFoundException('Menu not found.');
         }
         $items            = $this->menuItemRepository->findAllForMenuOrderedByTree($menu, 'en');
+        $items            = $this->orderItemsByTreeForDisplay($items);
         $siblings         = $this->computeSiblingMaps($items);
         $itemDepths       = $this->computeItemDepths($items);
         $itemParentLabels = $this->computeParentLabels($items, 'en');
@@ -322,6 +324,51 @@ final class MenuDashboardController extends AbstractController
         }
 
         return ['prev' => $prev, 'next' => $next];
+    }
+
+    /**
+     * @param list<MenuItem> $items
+     *
+     * @return list<MenuItem>
+     */
+    private function orderItemsByTreeForDisplay(array $items): array
+    {
+        /** @var array<string, list<MenuItem>> $byParent */
+        $byParent = [];
+        foreach ($items as $item) {
+            $parentId = $item->getParent()?->getId();
+            $key      = $parentId !== null ? (string) $parentId : '__root';
+            if (!isset($byParent[$key])) {
+                $byParent[$key] = [];
+            }
+            $byParent[$key][] = $item;
+        }
+
+        foreach ($byParent as &$siblings) {
+            usort($siblings, static function (MenuItem $a, MenuItem $b): int {
+                $diff = $a->getPosition() <=> $b->getPosition();
+                if ($diff !== 0) {
+                    return $diff;
+                }
+
+                return ($a->getId() ?? 0) <=> ($b->getId() ?? 0);
+            });
+        }
+        unset($siblings);
+
+        $ordered = [];
+        $walk    = static function (string $parentKey) use (&$walk, &$ordered, $byParent): void {
+            foreach ($byParent[$parentKey] ?? [] as $item) {
+                $ordered[] = $item;
+                $itemId    = $item->getId();
+                if ($itemId !== null) {
+                    $walk((string) $itemId);
+                }
+            }
+        };
+        $walk('__root');
+
+        return $ordered;
     }
 
     /**
@@ -692,44 +739,47 @@ final class MenuDashboardController extends AbstractController
         $em->persist($copy);
         $em->flush();
 
-        $items     = $this->menuItemRepository->findAllForMenuOrderedByTree($source, 'en');
-        $rootItems = [];
-        foreach ($items as $item) {
-            if ($item->getParent() === null) {
-                $rootItems[] = $item;
+        $items = $this->menuItemRepository->findAllForMenuOrderedByTreeForExport($source);
+        /** @var array<int, MenuItem> $sourceToCopyById */
+        $sourceToCopyById = [];
+
+        // First pass: clone scalar fields (without parent relation).
+        foreach ($items as $sourceItem) {
+            $newItem = new MenuItem();
+            $newItem->setMenu($copy);
+            $newItem->setPosition($sourceItem->getPosition());
+            $newItem->setLabel($sourceItem->getLabel());
+            $newItem->setTranslations($sourceItem->getTranslations());
+            $newItem->setItemType($sourceItem->getItemType());
+            $newItem->setLinkType($sourceItem->getLinkType());
+            $newItem->setRouteName($sourceItem->getRouteName());
+            $newItem->setRouteParams($sourceItem->getRouteParams());
+            $newItem->setExternalUrl($sourceItem->getExternalUrl());
+            $newItem->setIcon($sourceItem->getIcon());
+            $newItem->setPermissionKey($sourceItem->getPermissionKey());
+            $newItem->setTargetBlank($sourceItem->getTargetBlank());
+            $em->persist($newItem);
+
+            $sourceId = $sourceItem->getId();
+            if ($sourceId !== null) {
+                $sourceToCopyById[$sourceId] = $newItem;
             }
         }
-        foreach ($rootItems as $rootItem) {
-            $this->cloneItemRecursive($rootItem, $copy, null);
+
+        // Second pass: wire parent relation using in-memory map.
+        foreach ($items as $sourceItem) {
+            $sourceId = $sourceItem->getId();
+            if ($sourceId === null || !isset($sourceToCopyById[$sourceId])) {
+                continue;
+            }
+            $copyItem = $sourceToCopyById[$sourceId];
+            $parentId = $sourceItem->getParent()?->getId();
+            $copyItem->setParent($parentId !== null ? ($sourceToCopyById[$parentId] ?? null) : null);
         }
+
         $em->flush();
 
         return $copy;
-    }
-
-    private function cloneItemRecursive(MenuItem $source, Menu $newMenu, ?MenuItem $newParent): void
-    {
-        $em   = $this->entityManager;
-        $copy = new MenuItem();
-        $copy->setMenu($newMenu);
-        $copy->setParent($newParent);
-        $copy->setPosition($source->getPosition());
-        $copy->setLabel($source->getLabel());
-        $copy->setTranslations($source->getTranslations());
-        $copy->setItemType($source->getItemType());
-        $copy->setLinkType($source->getLinkType());
-        $copy->setRouteName($source->getRouteName());
-        $copy->setRouteParams($source->getRouteParams());
-        $copy->setExternalUrl($source->getExternalUrl());
-        $copy->setIcon($source->getIcon());
-        $copy->setPermissionKey($source->getPermissionKey());
-        $copy->setTargetBlank($source->getTargetBlank());
-        $em->persist($copy);
-        $em->flush();
-
-        foreach ($source->getChildren() as $child) {
-            $this->cloneItemRecursive($child, $newMenu, $copy);
-        }
     }
 
     #[Route(path: '/{id}/item/new', name: 'item_new', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
@@ -825,8 +875,21 @@ final class MenuDashboardController extends AbstractController
                 $item->setIcon(null);
                 $item->setTranslations(null);
             }
+
+            // Append new items at the end of their sibling group.
+            // This avoids `position = 0` for every new element.
+            $maxPosition = $this->menuItemRepository->findMaxPositionForParent($menu, $item->getParent());
+            $item->setPosition($maxPosition + 1);
+
             $this->entityManager->persist($item);
             $this->entityManager->flush();
+
+            // If existing siblings have duplicated (e.g. all `0`) positions, reindex them
+            // so the table ordering becomes deterministic.
+            if ($this->reindexSiblingPositionsIfNeeded($menu, $item->getParent())) {
+                $this->entityManager->flush();
+            }
+
             $this->addFlash('success', 'Item created.');
 
             return $this->redirectToRefererOr($request, self::ROUTE_SHOW, ['id' => $id]);
@@ -875,11 +938,13 @@ final class MenuDashboardController extends AbstractController
 
             return $this->redirectToRoute(self::ROUTE_SHOW, ['id' => $id]);
         }
-        $appRoutes       = $this->getAppRoutesForItem($item, $this->getAppRoutes());
-        $locale          = $request->getLocale();
-        $excludeIds      = $this->getDescendantIds($item);
-        $itemHasChildren = $item->getChildren()->count() > 0;
-        $sectionFocus    = in_array($request->query->get('section'), ['basic', 'icon', 'config', 'identity'], true)
+        $appRoutes        = $this->getAppRoutesForItem($item, $this->getAppRoutes());
+        $locale           = $request->getLocale();
+        $excludeIds       = $this->getDescendantIds($item);
+        $itemHasChildren  = $item->getChildren()->count() > 0;
+        $originalParent   = $item->getParent();
+        $originalParentId = $originalParent?->getId();
+        $sectionFocus     = in_array($request->query->get('section'), ['basic', 'icon', 'config', 'identity'], true)
             ? $request->query->get('section')
             : null;
         if ($sectionFocus === null && $request->isMethod('POST')) {
@@ -958,6 +1023,14 @@ final class MenuDashboardController extends AbstractController
                 $item->setExternalUrl(null);
             }
 
+            $parentChanged = $originalParentId !== $item->getParent()?->getId();
+            // When moving an item between parents via the config (gear) section,
+            // the position field isn't part of that form submission, so we append it.
+            if ($sectionFocus === 'config' && $parentChanged) {
+                $maxPosition = $this->menuItemRepository->findMaxPositionForParent($menu, $item->getParent());
+                $item->setPosition($maxPosition + 1);
+            }
+
             // Guard against partial / unmapped form listeners: update translations directly
             // from Symfony form field values when editing labels identity.
             if (($sectionFocus === 'basic' || $sectionFocus === 'identity') && $form->has('basic')) {
@@ -985,6 +1058,15 @@ final class MenuDashboardController extends AbstractController
             }
 
             $this->entityManager->flush();
+
+            $changed = $this->reindexSiblingPositionsIfNeeded($menu, $item->getParent());
+            if ($parentChanged) {
+                $changed = $this->reindexSiblingPositionsIfNeeded($menu, $originalParent) || $changed;
+            }
+            if ($changed) {
+                $this->entityManager->flush();
+            }
+
             $this->addFlash('success', 'Item updated.');
 
             return $this->redirectToRefererOr($request, self::ROUTE_SHOW, ['id' => $id]);
@@ -1109,16 +1191,85 @@ final class MenuDashboardController extends AbstractController
      */
     private function getDescendantIds(MenuItem $item): array
     {
-        $ids = [];
-        $id  = $item->getId();
-        if ($id !== null) {
-            $ids[] = $id;
-        }
-        foreach ($item->getChildren() as $child) {
-            $ids = array_merge($ids, $this->getDescendantIds($child));
+        $id = $item->getId();
+        if ($id === null) {
+            return [];
         }
 
-        return $ids;
+        $menu = $item->getMenu();
+        if (!$menu instanceof Menu) {
+            $ids = [$id];
+            foreach ($item->getChildren() as $child) {
+                $ids = array_merge($ids, $this->getDescendantIds($child));
+            }
+
+            return $ids;
+        }
+
+        $items = $this->menuItemRepository->findAllForMenuOrderedByTreeForExport($menu);
+        /** @var array<int, list<int>> $childrenByParent */
+        $childrenByParent = [];
+        foreach ($items as $candidate) {
+            $candidateId = $candidate->getId();
+            $parentId    = $candidate->getParent()?->getId();
+            if ($candidateId === null || $parentId === null) {
+                continue;
+            }
+            if (!isset($childrenByParent[$parentId])) {
+                $childrenByParent[$parentId] = [];
+            }
+            $childrenByParent[$parentId][] = $candidateId;
+        }
+
+        $out   = [$id];
+        $queue = [$id];
+        while ($queue !== []) {
+            $current = array_shift($queue);
+            if (!is_int($current) || !isset($childrenByParent[$current])) {
+                continue;
+            }
+            foreach ($childrenByParent[$current] as $childId) {
+                $out[]   = $childId;
+                $queue[] = $childId;
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Reindexes positions within the given sibling group when duplicates exist.
+     *
+     * This makes ordering deterministic (useful when existing data has all `position = 0`).
+     *
+     * @return bool true if any position was modified
+     */
+    private function reindexSiblingPositionsIfNeeded(Menu $menu, ?MenuItem $parent): bool
+    {
+        $dummy = new MenuItem();
+        $dummy->setMenu($menu);
+        $dummy->setParent($parent);
+
+        $siblings = $this->menuItemRepository->findSiblingsByPosition($dummy);
+        if ($siblings === []) {
+            return false;
+        }
+
+        $uniquePositions = [];
+        foreach ($siblings as $sibling) {
+            $uniquePositions[$sibling->getPosition()] = true;
+        }
+
+        // If every position is unique, keep the user's ordering (gaps don't matter).
+        if (count($uniquePositions) === count($siblings)) {
+            return false;
+        }
+
+        foreach ($siblings as $i => $sibling) {
+            $sibling->setPosition($i);
+        }
+
+        return true;
     }
 
     private function getRateLimitKey(Request $request): string

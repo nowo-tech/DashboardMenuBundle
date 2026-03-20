@@ -120,7 +120,7 @@ final class MenuExporterTest extends TestCase
         $menuRepo = $this->createStub(MenuRepository::class);
         $menuRepo->method('findAll')->willReturn([$menu]);
         $itemRepo = $this->createStub(MenuItemRepository::class);
-        $itemRepo->method('findAllForMenuOrderedByTreeForExport')->willReturn([]);
+        $itemRepo->method('findAllForMenusOrderedByTreeForExport')->willReturn([]);
 
         $exporter = new MenuExporter($menuRepo, $itemRepo);
         $data     = $exporter->exportAll();

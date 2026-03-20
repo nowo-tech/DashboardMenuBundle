@@ -20,12 +20,14 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Validator\Violation\ConstraintViolationBuilderInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+use function in_array;
 use function is_array;
 
 final class MenuItemTypeTest extends TestCase
@@ -442,6 +444,101 @@ final class MenuItemTypeTest extends TestCase
         $builder->expects(self::once())->method('addViolation');
 
         $type->validateLabelWhenNotDivider($item, $context);
+    }
+
+    public function testMenuItemBasicTypeValidateLabelWhenBaseLabelNonEmptyReturnsEarly(): void
+    {
+        $type = new MenuItemBasicType(availableLocales: []);
+
+        $item = new MenuItem();
+        $item->setItemType(MenuItem::ITEM_TYPE_LINK);
+        $item->setLabel('Base label');
+
+        $context = $this->createMock(ExecutionContextInterface::class);
+        $context->expects(self::never())->method('buildViolation');
+
+        $type->validateLabelWhenNotDivider($item, $context);
+    }
+
+    public function testMenuItemBasicTypeValidateLabelWhenTranslationsHasNonEmptyStringReturnsEarly(): void
+    {
+        $type = new MenuItemBasicType(availableLocales: []);
+
+        $item = new MenuItem();
+        $item->setItemType(MenuItem::ITEM_TYPE_LINK);
+        $item->setLabel('');
+        $item->setTranslations(['en' => 'Home']);
+
+        $context = $this->createMock(ExecutionContextInterface::class);
+        $context->expects(self::never())->method('buildViolation');
+
+        $type->validateLabelWhenNotDivider($item, $context);
+    }
+
+    public function testMenuItemBasicTypeFinishViewReturnsEarlyWhenAvailableLocalesEmpty(): void
+    {
+        $type = new MenuItemBasicType(availableLocales: ['en']);
+
+        $view           = new FormView();
+        $view->children = [];
+
+        $form = $this->createMock(FormInterface::class);
+        $form->expects(self::never())->method('getData');
+
+        $type->finishView($view, $form, ['available_locales' => []]);
+        self::assertIsArray($view->children);
+    }
+
+    public function testMenuItemBasicTypeFinishViewReturnsEarlyWhenFormDataIsNotMenuItem(): void
+    {
+        $type = new MenuItemBasicType(availableLocales: ['en']);
+
+        $view           = new FormView();
+        $view->children = [];
+
+        $form = $this->createMock(FormInterface::class);
+        $form->method('getData')->willReturn(new stdClass());
+        $form->expects(self::never())->method('has');
+
+        $type->finishView($view, $form, ['available_locales' => ['en']]);
+
+        self::assertSame([], $view->children);
+    }
+
+    public function testMenuItemBasicTypeFinishViewHydratesLocaleLabelFieldsUsingFormOrTranslations(): void
+    {
+        $type = new MenuItemBasicType(availableLocales: ['en', 'es']);
+
+        $menuItem = new MenuItem();
+        $menuItem->setTranslations(['en' => 'FromEntity', 'es' => 'FromEntityEs']);
+
+        $view                             = new FormView();
+        $view->children                   = [];
+        $view->children['label_en']       = new FormView();
+        $view->children['label_en']->vars = [];
+        $view->children['label_es']       = new FormView();
+        $view->children['label_es']->vars = [];
+
+        $fieldEn = $this->createMock(FormInterface::class);
+        $fieldEn->method('getData')->willReturn('FromForm');
+
+        // Empty current value should fall back to entity translations.
+        $fieldEs = $this->createMock(FormInterface::class);
+        $fieldEs->method('getData')->willReturn('');
+
+        $form = $this->createMock(FormInterface::class);
+        $form->method('getData')->willReturn($menuItem);
+        $form->method('has')->willReturnCallback(static fn (string $name): bool => in_array($name, ['label_en', 'label_es'], true));
+        $form->method('get')->willReturnCallback(static fn (string $name): FormInterface => match ($name) {
+            'label_en' => $fieldEn,
+            'label_es' => $fieldEs,
+            default    => $fieldEn,
+        });
+
+        $type->finishView($view, $form, ['available_locales' => ['en', 'es']]);
+
+        self::assertSame('FromForm', $view->children['label_en']->vars['value']);
+        self::assertSame('FromEntityEs', $view->children['label_es']->vars['value']);
     }
 
     public function testMenuItemConfigTypeBuildPermissionKeyChoicesAddsCurrentWhenMissing(): void

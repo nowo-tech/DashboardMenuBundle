@@ -65,13 +65,54 @@ class MenuItemRepository extends ServiceEntityRepository
             ->where('i.menu = :menu')
             ->setParameter('menu', $menu)
             ->orderBy('i.parent', 'ASC')
-            ->addOrderBy('i.position', 'ASC');
+            ->addOrderBy('i.position', 'ASC')
+            ->addOrderBy('i.id', 'ASC');
 
         $result = $qb->getQuery()->getResult();
         assert(is_array($result) && array_is_list($result));
 
         /* @var list<MenuItem> $result */
         return $result;
+    }
+
+    /**
+     * Load all items for the given menus in one query, grouped by menu id.
+     *
+     * @param list<Menu> $menus
+     *
+     * @return array<int, list<MenuItem>> map menuId => ordered items
+     */
+    public function findAllForMenusOrderedByTreeForExport(array $menus): array
+    {
+        if ($menus === []) {
+            return [];
+        }
+
+        $qb = $this->createQueryBuilder('i')
+            ->where('i.menu IN (:menus)')
+            ->setParameter('menus', $menus)
+            ->orderBy('i.menu', 'ASC')
+            ->addOrderBy('i.parent', 'ASC')
+            ->addOrderBy('i.position', 'ASC')
+            ->addOrderBy('i.id', 'ASC');
+
+        $result = $qb->getQuery()->getResult();
+        assert(is_array($result) && array_is_list($result));
+
+        /** @var array<int, list<MenuItem>> $grouped */
+        $grouped = [];
+        foreach ($result as $item) {
+            $menuId = $item->getMenu()?->getId();
+            if ($menuId === null) {
+                continue;
+            }
+            if (!isset($grouped[$menuId])) {
+                $grouped[$menuId] = [];
+            }
+            $grouped[$menuId][] = $item;
+        }
+
+        return $grouped;
     }
 
     /**
@@ -92,11 +133,39 @@ class MenuItemRepository extends ServiceEntityRepository
                 ->setParameter('parent', $parent);
         }
         $qb->orderBy('i.position', 'ASC');
+        $qb->addOrderBy('i.id', 'ASC');
         $result = $qb->getQuery()->getResult();
         assert(is_array($result) && array_is_list($result));
 
         /* @var list<MenuItem> $result */
         return $result;
+    }
+
+    /**
+     * Max position among siblings for the given menu and parent.
+     *
+     * @return int max position, or -1 when there are no siblings
+     */
+    public function findMaxPositionForParent(Menu $menu, ?MenuItem $parent): int
+    {
+        $qb = $this->createQueryBuilder('i')
+            ->select('MAX(i.position)')
+            ->where('i.menu = :menu')
+            ->setParameter('menu', $menu);
+
+        if (!$parent instanceof MenuItem) {
+            $qb->andWhere('i.parent IS NULL');
+        } else {
+            $qb->andWhere('i.parent = :parent')
+                ->setParameter('parent', $parent);
+        }
+
+        $max = $qb->getQuery()->getSingleScalarResult();
+        if ($max === null) {
+            return -1;
+        }
+
+        return (int) $max;
     }
 
     /**

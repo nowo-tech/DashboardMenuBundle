@@ -196,6 +196,7 @@ form:
     parent:
       label: Padre
       placeholder: "— Raíz (sin padre) —"
+      circular_violation: "No se permite una jerarquía circular de padres."
 
   import_menu_type:
     file:

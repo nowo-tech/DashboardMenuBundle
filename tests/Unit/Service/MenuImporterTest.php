@@ -7,10 +7,12 @@ namespace Nowo\DashboardMenuBundle\Tests\Service;
 use Doctrine\ORM\EntityManagerInterface;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
+use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 use Nowo\DashboardMenuBundle\Service\MenuImporter;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
+use ReflectionProperty;
 
 final class MenuImporterTest extends TestCase
 {
@@ -19,7 +21,7 @@ final class MenuImporterTest extends TestCase
         $menuRepo = $this->createStub(MenuRepository::class);
         $em       = $this->createStub(EntityManagerInterface::class);
 
-        $importer = new MenuImporter($menuRepo, $em);
+        $importer = new MenuImporter($this->createStub(MenuItemRepository::class), $menuRepo, $em);
 
         $ref = new ReflectionClass($importer);
         $m   = $ref->getMethod('stringOrNull');
@@ -34,7 +36,7 @@ final class MenuImporterTest extends TestCase
         $menuRepo = $this->createStub(MenuRepository::class);
         $em       = $this->createStub(EntityManagerInterface::class);
 
-        $importer = new MenuImporter($menuRepo, $em);
+        $importer = new MenuImporter($this->createStub(MenuItemRepository::class), $menuRepo, $em);
         $result   = $importer->import([]);
 
         self::assertSame(0, $result['created']);
@@ -49,7 +51,7 @@ final class MenuImporterTest extends TestCase
         $menuRepo = $this->createStub(MenuRepository::class);
         $em       = $this->createStub(EntityManagerInterface::class);
 
-        $importer = new MenuImporter($menuRepo, $em);
+        $importer = new MenuImporter($this->createStub(MenuItemRepository::class), $menuRepo, $em);
         $result   = $importer->import(['menu' => ['name' => 'Foo'], 'items' => []]);
 
         self::assertSame(0, $result['created']);
@@ -68,7 +70,7 @@ final class MenuImporterTest extends TestCase
         ));
         $em->expects(self::atLeastOnce())->method('flush');
 
-        $importer = new MenuImporter($menuRepo, $em);
+        $importer = new MenuImporter($this->createStub(MenuItemRepository::class), $menuRepo, $em);
         $result   = $importer->import([
             'menu'  => ['code' => 'sidebar', 'name' => 'Sidebar'],
             'items' => [['label' => 'Home', 'position' => 0]],
@@ -90,7 +92,7 @@ final class MenuImporterTest extends TestCase
         $em->expects(self::never())->method('persist');
         $em->expects(self::never())->method('flush');
 
-        $importer = new MenuImporter($menuRepo, $em);
+        $importer = new MenuImporter($this->createStub(MenuItemRepository::class), $menuRepo, $em);
         $result   = $importer->import([
             'menu'  => ['code' => 'sidebar', 'name' => 'Other'],
             'items' => [],
@@ -119,7 +121,7 @@ final class MenuImporterTest extends TestCase
         $em->expects(self::atLeastOnce())->method('persist')->with(self::isInstanceOf(MenuItem::class));
         $em->expects(self::atLeastOnce())->method('flush');
 
-        $importer = new MenuImporter($menuRepo, $em);
+        $importer = new MenuImporter($this->createStub(MenuItemRepository::class), $menuRepo, $em);
         $result   = $importer->import([
             'menu' => [
                 'code'                      => 'nav',
@@ -165,7 +167,7 @@ final class MenuImporterTest extends TestCase
         $menuRepo = $this->createStub(MenuRepository::class);
         $em       = $this->createStub(EntityManagerInterface::class);
 
-        $importer = new MenuImporter($menuRepo, $em);
+        $importer = new MenuImporter($this->createStub(MenuItemRepository::class), $menuRepo, $em);
         $result   = $importer->import([
             'menus' => [
                 ['menu' => ['code' => 'a'], 'items' => []],
@@ -181,7 +183,7 @@ final class MenuImporterTest extends TestCase
         $menuRepo = $this->createStub(MenuRepository::class);
         $em       = $this->createStub(EntityManagerInterface::class);
 
-        $importer = new MenuImporter($menuRepo, $em);
+        $importer = new MenuImporter($this->createStub(MenuItemRepository::class), $menuRepo, $em);
         $result   = $importer->import([
             'menus' => [
                 ['menu' => 'not-array', 'items' => []],
@@ -196,7 +198,6 @@ final class MenuImporterTest extends TestCase
     {
         $menuRepo = $this->createStub(MenuRepository::class);
         $em       = $this->createStub(EntityManagerInterface::class);
-        $importer = new MenuImporter($menuRepo, $em);
 
         $menu = new Menu();
         $item = new MenuItem();
@@ -211,6 +212,15 @@ final class MenuImporterTest extends TestCase
         $item->getChildren()->add($child);
 
         $menu->addItem($item);
+
+        $idRef = new ReflectionProperty(MenuItem::class, 'id');
+        $idRef->setValue($item, 100);
+        $idRef->setValue($child, 101);
+        $child->setParent($item);
+
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->method('findAllForMenuOrderedByTreeForExport')->willReturn([$item, $child]);
+        $importer = new MenuImporter($itemRepo, $menuRepo, $em);
 
         $ref = new ReflectionClass($importer);
         $m   = $ref->getMethod('clearLinkDataForLinkItemsWithChildren');
@@ -234,7 +244,7 @@ final class MenuImporterTest extends TestCase
         ));
         $em->expects(self::atLeastOnce())->method('flush');
 
-        $importer = new MenuImporter($menuRepo, $em);
+        $importer = new MenuImporter($this->createStub(MenuItemRepository::class), $menuRepo, $em);
         $result   = $importer->import([
             'menu'  => ['code' => 'x'],
             'items' => [[
@@ -256,7 +266,7 @@ final class MenuImporterTest extends TestCase
         $em->expects(self::atLeastOnce())->method('persist');
         $em->expects(self::atLeastOnce())->method('flush');
 
-        $importer = new MenuImporter($menuRepo, $em);
+        $importer = new MenuImporter($this->createStub(MenuItemRepository::class), $menuRepo, $em);
         $result   = $importer->import([
             'menu'  => ['code' => 'no-params'],
             'items' => [['label' => 'Item without routeParams', 'position' => 0]],
@@ -278,7 +288,7 @@ final class MenuImporterTest extends TestCase
         ));
         $em->expects(self::atLeastOnce())->method('flush');
 
-        $importer = new MenuImporter($menuRepo, $em);
+        $importer = new MenuImporter($this->createStub(MenuItemRepository::class), $menuRepo, $em);
         $result   = $importer->import([
             'menu' => [
                 'code'                => 'flags',

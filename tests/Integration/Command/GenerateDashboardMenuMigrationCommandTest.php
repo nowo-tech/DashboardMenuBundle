@@ -46,7 +46,9 @@ final class GenerateDashboardMenuMigrationCommandTest extends KernelTestCase
         // Output formatting includes Symfony "NOTE" decorations and may split
         // lines with `! [NOTE] ...` across multiple rows depending on console styles.
         self::assertStringContainsString('Run with the same', $output);
-        self::assertStringContainsString('connection as in', $output);
+        // Depending on Symfony console wrapping, "connection as in" can be split
+        // across lines/decorated blocks; match both terms loosely in order.
+        self::assertMatchesRegularExpression('/(?s)connection.*as in/', $output);
         // Symfony may wrap the connection note, splitting the text:
         // e.g. "nowo_dashboard_menu.d\n! ... octrine.connection"
         self::assertStringContainsString('nowo_dashboard_menu', $output);

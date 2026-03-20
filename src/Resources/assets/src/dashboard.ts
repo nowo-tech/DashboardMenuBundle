@@ -401,11 +401,10 @@ function initIndexPage(config: NowoDashboardMenuConfig): void {
       const formEl = form as HTMLFormElement;
       const action = formEl.action || `${dashboardBase}/import`;
       const formData = new FormData(formEl);
-      fetch(action, { method: 'POST', body: formData, redirect: 'manual' })
+      fetch(action, { method: 'POST', body: formData, redirect: 'follow' })
         .then((r) => {
-          if (r.type === 'opaqueredirect' || r.status === 0 || (r.status >= 301 && r.status <= 308)) {
-            const loc = r.headers.get('Location');
-            if (loc) window.location.href = loc;
+          if (r.redirected) {
+            window.location.href = r.url || dashboardBase;
             return;
           }
           return r.text();

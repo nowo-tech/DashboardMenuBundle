@@ -130,7 +130,10 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="text-muted small">{{ item_parent_labels[item.id] is defined ? item_parent_labels[item.id] : '—' }}</td>
+                            <td class="text-muted small">
+                                <div>{{ item_parent_labels[item.id] is defined ? item_parent_labels[item.id] : '—' }}</div>
+                                <div class="small text-secondary">Pos: {{ item.position }}</div>
+                            </td>
                             <td class="small">
                                 {{ item.getLabelForLocale(currentLocale) ?: ('dashboard.no_label'|trans({}, 'NowoDashboardMenuBundle')) }}
                             </td>

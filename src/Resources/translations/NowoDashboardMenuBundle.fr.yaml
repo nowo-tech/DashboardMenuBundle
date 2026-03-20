@@ -188,6 +188,7 @@ form:
     parent:
       label: Parent
       placeholder: "— Racine (sans parent) —"
+      circular_violation: "La hiérarchie parent circulaire n'est pas autorisée."
 
   copy_menu_type:
     code:
