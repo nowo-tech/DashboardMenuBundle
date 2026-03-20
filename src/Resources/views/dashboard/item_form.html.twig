@@ -53,7 +53,7 @@
                         <small class="form-text text-muted d-block mt-1" id="route_params_hint"></small>
                     </div>
                     <div id="external_field" style="display: none;">{{ form_row(form.config.externalUrl) }}</div>
-                    {{ form_row(form.config.targetBlank) }}
+                    {{ form_row(form.config.targetBlank, { row_attr: { class: 'form-check ms-0 mb-1' } }) }}
                 </div>
                 {{ form_row(form.config.permissionKey) }}
             </div>
