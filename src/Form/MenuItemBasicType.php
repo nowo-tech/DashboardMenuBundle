@@ -12,8 +12,8 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Callback;
@@ -56,7 +56,7 @@ final class MenuItemBasicType extends AbstractType
             ])
             ->add('itemType', ChoiceType::class, [
                 // 'required' => false,
-                'choices'  => [
+                'choices' => [
                     'form.menu_item_type.type.link'    => MenuItem::ITEM_TYPE_LINK,
                     'form.menu_item_type.type.section' => MenuItem::ITEM_TYPE_SECTION,
                     'form.menu_item_type.type.divider' => MenuItem::ITEM_TYPE_DIVIDER,
@@ -70,7 +70,7 @@ final class MenuItemBasicType extends AbstractType
 
         if (class_exists('Nowo\IconSelectorBundle\Form\IconSelectorType')) {
             $builder->add('icon', IconSelectorType::class, [
-                'required'           => false,
+                'required' => false,
                 // Icon is optional: remove any default NotBlank/required constraints
                 // added by IconSelectorType so the form never forces an icon.
                 'constraints'        => [],

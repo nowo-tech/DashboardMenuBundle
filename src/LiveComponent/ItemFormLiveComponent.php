@@ -108,8 +108,8 @@ final class ItemFormLiveComponent
             // Avoid returning a potentially stale managed instance from Doctrine's identity map.
             // Using clear() + repository findOneBy() makes sure we fetch the current row.
             $this->entityManager->clear(MenuItem::class);
-            $repo   = $this->entityManager->getRepository(MenuItem::class);
-            $fresh  = $repo->findOneBy(['id' => $itemId]);
+            $repo  = $this->entityManager->getRepository(MenuItem::class);
+            $fresh = $repo->findOneBy(['id' => $itemId]);
             if ($fresh instanceof MenuItem) {
                 $initialData = $fresh;
             }
@@ -231,7 +231,7 @@ final class ItemFormLiveComponent
      */
     public function getLocaleFieldValuesDebug(): array
     {
-        $out = [];
+        $out  = [];
         $form = $this->getForm();
         if (!$form->has('basic')) {
             return $out;
@@ -244,7 +244,7 @@ final class ItemFormLiveComponent
                 continue;
             }
 
-            $field = $basic->get($fieldName);
+            $field        = $basic->get($fieldName);
             $out[$locale] = $field->getData();
         }
 
