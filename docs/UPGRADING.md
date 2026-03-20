@@ -10,6 +10,15 @@ No breaking changes.
 - **Dashboard UI:** item modal icon field uses a plain text input so the stored icon string is always prefilled during LiveComponent editing.
 - **Demos:** Asset build commands run inside the demo Docker container (`make assets` / `make ts-assets`) for consistent `pnpm` behaviour.
 
+## From 0.3.23 to 0.3.24
+
+No breaking changes.
+
+- **Dashboard UI:** menu item labels are rendered using the locale-resolved `MenuItem::getLabelForLocale()` value.
+- **Dashboard item forms:** “Add child” modal shows only `label` + per-locale translations (type fixed to Link) and hides icon/position fields.
+- **Dashboard item forms:** icon identity editing uses a normal Symfony form (not LiveComponent) to ensure the icon-selector widget refreshes correctly.
+- **Dashboard item forms:** label validation accepts either a non-empty base label or at least one non-empty translation; empty `position` values are normalized to `0`.
+
 ## From 0.3.21 to 0.3.22
 
 No breaking changes.

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.24] - 2026-03-20
+
+### Fixed
+- **Dashboard UI:** menu item labels are rendered using locale-resolved `MenuItem::getLabelForLocale()` (avoids empty base `label` when the user stores the text in per-locale translations).
+- **Dashboard item forms:** “Add child” modal hides `type`, `icon` and `position` inputs and shows only `label` + per-locale translations (item type is fixed to Link in the form).
+- **Dashboard item forms:** the icon section is rendered with a normal Symfony form (not LiveComponent) so the icon-selector widget refreshes reliably when the modal content changes.
+- **Dashboard item forms:** label validation accepts either a non-empty base label or at least one non-empty translation; empty `position` values are normalized to `0` to prevent `null` mapping issues.
+
+### Changed
+- **Docs/UX:** item form rendering and documentation were aligned for section-based partial submissions (`section`/`_section`, `section_focus`).
+
 ## [0.3.23] - 2026-03-20
 
 ### Fixed
@@ -336,7 +347,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.23...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.24...HEAD
+[0.3.24]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.23...v0.3.24
 [0.3.23]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.22...v0.3.23
 [0.3.22]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.21...v0.3.22
 [0.3.21]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.20...v0.3.21
