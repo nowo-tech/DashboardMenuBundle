@@ -78,9 +78,44 @@ final class ItemFormLiveComponent
     #[LiveProp]
     public ?string $sectionFocus = null;
 
+    /**
+     * Explicit item id for re-hydrating entity private fields (e.g. translations) reliably.
+     * LiveComponents may deserialize entities without private state.
+     */
+    #[LiveProp]
+    public ?int $itemId = null;
+
     protected function instantiateForm(): FormInterface
     {
-        return $this->formFactory->create(MenuItemType::class, $this->initialFormData ?? new MenuItem(), [
+        $initialData = $this->initialFormData ?? new MenuItem();
+        // LiveComponent may serialize/deserialize entity-like props and lose private fields
+        // (e.g. translations JSON), and sometimes even `id`.
+        // When editing an existing item, always re-fetch it from DB to avoid wiping translations on save.
+        $itemId = $this->itemId;
+        if ($itemId === null) {
+            $itemId = $initialData instanceof MenuItem ? $initialData->getId() : null;
+        }
+        if ($itemId === null) {
+            // Parse itemId from actionUrl (route pattern: /{menuId}/item/{itemId}/edit)
+            if ($this->actionUrl !== '') {
+                $matches = [];
+                if (preg_match('#/item/(\d+)/edit#', $this->actionUrl, $matches) === 1) {
+                    $itemId = (int) ($matches[1] ?? 0);
+                }
+            }
+        }
+        if ($itemId !== null) {
+            // Avoid returning a potentially stale managed instance from Doctrine's identity map.
+            // Using clear() + repository findOneBy() makes sure we fetch the current row.
+            $this->entityManager->clear(MenuItem::class);
+            $repo   = $this->entityManager->getRepository(MenuItem::class);
+            $fresh  = $repo->findOneBy(['id' => $itemId]);
+            if ($fresh instanceof MenuItem) {
+                $initialData = $fresh;
+            }
+        }
+
+        return $this->formFactory->create(MenuItemType::class, $initialData, [
             'app_routes'        => $this->appRoutes,
             'menu'              => $this->menu,
             'exclude_ids'       => $this->excludeIds,
@@ -162,6 +197,58 @@ final class ItemFormLiveComponent
     public function showExternalUrlField(): bool
     {
         return $this->showLinkFields() && $this->getLinkType() === MenuItem::LINK_TYPE_EXTERNAL;
+    }
+
+    /**
+     * Used only for debug in the LiveComponent template.
+     *
+     * @return array<string, string> Locale => value
+     */
+    public function getTranslationsDebug(): array
+    {
+        $data = $this->getForm()->getData();
+        if ($data instanceof MenuItem) {
+            return $data->getTranslations() ?? [];
+        }
+
+        return [];
+    }
+
+    /**
+     * Used only for debug in the LiveComponent template.
+     */
+    public function getTranslationsKeysDebug(): string
+    {
+        $translations = $this->getTranslationsDebug();
+
+        return implode(',', array_keys($translations));
+    }
+
+    /**
+     * Debug: values currently present in the locale TextType fields.
+     *
+     * @return array<string, string|null>
+     */
+    public function getLocaleFieldValuesDebug(): array
+    {
+        $out = [];
+        $form = $this->getForm();
+        if (!$form->has('basic')) {
+            return $out;
+        }
+
+        $basic = $form->get('basic');
+        foreach ($this->locales as $locale) {
+            $fieldName = 'label_' . $locale;
+            if (!$basic->has($fieldName)) {
+                continue;
+            }
+
+            $field = $basic->get($fieldName);
+            $out[$locale] = $field->getData();
+        }
+
+        return $out;
     }
 
     /**

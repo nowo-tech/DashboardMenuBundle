@@ -8,12 +8,17 @@
     {% if app.debug %}
         <div id="dm-livecomponent-debug"
              class="d-none"
+             data-php-item-id="{{ this.itemId }}"
              data-php-item-type="{{ this.getItemType() }}"
              data-php-link-type="{{ this.getLinkType() }}"
              data-php-show-link-fields="{{ this.showLinkFields() ? '1' : '0' }}"
              data-php-show-route-fields="{{ this.showRouteFields() ? '1' : '0' }}"
              data-php-show-external-url="{{ this.showExternalUrlField() ? '1' : '0' }}"
              data-php-item-has-children="{{ this.itemHasChildren ? '1' : '0' }}"
+             data-php-translations-count="{{ this.getTranslationsDebug()|length }}"
+             data-php-translations-keys="{{ this.getTranslationsKeysDebug() }}"
+             data-php-translations-json="{{ this.getTranslationsDebug()|json_encode|e('html_attr') }}"
+             data-php-locale-fields-json="{{ this.getLocaleFieldValuesDebug()|json_encode|e('html_attr') }}"
         ></div>
     {% endif %}
     {{ form_start(form, {
@@ -38,18 +43,22 @@
             </h6>
             <div class="row">
                 <div class="col-md-6">{{ form_row(form.basic.itemType, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.basic.itemType' } }) }}</div>
-                <div class="col-md-6">{{ form_row(form.basic.icon) }}</div>
+                <div class="col-md-6">
+                    {{ form_row(form.basic.icon, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.basic.icon' } }) }}
+                </div>
             </div>
             <div class="{{ this.getItemType() == 'divider' ? 'd-none' : '' }}">
                 <div class="row">
-                    {{ form_row(form.basic.label) }}
+                    {{ form_row(form.basic.label, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.basic.label' } }) }}
                 </div>
                 {% if locales is not empty %}
                     <div class="row mb-2">
                         {% for locale in locales %}
                             {% set fieldName = 'label_' ~ locale %}
                             {% if attribute(form.basic, fieldName) is defined %}
-                                <div class="col-md-6">{{ form_row(attribute(form.basic, fieldName)) }}</div>
+                                <div class="col-md-6">
+                                    {{ form_row(attribute(form.basic, fieldName), { attr: { 'data-model': 'on(change)|' ~ formName ~ '.basic.' ~ fieldName } }) }}
+                                </div>
                             {% endif %}
                         {% endfor %}
                     </div>

@@ -4,13 +4,14 @@ help:
 	@echo "Dashboard Menu Bundle Demo - Symfony 7"
 	@echo "  ensure-up, up, down, restart, build, shell, install, setup, clean, logs, update-bundle, assets, schema-update, migrations-status, migrate, test, test-coverage, ts-assets, verify, cache-clear"
 
-assets:
-	pnpm install
-	pnpm run build
+assets: ensure-up
+	# Build assets inside the demo container (so pnpm/vite run with container tooling).
+	docker-compose exec -T php sh -c "cd /app && pnpm install && pnpm run build"
 
 # If assets/ is root-owned (e.g. after Docker): sudo chown -R $$(whoami) assets && make ts-assets
-ts-assets:
-	@sh scripts/create-ts-assets.sh
+ts-assets: ensure-up
+	# Generate TS→JS assets inside the demo container.
+	docker-compose exec -T php sh -c "cd /app && sh scripts/create-ts-assets.sh"
 
 restart: ensure-up
 	docker-compose restart
@@ -110,10 +111,12 @@ logs:
 	docker-compose logs -f
 
 test: ensure-up
-	docker-compose exec -e APP_ENV=test php php bin/phpunit 2>/dev/null || docker-compose exec -e APP_ENV=test php vendor/bin/phpunit 2>/dev/null || echo "No PHPUnit config in demo; run tests from bundle root."
+	# Run bundle tests from within the demo container, using bundle PHPUnit config.
+	docker-compose exec -e APP_ENV=test -T php php /var/dashboard-menu-bundle/vendor/bin/phpunit -c /var/dashboard-menu-bundle/phpunit.xml.dist
 
 test-coverage: ensure-up
-	docker-compose exec -e APP_ENV=test php php bin/phpunit --coverage-text 2>/dev/null || docker-compose exec -e APP_ENV=test php vendor/bin/phpunit --coverage-text 2>/dev/null || echo "No PHPUnit config in demo; run test-coverage from bundle root."
+	# Run bundle tests from within the demo container, using bundle PHPUnit config.
+	docker-compose exec -e APP_ENV=test -T php php /var/dashboard-menu-bundle/vendor/bin/phpunit -c /var/dashboard-menu-bundle/phpunit.xml.dist --coverage-text
 
 verify: ensure-up
 	@docker-compose exec -T php php bin/console lint:container && \

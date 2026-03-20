@@ -12,7 +12,9 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
@@ -53,7 +55,7 @@ final class MenuItemBasicType extends AbstractType
                 'label_attr' => ['class' => 'form-label'],
             ])
             ->add('itemType', ChoiceType::class, [
-                'required' => false,
+                // 'required' => false,
                 'choices'  => [
                     'form.menu_item_type.type.link'    => MenuItem::ITEM_TYPE_LINK,
                     'form.menu_item_type.type.section' => MenuItem::ITEM_TYPE_SECTION,
@@ -69,6 +71,9 @@ final class MenuItemBasicType extends AbstractType
         if (class_exists('Nowo\IconSelectorBundle\Form\IconSelectorType')) {
             $builder->add('icon', IconSelectorType::class, [
                 'required'           => false,
+                // Icon is optional: remove any default NotBlank/required constraints
+                // added by IconSelectorType so the form never forces an icon.
+                'constraints'        => [],
                 'mode'               => IconSelectorType::MODE_TOM_SELECT,
                 'label'              => 'form.menu_item_type.icon.label',
                 'translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
@@ -103,6 +108,7 @@ final class MenuItemBasicType extends AbstractType
                     'label_attr'                   => ['class' => 'form-label'],
                 ]);
             }
+
             $builder->addEventListener(FormEvents::SUBMIT, static function (FormEvent $event) use ($availableLocales): void {
                 $data = $event->getData();
                 if (!$data instanceof MenuItem) {
@@ -118,7 +124,13 @@ final class MenuItemBasicType extends AbstractType
                     if (!$form->has($fieldName)) {
                         continue;
                     }
-                    $value = $form->get($fieldName)->getData();
+                    $localeField = $form->get($fieldName);
+                    // In LiveComponent submissions it may happen that some fields are not included
+                    // in the payload; don't treat "not submitted" as "empty" (which would wipe translations).
+                    if (!$localeField->isSubmitted()) {
+                        continue;
+                    }
+                    $value = $localeField->getData();
                     if ($value === null || $value === '') {
                         unset($translations[$locale]);
                     } else {
@@ -126,7 +138,6 @@ final class MenuItemBasicType extends AbstractType
                     }
                 }
                 $data->setTranslations($translations === [] ? null : $translations);
-                $event->setData($data);
             });
         }
 
@@ -142,6 +153,31 @@ final class MenuItemBasicType extends AbstractType
             }
             $event->setData($data);
         });
+    }
+
+    public function finishView(FormView $view, FormInterface $form, array $options): void
+    {
+        /** @var list<string> $availableLocales */
+        $availableLocales = $options['available_locales'] ?? [];
+        if ($availableLocales === []) {
+            return;
+        }
+
+        $data = $form->getData();
+        if (!$data instanceof MenuItem) {
+            return;
+        }
+
+        $translations = $data->getTranslations() ?? [];
+
+        foreach ($availableLocales as $locale) {
+            $fieldName = 'label_' . $locale;
+            $value     = $translations[$locale] ?? null;
+
+            if (isset($view->children[$fieldName])) {
+                $view->children[$fieldName]->vars['value'] = $value;
+            }
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void

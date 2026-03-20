@@ -72,6 +72,8 @@
                     <tr>
                         <th class="nowo-dashboard-menu-actions-col">{{ 'dashboard.actions'|trans({}, 'NowoDashboardMenuBundle') }}</th>
                         <th style="width: 1%; white-space: nowrap;">{{ 'dashboard.parent'|trans({}, 'NowoDashboardMenuBundle') }}</th>
+                        {% set currentLocale = app.request.locale|default('en') %}
+                        <th style="white-space: nowrap;">Label ({{ currentLocale }})</th>
                         <th class="nowo-dashboard-menu-route" style="white-space: nowrap;">{{ 'dashboard.route_url'|trans({}, 'NowoDashboardMenuBundle') }}</th>
                         <th>{{ 'dashboard.item'|trans({}, 'NowoDashboardMenuBundle') }}</th>
                     </tr>
@@ -126,6 +128,9 @@
                                 </div>
                             </td>
                             <td class="text-muted small">{{ item_parent_labels[item.id] is defined ? item_parent_labels[item.id] : '—' }}</td>
+                            <td class="small">
+                                {{ item.getLabelForLocale(currentLocale) ?: ('dashboard.no_label'|trans({}, 'NowoDashboardMenuBundle')) }}
+                            </td>
                             <td class="small">
                                 {% if item.itemType == 'link' %}
                                     {% if item.linkType == 'route' and item.routeName %}

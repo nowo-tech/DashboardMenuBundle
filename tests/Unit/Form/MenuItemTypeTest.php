@@ -148,6 +148,7 @@ final class MenuItemTypeTest extends TestCase
         self::assertNotNull($iconCall);
         self::assertSame(\Nowo\IconSelectorBundle\Form\IconSelectorType::class, $iconCall['type']);
         self::assertFalse($iconCall['required']);
+        self::assertSame([], $iconCall['constraints']);
         self::assertSame(\Nowo\IconSelectorBundle\Form\IconSelectorType::MODE_TOM_SELECT, $iconCall['mode']);
         self::assertSame(
             NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
@@ -235,9 +236,11 @@ final class MenuItemTypeTest extends TestCase
 
         $labelEn = $this->createMock(FormInterface::class);
         $labelEn->method('getData')->willReturn('New Home');
+        $labelEn->method('isSubmitted')->willReturn(true);
 
         $labelEs = $this->createMock(FormInterface::class);
         $labelEs->method('getData')->willReturn('');
+        $labelEs->method('isSubmitted')->willReturn(true);
 
         $form = $this->createMock(FormInterface::class);
         $form->method('has')->willReturnCallback(static fn (string $name): bool => match ($name) {
@@ -265,6 +268,65 @@ final class MenuItemTypeTest extends TestCase
         $submitListener($event);
 
         self::assertSame(['en' => 'New Home', 'fr' => 'Old FR'], $menuItem->getTranslations());
+    }
+
+    public function testMenuItemBasicTypeSubmitListenerDoesNotTouchTranslationsWhenLocaleFieldNotSubmitted(): void
+    {
+        $availableLocales = ['en', 'es'];
+
+        $menuItem = new MenuItem();
+        $menuItem->setTranslations([
+            'en' => 'Home',
+            'es' => 'Old ES',
+        ]);
+
+        $type = new MenuItemBasicType(availableLocales: $availableLocales);
+
+        $addCalls       = [];
+        $eventListeners = [];
+        $builder        = $this->createFormBuilderMock(
+            $addCalls,
+            $menuItem,
+            eventListeners: $eventListeners,
+            captureEventListeners: true,
+        );
+
+        $type->buildForm($builder, ['available_locales' => $availableLocales]);
+
+        $submitListener = $eventListeners[FormEvents::SUBMIT];
+
+        $labelEn = $this->createMock(FormInterface::class);
+        $labelEn->method('getData')->willReturn('New Home');
+        $labelEn->method('isSubmitted')->willReturn(true);
+
+        $labelEs = $this->createMock(FormInterface::class);
+        $labelEs->method('getData')->willReturn('');
+        $labelEs->method('isSubmitted')->willReturn(false);
+
+        $form = $this->createMock(FormInterface::class);
+        $form->method('has')->willReturnCallback(static fn (string $name): bool => match ($name) {
+            'label_en' => true,
+            'label_es' => true,
+            default    => false,
+        });
+        $form->method('get')->willReturnCallback(static fn (string $name): FormInterface => match ($name) {
+            'label_en' => $labelEn,
+            'label_es' => $labelEs,
+            default    => $labelEn,
+        });
+
+        $formParent = $this->createMock(FormInterface::class);
+        $formParent->method('getData')->willReturn($menuItem);
+        $form->method('getParent')->willReturn($formParent);
+
+        $event = $this->createMock(FormEvent::class);
+        $event->method('getData')->willReturn(new stdClass());
+        $event->method('getForm')->willReturn($form);
+        $event->expects(self::once())->method('setData')->with($menuItem);
+
+        $submitListener($event);
+
+        self::assertSame(['en' => 'New Home', 'es' => 'Old ES'], $menuItem->getTranslations());
     }
 
     public function testMenuItemBasicTypeSubmitListenerReturnsEarlyWhenNotMenuItem(): void
