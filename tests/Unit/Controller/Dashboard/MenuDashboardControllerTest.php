@@ -18,17 +18,17 @@ use ReflectionClass;
 use ReflectionProperty;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function in_array;
 
@@ -1258,7 +1258,7 @@ final class MenuDashboardControllerTest extends TestCase
         $form->method('isValid')->willReturn(true);
         $form->method('getData')->willReturn([
             'file'     => $uploaded,
-            'strategy' => \Nowo\DashboardMenuBundle\Service\MenuImporter::STRATEGY_SKIP_EXISTING,
+            'strategy' => MenuImporter::STRATEGY_SKIP_EXISTING,
         ]);
 
         $translator = $this->createMock(TranslatorInterface::class);
@@ -1266,7 +1266,7 @@ final class MenuDashboardControllerTest extends TestCase
 
         $menuRepo = $this->createStub(MenuRepository::class);
         $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
-        $em = $this->createMock(EntityManagerInterface::class);
+        $em           = $this->createMock(EntityManagerInterface::class);
         $menuImporter = new MenuImporter($menuRepo, $em);
         $controller   = $this->createController(
             translator: $translator,
@@ -1294,7 +1294,7 @@ final class MenuDashboardControllerTest extends TestCase
         $form->method('isValid')->willReturn(true);
         $form->method('getData')->willReturn([
             'file'     => $uploaded,
-            'strategy' => \Nowo\DashboardMenuBundle\Service\MenuImporter::STRATEGY_SKIP_EXISTING,
+            'strategy' => MenuImporter::STRATEGY_SKIP_EXISTING,
         ]);
 
         $translator = $this->createMock(TranslatorInterface::class);
@@ -1302,7 +1302,7 @@ final class MenuDashboardControllerTest extends TestCase
 
         $menuRepo = $this->createStub(MenuRepository::class);
         $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
-        $em = $this->createMock(EntityManagerInterface::class);
+        $em           = $this->createMock(EntityManagerInterface::class);
         $menuImporter = new MenuImporter($menuRepo, $em);
         $controller   = $this->createController(
             translator: $translator,
@@ -1330,7 +1330,7 @@ final class MenuDashboardControllerTest extends TestCase
         $form->method('isValid')->willReturn(true);
         $form->method('getData')->willReturn([
             'file'     => $uploaded,
-            'strategy' => \Nowo\DashboardMenuBundle\Service\MenuImporter::STRATEGY_SKIP_EXISTING,
+            'strategy' => MenuImporter::STRATEGY_SKIP_EXISTING,
         ]);
 
         $translator = $this->createMock(TranslatorInterface::class);
@@ -1338,7 +1338,7 @@ final class MenuDashboardControllerTest extends TestCase
 
         $menuRepo = $this->createStub(MenuRepository::class);
         $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
-        $em = $this->createMock(EntityManagerInterface::class);
+        $em           = $this->createMock(EntityManagerInterface::class);
         $menuImporter = new MenuImporter($menuRepo, $em);
 
         $controller = $this->createController(
@@ -1348,7 +1348,7 @@ final class MenuDashboardControllerTest extends TestCase
         );
         $this->setControllerContainer($controller, $form);
 
-        $request = Request::create('/dashboard/menu/import', 'POST', []);
+        $request  = Request::create('/dashboard/menu/import', 'POST', []);
         $response = $controller->import($request);
 
         self::assertInstanceOf(Response::class, $response);
@@ -1366,7 +1366,7 @@ final class MenuDashboardControllerTest extends TestCase
         $form->method('isValid')->willReturn(true);
         $form->method('getData')->willReturn([
             'file'     => $uploaded,
-            'strategy' => \Nowo\DashboardMenuBundle\Service\MenuImporter::STRATEGY_SKIP_EXISTING,
+            'strategy' => MenuImporter::STRATEGY_SKIP_EXISTING,
         ]);
 
         $translator = $this->createMock(TranslatorInterface::class);
@@ -1374,7 +1374,7 @@ final class MenuDashboardControllerTest extends TestCase
 
         $menuRepo = $this->createStub(MenuRepository::class);
         $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
-        $em = $this->createMock(EntityManagerInterface::class);
+        $em           = $this->createMock(EntityManagerInterface::class);
         $menuImporter = new MenuImporter($menuRepo, $em);
 
         $controller = $this->createController(
@@ -1384,7 +1384,7 @@ final class MenuDashboardControllerTest extends TestCase
         );
         $this->setControllerContainer($controller, $form);
 
-        $request = Request::create('/dashboard/menu/import', 'POST', []);
+        $request  = Request::create('/dashboard/menu/import', 'POST', []);
         $response = $controller->import($request);
 
         self::assertInstanceOf(Response::class, $response);
@@ -1402,7 +1402,7 @@ final class MenuDashboardControllerTest extends TestCase
         $form->method('isValid')->willReturn(true);
         $form->method('getData')->willReturn([
             'file'     => $uploaded,
-            'strategy' => \Nowo\DashboardMenuBundle\Service\MenuImporter::STRATEGY_SKIP_EXISTING,
+            'strategy' => MenuImporter::STRATEGY_SKIP_EXISTING,
         ]);
 
         $translator = $this->createMock(TranslatorInterface::class);
@@ -1410,7 +1410,7 @@ final class MenuDashboardControllerTest extends TestCase
 
         $menuRepo = $this->createStub(MenuRepository::class);
         $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
-        $em = $this->createMock(EntityManagerInterface::class);
+        $em           = $this->createMock(EntityManagerInterface::class);
         $menuImporter = new MenuImporter($menuRepo, $em);
 
         $controller = $this->createController(
@@ -1448,7 +1448,7 @@ final class MenuDashboardControllerTest extends TestCase
 
     public function testNewItemRendersLiveComponentPartialWhenEnabledAndPartialRequested(): void
     {
-        $menu = new Menu();
+        $menu     = new Menu();
         $menuRepo = $this->createStub(MenuRepository::class);
         $menuRepo->method('findOneById')->willReturn($menu);
 
@@ -1465,7 +1465,7 @@ final class MenuDashboardControllerTest extends TestCase
 
     public function testNewItemClearsDividerFieldsOnSave(): void
     {
-        $menu = new Menu();
+        $menu     = new Menu();
         $menuRepo = $this->createStub(MenuRepository::class);
         $menuRepo->method('findOneById')->willReturn($menu);
 
@@ -1487,7 +1487,7 @@ final class MenuDashboardControllerTest extends TestCase
             return $form;
         });
 
-        $request = Request::create('/dashboard/menu/1/item/new', 'POST', []);
+        $request  = Request::create('/dashboard/menu/1/item/new', 'POST', []);
         $response = $controller->newItem($request, 1);
 
         self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
@@ -1623,15 +1623,7 @@ final class MenuDashboardControllerTest extends TestCase
             return $token->getValue() === 'test-csrf-token';
         });
 
-        $container = new class(
-            $router,
-            $formFactory,
-            $session,
-            $twig,
-            $requestStack,
-            $csrfManager,
-            $tokenStorage,
-        ) implements \Psr\Container\ContainerInterface {
+        $container = new class($router, $formFactory, $session, $twig, $requestStack, $csrfManager, $tokenStorage) implements \Psr\Container\ContainerInterface {
             public function __construct(
                 private readonly RouterInterface $router,
                 private readonly FormFactoryInterface $formFactory,
@@ -1652,7 +1644,7 @@ final class MenuDashboardControllerTest extends TestCase
                     'twig'                        => $this->twig,
                     'request_stack'               => $this->requestStack,
                     'security.csrf.token_manager' => $this->csrfTokenManager,
-                    'security.token_storage'       => $this->tokenStorage,
+                    'security.token_storage'      => $this->tokenStorage,
                     default                       => throw new \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException($id),
                 };
             }
@@ -1680,7 +1672,7 @@ final class MenuDashboardControllerTest extends TestCase
         $redirect = $this->invokePrivate(
             $controller,
             'redirectToRefererOr',
-            [$request, MenuDashboardController::ROUTE_INDEX, [], 'manual']
+            [$request, MenuDashboardController::ROUTE_INDEX, [], 'manual'],
         );
 
         self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $redirect);

@@ -8,6 +8,7 @@ use Nowo\DashboardMenuBundle\DependencyInjection\Configuration;
 use Nowo\DashboardMenuBundle\DependencyInjection\DashboardMenuExtension;
 use Nowo\DashboardMenuBundle\Twig\MenuExtension;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
@@ -16,7 +17,7 @@ final class DashboardMenuExtensionTest extends TestCase
     /**
      * @runInSeparateProcess
      */
-    public function testA_prependReturnsEarlyWhenLiveComponentClassMissing(): void
+    public function testAPrependReturnsEarlyWhenLiveComponentClassMissing(): void
     {
         $container = new ContainerBuilder();
         $extension = new DashboardMenuExtension();
@@ -28,7 +29,7 @@ final class DashboardMenuExtensionTest extends TestCase
     /**
      * @runInSeparateProcess
      */
-    public function testB_prependRegistersLiveComponentTwigComponentDefaultsWhenClassExists(): void
+    public function testBPrependRegistersLiveComponentTwigComponentDefaultsWhenClassExists(): void
     {
         if (!class_exists(\Symfony\UX\LiveComponent\Attribute\AsLiveComponent::class)) {
             eval('namespace Symfony\\UX\\LiveComponent\\Attribute; class AsLiveComponent {}');
@@ -54,12 +55,12 @@ final class DashboardMenuExtensionTest extends TestCase
         self::assertTrue($found);
     }
 
-    public function testC_loadDetectsUxAutocompleteAvailabilityFromKernelBundles(): void
+    public function testCLoadDetectsUxAutocompleteAvailabilityFromKernelBundles(): void
     {
         $container = new ContainerBuilder();
         $container->setParameter('kernel.environment', 'prod');
         $container->setParameter('kernel.bundles', [
-            \Symfony\UX\Autocomplete\AutocompleteBundle::class => new \stdClass(),
+            \Symfony\UX\Autocomplete\AutocompleteBundle::class => new stdClass(),
         ]);
 
         $extension = new DashboardMenuExtension();
@@ -71,7 +72,7 @@ final class DashboardMenuExtensionTest extends TestCase
     /**
      * @runInSeparateProcess
      */
-    public function testD_loadSetsStimulusScriptUrlWhenMissingAndLiveComponentEnabled(): void
+    public function testDLoadSetsStimulusScriptUrlWhenMissingAndLiveComponentEnabled(): void
     {
         if (!class_exists(\Symfony\UX\LiveComponent\Attribute\AsLiveComponent::class)) {
             eval('namespace Symfony\\UX\\LiveComponent\\Attribute; class AsLiveComponent {}');
@@ -83,9 +84,9 @@ final class DashboardMenuExtensionTest extends TestCase
         $extension = new DashboardMenuExtension();
         $extension->load([
             [
-                'doctrine' => ['connection' => 'default'],
+                'doctrine'  => ['connection' => 'default'],
                 'dashboard' => [
-                    'enabled' => true,
+                    'enabled'    => true,
                     'pagination' => ['enabled' => true, 'per_page' => 20],
                 ],
             ],
@@ -93,11 +94,11 @@ final class DashboardMenuExtensionTest extends TestCase
 
         self::assertSame(
             'bundles/nowodashboardmenu/js/stimulus-live.js',
-            $container->getParameter(Configuration::ALIAS . '.dashboard.stimulus_script_url')
+            $container->getParameter(Configuration::ALIAS . '.dashboard.stimulus_script_url'),
         );
     }
 
-    public function testE_loadRegistersDashboardAccessSubscriberWhenRequiredRoleProvided(): void
+    public function testELoadRegistersDashboardAccessSubscriberWhenRequiredRoleProvided(): void
     {
         $container = new ContainerBuilder();
         $container->setParameter('kernel.environment', 'prod');
@@ -105,16 +106,16 @@ final class DashboardMenuExtensionTest extends TestCase
         $extension = new DashboardMenuExtension();
         $extension->load([
             [
-                'doctrine' => ['connection' => 'default'],
+                'doctrine'  => ['connection' => 'default'],
                 'dashboard' => [
-                    'enabled' => true,
+                    'enabled'       => true,
                     'required_role' => 'ROLE_ADMIN',
                 ],
             ],
         ], $container);
 
         self::assertTrue($container->hasDefinition(\Nowo\DashboardMenuBundle\EventSubscriber\DashboardAccessSubscriber::class));
-        $def = $container->getDefinition(\Nowo\DashboardMenuBundle\EventSubscriber\DashboardAccessSubscriber::class);
+        $def  = $container->getDefinition(\Nowo\DashboardMenuBundle\EventSubscriber\DashboardAccessSubscriber::class);
         $args = $def->getArguments();
         self::assertSame('ROLE_ADMIN', $args[0]);
         self::assertInstanceOf(Reference::class, $args[1]);

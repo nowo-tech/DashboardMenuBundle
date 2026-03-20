@@ -46,7 +46,7 @@ final class MenuRepositoryFindMenuAndItemsRawTest extends TestCase
         $em = $this->createMock(EntityManagerInterface::class);
         $em->method('getConnection')->willReturn($conn);
         $em->method('getClassMetadata')->willReturnCallback(
-            static fn(string $class): object => $class === Menu::class ? $metaMenu : $metaItem,
+            static fn (string $class): object => $class === Menu::class ? $metaMenu : $metaItem,
         );
 
         $repo = $this->getMockBuilder(MenuRepository::class)
@@ -91,7 +91,7 @@ final class MenuRepositoryFindMenuAndItemsRawTest extends TestCase
         $em = $this->createMock(EntityManagerInterface::class);
         $em->method('getConnection')->willReturn($conn);
         $em->method('getClassMetadata')->willReturnCallback(
-            static fn(string $class): object => $class === Menu::class ? $metaMenu : $metaItem,
+            static fn (string $class): object => $class === Menu::class ? $metaMenu : $metaItem,
         );
 
         $repo = $this->getMockBuilder(MenuRepository::class)

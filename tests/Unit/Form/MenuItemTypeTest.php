@@ -10,21 +10,23 @@ use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Form\MenuItemBasicType;
 use Nowo\DashboardMenuBundle\Form\MenuItemConfigType;
 use Nowo\DashboardMenuBundle\Form\MenuItemType;
-use Nowo\DashboardMenuBundle\Form\DataTransformer\JsonToArrayTransformer;
 use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use PHPUnit\Framework\TestCase;
+use stdClass;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Violation\ConstraintViolationBuilderInterface;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Validator\Constraints\Callback;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\Validator\Violation\ConstraintViolationBuilderInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+
+use function is_array;
 
 final class MenuItemTypeTest extends TestCase
 {
@@ -149,7 +151,7 @@ final class MenuItemTypeTest extends TestCase
         self::assertSame(\Nowo\IconSelectorBundle\Form\IconSelectorType::MODE_TOM_SELECT, $iconCall['mode']);
         self::assertSame(
             NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
-            $iconCall['translation_domain']
+            $iconCall['translation_domain'],
         );
         self::assertArrayHasKey('placeholder', $iconCall['attr']);
     }
@@ -163,13 +165,13 @@ final class MenuItemTypeTest extends TestCase
 
         $type = new MenuItemBasicType(availableLocales: $availableLocales, translator: null);
 
-        $addCalls      = [];
+        $addCalls       = [];
         $eventListeners = [];
-        $builder = $this->createFormBuilderMock(
+        $builder        = $this->createFormBuilderMock(
             $addCalls,
             $menuItem,
             eventListeners: $eventListeners,
-            captureEventListeners: true
+            captureEventListeners: true,
         );
 
         $type->buildForm($builder, ['available_locales' => $availableLocales]);
@@ -217,13 +219,13 @@ final class MenuItemTypeTest extends TestCase
 
         $type = new MenuItemBasicType(availableLocales: $availableLocales, translator: null);
 
-        $addCalls = [];
+        $addCalls       = [];
         $eventListeners = [];
-        $builder = $this->createFormBuilderMock(
+        $builder        = $this->createFormBuilderMock(
             $addCalls,
             $menuItem,
             eventListeners: $eventListeners,
-            captureEventListeners: true
+            captureEventListeners: true,
         );
 
         $type->buildForm($builder, ['available_locales' => $availableLocales]);
@@ -231,35 +233,35 @@ final class MenuItemTypeTest extends TestCase
         self::assertArrayHasKey(FormEvents::SUBMIT, $eventListeners);
         $submitListener = $eventListeners[FormEvents::SUBMIT];
 
-        $labelEn = $this->createMock(\Symfony\Component\Form\FormInterface::class);
+        $labelEn = $this->createMock(FormInterface::class);
         $labelEn->method('getData')->willReturn('New Home');
 
-        $labelEs = $this->createMock(\Symfony\Component\Form\FormInterface::class);
+        $labelEs = $this->createMock(FormInterface::class);
         $labelEs->method('getData')->willReturn('');
 
-        $form = $this->createMock(\Symfony\Component\Form\FormInterface::class);
-        $form->method('has')->willReturnCallback(static function (string $name) use ($availableLocales): bool {
+        $form = $this->createMock(FormInterface::class);
+        $form->method('has')->willReturnCallback(static function (string $name): bool {
             return match ($name) {
                 'label_en' => true,
                 'label_es' => true,
                 'label_fr' => false,
-                default => false,
+                default    => false,
             };
         });
-        $form->method('get')->willReturnCallback(static function (string $name) use ($labelEn, $labelEs): \Symfony\Component\Form\FormInterface {
+        $form->method('get')->willReturnCallback(static function (string $name) use ($labelEn, $labelEs): FormInterface {
             return match ($name) {
                 'label_en' => $labelEn,
                 'label_es' => $labelEs,
-                default => $labelEn,
+                default    => $labelEn,
             };
         });
 
-        $formParent = $this->createMock(\Symfony\Component\Form\FormInterface::class);
+        $formParent = $this->createMock(FormInterface::class);
         $formParent->method('getData')->willReturn($menuItem);
         $form->method('getParent')->willReturn($formParent);
 
         $event = $this->createMock(FormEvent::class);
-        $event->method('getData')->willReturn(new \stdClass());
+        $event->method('getData')->willReturn(new stdClass());
         $event->method('getForm')->willReturn($form);
 
         $event->expects(self::once())->method('setData')->with($menuItem);
@@ -276,11 +278,11 @@ final class MenuItemTypeTest extends TestCase
 
         $addCalls       = [];
         $eventListeners = [];
-        $builder = $this->createFormBuilderMock(
+        $builder        = $this->createFormBuilderMock(
             $addCalls,
             new MenuItem(),
             eventListeners: $eventListeners,
-            captureEventListeners: true
+            captureEventListeners: true,
         );
 
         $type->buildForm($builder, ['available_locales' => $availableLocales]);
@@ -288,13 +290,13 @@ final class MenuItemTypeTest extends TestCase
         self::assertArrayHasKey(FormEvents::SUBMIT, $eventListeners);
         $submitListener = $eventListeners[FormEvents::SUBMIT];
 
-        $form = $this->createMock(\Symfony\Component\Form\FormInterface::class);
-        $formParent = $this->createMock(\Symfony\Component\Form\FormInterface::class);
-        $formParent->method('getData')->willReturn(new \stdClass());
+        $form       = $this->createMock(FormInterface::class);
+        $formParent = $this->createMock(FormInterface::class);
+        $formParent->method('getData')->willReturn(new stdClass());
         $form->method('getParent')->willReturn($formParent);
 
         $event = $this->createMock(FormEvent::class);
-        $event->method('getData')->willReturn(new \stdClass());
+        $event->method('getData')->willReturn(new stdClass());
         $event->method('getForm')->willReturn($form);
         $event->expects(self::never())->method('setData');
 
@@ -320,13 +322,13 @@ final class MenuItemTypeTest extends TestCase
         $availableLocales = ['en', 'es'];
         $type             = new MenuItemBasicType(availableLocales: $availableLocales, translator: null);
 
-        $addCalls      = [];
+        $addCalls       = [];
         $eventListeners = [];
-        $builder = $this->createFormBuilderMock(
+        $builder        = $this->createFormBuilderMock(
             $addCalls,
             new MenuItem(),
             eventListeners: $eventListeners,
-            captureEventListeners: true
+            captureEventListeners: true,
         );
 
         $type->buildForm($builder, ['available_locales' => $availableLocales]);
@@ -415,7 +417,7 @@ final class MenuItemTypeTest extends TestCase
             menuItemRepository: $repo,
             permissionKeyChoices: ['authenticated', 'admin'],
             defaultLocale: 'en',
-            translator: $translator
+            translator: $translator,
         );
 
         $menuItem = new MenuItem();
@@ -447,7 +449,7 @@ final class MenuItemTypeTest extends TestCase
             menuItemRepository: $this->createStub(MenuItemRepository::class),
             permissionKeyChoices: ['authenticated'],
             defaultLocale: 'en',
-            translator: null
+            translator: null,
         );
 
         $resolver = new OptionsResolver();
@@ -462,10 +464,10 @@ final class MenuItemTypeTest extends TestCase
         self::assertSame(NowoDashboardMenuBundle::TRANSLATION_DOMAIN, $options['translation_domain']);
 
         $optionsOverride = $resolver->resolve([
-            'app_routes' => ['app_page' => ['label' => 'Page', 'params' => []]],
-            'menu' => null,
+            'app_routes'  => ['app_page' => ['label' => 'Page', 'params' => []]],
+            'menu'        => null,
             'exclude_ids' => [1, 2],
-            'locale' => 'fr',
+            'locale'      => 'fr',
         ]);
         self::assertSame(['app_page' => ['label' => 'Page', 'params' => []]], $optionsOverride['app_routes']);
         self::assertSame([1, 2], $optionsOverride['exclude_ids']);
@@ -482,14 +484,14 @@ final class MenuItemTypeTest extends TestCase
             menuItemRepository: $repo,
             permissionKeyChoices: [],
             defaultLocale: 'en',
-            translator: null
+            translator: null,
         );
 
         $addCalls = [];
         $builder  = $this->createFormBuilderMock($addCalls, new MenuItem(), routeParamsFormTransformer: true);
 
         $type->buildForm($builder, [
-            'app_routes'  => [
+            'app_routes' => [
                 'app_page' => ['label' => 'Page', 'params' => ['section', 'tab']],
             ],
             'menu'        => null,
@@ -526,7 +528,7 @@ final class MenuItemTypeTest extends TestCase
             menuItemRepository: $repo,
             permissionKeyChoices: [],
             defaultLocale: 'en',
-            translator: null
+            translator: null,
         );
 
         $addCalls = [];
@@ -600,4 +602,3 @@ final class MenuItemTypeTest extends TestCase
         return null;
     }
 }
-

@@ -39,6 +39,7 @@ use function in_array;
 use function is_array;
 use function is_string;
 use function json_encode;
+use function strlen;
 
 use const JSON_PRETTY_PRINT;
 use const JSON_THROW_ON_ERROR;
@@ -1012,8 +1013,8 @@ final class MenuDashboardController extends AbstractController
                 continue;
             }
 
-            $first = $p[0] ?? '';
-            $last  = $p[strlen($p) - 1] ?? '';
+            $first       = $p[0] ?? '';
+            $last        = $p[strlen($p) - 1] ?? '';
             $isDelimited = $first !== '' && $first === $last && in_array($first, ['/', '#', '~', '%', '@', '!'], true);
             if ($isDelimited) {
                 continue;

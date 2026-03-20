@@ -246,7 +246,7 @@ final class ItemFormLiveComponentTest extends TestCase
             ->with(
                 MenuItemType::class,
                 $menuItem,
-                self::callback(static fn(array $options): bool => $options['menu'] instanceof Menu
+                self::callback(static fn (array $options): bool => $options['menu'] instanceof Menu
                     && $options['exclude_ids'] === [1, 2]
                     && $options['locale'] === 'en'
                     && $options['available_locales'] === ['en', 'es']
