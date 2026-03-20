@@ -26,6 +26,7 @@ use Throwable;
 
 use function array_key_exists;
 use function is_array;
+use function is_string;
 
 /**
  * Loads bundle configuration and services.
@@ -136,8 +137,8 @@ final class DashboardMenuExtension extends Extension
         );
         // `css_class_options.span` is configured as a list (same format as the other CSS dropdowns).
         // For the front-end wrapper class we use the first non-empty choice.
-        $spanOptions     = $config['dashboard']['css_class_options']['span'] ?? [];
-        $itemSpanClass   = '';
+        $spanOptions   = $config['dashboard']['css_class_options']['span'] ?? [];
+        $itemSpanClass = '';
         if (is_array($spanOptions)) {
             foreach ($spanOptions as $choice) {
                 if (is_string($choice) && $choice !== '') {
