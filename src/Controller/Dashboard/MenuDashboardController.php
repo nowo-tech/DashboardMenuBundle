@@ -763,12 +763,12 @@ final class MenuDashboardController extends AbstractController
                 $item->setParent($parent);
             }
         }
-        $appRoutes     = $this->getAppRoutes();
-        $locale        = $request->getLocale();
+        $appRoutes = $this->getAppRoutes();
+        $locale    = $request->getLocale();
         $this->generateUrl(self::ROUTE_SHOW, ['id' => $id]);
-        $parent        = $item->getParent();
-        $isChild       = $parent instanceof MenuItem;
-        $actionUrl     = $parent instanceof MenuItem && $parent->getId() !== null
+        $parent    = $item->getParent();
+        $isChild   = $parent instanceof MenuItem;
+        $actionUrl = $parent instanceof MenuItem && $parent->getId() !== null
             ? $this->generateUrl(self::ROUTE_ITEM_NEW, ['id' => $id, '_query' => ['parent' => $parent->getId()]])
             : $this->generateUrl(self::ROUTE_ITEM_NEW, ['id' => $id]);
 
@@ -963,7 +963,7 @@ final class MenuDashboardController extends AbstractController
             if (($sectionFocus === 'basic' || $sectionFocus === 'identity') && $form->has('basic')) {
                 $existingTranslations = $item->getTranslations() ?? [];
                 $foundAny             = false;
-                $basicForm = $form->get('basic');
+                $basicForm            = $form->get('basic');
                 foreach ($this->locales as $locale) {
                     $fieldName = 'label_' . $locale;
                     if (!$basicForm->has($fieldName)) {
