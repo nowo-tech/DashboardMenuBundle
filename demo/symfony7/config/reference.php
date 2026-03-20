@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 // This file is auto-generated and is for apps only. Bundles SHOULD NOT rely on its content.
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
@@ -1383,12 +1381,14 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         },
  *         permission_key_choices?: list<scalar|Param|null>,
  *         id_options?: list<scalar|Param|null>,
+ *         item_span_active?: bool|Param, // When true, the item label (non-section items) is wrapped in an extra <span> element. This controls rendering of the wrapper in menu.html.twig. // Default: false
  *         css_class_options?: array{ // Lists of CSS classes shown as selectors in the dashboard when editing a menu. Override in app config to customize options.
  *             menu?: list<scalar|Param|null>,
  *             item?: list<scalar|Param|null>,
  *             link?: list<scalar|Param|null>,
  *             children?: list<scalar|Param|null>,
  *             section_label?: list<scalar|Param|null>,
+ *             span?: list<scalar|Param|null>,
  *             current?: list<scalar|Param|null>,
  *             branch_expanded?: list<scalar|Param|null>,
  *             has_children?: list<scalar|Param|null>,

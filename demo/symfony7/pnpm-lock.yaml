@@ -17,6 +17,9 @@ importers:
       '@symfony/ux-autocomplete':
         specifier: file:vendor/symfony/ux-autocomplete/assets
         version: file:vendor/symfony/ux-autocomplete/assets(@hotwired/stimulus@3.2.2)(tom-select@2.5.2)
+      '@symfony/ux-live-component':
+        specifier: file:vendor/symfony/ux-live-component/assets
+        version: file:vendor/symfony/ux-live-component/assets(@hotwired/stimulus@3.2.2)
       '@types/node':
         specifier: ^22.19.15
         version: 22.19.15
@@ -356,6 +359,11 @@ packages:
     peerDependencies:
       '@hotwired/stimulus': ^3.0.0
       tom-select: ^2.2.2
+
+  '@symfony/ux-live-component@file:vendor/symfony/ux-live-component/assets':
+    resolution: {directory: vendor/symfony/ux-live-component/assets, type: directory}
+    peerDependencies:
+      '@hotwired/stimulus': ^3.0.0
 
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
@@ -784,6 +792,10 @@ snapshots:
     dependencies:
       '@hotwired/stimulus': 3.2.2
       tom-select: 2.5.2
+
+  '@symfony/ux-live-component@file:vendor/symfony/ux-live-component/assets(@hotwired/stimulus@3.2.2)':
+    dependencies:
+      '@hotwired/stimulus': 3.2.2
 
   '@types/estree@1.0.8': {}
 
