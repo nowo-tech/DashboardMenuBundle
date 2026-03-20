@@ -169,6 +169,7 @@ Options for the admin dashboard (list, create, edit, copy menus and manage items
 | `icon_selector_script_url`   | `null`         | Optional URL of the icon-selector script (e.g. with `nowo-tech/icon-selector-bundle`). When set, the item form can show an icon selector. |
 | `stimulus_script_url`        | *(see below)*  | URL of the Stimulus script for the Live Component form in the item modal (e.g. `bundles/nowodashboardmenu/js/stimulus-live.js`). The bundle needs `window.Stimulus` (or `$$stimulusApp$$` / `__stimulusApp__`) to connect controllers in the modal. Set to `null` only if your layout loads Stimulus and exposes it on `window` before the modal is opened. If you override the dashboard layout, include the script tag when this is set (same as the bundle layout). |
 | `permission_key_choices`     | `[]`           | Optional list of permission keys (strings) for the menu item form. When non-empty, the permission key field is rendered as a select with autocomplete; keys can be translated with `form.menu_item_type.permission_key.choice.{key}` (use `path__` for `path:/`). Leave empty for a plain text input. |
+| `id_options`                | `[]`           | Optional list of HTML id values for the root `<ul>` of each rendered menu. When non-empty, the menu form renders `ulId` as a dropdown (autocomplete-enabled); otherwise it becomes a plain text input. |
 | `import_max_bytes`           | `2097152` (2 MiB) | Maximum size in bytes for JSON import uploads. Reduces DoS risk from very large files. |
 | `required_role`              | `null`         | When set (e.g. `ROLE_ADMIN`), **all** dashboard routes require this role. Requires Symfony SecurityBundle. Leave `null` to rely on your app’s `access_control` or firewall. |
 | `import_export_rate_limit`   | disabled      | Rate limit for import and export actions. When set, use `limit` (requests per window) and `interval` (seconds). E.g. `{ limit: 10, interval: 60 }` = 10 requests per minute per user/IP. Set to `false` or omit to disable. |
@@ -184,6 +185,7 @@ Each **Menu** entity in the database can override:
 - **Permission checker**: service id of a `MenuPermissionCheckerInterface` implementation
 - **Depth limit**: max depth to render (null = unlimited)
 - **Collapsible**, **collapsible_expanded**, **nested_collapsible**
+- **Root `<ul>` id:** `ulId` (rendered as the `id` attribute when set)
 
 These are set when creating or editing the menu in the dashboard (or via fixtures). There is no per-menu YAML override; the bundle merges entity values with internal defaults when loading the tree.
 

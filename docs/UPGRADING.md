@@ -2,6 +2,16 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 0.3.18 to 0.3.20
+
+No breaking changes.
+
+- **Config:** new `dashboard.id_options` to drive the dashboard menu form field `ulId` (dropdown vs plain text).
+- **Menu entity:** added nullable `Menu.ulId` mapped to DB column `ul_id`. When set, the rendered menu root `<ul>` gets `id="..."`.
+- **Database migration:** existing installations must add the nullable `ul_id` column. Use:
+  - `php bin/console nowo_dashboard_menu:generate-migration --update`
+  - then run the generated Doctrine migration (or apply the SQL manually).
+
 ## From 0.3.17 to 0.3.18
 
 No breaking changes.

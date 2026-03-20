@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.20] - 2026-03-20
+
+### Added
+
+- **Config:** `dashboard.id_options` — list of HTML id values for the root `<ul>` of each rendered menu. Drives the dashboard field `ulId` (dropdown vs plain text).
+- **Menu entity:** new nullable property `Menu.ulId` (DB column `ul_id`).
+- **Dashboard UI:** menu configuration includes `ulId`, and the frontend template sets `id="..."` on the root `<ul>` when configured.
+- **Import/export:** menu export/import now includes `ulId`.
+- **Migration generator:** `nowo_dashboard_menu:generate-migration --update` can add the missing `ul_id` column.
+
 ## [0.3.18] - 2026-03-20
 
 ### Changed
@@ -293,7 +303,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.18...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.20...HEAD
+[0.3.20]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.18...v0.3.20
 [0.3.18]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.17...v0.3.18
 [0.3.17]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.16...v0.3.17
 [0.3.16]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.15...v0.3.16
