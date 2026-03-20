@@ -6,6 +6,8 @@ namespace Nowo\DashboardMenuBundle\Tests\Form;
 
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
+use Nowo\DashboardMenuBundle\Form\MenuItemBasicType;
+use Nowo\DashboardMenuBundle\Form\MenuItemConfigType;
 use Nowo\DashboardMenuBundle\Form\MenuItemType;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use PHPUnit\Framework\TestCase;
@@ -22,8 +24,7 @@ final class MenuItemTypeTest extends TestCase
 {
     public function testConfigureOptions(): void
     {
-        $repo     = $this->createStub(MenuItemRepository::class);
-        $type     = new MenuItemType($repo, 'en', []);
+        $type     = new MenuItemType();
         $resolver = new OptionsResolver();
         $type->configureOptions($resolver);
 
@@ -51,27 +52,25 @@ final class MenuItemTypeTest extends TestCase
 
     public function testBuildFormWithEmptyAvailableLocalesAddsCoreFields(): void
     {
-        $repo     = $this->createStub(MenuItemRepository::class);
         $addCalls = [];
         $builder  = $this->createFormBuilderMock($addCalls, null);
-        $type     = new MenuItemType($repo, 'en', []);
+        $type     = new MenuItemBasicType([]);
 
         $type->buildForm($builder, [
-            'app_routes'        => ['app_home' => ['label' => 'Home', 'params' => []]],
             'available_locales' => [],
-            'menu'              => null,
-            'exclude_ids'       => [],
-            'locale'            => 'en',
         ]);
 
-        self::assertGreaterThanOrEqual(10, count($addCalls));
+        self::assertGreaterThanOrEqual(3, count($addCalls));
         self::assertNotNull($this->findAddCall($addCalls, 'label'));
         self::assertNotNull($this->findAddCall($addCalls, 'itemType'));
-        self::assertNotNull($this->findAddCall($addCalls, 'routeName'));
         $iconCall = $this->findAddCall($addCalls, 'icon');
         self::assertNotNull($iconCall);
-        // When nowo-tech/icon-selector-bundle is not installed, icon field is TextType (else branch)
-        self::assertSame(\Symfony\Component\Form\Extension\Core\Type\TextType::class, $iconCall['type']);
+        // When nowo-tech/icon-selector-bundle is not installed, icon field is TextType.
+        // Otherwise it uses IconSelectorType::MODE_TOM_SELECT.
+        $expectedIconType = class_exists('Nowo\\IconSelectorBundle\\Form\\IconSelectorType')
+            ? 'Nowo\\IconSelectorBundle\\Form\\IconSelectorType'
+            : \Symfony\Component\Form\Extension\Core\Type\TextType::class;
+        self::assertSame($expectedIconType, $iconCall['type']);
     }
 
     public function testBuildFormUsesIconSelectorTypeWhenClassExists(): void
@@ -86,17 +85,12 @@ final class IconSelectorType
 PHP);
         }
 
-        $repo     = $this->createStub(MenuItemRepository::class);
         $addCalls = [];
         $builder  = $this->createFormBuilderMock($addCalls, null);
-        $type     = new MenuItemType($repo, 'en', []);
+        $type     = new MenuItemBasicType([]);
 
         $type->buildForm($builder, [
-            'app_routes'        => [],
             'available_locales' => [],
-            'menu'              => null,
-            'exclude_ids'       => [],
-            'locale'            => 'en',
         ]);
 
         $iconCall = $this->findAddCall($addCalls, 'icon');
@@ -112,14 +106,13 @@ PHP);
 
         $addCalls = [];
         $builder  = $this->createFormBuilderMock($addCalls, null);
-        $type     = new MenuItemType($repo, 'en', [], $t);
+        $type     = new MenuItemConfigType($repo, [], 'en', $t);
 
         $type->buildForm($builder, [
-            'app_routes'        => [],
-            'available_locales' => [],
-            'menu'              => null,
-            'exclude_ids'       => [],
-            'locale'            => 'en',
+            'app_routes'  => [],
+            'menu'        => null,
+            'exclude_ids' => [],
+            'locale'      => 'en',
         ]);
 
         $routeNameRaw = $this->findAddCallRaw($addCalls, 'routeName');
@@ -139,14 +132,13 @@ PHP);
 
         $addCalls = [];
         $builder  = $this->createFormBuilderMock($addCalls, null);
-        $type     = new MenuItemType($repo, 'en', []);
+        $type     = new MenuItemConfigType($repo, [], 'en');
 
         $type->buildForm($builder, [
-            'app_routes'        => [],
-            'available_locales' => [],
-            'menu'              => $menu,
-            'exclude_ids'       => [1, 2],
-            'locale'            => 'en',
+            'app_routes'  => [],
+            'menu'        => $menu,
+            'exclude_ids' => [1, 2],
+            'locale'      => 'en',
         ]);
 
         $parentCall = $this->findAddCall($addCalls, 'parent');
@@ -170,17 +162,16 @@ PHP);
         $repo     = $this->createStub(MenuItemRepository::class);
         $addCalls = [];
         $builder  = $this->createFormBuilderMock($addCalls, null);
-        $type     = new MenuItemType($repo, 'en', []);
+        $type     = new MenuItemConfigType($repo, [], 'en');
 
         $type->buildForm($builder, [
             'app_routes' => [
                 'app_home' => ['label' => 'Home', 'params' => []],
                 'app_page' => ['label' => 'Page', 'params' => ['page']],
             ],
-            'available_locales' => [],
-            'menu'              => null,
-            'exclude_ids'       => [],
-            'locale'            => 'en',
+            'menu'        => null,
+            'exclude_ids' => [],
+            'locale'      => 'en',
         ]);
 
         $routeNameCall = $this->findAddCall($addCalls, 'routeName');
@@ -196,16 +187,15 @@ PHP);
         $repo     = $this->createStub(MenuItemRepository::class);
         $addCalls = [];
         $builder  = $this->createFormBuilderMock($addCalls, null);
-        $type     = new MenuItemType($repo, 'en', []);
+        $type     = new MenuItemConfigType($repo, [], 'en');
 
         $type->buildForm($builder, [
             'app_routes' => [
                 'app_page' => ['label' => 'Page', 'params' => ['section', 'tab']],
             ],
-            'available_locales' => [],
-            'menu'              => null,
-            'exclude_ids'       => [],
-            'locale'            => 'en',
+            'menu'        => null,
+            'exclude_ids' => [],
+            'locale'      => 'en',
         ]);
 
         $routeNameCall = $this->findAddCallRaw($addCalls, 'routeName');
@@ -222,7 +212,7 @@ PHP);
 
     public function testBuildFormWithAvailableLocalesAddsEventListener(): void
     {
-        $repo      = $this->createStub(MenuItemRepository::class);
+        $this->createStub(MenuItemRepository::class);
         $listeners = [];
         $builder   = $this->createMock(FormBuilderInterface::class);
         $builder->method('add')->willReturnSelf();
@@ -235,78 +225,75 @@ PHP);
             return $this->createMock(FormBuilderInterface::class);
         });
 
-        $type = new MenuItemType($repo, 'en', ['en', 'es']);
+        $type = new MenuItemBasicType(['en', 'es']);
         $type->buildForm($builder, [
-            'app_routes'        => [],
             'available_locales' => ['en', 'es'],
-            'menu'              => null,
-            'exclude_ids'       => [],
-            'locale'            => 'en',
         ]);
 
-        self::assertArrayHasKey(FormEvents::PRE_SET_DATA, $listeners);
         self::assertArrayHasKey(FormEvents::SUBMIT, $listeners);
+        self::assertArrayHasKey(FormEvents::PRE_SUBMIT, $listeners);
     }
 
     public function testPreSetDataListenerAddsLocaleFieldsWhenDataIsMenuItem(): void
     {
-        $repo      = $this->createStub(MenuItemRepository::class);
         $listeners = [];
         $builder   = $this->createFormBuilderWithListeners($listeners);
-        $type      = new MenuItemType($repo, 'en', ['en', 'es']);
+        $type      = new MenuItemBasicType(['en', 'es']);
         $type->buildForm($builder, [
-            'app_routes'        => [],
             'available_locales' => ['en', 'es'],
-            'menu'              => null,
-            'exclude_ids'       => [],
-            'locale'            => 'en',
         ]);
 
-        $item = new MenuItem();
-        $item->setTranslations(['en' => 'Home', 'es' => 'Inicio']);
-        $formAdds = [];
-        $form     = $this->createMock(FormInterface::class);
-        $form->method('add')->willReturnCallback(function (string $name, $type, array $options = []) use (&$formAdds): \PHPUnit\Framework\MockObject\MockObject {
-            $formAdds[] = ['name' => $name, 'data' => $options['data'] ?? null];
+        $form = $this->createMock(FormInterface::class);
+        $data = [
+            'itemType' => MenuItem::ITEM_TYPE_DIVIDER,
+            'label'    => 'SHOULD_BE_CLEARED',
+            'icon'     => 'some-icon',
+            'label_en' => 'Home',
+            'label_es' => 'Inicio',
+        ];
 
-            return $this->createMock(FormInterface::class);
-        });
-        $event = new FormEvent($form, $item);
-        $listeners[FormEvents::PRE_SET_DATA]($event);
+        $event = new FormEvent($form, $data);
+        $listeners[FormEvents::PRE_SUBMIT]($event);
 
-        self::assertCount(2, $formAdds);
-        self::assertSame('label_en', $formAdds[0]['name']);
-        self::assertSame('Home', $formAdds[0]['data']);
-        self::assertSame('label_es', $formAdds[1]['name']);
-        self::assertSame('Inicio', $formAdds[1]['data']);
+        $out = $event->getData();
+        self::assertSame('', $out['label']);
+        self::assertNull($out['icon']);
+        self::assertNull($out['label_en']);
+        self::assertNull($out['label_es']);
     }
 
     public function testPreSetDataListenerDoesNothingWhenDataIsNotMenuItem(): void
     {
-        $repo      = $this->createStub(MenuItemRepository::class);
         $listeners = [];
         $builder   = $this->createFormBuilderWithListeners($listeners);
-        $type      = new MenuItemType($repo, 'en', ['en', 'es']);
+        $type      = new MenuItemBasicType(['en', 'es']);
         $type->buildForm($builder, [
-            'app_routes'        => [],
             'available_locales' => ['en', 'es'],
-            'menu'              => null,
-            'exclude_ids'       => [],
-            'locale'            => 'en',
         ]);
 
         $form = $this->createMock(FormInterface::class);
-        $form->expects(self::never())->method('add');
-        $event = new FormEvent($form, null);
-        $listeners[FormEvents::PRE_SET_DATA]($event);
+        $data = [
+            'itemType' => MenuItem::ITEM_TYPE_LINK,
+            'label'    => 'KEEP',
+            'icon'     => 'some-icon',
+            'label_en' => 'Home',
+            'label_es' => 'Inicio',
+        ];
+
+        $event = new FormEvent($form, $data);
+        $listeners[FormEvents::PRE_SUBMIT]($event);
+
+        $out = $event->getData();
+        self::assertSame('KEEP', $out['label']);
+        self::assertSame('some-icon', $out['icon']);
     }
 
     public function testSubmitListenerMergesLocaleFieldsIntoTranslations(): void
     {
-        $repo      = $this->createStub(MenuItemRepository::class);
+        $this->createStub(MenuItemRepository::class);
         $listeners = [];
         $builder   = $this->createFormBuilderWithListeners($listeners);
-        $type      = new MenuItemType($repo, 'en', ['en', 'es']);
+        $type      = new MenuItemBasicType(['en', 'es']);
         $type->buildForm($builder, [
             'app_routes'        => [],
             'available_locales' => ['en', 'es'],
@@ -332,10 +319,10 @@ PHP);
 
     public function testSubmitListenerUnsetsEmptyLocaleValues(): void
     {
-        $repo      = $this->createStub(MenuItemRepository::class);
+        $this->createStub(MenuItemRepository::class);
         $listeners = [];
         $builder   = $this->createFormBuilderWithListeners($listeners);
-        $type      = new MenuItemType($repo, 'en', ['en', 'es']);
+        $type      = new MenuItemBasicType(['en', 'es']);
         $type->buildForm($builder, [
             'app_routes'        => [],
             'available_locales' => ['en', 'es'],
@@ -361,10 +348,10 @@ PHP);
 
     public function testSubmitListenerDoesNothingWhenDataIsNotMenuItem(): void
     {
-        $repo      = $this->createStub(MenuItemRepository::class);
+        $this->createStub(MenuItemRepository::class);
         $listeners = [];
         $builder   = $this->createFormBuilderWithListeners($listeners);
-        $type      = new MenuItemType($repo, 'en', ['en', 'es']);
+        $type      = new MenuItemBasicType(['en', 'es']);
         $type->buildForm($builder, [
             'app_routes'        => [],
             'available_locales' => ['en', 'es'],
@@ -382,10 +369,10 @@ PHP);
 
     public function testSubmitListenerSkipsLocaleFieldWhenFormDoesNotHaveIt(): void
     {
-        $repo      = $this->createStub(MenuItemRepository::class);
+        $this->createStub(MenuItemRepository::class);
         $listeners = [];
         $builder   = $this->createFormBuilderWithListeners($listeners);
-        $type      = new MenuItemType($repo, 'en', ['en', 'es']);
+        $type      = new MenuItemBasicType(['en', 'es']);
         $type->buildForm($builder, [
             'app_routes'        => [],
             'available_locales' => ['en', 'es'],
@@ -413,14 +400,13 @@ PHP);
         $repo     = $this->createStub(MenuItemRepository::class);
         $addCalls = [];
         $builder  = $this->createFormBuilderMock($addCalls, null);
-        $type     = new MenuItemType($repo, 'en', [], $translator);
+        $type     = new MenuItemConfigType($repo, [], 'en', $translator);
 
         $type->buildForm($builder, [
-            'app_routes'        => [],
-            'available_locales' => [],
-            'menu'              => null,
-            'exclude_ids'       => [],
-            'locale'            => 'en',
+            'app_routes'  => [],
+            'menu'        => null,
+            'exclude_ids' => [],
+            'locale'      => 'en',
         ]);
 
         $routeNameCall = $this->findAddCall($addCalls, 'routeName');

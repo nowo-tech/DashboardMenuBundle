@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.19] - 2026-03-20
+
+### Changed
+
+- **Dashboard:** `dashboard.route_name_exclude_patterns` now accepts either full PCRE regex (with delimiters) or raw regex snippets without delimiters (e.g. `'^_'`, `'debug'`).
+- **Docs & demos:** updated recipe and demo configs with concrete examples of excluded route names (Symfony internal/profiler routes).
+- **Dependency:** `symfony/ux-live-component` is now a required dependency (previously optional via `suggest`).
+
+### Fixed
+
+- Route name filtering works consistently for both delimiter-wrapped patterns (e.g. `#^_#`) and raw snippet patterns (e.g. `'^_'`).
+
 ## [0.3.18] - 2026-03-20
 
 ### Changed
@@ -293,7 +305,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.18...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.19...HEAD
+[0.3.19]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.18...v0.3.19
 [0.3.18]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.17...v0.3.18
 [0.3.17]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.16...v0.3.17
 [0.3.16]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.15...v0.3.16

@@ -2,6 +2,14 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 0.3.18 to 0.3.19
+
+No breaking changes.
+
+- **Config:** `dashboard.route_name_exclude_patterns` now also accepts raw regex snippets without delimiters (e.g. `'^_'` or `'debug'`), not only delimiter-wrapped PCRE patterns.
+- **Examples:** demos/recipe and docs were updated with concrete “excluded route names” examples.
+- **Dependency:** `symfony/ux-live-component` is now a required dependency (it is installed automatically by Composer). No manual action is typically required.
+
 ## From 0.3.17 to 0.3.18
 
 No breaking changes.

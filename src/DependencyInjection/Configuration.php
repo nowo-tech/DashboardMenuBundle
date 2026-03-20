@@ -134,7 +134,7 @@ final class Configuration implements ConfigurationInterface
                             ->setDeprecated('nowo-tech/dashboard-menu-bundle', '2.0', 'The option "%path%" is deprecated. Configure the dashboard URL prefix in your app routing (e.g. config/routes.yaml or config/routes_nowo_dashboard_menu.yaml) when importing @NowoDashboardMenuBundle/Resources/config/routes_dashboard.yaml.')
                         ->end()
                         ->arrayNode('route_name_exclude_patterns')
-                            ->info('Regex patterns to exclude route names from the route selector (e.g. "^_" to hide internal routes, "^(web_profiler|_)" for profiler).')
+                            ->info('Patterns to exclude route names from the route selector. Accepts either raw regex snippets without delimiters (e.g. "^_" or "^web_profiler"), or full PCRE regex with delimiters (e.g. "#^_#", "/^web_profiler/").')
                             ->scalarPrototype()->end()
                             ->defaultValue([])
                         ->end()

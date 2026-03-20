@@ -11,11 +11,6 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
-use Symfony\UX\LiveComponent\Attribute\LiveAction;
-use Symfony\UX\LiveComponent\Attribute\LiveProp;
-use Symfony\UX\LiveComponent\ComponentWithFormTrait;
-use Symfony\UX\LiveComponent\DefaultActionTrait;
 
 use function is_array;
 
@@ -24,14 +19,16 @@ use function is_array;
  *
  * @internal
  */
-#[AsLiveComponent(
+#[\Symfony\UX\LiveComponent\Attribute\AsLiveComponent(
     name: 'dashboard_menu_item_form',
     template: '@NowoDashboardMenuBundle/components/ItemFormLiveComponent.html.twig',
 )]
 final class ItemFormLiveComponent
 {
-    use ComponentWithFormTrait;
-    use DefaultActionTrait;
+    use \Symfony\UX\LiveComponent\ComponentWithFormTrait;
+    use \Symfony\UX\LiveComponent\DefaultActionTrait;
+    /** @var array<string, mixed> */
+    public array $formValues = [];
 
     public function __construct(
         private readonly FormFactoryInterface $formFactory,
@@ -40,44 +37,47 @@ final class ItemFormLiveComponent
     ) {
     }
 
-    #[LiveProp]
+    #[\Symfony\UX\LiveComponent\Attribute\LiveProp]
     public Menu $menu;
 
     /** @var array<string, array{label: string, params: list<string>}> */
-    #[LiveProp]
+    #[\Symfony\UX\LiveComponent\Attribute\LiveProp]
     public array $appRoutes = [];
 
     /** @var list<int> */
-    #[LiveProp]
+    #[\Symfony\UX\LiveComponent\Attribute\LiveProp]
     public array $excludeIds = [];
 
-    #[LiveProp]
+    #[\Symfony\UX\LiveComponent\Attribute\LiveProp]
     public string $locale = 'en';
 
-    #[LiveProp]
+    #[\Symfony\UX\LiveComponent\Attribute\LiveProp]
     public bool $isEdit = false;
 
-    #[LiveProp]
+    #[\Symfony\UX\LiveComponent\Attribute\LiveProp]
     public bool $itemHasChildren = false;
 
-    #[LiveProp]
+    #[\Symfony\UX\LiveComponent\Attribute\LiveProp]
     public string $actionUrl = '';
 
     /** @var list<string> */
-    #[LiveProp]
+    #[\Symfony\UX\LiveComponent\Attribute\LiveProp]
     public array $locales = [];
 
-    #[LiveProp]
+    #[\Symfony\UX\LiveComponent\Attribute\LiveProp]
     public ?MenuItem $initialFormData = null;
 
     /** URL to redirect to after successful save (e.g. menu show page). */
-    #[LiveProp]
+    #[\Symfony\UX\LiveComponent\Attribute\LiveProp]
     public string $redirectToUrl = '';
 
     /** When set ('basic' or 'config'), only that section is shown and submitted. */
-    #[LiveProp]
+    #[\Symfony\UX\LiveComponent\Attribute\LiveProp]
     public ?string $sectionFocus = null;
 
+    /**
+     * @return FormInterface<MenuItem>
+     */
     protected function instantiateForm(): FormInterface
     {
         return $this->formFactory->create(MenuItemType::class, $this->initialFormData ?? new MenuItem(), [
@@ -101,9 +101,12 @@ final class ItemFormLiveComponent
     {
         $name   = $this->getForm()->getName();
         $values = $this->formValues;
-        $root   = isset($values[$name]) && is_array($values[$name]) ? $values[$name] : (is_array($values) ? $values : []);
-        $basic  = is_array($root['basic'] ?? null) ? $root['basic'] : [];
-        $config = is_array($root['config'] ?? null) ? $root['config'] : [];
+        // `ComponentWithFormTrait` may nest values under the form name; for safety we normalize to arrays.
+        /** @var mixed $namedValues */
+        $namedValues = $values[$name] ?? [];
+        $root        = $namedValues !== [] ? (array) $namedValues : [];
+        $basic       = is_array($root['basic'] ?? null) ? $root['basic'] : [];
+        $config      = is_array($root['config'] ?? null) ? $root['config'] : [];
 
         return array_merge($basic, $config);
     }
@@ -176,7 +179,7 @@ final class ItemFormLiveComponent
         if ($name === null || $name === '' || !isset($this->appRoutes[$name])) {
             return [];
         }
-        $params = $this->appRoutes[$name]['params'] ?? [];
+        $params = $this->appRoutes[$name]['params'];
         $out    = [];
         foreach ($params as $p) {
             $out[$p] = '';
@@ -185,7 +188,7 @@ final class ItemFormLiveComponent
         return $out;
     }
 
-    #[LiveAction]
+    #[\Symfony\UX\LiveComponent\Attribute\LiveAction]
     public function save(): RedirectResponse
     {
         $this->submitForm();

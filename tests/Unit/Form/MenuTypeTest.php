@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Nowo\DashboardMenuBundle\Tests\Form;
 
 use Nowo\DashboardMenuBundle\Entity\Menu;
+use Nowo\DashboardMenuBundle\Form\MenuConfigType;
+use Nowo\DashboardMenuBundle\Form\MenuDefinitionType;
 use Nowo\DashboardMenuBundle\Form\MenuType;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
@@ -35,8 +37,8 @@ final class MenuTypeTest extends TestCase
     {
         $addCalls = [];
         $builder  = $this->createFormBuilderMock(null, $addCalls);
-        $type     = new MenuType([], []);
-        $type->buildForm($builder, []);
+        (new MenuDefinitionType())->buildForm($builder, []);
+        (new MenuConfigType([], []))->buildForm($builder, []);
         self::assertGreaterThanOrEqual(10, count($addCalls));
     }
 
@@ -50,8 +52,7 @@ final class MenuTypeTest extends TestCase
 
         $addCalls = [];
         $builder  = $this->createFormBuilderMock($menu, $addCalls);
-        $type     = new MenuType([], []);
-        $type->buildForm($builder, []);
+        (new MenuDefinitionType())->buildForm($builder, []);
 
         $codeOptions = $this->findAddCall($addCalls, 'code');
         self::assertNotNull($codeOptions);
@@ -65,8 +66,7 @@ final class MenuTypeTest extends TestCase
 
         $addCalls = [];
         $builder  = $this->createFormBuilderMock($menu, $addCalls);
-        $type     = new MenuType(['allow_all' => 'Allow all'], []);
-        $type->buildForm($builder, []);
+        (new MenuConfigType(['allow_all' => 'Allow all'], []))->buildForm($builder, []);
 
         $pcOptions = $this->findAddCall($addCalls, 'permissionChecker');
         self::assertNotNull($pcOptions);
@@ -78,8 +78,7 @@ final class MenuTypeTest extends TestCase
     {
         $addCalls = [];
         $builder  = $this->createFormBuilderMock(new Menu(), $addCalls);
-        $type     = new MenuType([], ['menu' => ['nav flex-column', 'nav flex-row']]);
-        $type->buildForm($builder, []);
+        (new MenuConfigType([], ['menu' => ['nav flex-column', 'nav flex-row']]))->buildForm($builder, []);
 
         $classMenuOptions = $this->findAddCall($addCalls, 'classMenu');
         self::assertNotNull($classMenuOptions);
@@ -90,8 +89,7 @@ final class MenuTypeTest extends TestCase
     {
         $addCalls = [];
         $builder  = $this->createFormBuilderMock(new Menu(), $addCalls);
-        $type     = new MenuType([], []);
-        $type->buildForm($builder, []);
+        (new MenuConfigType([], []))->buildForm($builder, []);
 
         $classMenuOptions = $this->findAddCall($addCalls, 'classMenu');
         self::assertNotNull($classMenuOptions);
@@ -105,8 +103,7 @@ final class MenuTypeTest extends TestCase
 
         $addCalls = [];
         $builder  = $this->createFormBuilderMock($menu, $addCalls);
-        $type     = new MenuType([], ['menu' => ['nav flex-column']]);
-        $type->buildForm($builder, []);
+        (new MenuConfigType([], ['menu' => ['nav flex-column']]))->buildForm($builder, []);
 
         $classMenuOptions = $this->findAddCall($addCalls, 'classMenu');
         self::assertNotNull($classMenuOptions);

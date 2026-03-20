@@ -39,6 +39,7 @@ use function in_array;
 use function is_array;
 use function is_string;
 use function json_encode;
+use function strlen;
 
 use const JSON_PRETTY_PRINT;
 use const JSON_THROW_ON_ERROR;
@@ -591,6 +592,9 @@ final class MenuDashboardController extends AbstractController
         return $this->renderImportResponse($request, $form, $isModal);
     }
 
+    /**
+     * @param FormInterface<array<string, mixed>> $form
+     */
     private function renderImportResponse(Request $request, FormInterface $form, bool $usePartial): Response
     {
         $vars = [
@@ -750,7 +754,7 @@ final class MenuDashboardController extends AbstractController
         $locale        = $request->getLocale();
         $redirectToUrl = $this->generateUrl(self::ROUTE_SHOW, ['id' => $id]);
         $parent        = $item->getParent();
-        $actionUrl     = $parent !== null && $parent->getId() !== null
+        $actionUrl     = $parent instanceof MenuItem && $parent->getId() !== null
             ? $this->generateUrl(self::ROUTE_ITEM_NEW, ['id' => $id, '_query' => ['parent' => $parent->getId()]])
             : $this->generateUrl(self::ROUTE_ITEM_NEW, ['id' => $id]);
 
@@ -994,12 +998,46 @@ final class MenuDashboardController extends AbstractController
     private function isRouteNameExcluded(string $routeName): bool
     {
         foreach ($this->routeNameExcludePatterns as $pattern) {
-            if (@preg_match($pattern, $routeName) === 1) {
+            $regex = $this->normalizeRouteNameExcludePattern($pattern);
+            if ($regex !== '' && @preg_match($regex, $routeName) === 1) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    /**
+     * Normalizes route-name exclude patterns so configs can use either:
+     * - full PCRE regex with delimiters (e.g. `#^_#`, `/^web_profiler/`)
+     * - raw regex snippets without delimiters (e.g. `^_`, `^web_profiler`)
+     *
+     * Raw snippets are wrapped in a safe delimiter chosen from a small set.
+     */
+    private function normalizeRouteNameExcludePattern(string $pattern): string
+    {
+        $pattern = trim($pattern);
+        if ($pattern === '') {
+            return '';
+        }
+
+        $delimiters = ['/', '~', '#', '@', '%', '!'];
+        $first      = $pattern[0];
+        $last       = $pattern[strlen($pattern) - 1];
+
+        // Already delimited PCRE regex: same delimiter at both ends (and delimiter is one of the supported set).
+        if (in_array($first, $delimiters, true) && $last === $first && strlen($pattern) > 2) {
+            return $pattern;
+        }
+
+        // Wrap raw snippet. Pick a delimiter not present in the snippet body (best-effort).
+        foreach (['~', '#', '@', '%', '!', '/'] as $d) {
+            if (!str_contains($pattern, $d)) {
+                return $d . $pattern . $d;
+            }
+        }
+
+        return '/' . $pattern . '/';
     }
 
     /**

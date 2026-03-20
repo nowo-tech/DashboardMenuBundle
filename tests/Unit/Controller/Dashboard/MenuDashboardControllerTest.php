@@ -161,6 +161,14 @@ final class MenuDashboardControllerTest extends TestCase
         self::assertFalse($this->invokePrivate($controller, 'isRouteNameExcluded', ['app_home']));
     }
 
+    public function testIsRouteNameExcludedAcceptsRawPatternsWithoutDelimiters(): void
+    {
+        $controller = $this->createController(routeNameExcludePatterns: ['^_', '^web_profiler']);
+        self::assertTrue($this->invokePrivate($controller, 'isRouteNameExcluded', ['_internal']));
+        self::assertTrue($this->invokePrivate($controller, 'isRouteNameExcluded', ['web_profiler_main']));
+        self::assertFalse($this->invokePrivate($controller, 'isRouteNameExcluded', ['app_home']));
+    }
+
     public function testGetAppRoutesForItemAddsCurrentRouteWhenMissing(): void
     {
         $item = new MenuItem();
@@ -1150,6 +1158,7 @@ final class MenuDashboardControllerTest extends TestCase
         int $paginationPerPage = 20,
         array $modalSizes = [],
         ?string $iconSelectorScriptUrl = null,
+        ?string $stimulusScriptUrl = null,
         int $importMaxBytes = 2_097_152,
         ?ImportExportRateLimiter $importExportRateLimiter = null,
     ): MenuDashboardController {
@@ -1174,6 +1183,7 @@ final class MenuDashboardControllerTest extends TestCase
             $paginationPerPage,
             $modalSizes,
             $iconSelectorScriptUrl,
+            $stimulusScriptUrl,
             $importMaxBytes,
             $rateLimiter,
         );

@@ -161,7 +161,7 @@ Options for the admin dashboard (list, create, edit, copy menus and manage items
 | `enabled`                     | `false`        | Enable dashboard routes. Set to `true` in app config to use the admin UI. |
 | `layout_template`             | `@NowoDashboardMenuBundle/dashboard/layout.html.twig` | Twig template that dashboard views extend. Must define a `content` block. Override to use your app base layout (e.g. `base.html.twig`) so the dashboard matches your app shell. |
 | `path_prefix`                 | *(deprecated)* | **Deprecated.** Set the dashboard URL prefix in your app routing when importing `routes_dashboard.yaml` (e.g. in `config/routes.yaml` or the recipe’s `config/routes_nowo_dashboard_menu.yaml`). |
-| `route_name_exclude_patterns`  | `[]`           | Regex patterns to hide route names from the route selector (e.g. `['^_', '^web_profiler']`). |
+| `route_name_exclude_patterns`  | `[]`           | Patterns to hide route names from the route selector. Accepts raw regex snippets without delimiters (e.g. `['^_', '^web_profiler']`) or full PCRE regex with delimiters (e.g. `['#^_#', '/^web_profiler/']`). |
 | `pagination.enabled`         | `true`         | Paginate the menus list. |
 | `pagination.per_page`        | `20`           | Menus per page. |
 | `modals`                      | see below      | Modal sizes: `menu_form`, `copy`, `item_form`, `delete` (Bootstrap 5: `normal`, `lg`, `xl`). |
@@ -210,7 +210,24 @@ nowo_dashboard_menu:
         enabled: true
         layout_template: '@NowoDashboardMenuBundle/dashboard/layout.html.twig'  # or e.g. base.html.twig
         # Prefix is set in config/routes.yaml when importing routes_dashboard.yaml (e.g. prefix: /admin/menus).
+        # Hide Symfony internal routes and profiler routes from the "route name" selector.
+        # Excludes examples (route names):
+        # - `_profiler` / `_wdt` / `_error` (match `^_`)
+        # - `web_profiler_main` / `web_profiler_index` (match `^web_profiler`)
+        # Keeps examples (route names):
+        # - `app_home`
+        # - `nowo_dashboard_menu_dashboard_index` (bundle routes don't match these patterns)
         route_name_exclude_patterns: ['^_', '^web_profiler']
+
+        # More examples (all patterns are applied to the *route name*, not the path):
+        # - Exclude anything that *contains* `debug` in the route name:
+        #   route_name_exclude_patterns: ['debug']
+        # - Exclude anything that *starts with* `api_`:
+        #   route_name_exclude_patterns: ['^api_']
+        # - Exclude anything that *ends with* `_internal`:
+        #   route_name_exclude_patterns: ['_internal$']
+        # - Combine multiple rules:
+        #   route_name_exclude_patterns: ['^_', '^web_profiler', 'debug']
         pagination:
             enabled: true
             per_page: 20

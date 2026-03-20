@@ -66,7 +66,7 @@ final class DashboardMenuExtension extends Extension
             try {
                 /** @var array<string, mixed> $bundles */
                 $bundles                 = $container->getParameter('kernel.bundles');
-                $uxAutocompleteAvailable = is_array($bundles) && array_key_exists(\Symfony\UX\Autocomplete\AutocompleteBundle::class, $bundles);
+                $uxAutocompleteAvailable = array_key_exists(\Symfony\UX\Autocomplete\AutocompleteBundle::class, $bundles);
             } catch (Throwable) {
                 $uxAutocompleteAvailable = false;
             }
