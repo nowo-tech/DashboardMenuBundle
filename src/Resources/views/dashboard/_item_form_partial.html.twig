@@ -11,19 +11,19 @@
         <input type="hidden" name="_section" value="{{ _section_focus }}">
     {% endif %}
     {% if _show_basic %}
-    <div id="item_basic_section" class="mb-3">
+    <div id="item_basic_section" class="mb-2">
         <h6 class="text-muted mb-2">
             <i class="bi bi-pencil" aria-hidden="true"></i>
             {{ 'form.menu_item_type.section_basic'|trans({}, 'NowoDashboardMenuBundle') }}
         </h6>
-        <div class="row mb-3">
+        <div class="row">
             <div class="col-md-6">{{ form_row(form.basic.itemType, { label_attr: { class: 'form-label' } }) }}</div>
         </div>
-        <div id="item_basic_label_icon_fields" class="mb-3">
+        <div id="item_basic_label_icon_fields" class="mb-2">
             {{ form_row(form.basic.icon, { label_attr: { class: 'form-label' } }) }}
-            {{ form_row(form.basic.label, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-3' } }) }}
+            {{ form_row(form.basic.label, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-2' } }) }}
             {% if locales is defined and locales is not empty %}
-                <div class="row mb-3">
+                <div class="row">
                     {% for locale in locales %}
                         {% set fieldName = 'label_' ~ locale %}
                         {% if attribute(form.basic, fieldName) is defined %}
@@ -39,35 +39,35 @@
     {% endif %}
 
     {% if _show_config %}
-    <div id="item_config_section" class="mb-3">
+    <div id="item_config_section" class="mb-2">
         {% if _show_basic %}<hr class="my-3">{% endif %}
         <h6 class="text-muted mb-2">
             <i class="bi bi-gear" aria-hidden="true"></i>
             {{ 'form.menu_item_type.section_config'|trans({}, 'NowoDashboardMenuBundle') }}
         </h6>
         {% if form.config.parent is defined %}
-        <div class="mb-3" id="item_parent_field">
+        <div class="mb-2" id="item_parent_field">
             {{ form_row(form.config.parent, { label_attr: { class: 'form-label' } }) }}
         </div>
         {% endif %}
-        <div class="row mb-3">
+        <div class="row">
             <div class="col-md-6">{{ form_row(form.config.position, { label_attr: { class: 'form-label' } }) }}</div>
         </div>
         <div id="item_link_fields" data-item-has-children="{{ item_has_children|default(false) ? 'true' : 'false' }}">
-            {{ form_row(form.config.linkType, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-3' } }) }}
-            <div class="mb-3" id="route_fields">
+            {{ form_row(form.config.linkType, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-2' } }) }}
+            <div class="mb-2" id="route_fields">
                 {{ form_row(form.config.routeName, { label_attr: { class: 'form-label' } }) }}
                 {{ form_row(form.config.routeParams, { label_attr: { class: 'form-label mt-2' } }) }}
                 <small class="form-text text-muted d-block mt-1" id="route_params_hint"></small>
             </div>
-            <div class="mb-3" id="external_field" style="display: none;">
+            <div class="mb-2" id="external_field" style="display: none;">
                 {{ form_row(form.config.externalUrl, { label_attr: { class: 'form-label' } }) }}
             </div>
-            <div class="mb-3">
+            <div class="mb-2">
                 {{ form_row(form.config.targetBlank, { label_attr: { class: 'form-check-label' }, row_attr: { class: 'form-check' } }) }}
             </div>
         </div>
-        <div class="mb-3">
+        <div class="mb-2">
             {{ form_row(form.config.permissionKey, { label_attr: { class: 'form-label' } }) }}
         </div>
     </div>

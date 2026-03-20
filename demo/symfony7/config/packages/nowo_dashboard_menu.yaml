@@ -46,7 +46,7 @@ nowo_dashboard_menu:
             delete: normal
         # CSS class options: when set, the menu form shows dropdowns instead of free text for each slot
         css_class_options:
-            menu: ['nav flex-column', 'nav flex-row', 'dropdown-menu dropdown-menu-end', 'nav flex-wrap gap-2']
+            menu: ['nav flex-column', 'nav flex-row', 'dropdown-menu dropdown-menu-end', 'nav flex-wrap gap-1']
             item: ['nav-item', 'dropdown-item', '']
             link: ['nav-link', 'dropdown-item', 'nav-link link-secondary']
             children: ['nav flex-column ms-2', 'nav flex-column', 'dropdown-menu']

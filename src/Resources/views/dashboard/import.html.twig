@@ -15,8 +15,8 @@
     <p class="text-muted">{{ 'dashboard.import_help'|trans({}, 'NowoDashboardMenuBundle') }}</p>
 
     {{ form_start(form, { attr: { enctype: 'multipart/form-data', style: 'max-width: 32rem;' } }) }}
-        {{ form_row(form.file, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
-        {{ form_row(form.strategy, { row_attr: { class: 'mb-3' }, label_attr: { class: 'form-label' } }) }}
+        {{ form_row(form.file, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
+        {{ form_row(form.strategy, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
         {{ form_rest(form) }}
         <button type="submit" class="btn btn-primary">{{ 'dashboard.import'|trans({}, 'NowoDashboardMenuBundle') }}</button>
         <a href="{{ path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index')) }}" class="btn btn-secondary">{{ 'dashboard.cancel'|trans({}, 'NowoDashboardMenuBundle') }}</a>

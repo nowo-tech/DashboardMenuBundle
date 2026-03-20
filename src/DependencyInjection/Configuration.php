@@ -236,7 +236,7 @@ final class Configuration implements ConfigurationInterface
                                 ->arrayNode('menu')
                                     ->info('CSS classes for the root <ul>.')
                                     ->scalarPrototype()->end()
-                                    ->defaultValue(['nav flex-column', 'nav flex-row', 'dropdown-menu dropdown-menu-end', 'nav flex-wrap gap-2'])
+                                    ->defaultValue(['nav flex-column', 'nav flex-row', 'dropdown-menu dropdown-menu-end', 'nav flex-wrap gap-1'])
                                 ->end()
                                 ->arrayNode('item')
                                     ->info('CSS classes for each <li>.')

@@ -10,7 +10,7 @@
         <div class="alert alert-danger">{{ msg }}</div>
     {% endfor %}
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-2">
         <div>
             <a href="{{ path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index')) }}" class="btn btn-link text-decoration-none">{{ 'dashboard.menus_back'|trans({}, 'NowoDashboardMenuBundle') }}</a>
             <h1 class="h3 d-inline">{% if menu.icon %}<span class="text-muted me-1" title="{{ menu.icon }}">🔣</span>{% endif %}{{ menu.code }}{% if menu.name %} <span class="text-muted">({{ menu.name }})</span>{% endif %}</h1>
@@ -27,7 +27,7 @@
     </div>
 
     {% if menu.permissionChecker or menu.depthLimit is not null or menu.collapsible is not null or menu.collapsibleExpanded is not null or menu.nestedCollapsible is not null or menu.nestedCollapsibleSections is not null %}
-        <div class="alert alert-light border mb-3 py-2">
+        <div class="alert alert-light border mb-2 py-2">
             {% if menu.permissionChecker %}<strong>{{ 'dashboard.permission_checker'|trans({}, 'NowoDashboardMenuBundle') }}:</strong> <code>{{ menu.permissionChecker }}</code>{% endif %}
             {% if menu.depthLimit is not null %} {% if menu.permissionChecker %}·{% endif %} <strong>{{ 'dashboard.depth_limit'|trans({}, 'NowoDashboardMenuBundle') }}:</strong> {{ menu.depthLimit }}{% endif %}
             {% if menu.collapsible is not null %} · <strong>{{ 'dashboard.collapsible'|trans({}, 'NowoDashboardMenuBundle') }}:</strong> {{ menu.collapsible ? 'dashboard.yes'|trans : 'dashboard.no'|trans({}, 'NowoDashboardMenuBundle') }}{% endif %}
@@ -37,7 +37,7 @@
         </div>
     {% endif %}
     {% if menu.classMenu or menu.classItem or menu.classLink or menu.classChildren or menu.classSectionLabel or menu.classCurrent or menu.classBranchExpanded or menu.classHasChildren or menu.classExpanded or menu.classCollapsed %}
-        <div class="alert alert-light border mb-3 py-2">
+        <div class="alert alert-light border mb-2 py-2">
             <strong>{{ 'dashboard.css_classes'|trans({}, 'NowoDashboardMenuBundle') }}</strong>: {% if menu.classMenu %}<code>menu: {{ menu.classMenu }}</code>{% endif %}
             {% if menu.classItem %} <code>item: {{ menu.classItem }}</code>{% endif %}
             {% if menu.classLink %} <code>link: {{ menu.classLink }}</code>{% endif %}
@@ -209,7 +209,7 @@
                     <p id="modal-delete-item-message">{{ 'dashboard.delete_item_message'|trans({}, 'NowoDashboardMenuBundle') }}</p>
                     <form id="form-delete-item-confirm" method="post" action="">
                         <input type="hidden" name="_token" value="">
-                        <div class="d-flex justify-content-end gap-2">
+                        <div class="d-flex justify-content-end gap-1">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'dashboard.cancel'|trans({}, 'NowoDashboardMenuBundle') }}</button>
                             <button type="submit" class="btn btn-danger">{{ 'dashboard.delete'|trans({}, 'NowoDashboardMenuBundle') }}</button>
                         </div>

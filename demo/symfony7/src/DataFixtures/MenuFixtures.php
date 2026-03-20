@@ -113,7 +113,7 @@ class MenuFixtures extends Fixture
         $menu = new Menu();
         $menu->setCode('footer');
         $menu->setName('Footer');
-        $menu->setClassMenu('nav flex-wrap gap-2');
+        $menu->setClassMenu('nav flex-wrap gap-1');
         $menu->setClassItem('nav-item');
         $menu->setClassLink('nav-link link-secondary');
         $menu->setClassChildren('nav flex-column');

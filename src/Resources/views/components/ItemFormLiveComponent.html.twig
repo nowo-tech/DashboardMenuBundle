@@ -30,22 +30,22 @@
             <input type="hidden" name="_section" value="{{ _section_focus }}">
         {% endif %}
         {% if _show_basic %}
-        <div id="item_basic_section" class="mb-3">
+        <div id="item_basic_section" class="mb-2">
             {% set formName = form.vars.name %}
             <h6 class="text-muted mb-2">
                 <i class="bi bi-pencil" aria-hidden="true"></i>
                 {{ 'form.menu_item_type.section_basic'|trans({}, 'NowoDashboardMenuBundle') }}
             </h6>
-            <div class="row mb-3">
+            <div class="row">
                 <div class="col-md-6">{{ form_row(form.basic.itemType, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.basic.itemType' } }) }}</div>
                 <div class="col-md-6">{{ form_row(form.basic.icon) }}</div>
             </div>
             <div class="{{ this.getItemType() == 'divider' ? 'd-none' : '' }}">
-                <div class="row mb-3">
+                <div class="row">
                     {{ form_row(form.basic.label) }}
                 </div>
                 {% if locales is not empty %}
-                    <div class="row mb-3">
+                    <div class="row mb-2">
                         {% for locale in locales %}
                             {% set fieldName = 'label_' ~ locale %}
                             {% if attribute(form.basic, fieldName) is defined %}
@@ -59,7 +59,7 @@
         {% endif %}
 
         {% if _show_config %}
-        <div id="item_config_section" class="mb-3">
+        <div id="item_config_section" class="mb-2">
             {% if _show_basic %}<hr class="my-3">{% endif %}
             {% set formName = form.vars.name %}
             <h6 class="text-muted mb-2">
@@ -73,12 +73,12 @@
                     <div class="d-none">{{ form_row(form.config.parent) }}</div>
                 {% endif %}
             {% endif %}
-            <div class="row mb-3">
+            <div class="row">
                 <div class="col-md-6">{{ form_row(form.config.position) }}</div>
             </div>
             {% if this.showLinkFields() %}
                 {{ form_row(form.config.linkType, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.linkType' } }) }}
-                <div class="mb-3 {{ not this.showRouteFields() ? 'd-none' : '' }}">
+                <div class="mb-2 {{ not this.showRouteFields() ? 'd-none' : '' }}">
                     {{ form_row(form.config.routeName) }}
                     {{ form_row(form.config.routeParams) }}
                     {% set suggested = this.suggestedRouteParams %}
@@ -86,7 +86,7 @@
                         <small class="form-text text-muted d-block mt-1">{{ 'Suggested:'|trans({}, 'NowoDashboardMenuBundle') }} {{ suggested|json_encode(2) }}</small>
                     {% endif %}
                 </div>
-                <div class="mb-3 {{ not this.showExternalUrlField() ? 'd-none' : '' }}">
+                <div class="mb-2 {{ not this.showExternalUrlField() ? 'd-none' : '' }}">
                     {{ form_row(form.config.externalUrl) }}
                 </div>
                 {{ form_row(form.config.targetBlank) }}

@@ -24,9 +24,9 @@
 <div class="card mb-4 mt-4">
     <div class="card-header fw-bold">{{ 'demo.context_resolution_title'|trans({}, _demo_domain) }}</div>
     <div class="card-body">
-        <p class="text-muted small mb-3">{{ 'demo.context_resolution_intro'|trans({}, _demo_domain)|raw }}</p>
+        <p class="text-muted small mb-2">{{ 'demo.context_resolution_intro'|trans({}, _demo_domain)|raw }}</p>
         <div class="row">
-            <div class="col-md-6 mb-3">
+            <div class="col-md-6 mb-2">
                 <h6 class="text-secondary">{{ 'demo.context_example_second_result'|trans({}, _demo_domain) }}</h6>
                 <p class="small text-muted"><code>dashboard_menu_tree('sidebar', null, [{'partnerId': 99}, {}])</code></p>
                 {% set contextSetsSecond = [{ 'partnerId': 99 }, {}] %}
@@ -41,7 +41,7 @@
                     {% endif %}
                 </nav>
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-md-6 mb-2">
                 <h6 class="text-secondary">{{ 'demo.context_example_random'|trans({}, _demo_domain) }}</h6>
                 <p class="small text-muted"><code>dashboard_menu_tree('sidebar', null, contextSets)</code></p>
                 {% set _first = random(2) == 0 ? [{ 'partnerId': 1, 'operatorId': 1 }, { 'partnerId': 1 }, null] : [{ 'partnerId': 1 }, { 'partnerId': 1, 'operatorId': 1 }, null] %}

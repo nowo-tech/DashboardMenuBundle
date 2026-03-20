@@ -21,7 +21,7 @@
     <header class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ path('app_home') }}">{{ 'demo.app_title_version'|trans({}, _demo_domain) }}</a>
-            <div class="d-flex align-items-center gap-2">
+            <div class="d-flex align-items-center gap-1">
                 {% set localeTree = dashboard_menu_tree('locale_switcher') %}
                 {% set _localeConfig = dashboard_menu_config('locale_switcher')|default({}) %}
                 {% set localeConfig = _localeConfig|merge({ classes: (_localeConfig.classes|default({}))|merge({ menu: 'nav gap-1', link: 'btn btn-sm btn-outline-secondary' }) }) %}

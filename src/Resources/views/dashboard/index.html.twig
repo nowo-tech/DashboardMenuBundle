@@ -10,8 +10,8 @@
         <div class="alert alert-danger">{{ msg }}</div>
     {% endfor %}
 
-    <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
-        <form method="get" action="{{ path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index')) }}" class="d-flex gap-2 flex-grow-1" role="search">
+    <div class="d-flex flex-wrap align-items-center gap-1 mb-2">
+        <form method="get" action="{{ path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index')) }}" class="d-flex gap-1 flex-grow-1" role="search">
             <input type="search" name="q" value="{{ search|e('html_attr') }}" class="form-control" placeholder="{{ 'dashboard.search_placeholder'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.search'|trans({}, 'NowoDashboardMenuBundle') }}" style="max-width: 20rem;">
             <button type="submit" class="btn btn-outline-secondary">{{ 'dashboard.search'|trans({}, 'NowoDashboardMenuBundle') }}</button>
             {% if search is not empty %}
@@ -26,7 +26,7 @@
     {% if menus|length == 0 %}
         <p class="text-muted">{{ 'dashboard.no_menus_yet'|trans({}, 'NowoDashboardMenuBundle') }}</p>
     {% else %}
-        <ul class="list-group">
+        <ul class="list-group m-0">
             {% for menu in menus %}
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <div>
@@ -158,7 +158,7 @@
                     <p id="modal-delete-message">{{ 'dashboard.delete_menu_message'|trans({}, 'NowoDashboardMenuBundle') }}</p>
                     <form id="form-delete-confirm" method="post" action="">
                         <input type="hidden" name="_token" value="">
-                        <div class="d-flex justify-content-end gap-2">
+                        <div class="d-flex justify-content-end gap-1">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'dashboard.cancel'|trans({}, 'NowoDashboardMenuBundle') }}</button>
                             <button type="submit" class="btn btn-danger">{{ 'dashboard.delete'|trans({}, 'NowoDashboardMenuBundle') }}</button>
                         </div>
