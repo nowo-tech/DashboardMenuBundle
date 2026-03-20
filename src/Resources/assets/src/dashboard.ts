@@ -399,6 +399,10 @@ function initIndexPage(config: NowoDashboardMenuConfig): void {
       if (!form || !importModalBody.contains(form as Node)) return;
       e.preventDefault();
       const formEl = form as HTMLFormElement;
+      if (formEl.dataset.dmSubmitting === '1') return;
+      formEl.dataset.dmSubmitting = '1';
+      const submitBtn = formEl.querySelector<HTMLButtonElement>('button[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
       const action = formEl.action || `${dashboardBase}/import`;
       const formData = new FormData(formEl);
       fetch(action, { method: 'POST', body: formData, redirect: 'follow' })
@@ -413,6 +417,8 @@ function initIndexPage(config: NowoDashboardMenuConfig): void {
           if (html != null) importModalBody.innerHTML = html;
         })
         .catch(() => {
+          delete formEl.dataset.dmSubmitting;
+          if (submitBtn) submitBtn.disabled = false;
           importModalBody.innerHTML = `<div class="alert alert-danger">${errorMsg}</div>`;
         });
     }, true);
