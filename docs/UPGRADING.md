@@ -9,7 +9,11 @@ No breaking changes.
 - **Config/UI:** new `dashboard.item_span_active` option to optionally render an extra wrapper `<span>` around non-section items in `menu.html.twig`.
 - **Config:** wrapper class is taken from the first non-empty value in `dashboard.css_class_options.span` (configure it in your `nowo_dashboard_menu.yaml`).
 
-## From 0.3.18 to 0.3.20
+## From 0.3.18 to 0.3.19
+
+No breaking changes.
+
+## From 0.3.19 to 0.3.20
 
 No breaking changes.
 

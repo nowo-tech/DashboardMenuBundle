@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.3.21] - 2026-03-20
+
+### Added
+
 - **Config/UI:** wrapper `<span>` for non-section menu items controlled by `dashboard.item_span_active`, with wrapper class configurable via `dashboard.css_class_options.span`.
 
 ## [0.3.20] - 2026-03-20
@@ -17,6 +22,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Dashboard UI:** menu configuration includes `ulId`, and the frontend template sets `id="..."` on the root `<ul>` when configured.
 - **Import/export:** menu export/import now includes `ulId`.
 - **Migration generator:** `nowo_dashboard_menu:generate-migration --update` can add the missing `ul_id` column.
+
+## [0.3.19] - 2026-03-20
+
+### Changed
+
+- **Demo Symfony 7:** update dependencies and configuration to keep the demo aligned.
 
 ## [0.3.18] - 2026-03-20
 
@@ -304,8 +315,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.20...HEAD
-[0.3.20]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.18...v0.3.20
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.21...HEAD
+[0.3.21]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.20...v0.3.21
+[0.3.20]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.19...v0.3.20
+[0.3.19]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.18...v0.3.19
 [0.3.18]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.17...v0.3.18
 [0.3.17]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.16...v0.3.17
 [0.3.16]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.15...v0.3.16
