@@ -1,26 +1,26 @@
-# Demo: Symfony UX (Stimulus) y Vite (TypeScript)
+# Demo: Symfony UX (Stimulus) and Vite (TypeScript)
 
-Las demos del bundle usan **Symfony UX** con **Stimulus** y **Vite** en **TypeScript** (pentatrion/vite-bundle + vite-plugin-symfony) para que el icon selector y otros controladores Stimulus funcionen en el dashboard, incluido el formulario de ítem cargado por AJAX en el modal.
+The bundle demos use **Symfony UX** with **Stimulus** and **Vite** in **TypeScript** (pentatrion/vite-bundle + vite-plugin-symfony) so the icon selector and other Stimulus controllers work in the dashboard, including the AJAX-loaded item form inside the modal.
 
-## Paquetes instalados
+## Installed packages
 
-- **symfony/stimulus-bundle**: integración de Stimulus (controladores `data-controller`, Twig `stimulus_controller()`, etc.).
-- **pentatrion/vite-bundle**: integración de Vite en Twig (`vite_entry_script_tags('app')`, `vite_entry_link_tags('app')`).
-- **vite-plugin-symfony** (npm): genera `entrypoints.json` y helpers para arrancar Stimulus con Vite.
-- **typescript** y **@types/node** (npm): soporte TypeScript en assets.
+- **symfony/stimulus-bundle**: Stimulus integration (controllers via `data-controller`, Twig `stimulus_controller()`, etc.).
+- **pentatrion/vite-bundle**: Vite integration in Twig (`vite_entry_script_tags('app')`, `vite_entry_link_tags('app')`).
+- **vite-plugin-symfony** (npm): generates `entrypoints.json` and helpers to start Stimulus with Vite.
+- **typescript** and **@types/node** (npm): TypeScript support in assets.
 
-## Estructura de assets (TypeScript)
+## Asset structure (TypeScript)
 
-En la raíz de cada demo (p. ej. `demo/symfony8/`) hay o se crean:
+At the root of each demo (e.g. `demo/symfony8/`) there are or are created:
 
-**Nota:** En `demo/symfony8` el entrypoint de Vite está configurado como `./assets/app.ts`. Si todavía existen `assets/app.js` y `assets/stimulus_bootstrap.js`, crea los archivos `.ts` indicados abajo (y opcionalmente borra los `.js`). En `demo/symfony7` crea desde cero `assets/app.ts`, `assets/bootstrap.ts` y `assets/controllers/hello_controller.ts`.
+**Note:** In `demo/symfony8` the Vite entrypoint is configured as `./assets/app.ts`. If `assets/app.js` and `assets/stimulus_bootstrap.js` still exist, create the `.ts` files listed below (and optionally delete the `.js`). In `demo/symfony7` create from scratch `assets/app.ts`, `assets/bootstrap.ts` and `assets/controllers/hello_controller.ts`.
 
-- **tsconfig.json**: opciones de compilación TypeScript (incluye `assets/**/*.ts`, `vite.config.ts`).
-- **env.d.ts**: referencias a tipos de Vite y `vite-plugin-symfony/stimulus/env`.
-- **vite.config.ts**: entrypoint `app` → `./assets/app.ts`, plugin Stimulus.
-- **assets/app.ts**: importa `bootstrap.ts` y estilos.
-- **assets/bootstrap.ts**: arranque de Stimulus y registro de controladores `*_controller.ts`.
-- **assets/controllers/*_controller.ts**: controladores Stimulus en TypeScript.
+- **tsconfig.json**: TypeScript build options (includes `assets/**/*.ts`, `vite.config.ts`).
+- **env.d.ts**: Vite type references and `vite-plugin-symfony/stimulus/env`.
+- **vite.config.ts**: `app` entrypoint -> `./assets/app.ts`, Stimulus plugin.
+- **assets/app.ts**: imports `bootstrap.ts` and styles.
+- **assets/bootstrap.ts**: starts Stimulus and registers controllers `*_controller.ts`.
+- **assets/controllers/*_controller.ts**: Stimulus controllers written in TypeScript.
 
 ### 1. `vite.config.ts`
 
@@ -48,7 +48,7 @@ export default defineConfig({
 
 ```ts
 import './bootstrap.ts';
-import './app.css';  // opcional, si existe
+import './app.css';  // optional, if it exists
 
 console.log('Happy coding!');
 ```
@@ -69,7 +69,7 @@ if (import.meta.hot) {
 }
 ```
 
-### 4. `assets/controllers/hello_controller.ts` (ejemplo)
+### 4. `assets/controllers/hello_controller.ts` (example)
 
 ```ts
 import { Controller } from '@hotwired/stimulus';
@@ -81,33 +81,33 @@ export default class extends Controller {
 }
 ```
 
-### 5. `package.json` (scripts y dependencias)
+### 5. `package.json` (scripts and dependencies)
 
-Incluye `packageManager: "pnpm@9.15.0"`, y en `devDependencies`: `@hotwired/stimulus`, `@types/node`, `typescript`, `vite`, `vite-plugin-symfony`. Ver `demo/symfony8/package.json` o `demo/symfony7/package.json`.
+It includes `packageManager: "pnpm@9.15.0"`, and in `devDependencies`: `@hotwired/stimulus`, `@types/node`, `typescript`, `vite`, `vite-plugin-symfony`. See `demo/symfony8/package.json` or `demo/symfony7/package.json`.
 
-Ejecutar en la carpeta de la demo: `pnpm install` (si usas Node 16.13+, ejecuta `corepack enable` y luego `pnpm install`). Alternativamente `npm install`.
+Run inside the demo folder: `pnpm install` (if you use Node 16.13+, run `corepack enable` and then `pnpm install`). Alternatively `npm install`.
 
-## Configuración Symfony
+## Symfony configuration
 
-- **config/packages/pentatrion_vite.yaml**: ver ejemplo en `demo/symfony8/config/packages/pentatrion_vite.yaml`.
-- **config/bundles.php**: registrar `PentatrionViteBundle` y `StimulusBundle` (Flex puede hacerlo al hacer `composer require`).
+- **config/packages/pentatrion_vite.yaml**: see the example in `demo/symfony8/config/packages/pentatrion_vite.yaml`.
+- **config/bundles.php**: register `PentatrionViteBundle` and `StimulusBundle` (Flex can do this when running `composer require`).
 
-## Layout del dashboard
+## Dashboard layout
 
-Para que las páginas del dashboard carguen la app de Vite (Stimulus), la demo debe **sobrescribir** el layout del bundle y rellenar los bloques `dashboard_head` y `dashboard_scripts`:
+To make the dashboard pages load the Vite app (Stimulus), the demo must **override** the bundle layout and fill in the `dashboard_head` and `dashboard_scripts` blocks:
 
 - **demo/symfony8**: `templates/bundles/NowoDashboardMenuBundle/dashboard/layout.html.twig`
-  - En `{% block dashboard_head %}`: `{{ vite_entry_link_tags('app') }}`
-  - En `{% block dashboard_scripts %}`: `{{ vite_entry_script_tags('app') }}`
+  - In `{% block dashboard_head %}`: `{{ vite_entry_link_tags('app') }}`
+  - In `{% block dashboard_scripts %}`: `{{ vite_entry_script_tags('app') }}`
 
-Así, al abrir el dashboard se carga el entrypoint `app`, que arranca Stimulus. Cuando el modal del formulario de ítem inyecta HTML con `data-controller="icon-selector"` (o similar), el script del bundle llama a `connectStimulusControllersInContainer(container)` para que Stimulus conecte esos elementos. Si el icon-selector se carga como script adicional (`icon_selector_script_url`), se usa un cache-buster al inyectarlo en el modal para que se ejecute de nuevo.
+So when opening the dashboard, the `app` entrypoint is loaded and starts Stimulus. When the item form modal injects HTML with `data-controller="icon-selector"` (or similar), the bundle script calls `connectStimulusControllersInContainer(container)` so Stimulus connects those elements. If the icon-selector is loaded as an additional script (`icon_selector_script_url`), a cache-buster is used when injecting it into the modal so it runs again.
 
-## Desarrollo
+## Development
 
-1. En la carpeta de la demo: `npm run dev` (o `pnpm dev`) para arrancar el servidor de Vite (p. ej. en el puerto 5173).
-2. Arrancar la app Symfony (p. ej. `symfony serve` o Docker).
-3. En producción, ejecutar `npm run build` y asegurarse de que los assets compilados estén en `public/build/` (o el `build_directory` configurado).
+1. In the demo folder: `npm run dev` (or `pnpm dev`) to start the Vite dev server (e.g. on port 5173).
+2. Start the Symfony app (e.g. `symfony serve` or Docker).
+3. In production, run `npm run build` and ensure the compiled assets are in `public/build/` (or the configured `build_directory`).
 
 ## Icon selector
 
-Si **nowo-tech/icon-selector-bundle** expone un controlador Stimulus, regístralo en `assets/controllers.json` (o en el `import.meta.glob` de `bootstrap.ts`) para que esté disponible cuando se inyecte el formulario en el modal. Si el bundle solo publica un script clásico (`icon-selector.js`), la URL configurada en `nowo_dashboard_menu.dashboard.icon_selector_script_url` se carga en el layout y se reinyecta con cache-buster al abrir el modal para que inicialice los elementos del fragmento.
+If **nowo-tech/icon-selector-bundle** exposes a Stimulus controller, register it in `assets/controllers.json` (or in the `import.meta.glob` of `bootstrap.ts`) so it is available when the form is injected into the modal. If the bundle only publishes a classic script (`icon-selector.js`), the URL configured in `nowo_dashboard_menu.dashboard.icon_selector_script_url` is loaded in the layout and re-injected with a cache-buster when opening the modal so the fragment elements are initialized.

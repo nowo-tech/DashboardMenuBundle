@@ -77,6 +77,10 @@ nowo_dashboard_menu:
         id_options:
             - 'main-menu-navigation'
 
+        # CSS size used to render menu item icons (SVG width/height and legacy icon font-size).
+        # Example: '1em', '16px', '1.2em'.
+        # icon_size: '1em'
+
         item_span_active: false
 
         # CSS class options: choices shown as dropdowns when editing a menu. Override to customize.

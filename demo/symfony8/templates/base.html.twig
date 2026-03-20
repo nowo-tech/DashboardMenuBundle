@@ -214,13 +214,19 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        {# Solo sustituir iconos en formato legacy (sin ":"); los tipo heroicons-outline:icon ya se renderizan como SVG por ux_icon #}
+        {# Only replace legacy icons (without ":"); heroicons-outline:icon types are already rendered as SVG by ux_icon. #}
         document.querySelectorAll('.menu-item-icon').forEach(function(span) {
             var name = span.getAttribute('data-icon');
             if (name && name.indexOf(':') === -1) {
                 var i = document.createElement('i');
                 i.className = 'bi bi-' + name;
                 i.setAttribute('aria-hidden', 'true');
+                // Transfer the inline style (e.g. font-size) from the legacy <span> to the injected <i>.
+                // This is required for `nowo_dashboard_menu.dashboard.icon_size`.
+                var style = span.getAttribute('style');
+                if (style) {
+                    i.setAttribute('style', style);
+                }
                 span.parentNode.insertBefore(i, span);
                 span.remove();
             }

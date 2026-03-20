@@ -49,6 +49,7 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
         private readonly ?Connection $connection = null,
         private readonly bool $itemSpanActive = false,
         private readonly string $itemSpanClass = 'd-flex align-items-center flex-nowrap',
+        private readonly string $iconSize = '1em',
     ) {
     }
 
@@ -93,6 +94,7 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
      *     ul_id: string|null,
      *     item_span_active: bool,
      *     item_span_class: string,
+     *     icon_size: string,
      *     depth_limit: int|null,
      *     icons: array{enabled: bool, use_ux_icons: bool, default: string|null},
      *     collapsible: bool,
@@ -112,6 +114,7 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
             'ul_id'                => $config['ul_id'],
             'item_span_active'     => $this->itemSpanActive,
             'item_span_class'      => $this->itemSpanClass,
+            'icon_size'            => $this->iconSize,
             'depth_limit'          => $config['depth_limit'],
             'icons'                => $config['icons'],
             'collapsible'          => $config['collapsible'],

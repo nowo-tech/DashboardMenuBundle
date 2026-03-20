@@ -36,7 +36,7 @@
             <hr>
         {% elseif itemType == 'section' %}
             <span class="d-flex align-items-center flex-nowrap">
-                <span class="{{ sectionLabelClasses }}">{{ item.label|trans({}, 'NowoDashboardMenuBundle') }}</span>
+                <span class="{{ sectionLabelClasses }}">{{ item.label }}</span>
                 {% if useNestedCollapsibleForChildren and hasChildren %}
                     <button type="button" class="btn btn-link btn-sm p-0 ms-1 menu-nested-toggle" data-bs-toggle="collapse" data-bs-target="#{{ collapseId }}" aria-expanded="true" aria-controls="{{ collapseId }}" title="{{ 'dashboard.toggle'|trans({}, 'NowoDashboardMenuBundle') }}">
                         <span class="menu-nested-toggle-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M2.5 5.5L8 11l5.5-5.5H2.5z"/></svg></span>
@@ -50,12 +50,14 @@
                 <a href="{{ dashboard_menu_href(item) }}"{% if aClass %} class="{{ aClass }}"{% endif %}{% if item.targetBlank %} target="_blank" rel="noopener noreferrer"{% endif %}>
                     {% if showIcon %}
                         {% if ':' in iconName %}
-                            {{ ux_icon(iconName, { class: 'menu-item-icon-svg', style: 'height:1em; width:1em;', 'aria-hidden': true }) }}
+                            {% set iconSize = menuConfig.icon_size|default('1em') %}
+                            {{ ux_icon(iconName, { class: 'menu-item-icon-svg', style: 'height:' ~ iconSize ~ '; width:' ~ iconSize ~ ';', 'aria-hidden': true }) }}
                         {% else %}
-                            <span class="menu-item-icon" data-icon="{{ iconName }}" aria-hidden="true"></span>
+                            {% set iconSize = menuConfig.icon_size|default('1em') %}
+                            <span class="menu-item-icon" data-icon="{{ iconName }}" aria-hidden="true" style="font-size: {{ iconSize }}; line-height: 1; display: inline-flex; align-items: center; justify-content: center;"></span>
                         {% endif %}
                     {% endif %}
-                    {{ item.label|trans({}, 'NowoDashboardMenuBundle') }}
+                    {{ item.label }}
                 </a>
                 {% if useNestedCollapsibleForChildren and hasChildren %}
                     <button type="button" class="btn btn-link btn-sm p-0 ms-1 menu-nested-toggle" data-bs-toggle="collapse" data-bs-target="#{{ collapseId }}" aria-expanded="true" aria-controls="{{ collapseId }}" title="{{ 'dashboard.toggle'|trans({}, 'NowoDashboardMenuBundle') }}">

@@ -76,6 +76,7 @@ services:
       $menuIconNameResolver: '@Nowo\DashboardMenuBundle\Service\MenuIconNameResolver'
       $dashboardLayoutTemplate: '%nowo_dashboard_menu.dashboard.layout_template%'
       $uxAutocompleteAvailable: '%nowo_dashboard_menu.ux_autocomplete_available%'
+      $iconSize: '%nowo_dashboard_menu.dashboard.icon_size%'
       $itemSpanActive: '%nowo_dashboard_menu.dashboard.item_span_active%'
       $itemSpanClass: '%nowo_dashboard_menu.dashboard.item_span_class%'
     tags:
