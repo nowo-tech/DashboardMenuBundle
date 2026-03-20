@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.22] - 2026-03-20
+
+### Added
+
+- **Config:** `dashboard.icon_size` — CSS size used to render menu item icons (SVG width/height and legacy icon font-size).
+
+### Fixed
+
+- **Twig/UI:** menu item labels are rendered using the locale-resolved `MenuItem.label` (already resolved by `MenuTreeLoader`), avoiding an extra translation pass in Twig.
+
 ## [0.3.21] - 2026-03-20
 
 ### Added
@@ -315,7 +325,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.21...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.22...HEAD
+[0.3.22]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.21...v0.3.22
 [0.3.21]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.20...v0.3.21
 [0.3.20]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.19...v0.3.20
 [0.3.19]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.18...v0.3.19

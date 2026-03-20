@@ -2,6 +2,13 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 0.3.21 to 0.3.22
+
+No breaking changes.
+
+- **Config:** new optional `dashboard.icon_size` to control the CSS size of rendered menu item icons (SVG width/height and legacy icon `font-size`).
+- **Templates/overrides:** `item.label` is already resolved for the current locale by `MenuTreeLoader`; if you override `menu.html.twig`, prefer rendering `item.label` as-is (avoid an extra `|trans(...)`).
+
 ## From 0.3.20 to 0.3.21
 
 No breaking changes.

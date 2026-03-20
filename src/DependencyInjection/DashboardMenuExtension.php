@@ -130,6 +130,10 @@ final class DashboardMenuExtension extends Extension
         $container->setParameter(Configuration::ALIAS . '.dashboard.pagination.enabled', $config['dashboard']['pagination']['enabled'] ?? true);
         $container->setParameter(Configuration::ALIAS . '.dashboard.pagination.per_page', $config['dashboard']['pagination']['per_page'] ?? 20);
         $container->setParameter(Configuration::ALIAS . '.dashboard.id_options', $config['dashboard']['id_options'] ?? []);
+        $container->setParameter(
+            Configuration::ALIAS . '.dashboard.icon_size',
+            $config['dashboard']['icon_size'] ?? '1em',
+        );
         $container->setParameter(Configuration::ALIAS . '.dashboard.css_class_options', $config['dashboard']['css_class_options'] ?? []);
         $container->setParameter(
             Configuration::ALIAS . '.dashboard.item_span_active',
