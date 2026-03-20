@@ -752,7 +752,7 @@ final class MenuDashboardController extends AbstractController
         $locale        = $request->getLocale();
         $redirectToUrl = $this->generateUrl(self::ROUTE_SHOW, ['id' => $id]);
         $parent        = $item->getParent();
-        $actionUrl     = $parent instanceof \Nowo\DashboardMenuBundle\Entity\MenuItem && $parent->getId() !== null
+        $actionUrl     = $parent instanceof MenuItem && $parent->getId() !== null
             ? $this->generateUrl(self::ROUTE_ITEM_NEW, ['id' => $id, '_query' => ['parent' => $parent->getId()]])
             : $this->generateUrl(self::ROUTE_ITEM_NEW, ['id' => $id]);
 

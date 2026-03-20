@@ -1618,7 +1618,7 @@ final class MenuDashboardControllerTest extends TestCase
         $requestStack->push($request);
 
         $csrfManager = $this->createStub(\Symfony\Component\Security\Csrf\CsrfTokenManagerInterface::class);
-        $csrfManager->method('isTokenValid')->willReturnCallback(static fn(\Symfony\Component\Security\Csrf\CsrfToken $token): bool => $token->getValue() === 'test-csrf-token');
+        $csrfManager->method('isTokenValid')->willReturnCallback(static fn (\Symfony\Component\Security\Csrf\CsrfToken $token): bool => $token->getValue() === 'test-csrf-token');
 
         $container = new class($router, $formFactory, $session, $twig, $requestStack, $csrfManager, $tokenStorage) implements \Psr\Container\ContainerInterface {
             public function __construct(
@@ -1744,7 +1744,7 @@ final class MenuDashboardControllerTest extends TestCase
         $requestStack->push($request);
 
         $csrfManager = $this->createStub(\Symfony\Component\Security\Csrf\CsrfTokenManagerInterface::class);
-        $csrfManager->method('isTokenValid')->willReturnCallback(static fn(\Symfony\Component\Security\Csrf\CsrfToken $token): bool => $token->getValue() === 'test-csrf-token');
+        $csrfManager->method('isTokenValid')->willReturnCallback(static fn (\Symfony\Component\Security\Csrf\CsrfToken $token): bool => $token->getValue() === 'test-csrf-token');
 
         $container = new class($router, $formFactory, $session, $twig, $requestStack, $csrfManager) implements \Psr\Container\ContainerInterface {
             public function __construct(
@@ -1786,7 +1786,7 @@ final class MenuDashboardControllerTest extends TestCase
         $router->method('generate')->willReturn('/generated');
 
         $formFactory = $this->createStub(FormFactoryInterface::class);
-        $formFactory->method('create')->willReturnCallback(static fn(string $type, mixed $data = null, array $options = []): FormInterface => $createFormCallback($type, $data, $options));
+        $formFactory->method('create')->willReturnCallback(static fn (string $type, mixed $data = null, array $options = []): FormInterface => $createFormCallback($type, $data, $options));
 
         $session = new Session();
 
@@ -1799,7 +1799,7 @@ final class MenuDashboardControllerTest extends TestCase
         $requestStack->push($request);
 
         $csrfManager = $this->createStub(\Symfony\Component\Security\Csrf\CsrfTokenManagerInterface::class);
-        $csrfManager->method('isTokenValid')->willReturnCallback(static fn(\Symfony\Component\Security\Csrf\CsrfToken $token): bool => $token->getValue() === 'test-csrf-token');
+        $csrfManager->method('isTokenValid')->willReturnCallback(static fn (\Symfony\Component\Security\Csrf\CsrfToken $token): bool => $token->getValue() === 'test-csrf-token');
 
         $container = new class($router, $formFactory, $session, $twig, $requestStack, $csrfManager) implements \Psr\Container\ContainerInterface {
             public function __construct(

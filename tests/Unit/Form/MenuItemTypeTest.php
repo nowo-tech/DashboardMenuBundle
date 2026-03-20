@@ -240,13 +240,13 @@ final class MenuItemTypeTest extends TestCase
         $labelEs->method('getData')->willReturn('');
 
         $form = $this->createMock(FormInterface::class);
-        $form->method('has')->willReturnCallback(static fn(string $name): bool => match ($name) {
+        $form->method('has')->willReturnCallback(static fn (string $name): bool => match ($name) {
             'label_en' => true,
             'label_es' => true,
             'label_fr' => false,
             default    => false,
         });
-        $form->method('get')->willReturnCallback(static fn(string $name): FormInterface => match ($name) {
+        $form->method('get')->willReturnCallback(static fn (string $name): FormInterface => match ($name) {
             'label_en' => $labelEn,
             'label_es' => $labelEs,
             default    => $labelEn,

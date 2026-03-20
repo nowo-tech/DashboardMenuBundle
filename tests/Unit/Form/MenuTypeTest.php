@@ -154,7 +154,7 @@ final class MenuTypeTest extends TestCase
     public function testMenuConfigTypeUlIdFieldUsesChoiceTypeAndAddsCurrentWhenOptionsPresent(): void
     {
         $translator = $this->createMock(TranslatorInterface::class);
-        $translator->method('trans')->willReturnCallback(static fn(mixed $id, array $parameters = [], ?string $domain = null): string => $id . '_translated');
+        $translator->method('trans')->willReturnCallback(static fn (mixed $id, array $parameters = [], ?string $domain = null): string => $id . '_translated');
 
         $menu = new Menu();
         $menu->setUlId('my-ul');
