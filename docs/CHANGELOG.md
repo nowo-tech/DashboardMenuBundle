@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.25] - 2026-03-20
+
+### Fixed
+- **Dashboard import modal:** AJAX import submit now follows redirects reliably and navigates back to the dashboard index after successful imports, avoiding a stuck modal state on `302` responses.
+- **Dashboard item list:** item rows are rendered in deterministic tree order (parent/children traversal with sibling sort by `position`, then `id`) so visual ordering matches stored positions.
+- **Dashboard table UX:** item `position` is displayed under the parent label to make ordering/debugging easier.
+- **Tests:** migration command integration assertion for `--dump` output is now robust to Symfony console note line-wrapping.
+
+### Changed
+- **Performance (N+1 reduction):**
+  - menu copy now clones items from a preloaded flat list in two passes (no recursive `getChildren()` lazy traversal),
+  - descendant id resolution for item edit uses preloaded menu items + in-memory BFS,
+  - import post-processing clears link fields for parents with children using an in-memory `hasChildren` map (no per-item lazy `children->count()`),
+  - export-all loads items for all menus in a single repository query and groups in memory.
+
 ## [0.3.24] - 2026-03-20
 
 ### Fixed
@@ -347,7 +362,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.24...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.25...HEAD
+[0.3.25]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.24...v0.3.25
 [0.3.24]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.23...v0.3.24
 [0.3.23]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.22...v0.3.23
 [0.3.22]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.21...v0.3.22

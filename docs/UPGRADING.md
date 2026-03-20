@@ -2,6 +2,18 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 0.3.24 to 0.3.25
+
+No breaking changes.
+
+- **Dashboard import modal:** import submit now handles redirects reliably after successful `POST` + `302` responses, so the modal no longer appears stuck.
+- **Dashboard item list:** rows are rendered in deterministic tree order using item `position` (sibling fallback by `id`), and the table displays each item position under its parent label.
+- **Performance:** reduced N+1 risk in dashboard copy/export/edit flows:
+  - copy uses a flat preloaded item list (two-pass clone),
+  - descendant lookup for item edit uses preloaded items + BFS,
+  - import clears link fields with an in-memory has-children map,
+  - export-all loads all items in one query grouped by menu in memory.
+
 ## From 0.3.22 to 0.3.23
 
 No breaking changes.
