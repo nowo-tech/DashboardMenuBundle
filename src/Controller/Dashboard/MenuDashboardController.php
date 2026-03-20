@@ -39,6 +39,7 @@ use function in_array;
 use function is_array;
 use function is_string;
 use function json_encode;
+use function strlen;
 
 use const JSON_PRETTY_PRINT;
 use const JSON_THROW_ON_ERROR;
@@ -751,7 +752,7 @@ final class MenuDashboardController extends AbstractController
         $locale        = $request->getLocale();
         $redirectToUrl = $this->generateUrl(self::ROUTE_SHOW, ['id' => $id]);
         $parent        = $item->getParent();
-        $actionUrl     = $parent !== null && $parent->getId() !== null
+        $actionUrl     = $parent instanceof \Nowo\DashboardMenuBundle\Entity\MenuItem && $parent->getId() !== null
             ? $this->generateUrl(self::ROUTE_ITEM_NEW, ['id' => $id, '_query' => ['parent' => $parent->getId()]])
             : $this->generateUrl(self::ROUTE_ITEM_NEW, ['id' => $id]);
 
@@ -1012,8 +1013,8 @@ final class MenuDashboardController extends AbstractController
                 continue;
             }
 
-            $first = $p[0] ?? '';
-            $last  = $p[strlen($p) - 1] ?? '';
+            $first       = $p[0] ?? '';
+            $last        = $p[strlen($p) - 1] ?? '';
             $isDelimited = $first !== '' && $first === $last && in_array($first, ['/', '#', '~', '%', '@', '!'], true);
             if ($isDelimited) {
                 continue;

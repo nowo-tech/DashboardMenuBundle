@@ -17,6 +17,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Container\ContainerInterface;
+use ReflectionClass;
 use ReflectionProperty;
 use stdClass;
 
@@ -230,8 +231,8 @@ class MenuTreeLoaderTest extends TestCase
         $menuRepo = $this->createStub(MenuRepository::class);
         $itemRepo = $this->createStub(MenuItemRepository::class);
 
-        $resolver = new MenuConfigResolver(['project' => null], $menuRepo);
-        $container = $this->createStub(ContainerInterface::class);
+        $resolver     = new MenuConfigResolver(['project' => null], $menuRepo);
+        $container    = $this->createStub(ContainerInterface::class);
         $iconResolver = new MenuIconNameResolver([]);
 
         $loader = new MenuTreeLoader(
@@ -253,9 +254,8 @@ class MenuTreeLoaderTest extends TestCase
             ],
         ];
 
-        $ref = new \ReflectionClass(MenuTreeLoader::class);
+        $ref = new ReflectionClass(MenuTreeLoader::class);
         $m   = $ref->getMethod('hydrateItemsFromRows');
-        $m->setAccessible(true);
 
         /** @var list<MenuItem> $items */
         $items = $m->invoke($loader, $rows, $menu, 'en');

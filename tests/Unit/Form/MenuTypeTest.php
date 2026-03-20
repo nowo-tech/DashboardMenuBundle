@@ -10,12 +10,10 @@ use Nowo\DashboardMenuBundle\Form\MenuDefinitionType;
 use Nowo\DashboardMenuBundle\Form\MenuType;
 use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use ReflectionProperty;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\FormView;
+use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -78,17 +76,16 @@ final class MenuTypeTest extends TestCase
         $menu = new Menu();
         $menu->setBase(true);
 
-        $ref = new \ReflectionProperty(Menu::class, 'id');
-        $ref->setAccessible(true);
+        $ref = new ReflectionProperty(Menu::class, 'id');
         $ref->setValue($menu, 1);
 
-        $addCalls = [];
+        $addCalls    = [];
         $contextForm = $this->createMock(FormBuilderInterface::class);
         $contextForm->expects(self::once())->method('addModelTransformer');
 
         $builder = $this->createFormBuilderMock($addCalls, $menu, 'context', $contextForm);
 
-        $type = new MenuDefinitionType(translator: null);
+        $type = new MenuDefinitionType();
         $type->buildForm($builder, []);
 
         $code = $this->findAddCall($addCalls, 'code');
@@ -110,7 +107,7 @@ final class MenuTypeTest extends TestCase
             cssClassOptions: [
                 'menu' => ['nav flex-column'],
             ],
-            translator: null
+            translator: null,
         );
 
         $type->buildForm($builder, []);
@@ -132,7 +129,7 @@ final class MenuTypeTest extends TestCase
         $type     = new MenuConfigType(
             permissionCheckerChoices: [],
             cssClassOptions: [],
-            translator: null
+            translator: null,
         );
 
         $type->configureOptions($resolver);
@@ -145,7 +142,7 @@ final class MenuTypeTest extends TestCase
     public function testMenuDefinitionTypeConfigureOptionsSetsDefaultsAndTranslationDomain(): void
     {
         $resolver = new OptionsResolver();
-        $type     = new MenuDefinitionType(translator: null);
+        $type     = new MenuDefinitionType();
 
         $type->configureOptions($resolver);
 
@@ -157,9 +154,7 @@ final class MenuTypeTest extends TestCase
     public function testMenuConfigTypeUlIdFieldUsesChoiceTypeAndAddsCurrentWhenOptionsPresent(): void
     {
         $translator = $this->createMock(TranslatorInterface::class);
-        $translator->method('trans')->willReturnCallback(static function (mixed $id, array $parameters = [], ?string $domain = null): string {
-            return (string) $id . '_translated';
-        });
+        $translator->method('trans')->willReturnCallback(static fn(mixed $id, array $parameters = [], ?string $domain = null): string => $id . '_translated');
 
         $menu = new Menu();
         $menu->setUlId('my-ul');
@@ -171,7 +166,7 @@ final class MenuTypeTest extends TestCase
             permissionCheckerChoices: [],
             cssClassOptions: [],
             ulIdOptions: ['a' => 'a', 'b' => 'b'],
-            translator: $translator
+            translator: $translator,
         );
 
         $type->buildForm($builder, []);
@@ -182,7 +177,7 @@ final class MenuTypeTest extends TestCase
         self::assertArrayHasKey('my-ul', $ulId['choices'] ?? []);
         self::assertSame('my-ul (current)', $ulId['choices']['my-ul'] ?? null);
 
-        self::assertSame(false, $ulId['choice_translation_domain'] ?? null);
+        self::assertFalse($ulId['choice_translation_domain'] ?? null);
     }
 
     public function testMenuConfigTypeUlIdFieldUsesTextTypeAndTranslatesPlaceholderWhenOptionsEmpty(): void
@@ -197,7 +192,7 @@ final class MenuTypeTest extends TestCase
             permissionCheckerChoices: [],
             cssClassOptions: [],
             ulIdOptions: [],
-            translator: $translator
+            translator: $translator,
         );
 
         $type->buildForm($builder, []);
@@ -220,7 +215,6 @@ final class MenuTypeTest extends TestCase
             permissionCheckerChoices: [],
             cssClassOptions: [],
             ulIdOptions: ['a' => 'a', 'b' => 'b'],
-            translator: null
         );
 
         $type->buildForm($builder, []);
@@ -241,6 +235,7 @@ final class MenuTypeTest extends TestCase
         $builder->method('getData')->willReturn($data);
         $builder->method('add')->willReturnCallback(static function (string $name, $type, array $options = []) use (&$addCalls, $builder): FormBuilderInterface {
             $addCalls[] = ['name' => $name, 'type' => $type, 'options' => $options];
+
             return $builder;
         });
 
@@ -262,4 +257,3 @@ final class MenuTypeTest extends TestCase
         return null;
     }
 }
-
