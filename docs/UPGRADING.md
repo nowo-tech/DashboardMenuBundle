@@ -2,6 +2,12 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 0.3.17 to 0.3.18
+
+No breaking changes.
+
+- **Dashboard UI spacing:** default CSS class options were updated (`gap-2` → `gap-1`) to improve spacing consistency in dashboard templates/components. If you depend on exact default class strings, re-check your expectations.
+
 ## From 0.3.16 to 0.3.17
 
 No breaking changes.

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.18] - 2026-03-20
+
+### Changed
+
+- **Dashboard UI spacing:** default CSS class options updated for dashboard menu components (`gap-2` → `gap-1`) to keep spacing consistent across menu templates and forms.
+
 ## [0.3.17] - 2026-03-19
 
 ### Added
@@ -287,7 +293,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.17...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.18...HEAD
+[0.3.18]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.17...v0.3.18
 [0.3.17]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.16...v0.3.17
 [0.3.16]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.15...v0.3.16
 [0.3.15]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.14...v0.3.15
