@@ -14,7 +14,6 @@ services:
 
   Nowo\DashboardMenuBundle\Form\MenuItemBasicType:
     arguments:
-      $defaultLocale: '%nowo_dashboard_menu.default_locale_resolved%'
       $availableLocales: '%nowo_dashboard_menu.locales%'
       $translator: '@translator'
 
@@ -43,6 +42,7 @@ services:
     arguments:
       $permissionCheckerChoices: '%nowo_dashboard_menu.permission_checker_choices%'
       $cssClassOptions: '%nowo_dashboard_menu.dashboard.css_class_options%'
+      $ulIdOptions: '%nowo_dashboard_menu.dashboard.id_options%'
       $translator: '@translator'
 
   Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker:

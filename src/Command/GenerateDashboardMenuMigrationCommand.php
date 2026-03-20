@@ -119,6 +119,10 @@ PHP;
                     $quoted     = $platform->quoteSingleIdentifier($menuTable);
                     $alterSql[] = sprintf('ALTER TABLE %s ADD class_section_label VARCHAR(512) DEFAULT NULL', $quoted);
                 }
+                if (!$table->hasColumn('ul_id')) {
+                    $quoted     = $platform->quoteSingleIdentifier($menuTable);
+                    $alterSql[] = sprintf('ALTER TABLE %s ADD ul_id VARCHAR(255) DEFAULT NULL', $quoted);
+                }
                 // Only output ALTER statements for update mode.
                 $sql = $alterSql;
             }

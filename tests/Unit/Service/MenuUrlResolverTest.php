@@ -39,6 +39,16 @@ final class MenuUrlResolverTest extends TestCase
         self::assertSame('#', $resolver->getHref($item));
     }
 
+    public function testGetHrefReturnsHashWhenLinkTypeIsNull(): void
+    {
+        $item = new MenuItem();
+        $item->setLinkType(null);
+
+        $resolver = $this->createResolver($this->createStub(UrlGeneratorInterface::class), new RequestStack());
+
+        self::assertSame('#', $resolver->getHref($item));
+    }
+
     public function testGetHrefReturnsHashWhenRouteNameIsEmpty(): void
     {
         $item = new MenuItem();

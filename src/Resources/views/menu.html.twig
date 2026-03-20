@@ -98,7 +98,7 @@
     <div id="{{ collapseId }}" class="collapse{{ expanded ? ' show' : '' }}">
 {% endif %}
 {% set menuAttrs = menuConfig.context is defined and menuConfig.context is iterable ? menuConfig.context : [] %}
-<ul class="{{ rootClasses }} {{ code }} dashboard-menu-tree"{% for key, value in menuAttrs %} {{ key }}="{{ value is same as(true) ? 'true' : (value is same as(false) ? 'false' : value) }}"{% endfor %}>
+<ul{% if menuConfig.ul_id is not null and menuConfig.ul_id != '' %} id="{{ menuConfig.ul_id|e('html_attr') }}"{% endif %} class="{{ rootClasses }} {{ code }} dashboard-menu-tree"{% for key, value in menuAttrs %} {{ key }}="{{ value is same as(true) ? 'true' : (value is same as(false) ? 'false' : value) }}"{% endfor %}>
     {% for node in menuTree %}
         {{ _self.render_node(node, menuConfig, 1, code) }}
     {% endfor %}

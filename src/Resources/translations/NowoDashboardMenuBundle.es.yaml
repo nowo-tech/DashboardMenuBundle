@@ -118,6 +118,9 @@ form:
     class_menu:
       label: "Clase menú (<ul> raíz)"
       placeholder: "ej. nav flex-column"
+    ul_id:
+      label: "Id del menú (<ul> raíz)"
+      placeholder: "ej. main-menu-navigation"
     class_item:
       label: "Clase ítem (<li>)"
       placeholder: "ej. nav-item"

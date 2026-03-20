@@ -4,8 +4,22 @@
 
 {% block body %}
 <h1>{{ 'demo.bundle_demo'|trans({}, _demo_domain) }}</h1>
-<p>{{ 'demo.sidebar_rendered_short'|trans({}, _demo_domain)|raw }}</p>
-<p>{{ 'demo.api_json'|trans({}, _demo_domain) }} <a href="{{ path('nowo_dashboard_menu_api', { code: 'sidebar' }) }}">GET /api/menu/sidebar</a></p>
+<p class="lead text-muted">{{ 'demo.lead_paragraph'|trans({}, _demo_domain)|raw }}</p>
+<p>{{ 'demo.sidebar_rendered'|trans({}, _demo_domain)|raw }}</p>
+
+<div class="card mb-4">
+    <div class="card-header fw-bold">{{ 'demo.crud_title'|trans({}, _demo_domain) }}</div>
+    <div class="card-body">
+        <p class="mb-2">{{ 'demo.crud_intro'|trans({}, _demo_domain)|raw }}</p>
+        <ul class="list-unstyled mb-0">
+            <li><a href="{{ path('nowo_dashboard_menu_dashboard_index') }}"><i class="bi bi-list-ul me-1"></i>{{ 'demo.list_menus'|trans({}, _demo_domain) }}</a> — <code>/admin/menus</code></li>
+            <li><a href="{{ path('nowo_dashboard_menu_dashboard_menu_new') }}"><i class="bi bi-plus-circle me-1"></i>{{ 'demo.new_menu'|trans({}, _demo_domain) }}</a> — <code>/admin/menus/menu/new</code></li>
+        </ul>
+        <p class="small text-muted mt-2 mb-0">{{ 'demo.crud_footer'|trans({}, _demo_domain) }}</p>
+    </div>
+</div>
+
+<p><strong>{{ 'demo.api_json'|trans({}, _demo_domain) }}</strong> <a href="{{ path('nowo_dashboard_menu_api', { code: 'sidebar' }) }}">GET /api/menu/sidebar</a></p>
 
 <div class="card mb-4 mt-4">
     <div class="card-header fw-bold">{{ 'demo.context_resolution_title'|trans({}, _demo_domain) }}</div>

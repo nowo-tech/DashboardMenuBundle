@@ -69,6 +69,7 @@ final readonly class MenuConfigResolver
             'cache_pool'         => null,
             'cache_ttl'          => 300,
             'classes'            => $classes,
+            'ul_id'              => $entity?->getUlId(),
             'depth_limit'        => $entity?->getDepthLimit(),
             'icons'              => [
                 'enabled'      => true,

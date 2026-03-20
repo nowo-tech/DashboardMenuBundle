@@ -70,6 +70,80 @@ final class AutoTagPermissionCheckersPassTest extends TestCase
         self::assertFalse($container->getDefinition('app.other_service')->hasTag('nowo_dashboard_menu.permission_checker'));
     }
 
+    public function testAutoTagContinuesWhenClassExistsButDoesNotImplementInterface(): void
+    {
+        $container = new ContainerBuilder();
+        $container->register('app.not_a_checker', StubNotAChecker::class);
+
+        $this->processAutoTag($container);
+
+        self::assertFalse($container->getDefinition('app.not_a_checker')->hasTag('nowo_dashboard_menu.permission_checker'));
+    }
+
+    public function testAutoTagContinuesWhenAutoloadThrowsDuringSubclassCheck(): void
+    {
+        $container = new ContainerBuilder();
+
+        $brokenClass = 'Nowo\\DashboardMenuBundle\\Tests\\DependencyInjection\\Compiler\\BrokenAutoloadCheckerNonExisting';
+        $serviceId   = 'app.broken_autoload';
+
+        // Ensure the class doesn't exist so class_exists triggers the autoloader.
+        // We intentionally register an autoloader that throws for this one class.
+        $autoload = static function (string $class) use ($brokenClass): void {
+            if ($class === $brokenClass) {
+                throw new RuntimeException('autoload boom');
+            }
+        };
+        spl_autoload_register($autoload, prepend: true);
+
+        try {
+            $container->register($serviceId, $brokenClass);
+            $this->processAutoTag($container);
+            self::assertFalse($container->getDefinition($serviceId)->hasTag('nowo_dashboard_menu.permission_checker'));
+        } finally {
+            spl_autoload_unregister($autoload);
+        }
+    }
+
+    public function testAutoTagFallsBackToServiceIdWhenResolveLabelThrows(): void
+    {
+        $container = new ContainerBuilder();
+        $container->register('app.invalid_attr_type', StubCheckerInvalidAttributeType::class);
+
+        $this->processAutoTag($container);
+
+        $tags = $container->getDefinition('app.invalid_attr_type')->getTag('nowo_dashboard_menu.permission_checker');
+        self::assertSame('app.invalid_attr_type', $tags[0]['label'] ?? null);
+    }
+
+    public function testProcessSkipsWhenDefinitionClassEqualsServiceId(): void
+    {
+        $container = new ContainerBuilder();
+        // Coverage: line 41 (class === service id) => continue.
+        $container->register('app.skip_same_id', 'app.skip_same_id');
+
+        $this->processAutoTag($container);
+
+        self::assertFalse(
+            $container->getDefinition('app.skip_same_id')->hasTag('nowo_dashboard_menu.permission_checker'),
+        );
+    }
+
+    public function testProcessSkipsWhenClassDoesNotExist(): void
+    {
+        $container = new ContainerBuilder();
+
+        // Coverage: line 46 (!class_exists($class)) => continue.
+        $missing = 'Nowo\\DashboardMenuBundle\\Tests\\DependencyInjection\\Compiler\\DefinitelyMissingChecker';
+        $container->register('app.missing_class', $missing);
+
+        $this->processAutoTag($container);
+
+        self::assertFalse(
+            $container->getDefinition('app.missing_class')->hasTag('nowo_dashboard_menu.permission_checker'),
+        );
+    }
+
     public function testProcessSkipsInstanceofAndAbstractAndSyntheticDefinitions(): void
     {
         $container = new ContainerBuilder();
@@ -155,6 +229,7 @@ final class AutoTagPermissionCheckersPassTest extends TestCase
 
 use Nowo\DashboardMenuBundle\Attribute\PermissionCheckerLabel;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
+use RuntimeException;
 
 class StubCheckerNoLabel implements MenuPermissionCheckerInterface
 {
@@ -218,6 +293,15 @@ class StubCheckerEmptyConstantOnly implements MenuPermissionCheckerInterface
 {
     public const DASHBOARD_LABEL = '';
 
+    public function canView(MenuItem $item, mixed $context = null): bool
+    {
+        return true;
+    }
+}
+
+#[PermissionCheckerLabel(123)]
+class StubCheckerInvalidAttributeType implements MenuPermissionCheckerInterface
+{
     public function canView(MenuItem $item, mixed $context = null): bool
     {
         return true;

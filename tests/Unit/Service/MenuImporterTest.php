@@ -176,6 +176,52 @@ final class MenuImporterTest extends TestCase
         self::assertStringContainsString('Entry 1', $result['errors'][0] ?? '');
     }
 
+    public function testImportMenusArrayEntryWithNonArrayMenuAddsError(): void
+    {
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $em       = $this->createStub(EntityManagerInterface::class);
+
+        $importer = new MenuImporter($menuRepo, $em);
+        $result   = $importer->import([
+            'menus' => [
+                ['menu' => 'not-array', 'items' => []],
+            ],
+        ]);
+
+        self::assertCount(1, $result['errors']);
+        self::assertStringContainsString("'menu' must be an array", $result['errors'][0]);
+    }
+
+    public function testClearLinkDataForLinkItemsWithChildrenResetsRouteFields(): void
+    {
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $em       = $this->createStub(EntityManagerInterface::class);
+        $importer = new MenuImporter($menuRepo, $em);
+
+        $menu = new Menu();
+        $item = new MenuItem();
+        $item->setItemType(MenuItem::ITEM_TYPE_LINK);
+        $item->setLinkType(MenuItem::LINK_TYPE_ROUTE);
+        $item->setRouteName('app_home');
+        $item->setRouteParams(['tab' => 'x']);
+        $item->setExternalUrl('https://example.com');
+
+        // Ensure children count > 0 so the branch is executed.
+        $child = new MenuItem();
+        $item->getChildren()->add($child);
+
+        $menu->addItem($item);
+
+        $ref = new ReflectionClass($importer);
+        $m   = $ref->getMethod('clearLinkDataForLinkItemsWithChildren');
+        $m->invoke($importer, $menu);
+
+        self::assertNull($item->getLinkType());
+        self::assertNull($item->getRouteName());
+        self::assertNull($item->getRouteParams());
+        self::assertNull($item->getExternalUrl());
+    }
+
     public function testImportHandlesNonArrayTranslationsAndRouteParams(): void
     {
         $menuRepo = $this->createStub(MenuRepository::class);

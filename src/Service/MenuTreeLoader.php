@@ -147,6 +147,7 @@ final readonly class MenuTreeLoader
         $menu->setName(isset($row['name']) ? (string) $row['name'] : null);
         $menu->setIcon(isset($row['icon']) ? (string) $row['icon'] : null);
         $this->setMenuString($menu, 'classMenu', $row['class_menu'] ?? null);
+        $this->setMenuString($menu, 'ulId', $row['ul_id'] ?? null);
         $this->setMenuString($menu, 'classItem', $row['class_item'] ?? null);
         $this->setMenuString($menu, 'classLink', $row['class_link'] ?? null);
         $this->setMenuString($menu, 'classChildren', $row['class_children'] ?? null);

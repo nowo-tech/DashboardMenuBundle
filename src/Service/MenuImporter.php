@@ -143,6 +143,7 @@ final readonly class MenuImporter
         }
         $menu->setIcon($this->stringOrNull($menuData['icon'] ?? null));
         $menu->setClassMenu($this->stringOrNull($menuData['classMenu'] ?? null));
+        $menu->setUlId($this->stringOrNull($menuData['ulId'] ?? null));
         $menu->setClassItem($this->stringOrNull($menuData['classItem'] ?? null));
         $menu->setClassLink($this->stringOrNull($menuData['classLink'] ?? null));
         $menu->setClassChildren($this->stringOrNull($menuData['classChildren'] ?? null));

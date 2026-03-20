@@ -45,14 +45,13 @@ final class DashboardMenuExtension extends Extension
      */
     public function prepend(ContainerBuilder $container): void
     {
-        if (!class_exists(\Symfony\UX\LiveComponent\Attribute\AsLiveComponent::class)) {
-            return;
+        if (class_exists(\Symfony\UX\LiveComponent\Attribute\AsLiveComponent::class)) {
+            $container->prependExtensionConfig('twig_component', [
+                'defaults' => [
+                    'Nowo\\DashboardMenuBundle\\LiveComponent\\' => 'components/',
+                ],
+            ]);
         }
-        $container->prependExtensionConfig('twig_component', [
-            'defaults' => [
-                'Nowo\\DashboardMenuBundle\\LiveComponent\\' => 'components/',
-            ],
-        ]);
     }
 
     public function load(array $configs, ContainerBuilder $container): void
@@ -129,6 +128,7 @@ final class DashboardMenuExtension extends Extension
         $container->setParameter(Configuration::ALIAS . '.dashboard.route_name_exclude_patterns', $config['dashboard']['route_name_exclude_patterns'] ?? []);
         $container->setParameter(Configuration::ALIAS . '.dashboard.pagination.enabled', $config['dashboard']['pagination']['enabled'] ?? true);
         $container->setParameter(Configuration::ALIAS . '.dashboard.pagination.per_page', $config['dashboard']['pagination']['per_page'] ?? 20);
+        $container->setParameter(Configuration::ALIAS . '.dashboard.id_options', $config['dashboard']['id_options'] ?? []);
         $container->setParameter(Configuration::ALIAS . '.dashboard.css_class_options', $config['dashboard']['css_class_options'] ?? []);
         $container->setParameter(Configuration::ALIAS . '.dashboard.modals', $config['dashboard']['modals'] ?? [
             'menu_form' => 'normal',
@@ -140,7 +140,9 @@ final class DashboardMenuExtension extends Extension
         $dashboardConfig = $config['dashboard'] ?? [];
         $stimulusUrl     = $dashboardConfig['stimulus_script_url'] ?? null;
         $liveEnabled     = class_exists(\Symfony\UX\LiveComponent\Attribute\AsLiveComponent::class);
-        if (!array_key_exists('stimulus_script_url', $dashboardConfig) && $stimulusUrl === null && $liveEnabled) {
+        // If UX LiveComponent is available and the user didn't configure a custom stimulus URL,
+        // fall back to the bundle default that exposes window.Stimulus.
+        if ($stimulusUrl === null && $liveEnabled) {
             $stimulusUrl = 'bundles/nowodashboardmenu/js/stimulus-live.js';
         }
         $container->setParameter(Configuration::ALIAS . '.dashboard.stimulus_script_url', $stimulusUrl);

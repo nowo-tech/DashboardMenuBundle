@@ -33,7 +33,6 @@ final class MenuItemBasicType extends AbstractType
      * @param list<string> $availableLocales
      */
     public function __construct(
-        private readonly string $defaultLocale = 'en',
         private readonly array $availableLocales = [],
         private readonly ?TranslatorInterface $translator = null,
     ) {
@@ -152,7 +151,7 @@ final class MenuItemBasicType extends AbstractType
             'available_locales'  => $this->availableLocales,
             'translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
             'constraints'        => [
-                new Callback([$this, 'validateLabelWhenNotDivider']),
+                new Callback($this->validateLabelWhenNotDivider(...)),
             ],
         ]);
         $resolver->setAllowedTypes('available_locales', 'array');

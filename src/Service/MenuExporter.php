@@ -66,6 +66,7 @@ final readonly class MenuExporter
             'context'                   => $menu->getContext(),
             'icon'                      => $menu->getIcon(),
             'classMenu'                 => $menu->getClassMenu(),
+            'ulId'                      => $menu->getUlId(),
             'classItem'                 => $menu->getClassItem(),
             'classLink'                 => $menu->getClassLink(),
             'classChildren'             => $menu->getClassChildren(),

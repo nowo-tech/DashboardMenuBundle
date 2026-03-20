@@ -86,7 +86,16 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
      *
      * @param list<array<string, bool|int|string>|null>|null $contextSets
      *
-     * @return array{classes: array<string, string>, depth_limit: int|null, icons: array{enabled: bool, use_ux_icons: bool, default: string|null}, collapsible: bool, collapsible_expanded: bool, nested_collapsible: bool, menu_name: string|null}
+     * @return array{
+     *     classes: array<string, string>,
+     *     ul_id: string|null,
+     *     depth_limit: int|null,
+     *     icons: array{enabled: bool, use_ux_icons: bool, default: string|null},
+     *     collapsible: bool,
+     *     collapsible_expanded: bool,
+     *     nested_collapsible: bool,
+     *     menu_name: string|null
+     * }
      */
     public function getMenuConfig(string $menuCode, ?array $contextSets = null): array
     {
@@ -96,6 +105,7 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
 
         return [
             'classes'              => $config['classes'],
+            'ul_id'                => $config['ul_id'],
             'depth_limit'          => $config['depth_limit'],
             'icons'                => $config['icons'],
             'collapsible'          => $config['collapsible'],

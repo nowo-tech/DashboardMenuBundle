@@ -36,9 +36,10 @@
             {% if menu.nestedCollapsibleSections is not null %} · <strong>{{ 'form.menu_type.nested_collapsible_sections.label'|trans({}, 'NowoDashboardMenuBundle') }}:</strong> {{ menu.nestedCollapsibleSections ? 'dashboard.yes'|trans : 'dashboard.no'|trans({}, 'NowoDashboardMenuBundle') }}{% endif %}
         </div>
     {% endif %}
-    {% if menu.classMenu or menu.classItem or menu.classLink or menu.classChildren or menu.classSectionLabel or menu.classCurrent or menu.classBranchExpanded or menu.classHasChildren or menu.classExpanded or menu.classCollapsed %}
+    {% if menu.ulId or menu.classMenu or menu.classItem or menu.classLink or menu.classChildren or menu.classSectionLabel or menu.classCurrent or menu.classBranchExpanded or menu.classHasChildren or menu.classExpanded or menu.classCollapsed %}
         <div class="alert alert-light border mb-2 py-2">
             <strong>{{ 'dashboard.css_classes'|trans({}, 'NowoDashboardMenuBundle') }}</strong>: {% if menu.classMenu %}<code>menu: {{ menu.classMenu }}</code>{% endif %}
+            {% if menu.ulId %}<code>ul_id: {{ menu.ulId }}</code>{% endif %}
             {% if menu.classItem %} <code>item: {{ menu.classItem }}</code>{% endif %}
             {% if menu.classLink %} <code>link: {{ menu.classLink }}</code>{% endif %}
             {% if menu.classChildren %} <code>children: {{ menu.classChildren }}</code>{% endif %}

@@ -59,6 +59,12 @@ class Menu
     private ?string $classMenu = null;
 
     /**
+     * Optional HTML id attribute for the root <ul>.
+     */
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $ulId = null;
+
+    /**
      * CSS class for each <li> (e.g. "nav-item"). Overrides config when set.
      */
     #[ORM\Column(type: Types::STRING, length: 512, nullable: true)]
@@ -227,6 +233,18 @@ class Menu
     public function setClassMenu(?string $classMenu): self
     {
         $this->classMenu = $classMenu;
+
+        return $this;
+    }
+
+    public function getUlId(): ?string
+    {
+        return $this->ulId;
+    }
+
+    public function setUlId(?string $ulId): self
+    {
+        $this->ulId = $ulId;
 
         return $this;
     }

@@ -670,6 +670,7 @@ final class MenuDashboardController extends AbstractController
         $copy->setName($newName);
         $copy->setIcon($source->getIcon());
         $copy->setClassMenu($source->getClassMenu());
+        $copy->setUlId($source->getUlId());
         $copy->setClassItem($source->getClassItem());
         $copy->setClassLink($source->getClassLink());
         $copy->setClassChildren($source->getClassChildren());
@@ -994,7 +995,32 @@ final class MenuDashboardController extends AbstractController
     private function isRouteNameExcluded(string $routeName): bool
     {
         foreach ($this->routeNameExcludePatterns as $pattern) {
-            if (@preg_match($pattern, $routeName) === 1) {
+            $p = trim((string) $pattern);
+            if ($p === '') {
+                continue;
+            }
+
+            // Support both full PCRE patterns (e.g. "#^web_profiler#") and "regex snippets"
+            // (e.g. "^web_profiler") by retrying with a delimiter when preg_match fails.
+            $matched = @preg_match($p, $routeName);
+            if ($matched === 1) {
+                return true;
+            }
+
+            // If it's already a delimited regex and didn't match, don't retry.
+            if ($matched !== false) {
+                continue;
+            }
+
+            $first = $p[0] ?? '';
+            $last  = $p[strlen($p) - 1] ?? '';
+            $isDelimited = $first !== '' && $first === $last && in_array($first, ['/', '#', '~', '%', '@', '!'], true);
+            if ($isDelimited) {
+                continue;
+            }
+
+            $wrapped = '#' . str_replace('#', '\\#', $p) . '#';
+            if (@preg_match($wrapped, $routeName) === 1) {
                 return true;
             }
         }

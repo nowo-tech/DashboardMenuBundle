@@ -33,6 +33,7 @@ final class MenuConfigType extends AbstractType
     public function __construct(
         private readonly array $permissionCheckerChoices = [],
         private readonly array $cssClassOptions = [],
+        private readonly array $ulIdOptions = [],
         private readonly ?TranslatorInterface $translator = null,
     ) {
     }
@@ -102,6 +103,7 @@ final class MenuConfigType extends AbstractType
             ]);
 
         $this->addCssClassField($builder, 'classMenu', 'menu', 'form.menu_type.class_menu.label', 'form.menu_type.class_menu.placeholder');
+        $this->addUlIdField($builder);
         $this->addCssClassField($builder, 'classItem', 'item', 'form.menu_type.class_item.label', 'form.menu_type.class_item.placeholder');
         $this->addCssClassField($builder, 'classLink', 'link', 'form.menu_type.class_link.label', 'form.menu_type.class_link.placeholder');
         $this->addCssClassField($builder, 'classChildren', 'children', 'form.menu_type.class_children.label', 'form.menu_type.class_children.placeholder');
@@ -159,6 +161,55 @@ final class MenuConfigType extends AbstractType
                 'label_attr' => ['class' => 'form-label'],
             ]);
         }
+    }
+
+    private function addUlIdField(FormBuilderInterface $builder): void
+    {
+        $options = $this->ulIdOptions;
+
+        if ($options !== []) {
+            /** @var array<string, string> $choices */
+            $choices = array_combine($options, $options);
+            $data    = $builder->getData();
+            if ($data instanceof Menu) {
+                $current = $data->getUlId();
+                if ($current !== null && $current !== '' && !isset($choices[$current])) {
+                    $choices[$current] = $current . ' (current)';
+                    ksort($choices, SORT_NATURAL);
+                }
+            }
+
+            $emptyKey    = 'form.menu_type.empty_choice';
+            $placeholder = $this->translator instanceof TranslatorInterface
+                ? $this->translator->trans($emptyKey, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN)
+                : $emptyKey;
+
+            $builder->add('ulId', ChoiceType::class, [
+                'required'                  => false,
+                'label'                     => 'form.menu_type.ul_id.label',
+                'placeholder'               => $placeholder,
+                'choices'                   => $choices,
+                'choice_translation_domain' => false,
+                'attr'                      => ['class' => 'form-select'],
+                'row_attr'                  => ['class' => 'mb-1'],
+                'label_attr'                => ['class' => 'form-label'],
+                'autocomplete'              => true,
+            ]);
+
+            return;
+        }
+
+        $placeholderText = $this->translator instanceof TranslatorInterface
+            ? $this->translator->trans('form.menu_type.ul_id.placeholder', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN)
+            : 'form.menu_type.ul_id.placeholder';
+
+        $builder->add('ulId', TextType::class, [
+            'required'   => false,
+            'label'      => 'form.menu_type.ul_id.label',
+            'attr'       => ['class' => 'form-control', 'placeholder' => $placeholderText],
+            'row_attr'   => ['class' => 'mb-1'],
+            'label_attr' => ['class' => 'form-label'],
+        ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

@@ -58,6 +58,37 @@ final class TwigPathsPassTest extends TestCase
         self::assertCount(1, $addPathCalls);
     }
 
+    public function testProcessAddsTwigPathToTwigLoaderNativeWhenNativeDefinitionExists(): void
+    {
+        $container = new ContainerBuilder();
+        $loaderDef = new Definition();
+        $container->setDefinition('twig.loader.native', $loaderDef);
+
+        $pass = new TwigPathsPass();
+        $pass->process($container);
+
+        $calls = $loaderDef->getMethodCalls();
+        self::assertNotEmpty($calls);
+
+        $found = false;
+        foreach ($calls as [$method, $args]) {
+            if ($method !== 'addPath') {
+                continue;
+            }
+            if (!isset($args[0], $args[1])) {
+                continue;
+            }
+            if ($args[1] !== 'NowoDashboardMenuBundle') {
+                continue;
+            }
+            self::assertStringEndsWith('/Resources/views', (string) $args[0]);
+            $found = true;
+            break;
+        }
+
+        self::assertTrue($found, 'Expected addPath call for NowoDashboardMenuBundle namespace.');
+    }
+
     public function testProcessDoesNothingWhenTwigLoaderNotDefined(): void
     {
         $container = new ContainerBuilder();

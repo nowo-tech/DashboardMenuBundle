@@ -5,17 +5,23 @@ declare(strict_types=1);
 namespace Nowo\DashboardMenuBundle\Tests\Form;
 
 use Nowo\DashboardMenuBundle\Entity\Menu;
+use Nowo\DashboardMenuBundle\Form\MenuConfigType;
+use Nowo\DashboardMenuBundle\Form\MenuDefinitionType;
 use Nowo\DashboardMenuBundle\Form\MenuType;
+use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
 use PHPUnit\Framework\TestCase;
-use ReflectionProperty;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-
-use function count;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class MenuTypeTest extends TestCase
 {
-    public function testConfigureOptions(): void
+    public function testMenuTypeConfigureOptions(): void
     {
         $resolver = new OptionsResolver();
         $type     = new MenuType();
@@ -25,107 +31,222 @@ final class MenuTypeTest extends TestCase
         self::assertSame(Menu::class, $options['data_class']);
         self::assertFalse($options['is_edit']);
         self::assertSame('POST', $options['method']);
-
-        $withAction = $resolver->resolve(['action' => '/save', 'is_edit' => true]);
-        self::assertSame('/save', $withAction['action']);
-        self::assertTrue($withAction['is_edit']);
+        self::assertNull($options['section']);
     }
 
-    public function testBuildFormWithNoDataAddsAllFields(): void
+    public function testMenuTypeBuildFormAddsDefinitionAndConfigByDefault(): void
     {
         $addCalls = [];
-        $builder  = $this->createFormBuilderMock(null, $addCalls);
-        $type     = new MenuType([], []);
+        $builder  = $this->createFormBuilderMock($addCalls);
+
+        $type = new MenuType();
         $type->buildForm($builder, []);
-        self::assertGreaterThanOrEqual(10, count($addCalls));
+
+        $names = array_map(static fn (array $c): string => $c['name'], $addCalls);
+        self::assertContains('definition', $names);
+        self::assertContains('config', $names);
     }
 
-    public function testBuildFormWithMenuEditBaseLocksCode(): void
+    public function testMenuTypeBuildFormAddsOnlyDefinitionWhenSectionBasic(): void
+    {
+        $addCalls = [];
+        $builder  = $this->createFormBuilderMock($addCalls);
+
+        $type = new MenuType();
+        $type->buildForm($builder, ['section' => 'basic']);
+
+        $names = array_map(static fn (array $c): string => $c['name'], $addCalls);
+        self::assertContains('definition', $names);
+        self::assertNotContains('config', $names);
+    }
+
+    public function testMenuTypeBuildFormAddsOnlyConfigWhenSectionConfig(): void
+    {
+        $addCalls = [];
+        $builder  = $this->createFormBuilderMock($addCalls);
+
+        $type = new MenuType();
+        $type->buildForm($builder, ['section' => 'config']);
+
+        $names = array_map(static fn (array $c): string => $c['name'], $addCalls);
+        self::assertNotContains('definition', $names);
+        self::assertContains('config', $names);
+    }
+
+    public function testMenuDefinitionTypeLocksCodeWhenEditingBaseMenu(): void
     {
         $menu = new Menu();
-        $menu->setCode('sidebar');
         $menu->setBase(true);
-        $ref = new ReflectionProperty(Menu::class, 'id');
+
+        $ref = new \ReflectionProperty(Menu::class, 'id');
+        $ref->setAccessible(true);
         $ref->setValue($menu, 1);
 
         $addCalls = [];
-        $builder  = $this->createFormBuilderMock($menu, $addCalls);
-        $type     = new MenuType([], []);
+        $contextForm = $this->createMock(FormBuilderInterface::class);
+        $contextForm->expects(self::once())->method('addModelTransformer');
+
+        $builder = $this->createFormBuilderMock($addCalls, $menu, 'context', $contextForm);
+
+        $type = new MenuDefinitionType(translator: null);
         $type->buildForm($builder, []);
 
-        $codeOptions = $this->findAddCall($addCalls, 'code');
-        self::assertNotNull($codeOptions);
-        self::assertTrue($codeOptions['attr']['readonly'] ?? false);
+        $code = $this->findAddCall($addCalls, 'code');
+        self::assertNotNull($code);
+        self::assertTrue($code['attr']['readonly'] ?? false);
     }
 
-    public function testBuildFormWithPermissionCheckerNotInChoicesAddsCurrentLabel(): void
+    public function testMenuConfigTypePermissionCheckerChoiceAddsCurrentAndCssClassUsesChoiceType(): void
     {
         $menu = new Menu();
         $menu->setPermissionChecker('custom_checker');
-
-        $addCalls = [];
-        $builder  = $this->createFormBuilderMock($menu, $addCalls);
-        $type     = new MenuType(['allow_all' => 'Allow all'], []);
-        $type->buildForm($builder, []);
-
-        $pcOptions = $this->findAddCall($addCalls, 'permissionChecker');
-        self::assertNotNull($pcOptions);
-        self::assertArrayHasKey('custom_checker', $pcOptions['choices']);
-        self::assertSame('custom_checker (current)', $pcOptions['choices']['custom_checker']);
-    }
-
-    public function testBuildFormWithCssClassOptionsUsesChoiceType(): void
-    {
-        $addCalls = [];
-        $builder  = $this->createFormBuilderMock(new Menu(), $addCalls);
-        $type     = new MenuType([], ['menu' => ['nav flex-column', 'nav flex-row']]);
-        $type->buildForm($builder, []);
-
-        $classMenuOptions = $this->findAddCall($addCalls, 'classMenu');
-        self::assertNotNull($classMenuOptions);
-        self::assertSame(\Symfony\Component\Form\Extension\Core\Type\ChoiceType::class, $classMenuOptions['type']);
-    }
-
-    public function testBuildFormWithEmptyCssClassOptionsUsesTextType(): void
-    {
-        $addCalls = [];
-        $builder  = $this->createFormBuilderMock(new Menu(), $addCalls);
-        $type     = new MenuType([], []);
-        $type->buildForm($builder, []);
-
-        $classMenuOptions = $this->findAddCall($addCalls, 'classMenu');
-        self::assertNotNull($classMenuOptions);
-        self::assertSame(\Symfony\Component\Form\Extension\Core\Type\TextType::class, $classMenuOptions['type']);
-    }
-
-    public function testBuildFormWithCurrentCssNotInOptionsAddsCurrentChoice(): void
-    {
-        $menu = new Menu();
         $menu->setClassMenu('custom-nav');
 
         $addCalls = [];
-        $builder  = $this->createFormBuilderMock($menu, $addCalls);
-        $type     = new MenuType([], ['menu' => ['nav flex-column']]);
+        $builder  = $this->createFormBuilderMock($addCalls, $menu);
+
+        $type = new MenuConfigType(
+            permissionCheckerChoices: ['allow_all' => 'Allow all'],
+            cssClassOptions: [
+                'menu' => ['nav flex-column'],
+            ],
+            translator: null
+        );
+
         $type->buildForm($builder, []);
 
-        $classMenuOptions = $this->findAddCall($addCalls, 'classMenu');
-        self::assertNotNull($classMenuOptions);
-        self::assertArrayHasKey('custom-nav', $classMenuOptions['choices']);
-        self::assertSame('custom-nav (current)', $classMenuOptions['choices']['custom-nav']);
+        $permissionChecker = $this->findAddCall($addCalls, 'permissionChecker');
+        self::assertSame(ChoiceType::class, $permissionChecker['type']);
+        self::assertArrayHasKey('custom_checker', $permissionChecker['choices'] ?? []);
+        self::assertSame('custom_checker (current)', $permissionChecker['choices']['custom_checker']);
+
+        $classMenu = $this->findAddCall($addCalls, 'classMenu');
+        self::assertSame(ChoiceType::class, $classMenu['type']);
+        self::assertArrayHasKey('custom-nav', $classMenu['choices'] ?? []);
+        self::assertSame('custom-nav (current)', $classMenu['choices']['custom-nav']);
     }
 
-    private function createFormBuilderMock(?object $data, array &$addCalls): FormBuilderInterface
+    public function testMenuConfigTypeConfigureOptionsSetsDefaultsAndTranslationDomain(): void
     {
+        $resolver = new OptionsResolver();
+        $type     = new MenuConfigType(
+            permissionCheckerChoices: [],
+            cssClassOptions: [],
+            translator: null
+        );
+
+        $type->configureOptions($resolver);
+
+        $options = $resolver->resolve([]);
+        self::assertSame(Menu::class, $options['data_class']);
+        self::assertSame(NowoDashboardMenuBundle::TRANSLATION_DOMAIN, $options['translation_domain']);
+    }
+
+    public function testMenuDefinitionTypeConfigureOptionsSetsDefaultsAndTranslationDomain(): void
+    {
+        $resolver = new OptionsResolver();
+        $type     = new MenuDefinitionType(translator: null);
+
+        $type->configureOptions($resolver);
+
+        $options = $resolver->resolve([]);
+        self::assertSame(Menu::class, $options['data_class']);
+        self::assertSame(NowoDashboardMenuBundle::TRANSLATION_DOMAIN, $options['translation_domain']);
+    }
+
+    public function testMenuConfigTypeUlIdFieldUsesChoiceTypeAndAddsCurrentWhenOptionsPresent(): void
+    {
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(static function (mixed $id, array $parameters = [], ?string $domain = null): string {
+            return (string) $id . '_translated';
+        });
+
+        $menu = new Menu();
+        $menu->setUlId('my-ul');
+
+        $addCalls = [];
+        $builder  = $this->createFormBuilderMock($addCalls, $menu);
+
+        $type = new MenuConfigType(
+            permissionCheckerChoices: [],
+            cssClassOptions: [],
+            ulIdOptions: ['a' => 'a', 'b' => 'b'],
+            translator: $translator
+        );
+
+        $type->buildForm($builder, []);
+
+        $ulId = $this->findAddCall($addCalls, 'ulId');
+        self::assertNotNull($ulId);
+        self::assertSame(ChoiceType::class, $ulId['type']);
+        self::assertArrayHasKey('my-ul', $ulId['choices'] ?? []);
+        self::assertSame('my-ul (current)', $ulId['choices']['my-ul'] ?? null);
+
+        self::assertSame(false, $ulId['choice_translation_domain'] ?? null);
+    }
+
+    public function testMenuConfigTypeUlIdFieldUsesTextTypeAndTranslatesPlaceholderWhenOptionsEmpty(): void
+    {
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturn('ul_id_placeholder_translated');
+
+        $addCalls = [];
+        $builder  = $this->createFormBuilderMock($addCalls, new Menu());
+
+        $type = new MenuConfigType(
+            permissionCheckerChoices: [],
+            cssClassOptions: [],
+            ulIdOptions: [],
+            translator: $translator
+        );
+
+        $type->buildForm($builder, []);
+
+        $ulId = $this->findAddCall($addCalls, 'ulId');
+        self::assertNotNull($ulId);
+        self::assertSame(TextType::class, $ulId['type']);
+        self::assertSame('ul_id_placeholder_translated', $ulId['attr']['placeholder'] ?? null);
+    }
+
+    public function testMenuConfigTypeUlIdFieldPlaceholderFallsBackToEmptyKeyWhenNoTranslator(): void
+    {
+        $menu = new Menu();
+        $menu->setUlId('my-ul');
+
+        $addCalls = [];
+        $builder  = $this->createFormBuilderMock($addCalls, $menu);
+
+        $type = new MenuConfigType(
+            permissionCheckerChoices: [],
+            cssClassOptions: [],
+            ulIdOptions: ['a' => 'a', 'b' => 'b'],
+            translator: null
+        );
+
+        $type->buildForm($builder, []);
+
+        $ulId = $this->findAddCall($addCalls, 'ulId');
+        self::assertNotNull($ulId);
+        self::assertSame(ChoiceType::class, $ulId['type']);
+        self::assertSame('form.menu_type.empty_choice', $ulId['placeholder'] ?? null);
+    }
+
+    private function createFormBuilderMock(
+        array &$addCalls,
+        mixed $data = null,
+        ?string $getKey = null,
+        ?FormBuilderInterface $returnForm = null
+    ): FormBuilderInterface {
         $builder = $this->createMock(FormBuilderInterface::class);
         $builder->method('getData')->willReturn($data);
-        $builder->method('add')->willReturnCallback(static function (string $name, $type, array $options = []) use (&$addCalls, $builder): \PHPUnit\Framework\MockObject\MockObject {
+        $builder->method('add')->willReturnCallback(static function (string $name, $type, array $options = []) use (&$addCalls, $builder): FormBuilderInterface {
             $addCalls[] = ['name' => $name, 'type' => $type, 'options' => $options];
-
             return $builder;
         });
-        $contextBuilder = $this->createMock(FormBuilderInterface::class);
-        $contextBuilder->method('addModelTransformer')->willReturnSelf();
-        $builder->method('get')->with('context')->willReturn($contextBuilder);
+
+        if ($getKey !== null && $returnForm instanceof FormBuilderInterface) {
+            $builder->method('get')->with($getKey)->willReturn($returnForm);
+        }
 
         return $builder;
     }
@@ -133,7 +254,7 @@ final class MenuTypeTest extends TestCase
     private function findAddCall(array $addCalls, string $name): ?array
     {
         foreach ($addCalls as $call) {
-            if ($call['name'] === $name) {
+            if (($call['name'] ?? null) === $name) {
                 return array_merge(['type' => $call['type']], $call['options']);
             }
         }
@@ -141,3 +262,4 @@ final class MenuTypeTest extends TestCase
         return null;
     }
 }
+

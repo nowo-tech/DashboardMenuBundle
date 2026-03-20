@@ -118,6 +118,9 @@ form:
     class_menu:
       label: "Class menu (root <ul>)"
       placeholder: "e.g. nav flex-column"
+    ul_id:
+      label: "Ul id (root <ul>)"
+      placeholder: "e.g. main-menu-navigation"
     class_item:
       label: "Class item (<li>)"
       placeholder: "e.g. nav-item"

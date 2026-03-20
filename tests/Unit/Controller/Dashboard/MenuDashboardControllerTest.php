@@ -22,10 +22,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 use function in_array;
 
@@ -153,6 +156,28 @@ final class MenuDashboardControllerTest extends TestCase
         $controller = $this->createController(routeNameExcludePatterns: ['#^_#', '#^web_profiler#']);
         self::assertTrue($this->invokePrivate($controller, 'isRouteNameExcluded', ['_internal']));
         self::assertTrue($this->invokePrivate($controller, 'isRouteNameExcluded', ['web_profiler_main']));
+    }
+
+    public function testIsRouteNameExcludedSupportsUndelimitedRegexSnippets(): void
+    {
+        // Demo configs use regex "snippets" without delimiters (e.g. "^_" instead of "#^_#").
+        $controller = $this->createController(routeNameExcludePatterns: ['^_', '^web_profiler']);
+        self::assertTrue($this->invokePrivate($controller, 'isRouteNameExcluded', ['_internal']));
+        self::assertTrue($this->invokePrivate($controller, 'isRouteNameExcluded', ['web_profiler_main']));
+    }
+
+    public function testIsRouteNameExcludedSkipsEmptyPatterns(): void
+    {
+        $controller = $this->createController(routeNameExcludePatterns: ['   ']);
+        self::assertFalse($this->invokePrivate($controller, 'isRouteNameExcluded', ['_internal']));
+    }
+
+    public function testIsRouteNameExcludedContinuesWhenDelimitedPatternIsInvalid(): void
+    {
+        // Hits the "$isDelimited => continue" branch when preg_match($p, ...) fails.
+        // Use an invalid delimited regex (starts/ends with "#", but content is invalid).
+        $controller = $this->createController(routeNameExcludePatterns: ['#[a-#']);
+        self::assertFalse($this->invokePrivate($controller, 'isRouteNameExcluded', ['_internal']));
     }
 
     public function testIsRouteNameExcludedReturnsFalseWhenNoPatternMatches(): void
@@ -1112,6 +1137,10 @@ final class MenuDashboardControllerTest extends TestCase
 
         self::assertSame('application/json', $response->headers->get('Content-Type'));
         self::assertStringContainsString('attachment', (string) $response->headers->get('Content-Disposition'));
+        ob_start();
+        $response->sendContent();
+        $content = ob_get_clean();
+        self::assertIsString($content);
     }
 
     public function testExportMenuReturnsJsonStreamWithSafeFilename(): void
@@ -1134,6 +1163,528 @@ final class MenuDashboardControllerTest extends TestCase
 
         self::assertSame('application/json', $response->headers->get('Content-Type'));
         self::assertStringContainsString('menu-weird_code_-export.json', (string) $response->headers->get('Content-Disposition'));
+        ob_start();
+        $response->sendContent();
+        $content = ob_get_clean();
+        self::assertIsString($content);
+    }
+
+    public function testIndexAddsMenuIdsWhenMenuIdNotNull(): void
+    {
+        $menu = new Menu();
+        $ref  = new ReflectionProperty(Menu::class, 'id');
+        $ref->setAccessible(true);
+        $ref->setValue($menu, 10);
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('countForDashboard')->willReturn(0);
+        $menuRepo->method('findForDashboard')->willReturn([$menu]);
+
+        $controller = $this->createController(menuRepository: $menuRepo, paginationEnabled: true);
+        $this->setControllerContainer($controller);
+
+        $response = $controller->index(Request::create('/'));
+        self::assertInstanceOf(Response::class, $response);
+    }
+
+    public function testItemMoveUpThrowsWhenCsrfInvalid(): void
+    {
+        $controller = $this->createController();
+        $this->setControllerContainer($controller);
+
+        $request = Request::create('/', 'POST');
+        $request->request->set('_token', 'bad');
+
+        $this->expectException(AccessDeniedException::class);
+        $controller->itemMoveUp($request, 1, 10);
+    }
+
+    public function testItemMoveDownThrowsWhenCsrfInvalid(): void
+    {
+        $controller = $this->createController();
+        $this->setControllerContainer($controller);
+
+        $request = Request::create('/', 'POST');
+        $request->request->set('_token', 'bad');
+
+        $this->expectException(AccessDeniedException::class);
+        $controller->itemMoveDown($request, 1, 10);
+    }
+
+    public function testDeleteMenuThrowsWhenCsrfInvalid(): void
+    {
+        $controller = $this->createController();
+        $this->setControllerContainer($controller);
+
+        $request = Request::create('/', 'POST');
+        $request->request->set('_token', 'bad');
+
+        $this->expectException(AccessDeniedException::class);
+        $controller->deleteMenu($request, 1);
+    }
+
+    public function testDeleteItemThrowsWhenCsrfInvalid(): void
+    {
+        $controller = $this->createController();
+        $this->setControllerContainer($controller);
+
+        $request = Request::create('/', 'POST');
+        $request->request->set('_token', 'bad');
+
+        $this->expectException(AccessDeniedException::class);
+        $controller->deleteItem($request, 1, 5);
+    }
+
+    public function testExportMenuThrowsWhenMenuNotFound(): void
+    {
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findOneById')->willReturn(null);
+
+        $controller = $this->createController(menuRepository: $menuRepo);
+        $this->setControllerContainer($controller);
+
+        $this->expectException(\Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class);
+        $controller->exportMenu(Request::create('/export'), 123);
+    }
+
+    public function testImportRendersPartialWhenFileTooLarge(): void
+    {
+        $tmpPath = tempnam(sys_get_temp_dir(), 'dmb');
+        file_put_contents($tmpPath, '12345');
+        $uploaded = new UploadedFile($tmpPath, 'menu.json', 'application/json', null, true);
+
+        $form = $this->createMock(FormInterface::class);
+        $form->method('handleRequest')->willReturnSelf();
+        $form->method('isSubmitted')->willReturn(true);
+        $form->method('isValid')->willReturn(true);
+        $form->method('getData')->willReturn([
+            'file'     => $uploaded,
+            'strategy' => \Nowo\DashboardMenuBundle\Service\MenuImporter::STRATEGY_SKIP_EXISTING,
+        ]);
+
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(static fn (string $id, array $params = [], ?string $domain = null, ?string $locale = null): string => $id);
+
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $menuImporter = new MenuImporter($menuRepo, $em);
+        $controller   = $this->createController(
+            translator: $translator,
+            menuImporter: $menuImporter,
+            importMaxBytes: 1,
+        );
+        $this->setControllerContainer($controller, $form);
+
+        $request = Request::create('/dashboard/menu/import', 'POST', []);
+        $request->query->set('_partial', '1');
+
+        $response = $controller->import($request);
+        self::assertInstanceOf(Response::class, $response);
+    }
+
+    public function testImportRendersPartialWhenJsonDecodingThrows(): void
+    {
+        $tmpPath = tempnam(sys_get_temp_dir(), 'dmb');
+        file_put_contents($tmpPath, '{ invalid json');
+        $uploaded = new UploadedFile($tmpPath, 'menu.json', 'application/json', null, true);
+
+        $form = $this->createMock(FormInterface::class);
+        $form->method('handleRequest')->willReturnSelf();
+        $form->method('isSubmitted')->willReturn(true);
+        $form->method('isValid')->willReturn(true);
+        $form->method('getData')->willReturn([
+            'file'     => $uploaded,
+            'strategy' => \Nowo\DashboardMenuBundle\Service\MenuImporter::STRATEGY_SKIP_EXISTING,
+        ]);
+
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(static fn (string $id, array $params = [], ?string $domain = null, ?string $locale = null): string => $id);
+
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $menuImporter = new MenuImporter($menuRepo, $em);
+        $controller   = $this->createController(
+            translator: $translator,
+            menuImporter: $menuImporter,
+            importMaxBytes: 1024,
+        );
+        $this->setControllerContainer($controller, $form);
+
+        $request = Request::create('/dashboard/menu/import', 'POST', []);
+        $request->query->set('_partial', '1');
+
+        $response = $controller->import($request);
+        self::assertInstanceOf(Response::class, $response);
+    }
+
+    public function testImportRendersFullWhenDecodedIsNotArray(): void
+    {
+        $tmpPath = tempnam(sys_get_temp_dir(), 'dmb');
+        file_put_contents($tmpPath, 'null');
+        $uploaded = new UploadedFile($tmpPath, 'menu.json', 'application/json', null, true);
+
+        $form = $this->createMock(FormInterface::class);
+        $form->method('handleRequest')->willReturnSelf();
+        $form->method('isSubmitted')->willReturn(true);
+        $form->method('isValid')->willReturn(true);
+        $form->method('getData')->willReturn([
+            'file'     => $uploaded,
+            'strategy' => \Nowo\DashboardMenuBundle\Service\MenuImporter::STRATEGY_SKIP_EXISTING,
+        ]);
+
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(static fn (string $id, array $params = [], ?string $domain = null, ?string $locale = null): string => $id);
+
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $menuImporter = new MenuImporter($menuRepo, $em);
+
+        $controller = $this->createController(
+            translator: $translator,
+            menuImporter: $menuImporter,
+            importMaxBytes: 1024,
+        );
+        $this->setControllerContainer($controller, $form);
+
+        $request = Request::create('/dashboard/menu/import', 'POST', []);
+        $response = $controller->import($request);
+
+        self::assertInstanceOf(Response::class, $response);
+    }
+
+    public function testImportRendersFullWhenImporterReturnsErrors(): void
+    {
+        $tmpPath = tempnam(sys_get_temp_dir(), 'dmb');
+        file_put_contents($tmpPath, '[]');
+        $uploaded = new UploadedFile($tmpPath, 'menu.json', 'application/json', null, true);
+
+        $form = $this->createMock(FormInterface::class);
+        $form->method('handleRequest')->willReturnSelf();
+        $form->method('isSubmitted')->willReturn(true);
+        $form->method('isValid')->willReturn(true);
+        $form->method('getData')->willReturn([
+            'file'     => $uploaded,
+            'strategy' => \Nowo\DashboardMenuBundle\Service\MenuImporter::STRATEGY_SKIP_EXISTING,
+        ]);
+
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(static fn (string $id, array $params = [], ?string $domain = null, ?string $locale = null): string => $id);
+
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $menuImporter = new MenuImporter($menuRepo, $em);
+
+        $controller = $this->createController(
+            translator: $translator,
+            menuImporter: $menuImporter,
+            importMaxBytes: 1024,
+        );
+        $this->setControllerContainer($controller, $form);
+
+        $request = Request::create('/dashboard/menu/import', 'POST', []);
+        $response = $controller->import($request);
+
+        self::assertInstanceOf(Response::class, $response);
+    }
+
+    public function testImportRedirectsWhenImporterReturnsNoErrors(): void
+    {
+        $tmpPath = tempnam(sys_get_temp_dir(), 'dmb');
+        file_put_contents($tmpPath, '{"menu":{"code":"m","context":null},"items":[]}');
+        $uploaded = new UploadedFile($tmpPath, 'menu.json', 'application/json', null, true);
+
+        $form = $this->createMock(FormInterface::class);
+        $form->method('handleRequest')->willReturnSelf();
+        $form->method('isSubmitted')->willReturn(true);
+        $form->method('isValid')->willReturn(true);
+        $form->method('getData')->willReturn([
+            'file'     => $uploaded,
+            'strategy' => \Nowo\DashboardMenuBundle\Service\MenuImporter::STRATEGY_SKIP_EXISTING,
+        ]);
+
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(static fn (string $id, array $params = [], ?string $domain = null, ?string $locale = null): string => $id);
+
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $menuImporter = new MenuImporter($menuRepo, $em);
+
+        $controller = $this->createController(
+            translator: $translator,
+            menuImporter: $menuImporter,
+            importMaxBytes: 1024,
+        );
+        $this->setControllerContainer($controller, $form);
+
+        $request = Request::create('/dashboard/menu/import', 'POST', []);
+        $request->headers->set('Referer', 'http://localhost/');
+
+        $response = $controller->import($request);
+        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
+    }
+
+    public function testImportRendersWhenFormSubmittedInvalid(): void
+    {
+        $form = $this->createMock(FormInterface::class);
+        $form->method('handleRequest')->willReturnSelf();
+        $form->method('isSubmitted')->willReturn(true);
+        $form->method('isValid')->willReturn(false);
+
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(static fn (string $id, array $params = [], ?string $domain = null, ?string $locale = null): string => $id);
+
+        $controller = $this->createController(translator: $translator);
+        $this->setControllerContainer($controller, $form);
+
+        $request  = Request::create('/dashboard/menu/import', 'POST', []);
+        $response = $controller->import($request);
+
+        self::assertInstanceOf(Response::class, $response);
+    }
+
+    public function testNewItemRendersLiveComponentPartialWhenEnabledAndPartialRequested(): void
+    {
+        $menu = new Menu();
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findOneById')->willReturn($menu);
+
+        $controller = $this->createController(menuRepository: $menuRepo, itemFormLiveComponentEnabled: true);
+        $this->setControllerContainer($controller);
+
+        $request = Request::create('/dashboard/menu/1/item/new', 'GET', []);
+        $request->query->set('_partial', '1');
+        $request->setLocale('en');
+
+        $response = $controller->newItem($request, 1);
+        self::assertInstanceOf(Response::class, $response);
+    }
+
+    public function testNewItemClearsDividerFieldsOnSave(): void
+    {
+        $menu = new Menu();
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findOneById')->willReturn($menu);
+
+        $controller = $this->createController(menuRepository: $menuRepo, itemFormLiveComponentEnabled: false);
+
+        $this->setControllerContainerWithDynamicFormFactory($controller, function (string $type, mixed $data, array $options): FormInterface {
+            if ($data instanceof MenuItem) {
+                $data->setItemType(MenuItem::ITEM_TYPE_DIVIDER);
+                $data->setLabel('X');
+                $data->setIcon('i');
+                $data->setTranslations(['en' => 'Y']);
+            }
+
+            $form = $this->createMock(FormInterface::class);
+            $form->method('handleRequest')->willReturnSelf();
+            $form->method('isSubmitted')->willReturn(true);
+            $form->method('isValid')->willReturn(true);
+
+            return $form;
+        });
+
+        $request = Request::create('/dashboard/menu/1/item/new', 'POST', []);
+        $response = $controller->newItem($request, 1);
+
+        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
+    }
+
+    public function testEditItemRendersLiveComponentPartialWhenEnabledAndPartialRequested(): void
+    {
+        $menu = new Menu();
+        $item = new MenuItem();
+        $item->setMenu($menu);
+
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findOneById')->willReturn($menu);
+        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo->method('find')->willReturn($item);
+
+        $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, itemFormLiveComponentEnabled: true);
+        $this->setControllerContainer($controller);
+
+        $request = Request::create('/dashboard/menu/1/item/10/edit', 'GET', []);
+        $request->query->set('_partial', '1');
+        $request->setLocale('en');
+
+        $response = $controller->editItem($request, 1, 10);
+        self::assertInstanceOf(Response::class, $response);
+    }
+
+    public function testEditItemClearsDividerFieldsAndResetsParent(): void
+    {
+        $menu = new Menu();
+
+        $parent = new MenuItem();
+        $parent->setMenu($menu);
+
+        $item = new MenuItem();
+        $item->setMenu($menu);
+        $item->setParent($parent);
+        $item->setItemType(MenuItem::ITEM_TYPE_DIVIDER);
+        $item->setLabel('X');
+        $item->setIcon('i');
+        $item->setTranslations(['en' => 'Y']);
+
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findOneById')->willReturn($menu);
+        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo->method('find')->willReturn($item);
+
+        $form = $this->createMock(FormInterface::class);
+        $form->method('handleRequest')->willReturnSelf();
+        $form->method('isSubmitted')->willReturn(true);
+        $form->method('isValid')->willReturn(true);
+
+        $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
+        $this->setControllerContainer($controller, $form);
+
+        $request  = Request::create('/dashboard/menu/1/item/10/edit', 'POST', []);
+        $response = $controller->editItem($request, 1, 10);
+
+        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
+        self::assertNull($item->getParent());
+        self::assertSame('', $item->getLabel());
+        self::assertNull($item->getIcon());
+        self::assertNull($item->getTranslations());
+    }
+
+    public function testEditItemResetsLinkFieldsWhenLinkHasChildren(): void
+    {
+        $menu = new Menu();
+
+        $item = new MenuItem();
+        $item->setMenu($menu);
+        $item->setItemType(MenuItem::ITEM_TYPE_LINK);
+        $item->setLinkType(MenuItem::LINK_TYPE_ROUTE);
+        $item->setRouteName('app_home');
+        $item->setRouteParams(['tab' => '1']);
+        $item->setExternalUrl('https://example.com');
+        $item->getChildren()->add(new MenuItem());
+
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findOneById')->willReturn($menu);
+        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo->method('find')->willReturn($item);
+
+        $form = $this->createMock(FormInterface::class);
+        $form->method('handleRequest')->willReturnSelf();
+        $form->method('isSubmitted')->willReturn(true);
+        $form->method('isValid')->willReturn(true);
+
+        $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
+        $this->setControllerContainer($controller, $form);
+
+        $request  = Request::create('/dashboard/menu/1/item/10/edit', 'POST', []);
+        $response = $controller->editItem($request, 1, 10);
+
+        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
+        self::assertNull($item->getLinkType());
+        self::assertNull($item->getRouteName());
+        self::assertNull($item->getRouteParams());
+        self::assertNull($item->getExternalUrl());
+    }
+
+    public function testGetRateLimitKeyUsesUserIdentifierWhenUserIsAvailable(): void
+    {
+        $controller = $this->createController();
+
+        $user = $this->createMock(UserInterface::class);
+        $user->method('getUserIdentifier')->willReturn('user-1');
+
+        $token = $this->createMock(\Symfony\Component\Security\Core\Authentication\Token\TokenInterface::class);
+        $token->method('getUser')->willReturn($user);
+
+        $tokenStorage = $this->createMock(\Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface::class);
+        $tokenStorage->method('getToken')->willReturn($token);
+
+        $router = $this->createStub(RouterInterface::class);
+        $router->method('getRouteCollection')->willReturn(new RouteCollection());
+        $router->method('generate')->willReturn('/generated');
+
+        $formFactory = $this->createStub(FormFactoryInterface::class);
+        $formFactory->method('create')->willReturn($this->createDefaultFormStub());
+
+        $session = new Session();
+        $twig    = $this->createStub(\Twig\Environment::class);
+        $twig->method('render')->willReturn('<html></html>');
+
+        $requestStack = new RequestStack();
+        $request      = Request::create('/');
+        $request->setSession($session);
+        $requestStack->push($request);
+
+        $csrfManager = $this->createStub(\Symfony\Component\Security\Csrf\CsrfTokenManagerInterface::class);
+        $csrfManager->method('isTokenValid')->willReturnCallback(static function (\Symfony\Component\Security\Csrf\CsrfToken $token): bool {
+            return $token->getValue() === 'test-csrf-token';
+        });
+
+        $container = new class(
+            $router,
+            $formFactory,
+            $session,
+            $twig,
+            $requestStack,
+            $csrfManager,
+            $tokenStorage,
+        ) implements \Psr\Container\ContainerInterface {
+            public function __construct(
+                private readonly RouterInterface $router,
+                private readonly FormFactoryInterface $formFactory,
+                private readonly Session $session,
+                private readonly \Twig\Environment $twig,
+                private readonly RequestStack $requestStack,
+                private readonly \Symfony\Component\Security\Csrf\CsrfTokenManagerInterface $csrfTokenManager,
+                private readonly \Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface $tokenStorage,
+            ) {
+            }
+
+            public function get(string $id): mixed
+            {
+                return match ($id) {
+                    'router'                      => $this->router,
+                    'form.factory'                => $this->formFactory,
+                    'session'                     => $this->session,
+                    'twig'                        => $this->twig,
+                    'request_stack'               => $this->requestStack,
+                    'security.csrf.token_manager' => $this->csrfTokenManager,
+                    'security.token_storage'       => $this->tokenStorage,
+                    default                       => throw new \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException($id),
+                };
+            }
+
+            public function has(string $id): bool
+            {
+                return in_array($id, ['router', 'form.factory', 'session', 'twig', 'request_stack', 'security.csrf.token_manager', 'security.token_storage'], true);
+            }
+        };
+
+        $controller->setContainer($container);
+
+        $key = $this->invokePrivate($controller, 'getRateLimitKey', [$request]);
+        self::assertSame('user:user-1', $key);
+    }
+
+    public function testRedirectToRefererOrRedirectsSameOriginWithFragment(): void
+    {
+        $controller = $this->createController();
+        $this->setControllerContainer($controller);
+
+        $request = Request::create('http://example.com/somewhere', 'GET');
+        $request->headers->set('Referer', 'http://example.com/target#old');
+
+        $redirect = $this->invokePrivate(
+            $controller,
+            'redirectToRefererOr',
+            [$request, MenuDashboardController::ROUTE_INDEX, [], 'manual']
+        );
+
+        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $redirect);
+        self::assertSame('http://example.com/target#manual', $redirect->getTargetUrl());
     }
 
     private function createController(
@@ -1150,8 +1701,10 @@ final class MenuDashboardControllerTest extends TestCase
         int $paginationPerPage = 20,
         array $modalSizes = [],
         ?string $iconSelectorScriptUrl = null,
+        ?string $stimulusScriptUrl = null,
         int $importMaxBytes = 2_097_152,
         ?ImportExportRateLimiter $importExportRateLimiter = null,
+        bool $itemFormLiveComponentEnabled = false,
     ): MenuDashboardController {
         $menuRepo    = $menuRepository ?? $this->createStub(MenuRepository::class);
         $itemRepo    = $menuItemRepository ?? $this->createStub(MenuItemRepository::class);
@@ -1174,8 +1727,10 @@ final class MenuDashboardControllerTest extends TestCase
             $paginationPerPage,
             $modalSizes,
             $iconSelectorScriptUrl,
+            $stimulusScriptUrl,
             $importMaxBytes,
             $rateLimiter,
+            $itemFormLiveComponentEnabled,
         );
     }
 
@@ -1200,7 +1755,68 @@ final class MenuDashboardControllerTest extends TestCase
         $requestStack->push($request);
 
         $csrfManager = $this->createStub(\Symfony\Component\Security\Csrf\CsrfTokenManagerInterface::class);
-        $csrfManager->method('isTokenValid')->willReturn(true);
+        $csrfManager->method('isTokenValid')->willReturnCallback(static function (\Symfony\Component\Security\Csrf\CsrfToken $token): bool {
+            return $token->getValue() === 'test-csrf-token';
+        });
+
+        $container = new class($router, $formFactory, $session, $twig, $requestStack, $csrfManager) implements \Psr\Container\ContainerInterface {
+            public function __construct(
+                private readonly RouterInterface $router,
+                private readonly FormFactoryInterface $formFactory,
+                private readonly Session $session,
+                private readonly \Twig\Environment $twig,
+                private readonly RequestStack $requestStack,
+                private readonly \Symfony\Component\Security\Csrf\CsrfTokenManagerInterface $csrfTokenManager,
+            ) {
+            }
+
+            public function get(string $id): mixed
+            {
+                return match ($id) {
+                    'router'                      => $this->router,
+                    'form.factory'                => $this->formFactory,
+                    'session'                     => $this->session,
+                    'twig'                        => $this->twig,
+                    'request_stack'               => $this->requestStack,
+                    'security.csrf.token_manager' => $this->csrfTokenManager,
+                    default                       => throw new \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException($id),
+                };
+            }
+
+            public function has(string $id): bool
+            {
+                return in_array($id, ['router', 'form.factory', 'session', 'twig', 'request_stack', 'security.csrf.token_manager'], true);
+            }
+        };
+
+        $controller->setContainer($container);
+    }
+
+    private function setControllerContainerWithDynamicFormFactory(MenuDashboardController $controller, callable $createFormCallback): void
+    {
+        $router = $this->createStub(RouterInterface::class);
+        $router->method('getRouteCollection')->willReturn(new RouteCollection());
+        $router->method('generate')->willReturn('/generated');
+
+        $formFactory = $this->createStub(FormFactoryInterface::class);
+        $formFactory->method('create')->willReturnCallback(static function (string $type, mixed $data = null, array $options = []) use ($createFormCallback): FormInterface {
+            return $createFormCallback($type, $data, $options);
+        });
+
+        $session = new Session();
+
+        $twig = $this->createStub(\Twig\Environment::class);
+        $twig->method('render')->willReturn('<html></html>');
+
+        $requestStack = new RequestStack();
+        $request      = Request::create('/');
+        $request->setSession($session);
+        $requestStack->push($request);
+
+        $csrfManager = $this->createStub(\Symfony\Component\Security\Csrf\CsrfTokenManagerInterface::class);
+        $csrfManager->method('isTokenValid')->willReturnCallback(static function (\Symfony\Component\Security\Csrf\CsrfToken $token): bool {
+            return $token->getValue() === 'test-csrf-token';
+        });
 
         $container = new class($router, $formFactory, $session, $twig, $requestStack, $csrfManager) implements \Psr\Container\ContainerInterface {
             public function __construct(

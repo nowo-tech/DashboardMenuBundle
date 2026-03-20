@@ -84,6 +84,7 @@ final class MenuExtensionTest extends TestCase
         $extension = $this->createExtension(configResolver: $configResolver, requestStack: $requestStack);
         $config    = $extension->getMenuConfig('sidebar');
         self::assertArrayHasKey('classes', $config);
+        self::assertArrayHasKey('ul_id', $config);
         self::assertArrayHasKey('depth_limit', $config);
         self::assertArrayHasKey('menu_name', $config);
     }
@@ -118,6 +119,7 @@ final class MenuExtensionTest extends TestCase
         $extension = $this->createExtension(configResolver: $configResolver, requestStack: $stack);
         $config    = $extension->getMenuConfig('sidebar', [null, []]);
         self::assertArrayHasKey('classes', $config);
+        self::assertArrayHasKey('ul_id', $config);
         self::assertArrayHasKey('depth_limit', $config);
     }
 

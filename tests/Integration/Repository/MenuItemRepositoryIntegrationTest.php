@@ -197,4 +197,40 @@ final class MenuItemRepositoryIntegrationTest extends KernelTestCase
         $result = $qb->getQuery()->getResult();
         self::assertCount(0, $result);
     }
+
+    public function testCountForMenusReturnsCountsByMenuId(): void
+    {
+        $menuA = new Menu();
+        $menuA->setCode('count_a');
+        $this->entityManager->persist($menuA);
+
+        $menuB = new Menu();
+        $menuB->setCode('count_b');
+        $this->entityManager->persist($menuB);
+        $this->entityManager->flush();
+
+        $a1 = new MenuItem();
+        $a1->setMenu($menuA);
+        $this->entityManager->persist($a1);
+
+        $a2 = new MenuItem();
+        $a2->setMenu($menuA);
+        $this->entityManager->persist($a2);
+
+        $b1 = new MenuItem();
+        $b1->setMenu($menuB);
+        $this->entityManager->persist($b1);
+
+        $this->entityManager->flush();
+
+        $result = $this->repository->countForMenus([$menuA->getId(), $menuB->getId()]);
+
+        self::assertSame(2, $result[$menuA->getId()] ?? null);
+        self::assertSame(1, $result[$menuB->getId()] ?? null);
+    }
+
+    public function testCountForMenusWithEmptyInputReturnsEmptyArray(): void
+    {
+        self::assertSame([], $this->repository->countForMenus([]));
+    }
 }

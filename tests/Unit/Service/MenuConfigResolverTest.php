@@ -79,6 +79,7 @@ final class MenuConfigResolverTest extends TestCase
         $menu->setClassItem('li-item');
         $menu->setClassLink('a-link');
         $menu->setClassChildren('nav flex-column ms-2');
+        $menu->setClassSectionLabel('section-override');
         $menu->setClassCurrent('is-current');
         $menu->setClassBranchExpanded('branch-open');
         $menu->setClassHasChildren('has-children');
@@ -111,7 +112,7 @@ final class MenuConfigResolverTest extends TestCase
                 'item'                  => 'li-item',
                 'link'                  => 'a-link',
                 'children'              => 'nav flex-column ms-2',
-                'section_label'         => 'menu-section-label',
+                'section_label'         => 'section-override',
                 'class_current'         => 'is-current',
                 'class_branch_expanded' => 'branch-open',
                 'class_has_children'    => 'has-children',

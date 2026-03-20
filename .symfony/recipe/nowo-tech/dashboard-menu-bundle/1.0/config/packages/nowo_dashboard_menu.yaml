@@ -49,9 +49,18 @@ nowo_dashboard_menu:
 
         # URL prefix is set in config/routes_nowo_dashboard_menu.yaml (import it from config/routes.yaml).
 
-        # Regex patterns to hide routes from the "Route" selector when editing menu items.
+        # Patterns to hide routes from the "Route" selector when editing menu items.
+        # Examples of excluded route names:
+        # - `_profiler`, `_wdt`, `_error` (matches `^_`)
+        # - `web_profiler_main`, `web_profiler_index` (matches `^web_profiler`)
+        # Example of a kept route name:
+        # - `app_home` (does not match the patterns)
         # route_name_exclude_patterns: []
-        # route_name_exclude_patterns: ['^_', '^web_profiler']
+        # route_name_exclude_patterns: ['^_', '^web_profiler']  # raw snippets (delimiters optional)
+        # route_name_exclude_patterns: ['#^_#', '/^web_profiler/']  # PCRE with delimiters
+        route_name_exclude_patterns: 
+            - '^_'
+            - '^web_profiler'
 
         # Pagination for the menus list in the dashboard.
         pagination:
@@ -64,6 +73,9 @@ nowo_dashboard_menu:
         #     copy: normal
         #     item_form: lg
         #     delete: normal
+
+        id_options:
+            - 'main-menu-navigation'
 
         # CSS class options: choices shown as dropdowns when editing a menu. Override to customize.
         # css_class_options:

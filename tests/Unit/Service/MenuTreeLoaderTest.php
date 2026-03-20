@@ -223,6 +223,47 @@ class MenuTreeLoaderTest extends TestCase
         self::assertSame($root, $tree[0]['item']);
     }
 
+    public function testHydrateItemsFromRowsSetsLinkTypeNullWhenRowHasNullLinkType(): void
+    {
+        $menu = new Menu();
+
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $itemRepo = $this->createStub(MenuItemRepository::class);
+
+        $resolver = new MenuConfigResolver(['project' => null], $menuRepo);
+        $container = $this->createStub(ContainerInterface::class);
+        $iconResolver = new MenuIconNameResolver([]);
+
+        $loader = new MenuTreeLoader(
+            $menuRepo,
+            $itemRepo,
+            $resolver,
+            $iconResolver,
+            $container,
+            new AllowAllMenuPermissionChecker(),
+            null,
+            60,
+        );
+
+        $rows = [
+            [
+                'position'  => 0,
+                'label'     => 'Root',
+                'link_type' => null,
+            ],
+        ];
+
+        $ref = new \ReflectionClass(MenuTreeLoader::class);
+        $m   = $ref->getMethod('hydrateItemsFromRows');
+        $m->setAccessible(true);
+
+        /** @var list<MenuItem> $items */
+        $items = $m->invoke($loader, $rows, $menu, 'en');
+
+        self::assertCount(1, $items);
+        self::assertNull($items[0]->getLinkType());
+    }
+
     public function testLoadTreePromotesToRootWhenParentIsNotInMap(): void
     {
         $menu = new Menu();

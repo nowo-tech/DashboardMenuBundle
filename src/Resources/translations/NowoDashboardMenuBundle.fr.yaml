@@ -110,6 +110,9 @@ form:
     class_menu:
       label: "Classe menu (<ul> racine)"
       placeholder: "ex. nav flex-column"
+    ul_id:
+      label: "Id du menu (<ul> racine)"
+      placeholder: "ex. main-menu-navigation"
     class_item:
       label: "Classe élément (<li>)"
       placeholder: "ex. nav-item"

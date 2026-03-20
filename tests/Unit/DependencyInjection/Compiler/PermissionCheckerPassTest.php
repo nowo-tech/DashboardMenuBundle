@@ -101,6 +101,27 @@ final class PermissionCheckerPassTest extends TestCase
         self::assertSame('a_second', $ids[1]);
     }
 
+    public function testProcessFillsMissingOrderEntriesWithRemainingChoices(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('nowo_dashboard_menu.permission_checker_choices', [
+            'order'  => ['checker_a'],
+            'labels' => [],
+        ]);
+
+        $container->register('checker_a')->addTag('nowo_dashboard_menu.permission_checker', ['label' => 'A']);
+        $container->register('checker_b')->addTag('nowo_dashboard_menu.permission_checker', ['label' => 'B']);
+
+        $pass = new PermissionCheckerPass();
+        $pass->process($container);
+
+        $choices = $container->getParameter('nowo_dashboard_menu.permission_checker_choices');
+        $ids     = array_keys($choices);
+        self::assertSame('checker_a', $ids[0]);
+        self::assertSame('checker_b', $ids[1]);
+        self::assertSame('B', $choices['checker_b']);
+    }
+
     public function testProcessWhenParameterIsNotArrayNormalizesToEmpty(): void
     {
         $container = new ContainerBuilder();

@@ -1,7 +1,7 @@
-# Demo app Symfony 7 – Français
+# Demo app Symfony 8 – Français
 demo:
   app_title: "Demo Menu Dashboard"
-  app_title_version: "Demo Menu Dashboard (Symfony 7)"
+  app_title_version: "Demo Menu Dashboard (Symfony 8)"
   home_title: "Accueil - Demo Menu Dashboard"
   edit_menus: "Modifier les menus"
   user_menu: "Menu utilisateur"
@@ -11,7 +11,7 @@ demo:
   manage_menus: "Gérer les menus"
   aside: "Latéral"
   home: "Accueil"
-  bundle_demo: "Demo du Bundle Menu Dashboard (Symfony 7)"
+  bundle_demo: "Demo du Bundle Menu Dashboard (Symfony 8)"
   lead_paragraph: "Cette demo présente le Dashboard Menu Bundle avec menus latéral, secondaire, pied de page et déroulant, plus la résolution par contexte."
   sidebar_rendered_short: "Le menu latéral est rendu ci-dessus via <code>dashboard_menu_tree('sidebar')</code> et l’include Twig."
   sidebar_rendered: "La barre latérale, le bloc secondaire et le pied de page sont rendus avec <code>dashboard_menu_tree()</code> et <code>@NowoDashboardMenuBundle/menu.html.twig</code>."

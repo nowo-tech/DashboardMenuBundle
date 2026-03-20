@@ -1,7 +1,7 @@
-# Demo app Symfony 7 – English
+# Demo app Symfony 8 – English
 demo:
   app_title: "Dashboard Menu Demo"
-  app_title_version: "Dashboard Menu Demo (Symfony 7)"
+  app_title_version: "Dashboard Menu Demo (Symfony 8)"
   home_title: "Home - Dashboard Menu Demo"
   edit_menus: "Edit menus"
   user_menu: "User menu"
@@ -11,7 +11,7 @@ demo:
   manage_menus: "Manage menus"
   aside: "Aside"
   home: "Home"
-  bundle_demo: "Dashboard Menu Bundle Demo (Symfony 7)"
+  bundle_demo: "Dashboard Menu Bundle Demo (Symfony 8)"
   lead_paragraph: "This demo shows the Dashboard Menu Bundle with sidebar, aside, footer and dropdown menus, plus context-based resolution."
   sidebar_rendered_short: "Sidebar menu is rendered above via <code>dashboard_menu_tree('sidebar')</code> and the Twig include."
   sidebar_rendered: "The sidebar, aside and footer above are rendered with <code>dashboard_menu_tree()</code> and <code>@NowoDashboardMenuBundle/menu.html.twig</code>."
