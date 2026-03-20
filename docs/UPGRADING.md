@@ -2,6 +2,14 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 0.3.22 to 0.3.23
+
+No breaking changes.
+
+- **LiveComponent:** Fix item modal submit crash by avoiding modifications of submitted Form data; per-locale `label_{locale}` fields hydrate reliably.
+- **Dashboard UI:** item modal icon field uses a plain text input so the stored icon string is always prefilled during LiveComponent editing.
+- **Demos:** Asset build commands run inside the demo Docker container (`make assets` / `make ts-assets`) for consistent `pnpm` behaviour.
+
 ## From 0.3.21 to 0.3.22
 
 No breaking changes.

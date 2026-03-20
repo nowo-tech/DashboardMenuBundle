@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.23] - 2026-03-20
+
+### Fixed
+
+- **LiveComponent:** prevent Symfony “submitted form data” exceptions when saving items, and stabilize hydration of per-locale `label_{locale}` fields in the item modal.
+- **Dashboard UI:** item modal icon field prefill now uses a plain text input (icon is stored as a string) to ensure values are always shown reliably in LiveComponent editing.
+
+### Changed
+
+- **Demos:** run dashboard asset builds (`make assets` / `make ts-assets`) inside the demo Docker container to avoid host `pnpm`/permission issues.
+
 ## [0.3.22] - 2026-03-20
 
 ### Added
@@ -325,7 +336,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.22...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.23...HEAD
+[0.3.23]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.22...v0.3.23
 [0.3.22]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.21...v0.3.22
 [0.3.21]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.20...v0.3.21
 [0.3.20]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.19...v0.3.20
