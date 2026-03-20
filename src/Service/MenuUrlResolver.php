@@ -12,6 +12,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 use function array_key_exists;
+use function in_array;
 
 /**
  * Resolves the href for a menu item (route or external URL).
@@ -44,18 +45,18 @@ final readonly class MenuUrlResolver
             return '#';
         }
 
-        $params  = $item->getRouteParams() ?? [];
-        $request = $this->requestStack->getCurrentRequest();
+        $params           = $item->getRouteParams() ?? [];
+        $request          = $this->requestStack->getCurrentRequest();
         $routeNeedsLocale = false;
 
         // Complete missing path variables from current route params so links can reuse e.g. id/locale from the current URL
         try {
             $route = $this->router->getRouteCollection()->get($routeName);
             if ($route instanceof \Symfony\Component\Routing\Route && $request instanceof Request) {
-                $compiled      = $route->compile();
-                $pathVars      = $compiled->getPathVariables();
+                $compiled         = $route->compile();
+                $pathVars         = $compiled->getPathVariables();
                 $routeNeedsLocale = in_array('_locale', $pathVars, true);
-                $currentParams = (array) $request->attributes->get('_route_params', []);
+                $currentParams    = (array) $request->attributes->get('_route_params', []);
                 foreach ($pathVars as $var) {
                     if (!array_key_exists($var, $params) && array_key_exists($var, $currentParams)) {
                         $params[$var] = $currentParams[$var];

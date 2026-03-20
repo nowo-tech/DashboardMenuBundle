@@ -93,7 +93,7 @@ final class MenuUrlResolverTest extends TestCase
             ->with('app_page', ['_locale' => 'es', 'section' => 'info'], UrlGeneratorInterface::ABSOLUTE_PATH)
             ->willReturn('/es/info');
 
-        $route = new \Symfony\Component\Routing\Route('/{_locale}/info');
+        $route           = new \Symfony\Component\Routing\Route('/{_locale}/info');
         $routeCollection = new RouteCollection();
         $routeCollection->add('app_page', $route);
 
