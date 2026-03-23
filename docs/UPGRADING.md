@@ -2,6 +2,15 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 0.3.27 to 0.3.28
+
+No breaking changes.
+
+- **Permission checker persistence:** dashboard menu configuration now stores checker service ids/FQCN (not labels) in `dashboard_menu.permission_checker`.
+- **Legacy checker values:** runtime checker resolution now normalizes legacy label-based values to configured checker service ids before resolving services.
+- **Profiler permission tab:** checker column now displays the resolved runtime checker with fallback indication; selected-label text was removed.
+- **Profiler tab links:** collector tabs now persist in URL hash (`#nowo-dm-tab-*`) and restore the selected tab on refresh.
+
 ## From 0.3.26 to 0.3.27
 
 No breaking changes.

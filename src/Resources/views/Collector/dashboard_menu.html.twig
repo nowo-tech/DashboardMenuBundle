@@ -295,13 +295,8 @@
                                     </button>
                                 </th>
                                 <th>
-                                    <button type="button" class="btn-link" data-sort-key="permission_key" style="border:0;background:none;padding:0;cursor:pointer;">
-                                        Permission key
-                                    </button>
-                                </th>
-                                <th>
                                     <button type="button" class="btn-link" data-sort-key="checker_pair" style="border:0;background:none;padding:0;cursor:pointer;">
-                                        Resolved checker
+                                        Permission key / Resolved checker
                                     </button>
                                 </th>
                                 <th>
@@ -325,15 +320,19 @@
                                                 <div class="text-muted"><code>{{ row.external_url }}</code></div>
                                             {% endif %}
                                         </td>
-                                        <td data-sort-value="{{ row.permission_key|default('')|lower }}">
-                                            {% if row.permission_key %}
-                                                <code>{{ row.permission_key }}</code>
-                                            {% else %}
-                                                <span class="text-muted">—</span>
-                                            {% endif %}
-                                        </td>
-                                        <td data-sort-value="{{ row.checker_resolved|lower }}">
-                                            <code>{{ row.checker_resolved }}</code>
+                                        <td data-sort-value="{{ row.permission_key|default('')|lower ~ ' ' ~ row.checker_resolved|lower }}">
+                                            <div>
+                                                <span class="text-muted">Permission key:</span>
+                                                {% if row.permission_key %}
+                                                    <code>{{ row.permission_key }}</code>
+                                                {% else %}
+                                                    <span class="text-muted">—</span>
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                <span class="text-muted">Resolved:</span>
+                                                <code>{{ row.checker_resolved }}</code>
+                                            </div>
                                             {% if row.checker_fallback %}
                                                 <span class="sf-toolbar-status sf-toolbar-status-yellow">fallback</span>
                                             {% endif %}
@@ -359,9 +358,8 @@
 
                             var keyToIndex = {
                                 menu_link: 0,
-                                permission_key: 1,
-                                checker_pair: 2,
-                                result: 3
+                                checker_pair: 1,
+                                result: 2
                             };
 
                             var sortState = {};

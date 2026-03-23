@@ -253,6 +253,7 @@ In `dev`, the **Dashboard menus** profiler panel includes:
 
 - **Menus**: rendered menus, resolved context, root count, query segment counts and a compact tree summary.
 - **Configuration**: effective bundle snapshot (key values) plus a raw merged config JSON block.
-- **Permission checks**: per-link checker evaluation (`menu + link`, `permission key`, `selected/resolved checker`, `result`) with sortable columns.
+- **Permission checks**: per-link checker evaluation (`menu + link`, `permission key`, resolved checker, `result`) with sortable columns.
+- **Tab deep-linking**: collector tabs persist in the URL hash (`#nowo-dm-tab-menus`, `#nowo-dm-tab-configuration`, `#nowo-dm-tab-permission-checks`) and are restored after refresh.
 
 These diagnostics are request-scoped and intended for troubleshooting runtime selection (e.g. checker fallback, context resolution, visibility pruning).
