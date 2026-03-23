@@ -2,6 +2,15 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 0.3.26 to 0.3.27
+
+No breaking changes.
+
+- **Profiler configuration diagnostics:** the Dashboard menus collector now includes a richer "Configuration" panel with an explicit effective snapshot and raw merged config JSON.
+- **Profiler permission diagnostics:** permission checks table supports sorting and combines selected/resolved checker details in a single column for faster troubleshooting.
+- **Checker resolution internals:** checker services are resolved through the tagged locator (`nowo_dashboard_menu.permission_checker`) rather than the full service container.
+- **Demos:** Symfony 7/8 fixtures now use both demo checkers in different menus to better demonstrate behaviour.
+
 ## From 0.3.25 to 0.3.26
 
 No breaking changes.

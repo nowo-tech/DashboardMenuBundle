@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.27] - 2026-03-23
+
+### Added
+- **Web Profiler (Configuration tab):** expanded with an explicit "effective config snapshot" table plus a full raw merged config JSON block, so the selected bundle configuration is unambiguous.
+- **Web Profiler (Permission checks tab):** table now supports client-side sorting by key columns and shows combined checker details (`Selected / Resolved checker`) in one column.
+
+### Changed
+- **Permission checker resolution:** `MenuTreeLoader` now resolves checkers through a tagged service locator (`nowo_dashboard_menu.permission_checker`) instead of the full service container, improving reliability with private/autoconfigured services.
+- **Demo fixtures (Symfony 7/8):** demos now exercise both checkers in different menus (`CustomDemoPermissionChecker` and `DemoMenuPermissionChecker`) to make behaviour and fallback diagnosis clearer.
+
+### Fixed
+- **Profiler diagnostics:** permission check records now expose clearer fallback/resolution context for selected checker vs resolved runtime checker.
+- **Tests:** extension tests updated for the richer stored config snapshot; full test and coverage suites remain green.
+
 ## [0.3.26] - 2026-03-23
 
 ### Added
@@ -374,7 +388,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.26...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.27...HEAD
+[0.3.27]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.26...v0.3.27
 [0.3.26]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.25...v0.3.26
 [0.3.25]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.24...v0.3.25
 [0.3.24]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.23...v0.3.24

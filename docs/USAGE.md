@@ -9,6 +9,7 @@
 - [JSON API](#json-api)
 - [Resolving menu by criteria](#resolving-menu-by-criteria-operatorid-partnerid-menu-name)
 - [Permissions](#permissions)
+- [Web Profiler diagnostics](#web-profiler-diagnostics)
 
 ## Twig
 
@@ -245,3 +246,13 @@ Notes:
 - **Attribute:** `#[PermissionCheckerLabel('Your label')]` on the class (use `Nowo\DashboardMenuBundle\Attribute\PermissionCheckerLabel`)
 
 If neither is set, the service id (e.g. FQCN) is used as the label. You can discover your checker via a service directory (e.g. `App\Service\`: `resource: '../src/Service/'`) so you do not need to register it explicitly in `services.yaml`. You can still order or override labels via config: `permission_checker_choices` as a list of service IDs or a map (service id => label) in `nowo_dashboard_menu.yaml` (see [CONFIGURATION](CONFIGURATION.md#permission_checker_choices)). Assign a checker to a menu in the dashboard (per-menu) or leave the menu with no checker for default allow-all behaviour. Manually tagging with `nowo_dashboard_menu.permission_checker` in `services.yaml` or using `#[AsTaggedItem]` remains supported.
+
+## Web Profiler diagnostics
+
+In `dev`, the **Dashboard menus** profiler panel includes:
+
+- **Menus**: rendered menus, resolved context, root count, query segment counts and a compact tree summary.
+- **Configuration**: effective bundle snapshot (key values) plus a raw merged config JSON block.
+- **Permission checks**: per-link checker evaluation (`menu + link`, `permission key`, `selected/resolved checker`, `result`) with sortable columns.
+
+These diagnostics are request-scoped and intended for troubleshooting runtime selection (e.g. checker fallback, context resolution, visibility pruning).
