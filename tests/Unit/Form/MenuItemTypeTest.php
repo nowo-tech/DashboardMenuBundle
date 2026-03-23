@@ -14,8 +14,8 @@ use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use PHPUnit\Framework\TestCase;
 use stdClass;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
@@ -719,9 +719,9 @@ final class MenuItemTypeTest extends TestCase
             $permissionKeysForm->expects(self::atMost(1))->method('addModelTransformer');
             $builder->method('get')->willReturnCallback(static function (string $name) use ($routeParamsForm, $permissionKeysForm): FormBuilderInterface {
                 return match ($name) {
-                    'routeParams' => $routeParamsForm,
+                    'routeParams'    => $routeParamsForm,
                     'permissionKeys' => $permissionKeysForm,
-                    default => $routeParamsForm,
+                    default          => $routeParamsForm,
                 };
             });
         }
