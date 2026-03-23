@@ -59,10 +59,12 @@ final class MenuExporterTest extends TestCase
     {
         $menu = new Menu();
         $menu->setCode('nav');
+        $menu->setPermissionChecker('app.permission.checker');
         $item = new MenuItem();
         $item->setMenu($menu);
         $item->setLabel('Home');
         $item->setRouteName('app_home');
+        $item->setPermissionKey('app.home.view');
         $item->setPosition(0);
 
         $menuRepo = $this->createStub(MenuRepository::class);
@@ -73,9 +75,36 @@ final class MenuExporterTest extends TestCase
         $data     = $exporter->exportMenu($menu);
 
         self::assertCount(1, $data['items']);
+        self::assertArrayHasKey('permissionChecker', $data['menu']);
+        self::assertSame('app.permission.checker', $data['menu']['permissionChecker']);
         self::assertSame('Home', $data['items'][0]['label']);
         self::assertSame('app_home', $data['items'][0]['routeName']);
+        self::assertArrayHasKey('permissionKey', $data['items'][0]);
+        self::assertSame('app.home.view', $data['items'][0]['permissionKey']);
         self::assertSame(0, $data['items'][0]['position']);
+    }
+
+    public function testExportMenuKeepsPermissionKeysEvenWhenNull(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('permissions-null');
+
+        $item = new MenuItem();
+        $item->setMenu($menu);
+        $item->setLabel('No permission key');
+        $item->setPosition(0);
+
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo->method('findAllForMenuOrderedByTreeForExport')->willReturn([$item]);
+
+        $exporter = new MenuExporter($menuRepo, $itemRepo);
+        $data     = $exporter->exportMenu($menu);
+
+        self::assertArrayHasKey('permissionChecker', $data['menu']);
+        self::assertNull($data['menu']['permissionChecker']);
+        self::assertArrayHasKey('permissionKey', $data['items'][0]);
+        self::assertNull($data['items'][0]['permissionKey']);
     }
 
     public function testExportMenuIncludesChildrenKeyWhenChildrenNotEmpty(): void

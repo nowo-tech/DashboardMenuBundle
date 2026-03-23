@@ -94,8 +94,11 @@ final readonly class MenuImporter
 
                 return;
             }
-            // Replace: remove existing items and re-import
-            foreach ($existing->getItems() as $item) {
+            // Replace: remove existing items and re-import.
+            // Use repository lookup to guarantee we remove the full tree even when
+            // the ORM collection isn't fully initialized in this request context.
+            $existingItems = $this->menuItemRepository->findAllForMenuOrderedByTreeForExport($existing);
+            foreach ($existingItems as $item) {
                 $this->entityManager->remove($item);
             }
             $this->entityManager->flush();

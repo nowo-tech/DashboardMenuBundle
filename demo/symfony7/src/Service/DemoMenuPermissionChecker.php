@@ -22,6 +22,14 @@ use Symfony\Component\HttpFoundation\Request;
  * - "authenticated": allow only if user is logged in
  * - "admin": allow only if user has ROLE_ADMIN
  * - "path:/foo": allow only if current path starts with "/foo"
+ * - OR: "keyA|keyB" (at least one token must pass)
+ * - AND: "keyA&keyB" (all tokens must pass)
+ * - Grouping: "(keyA|keyB)&keyC" (parentheses supported)
+ *
+ * Examples:
+ * - "authenticated|admin"
+ * - "path:/admin&(authenticated|admin)"
+ * - "(path:/operator|path:/admin)&authenticated"
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
@@ -48,16 +56,64 @@ final class DemoMenuPermissionChecker implements MenuPermissionCheckerInterface
             return true;
         }
 
-        if ($key === 'authenticated') {
-            return $user !== null;
+        return $this->evaluateExpression($key, $path, $user !== null);
+    }
+
+    private function evaluateExpression(string $expression, string $path, bool $isAuthenticated): bool
+    {
+        $expression = trim($expression);
+        if ($expression === '') {
+            return true;
         }
 
-        if ($key === 'admin') {
-            return $user !== null && $this->security->isGranted('ROLE_ADMIN');
+        // Parentheses: evaluate innermost groups first.
+        while (preg_match('/\(([^()]+)\)/', $expression, $match) === 1) {
+            $groupResult = $this->evaluateExpression($match[1], $path, $isAuthenticated);
+            $expression  = preg_replace('/\(' . preg_quote($match[1], '/') . '\)/', $groupResult ? '1' : '0', $expression, 1) ?? $expression;
         }
 
-        if (str_starts_with($key, 'path:')) {
-            $prefix = trim(substr($key, 5));
+        // AND has higher precedence than OR.
+        $orParts = array_filter(array_map('trim', explode('|', $expression)), static fn (string $part): bool => $part !== '');
+        if ($orParts === []) {
+            return false;
+        }
+        foreach ($orParts as $orPart) {
+            $andParts = array_filter(array_map('trim', explode('&', $orPart)), static fn (string $part): bool => $part !== '');
+            if ($andParts === []) {
+                continue;
+            }
+
+            $allAnd = true;
+            foreach ($andParts as $token) {
+                if (!$this->evaluateToken($token, $path, $isAuthenticated)) {
+                    $allAnd = false;
+                    break;
+                }
+            }
+            if ($allAnd) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function evaluateToken(string $token, string $path, bool $isAuthenticated): bool
+    {
+        if ($token === '1') {
+            return true;
+        }
+        if ($token === '0') {
+            return false;
+        }
+        if ($token === 'authenticated') {
+            return $isAuthenticated;
+        }
+        if ($token === 'admin') {
+            return $isAuthenticated && $this->security->isGranted('ROLE_ADMIN');
+        }
+        if (str_starts_with($token, 'path:')) {
+            $prefix = trim(substr($token, 5));
             if ($prefix === '') {
                 return false;
             }
@@ -68,6 +124,7 @@ final class DemoMenuPermissionChecker implements MenuPermissionCheckerInterface
             return str_starts_with($path, $prefix);
         }
 
-        return true;
+        // Unknown token: deny by default in demo checker.
+        return false;
     }
 }

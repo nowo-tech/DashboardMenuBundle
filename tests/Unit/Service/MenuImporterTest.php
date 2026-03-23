@@ -115,13 +115,17 @@ final class MenuImporterTest extends TestCase
 
         $menuRepo = $this->createStub(MenuRepository::class);
         $menuRepo->method('findOneByCodeAndContext')->willReturn($existing);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->expects(self::atLeastOnce())
+            ->method('findAllForMenuOrderedByTreeForExport')
+            ->willReturn([$old]);
 
         $em = $this->createMock(EntityManagerInterface::class);
         $em->expects(self::atLeastOnce())->method('remove')->with(self::isInstanceOf(MenuItem::class));
         $em->expects(self::atLeastOnce())->method('persist')->with(self::isInstanceOf(MenuItem::class));
         $em->expects(self::atLeastOnce())->method('flush');
 
-        $importer = new MenuImporter($this->createStub(MenuItemRepository::class), $menuRepo, $em);
+        $importer = new MenuImporter($itemRepo, $menuRepo, $em);
         $result   = $importer->import([
             'menu' => [
                 'code'                      => 'nav',

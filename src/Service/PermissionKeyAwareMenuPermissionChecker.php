@@ -14,6 +14,10 @@ use Nowo\DashboardMenuBundle\Entity\MenuItem;
  * resolves the key (e.g. against roles or feature flags). Use this as a base or copy the
  * structure to implement your own logic (e.g. inject Security and use isGranted($item->getPermissionKey())).
  *
+ * Usage note: if you want expression support (OR/AND/parentheses), parse strings like
+ * "authenticated|admin" or "(path:/admin|path:/operator)&authenticated" in your custom checker.
+ * See demo checkers in demo/symfony7 and demo/symfony8 for a working example.
+ *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
  */

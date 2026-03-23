@@ -67,7 +67,7 @@ final readonly class MenuExporter
      */
     private function menuToArray(Menu $menu): array
     {
-        return array_filter([
+        $data = array_filter([
             'code'                      => $menu->getCode(),
             'name'                      => $menu->getName(),
             'context'                   => $menu->getContext(),
@@ -91,6 +91,14 @@ final readonly class MenuExporter
             'nestedCollapsibleSections' => $menu->getNestedCollapsibleSections(),
             'base'                      => $menu->isBase(),
         ], static fn (mixed $v): bool => $v !== null && $v !== '');
+
+        // Keep permission metadata keys always present in exports to avoid
+        // ambiguity for downstream importers/processors.
+        if (!array_key_exists('permissionChecker', $data)) {
+            $data['permissionChecker'] = $menu->getPermissionChecker();
+        }
+
+        return $data;
     }
 
     /**
@@ -154,6 +162,9 @@ final readonly class MenuExporter
             'position'      => $item->getPosition(),
         ];
         $data = array_filter($data, static fn (mixed $v): bool => $v !== null && $v !== '');
+        if (!array_key_exists('permissionKey', $data)) {
+            $data['permissionKey'] = $item->getPermissionKey();
+        }
         if ($children !== []) {
             $data['children'] = $children;
         }

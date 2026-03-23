@@ -211,6 +211,34 @@ public function canView(MenuItem $item, mixed $context = null): bool
 }
 ```
 
+### Demo expression syntax (AND / OR / parentheses)
+
+The demo checker in `demo/symfony7` and `demo/symfony8` supports simple expressions in `permissionKey`:
+
+- `keyA|keyB` → OR (at least one token must pass)
+- `keyA&keyB` → AND (all tokens must pass)
+- `(keyA|keyB)&keyC` → grouping with parentheses
+
+Supported demo tokens:
+
+- `authenticated`
+- `admin`
+- `path:/prefix` (matches current request path prefix)
+
+Examples:
+
+```text
+authenticated|admin
+path:/admin&(authenticated|admin)
+(path:/operator|path:/admin)&authenticated
+```
+
+Notes:
+
+- The demo checker evaluates parentheses first, then `&` (AND), then `|` (OR).
+- Unknown tokens are denied by default in the demo implementation.
+- For production logic, create your own checker and resolve tokens with your authorization system.
+
 **Auto-registration:** Any service whose class implements `MenuPermissionCheckerInterface` is automatically included in the dashboard "Permission checker" dropdown; you do not need to add the tag in `services.yaml`. The label in the dropdown can be set in either of these ways (optional):
 
 - **Class constant:** `public const string DASHBOARD_LABEL = 'Your label';`
