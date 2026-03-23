@@ -42,7 +42,7 @@ final class MenuConfigType extends AbstractType
     {
         // Internal map: service id => human label.
         $choicesById = $this->permissionCheckerChoices;
-        $data    = $builder->getData();
+        $data        = $builder->getData();
         if ($data instanceof Menu) {
             $current = $data->getPermissionChecker();
             if ($current !== null && $current !== '' && !isset($choicesById[$current])) {
