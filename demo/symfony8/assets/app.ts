@@ -1,5 +1,6 @@
 import './bootstrap.ts';
 import './app.css';
+import 'tom-select/dist/css/tom-select.bootstrap5.css';
 
 // Re-expose Stimulus app so dashboard menu bundle (and any code running after this entry) can find it.
 if (typeof window !== 'undefined') {

@@ -64,7 +64,8 @@ final class MenuExporterTest extends TestCase
         $item->setMenu($menu);
         $item->setLabel('Home');
         $item->setRouteName('app_home');
-        $item->setPermissionKey('app.home.view');
+        $item->setPermissionKeys(['app.home.view', 'authenticated']);
+        $item->setIsUnanimous(false);
         $item->setPosition(0);
 
         $menuRepo = $this->createStub(MenuRepository::class);
@@ -80,7 +81,11 @@ final class MenuExporterTest extends TestCase
         self::assertSame('Home', $data['items'][0]['label']);
         self::assertSame('app_home', $data['items'][0]['routeName']);
         self::assertArrayHasKey('permissionKey', $data['items'][0]);
+        self::assertArrayHasKey('permissionKeys', $data['items'][0]);
+        self::assertArrayHasKey('isUnanimous', $data['items'][0]);
         self::assertSame('app.home.view', $data['items'][0]['permissionKey']);
+        self::assertSame(['app.home.view', 'authenticated'], $data['items'][0]['permissionKeys']);
+        self::assertFalse($data['items'][0]['isUnanimous']);
         self::assertSame(0, $data['items'][0]['position']);
     }
 
@@ -104,7 +109,11 @@ final class MenuExporterTest extends TestCase
         self::assertArrayHasKey('permissionChecker', $data['menu']);
         self::assertNull($data['menu']['permissionChecker']);
         self::assertArrayHasKey('permissionKey', $data['items'][0]);
+        self::assertArrayHasKey('permissionKeys', $data['items'][0]);
+        self::assertArrayHasKey('isUnanimous', $data['items'][0]);
         self::assertNull($data['items'][0]['permissionKey']);
+        self::assertNull($data['items'][0]['permissionKeys']);
+        self::assertTrue($data['items'][0]['isUnanimous']);
     }
 
     public function testExportMenuIncludesChildrenKeyWhenChildrenNotEmpty(): void

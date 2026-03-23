@@ -100,10 +100,26 @@ class MenuItem implements TranslatableInterface
     private ?string $externalUrl = null;
 
     /**
-     * Optional key passed to the permission checker service for this item.
+     * Legacy single permission key (kept for backward compatibility).
      */
     #[ORM\Column(type: Types::STRING, length: 128, nullable: true)]
     private ?string $permissionKey = null;
+
+    /**
+     * Permission keys passed to the permission checker service for this item.
+     *
+     * @var list<string>|null
+     */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $permissionKeys = null;
+
+    /**
+     * Permission aggregation mode for multiple permission keys:
+     * - true: all keys must pass (AND / unanimous)
+     * - false: any key can pass (OR)
+     */
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => true])]
+    private bool $isUnanimous = true;
 
     /**
      * Optional icon identifier (e.g. "heroicons:home", "bootstrap:house" for Symfony UX Icons).
@@ -280,7 +296,66 @@ class MenuItem implements TranslatableInterface
 
     public function setPermissionKey(?string $permissionKey): self
     {
-        $this->permissionKey = $permissionKey;
+        $normalized           = $permissionKey !== null ? trim($permissionKey) : null;
+        $this->permissionKey  = $normalized !== '' ? $normalized : null;
+        $this->permissionKeys = $this->permissionKey !== null ? [$this->permissionKey] : null;
+
+        return $this;
+    }
+
+    /**
+     * @return list<string>|null
+     */
+    public function getPermissionKeys(): ?array
+    {
+        if ($this->permissionKeys !== null) {
+            return $this->permissionKeys;
+        }
+        if ($this->permissionKey === null || $this->permissionKey === '') {
+            return null;
+        }
+
+        return [$this->permissionKey];
+    }
+
+    /**
+     * @param list<string>|null $permissionKeys
+     */
+    public function setPermissionKeys(?array $permissionKeys): self
+    {
+        if ($permissionKeys === null) {
+            $this->permissionKeys = null;
+            $this->permissionKey  = null;
+
+            return $this;
+        }
+
+        $normalized = [];
+        foreach ($permissionKeys as $key) {
+            if (!is_string($key)) {
+                continue;
+            }
+            $value = trim($key);
+            if ($value === '' || in_array($value, $normalized, true)) {
+                continue;
+            }
+            $normalized[] = $value;
+        }
+
+        $this->permissionKeys = $normalized !== [] ? $normalized : null;
+        $this->permissionKey  = $this->permissionKeys[0] ?? null;
+
+        return $this;
+    }
+
+    public function isUnanimous(): bool
+    {
+        return $this->isUnanimous;
+    }
+
+    public function setIsUnanimous(bool $isUnanimous): self
+    {
+        $this->isUnanimous = $isUnanimous;
 
         return $this;
     }

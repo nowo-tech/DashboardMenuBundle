@@ -211,7 +211,8 @@ final readonly class MenuImporter
             $item->setRouteParams($this->routeParamsFromRow($row));
             $item->setExternalUrl($this->stringOrNull($row['externalUrl'] ?? null));
             $item->setIcon($this->stringOrNull($row['icon'] ?? null));
-            $item->setPermissionKey($this->stringOrNull($row['permissionKey'] ?? null));
+            $item->setPermissionKeys($this->permissionKeysFromRow($row));
+            $item->setIsUnanimous($this->boolOrDefault($row['isUnanimous'] ?? null, true));
             $item->setItemType($this->stringOrDefault($row['itemType'] ?? null, MenuItem::ITEM_TYPE_LINK));
             $item->setTargetBlank(!empty($row['targetBlank']));
             $this->entityManager->persist($item);
@@ -301,6 +302,34 @@ final readonly class MenuImporter
         return $row['routeParams'];
     }
 
+    /**
+     * @param array<string, mixed> $row
+     *
+     * @return list<string>|null
+     */
+    private function permissionKeysFromRow(array $row): ?array
+    {
+        if (isset($row['permissionKeys']) && is_array($row['permissionKeys'])) {
+            $out = [];
+            foreach ($row['permissionKeys'] as $v) {
+                if (!is_string($v)) {
+                    continue;
+                }
+                $k = trim($v);
+                if ($k === '' || in_array($k, $out, true)) {
+                    continue;
+                }
+                $out[] = $k;
+            }
+
+            return $out !== [] ? $out : null;
+        }
+
+        $single = $this->stringOrNull($row['permissionKey'] ?? null);
+
+        return $single !== null ? [$single] : null;
+    }
+
     private function stringOrNull(mixed $v): ?string
     {
         if ($v === null || $v === '') {
@@ -333,5 +362,12 @@ final readonly class MenuImporter
         }
 
         return (bool) $v;
+    }
+
+    private function boolOrDefault(mixed $v, bool $default): bool
+    {
+        $parsed = $this->boolOrNull($v);
+
+        return $parsed ?? $default;
     }
 }

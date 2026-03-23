@@ -320,11 +320,14 @@
                                                 <div class="text-muted"><code>{{ row.external_url }}</code></div>
                                             {% endif %}
                                         </td>
-                                        <td data-sort-value="{{ row.permission_key|default('')|lower ~ ' ' ~ row.checker_resolved|lower }}">
+                                        {% set permissionKeys = row.permission_keys|default([]) %}
+                                        {% set permissionMode = row.is_unanimous ? 'AND' : 'OR' %}
+                                        <td data-sort-value="{{ permissionKeys|join(',')|lower ~ ' ' ~ permissionMode|lower ~ ' ' ~ row.checker_resolved|lower }}">
                                             <div>
-                                                <span class="text-muted">Permission key:</span>
-                                                {% if row.permission_key %}
-                                                    <code>{{ row.permission_key }}</code>
+                                                <span class="text-muted">Permission keys:</span>
+                                                {% if permissionKeys is not empty %}
+                                                    <code>{{ permissionKeys|join(', ') }}</code>
+                                                    <span class="text-muted">({{ permissionMode }})</span>
                                                 {% else %}
                                                     <span class="text-muted">—</span>
                                                 {% endif %}

@@ -120,6 +120,7 @@ class MenuFixtures extends Fixture
         $menu->setClassChildren('nav flex-column');
         $menu->setClassCurrent('active');
         $menu->setClassBranchExpanded('active-branch');
+        $menu->setPermissionChecker('App\\Service\\DemoMenuPermissionChecker');
 
         return $menu;
     }
@@ -135,6 +136,7 @@ class MenuFixtures extends Fixture
         $menu->setClassChildren('dropdown-menu');
         $menu->setClassCurrent('active');
         $menu->setClassBranchExpanded('active-branch');
+        $menu->setPermissionChecker('App\\Service\\DemoMenuPermissionChecker');
 
         return $menu;
     }
@@ -150,6 +152,7 @@ class MenuFixtures extends Fixture
         $menu->setClassChildren('');
         $menu->setClassCurrent('active');
         $menu->setClassBranchExpanded('active-branch');
+        $menu->setPermissionChecker('App\\Service\\DemoMenuPermissionChecker');
 
         return $menu;
     }
@@ -281,7 +284,10 @@ class MenuFixtures extends Fixture
     {
         $filtersSection = $this->item($menu, null, 0, 'Filters', MenuItem::ITEM_TYPE_SECTION);
         $manager->persist($filtersSection);
-        $manager->persist($this->item($menu, null, 1, 'All', MenuItem::ITEM_TYPE_LINK, HomeController::APP_HOME_ROUTE, ['filter' => 'all'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:list-ul', 'authenticated'));
+        $all = $this->item($menu, null, 1, 'All', MenuItem::ITEM_TYPE_LINK, HomeController::APP_HOME_ROUTE, ['filter' => 'all'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:list-ul', 'authenticated');
+        $all->setPermissionKeys(['authenticated', 'admin']);
+        $all->setIsUnanimous(false); // OR: authenticated OR admin
+        $manager->persist($all);
         $manager->persist($this->item($menu, null, 2, 'Recent', MenuItem::ITEM_TYPE_LINK, HomeController::APP_HOME_ROUTE, ['filter' => 'recent'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:clock', 'path:/__never__'));
 
         // Level 1 → 2 → 3 → 4: Category A → A1 → A1.1 → A1.1.1, A1.1.2; A2; Category B → B1 → B1.1, B1.2; B2
@@ -308,7 +314,10 @@ class MenuFixtures extends Fixture
         $quickSection = $this->item($menu, null, 6, 'Quick links', MenuItem::ITEM_TYPE_SECTION);
         $manager->persist($quickSection);
         $manager->persist($this->item($menu, null, 7, 'API Sidebar', MenuItem::ITEM_TYPE_LINK, 'nowo_dashboard_menu_api', ['code' => 'sidebar'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:code-slash'));
-        $manager->persist($this->item($menu, null, 8, 'API Footer', MenuItem::ITEM_TYPE_LINK, 'nowo_dashboard_menu_api', ['code' => 'footer'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:link'));
+        $apiFooter = $this->item($menu, null, 8, 'API Footer', MenuItem::ITEM_TYPE_LINK, 'nowo_dashboard_menu_api', ['code' => 'footer'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:link');
+        $apiFooter->setPermissionKeys(['authenticated', 'path:/']);
+        $apiFooter->setIsUnanimous(true); // AND: authenticated AND path:/
+        $manager->persist($apiFooter);
     }
 
     private function addFooterItems(ObjectManager $manager, Menu $menu): void

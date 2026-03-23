@@ -32,13 +32,29 @@ final class CustomDemoPermissionChecker implements MenuPermissionCheckerInterfac
     {
         $request = $context instanceof Request ? $context : null;
         $path    = $request?->getPathInfo() ?? '';
-        $key     = (string) ($item->getPermissionKey() ?? '');
+        $keys    = $item->getPermissionKeys() ?? [];
 
-        if ($key === '') {
+        if ($keys === []) {
             return true;
         }
 
-        return $this->evaluateExpression($key, $path, $this->security->getUser() !== null);
+        if ($item->isUnanimous()) {
+            foreach ($keys as $key) {
+                if (!$this->evaluateExpression($key, $path, $this->security->getUser() !== null)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        foreach ($keys as $key) {
+            if ($this->evaluateExpression($key, $path, $this->security->getUser() !== null)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function evaluateExpression(string $expression, string $path, bool $authenticated): bool

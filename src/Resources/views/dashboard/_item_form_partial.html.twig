@@ -86,7 +86,12 @@
             </div>
         </div>
         <div class="mb-2">
-            {{ form_row(form.config.permissionKey, { label_attr: { class: 'form-label' } }) }}
+            {% if form.config.permissionKeys is defined %}
+                {{ form_row(form.config.permissionKeys, { label_attr: { class: 'form-label' } }) }}
+            {% else %}
+                {{ form_row(form.config.permissionKey, { label_attr: { class: 'form-label' } }) }}
+            {% endif %}
+            {{ form_row(form.config.isUnanimous, { row_attr: { class: 'form-check ms-0 mb-1' } }) }}
         </div>
     </div>
     {% endif %}

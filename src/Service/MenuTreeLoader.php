@@ -211,7 +211,16 @@ final readonly class MenuTreeLoader
                 $item->setRouteParams(is_array($row['route_params']) ? $row['route_params'] : (json_decode((string) $row['route_params'], true) ?: null));
             }
             $item->setExternalUrl(isset($row['external_url']) ? (string) $row['external_url'] : null);
-            $item->setPermissionKey(isset($row['permission_key']) ? (string) $row['permission_key'] : null);
+            $permissionKeys = null;
+            if (isset($row['permission_keys'])) {
+                $permissionKeys = is_array($row['permission_keys']) ? $row['permission_keys'] : (json_decode((string) $row['permission_keys'], true) ?: null);
+            }
+            if (is_array($permissionKeys)) {
+                $item->setPermissionKeys(array_values(array_filter($permissionKeys, static fn (mixed $v): bool => is_string($v) && trim($v) !== '')));
+            } else {
+                $item->setPermissionKey(isset($row['permission_key']) ? (string) $row['permission_key'] : null);
+            }
+            $item->setIsUnanimous(isset($row['is_unanimous']) ? (bool) $row['is_unanimous'] : true);
             $item->setIcon(isset($row['icon']) ? (string) $row['icon'] : null);
             $item->setItemType((string) ($row['item_type'] ?? MenuItem::ITEM_TYPE_LINK));
             $item->setTargetBlank(isset($row['target_blank']) && (bool) $row['target_blank']);

@@ -25,6 +25,7 @@ declare global {
 
 /** Stimulus app shape: router may expose elementConnected (custom) or proposeToConnectScopeForElementAndIdentifier (Stimulus 3). */
 interface StimulusAppLike {
+  register?(identifier: string, controllerConstructor: unknown): void;
   router?: {
     elementConnected?(el: Element): void;
     proposeToConnectScopeForElementAndIdentifier?(element: Element, identifier: string): void;
@@ -42,8 +43,75 @@ export interface NowoDashboardMenuConfig {
 const i18n = (key: string, fallback: string) =>
   (typeof window !== 'undefined' && window.dashboardMenuI18n?.[key]) ?? fallback;
 
+const AUTOCOMPLETE_IDENTIFIER = 'symfony--ux-autocomplete--autocomplete';
+let autocompleteControllerReady = false;
+let autocompleteControllerPromise: Promise<void> | null = null;
+
+function describeStimulusAppLike(app: StimulusAppLike | null): Record<string, boolean> {
+  return {
+    hasApp: !!app,
+    hasRegister: !!app?.register,
+    hasRouter: !!app?.router,
+    hasElementConnected: !!app?.router?.elementConnected,
+    hasProposeToConnect: !!app?.router?.proposeToConnectScopeForElementAndIdentifier,
+  };
+}
+
+function ensureTomSelectCssLoaded(): void {
+  if (typeof document === 'undefined') return;
+  const existing = document.querySelector('link[data-dm-autocomplete-css="1"]');
+  if (existing) {
+    log.debug('Tom Select CSS already loaded.');
+    return;
+  }
+  const href = 'https://cdn.jsdelivr.net/npm/tom-select@2.5.2/dist/css/tom-select.bootstrap5.css';
+  if (document.querySelector(`link[href="${href}"]`)) {
+    log.debug('Tom Select CSS found in document head.');
+    return;
+  }
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = href;
+  link.dataset.dmAutocompleteCss = '1';
+  (document.head ?? document.documentElement).appendChild(link);
+  log.debug('Tom Select CSS injected by dashboard script.', { href });
+}
+
+async function ensureAutocompleteControllerRegistered(): Promise<void> {
+  if (autocompleteControllerReady) return;
+  if (autocompleteControllerPromise) return autocompleteControllerPromise;
+  autocompleteControllerPromise = (async () => {
+    try {
+      const app =
+        window.Stimulus ?? window.$$stimulusApp$$ ?? window.__stimulusApp__ ?? null;
+      log.debug('Autocomplete bootstrap: resolved StimulusAppLike.', describeStimulusAppLike(app));
+      if (!app || typeof app.register !== 'function') {
+        log.debug('Autocomplete bootstrap skipped: StimulusAppLike.register not available yet.');
+        return;
+      }
+
+      const mod = await import('https://esm.sh/@symfony/ux-autocomplete@2');
+      const controllerCtor = (mod as { default?: unknown }).default ?? mod;
+      if (!controllerCtor) return;
+
+      app.register(AUTOCOMPLETE_IDENTIFIER, controllerCtor);
+      ensureTomSelectCssLoaded();
+      autocompleteControllerReady = true;
+      log.debug('Registered Symfony UX Autocomplete controller from bundle dashboard script.', {
+        identifier: AUTOCOMPLETE_IDENTIFIER,
+      });
+    } catch (e) {
+      log.warn('Could not auto-register Symfony UX Autocomplete controller.', e);
+    } finally {
+      autocompleteControllerPromise = null;
+    }
+  })();
+  return autocompleteControllerPromise;
+}
+
 function connectStimulusControllersInContainer(container: Element | null): void {
   if (!container) return;
+  void ensureAutocompleteControllerRegistered();
   const app =
     window.Stimulus ?? window.$$stimulusApp$$ ?? window.__stimulusApp__ ?? null;
   if (!app) {
@@ -573,6 +641,7 @@ function initItemFormPage(config: NowoDashboardMenuConfig): void {
 function run(): void {
   const config = window.__nowoDashboardMenuConfig;
   if (!config) return;
+  void ensureAutocompleteControllerRegistered();
   if (!window.__dmScriptLoaded) {
     log.scriptLoaded();
     window.__dmScriptLoaded = true;

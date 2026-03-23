@@ -159,6 +159,8 @@ final readonly class MenuExporter
             'externalUrl'   => $item->getExternalUrl(),
             'icon'          => $item->getIcon(),
             'permissionKey' => $item->getPermissionKey(),
+            'permissionKeys' => $item->getPermissionKeys(),
+            'isUnanimous'   => $item->isUnanimous(),
             'itemType'      => $item->getItemType(),
             'targetBlank'   => $item->getTargetBlank(),
             'position'      => $item->getPosition(),
@@ -166,6 +168,12 @@ final readonly class MenuExporter
         $data = array_filter($data, static fn (mixed $v): bool => $v !== null && $v !== '');
         if (!array_key_exists('permissionKey', $data)) {
             $data['permissionKey'] = $item->getPermissionKey();
+        }
+        if (!array_key_exists('permissionKeys', $data)) {
+            $data['permissionKeys'] = $item->getPermissionKeys();
+        }
+        if (!array_key_exists('isUnanimous', $data)) {
+            $data['isUnanimous'] = $item->isUnanimous();
         }
         if ($children !== []) {
             $data['children'] = $children;

@@ -756,7 +756,8 @@ final class MenuDashboardController extends AbstractController
             $newItem->setRouteParams($sourceItem->getRouteParams());
             $newItem->setExternalUrl($sourceItem->getExternalUrl());
             $newItem->setIcon($sourceItem->getIcon());
-            $newItem->setPermissionKey($sourceItem->getPermissionKey());
+            $newItem->setPermissionKeys($sourceItem->getPermissionKeys());
+            $newItem->setIsUnanimous($sourceItem->isUnanimous());
             $newItem->setTargetBlank($sourceItem->getTargetBlank());
             $em->persist($newItem);
 

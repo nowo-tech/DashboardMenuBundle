@@ -123,8 +123,18 @@ final class MenuItemTest extends TestCase
     {
         $item = new MenuItem();
         self::assertNull($item->getPermissionKey());
+        self::assertNull($item->getPermissionKeys());
+        self::assertTrue($item->isUnanimous());
         $item->setPermissionKey('admin');
         self::assertSame('admin', $item->getPermissionKey());
+        self::assertSame(['admin'], $item->getPermissionKeys());
+
+        $item->setPermissionKeys(['authenticated', 'admin']);
+        self::assertSame(['authenticated', 'admin'], $item->getPermissionKeys());
+        self::assertSame('authenticated', $item->getPermissionKey());
+
+        $item->setIsUnanimous(false);
+        self::assertFalse($item->isUnanimous());
     }
 
     public function testIconGetterSetter(): void

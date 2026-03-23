@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 final class PermissionKeyAwareMenuPermissionCheckerTest extends TestCase
 {
-    public function testCanViewReturnsTrueWhenPermissionKeyIsNull(): void
+    public function testCanViewReturnsTrueWhenPermissionKeysAreNull(): void
     {
         $checker = new PermissionKeyAwareMenuPermissionChecker();
         $item    = new MenuItem();
@@ -19,11 +19,11 @@ final class PermissionKeyAwareMenuPermissionCheckerTest extends TestCase
         self::assertTrue($checker->canView($item));
     }
 
-    public function testCanViewReturnsTrueWhenPermissionKeyIsEmpty(): void
+    public function testCanViewReturnsTrueWhenPermissionKeysAreEmpty(): void
     {
         $checker = new PermissionKeyAwareMenuPermissionChecker();
         $item    = new MenuItem();
-        $item->setPermissionKey('');
+        $item->setPermissionKeys([]);
 
         self::assertTrue($checker->canView($item));
     }

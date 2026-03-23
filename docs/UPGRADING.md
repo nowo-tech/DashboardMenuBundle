@@ -2,6 +2,14 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 0.3.28 to next
+
+No breaking changes.
+
+- **Item permissions UI/model:** item configuration now uses `permissionKeys` as a multiselect and `isUnanimous` to define aggregation mode.
+- **Runtime compatibility:** `permissionKey` remains supported as a legacy single-key fallback; runtime reads `permissionKeys` first.
+- **Import/export payloads:** item payloads include `permissionKeys` and `isUnanimous` (and keep `permissionKey` for compatibility with older integrations).
+
 ## From 0.3.27 to 0.3.28
 
 No breaking changes.

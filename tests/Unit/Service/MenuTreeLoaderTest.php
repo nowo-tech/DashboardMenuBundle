@@ -76,7 +76,8 @@ class MenuTreeLoaderTest extends TestCase
         self::assertNull($checks[0]['checker_service_id']);
         self::assertTrue($checks[0]['checker_fallback']);
         self::assertSame(AllowAllMenuPermissionChecker::class, $checks[0]['checker_resolved']);
-        self::assertSame('menu.root', $checks[0]['permission_key']);
+        self::assertSame(['menu.root'], $checks[0]['permission_keys']);
+        self::assertTrue($checks[0]['is_unanimous']);
     }
 
     public function testLoadTreeReturnsEmptyArrayWhenMenuNotFound(): void

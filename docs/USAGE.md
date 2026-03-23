@@ -152,9 +152,9 @@ From the dashboard (list of menus) you can:
 - **Export one menu** — same structure for a single menu (e.g. `menu-{code}-export.json`).
 - **Import** — upload a JSON file produced by export (from a dedicated page or from the **Import** modal on the index). Choose strategy: **Skip existing** (do not overwrite menus that already exist for the same code+context) or **Replace** (replace items of existing menus). Errors (e.g. invalid format or missing `code`) are shown as flash messages.
 
-**Dashboard forms:** Menu and item forms are split into **definition** (pencil icon: code, name, context, icon for menus; type, icon, labels for items) and **configuration** (gear icon: permission checker, depth, collapsible, CSS for menus; position, parent, link, permission for items). New menu and new item show only definition; after saving you can edit configuration via the gear button. When adding a **child** item, the modal fixes the item type (link) and shows only `label` + per-locale translations (no icon/position fields). After any successful action (create, update, delete, copy, import, move), the app redirects to the request **Referer** when it is same-origin, otherwise to the usual list or show page.
+**Dashboard forms:** Menu and item forms are split into **definition** (pencil icon: code, name, context, icon for menus; type, icon, labels for items) and **configuration** (gear icon: permission checker, depth, collapsible, CSS for menus; position, parent, link, permission keys for items). New menu and new item show only definition; after saving you can edit configuration via the gear button. When adding a **child** item, the modal fixes the item type (link) and shows only `label` + per-locale translations (no icon/position fields). After any successful action (create, update, delete, copy, import, move), the app redirects to the request **Referer** when it is same-origin, otherwise to the usual list or show page.
 
-The JSON format is the same for one menu (`menu` + `items`) or multiple (`menus` array of `{ menu, items }`). Item trees and translations are preserved.
+The JSON format is the same for one menu (`menu` + `items`) or multiple (`menus` array of `{ menu, items }`). Item trees and translations are preserved. For permissions, item payloads support both legacy `permissionKey` (single string) and `permissionKeys` (array of strings) plus `isUnanimous` (boolean): `true` = all keys must pass (AND), `false` = any key can pass (OR).
 
 ## Resolving menu by criteria (operatorId, partnerId, menu name)
 
@@ -206,15 +206,34 @@ Implement `Nowo\DashboardMenuBundle\Service\MenuPermissionCheckerInterface`:
 ```php
 public function canView(MenuItem $item, mixed $context = null): bool
 {
-    if ($item->getPermissionKey() === null) return true;
-    // e.g. check user role, feature flag, etc.
-    return $this->authorizationChecker->isGranted($item->getPermissionKey(), $context);
+    $keys = $item->getPermissionKeys() ?? [];
+    if ($keys === []) {
+        return true;
+    }
+
+    if ($item->isUnanimous()) {
+        foreach ($keys as $key) {
+            if (!$this->authorizationChecker->isGranted($key, $context)) {
+                return false;
+            }
+        }
+
+        return true; // AND
+    }
+
+    foreach ($keys as $key) {
+        if ($this->authorizationChecker->isGranted($key, $context)) {
+            return true; // OR
+        }
+    }
+
+    return false;
 }
 ```
 
 ### Demo expression syntax (AND / OR / parentheses)
 
-The demo checker in `demo/symfony7` and `demo/symfony8` supports simple expressions in `permissionKey`:
+The demo checker in `demo/symfony7` and `demo/symfony8` supports simple expressions per key, and supports multiple keys via `permissionKeys` + `isUnanimous`:
 
 - `keyA|keyB` → OR (at least one token must pass)
 - `keyA&keyB` → AND (all tokens must pass)

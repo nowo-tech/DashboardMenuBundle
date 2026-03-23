@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Item permissions model:** dashboard item configuration now uses `permissionKeys` (multiselect array) and `isUnanimous` (AND/OR mode) as the primary permissions model.
+
+### Changed
+- **Docs:** USAGE and CONFIGURATION now document multi-key permissions (`permissionKeys`) and aggregation mode (`isUnanimous`) including checker examples and import/export payload notes.
+
 ## [0.3.28] - 2026-03-23
 
 ### Changed

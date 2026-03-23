@@ -15,7 +15,11 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["vite/client", "node"]
+    "types": ["vite/client", "node"],
+    "baseUrl": ".",
+    "paths": {
+      "@nowo-dashboard-menu/logger": ["../../src/Resources/assets/src/logger.ts"]
+    }
   },
   "include": ["assets/**/*.ts", "vite.config.ts", "env.d.ts"]
 }

@@ -78,7 +78,12 @@
                     <div id="external_field" style="display: none;">{{ form_row(form.config.externalUrl) }}</div>
                     {{ form_row(form.config.targetBlank, { row_attr: { class: 'form-check ms-0 mb-1' } }) }}
                 </div>
-                {{ form_row(form.config.permissionKey) }}
+                {% if form.config.permissionKeys is defined %}
+                    {{ form_row(form.config.permissionKeys) }}
+                {% else %}
+                    {{ form_row(form.config.permissionKey) }}
+                {% endif %}
+                {{ form_row(form.config.isUnanimous, { row_attr: { class: 'form-check ms-0 mb-1' } }) }}
             </div>
             {% endif %}
         </div>

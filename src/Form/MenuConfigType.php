@@ -43,23 +43,26 @@ final class MenuConfigType extends AbstractType
         // Internal map: service id => human label.
         $choicesById = $this->permissionCheckerChoices;
         $data        = $builder->getData();
+        $current     = null;
         if ($data instanceof Menu) {
             $current = $data->getPermissionChecker();
             if ($current !== null && $current !== '' && !isset($choicesById[$current])) {
-                $choicesById[$current] = $current . ' (current)';
+                $choicesById[$current] = $current;
                 ksort($choicesById, SORT_NATURAL);
             }
         }
 
-        // ChoiceType expects [label => value]. We want to persist the service id as value.
+        // ChoiceType expects [label => value].
+        // For this selector we display the technical value (FCQN/service id) instead of the label/alias,
+        // while still persisting the same technical value.
         /** @var array<string, string> $checkerChoices */
         $checkerChoices = [];
-        foreach ($choicesById as $serviceId => $label) {
-            $choiceLabel = $label;
-            if (isset($checkerChoices[$choiceLabel])) {
-                $choiceLabel .= ' [' . $serviceId . ']';
+        foreach ($choicesById as $serviceId => $_label) {
+            $display = (string) $serviceId;
+            if ($current !== null && $current !== '' && $current === $serviceId) {
+                $display .= ' (current)';
             }
-            $checkerChoices[$choiceLabel] = $serviceId;
+            $checkerChoices[$display] = (string) $serviceId;
         }
         $t = fn (string $id): string => $this->translator instanceof TranslatorInterface ? $this->translator->trans($id, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN) : $id;
 

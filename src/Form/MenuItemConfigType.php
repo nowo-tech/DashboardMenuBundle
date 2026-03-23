@@ -101,24 +101,33 @@ final class MenuItemConfigType extends AbstractType
                 'label_attr' => ['class' => 'form-check-label'],
             ]);
 
+        $choices = $this->buildPermissionKeyChoices($t, $builder->getData());
         $permissionKeyOptions = [
             'required'   => false,
-            'label'      => 'form.menu_item_type.permission_key.label',
+            'label'      => 'form.menu_item_type.permission_keys.label',
             'row_attr'   => ['class' => 'mb-1'],
             'label_attr' => ['class' => 'form-label'],
+            'choices'                   => $choices,
+            'placeholder'               => $t('form.menu_item_type.permission_keys.placeholder'),
+            'choice_translation_domain' => false,
+            'attr'                      => ['class' => 'form-select'],
+            'autocomplete'              => true,
+            'multiple'                  => true,
+            'tom_select_options'        => [
+                'plugins'          => ['remove_button'],
+                'closeAfterSelect' => false,
+                'hidePlaceholder'  => true,
+            ],
         ];
-        if ($this->permissionKeyChoices !== []) {
-            $choices                                           = $this->buildPermissionKeyChoices($t, $builder->getData());
-            $permissionKeyOptions['choices']                   = $choices;
-            $permissionKeyOptions['placeholder']               = $t('form.menu_item_type.permission_key.placeholder');
-            $permissionKeyOptions['choice_translation_domain'] = false;
-            $permissionKeyOptions['attr']                      = ['class' => 'form-select'];
-            $permissionKeyOptions['autocomplete']              = true;
-            $builder->add('permissionKey', ChoiceType::class, $permissionKeyOptions);
-        } else {
-            $permissionKeyOptions['attr'] = ['class' => 'form-control'];
-            $builder->add('permissionKey', TextType::class, $permissionKeyOptions);
-        }
+        $builder->add('permissionKeys', ChoiceType::class, $permissionKeyOptions);
+        $builder->add('isUnanimous', CheckboxType::class, [
+            'required'   => false,
+            'label'      => 'form.menu_item_type.is_unanimous.label',
+            'help'       => 'form.menu_item_type.is_unanimous.help',
+            'attr'       => ['class' => 'form-check-input'],
+            'row_attr'   => ['class' => 'ms-3 mb-1 form-check'],
+            'label_attr' => ['class' => 'form-check-label'],
+        ]);
 
         $builder->get('routeParams')->addModelTransformer(new JsonToArrayTransformer());
 
@@ -235,7 +244,7 @@ final class MenuItemConfigType extends AbstractType
     }
 
     /**
-     * Build choices for the permission key field (label => value). Translates via form.menu_item_type.permission_key.choice.{safe_key}.
+     * Build choices for the permission keys field (label => value). Translates via form.menu_item_type.permission_keys.choice.{safe_key}.
      *
      * @return array<string, string> label => permission key
      */
@@ -244,15 +253,17 @@ final class MenuItemConfigType extends AbstractType
         $choices = [];
         foreach ($this->permissionKeyChoices as $key) {
             $safe  = str_replace(['/', ':'], '_', $key);
-            $trKey = 'form.menu_item_type.permission_key.choice.' . $safe;
+            $trKey = 'form.menu_item_type.permission_keys.choice.' . $safe;
             $label = $t($trKey);
 
             $choices[$label === $trKey ? $key : $label] = $key;
         }
         if ($data instanceof MenuItem) {
-            $current = $data->getPermissionKey();
-            if ($current !== null && $current !== '' && !in_array($current, $this->permissionKeyChoices, true)) {
-                $choices[$current . ' (current)'] = $current;
+            $currentKeys = $data->getPermissionKeys() ?? [];
+            foreach ($currentKeys as $current) {
+                if (!in_array($current, $this->permissionKeyChoices, true)) {
+                    $choices[$current . ' (current)'] = $current;
+                }
             }
         }
 

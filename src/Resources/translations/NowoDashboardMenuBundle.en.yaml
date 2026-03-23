@@ -183,13 +183,17 @@ form:
       placeholder: "https://..."
     target_blank:
       label: Open in new tab
-    permission_key:
-      label: Permission key
+    permission_keys:
+      label: Permission keys
       placeholder: "— Allow all —"
+      help_csv: "Comma-separated keys (used when no configured choices are available)."
       choice:
         authenticated: "Authenticated only"
         admin: "Admin only"
         path__: "Path: / (home only)"
+    is_unanimous:
+      label: Require all selected keys
+      help: "Enabled: all keys must pass (AND). Disabled: any key may pass (OR)."
     icon:
       label: Icon
       placeholder: "heroicons:home"

@@ -15,6 +15,7 @@ use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
@@ -558,7 +559,7 @@ final class MenuItemTypeTest extends TestCase
         );
 
         $menuItem = new MenuItem();
-        $menuItem->setPermissionKey('path:/');
+        $menuItem->setPermissionKeys(['path:/']);
 
         $addCalls = [];
         $builder  = $this->createFormBuilderMock($addCalls, $menuItem, routeParamsFormTransformer: true);
@@ -570,7 +571,7 @@ final class MenuItemTypeTest extends TestCase
             'locale'      => 'en',
         ]);
 
-        $pc = $this->findAddCall($addCalls, 'permissionKey');
+        $pc = $this->findAddCall($addCalls, 'permissionKeys');
         self::assertSame(ChoiceType::class, $pc['type']);
 
         $choices = $pc['choices'] ?? [];
@@ -578,6 +579,9 @@ final class MenuItemTypeTest extends TestCase
         self::assertArrayHasKey('admin', $choices);
         self::assertArrayHasKey('path:/ (current)', $choices);
         self::assertSame('path:/', $choices['path:/ (current)']);
+
+        $unanimous = $this->findAddCall($addCalls, 'isUnanimous');
+        self::assertSame(CheckboxType::class, $unanimous['type']);
     }
 
     public function testMenuItemConfigTypeConfigureOptionsSetsDefaultsAndAllowedTypes(): void
@@ -711,7 +715,15 @@ final class MenuItemTypeTest extends TestCase
         if ($routeParamsFormTransformer) {
             $routeParamsForm = $this->createMock(FormBuilderInterface::class);
             $routeParamsForm->expects(self::once())->method('addModelTransformer');
-            $builder->method('get')->with('routeParams')->willReturn($routeParamsForm);
+            $permissionKeysForm = $this->createMock(FormBuilderInterface::class);
+            $permissionKeysForm->expects(self::atMost(1))->method('addModelTransformer');
+            $builder->method('get')->willReturnCallback(static function (string $name) use ($routeParamsForm, $permissionKeysForm): FormBuilderInterface {
+                return match ($name) {
+                    'routeParams' => $routeParamsForm,
+                    'permissionKeys' => $permissionKeysForm,
+                    default => $routeParamsForm,
+                };
+            });
         }
 
         if ($captureEventListeners) {

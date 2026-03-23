@@ -346,7 +346,8 @@ final class DashboardMenuDataCollectorTest extends TestCase
         $checks = $collector->getPermissionChecks();
         self::assertCount(1, $checks);
         self::assertSame('sidebar', $checks[0]['menu_code']);
-        self::assertSame('menu.settings', $checks[0]['permission_key']);
+        self::assertSame(['menu.settings'], $checks[0]['permission_keys']);
+        self::assertTrue($checks[0]['is_unanimous']);
         self::assertSame('custom_checker', $checks[0]['checker_selected']);
         self::assertTrue($checks[0]['result']);
 
