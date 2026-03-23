@@ -2,13 +2,19 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
-## From 0.3.28 to next
+## From 0.3.29 to next
+
+No breaking changes.
+
+## From 0.3.28 to 0.3.29
 
 No breaking changes.
 
 - **Item permissions UI/model:** item configuration now uses `permissionKeys` as a multiselect and `isUnanimous` to define aggregation mode.
 - **Runtime compatibility:** `permissionKey` remains supported as a legacy single-key fallback; runtime reads `permissionKeys` first.
 - **Import/export payloads:** item payloads include `permissionKeys` and `isUnanimous` (and keep `permissionKey` for compatibility with older integrations).
+- **Dashboard JS autocomplete bootstrap:** bundle `dashboard.js` now self-registers Symfony UX Autocomplete and Tom Select CSS when Stimulus is available, so bundle dashboard views do not depend on app entrypoints for autocomplete initialization.
+- **Demos:** Symfony 7/8 dashboard assets now register UX Autocomplete controller explicitly; Symfony 8 dashboard layout now includes Vite entrypoint tags in bundle override.
 
 ## From 0.3.27 to 0.3.28
 

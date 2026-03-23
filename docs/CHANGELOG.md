@@ -7,11 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.29] - 2026-03-23
+
 ### Added
 - **Item permissions model:** dashboard item configuration now uses `permissionKeys` (multiselect array) and `isUnanimous` (AND/OR mode) as the primary permissions model.
+- **Bundle dashboard JS bootstrap:** `dashboard.js` now auto-registers Symfony UX Autocomplete (`symfony--ux-autocomplete--autocomplete`) on the detected `StimulusAppLike` and auto-loads Tom Select Bootstrap 5 CSS when needed.
+- **Autocomplete diagnostics:** dashboard script now emits explicit debug traces for Stimulus app detection, autocomplete controller registration, and Tom Select CSS loading.
 
 ### Changed
 - **Docs:** USAGE and CONFIGURATION now document multi-key permissions (`permissionKeys`) and aggregation mode (`isUnanimous`) including checker examples and import/export payload notes.
+- **Item permission editor:** `permissionKeys` is now consistently configured as a multi-select autocomplete/tag field (`multiple` + Tom Select options), removing conflicting `expanded` behavior.
+- **Demos (Symfony 7/8):** dashboard assets now explicitly register UX Autocomplete controller and include Tom Select CSS in app entrypoints.
+
+### Fixed
+- **Demo Symfony 8 dashboard layout:** added bundle dashboard layout override with `vite_entry_*('app')` so demo dashboard pages load the demo entrypoint consistently.
+- **Integration test stability:** migration command `--dump` test no longer relies on fragile note line wrapping for `nowo_dashboard_menu.doctrine.connection`.
 
 ## [0.3.28] - 2026-03-23
 
@@ -406,7 +416,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.28...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.29...HEAD
+[0.3.29]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.28...v0.3.29
 [0.3.28]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.27...v0.3.28
 [0.3.27]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.26...v0.3.27
 [0.3.26]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.25...v0.3.26
