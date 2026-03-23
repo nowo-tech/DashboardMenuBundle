@@ -682,6 +682,56 @@ class MenuTreeLoaderTest extends TestCase
         self::assertSame('One', $tree[0]['item']->getLabel());
     }
 
+    public function testLoadTreeNormalizesLegacyCheckerLabelToConfiguredServiceId(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('main');
+        // Legacy value stored as label, not service id.
+        $menu->setPermissionChecker('Legacy checker label');
+
+        $root = new MenuItem();
+        $this->setMenuItemId($root, 1);
+        $root->setMenu($menu);
+        $root->setLabel('Root');
+        $root->setPosition(0);
+
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findForCodeWithContextSets')->with('main', [null, []])->willReturn($menu);
+
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->method('findAllForMenuOrderedByTree')->with($menu, 'en')->willReturn([$root]);
+
+        $resolver = new MenuConfigResolver(['project' => null], $menuRepo);
+
+        $checker = new class implements MenuPermissionCheckerInterface {
+            public function canView(MenuItem $item, mixed $context = null): bool
+            {
+                return $context !== 'deny';
+            }
+        };
+
+        $container = $this->createMock(ContainerInterface::class);
+        $container->method('has')->willReturnCallback(static fn (string $id): bool => $id === 'app.checker.legacy');
+        $container->expects(self::once())->method('get')->with('app.checker.legacy')->willReturn($checker);
+
+        $iconResolver = new MenuIconNameResolver([]);
+        $loader       = new MenuTreeLoader(
+            $menuRepo,
+            $itemRepo,
+            $resolver,
+            $iconResolver,
+            $container,
+            new AllowAllMenuPermissionChecker(),
+            null,
+            60,
+            null,
+            ['app.checker.legacy' => 'Legacy checker label'],
+        );
+
+        $tree = $loader->loadTree('main', 'en', 'deny');
+        self::assertSame([], $tree);
+    }
+
     /**
      * When cache hits but stored value is invalid (not array or missing keys), loader falls back to findMenuAndItemsRaw.
      */
@@ -864,6 +914,90 @@ class MenuTreeLoaderTest extends TestCase
         self::assertSame('Home', $item->getLabel());
         self::assertSame(['es' => 'Inicio', 'fr' => 'Accueil'], $item->getTranslations());
         self::assertSame(['id' => 1, 'slug' => 'foo'], $item->getRouteParams());
+    }
+
+    public function testNodeKeyUsesObjectIdWhenEntityIdIsNull(): void
+    {
+        $menuRepo     = $this->createStub(MenuRepository::class);
+        $itemRepo     = $this->createStub(MenuItemRepository::class);
+        $resolver     = new MenuConfigResolver(['project' => null], $menuRepo);
+        $container    = $this->createStub(ContainerInterface::class);
+        $iconResolver = new MenuIconNameResolver([]);
+        $loader       = new MenuTreeLoader(
+            $menuRepo,
+            $itemRepo,
+            $resolver,
+            $iconResolver,
+            $container,
+            new AllowAllMenuPermissionChecker(),
+            null,
+            60,
+        );
+
+        $item = new MenuItem();
+        $ref  = new ReflectionClass(MenuTreeLoader::class);
+        $m    = $ref->getMethod('nodeKey');
+        $key  = $m->invoke($loader, $item);
+
+        self::assertStringStartsWith('obj:', $key);
+    }
+
+    public function testLoadTreeHydratesPermissionKeysArrayAndFiltersInvalidValues(): void
+    {
+        $raw = [
+            'menu' => [
+                'id'             => 1, 'code' => 'perm-keys', 'attributes_key' => '', 'name' => null, 'icon' => null,
+                'class_menu'     => null, 'class_item' => null, 'class_link' => null, 'class_children' => null,
+                'class_current'  => null, 'class_branch_expanded' => null, 'class_has_children' => null,
+                'class_expanded' => null, 'class_collapsed' => null, 'permission_checker' => null,
+                'depth_limit'    => null, 'collapsible' => null, 'collapsible_expanded' => null, 'nested_collapsible' => null,
+                'attributes'     => null, 'base' => false,
+            ],
+            'items' => [
+                [
+                    'id'             => 10,
+                    'menu_id'        => 1,
+                    'parent_id'      => null,
+                    'position'       => 0,
+                    'label'          => 'Secured',
+                    'translations'   => null,
+                    'link_type'      => 'route',
+                    'route_name'     => 'app_home',
+                    'route_params'   => null,
+                    'external_url'   => null,
+                    'permission_key' => 'legacy.fallback',
+                    'permission_keys'=> [' authenticated ', '', 'admin', 123, 'admin'],
+                    'is_unanimous'   => false,
+                    'icon'           => null,
+                    'item_type'      => 'link',
+                    'target_blank'   => false,
+                ],
+            ],
+        ];
+
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findMenuAndItemsRaw')->with('perm-keys', [null, []])->willReturn($raw);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+
+        $resolver     = new MenuConfigResolver(['project' => null], $menuRepo);
+        $container    = $this->createStub(ContainerInterface::class);
+        $iconResolver = new MenuIconNameResolver([]);
+        $loader       = new MenuTreeLoader(
+            $menuRepo,
+            $itemRepo,
+            $resolver,
+            $iconResolver,
+            $container,
+            new AllowAllMenuPermissionChecker(),
+            null,
+            60,
+        );
+
+        $tree = $loader->loadTree('perm-keys', 'en');
+        self::assertCount(1, $tree);
+        $item = $tree[0]['item'];
+        self::assertSame(['authenticated', 'admin'], $item->getPermissionKeys());
+        self::assertFalse($item->isUnanimous());
     }
 
     private function setMenuItemId(MenuItem $item, ?int $id): void

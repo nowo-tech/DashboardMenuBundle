@@ -233,4 +233,95 @@ final class MenuItemRepositoryIntegrationTest extends KernelTestCase
     {
         self::assertSame([], $this->repository->countForMenus([]));
     }
+
+    public function testFindAllForMenusOrderedByTreeForExportGroupsByMenuId(): void
+    {
+        $menuA = new Menu();
+        $menuA->setCode('group_a');
+        $this->entityManager->persist($menuA);
+
+        $menuB = new Menu();
+        $menuB->setCode('group_b');
+        $this->entityManager->persist($menuB);
+        $this->entityManager->flush();
+
+        $a1 = new MenuItem();
+        $a1->setMenu($menuA);
+        $a1->setLabel('A1');
+        $a1->setPosition(0);
+        $this->entityManager->persist($a1);
+
+        $a2 = new MenuItem();
+        $a2->setMenu($menuA);
+        $a2->setLabel('A2');
+        $a2->setPosition(1);
+        $this->entityManager->persist($a2);
+
+        $b1 = new MenuItem();
+        $b1->setMenu($menuB);
+        $b1->setLabel('B1');
+        $b1->setPosition(0);
+        $this->entityManager->persist($b1);
+        $this->entityManager->flush();
+
+        $grouped = $this->repository->findAllForMenusOrderedByTreeForExport([$menuA, $menuB]);
+
+        self::assertCount(2, $grouped);
+        self::assertCount(2, $grouped[$menuA->getId()] ?? []);
+        self::assertCount(1, $grouped[$menuB->getId()] ?? []);
+    }
+
+    public function testFindMaxPositionForParentReturnsMinusOneWhenNoSiblings(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('max_empty');
+        $this->entityManager->persist($menu);
+        $this->entityManager->flush();
+
+        self::assertSame(-1, $this->repository->findMaxPositionForParent($menu, null));
+    }
+
+    public function testFindMaxPositionForParentReturnsMaxForParentAndRoot(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('max_values');
+        $this->entityManager->persist($menu);
+        $this->entityManager->flush();
+
+        $rootA = new MenuItem();
+        $rootA->setMenu($menu);
+        $rootA->setLabel('rootA');
+        $rootA->setPosition(2);
+        $this->entityManager->persist($rootA);
+
+        $rootB = new MenuItem();
+        $rootB->setMenu($menu);
+        $rootB->setLabel('rootB');
+        $rootB->setPosition(4);
+        $this->entityManager->persist($rootB);
+        $this->entityManager->flush();
+
+        $child1 = new MenuItem();
+        $child1->setMenu($menu);
+        $child1->setParent($rootA);
+        $child1->setLabel('child1');
+        $child1->setPosition(0);
+        $this->entityManager->persist($child1);
+
+        $child2 = new MenuItem();
+        $child2->setMenu($menu);
+        $child2->setParent($rootA);
+        $child2->setLabel('child2');
+        $child2->setPosition(7);
+        $this->entityManager->persist($child2);
+        $this->entityManager->flush();
+
+        self::assertSame(4, $this->repository->findMaxPositionForParent($menu, null));
+        self::assertSame(7, $this->repository->findMaxPositionForParent($menu, $rootA));
+    }
+
+    public function testFindAllForMenusOrderedByTreeForExportWithEmptyMenusReturnsEmptyArray(): void
+    {
+        self::assertSame([], $this->repository->findAllForMenusOrderedByTreeForExport([]));
+    }
 }

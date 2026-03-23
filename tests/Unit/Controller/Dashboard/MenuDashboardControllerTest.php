@@ -1827,6 +1827,342 @@ final class MenuDashboardControllerTest extends TestCase
         self::assertSame('http://example.com/target#manual', $redirect->getTargetUrl());
     }
 
+    public function testRedirectToRefererOrFallsBackToRouteWhenCrossOrigin(): void
+    {
+        $controller = $this->createController();
+        $this->setControllerContainer($controller);
+
+        $request = Request::create('http://example.com/somewhere', 'GET');
+        $request->headers->set('Referer', 'http://evil.example/target');
+
+        $redirect = $this->invokePrivate(
+            $controller,
+            'redirectToRefererOr',
+            [$request, MenuDashboardController::ROUTE_INDEX, [], 'frag'],
+        );
+
+        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $redirect);
+        self::assertStringContainsString('/generated', $redirect->getTargetUrl());
+    }
+
+    public function testGetRateLimitKeyFallsBackToIpWhenNoUserAvailable(): void
+    {
+        $controller = $this->createController();
+        $this->setControllerContainer($controller);
+
+        $request = Request::create('/', 'GET', [], [], [], ['REMOTE_ADDR' => '10.0.0.7']);
+        $key     = $this->invokePrivate($controller, 'getRateLimitKey', [$request]);
+
+        self::assertSame('ip:10.0.0.7', $key);
+    }
+
+    public function testOrderItemsByTreeForDisplaySortsAndFlattensHierarchy(): void
+    {
+        $rootB = new MenuItem();
+        $rootB->setLabel('B');
+        $rootB->setPosition(1);
+        $this->setId($rootB, 2);
+
+        $rootA = new MenuItem();
+        $rootA->setLabel('A');
+        $rootA->setPosition(1);
+        $this->setId($rootA, 1);
+
+        $child = new MenuItem();
+        $child->setLabel('A-child');
+        $child->setParent($rootA);
+        $child->setPosition(0);
+        $this->setId($child, 3);
+
+        $controller = $this->createController();
+        $ordered    = $this->invokePrivate($controller, 'orderItemsByTreeForDisplay', [[$rootB, $child, $rootA]]);
+
+        self::assertSame([$rootA, $child, $rootB], $ordered);
+    }
+
+    public function testReindexSiblingPositionsIfNeededReturnsFalseWhenNoSiblings(): void
+    {
+        $menu = new Menu();
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->expects(self::once())->method('findSiblingsByPosition')->willReturn([]);
+
+        $controller = $this->createController(menuItemRepository: $itemRepo);
+        $changed    = $this->invokePrivate($controller, 'reindexSiblingPositionsIfNeeded', [$menu, null]);
+
+        self::assertFalse($changed);
+    }
+
+    public function testReindexSiblingPositionsIfNeededReturnsFalseWhenAlreadyUnique(): void
+    {
+        $menu = new Menu();
+        $a    = new MenuItem();
+        $a->setMenu($menu);
+        $a->setPosition(0);
+        $b = new MenuItem();
+        $b->setMenu($menu);
+        $b->setPosition(1);
+
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->expects(self::once())->method('findSiblingsByPosition')->willReturn([$a, $b]);
+
+        $controller = $this->createController(menuItemRepository: $itemRepo);
+        $changed    = $this->invokePrivate($controller, 'reindexSiblingPositionsIfNeeded', [$menu, null]);
+
+        self::assertFalse($changed);
+        self::assertSame(0, $a->getPosition());
+        self::assertSame(1, $b->getPosition());
+    }
+
+    public function testReindexSiblingPositionsIfNeededReturnsTrueWhenDuplicatesExist(): void
+    {
+        $menu = new Menu();
+        $a    = new MenuItem();
+        $a->setMenu($menu);
+        $a->setPosition(0);
+        $b = new MenuItem();
+        $b->setMenu($menu);
+        $b->setPosition(0);
+
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->expects(self::once())->method('findSiblingsByPosition')->willReturn([$a, $b]);
+
+        $controller = $this->createController(menuItemRepository: $itemRepo);
+        $changed    = $this->invokePrivate($controller, 'reindexSiblingPositionsIfNeeded', [$menu, null]);
+
+        self::assertTrue($changed);
+        self::assertSame(0, $a->getPosition());
+        self::assertSame(1, $b->getPosition());
+    }
+
+    public function testGetDescendantIdsUsesRepositoryBranchWhenMenuExists(): void
+    {
+        $menu = new Menu();
+        $root = new MenuItem();
+        $root->setMenu($menu);
+        $this->setId($root, 1);
+
+        $child = new MenuItem();
+        $child->setMenu($menu);
+        $child->setParent($root);
+        $this->setId($child, 2);
+
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->expects(self::once())
+            ->method('findAllForMenuOrderedByTreeForExport')
+            ->with($menu)
+            ->willReturn([$root, $child]);
+
+        $controller = $this->createController(menuItemRepository: $itemRepo);
+        $ids        = $this->invokePrivate($controller, 'getDescendantIds', [$root]);
+
+        self::assertSame([1, 2], $ids);
+    }
+
+    public function testCloneMenuWithItemsCopiesItemsAndParentRelationsUsingExportRepository(): void
+    {
+        $source = new Menu();
+        $source->setCode('source');
+        $source->setName('Source');
+
+        $root = new MenuItem();
+        $root->setMenu($source);
+        $root->setLabel('Root');
+        $this->setId($root, 10);
+
+        $child = new MenuItem();
+        $child->setMenu($source);
+        $child->setParent($root);
+        $child->setLabel('Child');
+        $this->setId($child, 11);
+
+        $persistedItems = [];
+        $em             = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::atLeast(3))
+            ->method('persist')
+            ->willReturnCallback(static function (object $entity) use (&$persistedItems): void {
+                if ($entity instanceof MenuItem) {
+                    $persistedItems[] = $entity;
+                }
+            });
+        $em->expects(self::exactly(2))->method('flush');
+
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->expects(self::once())
+            ->method('findAllForMenuOrderedByTreeForExport')
+            ->with($source)
+            ->willReturn([$root, $child]);
+
+        $controller = $this->createController(menuItemRepository: $itemRepo, entityManager: $em);
+        $copy       = $this->invokePrivate($controller, 'cloneMenuWithItems', [$source, 'copied', 'Copied']);
+
+        self::assertInstanceOf(Menu::class, $copy);
+        self::assertCount(2, $persistedItems);
+        self::assertNull($persistedItems[0]->getParent());
+        self::assertSame($persistedItems[0], $persistedItems[1]->getParent());
+    }
+
+    public function testCloneMenuWithItemsSkipsSecondPassWhenSourceIdMissing(): void
+    {
+        $source = new Menu();
+        $source->setCode('source');
+
+        $itemWithoutId = new MenuItem();
+        $itemWithoutId->setMenu($source);
+        $itemWithoutId->setLabel('No id');
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::atLeastOnce())->method('persist');
+        $em->expects(self::exactly(2))->method('flush');
+
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->expects(self::once())
+            ->method('findAllForMenuOrderedByTreeForExport')
+            ->with($source)
+            ->willReturn([$itemWithoutId]);
+
+        $controller = $this->createController(menuItemRepository: $itemRepo, entityManager: $em);
+        $copy       = $this->invokePrivate($controller, 'cloneMenuWithItems', [$source, 'copied', 'Copied']);
+
+        self::assertInstanceOf(Menu::class, $copy);
+    }
+
+    public function testOrderItemsByTreeForDisplayUsesPositionComparisonWhenDifferent(): void
+    {
+        $a = new MenuItem();
+        $a->setPosition(5);
+        $this->setId($a, 1);
+
+        $b = new MenuItem();
+        $b->setPosition(1);
+        $this->setId($b, 2);
+
+        $controller = $this->createController();
+        $ordered    = $this->invokePrivate($controller, 'orderItemsByTreeForDisplay', [[$a, $b]]);
+
+        self::assertSame([$b, $a], $ordered);
+    }
+
+    public function testNewItemSubmittedValidFlushesTwiceWhenReindexChangesPositions(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('m');
+
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findOneById')->with(1)->willReturn($menu);
+
+        $s1 = new MenuItem();
+        $s1->setMenu($menu);
+        $s1->setPosition(0);
+        $s2 = new MenuItem();
+        $s2->setMenu($menu);
+        $s2->setPosition(0);
+
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([]);
+        $itemRepo->method('findMaxPositionForParent')->willReturn(3);
+        $itemRepo->method('findSiblingsByPosition')->willReturn([$s1, $s2]);
+
+        $router = $this->createStub(RouterInterface::class);
+        $router->method('getRouteCollection')->willReturn(new RouteCollection());
+        $router->method('generate')->willReturn('/generated');
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::once())->method('persist')->with(self::isInstanceOf(MenuItem::class));
+        $em->expects(self::exactly(2))->method('flush');
+
+        $form = $this->createStub(FormInterface::class);
+        $form->method('handleRequest')->willReturnSelf();
+        $form->method('isSubmitted')->willReturn(true);
+        $form->method('isValid')->willReturn(true);
+
+        $controller = $this->createController(
+            menuRepository: $menuRepo,
+            menuItemRepository: $itemRepo,
+            entityManager: $em,
+            router: $router,
+        );
+        $this->setControllerContainer($controller, $form);
+
+        $response = $controller->newItem(Request::create('/1/item/new', 'POST'), 1);
+        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
+    }
+
+    public function testEditItemConfigWithParentChangeReindexesOldAndNewParentsAndFlushesTwice(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('m');
+
+        $oldParent = new MenuItem();
+        $oldParent->setMenu($menu);
+        $this->setId($oldParent, 1);
+
+        $newParent = new MenuItem();
+        $newParent->setMenu($menu);
+        $this->setId($newParent, 2);
+
+        $item = new MenuItem();
+        $item->setMenu($menu);
+        $item->setParent($oldParent);
+        $this->setId($item, 10);
+
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findOneById')->with(1)->willReturn($menu);
+
+        $uniqueA = new MenuItem();
+        $uniqueA->setMenu($menu);
+        $uniqueA->setPosition(0);
+        $uniqueB = new MenuItem();
+        $uniqueB->setMenu($menu);
+        $uniqueB->setPosition(1);
+        $dupA = new MenuItem();
+        $dupA->setMenu($menu);
+        $dupA->setPosition(0);
+        $dupB = new MenuItem();
+        $dupB->setMenu($menu);
+        $dupB->setPosition(0);
+
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->method('find')->with(10)->willReturn($item);
+        $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([]);
+        $itemRepo->method('findMaxPositionForParent')->with($menu, $newParent)->willReturn(5);
+        $itemRepo->method('findSiblingsByPosition')
+            ->willReturnOnConsecutiveCalls([$uniqueA, $uniqueB], [$dupA, $dupB]);
+
+        $router = $this->createStub(RouterInterface::class);
+        $router->method('getRouteCollection')->willReturn(new RouteCollection());
+        $router->method('generate')->willReturn('/generated');
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        // once after save + once after changed reindex
+        $em->expects(self::exactly(2))->method('flush');
+
+        $form = $this->createMock(FormInterface::class);
+        $form->method('handleRequest')->willReturnCallback(function () use ($item, $newParent, $form): FormInterface {
+            $item->setParent($newParent);
+
+            return $form;
+        });
+        $form->method('isSubmitted')->willReturn(true);
+        $form->method('isValid')->willReturn(true);
+        $form->method('has')->willReturn(false);
+
+        $controller = $this->createController(
+            menuRepository: $menuRepo,
+            menuItemRepository: $itemRepo,
+            entityManager: $em,
+            router: $router,
+            locales: ['en'],
+        );
+        $this->setControllerContainer($controller, $form);
+
+        $request = Request::create('/1/item/10/edit', 'POST');
+        $request->request->set('_section', 'config');
+
+        $response = $controller->editItem($request, 1, 10);
+        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
+        self::assertSame(6, $item->getPosition());
+    }
+
     private function createController(
         ?MenuRepository $menuRepository = null,
         ?MenuItemRepository $menuItemRepository = null,

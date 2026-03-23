@@ -183,13 +183,17 @@ form:
       placeholder: "https://..."
     target_blank:
       label: Abrir en nueva pestaña
-    permission_key:
-      label: Clave de permiso
+    permission_keys:
+      label: Claves de permiso
       placeholder: "— Permitir todos —"
+      help_csv: "Claves separadas por comas (se usa cuando no hay opciones configuradas)."
       choice:
         authenticated: "Solo autenticados"
         admin: "Solo admin"
         path__: "Ruta: / (solo inicio)"
+    is_unanimous:
+      label: Requerir todas las claves seleccionadas
+      help: "Activado: todas las claves deben cumplirse (AND). Desactivado: basta cualquier clave (OR)."
     icon:
       label: Icono
       placeholder: "heroicons:home"

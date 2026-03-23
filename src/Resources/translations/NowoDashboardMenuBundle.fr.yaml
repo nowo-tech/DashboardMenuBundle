@@ -66,6 +66,14 @@ dashboard:
   toggle: Basculer
   yes: Oui
   no: Non
+  export: Exporter
+  export_all: Exporter tous les menus
+  import: Importer
+  import_help: "Téléversez un fichier JSON exporté depuis ce tableau de bord (un menu ou tous). Choisissez d’ignorer les menus déjà existants (même code + contexte) ou de remplacer leurs éléments."
+  import_json_invalid: Fichier JSON invalide.
+  import_json_error: "JSON invalide : %message%"
+  import_file_too_large: "Le fichier est trop volumineux. Taille maximale %max% Mio."
+  import_done: "Import terminé : %created% créés, %updated% mis à jour, %skipped% ignorés."
 
 # Form: MenuType
 form:
@@ -175,13 +183,17 @@ form:
       placeholder: "https://..."
     target_blank:
       label: Ouvrir dans un nouvel onglet
-    permission_key:
-      label: Clé de permission
+    permission_keys:
+      label: Clés de permission
       placeholder: "— Tout autoriser —"
+      help_csv: "Clés séparées par des virgules (utilisé quand aucune liste configurée n’est disponible)."
       choice:
         authenticated: "Authentifié uniquement"
         admin: "Admin uniquement"
         path__: "Chemin : / (accueil uniquement)"
+    is_unanimous:
+      label: Exiger toutes les clés sélectionnées
+      help: "Activé : toutes les clés doivent passer (AND). Désactivé : une seule clé suffit (OR)."
     icon:
       label: Icône
       placeholder: "heroicons:home"
@@ -189,6 +201,16 @@ form:
       label: Parent
       placeholder: "— Racine (sans parent) —"
       circular_violation: "La hiérarchie parent circulaire n'est pas autorisée."
+
+  import_menu_type:
+    file:
+      label: Fichier JSON
+      required: Veuillez choisir un fichier.
+      mime_message: Le fichier doit être au format JSON.
+    strategy:
+      label: Si un menu avec le même code et contexte existe déjà
+      skip_existing: Ignorer (ne pas importer)
+      replace: Remplacer (supprimer les éléments existants et importer)
 
   copy_menu_type:
     code:

@@ -7,6 +7,7 @@ namespace Nowo\DashboardMenuBundle\Tests\Entity;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use PHPUnit\Framework\TestCase;
+use ReflectionProperty;
 
 final class MenuItemTest extends TestCase
 {
@@ -135,6 +136,40 @@ final class MenuItemTest extends TestCase
 
         $item->setIsUnanimous(false);
         self::assertFalse($item->isUnanimous());
+    }
+
+    public function testSetPermissionKeysNormalizesAndDeduplicatesValues(): void
+    {
+        $item = new MenuItem();
+        $item->setPermissionKeys([' authenticated ', '', 'admin', 'admin', 123, 'path:/']);
+
+        self::assertSame(['authenticated', 'admin', 'path:/'], $item->getPermissionKeys());
+        self::assertSame('authenticated', $item->getPermissionKey());
+    }
+
+    public function testSetPermissionKeysNullClearsLegacyPermissionKey(): void
+    {
+        $item = new MenuItem();
+        $item->setPermissionKey('admin');
+        self::assertSame('admin', $item->getPermissionKey());
+
+        $item->setPermissionKeys(null);
+
+        self::assertNull($item->getPermissionKeys());
+        self::assertNull($item->getPermissionKey());
+    }
+
+    public function testGetPermissionKeysFallsBackToLegacyPermissionKeyWhenArrayIsNull(): void
+    {
+        $item = new MenuItem();
+
+        $legacy = new ReflectionProperty(MenuItem::class, 'permissionKey');
+        $legacy->setValue($item, 'legacy-key');
+
+        $keys = new ReflectionProperty(MenuItem::class, 'permissionKeys');
+        $keys->setValue($item, null);
+
+        self::assertSame(['legacy-key'], $item->getPermissionKeys());
     }
 
     public function testIconGetterSetter(): void

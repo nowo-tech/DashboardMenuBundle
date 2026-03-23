@@ -172,9 +172,6 @@ final readonly class MenuExporter
         if (!array_key_exists('permissionKeys', $data)) {
             $data['permissionKeys'] = $item->getPermissionKeys();
         }
-        if (!array_key_exists('isUnanimous', $data)) {
-            $data['isUnanimous'] = $item->isUnanimous();
-        }
         if ($children !== []) {
             $data['children'] = $children;
         }

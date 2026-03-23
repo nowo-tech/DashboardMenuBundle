@@ -168,4 +168,37 @@ final class MenuExporterTest extends TestCase
         self::assertCount(1, $data['menus']);
         self::assertSame('foo', $data['menus'][0]['menu']['code']);
     }
+
+    public function testExportAllReturnsEmptyMenusArrayWhenNoMenusExist(): void
+    {
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findAll')->willReturn([]);
+        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo->method('findAllForMenusOrderedByTreeForExport')->willReturn([]);
+
+        $exporter = new MenuExporter($menuRepo, $itemRepo);
+        $data     = $exporter->exportAll();
+
+        self::assertSame(['menus' => []], $data);
+    }
+
+    public function testExportAllUsesEmptyItemsWhenMenuIdIsNull(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('draft-without-id');
+
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findAll')->willReturn([$menu]);
+
+        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo->method('findAllForMenusOrderedByTreeForExport')->willReturn([
+            999 => [],
+        ]);
+
+        $exporter = new MenuExporter($menuRepo, $itemRepo);
+        $data     = $exporter->exportAll();
+
+        self::assertCount(1, $data['menus']);
+        self::assertSame([], $data['menus'][0]['items']);
+    }
 }

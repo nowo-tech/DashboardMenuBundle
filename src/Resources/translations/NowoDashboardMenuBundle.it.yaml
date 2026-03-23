@@ -61,6 +61,14 @@ dashboard:
   toggle: Attiva/disattiva
   yes: Sì
   no: No
+  export: Export
+  export_all: Export all menus
+  import: Import
+  import_help: "Upload a JSON file exported from this dashboard (one menu or all menus). Choose whether to skip menus that already exist (same code + context) or replace their items."
+  import_json_invalid: Invalid JSON file.
+  import_json_error: "Invalid JSON: %message%"
+  import_file_too_large: "File is too large. Maximum size is %max% MiB."
+  import_done: "Import complete: %created% created, %updated% updated, %skipped% skipped."
 form:
   menu_type:
     code:
@@ -159,6 +167,16 @@ form:
     parent:
       label: Padre
       placeholder: "— Radice —"
+  import_menu_type:
+    file:
+      label: JSON file
+      required: Please choose a file.
+      mime_message: File must be JSON.
+    strategy:
+      label: When a menu with the same code and context already exists
+      skip_existing: Skip (do not import)
+      replace: Replace (delete existing items and import)
+
   copy_menu_type:
     code:
       label: Codice

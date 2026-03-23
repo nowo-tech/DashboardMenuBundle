@@ -13,6 +13,7 @@ use Nowo\DashboardMenuBundle\Form\MenuItemType;
 use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use PHPUnit\Framework\TestCase;
+use ReflectionProperty;
 use stdClass;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -694,6 +695,128 @@ final class MenuItemTypeTest extends TestCase
         $child->setParent($parent);
 
         self::assertSame('Parent > Child', $choiceLabel($child));
+    }
+
+    public function testMenuItemConfigTypeValidateParentNoCircularDirectSelfViolation(): void
+    {
+        $type = new MenuItemConfigType(
+            menuItemRepository: $this->createStub(MenuItemRepository::class),
+            permissionKeyChoices: [],
+            defaultLocale: 'en',
+        );
+
+        $item = new MenuItem();
+        $item->setParent($item);
+
+        $context = $this->createMock(ExecutionContextInterface::class);
+        $builder = $this->createMock(ConstraintViolationBuilderInterface::class);
+        $context->expects(self::once())
+            ->method('buildViolation')
+            ->with('form.menu_item_type.parent.circular_violation')
+            ->willReturn($builder);
+        $builder->method('atPath')->with('parent')->willReturn($builder);
+        $builder->method('setTranslationDomain')->with(NowoDashboardMenuBundle::TRANSLATION_DOMAIN)->willReturn($builder);
+        $builder->expects(self::once())->method('addViolation');
+
+        $type->validateParentNoCircular($item, $context);
+    }
+
+    public function testMenuItemConfigTypeValidateParentNoCircularNoViolationWhenNoParent(): void
+    {
+        $type = new MenuItemConfigType(
+            menuItemRepository: $this->createStub(MenuItemRepository::class),
+            permissionKeyChoices: [],
+            defaultLocale: 'en',
+        );
+
+        $item = new MenuItem();
+        $item->setParent(null);
+
+        $context = $this->createMock(ExecutionContextInterface::class);
+        $context->expects(self::never())->method('buildViolation');
+
+        $type->validateParentNoCircular($item, $context);
+    }
+
+    public function testMenuItemConfigTypeValidateParentNoCircularDetectsSameIdDetachedObjects(): void
+    {
+        $type = new MenuItemConfigType(
+            menuItemRepository: $this->createStub(MenuItemRepository::class),
+            permissionKeyChoices: [],
+            defaultLocale: 'en',
+        );
+
+        $item   = new MenuItem();
+        $parent = new MenuItem();
+        $ref    = new ReflectionProperty(MenuItem::class, 'id');
+        $ref->setValue($item, 10);
+        $ref->setValue($parent, 10);
+        $item->setParent($parent);
+
+        $context = $this->createMock(ExecutionContextInterface::class);
+        $builder = $this->createMock(ConstraintViolationBuilderInterface::class);
+        $context->expects(self::once())
+            ->method('buildViolation')
+            ->with('form.menu_item_type.parent.circular_violation')
+            ->willReturn($builder);
+        $builder->method('atPath')->with('parent')->willReturn($builder);
+        $builder->method('setTranslationDomain')->with(NowoDashboardMenuBundle::TRANSLATION_DOMAIN)->willReturn($builder);
+        $builder->expects(self::once())->method('addViolation');
+
+        $type->validateParentNoCircular($item, $context);
+    }
+
+    public function testMenuItemConfigTypeValidateParentNoCircularDetectsAncestorLoop(): void
+    {
+        $type = new MenuItemConfigType(
+            menuItemRepository: $this->createStub(MenuItemRepository::class),
+            permissionKeyChoices: [],
+            defaultLocale: 'en',
+        );
+
+        $item   = new MenuItem();
+        $parent = new MenuItem();
+        $item->setParent($parent);
+        // Existing corrupt chain in DB: parent points back to item.
+        $parent->setParent($item);
+
+        $context = $this->createMock(ExecutionContextInterface::class);
+        $builder = $this->createMock(ConstraintViolationBuilderInterface::class);
+        $context->expects(self::once())
+            ->method('buildViolation')
+            ->with('form.menu_item_type.parent.circular_violation')
+            ->willReturn($builder);
+        $builder->method('atPath')->with('parent')->willReturn($builder);
+        $builder->method('setTranslationDomain')->with(NowoDashboardMenuBundle::TRANSLATION_DOMAIN)->willReturn($builder);
+        $builder->expects(self::once())->method('addViolation');
+
+        $type->validateParentNoCircular($item, $context);
+    }
+
+    public function testMenuItemConfigTypeValidateParentNoCircularReturnsWhenVisitedParentLoopDetected(): void
+    {
+        $type = new MenuItemConfigType(
+            menuItemRepository: $this->createStub(MenuItemRepository::class),
+            permissionKeyChoices: [],
+            defaultLocale: 'en',
+        );
+
+        $item   = new MenuItem();
+        $parent = new MenuItem();
+        $grand  = new MenuItem();
+
+        $ref = new ReflectionProperty(MenuItem::class, 'id');
+        $ref->setValue($parent, 10);
+        $ref->setValue($grand, 10);
+
+        $item->setParent($parent);
+        $parent->setParent($grand);
+        $grand->setParent(null);
+
+        $context = $this->createMock(ExecutionContextInterface::class);
+        $context->expects(self::never())->method('buildViolation');
+
+        $type->validateParentNoCircular($item, $context);
     }
 
     private function createFormBuilderMock(

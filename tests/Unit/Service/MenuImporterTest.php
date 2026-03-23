@@ -308,4 +308,96 @@ final class MenuImporterTest extends TestCase
         self::assertSame(1, $result['created']);
         self::assertSame([], $result['errors']);
     }
+
+    public function testPermissionKeysFromRowPrefersArrayAndNormalizes(): void
+    {
+        $importer = new MenuImporter(
+            $this->createStub(MenuItemRepository::class),
+            $this->createStub(MenuRepository::class),
+            $this->createStub(EntityManagerInterface::class),
+        );
+        $ref = new ReflectionClass($importer);
+        $m   = $ref->getMethod('permissionKeysFromRow');
+
+        $keys = $m->invoke($importer, [
+            'permissionKeys' => [' authenticated ', '', 'admin', 'admin', 1],
+            'permissionKey'  => 'fallback',
+        ]);
+
+        self::assertSame(['authenticated', 'admin'], $keys);
+    }
+
+    public function testPermissionKeysFromRowFallsBackToSinglePermissionKey(): void
+    {
+        $importer = new MenuImporter(
+            $this->createStub(MenuItemRepository::class),
+            $this->createStub(MenuRepository::class),
+            $this->createStub(EntityManagerInterface::class),
+        );
+        $ref = new ReflectionClass($importer);
+        $m   = $ref->getMethod('permissionKeysFromRow');
+
+        $keys = $m->invoke($importer, ['permissionKey' => 'admin']);
+
+        self::assertSame(['admin'], $keys);
+    }
+
+    public function testScalarHelpersHandleNullAndDefaultValues(): void
+    {
+        $importer = new MenuImporter(
+            $this->createStub(MenuItemRepository::class),
+            $this->createStub(MenuRepository::class),
+            $this->createStub(EntityManagerInterface::class),
+        );
+        $ref               = new ReflectionClass($importer);
+        $stringOrDefault   = $ref->getMethod('stringOrDefault');
+        $intOrNull         = $ref->getMethod('intOrNull');
+        $boolOrNull        = $ref->getMethod('boolOrNull');
+        $boolOrDefault     = $ref->getMethod('boolOrDefault');
+
+        self::assertSame('fallback', $stringOrDefault->invoke($importer, null, 'fallback'));
+        self::assertSame('value', $stringOrDefault->invoke($importer, 'value', 'fallback'));
+
+        self::assertNull($intOrNull->invoke($importer, ''));
+        self::assertSame(12, $intOrNull->invoke($importer, '12'));
+
+        self::assertNull($boolOrNull->invoke($importer, null));
+        self::assertFalse($boolOrNull->invoke($importer, 0));
+        self::assertTrue($boolOrNull->invoke($importer, 1));
+
+        self::assertTrue($boolOrDefault->invoke($importer, null, true));
+        self::assertFalse($boolOrDefault->invoke($importer, 0, true));
+    }
+
+    public function testImportReindexesDuplicateSiblingPositionsAndFlushes(): void
+    {
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
+
+        $importedA = new MenuItem();
+        $importedA->setPosition(0);
+        $importedB = new MenuItem();
+        $importedB->setPosition(0);
+
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->method('findAllForMenuOrderedByTreeForExport')->willReturn([$importedA, $importedB]);
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::atLeastOnce())->method('persist');
+        // create menu + after persist tree + after clear links + after reindex duplicates
+        $em->expects(self::exactly(4))->method('flush');
+
+        $importer = new MenuImporter($itemRepo, $menuRepo, $em);
+        $result   = $importer->import([
+            'menu'  => ['code' => 'dup-pos'],
+            'items' => [
+                ['label' => 'A', 'position' => 0],
+                ['label' => 'B', 'position' => 0],
+            ],
+        ], MenuImporter::STRATEGY_REPLACE);
+
+        self::assertSame([], $result['errors']);
+        self::assertSame(0, $importedA->getPosition());
+        self::assertSame(1, $importedB->getPosition());
+    }
 }

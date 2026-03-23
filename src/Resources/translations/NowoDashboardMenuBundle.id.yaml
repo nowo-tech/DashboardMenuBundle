@@ -63,6 +63,14 @@ dashboard:
   toggle: Toggle
   yes: Yes
   no: No
+  export: Export
+  export_all: Export all menus
+  import: Import
+  import_help: "Upload a JSON file exported from this dashboard (one menu or all menus). Choose whether to skip menus that already exist (same code + context) or replace their items."
+  import_json_invalid: Invalid JSON file.
+  import_json_error: "Invalid JSON: %message%"
+  import_file_too_large: "File is too large. Maximum size is %max% MiB."
+  import_done: "Import complete: %created% created, %updated% updated, %skipped% skipped."
 
 # Form: MenuType
 form:
@@ -156,14 +164,33 @@ form:
       placeholder: "https://..."
     target_blank:
       label: Open in new tab
-    permission_key:
-      label: Permission key
+    permission_keys:
+      label: Permission keys
+      placeholder: "— Allow all —"
+      help_csv: "Comma-separated keys (used when no configured choices are available)."
+      choice:
+        authenticated: "Authenticated only"
+        admin: "Admin only"
+        path__: "Path: / (home only)"
+    is_unanimous:
+      label: Require all selected keys
+      help: "Enabled: all keys must pass (AND). Disabled: any key may pass (OR)."
     icon:
       label: Icon
       placeholder: "heroicons:home"
     parent:
       label: Parent
       placeholder: "— Root (no parent) —"
+
+  import_menu_type:
+    file:
+      label: JSON file
+      required: Please choose a file.
+      mime_message: File must be JSON.
+    strategy:
+      label: When a menu with the same code and context already exists
+      skip_existing: Skip (do not import)
+      replace: Replace (delete existing items and import)
 
   copy_menu_type:
     code:
