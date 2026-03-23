@@ -25,3 +25,7 @@ services:
     App\Service\DemoMenuPermissionChecker:
         tags:
             - { name: nowo_dashboard_menu.permission_checker, label: 'Demo (user, path, permission key)' }
+
+    App\Service\CustomDemoPermissionChecker:
+        tags:
+            - { name: nowo_dashboard_menu.permission_checker, label: 'Custom demo checker (with DENY)' }

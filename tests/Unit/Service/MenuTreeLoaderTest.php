@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\Tests\Service;
 
+use Nowo\DashboardMenuBundle\DataCollector\DashboardMenuDataCollector;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
@@ -23,6 +24,61 @@ use stdClass;
 
 class MenuTreeLoaderTest extends TestCase
 {
+    public function testLoadTreeRecordsPermissionChecksAndFallbackWhenCheckerServiceMissing(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('main');
+        $menu->setPermissionChecker('missing_checker');
+
+        $root = new MenuItem();
+        $this->setMenuItemId($root, 1);
+        $root->setMenu($menu);
+        $root->setItemType(MenuItem::ITEM_TYPE_LINK);
+        $root->setLabel('Root');
+        $root->setPermissionKey('menu.root');
+        $root->setRouteName('app_root');
+        $root->setPosition(0);
+
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findForCodeWithContextSets')->with('main', [null, []])->willReturn($menu);
+
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->method('findAllForMenuOrderedByTree')->with($menu, 'en')->willReturn([$root]);
+
+        $resolver = new MenuConfigResolver(['project' => null], $menuRepo);
+
+        $container = $this->createMock(ContainerInterface::class);
+        $container->method('has')->with('missing_checker')->willReturn(false);
+        $container->expects(self::never())->method('get');
+
+        $collector    = new DashboardMenuDataCollector();
+        $iconResolver = new MenuIconNameResolver([]);
+        $loader       = new MenuTreeLoader(
+            $menuRepo,
+            $itemRepo,
+            $resolver,
+            $iconResolver,
+            $container,
+            new AllowAllMenuPermissionChecker(),
+            null,
+            60,
+            $collector,
+        );
+
+        $tree = $loader->loadTree('main', 'en');
+        self::assertCount(1, $tree);
+
+        $collector->collect(new \Symfony\Component\HttpFoundation\Request(), new \Symfony\Component\HttpFoundation\Response());
+        $checks = $collector->getPermissionChecks();
+        self::assertCount(1, $checks);
+        self::assertSame('main', $checks[0]['menu_code']);
+        self::assertSame('missing_checker', $checks[0]['checker_selected']);
+        self::assertNull($checks[0]['checker_service_id']);
+        self::assertTrue($checks[0]['checker_fallback']);
+        self::assertSame(AllowAllMenuPermissionChecker::class, $checks[0]['checker_resolved']);
+        self::assertSame('menu.root', $checks[0]['permission_key']);
+    }
+
     public function testLoadTreeReturnsEmptyArrayWhenMenuNotFound(): void
     {
         $menuRepo = $this->createMock(MenuRepository::class);

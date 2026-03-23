@@ -322,4 +322,35 @@ final class DashboardMenuDataCollectorTest extends TestCase
         $menus = $collector->getMenus();
         self::assertSame('bi:house', $menus[0]['items_summary'][0]['icon']);
     }
+
+    public function testAddPermissionCheckIsExposedAfterCollectAndResetClearsIt(): void
+    {
+        $collector = new DashboardMenuDataCollector();
+        $item      = new MenuItem();
+        $item->setLabel('Settings');
+        $item->setItemType(MenuItem::ITEM_TYPE_LINK);
+        $item->setPermissionKey('menu.settings');
+        $item->setRouteName('app_settings');
+
+        $collector->addPermissionCheck(
+            'sidebar',
+            'custom_checker',
+            'App\\Security\\CustomChecker',
+            'custom_checker',
+            false,
+            $item,
+            true,
+        );
+        $collector->collect(new Request(), new Response());
+
+        $checks = $collector->getPermissionChecks();
+        self::assertCount(1, $checks);
+        self::assertSame('sidebar', $checks[0]['menu_code']);
+        self::assertSame('menu.settings', $checks[0]['permission_key']);
+        self::assertSame('custom_checker', $checks[0]['checker_selected']);
+        self::assertTrue($checks[0]['result']);
+
+        $collector->reset();
+        self::assertSame([], $collector->getPermissionChecks());
+    }
 }

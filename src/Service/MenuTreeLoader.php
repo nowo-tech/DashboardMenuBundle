@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\Service;
 
+use Nowo\DashboardMenuBundle\DataCollector\DashboardMenuDataCollector;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
@@ -39,6 +40,7 @@ final readonly class MenuTreeLoader
         private AllowAllMenuPermissionChecker $defaultPermissionChecker,
         private ?CacheItemPoolInterface $cachePool = null,
         private int $cacheTtl = 60,
+        private ?DashboardMenuDataCollector $dataCollector = null,
     ) {
     }
 
@@ -66,8 +68,8 @@ final readonly class MenuTreeLoader
                 if (is_array($raw) && isset($raw['menu'], $raw['items'])) {
                     [$menu, $flat] = $this->hydrateMenuAndItems($raw['menu'], $raw['items'], $locale);
                     $config        = $this->configResolver->getConfig($menuCode, $sets, $menu);
-                    $checker       = $this->resolvePermissionChecker($config['permission_checker']);
-                    $tree          = $this->buildTree($flat, $checker, $permissionContext);
+                    [$checker, $checkerServiceId, $checkerFallback] = $this->resolvePermissionChecker($config['permission_checker']);
+                    $tree = $this->buildTree($flat, $checker, $permissionContext, $menuCode, $config['permission_checker'], $checkerServiceId, $checkerFallback);
                     $this->markNodesWithChildren($tree);
 
                     return $this->pruneEmptySections($tree);
@@ -89,8 +91,8 @@ final readonly class MenuTreeLoader
 
         [$menu, $flat] = $this->hydrateMenuAndItems($raw['menu'], $raw['items'], $locale);
         $config        = $this->configResolver->getConfig($menuCode, $sets, $menu);
-        $checker       = $this->resolvePermissionChecker($config['permission_checker']);
-        $tree          = $this->buildTree($flat, $checker, $permissionContext);
+        [$checker, $checkerServiceId, $checkerFallback] = $this->resolvePermissionChecker($config['permission_checker']);
+        $tree = $this->buildTree($flat, $checker, $permissionContext, $menuCode, $config['permission_checker'], $checkerServiceId, $checkerFallback);
         $this->markNodesWithChildren($tree);
 
         return $this->pruneEmptySections($tree);
@@ -111,8 +113,8 @@ final readonly class MenuTreeLoader
         }
         $flat    = $this->menuItemRepository->findAllForMenuOrderedByTree($menu, $locale);
         $config  = $this->configResolver->getConfig($menuCode, $sets, $menu);
-        $checker = $this->resolvePermissionChecker($config['permission_checker']);
-        $tree    = $this->buildTree($flat, $checker, $permissionContext);
+        [$checker, $checkerServiceId, $checkerFallback] = $this->resolvePermissionChecker($config['permission_checker']);
+        $tree = $this->buildTree($flat, $checker, $permissionContext, $menuCode, $config['permission_checker'], $checkerServiceId, $checkerFallback);
         $this->markNodesWithChildren($tree);
 
         return $this->pruneEmptySections($tree);
@@ -277,16 +279,19 @@ final readonly class MenuTreeLoader
         return $result;
     }
 
-    private function resolvePermissionChecker(?string $serviceId): MenuPermissionCheckerInterface
+    /**
+     * @return array{0: MenuPermissionCheckerInterface, 1: string|null, 2: bool}
+     */
+    private function resolvePermissionChecker(?string $serviceId): array
     {
         if ($serviceId !== null && $serviceId !== '' && $this->container->has($serviceId)) {
             $service = $this->container->get($serviceId);
             if ($service instanceof MenuPermissionCheckerInterface) {
-                return $service;
+                return [$service, $serviceId, false];
             }
         }
 
-        return $this->defaultPermissionChecker;
+        return [$this->defaultPermissionChecker, null, $serviceId !== null && $serviceId !== ''];
     }
 
     /**
@@ -296,7 +301,15 @@ final readonly class MenuTreeLoader
      *
      * @return list<array{item: MenuItem, children: list<array>}>
      */
-    private function buildTree(array $flat, MenuPermissionCheckerInterface $checker, mixed $permissionContext): array
+    private function buildTree(
+        array $flat,
+        MenuPermissionCheckerInterface $checker,
+        mixed $permissionContext,
+        string $menuCode,
+        ?string $checkerSelectedServiceId,
+        ?string $checkerResolvedServiceId,
+        bool $checkerFallback,
+    ): array
     {
         foreach ($flat as $item) {
             $this->normalizeItemIcon($item);
@@ -304,12 +317,27 @@ final readonly class MenuTreeLoader
 
         /** @var array<int, array{item: MenuItem, children: list<array>}> $map */
         $map = [];
+        /** @var array<string, bool> $visibilityMap */
+        $visibilityMap = [];
         /** @var list<array{item: MenuItem, children: list<array>}> $roots */
         $roots = [];
 
-        // First pass: create node entries for all visible items
+        // First pass: evaluate visibility once and register diagnostics in profiler.
         foreach ($flat as $item) {
-            if (!$checker->canView($item, $permissionContext)) {
+            $isVisible                         = $checker->canView($item, $permissionContext);
+            $visibilityMap[$this->nodeKey($item)] = $isVisible;
+            if ($this->dataCollector instanceof DashboardMenuDataCollector) {
+                $this->dataCollector->addPermissionCheck(
+                    $menuCode,
+                    $checkerSelectedServiceId,
+                    $checker::class,
+                    $checkerResolvedServiceId,
+                    $checkerFallback,
+                    $item,
+                    $isVisible,
+                );
+            }
+            if (!$isVisible) {
                 continue;
             }
             $id            = $item->getId();
@@ -318,7 +346,7 @@ final readonly class MenuTreeLoader
 
         // Second pass: wire parents/children using references so updates are shared
         foreach ($flat as $item) {
-            if (!$checker->canView($item, $permissionContext)) {
+            if (($visibilityMap[$this->nodeKey($item)] ?? false) !== true) {
                 continue;
             }
 
@@ -350,6 +378,16 @@ final readonly class MenuTreeLoader
         };
 
         return $sort($roots);
+    }
+
+    private function nodeKey(MenuItem $item): string
+    {
+        $id = $item->getId();
+        if ($id !== null) {
+            return 'id:' . (string) $id;
+        }
+
+        return 'obj:' . (string) spl_object_id($item);
     }
 
     /**

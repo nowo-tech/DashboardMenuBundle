@@ -131,7 +131,12 @@ final class DashboardMenuExtensionTest extends TestCase
         $extension->load([], $container);
 
         self::assertTrue($container->hasParameter(Configuration::ALIAS . '.config'));
-        self::assertSame(['project' => null], $container->getParameter(Configuration::ALIAS . '.config'));
+        $configSnapshot = $container->getParameter(Configuration::ALIAS . '.config');
+        self::assertIsArray($configSnapshot);
+        self::assertArrayHasKey('project', $configSnapshot);
+        self::assertArrayHasKey('dashboard', $configSnapshot);
+        self::assertArrayHasKey('api', $configSnapshot);
+        self::assertSame(null, $configSnapshot['project']);
         self::assertTrue($container->hasParameter(Configuration::ALIAS . '.locales'));
         self::assertSame([], $container->getParameter(Configuration::ALIAS . '.locales'));
         self::assertTrue($container->hasParameter(Configuration::ALIAS . '.permission_checker_choices'));
@@ -177,7 +182,14 @@ final class DashboardMenuExtensionTest extends TestCase
         $extension = new DashboardMenuExtension();
         $extension->load([$config], $container);
 
-        self::assertSame(['project' => 'myapp'], $container->getParameter(Configuration::ALIAS . '.config'));
+        $configSnapshot = $container->getParameter(Configuration::ALIAS . '.config');
+        self::assertIsArray($configSnapshot);
+        self::assertSame('myapp', $configSnapshot['project'] ?? null);
+        self::assertSame(['en', 'es'], $configSnapshot['locales'] ?? null);
+        self::assertSame('es', $configSnapshot['default_locale'] ?? null);
+        self::assertSame(false, $configSnapshot['api']['enabled'] ?? null);
+        self::assertSame('/api/custom', $configSnapshot['api']['path_prefix'] ?? null);
+        self::assertSame(true, $configSnapshot['dashboard']['enabled'] ?? null);
         self::assertSame(['en', 'es'], $container->getParameter(Configuration::ALIAS . '.locales'));
         self::assertSame('es', $container->getParameter(Configuration::ALIAS . '.default_locale'));
         self::assertSame('es', $container->getParameter(Configuration::ALIAS . '.default_locale_resolved'));

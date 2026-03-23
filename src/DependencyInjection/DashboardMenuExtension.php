@@ -98,7 +98,15 @@ final class DashboardMenuExtension extends Extension
         }
 
         $fullConfig = [
-            'project' => $config['project'] ?? null,
+            'project'                  => $config['project'] ?? null,
+            'locales'                  => $config['locales'] ?? [],
+            'default_locale'           => $config['default_locale'] ?? null,
+            'doctrine'                 => $config['doctrine'] ?? [],
+            'cache'                    => $config['cache'] ?? [],
+            'icon_library_prefix_map'  => $config['icon_library_prefix_map'] ?? [],
+            'permission_checker_choices' => $config['permission_checker_choices'] ?? [],
+            'api'                      => $config['api'] ?? [],
+            'dashboard'                => $config['dashboard'] ?? [],
         ];
 
         $container->setParameter(Configuration::ALIAS . '.config', $fullConfig);

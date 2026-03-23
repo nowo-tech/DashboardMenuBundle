@@ -30,6 +30,21 @@ final class DashboardMenuDataCollector extends DataCollector implements LateData
     /** @var list<array{code: string, context_sets: mixed, resolved_context: mixed, root_count: int, items_summary: list<array>, query_count: int|null}> */
     private array $menuLoads = [];
 
+    /** @var list<array{
+     *   menu_code: string,
+     *   checker_selected: string|null,
+     *   checker_resolved: string,
+     *   checker_service_id: string|null,
+     *   checker_fallback: bool,
+     *   label: string,
+     *   item_type: string,
+     *   permission_key: string|null,
+     *   route_name: string|null,
+     *   external_url: string|null,
+     *   result: bool
+     * }> */
+    private array $permissionChecks = [];
+
     private ?int $menuRelatedQueryCount = null;
 
     public function __construct(
@@ -51,6 +66,7 @@ final class DashboardMenuDataCollector extends DataCollector implements LateData
     ) {
         $this->data = [
             'menus'                      => [],
+            'permission_checks'          => [],
             'menu_query_count'           => null,
             'bundle_config'              => $this->bundleConfig,
             'permission_checker_choices' => $this->permissionCheckerChoices,
@@ -88,6 +104,7 @@ final class DashboardMenuDataCollector extends DataCollector implements LateData
     {
         $this->data = [
             'menus'                      => $this->menuLoads,
+            'permission_checks'          => $this->permissionChecks,
             'menu_query_count'           => $this->menuRelatedQueryCount,
             'bundle_config'              => $this->bundleConfig,
             'permission_checker_choices' => $this->permissionCheckerChoices,
@@ -113,10 +130,10 @@ final class DashboardMenuDataCollector extends DataCollector implements LateData
         } catch (Throwable) {
             return;
         }
-        if (!method_exists($collector, 'getData')) {
+        if (!is_object($collector) || !method_exists($collector, 'getData')) {
             return;
         }
-        $raw   = $collector->getData();
+        $raw   = $collector->{'getData'}();
         $data  = is_array($raw) ? $raw : [];
         $count = 0;
         foreach (['queries', 'grouped_queries'] as $key) {
@@ -142,8 +159,10 @@ final class DashboardMenuDataCollector extends DataCollector implements LateData
     public function reset(): void
     {
         $this->menuLoads                = [];
+        $this->permissionChecks         = [];
         $this->menuRelatedQueryCount    = null;
         $this->data['menus']            = [];
+        $this->data['permission_checks'] = [];
         $this->data['menu_query_count'] = null;
     }
 
@@ -161,6 +180,50 @@ final class DashboardMenuDataCollector extends DataCollector implements LateData
     public function getMenuQueryCount(): ?int
     {
         return $this->data['menu_query_count'] ?? null;
+    }
+
+    /**
+     * @return list<array{
+     *   menu_code: string,
+     *   checker_selected: string|null,
+     *   checker_resolved: string,
+     *   checker_service_id: string|null,
+     *   checker_fallback: bool,
+     *   label: string,
+     *   item_type: string,
+     *   permission_key: string|null,
+     *   route_name: string|null,
+     *   external_url: string|null,
+     *   result: bool
+     * }>
+     */
+    public function getPermissionChecks(): array
+    {
+        return $this->data['permission_checks'] ?? [];
+    }
+
+    public function addPermissionCheck(
+        string $menuCode,
+        ?string $checkerSelected,
+        string $checkerResolved,
+        ?string $checkerServiceId,
+        bool $checkerFallback,
+        MenuItem $item,
+        bool $result,
+    ): void {
+        $this->permissionChecks[] = [
+            'menu_code'          => $menuCode,
+            'checker_selected'   => $checkerSelected,
+            'checker_resolved'   => $checkerResolved,
+            'checker_service_id' => $checkerServiceId,
+            'checker_fallback'   => $checkerFallback,
+            'label'              => $item->getLabel(),
+            'item_type'          => $item->getItemType(),
+            'permission_key'     => $item->getPermissionKey(),
+            'route_name'         => $item->getRouteName(),
+            'external_url'       => $item->getExternalUrl(),
+            'result'             => $result,
+        ];
     }
 
     /**

@@ -60,7 +60,7 @@ class MenuFixtures extends Fixture
         $menu->setCollapsible(true);
         $menu->setCollapsibleExpanded(true);
         $menu->setNestedCollapsible(true);
-        $menu->setPermissionChecker('App\\Service\\DemoMenuPermissionChecker');
+        $menu->setPermissionChecker('App\\Service\\CustomDemoPermissionChecker');
 
         // No context = fallback when resolving by code with context sets
         return $menu;
@@ -84,7 +84,7 @@ class MenuFixtures extends Fixture
         $menu->setCollapsible(true);
         $menu->setCollapsibleExpanded(true);
         $menu->setNestedCollapsible(true);
-        $menu->setPermissionChecker('App\\Service\\DemoMenuPermissionChecker');
+        $menu->setPermissionChecker('App\\Service\\CustomDemoPermissionChecker');
         $menu->setContext($context);
 
         return $menu;
@@ -107,6 +107,7 @@ class MenuFixtures extends Fixture
         $menu->setCollapsible(true);
         $menu->setCollapsibleExpanded(true);
         $menu->setNestedCollapsible(true);
+        $menu->setPermissionChecker('App\\Service\\DemoMenuPermissionChecker');
 
         return $menu;
     }
@@ -213,6 +214,7 @@ class MenuFixtures extends Fixture
         $manager->persist($this->item($menu, $configuration, 2, 'Admin only', MenuItem::ITEM_TYPE_LINK, ConfigurationController::APP_CONFIGURATION_ROUTE, ['section' => 'general'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:shield-lock', 'admin', ['en' => 'Admin only', 'es' => 'Solo admin']));
         $manager->persist($this->item($menu, $configuration, 3, 'Auth OR admin', MenuItem::ITEM_TYPE_LINK, ConfigurationController::APP_CONFIGURATION_ROUTE, ['section' => 'permissions', 'mode' => 'or'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:person-check', 'authenticated|admin', ['en' => 'Auth OR admin', 'es' => 'Autenticado O admin']));
         $manager->persist($this->item($menu, $configuration, 4, 'Admin area (path + auth)', MenuItem::ITEM_TYPE_LINK, ConfigurationController::APP_CONFIGURATION_ROUTE, ['section' => 'permissions', 'mode' => 'and'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:shield', '(path:/admin|path:/operator)&authenticated', ['en' => 'Admin area (path + auth)', 'es' => 'Zona admin (ruta + auth)']));
+        $manager->persist($this->item($menu, $configuration, 5, 'Always denied demo', MenuItem::ITEM_TYPE_LINK, ConfigurationController::APP_CONFIGURATION_ROUTE, ['section' => 'permissions', 'mode' => 'deny'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:ban', '(authenticated|admin)&never', ['en' => 'Always denied demo', 'es' => 'Demo siempre denegado']));
 
         // Level 1 → 2 → 3 → 4: Documents → Doc A → A.1 → A.1.1, A.1.2; Doc B → B.1, B.2; Doc C → C.1 → C.1.a, C.1.b
         $documents = $this->item($menu, null, 5, 'Documents', MenuItem::ITEM_TYPE_LINK, HomeController::APP_HOME_ROUTE, ['page' => 'documents'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:folder', null, ['en' => 'Documents', 'es' => 'Documentos']);
@@ -282,13 +284,13 @@ class MenuFixtures extends Fixture
     {
         $filtersSection = $this->item($menu, null, 0, 'Filters', MenuItem::ITEM_TYPE_SECTION);
         $manager->persist($filtersSection);
-        $manager->persist($this->item($menu, null, 1, 'All', MenuItem::ITEM_TYPE_LINK, HomeController::APP_HOME_ROUTE, ['filter' => 'all'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:list-ul'));
-        $manager->persist($this->item($menu, null, 2, 'Recent', MenuItem::ITEM_TYPE_LINK, HomeController::APP_HOME_ROUTE, ['filter' => 'recent'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:clock'));
+        $manager->persist($this->item($menu, null, 1, 'All', MenuItem::ITEM_TYPE_LINK, HomeController::APP_HOME_ROUTE, ['filter' => 'all'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:list-ul', 'authenticated'));
+        $manager->persist($this->item($menu, null, 2, 'Recent', MenuItem::ITEM_TYPE_LINK, HomeController::APP_HOME_ROUTE, ['filter' => 'recent'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:clock', 'path:/__never__'));
 
         // Level 1 → 2 → 3 → 4: Category A → A1 → A1.1 → A1.1.1, A1.1.2; A2; Category B → B1 → B1.1, B1.2; B2
         $catSection = $this->item($menu, null, 3, 'Categories', MenuItem::ITEM_TYPE_SECTION);
         $manager->persist($catSection);
-        $catA = $this->item($menu, null, 4, 'Category A', MenuItem::ITEM_TYPE_LINK, HomeController::APP_HOME_ROUTE, ['category' => 'a'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:folder');
+        $catA = $this->item($menu, null, 4, 'Category A', MenuItem::ITEM_TYPE_LINK, HomeController::APP_HOME_ROUTE, ['category' => 'a'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:folder', 'path:/__never__');
         $manager->persist($catA);
         $catA1 = $this->item($menu, $catA, 0, 'A1', MenuItem::ITEM_TYPE_LINK, ConfigurationController::APP_CONFIGURATION_ROUTE, ['section' => 'category', 'id' => 'a1'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:tag');
         $manager->persist($catA1);

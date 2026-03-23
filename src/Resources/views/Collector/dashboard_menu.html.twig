@@ -52,9 +52,11 @@
     {% set default_locale = collector.defaultLocale %}
     {% set icon_map = collector.iconLibraryPrefixMap %}
     {% set permission_checkers = collector.permissionCheckerChoices %}
+    {% set permission_checks = collector.permissionChecks %}
+    {% set bundle_config = collector.bundleConfig %}
 
     <div class="sf-tabs">
-        <div class="tab">
+        <div class="tab" id="nowo-dm-tab-menus">
             <h3 class="tab-title">
                 Menus <span class="badge">{{ menus|length }}</span>
             </h3>
@@ -114,7 +116,7 @@
             </div>
         </div>
 
-        <div class="tab">
+        <div class="tab" id="nowo-dm-tab-configuration">
             <h3 class="tab-title">Configuration</h3>
             <div class="tab-content">
                 <h2>Bundle configuration</h2>
@@ -194,9 +196,239 @@
                         </tbody>
                     </table>
                 {% endif %}
+
+                <h3>Effective config snapshot</h3>
+                <table class="sf-table">
+                    <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>project</code></td>
+                            <td><code>{{ bundle_config.project is defined and bundle_config.project is not null and bundle_config.project != '' ? bundle_config.project : '∅' }}</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>locales</code></td>
+                            <td>
+                                {% if bundle_config.locales is defined and bundle_config.locales is iterable and bundle_config.locales is not empty %}
+                                    <code>{{ bundle_config.locales|join(', ') }}</code>
+                                {% else %}
+                                    <span class="text-muted">[]</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>default_locale</code></td>
+                            <td><code>{{ bundle_config.default_locale is defined and bundle_config.default_locale is not null and bundle_config.default_locale != '' ? bundle_config.default_locale : '∅' }}</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>doctrine.connection</code></td>
+                            <td><code>{{ bundle_config.doctrine.connection|default('default') }}</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>doctrine.table_prefix</code></td>
+                            <td><code>{{ bundle_config.doctrine.table_prefix|default('') != '' ? bundle_config.doctrine.table_prefix : '∅' }}</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>cache.ttl</code></td>
+                            <td><code>{{ bundle_config.cache.ttl|default('∅') }}</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>cache.pool</code></td>
+                            <td><code>{{ bundle_config.cache.pool|default('∅') }}</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>api.enabled</code></td>
+                            <td><code>{{ bundle_config.api.enabled is defined ? (bundle_config.api.enabled ? 'true' : 'false') : '∅' }}</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>api.path_prefix</code></td>
+                            <td><code>{{ bundle_config.api.path_prefix|default('∅') }}</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>dashboard.enabled</code></td>
+                            <td><code>{{ bundle_config.dashboard.enabled is defined ? (bundle_config.dashboard.enabled ? 'true' : 'false') : '∅' }}</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>dashboard.required_role</code></td>
+                            <td><code>{{ bundle_config.dashboard.required_role|default('∅') }}</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>dashboard.layout_template</code></td>
+                            <td><code>{{ bundle_config.dashboard.layout_template|default('∅') }}</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>dashboard.path_prefix</code></td>
+                            <td><code>{{ bundle_config.dashboard.path_prefix|default('∅') }}</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Raw bundle config (merged)</h3>
+                {% if bundle_config is empty %}
+                    <p class="text-muted">No bundle config snapshot available.</p>
+                {% else %}
+                    <pre class="sf-dump">{{ bundle_config|json_encode(448) }}</pre>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="tab" id="nowo-dm-tab-permission-checks">
+            <h3 class="tab-title">
+                Permission checks
+                <span class="badge">{{ permission_checks|length }}</span>
+            </h3>
+            <div class="tab-content">
+                <h2>Permission checker results per menu link</h2>
+                {% if permission_checks is empty %}
+                    <p class="text-muted">No permission checks were recorded for this request.</p>
+                {% else %}
+                    <table class="sf-table" id="nowo-permission-checks-table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <button type="button" class="btn-link" data-sort-key="menu_link" style="border:0;background:none;padding:0;cursor:pointer;">
+                                        Menu + Link
+                                    </button>
+                                </th>
+                                <th>
+                                    <button type="button" class="btn-link" data-sort-key="permission_key" style="border:0;background:none;padding:0;cursor:pointer;">
+                                        Permission key
+                                    </button>
+                                </th>
+                                <th>
+                                    <button type="button" class="btn-link" data-sort-key="checker_pair" style="border:0;background:none;padding:0;cursor:pointer;">
+                                        Selected / Resolved checker
+                                    </button>
+                                </th>
+                                <th>
+                                    <button type="button" class="btn-link" data-sort-key="result" style="border:0;background:none;padding:0;cursor:pointer;">
+                                        Result
+                                    </button>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in permission_checks %}
+                                {% if row.item_type == 'link' %}
+                                    <tr>
+                                        {% set linkRef = row.route_name ?: (row.external_url ?: '') %}
+                                        <td data-sort-value="{{ row.menu_code|lower ~ ' ' ~ row.label|default('')|lower ~ ' ' ~ linkRef|lower }}">
+                                            <div class="text-muted"><code>{{ row.menu_code }}</code></div>
+                                            <div><strong>{{ row.label|default('—')|e }}</strong></div>
+                                            {% if row.route_name %}
+                                                <div class="text-muted"><code>{{ row.route_name }}</code></div>
+                                            {% elseif row.external_url %}
+                                                <div class="text-muted"><code>{{ row.external_url }}</code></div>
+                                            {% endif %}
+                                        </td>
+                                        <td data-sort-value="{{ row.permission_key|default('')|lower }}">
+                                            {% if row.permission_key %}
+                                                <code>{{ row.permission_key }}</code>
+                                            {% else %}
+                                                <span class="text-muted">—</span>
+                                            {% endif %}
+                                        </td>
+                                        <td data-sort-value="{{ (row.checker_selected|default('default'))|lower ~ ' ' ~ row.checker_resolved|lower }}">
+                                            <div>
+                                                <span class="text-muted">Selected:</span>
+                                                {% if row.checker_selected %}
+                                                    <code>{{ row.checker_selected }}</code>
+                                                {% else %}
+                                                    <span class="text-muted">default</span>
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                <span class="text-muted">Resolved:</span>
+                                                <code>{{ row.checker_resolved }}</code>
+                                            </div>
+                                            {% if row.checker_fallback %}
+                                                <span class="sf-toolbar-status sf-toolbar-status-yellow">fallback</span>
+                                            {% endif %}
+                                        </td>
+                                        <td data-sort-value="{{ row.result ? '1' : '0' }}">
+                                            {% if row.result %}
+                                                <span class="sf-toolbar-status sf-toolbar-status-green">ALLOW</span>
+                                            {% else %}
+                                                <span class="sf-toolbar-status sf-toolbar-status-red">DENY</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <script>
+                        (function () {
+                            var table = document.getElementById('nowo-permission-checks-table');
+                            if (!table) return;
+                            var tbody = table.querySelector('tbody');
+                            if (!tbody) return;
+
+                            var keyToIndex = {
+                                menu_link: 0,
+                                permission_key: 1,
+                                checker_pair: 2,
+                                result: 3
+                            };
+
+                            var sortState = {};
+                            table.querySelectorAll('[data-sort-key]').forEach(function (btn) {
+                                btn.addEventListener('click', function () {
+                                    var key = btn.getAttribute('data-sort-key') || '';
+                                    var index = keyToIndex[key];
+                                    if (index === undefined) return;
+                                    sortState[key] = !(sortState[key] ?? false);
+                                    var asc = sortState[key];
+                                    var rows = Array.from(tbody.querySelectorAll('tr'));
+                                    rows.sort(function (a, b) {
+                                        var aCell = a.children[index];
+                                        var bCell = b.children[index];
+                                        var av = (aCell?.getAttribute('data-sort-value') || aCell?.textContent || '').trim().toLowerCase();
+                                        var bv = (bCell?.getAttribute('data-sort-value') || bCell?.textContent || '').trim().toLowerCase();
+                                        if (av < bv) return asc ? -1 : 1;
+                                        if (av > bv) return asc ? 1 : -1;
+                                        return 0;
+                                    });
+                                    rows.forEach(function (row) { tbody.appendChild(row); });
+                                });
+                            });
+                        })();
+                    </script>
+                {% endif %}
             </div>
         </div>
     </div>
+    <script>
+        (function () {
+            var tabsRoot = document.querySelector('.sf-tabs');
+            if (!tabsRoot) return;
+            var tabs = Array.from(tabsRoot.querySelectorAll('.tab[id^="nowo-dm-tab-"]'));
+            if (tabs.length === 0) return;
+
+            tabs.forEach(function (tab) {
+                var title = tab.querySelector('.tab-title');
+                if (!title) return;
+                title.addEventListener('click', function () {
+                    if (window.location.hash !== '#' + tab.id) {
+                        history.replaceState(null, '', '#' + tab.id);
+                    }
+                });
+            });
+
+            var hash = window.location.hash || '';
+            if (!hash.startsWith('#nowo-dm-tab-')) return;
+            var target = tabsRoot.querySelector(hash);
+            if (!target) return;
+            var targetTitle = target.querySelector('.tab-title');
+            if (targetTitle) {
+                targetTitle.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+            }
+        })();
+    </script>
 {% endblock %}
 
 {% macro tree_summary(items, depth) %}
