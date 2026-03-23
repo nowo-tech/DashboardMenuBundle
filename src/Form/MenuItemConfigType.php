@@ -101,12 +101,12 @@ final class MenuItemConfigType extends AbstractType
                 'label_attr' => ['class' => 'form-check-label'],
             ]);
 
-        $choices = $this->buildPermissionKeyChoices($t, $builder->getData());
+        $choices              = $this->buildPermissionKeyChoices($t, $builder->getData());
         $permissionKeyOptions = [
-            'required'   => false,
-            'label'      => 'form.menu_item_type.permission_keys.label',
-            'row_attr'   => ['class' => 'mb-1'],
-            'label_attr' => ['class' => 'form-label'],
+            'required'                  => false,
+            'label'                     => 'form.menu_item_type.permission_keys.label',
+            'row_attr'                  => ['class' => 'mb-1'],
+            'label_attr'                => ['class' => 'form-label'],
             'choices'                   => $choices,
             'placeholder'               => $t('form.menu_item_type.permission_keys.placeholder'),
             'choice_translation_domain' => false,

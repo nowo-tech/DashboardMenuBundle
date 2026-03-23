@@ -12,6 +12,7 @@ use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 
 use function array_key_exists;
 use function count;
+use function in_array;
 use function is_array;
 use function is_int;
 use function is_string;

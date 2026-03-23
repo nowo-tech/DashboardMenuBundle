@@ -151,19 +151,19 @@ final readonly class MenuExporter
     private function itemToArray(MenuItem $item, array $children): array
     {
         $data = [
-            'label'         => $item->getLabel(),
-            'translations'  => $item->getTranslations(),
-            'linkType'      => $item->getLinkType(),
-            'routeName'     => $item->getRouteName(),
-            'routeParams'   => $item->getRouteParams(),
-            'externalUrl'   => $item->getExternalUrl(),
-            'icon'          => $item->getIcon(),
-            'permissionKey' => $item->getPermissionKey(),
+            'label'          => $item->getLabel(),
+            'translations'   => $item->getTranslations(),
+            'linkType'       => $item->getLinkType(),
+            'routeName'      => $item->getRouteName(),
+            'routeParams'    => $item->getRouteParams(),
+            'externalUrl'    => $item->getExternalUrl(),
+            'icon'           => $item->getIcon(),
+            'permissionKey'  => $item->getPermissionKey(),
             'permissionKeys' => $item->getPermissionKeys(),
-            'isUnanimous'   => $item->isUnanimous(),
-            'itemType'      => $item->getItemType(),
-            'targetBlank'   => $item->getTargetBlank(),
-            'position'      => $item->getPosition(),
+            'isUnanimous'    => $item->isUnanimous(),
+            'itemType'       => $item->getItemType(),
+            'targetBlank'    => $item->getTargetBlank(),
+            'position'       => $item->getPosition(),
         ];
         $data = array_filter($data, static fn (mixed $v): bool => $v !== null && $v !== '');
         if (!array_key_exists('permissionKey', $data)) {
