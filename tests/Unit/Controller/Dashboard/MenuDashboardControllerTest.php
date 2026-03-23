@@ -1882,7 +1882,7 @@ final class MenuDashboardControllerTest extends TestCase
 
     public function testReindexSiblingPositionsIfNeededReturnsFalseWhenNoSiblings(): void
     {
-        $menu = new Menu();
+        $menu     = new Menu();
         $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->expects(self::once())->method('findSiblingsByPosition')->willReturn([]);
 
@@ -2137,7 +2137,7 @@ final class MenuDashboardControllerTest extends TestCase
         $em->expects(self::exactly(2))->method('flush');
 
         $form = $this->createMock(FormInterface::class);
-        $form->method('handleRequest')->willReturnCallback(function () use ($item, $newParent, $form): FormInterface {
+        $form->method('handleRequest')->willReturnCallback(static function () use ($item, $newParent, $form): FormInterface {
             $item->setParent($newParent);
 
             return $form;

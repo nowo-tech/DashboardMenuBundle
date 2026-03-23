@@ -24,7 +24,7 @@ final class MenuItemRepositoryExportGroupingTest extends TestCase
             ->onlyMethods(['createQueryBuilder'])
             ->getMock();
 
-        $menu = new Menu();
+        $menu      = new Menu();
         $menuIdRef = new ReflectionProperty(Menu::class, 'id');
         $menuIdRef->setValue($menu, 77);
 

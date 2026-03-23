@@ -349,11 +349,11 @@ final class MenuImporterTest extends TestCase
             $this->createStub(MenuRepository::class),
             $this->createStub(EntityManagerInterface::class),
         );
-        $ref               = new ReflectionClass($importer);
-        $stringOrDefault   = $ref->getMethod('stringOrDefault');
-        $intOrNull         = $ref->getMethod('intOrNull');
-        $boolOrNull        = $ref->getMethod('boolOrNull');
-        $boolOrDefault     = $ref->getMethod('boolOrDefault');
+        $ref             = new ReflectionClass($importer);
+        $stringOrDefault = $ref->getMethod('stringOrDefault');
+        $intOrNull       = $ref->getMethod('intOrNull');
+        $boolOrNull      = $ref->getMethod('boolOrNull');
+        $boolOrDefault   = $ref->getMethod('boolOrDefault');
 
         self::assertSame('fallback', $stringOrDefault->invoke($importer, null, 'fallback'));
         self::assertSame('value', $stringOrDefault->invoke($importer, 'value', 'fallback'));
