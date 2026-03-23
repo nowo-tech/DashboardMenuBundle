@@ -9,6 +9,8 @@ use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 
+use function array_key_exists;
+
 /**
  * Exports menus and their items to a JSON-serializable array (config + links).
  *
