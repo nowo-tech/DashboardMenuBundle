@@ -2,6 +2,15 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 0.3.25 to 0.3.26
+
+No breaking changes.
+
+- **Import replace behaviour:** replacing an existing menu now removes existing items using repository preloading before re-import. This prevents duplicate links/items when importing the same menu JSON repeatedly.
+- **Export payload:** `permissionChecker` (menu) and `permissionKey` (item) are always present in exported JSON, including when their values are `null`.
+- **Demo permission expressions:** demo checkers (Symfony 7/8) now support OR/AND with parentheses in `permissionKey` expressions (e.g. `authenticated|admin`, `(path:/admin|path:/operator)&authenticated`).
+- **Demo fixtures/docs:** demos include expression examples in fixtures; USAGE documents syntax, precedence and examples.
+
 ## From 0.3.24 to 0.3.25
 
 No breaking changes.

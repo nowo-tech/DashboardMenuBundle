@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.26] - 2026-03-23
+
+### Added
+- **Demo permission checker:** support for permission expressions with `|` (OR), `&` (AND), and parentheses in demo checkers (Symfony 7/8), with inline usage examples in code comments.
+- **Demo fixtures:** new menu items demonstrating expression-based permission keys (OR/AND + grouped expressions) in Symfony 7 and Symfony 8 demos.
+- **Docs:** USAGE now documents demo expression syntax, supported tokens, precedence, and examples.
+
+### Fixed
+- **Import replace strategy:** replacing an existing menu now removes the full current item tree via repository lookup before re-import, avoiding duplicated links/items when importing the same menu JSON repeatedly.
+- **Export payload stability:** `permissionChecker` (menu) and `permissionKey` (item) are now always present in exported JSON (including `null` values), so downstream tools/import flows do not lose those keys.
+- **Tests:** importer/exporter unit tests aligned with the updated replace/export behaviour.
+
 ## [0.3.25] - 2026-03-20
 
 ### Fixed
@@ -362,7 +374,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.25...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.26...HEAD
+[0.3.26]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.25...v0.3.26
 [0.3.25]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.24...v0.3.25
 [0.3.24]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.23...v0.3.24
 [0.3.23]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.22...v0.3.23
