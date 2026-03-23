@@ -82,13 +82,13 @@ final class CustomDemoPermissionChecker implements MenuPermissionCheckerInterfac
     private function evaluateToken(string $token, string $path, bool $authenticated): bool
     {
         return match (true) {
-            $token === '1' => true,
-            $token === '0' => false,
-            $token === 'never' => false,
-            $token === 'authenticated' => $authenticated,
-            $token === 'admin' => $authenticated && $this->security->isGranted('ROLE_ADMIN'),
+            $token === '1'                   => true,
+            $token === '0'                   => false,
+            $token === 'never'               => false,
+            $token === 'authenticated'       => $authenticated,
+            $token === 'admin'               => $authenticated && $this->security->isGranted('ROLE_ADMIN'),
             str_starts_with($token, 'path:') => $this->matchesPath($path, trim(substr($token, 5))),
-            default => false,
+            default                          => false,
         };
     }
 

@@ -15,6 +15,7 @@ use Throwable;
 
 use function count;
 use function is_array;
+use function is_object;
 
 /**
  * Collects menu trees rendered on the page (code, context, items summary) and counts
@@ -158,12 +159,12 @@ final class DashboardMenuDataCollector extends DataCollector implements LateData
 
     public function reset(): void
     {
-        $this->menuLoads                = [];
-        $this->permissionChecks         = [];
-        $this->menuRelatedQueryCount    = null;
-        $this->data['menus']            = [];
+        $this->menuLoads                 = [];
+        $this->permissionChecks          = [];
+        $this->menuRelatedQueryCount     = null;
+        $this->data['menus']             = [];
         $this->data['permission_checks'] = [];
-        $this->data['menu_query_count'] = null;
+        $this->data['menu_query_count']  = null;
     }
 
     public function getName(): string

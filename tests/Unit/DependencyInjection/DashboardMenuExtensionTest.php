@@ -136,7 +136,7 @@ final class DashboardMenuExtensionTest extends TestCase
         self::assertArrayHasKey('project', $configSnapshot);
         self::assertArrayHasKey('dashboard', $configSnapshot);
         self::assertArrayHasKey('api', $configSnapshot);
-        self::assertSame(null, $configSnapshot['project']);
+        self::assertNull($configSnapshot['project']);
         self::assertTrue($container->hasParameter(Configuration::ALIAS . '.locales'));
         self::assertSame([], $container->getParameter(Configuration::ALIAS . '.locales'));
         self::assertTrue($container->hasParameter(Configuration::ALIAS . '.permission_checker_choices'));
@@ -187,9 +187,9 @@ final class DashboardMenuExtensionTest extends TestCase
         self::assertSame('myapp', $configSnapshot['project'] ?? null);
         self::assertSame(['en', 'es'], $configSnapshot['locales'] ?? null);
         self::assertSame('es', $configSnapshot['default_locale'] ?? null);
-        self::assertSame(false, $configSnapshot['api']['enabled'] ?? null);
+        self::assertFalse($configSnapshot['api']['enabled'] ?? null);
         self::assertSame('/api/custom', $configSnapshot['api']['path_prefix'] ?? null);
-        self::assertSame(true, $configSnapshot['dashboard']['enabled'] ?? null);
+        self::assertTrue($configSnapshot['dashboard']['enabled'] ?? null);
         self::assertSame(['en', 'es'], $container->getParameter(Configuration::ALIAS . '.locales'));
         self::assertSame('es', $container->getParameter(Configuration::ALIAS . '.default_locale'));
         self::assertSame('es', $container->getParameter(Configuration::ALIAS . '.default_locale_resolved'));
