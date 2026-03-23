@@ -41,6 +41,8 @@ final readonly class MenuTreeLoader
         private ?CacheItemPoolInterface $cachePool = null,
         private int $cacheTtl = 60,
         private ?DashboardMenuDataCollector $dataCollector = null,
+        /** @var array<string, string> */
+        private array $permissionCheckerChoices = [],
     ) {
     }
 
@@ -284,14 +286,33 @@ final readonly class MenuTreeLoader
      */
     private function resolvePermissionChecker(?string $serviceId): array
     {
-        if ($serviceId !== null && $serviceId !== '' && $this->container->has($serviceId)) {
-            $service = $this->container->get($serviceId);
+        $resolvedServiceId = $this->normalizePermissionCheckerServiceId($serviceId);
+        if ($resolvedServiceId !== null && $resolvedServiceId !== '' && $this->container->has($resolvedServiceId)) {
+            $service = $this->container->get($resolvedServiceId);
             if ($service instanceof MenuPermissionCheckerInterface) {
-                return [$service, $serviceId, false];
+                return [$service, $resolvedServiceId, false];
             }
         }
 
         return [$this->defaultPermissionChecker, null, $serviceId !== null && $serviceId !== ''];
+    }
+
+    private function normalizePermissionCheckerServiceId(?string $serviceId): ?string
+    {
+        if ($serviceId === null || $serviceId === '') {
+            return $serviceId;
+        }
+        if ($this->container->has($serviceId)) {
+            return $serviceId;
+        }
+
+        foreach ($this->permissionCheckerChoices as $id => $label) {
+            if ($label === $serviceId && $this->container->has($id)) {
+                return $id;
+            }
+        }
+
+        return $serviceId;
     }
 
     /**

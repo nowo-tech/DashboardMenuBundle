@@ -114,8 +114,8 @@ final class MenuTypeTest extends TestCase
 
         $permissionChecker = $this->findAddCall($addCalls, 'permissionChecker');
         self::assertSame(ChoiceType::class, $permissionChecker['type']);
-        self::assertArrayHasKey('custom_checker', $permissionChecker['choices'] ?? []);
-        self::assertSame('custom_checker (current)', $permissionChecker['choices']['custom_checker']);
+        self::assertArrayHasKey('custom_checker (current)', $permissionChecker['choices'] ?? []);
+        self::assertSame('custom_checker', $permissionChecker['choices']['custom_checker (current)']);
 
         $classMenu = $this->findAddCall($addCalls, 'classMenu');
         self::assertSame(ChoiceType::class, $classMenu['type']);

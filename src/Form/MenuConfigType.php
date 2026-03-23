@@ -40,14 +40,26 @@ final class MenuConfigType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $choices = $this->permissionCheckerChoices;
+        // Internal map: service id => human label.
+        $choicesById = $this->permissionCheckerChoices;
         $data    = $builder->getData();
         if ($data instanceof Menu) {
             $current = $data->getPermissionChecker();
-            if ($current !== null && $current !== '' && !isset($choices[$current])) {
-                $choices[$current] = $current . ' (current)';
-                ksort($choices, SORT_NATURAL);
+            if ($current !== null && $current !== '' && !isset($choicesById[$current])) {
+                $choicesById[$current] = $current . ' (current)';
+                ksort($choicesById, SORT_NATURAL);
             }
+        }
+
+        // ChoiceType expects [label => value]. We want to persist the service id as value.
+        /** @var array<string, string> $checkerChoices */
+        $checkerChoices = [];
+        foreach ($choicesById as $serviceId => $label) {
+            $choiceLabel = $label;
+            if (isset($checkerChoices[$choiceLabel])) {
+                $choiceLabel .= ' [' . $serviceId . ']';
+            }
+            $checkerChoices[$choiceLabel] = $serviceId;
         }
         $t = fn (string $id): string => $this->translator instanceof TranslatorInterface ? $this->translator->trans($id, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN) : $id;
 
@@ -56,7 +68,7 @@ final class MenuConfigType extends AbstractType
                 'required'                  => false,
                 'label'                     => 'form.menu_type.permission_checker.label',
                 'placeholder'               => 'form.menu_type.permission_checker.placeholder',
-                'choices'                   => $choices,
+                'choices'                   => $checkerChoices,
                 'choice_translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
                 'attr'                      => ['class' => 'form-select'],
                 'row_attr'                  => ['class' => 'mb-1'],

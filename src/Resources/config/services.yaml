@@ -63,6 +63,7 @@ services:
   Nowo\DashboardMenuBundle\Service\MenuTreeLoader:
     arguments:
       $container: !tagged_locator { tag: 'nowo_dashboard_menu.permission_checker' }
+      $permissionCheckerChoices: '%nowo_dashboard_menu.permission_checker_choices%'
       $menuIconNameResolver: '@Nowo\DashboardMenuBundle\Service\MenuIconNameResolver'
       $cachePool: null
       $cacheTtl: 60
