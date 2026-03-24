@@ -6,6 +6,16 @@ This document describes breaking changes and upgrade notes between versions. Sec
 
 No breaking changes.
 
+## From 0.3.30 to 0.3.31
+
+No breaking changes.
+
+- **Import flow:** dashboard import now uses a normal POST submit path (no AJAX roundtrip), with flash-based error/success feedback after redirect.
+- **Import validation:** top-level JSON format is validated before import execution; unsupported payload roots are rejected early with explicit messages.
+- **Navigation after create/import:** successful create/import redirects return to referer/index instead of always opening the created menu detail page.
+- **Base menu safeguards:** base-menu protections remain in place (no delete, immutable while base except unsetting the `base` flag), with UI actions aligned to backend constraints.
+- **Dashboard item diagnostics:** item list now displays `permissionKeys` and unanimity badge in the Route/URL column.
+
 ## From 0.3.29 to 0.3.30
 
 No breaking changes.

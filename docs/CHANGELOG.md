@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.31] - 2026-03-24
+
+### Fixed
+- **Dashboard import UX/performance:** import modal now submits with a normal POST (no AJAX flow), keeps submit-button double-click protection, and reports import format/errors through page flash alerts after redirect.
+- **Import payload format guard:** dashboard import validates top-level JSON format before running importer logic; unsupported root arrays or malformed structures are rejected with explicit user-facing errors.
+- **Create/import navigation flow:** after creating a menu (and on import redirects), dashboard returns to referer/index instead of forcing navigation to the new menu detail page.
+- **Dashboard item list visibility:** menu item table "Route / URL" column now shows `permissionKeys` and unanimity state (`Unanimous` / `Non-unanimous`) to match the runtime permission model.
+- **Static analysis/tests reliability:** phpstan errors across `src/` and `tests/` were resolved and coverage run no longer fails on `AutoTagPermissionCheckersPassTest` expectation drift.
+
 ## [0.3.30] - 2026-03-24
 
 ### Fixed
@@ -423,7 +432,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.30...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.31...HEAD
+[0.3.31]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.30...v0.3.31
 [0.3.30]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.29...v0.3.30
 [0.3.29]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.28...v0.3.29
 [0.3.28]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.27...v0.3.28
