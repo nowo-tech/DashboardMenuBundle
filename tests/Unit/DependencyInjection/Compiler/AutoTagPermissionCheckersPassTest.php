@@ -91,7 +91,7 @@ final class AutoTagPermissionCheckersPassTest extends TestCase
         // We intentionally register an autoloader that throws for this one class.
         $autoload = static function (string $class) use ($brokenClass): void {
             if ($class === $brokenClass) {
-                throw new \RuntimeException('autoload boom');
+                throw new RuntimeException('autoload boom');
             }
         };
         spl_autoload_register($autoload, prepend: true);

@@ -86,7 +86,7 @@ final class MenuQueryCounterTest extends TestCase
 
     public function testWrapConnectionForwardsToInnerLogger(): void
     {
-        $inner      = new QueryLoggerSpy();
+        $inner          = new QueryLoggerSpy();
         $config         = new ConfigurationStub();
         $config->logger = $inner;
         $connection     = $this->createMock(\Doctrine\DBAL\Connection::class);
