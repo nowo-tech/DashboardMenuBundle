@@ -345,6 +345,28 @@ final class MenuDashboardControllerTest extends TestCase
         self::assertSame(302, $response->getStatusCode());
     }
 
+    public function testDeleteMenuDoesNotRemoveBaseMenu(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('base');
+        $menu->setBase(true);
+        $ref = new ReflectionProperty(Menu::class, 'id');
+        $ref->setValue($menu, 1);
+
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findOneById')->with(1)->willReturn($menu);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::never())->method('remove');
+        $em->expects(self::never())->method('flush');
+
+        $controller = $this->createController(menuRepository: $menuRepo, entityManager: $em);
+        $this->setControllerContainer($controller);
+
+        $response = $controller->deleteMenu($this->createPostRequestWithCsrf(), 1);
+        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
+        self::assertSame(302, $response->getStatusCode());
+    }
+
     public function testItemMoveUpWhenAlreadyFirstRedirectsWithInfo(): void
     {
         $menu = new Menu();
@@ -679,6 +701,44 @@ final class MenuDashboardControllerTest extends TestCase
         $response = $controller->editMenu(Request::create('/1/edit', 'POST'), 1);
         self::assertSame(302, $response->getStatusCode());
         self::assertSame('original', $menu->getCode());
+    }
+
+    public function testEditMenuWhenBaseOnlyAllowsUnsettingBaseFlag(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('original');
+        $menu->setName('Original name');
+        $menu->setBase(true);
+        $ref = new ReflectionProperty(Menu::class, 'id');
+        $ref->setValue($menu, 1);
+
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findOneById')->with(1)->willReturn($menu);
+        $menuRepo->method('findOneByCodeAndContext')->with('original', self::anything())->willReturn($menu);
+        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([]);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::once())->method('flush');
+
+        $form = $this->createMock(FormInterface::class);
+        $form->method('handleRequest')->willReturnCallback(function () use ($form, $menu): FormInterface {
+            $menu->setCode('changed');
+            $menu->setName('Changed name');
+            $menu->setBase(false);
+
+            return $form;
+        });
+        $form->method('isSubmitted')->willReturn(true);
+        $form->method('isValid')->willReturn(true);
+
+        $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, entityManager: $em);
+        $this->setControllerContainer($controller, $form);
+        $response = $controller->editMenu(Request::create('/1/edit', 'POST'), 1);
+
+        self::assertSame(302, $response->getStatusCode());
+        self::assertSame('original', $menu->getCode());
+        self::assertSame('Original name', $menu->getName());
+        self::assertFalse($menu->isBase());
     }
 
     public function testCopyMenuSubmittedWithDuplicateCodeRendersFormWithError(): void

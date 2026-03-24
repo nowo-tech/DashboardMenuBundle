@@ -14,6 +14,9 @@ declare global {
   interface Window {
     __nowoDashboardMenuConfig?: NowoDashboardMenuConfig;
     __dmScriptLoaded?: boolean;
+    /** Prevents duplicate event listeners if dashboard.js is executed more than once (e.g. two script tags). */
+    __dmDashboardMenuShowBound?: boolean;
+    __dmDashboardMenuIndexBound?: boolean;
     dashboardMenuI18n?: Record<string, string>;
     dashboardMenuIconSelectorScriptUrl?: string;
     dashboardMenuDebugLive?: boolean;
@@ -243,6 +246,12 @@ function attachLiveComponentDebug(_container: Element): void {
 }
 
 function initShowPage(config: NowoDashboardMenuConfig): void {
+  if (typeof window !== 'undefined' && window.__dmDashboardMenuShowBound) {
+    return;
+  }
+  if (typeof window !== 'undefined') {
+    window.__dmDashboardMenuShowBound = true;
+  }
   const menuId = config.menuId ?? 0;
   const baseUrl = (config.baseUrl ?? '').replace(/\/[^/]+$/, '');
   const loading = i18n('loading', 'Loading…');
@@ -389,6 +398,12 @@ function initShowPage(config: NowoDashboardMenuConfig): void {
 }
 
 function initIndexPage(config: NowoDashboardMenuConfig): void {
+  if (typeof window !== 'undefined' && window.__dmDashboardMenuIndexBound) {
+    return;
+  }
+  if (typeof window !== 'undefined') {
+    window.__dmDashboardMenuIndexBound = true;
+  }
   const dashboardBase = (config.dashboardBase ?? '').replace(/\/$/, '');
   const loading = i18n('loading', 'Loading…');
   const errorMsg = i18n('errorLoadingForm', 'Error loading form.');

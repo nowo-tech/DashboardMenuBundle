@@ -482,6 +482,8 @@ final class MenuDashboardController extends AbstractController
         if ($sectionFocus === null && $request->isMethod('POST')) {
             $sectionFocus = in_array($request->request->get('_section'), ['basic', 'config'], true) ? $request->request->get('_section') : null;
         }
+        $wasBase      = $menu->isBase();
+        $menuSnapshot = $this->snapshotMenuForBaseProtection($menu);
         $originalCode = $menu->getCode();
         $form         = $this->createForm(MenuType::class, $menu, [
             'action'  => $this->generateUrl(self::ROUTE_MENU_EDIT, ['id' => $id]),
@@ -489,6 +491,12 @@ final class MenuDashboardController extends AbstractController
         ]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            if ($wasBase) {
+                // Base menus are immutable: the only allowed edit is unchecking "base".
+                $unsetBase = !$menu->isBase();
+                $this->restoreMenuFromSnapshot($menu, $menuSnapshot);
+                $menu->setBase(!$unsetBase);
+            }
             if ($menu->isBase()) {
                 $menu->setCode($originalCode);
             }
@@ -530,6 +538,11 @@ final class MenuDashboardController extends AbstractController
         $menu = $this->menuRepository->findOneById($id);
         if (!$menu instanceof Menu) {
             throw $this->createNotFoundException('Menu not found.');
+        }
+        if ($menu->isBase()) {
+            $this->addFlash('error', 'Base menus cannot be deleted.');
+
+            return $this->redirectToRefererOr($request, self::ROUTE_INDEX, []);
         }
         $em = $this->entityManager;
         $em->remove($menu);
@@ -1285,6 +1298,64 @@ final class MenuDashboardController extends AbstractController
         }
 
         return 'ip:' . ($request->getClientIp() ?? 'anon');
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function snapshotMenuForBaseProtection(Menu $menu): array
+    {
+        return [
+            'code'                      => $menu->getCode(),
+            'name'                      => $menu->getName(),
+            'context'                   => $menu->getContext(),
+            'icon'                      => $menu->getIcon(),
+            'classMenu'                 => $menu->getClassMenu(),
+            'ulId'                      => $menu->getUlId(),
+            'classItem'                 => $menu->getClassItem(),
+            'classLink'                 => $menu->getClassLink(),
+            'classChildren'             => $menu->getClassChildren(),
+            'classSectionLabel'         => $menu->getClassSectionLabel(),
+            'classCurrent'              => $menu->getClassCurrent(),
+            'classBranchExpanded'       => $menu->getClassBranchExpanded(),
+            'classHasChildren'          => $menu->getClassHasChildren(),
+            'classExpanded'             => $menu->getClassExpanded(),
+            'classCollapsed'            => $menu->getClassCollapsed(),
+            'permissionChecker'         => $menu->getPermissionChecker(),
+            'depthLimit'                => $menu->getDepthLimit(),
+            'collapsible'               => $menu->getCollapsible(),
+            'collapsibleExpanded'       => $menu->getCollapsibleExpanded(),
+            'nestedCollapsible'         => $menu->getNestedCollapsible(),
+            'nestedCollapsibleSections' => $menu->getNestedCollapsibleSections(),
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $snapshot
+     */
+    private function restoreMenuFromSnapshot(Menu $menu, array $snapshot): void
+    {
+        $menu->setCode((string) ($snapshot['code'] ?? ''));
+        $menu->setName(is_string($snapshot['name'] ?? null) ? $snapshot['name'] : null);
+        $menu->setContext(is_array($snapshot['context'] ?? null) ? $snapshot['context'] : null);
+        $menu->setIcon(is_string($snapshot['icon'] ?? null) ? $snapshot['icon'] : null);
+        $menu->setClassMenu(is_string($snapshot['classMenu'] ?? null) ? $snapshot['classMenu'] : null);
+        $menu->setUlId(is_string($snapshot['ulId'] ?? null) ? $snapshot['ulId'] : null);
+        $menu->setClassItem(is_string($snapshot['classItem'] ?? null) ? $snapshot['classItem'] : null);
+        $menu->setClassLink(is_string($snapshot['classLink'] ?? null) ? $snapshot['classLink'] : null);
+        $menu->setClassChildren(is_string($snapshot['classChildren'] ?? null) ? $snapshot['classChildren'] : null);
+        $menu->setClassSectionLabel(is_string($snapshot['classSectionLabel'] ?? null) ? $snapshot['classSectionLabel'] : null);
+        $menu->setClassCurrent(is_string($snapshot['classCurrent'] ?? null) ? $snapshot['classCurrent'] : null);
+        $menu->setClassBranchExpanded(is_string($snapshot['classBranchExpanded'] ?? null) ? $snapshot['classBranchExpanded'] : null);
+        $menu->setClassHasChildren(is_string($snapshot['classHasChildren'] ?? null) ? $snapshot['classHasChildren'] : null);
+        $menu->setClassExpanded(is_string($snapshot['classExpanded'] ?? null) ? $snapshot['classExpanded'] : null);
+        $menu->setClassCollapsed(is_string($snapshot['classCollapsed'] ?? null) ? $snapshot['classCollapsed'] : null);
+        $menu->setPermissionChecker(is_string($snapshot['permissionChecker'] ?? null) ? $snapshot['permissionChecker'] : null);
+        $menu->setDepthLimit(is_int($snapshot['depthLimit'] ?? null) ? $snapshot['depthLimit'] : null);
+        $menu->setCollapsible(is_bool($snapshot['collapsible'] ?? null) ? $snapshot['collapsible'] : null);
+        $menu->setCollapsibleExpanded(is_bool($snapshot['collapsibleExpanded'] ?? null) ? $snapshot['collapsibleExpanded'] : null);
+        $menu->setNestedCollapsible(is_bool($snapshot['nestedCollapsible'] ?? null) ? $snapshot['nestedCollapsible'] : null);
+        $menu->setNestedCollapsibleSections(is_bool($snapshot['nestedCollapsibleSections'] ?? null) ? $snapshot['nestedCollapsibleSections'] : null);
     }
 
     /**

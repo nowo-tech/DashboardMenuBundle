@@ -50,6 +50,8 @@ final readonly class MenuImporter
         $result = ['created' => 0, 'updated' => 0, 'skipped' => 0, 'errors' => []];
 
         if (isset($data['menus']) && is_array($data['menus'])) {
+            /** @var array<string, true> $seenMenuKeys code+context signatures already imported in this payload */
+            $seenMenuKeys = [];
             foreach ($data['menus'] as $i => $block) {
                 if (!is_array($block) || !isset($block['menu']) || !isset($block['items'])) {
                     $result['errors'][] = "Entry {$i}: missing 'menu' or 'items'.";
@@ -61,6 +63,18 @@ final readonly class MenuImporter
                     $result['errors'][] = "Entry {$i}: 'menu' must be an array.";
                     continue;
                 }
+                $code = isset($menuData['code']) && is_string($menuData['code']) ? trim($menuData['code']) : '';
+                if ($code === '') {
+                    $result['errors'][] = "Entry {$i}: menu \"code\" is required.";
+                    continue;
+                }
+                $ctx = $this->menuContextFromMenuData($menuData);
+                $sig = $code . "\0" . Menu::canonicalContextKey($ctx);
+                if (isset($seenMenuKeys[$sig])) {
+                    // Same menu+context appears twice in one file (e.g. merged exports). Import once only.
+                    continue;
+                }
+                $seenMenuKeys[$sig] = true;
                 $this->importOne($menuData, $itemsData, $strategy, $result);
             }
         } elseif (isset($data['menu']) && is_array($data['menu']) && isset($data['items']) && is_array($data['items'])) {
@@ -86,7 +100,7 @@ final readonly class MenuImporter
             return;
         }
 
-        $context  = isset($menuData['context']) && is_array($menuData['context']) ? $menuData['context'] : null;
+        $context  = $this->menuContextFromMenuData($menuData);
         $existing = $this->menuRepository->findOneByCodeAndContext($code, $context);
 
         if ($existing instanceof Menu) {
@@ -120,6 +134,20 @@ final readonly class MenuImporter
         $this->clearLinkDataForLinkItemsWithChildren($menu);
         $this->entityManager->flush();
         $this->reindexImportedPositionsWithinSiblingGroupsIfDuplicates($menu);
+    }
+
+    /**
+     * Resolves menu context from import JSON (same rules as export: missing key => null; only arrays accepted).
+     *
+     * @param array<string, mixed> $menuData
+     */
+    private function menuContextFromMenuData(array $menuData): ?array
+    {
+        if (!isset($menuData['context']) || !is_array($menuData['context'])) {
+            return null;
+        }
+
+        return $menuData['context'];
     }
 
     /**

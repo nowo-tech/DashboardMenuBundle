@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Import duplicate menus:** `menus` payloads that repeated the same `code` + context block are deduplicated (single import). Dashboard `dashboard.js` guards against registering modal listeners twice when the script is loaded more than once, avoiding a double POST on one submit.
+
 ## [0.3.29] - 2026-03-23
 
 ### Added

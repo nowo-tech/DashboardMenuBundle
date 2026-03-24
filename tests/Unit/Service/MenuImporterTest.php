@@ -82,6 +82,33 @@ final class MenuImporterTest extends TestCase
         self::assertSame([], $result['errors']);
     }
 
+    public function testImportMenusArraySkipsDuplicateBlocksWithSameCodeAndContext(): void
+    {
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
+
+        $menuPersistCount = 0;
+        $em               = $this->createMock(EntityManagerInterface::class);
+        $em->method('persist')->willReturnCallback(function (object $entity) use (&$menuPersistCount): void {
+            if ($entity instanceof Menu) {
+                ++$menuPersistCount;
+            }
+        });
+        $em->expects(self::atLeastOnce())->method('flush');
+
+        $importer = new MenuImporter($this->createStub(MenuItemRepository::class), $menuRepo, $em);
+        $result   = $importer->import([
+            'menus' => [
+                ['menu' => ['code' => 'once'], 'items' => [['label' => 'First']]],
+                ['menu' => ['code' => 'once'], 'items' => [['label' => 'Second']]],
+            ],
+        ]);
+
+        self::assertSame(1, $result['created']);
+        self::assertSame(1, $menuPersistCount);
+        self::assertSame([], $result['errors']);
+    }
+
     public function testImportSkipsExistingWhenStrategySkip(): void
     {
         $existing = new Menu();
