@@ -43,6 +43,8 @@ final class MenuConfigResolverTest extends TestCase
                 'class_has_children'    => '',
                 'class_expanded'        => '',
                 'class_collapsed'       => '',
+                'section'               => 'menu-section',
+                'divider'               => 'menu-divider',
             ],
             $config['classes'],
         );
@@ -118,6 +120,8 @@ final class MenuConfigResolverTest extends TestCase
                 'class_has_children'    => 'has-children',
                 'class_expanded'        => 'expanded',
                 'class_collapsed'       => 'collapsed',
+                'section'               => 'menu-section',
+                'divider'               => 'menu-divider',
             ],
             $config['classes'],
         );
@@ -132,6 +136,27 @@ final class MenuConfigResolverTest extends TestCase
 
         $resolverWithoutProject = new MenuConfigResolver(['project' => null], $repo);
         self::assertNull($resolverWithoutProject->getProject());
+    }
+
+    public function testGetConfigUsesSectionAndDividerDefaultsFromYamlOptions(): void
+    {
+        $repo = $this->createMock(MenuRepository::class);
+        $repo->method('findForCodeWithContextSets')->willReturn(null);
+
+        $resolver = new MenuConfigResolver([
+            'project'   => null,
+            'dashboard' => [
+                'css_class_options' => [
+                    'section' => ['navigation-header', 'menu-section'],
+                    'divider' => ['my-divider', 'menu-divider'],
+                ],
+            ],
+        ], $repo);
+
+        $config = $resolver->getConfig('main');
+
+        self::assertSame('navigation-header', $config['classes']['section']);
+        self::assertSame('my-divider', $config['classes']['divider']);
     }
 
     public function testGetMenuCodesReturnsCodesFromRepository(): void

@@ -120,6 +120,12 @@ form:
     class_children:
       label: "Class children (nested <ul>)"
       placeholder: "e.g. nav flex-column ms-2"
+    class_section:
+      label: "Class section (<li> when itemType \"section\")"
+      placeholder: "e.g. menu-section"
+    class_divider:
+      label: "Class divider (<li> when itemType \"divider\")"
+      placeholder: "e.g. menu-divider"
     class_current:
       label: "Class current (link matching current route)"
       placeholder: "e.g. active"

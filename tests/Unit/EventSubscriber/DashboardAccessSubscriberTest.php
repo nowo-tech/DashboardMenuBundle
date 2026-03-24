@@ -85,7 +85,7 @@ final class DashboardAccessSubscriberTest extends TestCase
     public function testOnKernelControllerReturnsWhenRouteDoesNotMatchPrefix(): void
     {
         $auth = $this->createMock(AuthorizationCheckerInterface::class);
-        $auth->method('isGranted')->willReturn(false);
+        $auth->expects(self::never())->method('isGranted');
 
         $subscriber = new DashboardAccessSubscriber(requiredRole: 'ROLE_X', authorizationChecker: $auth);
 

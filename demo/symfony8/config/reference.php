@@ -1335,6 +1335,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             link?: list<scalar|Param|null>,
  *             children?: list<scalar|Param|null>,
  *             section_label?: list<scalar|Param|null>,
+ *             section?: list<scalar|Param|null>,
+ *             divider?: list<scalar|Param|null>,
  *             span?: list<scalar|Param|null>,
  *             current?: list<scalar|Param|null>,
  *             branch_expanded?: list<scalar|Param|null>,

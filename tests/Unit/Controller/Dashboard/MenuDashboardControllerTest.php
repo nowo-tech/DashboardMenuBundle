@@ -21,7 +21,6 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
@@ -380,7 +379,7 @@ final class MenuDashboardControllerTest extends TestCase
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
         $this->setControllerContainer($controller);
 
-        $response = $controller->itemMoveUp($this->createPostRequestWithCsrf(), 1, 10);
+        $controller->itemMoveUp($this->createPostRequestWithCsrf(), 1, 10);
     }
 
     public function testItemMoveDownWhenAlreadyLastRedirectsWithInfo(): void
@@ -399,7 +398,7 @@ final class MenuDashboardControllerTest extends TestCase
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
         $this->setControllerContainer($controller);
 
-        $response = $controller->itemMoveDown($this->createPostRequestWithCsrf(), 1, 10);
+        $controller->itemMoveDown($this->createPostRequestWithCsrf(), 1, 10);
     }
 
     public function testItemMoveUpThrowsWhenMenuNotFound(): void
@@ -425,7 +424,7 @@ final class MenuDashboardControllerTest extends TestCase
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
         $this->setControllerContainer($controller);
 
-        $response = $controller->itemMoveUp($this->createPostRequestWithCsrf(), 1, 999);
+        $controller->itemMoveUp($this->createPostRequestWithCsrf(), 1, 999);
     }
 
     public function testItemMoveDownThrowsWhenMenuNotFound(): void
@@ -458,7 +457,7 @@ final class MenuDashboardControllerTest extends TestCase
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
         $this->setControllerContainer($controller);
 
-        $response = $controller->itemMoveUp($this->createPostRequestWithCsrf(), 1, 10);
+        $controller->itemMoveUp($this->createPostRequestWithCsrf(), 1, 10);
     }
 
     public function testItemMoveDownWhenItemBelongsToOtherMenuRedirectsWithError(): void
@@ -478,7 +477,7 @@ final class MenuDashboardControllerTest extends TestCase
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
         $this->setControllerContainer($controller);
 
-        $response = $controller->itemMoveDown($this->createPostRequestWithCsrf(), 1, 10);
+        $controller->itemMoveDown($this->createPostRequestWithCsrf(), 1, 10);
     }
 
     public function testEditMenuThrowsWhenMenuNotFound(): void
@@ -1111,7 +1110,7 @@ final class MenuDashboardControllerTest extends TestCase
         $request = Request::create('/1/item/5/edit', 'POST');
         $request->request->set('_section', 'basic');
 
-        $response = $controller->editItem($request, 1, 5);
+        $controller->editItem($request, 1, 5);
 
         // Empty value for EN should unset it; ES should be updated.
         self::assertSame(['es' => 'New ES'], $item->getTranslations());
@@ -1212,7 +1211,7 @@ final class MenuDashboardControllerTest extends TestCase
         $router->method('generate')->willReturn('/generated');
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, router: $router);
         $this->setControllerContainer($controller);
-        $response = $controller->editItem(Request::create('/1/item/5/edit'), 1, 5);
+        $controller->editItem(Request::create('/1/item/5/edit'), 1, 5);
     }
 
     public function testEditItemThrowsWhenMenuNotFound(): void
@@ -1249,7 +1248,7 @@ final class MenuDashboardControllerTest extends TestCase
         $itemRepo->method('find')->with(999)->willReturn(null);
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
         $this->setControllerContainer($controller);
-        $response = $controller->deleteItem($this->createPostRequestWithCsrf(), 1, 999);
+        $controller->deleteItem($this->createPostRequestWithCsrf(), 1, 999);
     }
 
     public function testDeleteItemRemovesAndRedirectsWhenFound(): void
@@ -1340,6 +1339,7 @@ final class MenuDashboardControllerTest extends TestCase
         $this->setControllerContainer($controller);
 
         $response = $controller->index(Request::create('/'));
+        self::assertSame(200, $response->getStatusCode());
     }
 
     public function testItemMoveUpThrowsWhenCsrfInvalid(): void
@@ -1436,6 +1436,7 @@ final class MenuDashboardControllerTest extends TestCase
         $request->query->set('_partial', '1');
 
         $response = $controller->import($request);
+        self::assertSame(200, $response->getStatusCode());
     }
 
     public function testImportRendersPartialWhenJsonDecodingThrows(): void
@@ -1472,6 +1473,7 @@ final class MenuDashboardControllerTest extends TestCase
         $request->query->set('_partial', '1');
 
         $response = $controller->import($request);
+        self::assertSame(200, $response->getStatusCode());
     }
 
     public function testImportRendersFullWhenDecodedIsNotArray(): void
@@ -1507,6 +1509,7 @@ final class MenuDashboardControllerTest extends TestCase
 
         $request  = Request::create('/dashboard/menu/import', 'POST', []);
         $response = $controller->import($request);
+        self::assertSame(302, $response->getStatusCode());
     }
 
     public function testImportRendersFullWhenImporterReturnsErrors(): void
@@ -1542,6 +1545,7 @@ final class MenuDashboardControllerTest extends TestCase
 
         $request  = Request::create('/dashboard/menu/import', 'POST', []);
         $response = $controller->import($request);
+        self::assertSame(302, $response->getStatusCode());
     }
 
     public function testImportRedirectsWhenImporterReturnsNoErrors(): void
@@ -1579,6 +1583,7 @@ final class MenuDashboardControllerTest extends TestCase
         $request->headers->set('Referer', 'http://localhost/');
 
         $response = $controller->import($request);
+        self::assertSame(302, $response->getStatusCode());
     }
 
     public function testImportRendersWhenFormSubmittedInvalid(): void
@@ -1596,6 +1601,7 @@ final class MenuDashboardControllerTest extends TestCase
 
         $request  = Request::create('/dashboard/menu/import', 'POST', []);
         $response = $controller->import($request);
+        self::assertSame(422, $response->getStatusCode());
     }
 
     public function testNewItemRendersLiveComponentPartialWhenEnabledAndPartialRequested(): void
@@ -1612,6 +1618,7 @@ final class MenuDashboardControllerTest extends TestCase
         $request->setLocale('en');
 
         $response = $controller->newItem($request, 1);
+        self::assertSame(200, $response->getStatusCode());
     }
 
     public function testNewItemClearsDividerFieldsOnSave(): void
@@ -1640,6 +1647,7 @@ final class MenuDashboardControllerTest extends TestCase
 
         $request  = Request::create('/dashboard/menu/1/item/new', 'POST', []);
         $response = $controller->newItem($request, 1);
+        self::assertSame(302, $response->getStatusCode());
     }
 
     public function testEditItemRendersLiveComponentPartialWhenEnabledAndPartialRequested(): void
@@ -1661,6 +1669,7 @@ final class MenuDashboardControllerTest extends TestCase
         $request->setLocale('en');
 
         $response = $controller->editItem($request, 1, 10);
+        self::assertSame(200, $response->getStatusCode());
     }
 
     public function testEditItemRendersLiveComponentPartialWhenEnabledAndSectionFocusConfig(): void
@@ -1688,6 +1697,7 @@ final class MenuDashboardControllerTest extends TestCase
         $request->setLocale('en');
 
         $response = $controller->editItem($request, 1, 10);
+        self::assertSame(200, $response->getStatusCode());
     }
 
     public function testEditItemClearsDividerFieldsAndResetsParent(): void
@@ -1718,8 +1728,8 @@ final class MenuDashboardControllerTest extends TestCase
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
         $this->setControllerContainer($controller, $form);
 
-        $request  = Request::create('/dashboard/menu/1/item/10/edit', 'POST', []);
-        $response = $controller->editItem($request, 1, 10);
+        $request = Request::create('/dashboard/menu/1/item/10/edit', 'POST', []);
+        $controller->editItem($request, 1, 10);
         self::assertNull($item->getParent());
         self::assertSame('', $item->getLabel());
         self::assertNull($item->getIcon());
@@ -1752,8 +1762,8 @@ final class MenuDashboardControllerTest extends TestCase
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
         $this->setControllerContainer($controller, $form);
 
-        $request  = Request::create('/dashboard/menu/1/item/10/edit', 'POST', []);
-        $response = $controller->editItem($request, 1, 10);
+        $request = Request::create('/dashboard/menu/1/item/10/edit', 'POST', []);
+        $controller->editItem($request, 1, 10);
         self::assertNull($item->getLinkType());
         self::assertNull($item->getRouteName());
         self::assertNull($item->getRouteParams());
@@ -2104,7 +2114,7 @@ final class MenuDashboardControllerTest extends TestCase
         );
         $this->setControllerContainer($controller, $form);
 
-        $response = $controller->newItem(Request::create('/1/item/new', 'POST'), 1);
+        $controller->newItem(Request::create('/1/item/new', 'POST'), 1);
     }
 
     public function testEditItemConfigWithParentChangeReindexesOldAndNewParentsAndFlushesTwice(): void
@@ -2178,7 +2188,7 @@ final class MenuDashboardControllerTest extends TestCase
         $request = Request::create('/1/item/10/edit', 'POST');
         $request->request->set('_section', 'config');
 
-        $response = $controller->editItem($request, 1, 10);
+        $controller->editItem($request, 1, 10);
         self::assertSame(6, $item->getPosition());
     }
 

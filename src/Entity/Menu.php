@@ -89,6 +89,18 @@ class Menu
     private ?string $classSectionLabel = null;
 
     /**
+     * CSS class for <li> when itemType is "section" (e.g. "menu-section", "navigation-header").
+     */
+    #[ORM\Column(type: Types::STRING, length: 512, nullable: true)]
+    private ?string $classSection = null;
+
+    /**
+     * CSS class for <li> when itemType is "divider" (e.g. "menu-divider").
+     */
+    #[ORM\Column(type: Types::STRING, length: 512, nullable: true)]
+    private ?string $classDivider = null;
+
+    /**
      * Class added to the <a> when its route matches the current request (e.g. "active"). Overrides config when set.
      */
     #[ORM\Column(type: Types::STRING, length: 128, nullable: true)]
@@ -293,6 +305,30 @@ class Menu
     public function setClassSectionLabel(?string $classSectionLabel): self
     {
         $this->classSectionLabel = $classSectionLabel;
+
+        return $this;
+    }
+
+    public function getClassSection(): ?string
+    {
+        return $this->classSection;
+    }
+
+    public function setClassSection(?string $classSection): self
+    {
+        $this->classSection = $classSection;
+
+        return $this;
+    }
+
+    public function getClassDivider(): ?string
+    {
+        return $this->classDivider;
+    }
+
+    public function setClassDivider(?string $classDivider): self
+    {
+        $this->classDivider = $classDivider;
 
         return $this;
     }

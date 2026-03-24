@@ -82,6 +82,8 @@ nowo_dashboard_menu:
             link: ['nav-link', 'dropdown-item', 'nav-link link-secondary']
             children: ['nav flex-column ms-2', 'nav flex-column', 'dropdown-menu']
             section_label: ['menu-section-label', 'navigation-header', '']
+            section: ['menu-section', 'navigation-header', '']
+            divider: ['menu-divider', '']
             span: ['ms-2 d-flex align-items-center flex-nowrap']
             current: ['active', '']
             branch_expanded: ['active-branch', 'active-branch-has-children', '']

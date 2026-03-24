@@ -8,12 +8,15 @@ use Nowo\DashboardMenuBundle\DependencyInjection\Configuration;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Processor;
 
+use function strlen;
+
 final class ConfigurationTest extends TestCase
 {
     public function testGetConfigTreeBuilderReturnsTreeBuilder(): void
     {
-        $config = new Configuration();
-        $config->getConfigTreeBuilder();
+        $config      = new Configuration();
+        $treeBuilder = $config->getConfigTreeBuilder();
+        self::assertSame(Configuration::ALIAS, $treeBuilder->buildTree()->getName());
     }
 
     public function testProcessConfigurationWithEmptyConfigUsesDefaults(): void

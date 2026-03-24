@@ -10,6 +10,8 @@
     {% set linkClasses = menuConfig.classes.link is defined ? menuConfig.classes.link : '' %}
     {% set childrenClasses = menuConfig.classes.children is defined ? menuConfig.classes.children : '' %}
     {% set sectionLabelClasses = menuConfig.classes.section_label is defined ? menuConfig.classes.section_label : 'navigation-header' %}
+    {% set sectionItemClasses = menuConfig.classes.section is defined ? menuConfig.classes.section : 'menu-section' %}
+    {% set dividerItemClasses = menuConfig.classes.divider is defined ? menuConfig.classes.divider : 'menu-divider' %}
     {% set iconName = item.icon|default(menuConfig.icons.default) %}
     {% set showIcon = menuConfig.icons.enabled and iconName is not empty and itemType == 'link' %}
     {% set classCurrent = menuConfig.classes.class_current is defined ? menuConfig.classes.class_current : 'active' %}
@@ -28,7 +30,7 @@
     {% set liExtra = liExtra ~ (hasChildren and hasCurrentInBranch and classExpanded is not empty ? ' ' ~ classExpanded : '') %}
     {% set liExtra = liExtra ~ (hasChildren and not hasCurrentInBranch and classCollapsed is not empty ? ' ' ~ classCollapsed : '') %}
     {% set liExtra = liExtra|trim %}
-    {% set liClass = (itemClasses ~ (itemType == 'section' ? ' menu-section' : '') ~ (itemType == 'divider' ? ' menu-divider' : '') ~ (liExtra is not empty ? ' ' ~ liExtra : ''))|trim %}
+    {% set liClass = (itemClasses ~ (itemType == 'section' and sectionItemClasses is not empty ? ' ' ~ sectionItemClasses : '') ~ (itemType == 'divider' and dividerItemClasses is not empty ? ' ' ~ dividerItemClasses : '') ~ (liExtra is not empty ? ' ' ~ liExtra : ''))|trim %}
     {% set aClass = (linkClasses ~ (isCurrent and classCurrent is not empty ? ' ' ~ classCurrent : ''))|trim %}
     {% set collapseId = idPrefix ~ '-item-' ~ item.id %}
     <li{% if liClass %} class="{{ liClass }}"{% endif %}>

@@ -200,6 +200,8 @@ final readonly class MenuImporter
         $menu->setClassLink($this->stringOrNull($menuData['classLink'] ?? null));
         $menu->setClassChildren($this->stringOrNull($menuData['classChildren'] ?? null));
         $menu->setClassSectionLabel($this->stringOrNull($menuData['classSectionLabel'] ?? null));
+        $menu->setClassSection($this->stringOrNull($menuData['classSection'] ?? null));
+        $menu->setClassDivider($this->stringOrNull($menuData['classDivider'] ?? null));
         $menu->setClassCurrent($this->stringOrNull($menuData['classCurrent'] ?? null));
         $menu->setClassBranchExpanded($this->stringOrNull($menuData['classBranchExpanded'] ?? null));
         $menu->setClassHasChildren($this->stringOrNull($menuData['classHasChildren'] ?? null));

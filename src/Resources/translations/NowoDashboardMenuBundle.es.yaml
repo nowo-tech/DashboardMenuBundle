@@ -133,6 +133,12 @@ form:
     class_section_label:
       label: "Clase etiqueta de sección (itemType \"section\")"
       placeholder: "ej. navigation-header"
+    class_section:
+      label: "Clase sección (<li> cuando itemType \"section\")"
+      placeholder: "ej. menu-section"
+    class_divider:
+      label: "Clase divisor (<li> cuando itemType \"divider\")"
+      placeholder: "ej. menu-divider"
     class_current:
       label: "Clase actual (enlace que coincide con la ruta actual)"
       placeholder: "ej. active"

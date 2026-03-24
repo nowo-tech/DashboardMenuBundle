@@ -770,6 +770,8 @@ final class MenuDashboardController extends AbstractController
         $copy->setClassItem($source->getClassItem());
         $copy->setClassLink($source->getClassLink());
         $copy->setClassChildren($source->getClassChildren());
+        $copy->setClassSection($source->getClassSection());
+        $copy->setClassDivider($source->getClassDivider());
         $copy->setClassCurrent($source->getClassCurrent());
         $copy->setClassBranchExpanded($source->getClassBranchExpanded());
         $copy->setClassHasChildren($source->getClassHasChildren());
@@ -1353,6 +1355,8 @@ final class MenuDashboardController extends AbstractController
             'classLink'                 => $menu->getClassLink(),
             'classChildren'             => $menu->getClassChildren(),
             'classSectionLabel'         => $menu->getClassSectionLabel(),
+            'classSection'              => $menu->getClassSection(),
+            'classDivider'              => $menu->getClassDivider(),
             'classCurrent'              => $menu->getClassCurrent(),
             'classBranchExpanded'       => $menu->getClassBranchExpanded(),
             'classHasChildren'          => $menu->getClassHasChildren(),
@@ -1382,6 +1386,8 @@ final class MenuDashboardController extends AbstractController
         $menu->setClassLink(is_string($snapshot['classLink'] ?? null) ? $snapshot['classLink'] : null);
         $menu->setClassChildren(is_string($snapshot['classChildren'] ?? null) ? $snapshot['classChildren'] : null);
         $menu->setClassSectionLabel(is_string($snapshot['classSectionLabel'] ?? null) ? $snapshot['classSectionLabel'] : null);
+        $menu->setClassSection(is_string($snapshot['classSection'] ?? null) ? $snapshot['classSection'] : null);
+        $menu->setClassDivider(is_string($snapshot['classDivider'] ?? null) ? $snapshot['classDivider'] : null);
         $menu->setClassCurrent(is_string($snapshot['classCurrent'] ?? null) ? $snapshot['classCurrent'] : null);
         $menu->setClassBranchExpanded(is_string($snapshot['classBranchExpanded'] ?? null) ? $snapshot['classBranchExpanded'] : null);
         $menu->setClassHasChildren(is_string($snapshot['classHasChildren'] ?? null) ? $snapshot['classHasChildren'] : null);

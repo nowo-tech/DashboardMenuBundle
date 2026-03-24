@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\Tests\DependencyInjection\Compiler;
 
+use Nowo\DashboardMenuBundle\Attribute\PermissionCheckerLabel;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\AutoTagPermissionCheckersPass;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\PermissionCheckerPass;
+use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Service\MenuPermissionCheckerInterface;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -91,7 +94,7 @@ final class AutoTagPermissionCheckersPassTest extends TestCase
         // We intentionally register an autoloader that throws for this one class.
         $autoload = static function (string $class) use ($brokenClass): void {
             if ($class === $brokenClass) {
-                throw new \RuntimeException('autoload boom');
+                throw new RuntimeException('autoload boom');
             }
         };
         spl_autoload_register($autoload, prepend: true);
@@ -227,10 +230,6 @@ final class AutoTagPermissionCheckersPassTest extends TestCase
 }
 
 // Stub classes for testing (same namespace so they live in the same file and are autoloaded with the test)
-
-use Nowo\DashboardMenuBundle\Attribute\PermissionCheckerLabel;
-use Nowo\DashboardMenuBundle\Entity\MenuItem;
-use RuntimeException;
 
 class StubCheckerNoLabel implements MenuPermissionCheckerInterface
 {

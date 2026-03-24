@@ -36,7 +36,7 @@ final class MenuItemTypeTest extends TestCase
 {
     public function testMenuItemTypeConfigureOptions(): void
     {
-        $repo     = $this->createStub(MenuItemRepository::class);
+        $this->createStub(MenuItemRepository::class);
         $type     = new MenuItemType();
         $resolver = new OptionsResolver();
         $type->configureOptions($resolver);
@@ -54,7 +54,7 @@ final class MenuItemTypeTest extends TestCase
 
     public function testMenuItemTypeBuildFormAddsBasicAndConfigByDefault(): void
     {
-        $repo     = $this->createStub(MenuItemRepository::class);
+        $this->createStub(MenuItemRepository::class);
         $addCalls = [];
         $builder  = $this->createFormBuilderMock($addCalls);
 
@@ -74,7 +74,7 @@ final class MenuItemTypeTest extends TestCase
 
     public function testMenuItemTypeBuildFormAddsOnlyBasicWhenSectionBasic(): void
     {
-        $repo     = $this->createStub(MenuItemRepository::class);
+        $this->createStub(MenuItemRepository::class);
         $addCalls = [];
         $builder  = $this->createFormBuilderMock($addCalls);
 
@@ -95,7 +95,7 @@ final class MenuItemTypeTest extends TestCase
 
     public function testMenuItemTypeBuildFormAddsOnlyConfigWhenSectionConfig(): void
     {
-        $repo     = $this->createStub(MenuItemRepository::class);
+        $this->createStub(MenuItemRepository::class);
         $addCalls = [];
         $builder  = $this->createFormBuilderMock($addCalls);
 

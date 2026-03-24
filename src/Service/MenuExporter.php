@@ -80,6 +80,8 @@ final readonly class MenuExporter
             'classLink'                 => $menu->getClassLink(),
             'classChildren'             => $menu->getClassChildren(),
             'classSectionLabel'         => $menu->getClassSectionLabel(),
+            'classSection'              => $menu->getClassSection(),
+            'classDivider'              => $menu->getClassDivider(),
             'classCurrent'              => $menu->getClassCurrent(),
             'classBranchExpanded'       => $menu->getClassBranchExpanded(),
             'classHasChildren'          => $menu->getClassHasChildren(),

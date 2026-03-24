@@ -133,6 +133,12 @@ form:
     class_section_label:
       label: "Classe libellé de section (itemType \"section\")"
       placeholder: "ex. navigation-header"
+    class_section:
+      label: "Classe section (<li> quand itemType \"section\")"
+      placeholder: "ex. menu-section"
+    class_divider:
+      label: "Classe séparateur (<li> quand itemType \"divider\")"
+      placeholder: "ex. menu-divider"
     class_current:
       label: "Classe actuel (lien correspondant à la route actuelle)"
       placeholder: "ex. active"

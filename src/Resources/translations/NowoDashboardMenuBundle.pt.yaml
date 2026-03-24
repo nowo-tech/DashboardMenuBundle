@@ -108,6 +108,12 @@ form:
     class_children:
       label: "Classe filhos (<ul> aninhado)"
       placeholder: "ex. nav flex-column ms-2"
+    class_section:
+      label: "Class section (<li> when itemType \"section\")"
+      placeholder: "e.g. menu-section"
+    class_divider:
+      label: "Class divider (<li> when itemType \"divider\")"
+      placeholder: "e.g. menu-divider"
     class_current:
       label: "Classe atual (link da rota atual)"
       placeholder: "ex. active"

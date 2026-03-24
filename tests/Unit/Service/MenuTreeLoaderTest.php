@@ -186,9 +186,9 @@ class MenuTreeLoaderTest extends TestCase
             60,
         );
 
-        $treeAll = $loader->loadTree('main', 'en');
+        $loader->loadTree('main', 'en');
 
-        $treeFiltered = $loader->loadTree('main', 'en', 'deny-second');
+        $loader->loadTree('main', 'en', 'deny-second');
     }
 
     public function testLoadTreeUsesDefaultPermissionCheckerWhenContainerServiceIsNotMenuPermissionCheckerInterface(): void

@@ -7,6 +7,8 @@ namespace Nowo\DashboardMenuBundle\Service;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 
+use function is_array;
+
 /**
  * Resolves config for a given menu code: YAML (connection, table_prefix, cache) + Menu entity (DB) for name and CSS classes.
  * Rendering defaults (classes, icons, collapsible) are hardcoded; entity overrides classes when set.
@@ -30,7 +32,12 @@ final readonly class MenuConfigResolver
     ];
 
     /**
-     * @param array{project: string|null} $config
+     * @param array{
+     *   project: string|null,
+     *   dashboard?: array{
+     *     css_class_options?: array<string, list<string>>
+     *   }
+     * } $config
      */
     public function __construct(
         private array $config,
@@ -53,7 +60,9 @@ final readonly class MenuConfigResolver
      */
     public function getConfig(string $menuCode, ?array $contextSets = null, ?Menu $menu = null): array
     {
-        $classes = self::DEFAULT_CLASSES;
+        $classes            = self::DEFAULT_CLASSES;
+        $classes['section'] = $this->resolveCssClassDefault('section', 'menu-section');
+        $classes['divider'] = $this->resolveCssClassDefault('divider', 'menu-divider');
 
         $sets   = $contextSets ?? [null, []];
         $entity = $menu ?? $this->menuRepository->findForCodeWithContextSets($menuCode, $sets);
@@ -84,6 +93,22 @@ final readonly class MenuConfigResolver
         ];
     }
 
+    private function resolveCssClassDefault(string $key, string $fallback): string
+    {
+        $options = $this->config['dashboard']['css_class_options'][$key] ?? null;
+        if (!is_array($options)) {
+            return $fallback;
+        }
+
+        foreach ($options as $option) {
+            if ($option !== '') {
+                return $option;
+            }
+        }
+
+        return '';
+    }
+
     /**
      * @param array<string, string> $classes
      *
@@ -105,6 +130,12 @@ final readonly class MenuConfigResolver
         }
         if ($entity->getClassSectionLabel() !== null && $entity->getClassSectionLabel() !== '') {
             $classes['section_label'] = $entity->getClassSectionLabel();
+        }
+        if ($entity->getClassSection() !== null && $entity->getClassSection() !== '') {
+            $classes['section'] = $entity->getClassSection();
+        }
+        if ($entity->getClassDivider() !== null && $entity->getClassDivider() !== '') {
+            $classes['divider'] = $entity->getClassDivider();
         }
         if ($entity->getClassCurrent() !== null && $entity->getClassCurrent() !== '') {
             $classes['class_current'] = $entity->getClassCurrent();

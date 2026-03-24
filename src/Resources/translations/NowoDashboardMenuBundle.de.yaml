@@ -109,6 +109,12 @@ form:
     class_children:
       label: "Klasse Kinder (verschachteltes <ul>)"
       placeholder: "z. B. nav flex-column ms-2"
+    class_section:
+      label: "Class section (<li> when itemType \"section\")"
+      placeholder: "e.g. menu-section"
+    class_divider:
+      label: "Class divider (<li> when itemType \"divider\")"
+      placeholder: "e.g. menu-divider"
     class_current:
       label: "Klasse aktuell (Link zur aktuellen Route)"
       placeholder: "z. B. active"

@@ -116,6 +116,12 @@ form:
     class_children:
       label: "Classe figli (<ul> annidato)"
       placeholder: "es. nav flex-column ms-2"
+    class_section:
+      label: "Class section (<li> when itemType \"section\")"
+      placeholder: "e.g. menu-section"
+    class_divider:
+      label: "Class divider (<li> when itemType \"divider\")"
+      placeholder: "e.g. menu-divider"
     class_current:
       label: "Classe corrente (link alla route corrente)"
       placeholder: "es. active"

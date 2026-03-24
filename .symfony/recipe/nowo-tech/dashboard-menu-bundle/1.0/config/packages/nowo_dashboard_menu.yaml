@@ -132,6 +132,8 @@ nowo_dashboard_menu:
         #     link: ['nav-link', 'dropdown-item', 'nav-link link-secondary']
         #     children: ['nav flex-column ms-2', 'nav flex-column', 'dropdown-menu']
         #     section_label: ['menu-section-label', '']
+        #     section: ['menu-section', 'navigation-header', ''] # <li> class when itemType=section
+        #     divider: ['menu-divider', ''] # <li> class when itemType=divider
         #     span: ['ms-2 d-flex align-items-center flex-nowrap'] # wrapper <span> label for non-section items
         #     current: ['active', '']
         #     branch_expanded: ['active-branch', 'active-branch-has-children', '']
