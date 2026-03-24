@@ -153,6 +153,23 @@
                                 {% else %}
                                     <span class="text-muted">—</span>
                                 {% endif %}
+                                {% set _permission_keys = item.permissionKeys ?? [] %}
+                                <div class="mt-1">
+                                    {% if _permission_keys is iterable and _permission_keys|length > 0 %}
+                                        {% for permission_key in _permission_keys %}
+                                            <code class="me-1">{{ permission_key }}</code>
+                                        {% endfor %}
+                                    {% else %}
+                                        <span class="text-muted">No permission keys</span>
+                                    {% endif %}
+                                </div>
+                                <div class="mt-1">
+                                    {% if item.isUnanimous %}
+                                        <span class="badge bg-success">Unanimous</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Non-unanimous</span>
+                                    {% endif %}
+                                </div>
                             </td>
                             <td style="padding-left: {{ 0.5 + depth * 1.25 }}rem;">
                                 {% if item.icon %}<span class="text-muted me-1" title="{{ item.icon }}">🔣</span>{% endif %}

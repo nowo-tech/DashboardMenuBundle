@@ -480,30 +480,15 @@ function initIndexPage(config: NowoDashboardMenuConfig): void {
     importModalBody.addEventListener('submit', (e) => {
       const form = (e.target as HTMLElement).closest('form[data-import-form], form.import-form');
       if (!form || !importModalBody.contains(form as Node)) return;
-      e.preventDefault();
       const formEl = form as HTMLFormElement;
-      if (formEl.dataset.dmSubmitting === '1') return;
+      if (formEl.dataset.dmSubmitting === '1') {
+        e.preventDefault();
+        return;
+      }
       formEl.dataset.dmSubmitting = '1';
       const submitBtn = formEl.querySelector<HTMLButtonElement>('button[type="submit"]');
       if (submitBtn) submitBtn.disabled = true;
-      const action = formEl.action || `${dashboardBase}/import`;
-      const formData = new FormData(formEl);
-      fetch(action, { method: 'POST', body: formData, redirect: 'follow' })
-        .then((r) => {
-          if (r.redirected) {
-            window.location.href = r.url || dashboardBase;
-            return;
-          }
-          return r.text();
-        })
-        .then((html) => {
-          if (html != null) importModalBody.innerHTML = html;
-        })
-        .catch(() => {
-          delete formEl.dataset.dmSubmitting;
-          if (submitBtn) submitBtn.disabled = false;
-          importModalBody.innerHTML = `<div class="alert alert-danger">${errorMsg}</div>`;
-        });
+      // Allow native POST submit to avoid AJAX race/double-submit issues.
     }, true);
   }
 

@@ -33,9 +33,9 @@ final readonly class CurrentRouteTreeDecorator
     /**
      * Adds isCurrent (link matches current path + query subset) and hasCurrentInBranch to each node.
      *
-     * @param list<array{item: MenuItem, children: list<array>}> $tree
+     * @param list<array<string, mixed>> $tree
      *
-     * @return list<array{item: MenuItem, children: list<array>, isCurrent: bool, hasCurrentInBranch: bool}>
+     * @return list<array<string, mixed>>
      */
     public function decorate(array $tree, Request $request): array
     {
@@ -52,10 +52,10 @@ final readonly class CurrentRouteTreeDecorator
     }
 
     /**
-     * @param array{item: MenuItem, children: list<array>} $node
+     * @param array<string, mixed> $node
      * @param array<string, mixed> $currentQuery
      *
-     * @return array{item: MenuItem, children: list<array>, isCurrent: bool, hasCurrentInBranch: bool}
+     * @return array<string, mixed>
      */
     private function decorateNode(array $node, string $normalizedCurrentPath, array $currentQuery): array
     {
@@ -130,7 +130,7 @@ final readonly class CurrentRouteTreeDecorator
     }
 
     /**
-     * @param list<array{hasCurrentInBranch: bool}> $children
+     * @param array<array<string, mixed>> $children
      */
     private function anyChildHasCurrentInBranch(array $children): bool
     {

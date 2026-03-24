@@ -80,8 +80,6 @@ final class DashboardAccessSubscriberTest extends TestCase
         self::assertNull($request->attributes->get('_route'));
 
         $subscriber->onKernelController($event);
-
-        self::assertTrue(true); // No exception expected.
     }
 
     public function testOnKernelControllerReturnsWhenRouteDoesNotMatchPrefix(): void
@@ -97,8 +95,6 @@ final class DashboardAccessSubscriberTest extends TestCase
         $event = $this->createControllerEvent($request);
 
         $subscriber->onKernelController($event);
-
-        self::assertTrue(true); // No exception expected because route doesn't match prefix.
     }
 
     public function testOnKernelControllerThrowsWhenRouteMatchesAndAccessDenied(): void

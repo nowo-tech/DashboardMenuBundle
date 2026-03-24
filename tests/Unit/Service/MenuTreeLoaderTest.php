@@ -187,10 +187,8 @@ class MenuTreeLoaderTest extends TestCase
         );
 
         $treeAll = $loader->loadTree('main', 'en');
-        self::assertIsArray($treeAll);
 
         $treeFiltered = $loader->loadTree('main', 'en', 'deny-second');
-        self::assertIsArray($treeFiltered);
     }
 
     public function testLoadTreeUsesDefaultPermissionCheckerWhenContainerServiceIsNotMenuPermissionCheckerInterface(): void
@@ -848,6 +846,7 @@ class MenuTreeLoaderTest extends TestCase
         $item = $tree[0]['item'];
         self::assertSame('Root', $item->getLabel());
         $menu = $item->getMenu();
+        self::assertNotNull($menu);
         self::assertSame('nav flex-column', $menu->getClassMenu());
         self::assertSame('nav-item', $menu->getClassItem());
         self::assertSame(2, $menu->getDepthLimit());

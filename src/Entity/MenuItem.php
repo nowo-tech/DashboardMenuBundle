@@ -11,7 +11,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 
 use function in_array;
-use function is_string;
 
 /**
  * Single menu entry: translatable label (label + optional translations JSON), link (route or external URL),
@@ -335,9 +334,6 @@ class MenuItem implements TranslatableInterface
 
         $normalized = [];
         foreach ($permissionKeys as $key) {
-            if (!is_string($key)) {
-                continue;
-            }
             $value = trim($key);
             if ($value === '' || in_array($value, $normalized, true)) {
                 continue;

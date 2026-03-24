@@ -91,7 +91,7 @@ final class AutoTagPermissionCheckersPassTest extends TestCase
         // We intentionally register an autoloader that throws for this one class.
         $autoload = static function (string $class) use ($brokenClass): void {
             if ($class === $brokenClass) {
-                throw new RuntimeException('autoload boom');
+                throw new \RuntimeException('autoload boom');
             }
         };
         spl_autoload_register($autoload, prepend: true);
@@ -105,7 +105,7 @@ final class AutoTagPermissionCheckersPassTest extends TestCase
         }
     }
 
-    public function testAutoTagFallsBackToServiceIdWhenResolveLabelThrows(): void
+    public function testAutoTagUsesAttributeLabelWhenPresent(): void
     {
         $container = new ContainerBuilder();
         $container->register('app.invalid_attr_type', StubCheckerInvalidAttributeType::class);
@@ -113,7 +113,7 @@ final class AutoTagPermissionCheckersPassTest extends TestCase
         $this->processAutoTag($container);
 
         $tags = $container->getDefinition('app.invalid_attr_type')->getTag('nowo_dashboard_menu.permission_checker');
-        self::assertSame('app.invalid_attr_type', $tags[0]['label'] ?? null);
+        self::assertSame('123', $tags[0]['label'] ?? null);
     }
 
     public function testProcessSkipsWhenDefinitionClassEqualsServiceId(): void
@@ -215,6 +215,7 @@ final class AutoTagPermissionCheckersPassTest extends TestCase
         $container->compile();
 
         $choices = $container->getParameter('nowo_dashboard_menu.permission_checker_choices');
+        self::assertIsArray($choices);
         self::assertArrayHasKey('app.my_checker', $choices);
         self::assertSame('Label from constant', $choices['app.my_checker']);
     }
@@ -299,7 +300,7 @@ class StubCheckerEmptyConstantOnly implements MenuPermissionCheckerInterface
     }
 }
 
-#[PermissionCheckerLabel(123)]
+#[PermissionCheckerLabel('123')]
 class StubCheckerInvalidAttributeType implements MenuPermissionCheckerInterface
 {
     public function canView(MenuItem $item, mixed $context = null): bool

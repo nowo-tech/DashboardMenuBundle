@@ -54,7 +54,7 @@ final readonly class MenuTreeLoader
      *
      * @param list<array<string, bool|int|string>|null>|null $contextSets Ordered list of context objects to try; null = try [null, []] (no context first)
      *
-     * @return list<array{item: MenuItem, children: list<array>}>
+     * @return list<array{item: MenuItem, children: list<array<string, mixed>>}>
      */
     public function loadTree(string $menuCode, string $locale, mixed $permissionContext = null, ?array $contextSets = null): array
     {
@@ -106,7 +106,7 @@ final readonly class MenuTreeLoader
      *
      * @param list<array<string, bool|int|string>|null> $sets
      *
-     * @return list<array{item: MenuItem, children: list<array>}>
+     * @return list<array{item: MenuItem, children: list<array<string, mixed>>}>
      */
     private function loadTreeLegacy(string $menuCode, string $locale, mixed $permissionContext, array $sets): array
     {
@@ -260,7 +260,7 @@ final readonly class MenuTreeLoader
     /**
      * Mark each node with 'had_children' (whether it had any children in the built tree) to avoid DB access when pruning.
      *
-     * @param list<array{item: MenuItem, children: list<array>, had_children?: bool}> $nodes
+     * @param list<array<string, mixed>> $nodes
      */
     private function markNodesWithChildren(array $nodes): void
     {
@@ -273,9 +273,9 @@ final readonly class MenuTreeLoader
     /**
      * Remove parents/section headers that have no visible children after permission filtering.
      *
-     * @param list<array{item: MenuItem, children: list<array>, had_children?: bool}> $nodes
+     * @param list<array<string, mixed>> $nodes
      *
-     * @return list<array{item: MenuItem, children: list<array>}>
+     * @return list<array{item: MenuItem, children: list<array<string, mixed>>}>
      */
     private function pruneEmptySections(array $nodes): array
     {
@@ -345,11 +345,11 @@ final readonly class MenuTreeLoader
             $this->normalizeItemIcon($item);
         }
 
-        /** @var array<int, array{item: MenuItem, children: list<array>}> $map */
+        /** @var array<int, array{item: MenuItem, children: list<array<string, mixed>>}> $map */
         $map = [];
         /** @var array<string, bool> $visibilityMap */
         $visibilityMap = [];
-        /** @var list<array{item: MenuItem, children: list<array>}> $roots */
+        /** @var list<array{item: MenuItem, children: list<array<string, mixed>>}> $roots */
         $roots = [];
 
         // First pass: evaluate visibility once and register diagnostics in profiler.
@@ -414,10 +414,10 @@ final readonly class MenuTreeLoader
     {
         $id = $item->getId();
         if ($id !== null) {
-            return 'id:' . (string) $id;
+            return 'id:' . $id;
         }
 
-        return 'obj:' . (string) spl_object_id($item);
+        return 'obj:' . spl_object_id($item);
     }
 
     /**

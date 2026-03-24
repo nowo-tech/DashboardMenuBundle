@@ -15,7 +15,6 @@ use Throwable;
 
 use function count;
 use function is_array;
-use function is_object;
 
 /**
  * Collects menu trees rendered on the page (code, context, items summary) and counts
@@ -88,7 +87,7 @@ final class DashboardMenuDataCollector extends DataCollector implements LateData
      * Called from MenuExtension when a menu tree is loaded (dev only).
      *
      * @param list<array<string, bool|int|string>|null>|null $contextSets
-     * @param list<array{item: MenuItem, children: list<array>}> $tree
+     * @param list<array<string, mixed>> $tree
      */
     public function addMenuLoad(string $code, ?array $contextSets, array $tree, mixed $resolvedContext = null, ?int $queryCount = null): void
     {
@@ -132,7 +131,7 @@ final class DashboardMenuDataCollector extends DataCollector implements LateData
         } catch (Throwable) {
             return;
         }
-        if (!is_object($collector) || !method_exists($collector, 'getData')) {
+        if (!method_exists($collector, 'getData')) {
             return;
         }
         $raw   = $collector->{'getData'}();
@@ -300,7 +299,7 @@ final class DashboardMenuDataCollector extends DataCollector implements LateData
     }
 
     /**
-     * @param list<array{item: MenuItem, children: list<array>}> $nodes
+     * @param list<array<string, mixed>> $nodes
      *
      * @return list<array{label: string, type: string, icon: string|null, children_count: int, children: list<array>}>
      */

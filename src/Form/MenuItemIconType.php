@@ -50,7 +50,7 @@ final class MenuItemIconType extends AbstractType
         // icon-selector-bundle validates submitted values against its allowed icon IDs.
         // We normalize only the initial value to the short prefix expected by the selector
         // (e.g. "bootstrap-icons:house" -> "bi:house") so the ChoiceType doesn't fail.
-        $normalizedIcon = $this->menuIconNameResolver->resolve($icon);
+        $this->menuIconNameResolver->resolve($icon);
 
         $t = fn (string $id): string => $this->translator instanceof TranslatorInterface
             ? $this->translator->trans($id, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN)

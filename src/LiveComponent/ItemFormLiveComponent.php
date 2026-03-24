@@ -94,6 +94,9 @@ final class ItemFormLiveComponent
     #[LiveProp(writable: false)]
     public ?int $hydratedItemId = null;
 
+    /**
+     * @return FormInterface<MenuItem>
+     */
     protected function instantiateForm(): FormInterface
     {
         $initialData = $this->initialFormData ?? new MenuItem();
@@ -102,13 +105,13 @@ final class ItemFormLiveComponent
         // When editing an existing item, always re-fetch it from DB to avoid wiping translations on save.
         $itemId = $this->itemId;
         if ($itemId === null) {
-            $itemId = $initialData instanceof MenuItem ? $initialData->getId() : null;
+            $itemId = $initialData->getId();
         }
         // Parse itemId from actionUrl (route pattern: /{menuId}/item/{itemId}/edit)
         if ($itemId === null && $this->actionUrl !== '') {
             $matches = [];
             if (preg_match('#/item/(\d+)/edit#', $this->actionUrl, $matches) === 1) {
-                $itemId = (int) ($matches[1] ?? 0);
+                $itemId = (int) $matches[1];
             }
         }
         if ($itemId !== null) {
@@ -116,7 +119,7 @@ final class ItemFormLiveComponent
             if ($needsHydration) {
                 // Avoid returning a potentially stale managed instance from Doctrine's identity map.
                 // Using clear() + repository findOneBy() makes sure we fetch the current row.
-                $this->entityManager->clear(MenuItem::class);
+                $this->entityManager->clear();
                 $repo  = $this->entityManager->getRepository(MenuItem::class);
                 $fresh = $repo->findOneBy(['id' => $itemId]);
                 if ($fresh instanceof MenuItem) {
@@ -148,7 +151,7 @@ final class ItemFormLiveComponent
     {
         $name   = $this->getForm()->getName();
         $values = $this->formValues;
-        $root   = isset($values[$name]) && is_array($values[$name]) ? $values[$name] : (is_array($values) ? $values : []);
+        $root   = isset($values[$name]) && is_array($values[$name]) ? $values[$name] : $values;
         $basic  = is_array($root['basic'] ?? null) ? $root['basic'] : [];
         $icon   = is_array($root['icon'] ?? null) ? $root['icon'] : [];
         $config = is_array($root['config'] ?? null) ? $root['config'] : [];
@@ -276,7 +279,7 @@ final class ItemFormLiveComponent
         if ($name === null || $name === '' || !isset($this->appRoutes[$name])) {
             return [];
         }
-        $params = $this->appRoutes[$name]['params'] ?? [];
+        $params = $this->appRoutes[$name]['params'];
         $out    = [];
         foreach ($params as $p) {
             $out[$p] = '';

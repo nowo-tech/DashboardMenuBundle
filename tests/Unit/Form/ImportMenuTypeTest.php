@@ -73,6 +73,11 @@ final class ImportMenuTypeTest extends TestCase
         );
     }
 
+    /**
+     * @param list<array{name: string, type: mixed, options: array<string, mixed>}> $addCalls
+     *
+     * @return FormBuilderInterface<mixed>
+     */
     private function createFormBuilderMock(array &$addCalls): FormBuilderInterface
     {
         $builder = $this->createMock(FormBuilderInterface::class);
@@ -85,6 +90,11 @@ final class ImportMenuTypeTest extends TestCase
         return $builder;
     }
 
+    /**
+     * @param list<array{name: string, type: mixed, options: array<string, mixed>}> $addCalls
+     *
+     * @return array{name: string, type: mixed, options: array<string, mixed>}
+     */
     private function findAdd(array $addCalls, string $name): array
     {
         foreach ($addCalls as $call) {

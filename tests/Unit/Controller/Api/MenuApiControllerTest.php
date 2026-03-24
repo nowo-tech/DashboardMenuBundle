@@ -44,10 +44,11 @@ final class MenuApiControllerTest extends TestCase
         $controller = new MenuApiController($loader, $urlResolver, $codeResolver, $localeResolver);
         $response   = ($controller)($request, 'nav');
 
-        self::assertInstanceOf(Response::class, $response);
         self::assertSame(200, $response->getStatusCode());
         self::assertSame('application/json', $response->headers->get('Content-Type'));
-        $data = json_decode($response->getContent(), true);
+        $content = $response->getContent();
+        self::assertIsString($content);
+        $data = json_decode($content, true);
         self::assertIsArray($data);
         self::assertCount(1, $data);
         self::assertSame('Home', $data[0]['label']);
@@ -71,7 +72,9 @@ final class MenuApiControllerTest extends TestCase
         $controller = new MenuApiController($loader, $urlResolver, $codeResolver, $localeResolver);
         $response   = ($controller)($request, 'nav');
 
-        $data = json_decode($response->getContent(), true);
+        $content = $response->getContent();
+        self::assertIsString($content);
+        $data = json_decode($content, true);
         self::assertSame([], $data);
     }
 
@@ -160,7 +163,9 @@ final class MenuApiControllerTest extends TestCase
         $controller = new MenuApiController($loader, $urlResolver, $codeResolver, $localeResolver);
         $response   = ($controller)($request, 'nav');
 
-        $data = json_decode($response->getContent(), true);
+        $content = $response->getContent();
+        self::assertIsString($content);
+        $data = json_decode($content, true);
         self::assertCount(1, $data);
         self::assertCount(1, $data[0]['children']);
         self::assertSame('Child', $data[0]['children'][0]['label']);

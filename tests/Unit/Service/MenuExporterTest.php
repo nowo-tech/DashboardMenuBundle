@@ -29,8 +29,6 @@ final class MenuExporterTest extends TestCase
         $exporter = new MenuExporter($menuRepo, $itemRepo);
         $data     = $exporter->exportMenu($menu);
 
-        self::assertArrayHasKey('menu', $data);
-        self::assertArrayHasKey('items', $data);
         self::assertSame('sidebar', $data['menu']['code']);
         self::assertSame('Main sidebar', $data['menu']['name']);
         self::assertSame('section-label', $data['menu']['classSectionLabel']);
@@ -76,13 +74,9 @@ final class MenuExporterTest extends TestCase
         $data     = $exporter->exportMenu($menu);
 
         self::assertCount(1, $data['items']);
-        self::assertArrayHasKey('permissionChecker', $data['menu']);
         self::assertSame('app.permission.checker', $data['menu']['permissionChecker']);
         self::assertSame('Home', $data['items'][0]['label']);
         self::assertSame('app_home', $data['items'][0]['routeName']);
-        self::assertArrayHasKey('permissionKey', $data['items'][0]);
-        self::assertArrayHasKey('permissionKeys', $data['items'][0]);
-        self::assertArrayHasKey('isUnanimous', $data['items'][0]);
         self::assertSame('app.home.view', $data['items'][0]['permissionKey']);
         self::assertSame(['app.home.view', 'authenticated'], $data['items'][0]['permissionKeys']);
         self::assertFalse($data['items'][0]['isUnanimous']);
@@ -106,11 +100,7 @@ final class MenuExporterTest extends TestCase
         $exporter = new MenuExporter($menuRepo, $itemRepo);
         $data     = $exporter->exportMenu($menu);
 
-        self::assertArrayHasKey('permissionChecker', $data['menu']);
         self::assertNull($data['menu']['permissionChecker']);
-        self::assertArrayHasKey('permissionKey', $data['items'][0]);
-        self::assertArrayHasKey('permissionKeys', $data['items'][0]);
-        self::assertArrayHasKey('isUnanimous', $data['items'][0]);
         self::assertNull($data['items'][0]['permissionKey']);
         self::assertNull($data['items'][0]['permissionKeys']);
         self::assertTrue($data['items'][0]['isUnanimous']);
@@ -145,7 +135,6 @@ final class MenuExporterTest extends TestCase
         $data     = $exporter->exportMenu($menu);
 
         self::assertCount(1, $data['items']);
-        self::assertArrayHasKey('children', $data['items'][0]);
         self::assertCount(1, $data['items'][0]['children']);
         self::assertSame('Child', $data['items'][0]['children'][0]['label']);
     }
@@ -163,8 +152,6 @@ final class MenuExporterTest extends TestCase
         $exporter = new MenuExporter($menuRepo, $itemRepo);
         $data     = $exporter->exportAll();
 
-        self::assertArrayHasKey('menus', $data);
-        self::assertIsArray($data['menus']);
         self::assertCount(1, $data['menus']);
         self::assertSame('foo', $data['menus'][0]['menu']['code']);
     }

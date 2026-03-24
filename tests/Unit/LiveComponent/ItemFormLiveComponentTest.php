@@ -284,7 +284,7 @@ final class ItemFormLiveComponentTest extends TestCase
             ->with(['id' => 55])
             ->willReturn(new MenuItem());
 
-        $em->expects(self::once())->method('clear')->with(MenuItem::class);
+        $em->expects(self::once())->method('clear');
         $em->expects(self::once())->method('getRepository')->with(MenuItem::class)->willReturn($repo);
 
         $formMock = $this->createMock(FormInterface::class);
@@ -355,7 +355,6 @@ final class ItemFormLiveComponentTest extends TestCase
         $component->formValues    = ['live_name' => ['basic' => [], 'config' => []]];
 
         $response = $component->save();
-        self::assertInstanceOf(RedirectResponse::class, $response);
         self::assertSame('/redirect', $response->getTargetUrl());
 
         self::assertSame('', $menuItem->getLabel());

@@ -113,11 +113,13 @@ final class MenuTypeTest extends TestCase
         $type->buildForm($builder, []);
 
         $permissionChecker = $this->findAddCall($addCalls, 'permissionChecker');
+        self::assertNotNull($permissionChecker);
         self::assertSame(ChoiceType::class, $permissionChecker['type']);
         self::assertArrayHasKey('custom_checker (current)', $permissionChecker['choices'] ?? []);
         self::assertSame('custom_checker', $permissionChecker['choices']['custom_checker (current)']);
 
         $classMenu = $this->findAddCall($addCalls, 'classMenu');
+        self::assertNotNull($classMenu);
         self::assertSame(ChoiceType::class, $classMenu['type']);
         self::assertArrayHasKey('custom-nav', $classMenu['choices'] ?? []);
         self::assertSame('custom-nav (current)', $classMenu['choices']['custom-nav']);
@@ -225,6 +227,12 @@ final class MenuTypeTest extends TestCase
         self::assertSame('form.menu_type.empty_choice', $ulId['placeholder'] ?? null);
     }
 
+    /**
+     * @param list<array{name: string, type: mixed, options: array<string, mixed>}> $addCalls
+     * @param FormBuilderInterface<mixed>|null $returnForm
+     *
+     * @return FormBuilderInterface<mixed>
+     */
     private function createFormBuilderMock(
         array &$addCalls,
         mixed $data = null,
@@ -246,10 +254,15 @@ final class MenuTypeTest extends TestCase
         return $builder;
     }
 
+    /**
+     * @param list<array{name: string, type: mixed, options: array<string, mixed>}> $addCalls
+     *
+     * @return array<string, mixed>|null
+     */
     private function findAddCall(array $addCalls, string $name): ?array
     {
         foreach ($addCalls as $call) {
-            if (($call['name'] ?? null) === $name) {
+            if ($call['name'] === $name) {
                 return array_merge(['type' => $call['type']], $call['options']);
             }
         }

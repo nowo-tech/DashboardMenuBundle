@@ -95,7 +95,5 @@ final class TwigPathsPassTest extends TestCase
 
         $pass = new TwigPathsPass();
         $pass->process($container);
-
-        self::assertTrue(true);
     }
 }

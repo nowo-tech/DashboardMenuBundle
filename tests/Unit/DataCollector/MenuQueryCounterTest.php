@@ -86,22 +86,7 @@ final class MenuQueryCounterTest extends TestCase
 
     public function testWrapConnectionForwardsToInnerLogger(): void
     {
-        $innerCalls = [];
-        $inner      = new class($innerCalls) {
-            public function __construct(private array &$calls)
-            {
-            }
-
-            public function startQuery($sql, $params = null, $types = null): void
-            {
-                $this->calls[] = ['startQuery', $sql, $params, $types];
-            }
-
-            public function stopQuery(): void
-            {
-                $this->calls[] = ['stopQuery'];
-            }
-        };
+        $inner      = new QueryLoggerSpy();
         $config         = new ConfigurationStub();
         $config->logger = $inner;
         $connection     = $this->createMock(\Doctrine\DBAL\Connection::class);
@@ -111,10 +96,11 @@ final class MenuQueryCounterTest extends TestCase
         $counter->wrapConnection($connection);
 
         $chain = $config->getSQLLogger();
+        self::assertInstanceOf(ChainedSqlLogger::class, $chain);
         $chain->startQuery('SELECT * FROM t', ['id' => 1], []);
         $chain->stopQuery();
 
-        self::assertSame([['startQuery', 'SELECT * FROM t', ['id' => 1], []], ['stopQuery']], $innerCalls);
+        self::assertSame([['startQuery', 'SELECT * FROM t', ['id' => 1], []], ['stopQuery']], $inner->calls);
     }
 
     public function testWrapConnectionOnlyWrapsOnce(): void
@@ -159,5 +145,26 @@ final class MenuQueryCounterTest extends TestCase
         $counter->startSegment();
         self::assertSame(0, $counter->getSegmentCount());
         self::assertSame(0, $config->setCalls, 'setSQLLogger must not be called when support check returns false');
+    }
+}
+
+final class QueryLoggerSpy
+{
+    /** @var list<list<mixed>> */
+    public array $calls = [];
+
+    /**
+     * @param mixed $sql
+     * @param mixed $params
+     * @param mixed $types
+     */
+    public function startQuery($sql, $params = null, $types = null): void
+    {
+        $this->calls[] = ['startQuery', $sql, $params, $types];
+    }
+
+    public function stopQuery(): void
+    {
+        $this->calls[] = ['stopQuery'];
     }
 }

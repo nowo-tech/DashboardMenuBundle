@@ -8,13 +8,17 @@ use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 
 use function dirname;
 
 final class TestKernel extends BaseKernel
 {
-    public function registerBundles(): array
+    /**
+     * @return iterable<BundleInterface>
+     */
+    public function registerBundles(): iterable
     {
         return [
             new FrameworkBundle(),

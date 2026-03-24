@@ -49,7 +49,7 @@ final readonly class MenuConfigResolver
      * @param list<array<string, bool|int|string>|null>|null $contextSets Ordered list of context objects to try; null = try [null, []] (no context first)
      * @param Menu|null $menu Optional pre-loaded menu entity to use instead of querying
      *
-     * @return array{connection: string, table_prefix: string, menu_name: string|null, permission_checker: string|null, cache_pool: string|null, cache_ttl: int, classes: array<string, string>, depth_limit: int|null, icons: array{enabled: bool, use_ux_icons: bool, default: string|null}, collapsible: bool, collapsible_expanded: bool, nested_collapsible: bool, nested_collapsible_sections: bool, context: array<string, bool|int|string>}
+     * @return array{connection: string, table_prefix: string, menu_name: string|null, permission_checker: string|null, cache_pool: string|null, cache_ttl: int, classes: array<string, string>, ul_id: string|null, depth_limit: int|null, icons: array{enabled: bool, use_ux_icons: bool, default: string|null}, collapsible: bool, collapsible_expanded: bool, nested_collapsible: bool, nested_collapsible_sections: bool, context: array<string, bool|int|string>}
      */
     public function getConfig(string $menuCode, ?array $contextSets = null, ?Menu $menu = null): array
     {

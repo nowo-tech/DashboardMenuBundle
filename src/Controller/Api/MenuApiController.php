@@ -69,7 +69,7 @@ final readonly class MenuApiController
     }
 
     /**
-     * @param list<array{item: \Nowo\DashboardMenuBundle\Entity\MenuItem, children: list<array>}> $tree
+     * @param list<array<string, mixed>> $tree
      *
      * @return list<array{label: string, href: string, routeName: string|null, icon: string|null, itemType: string, children: list<array<string, mixed>>}>
      */

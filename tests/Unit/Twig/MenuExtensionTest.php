@@ -83,10 +83,11 @@ final class MenuExtensionTest extends TestCase
 
         $extension = $this->createExtension(configResolver: $configResolver, requestStack: $requestStack);
         $config    = $extension->getMenuConfig('sidebar');
-        self::assertArrayHasKey('classes', $config);
-        self::assertArrayHasKey('ul_id', $config);
-        self::assertArrayHasKey('depth_limit', $config);
-        self::assertArrayHasKey('menu_name', $config);
+        self::assertSame('dashboard-menu', $config['classes']['menu']);
+        self::assertSame('menu-section-label', $config['classes']['section_label']);
+        self::assertNull($config['ul_id']);
+        self::assertNull($config['depth_limit']);
+        self::assertNull($config['menu_name']);
     }
 
     public function testGetMenuTreeWithoutRequestReturnsTreeWithDefaultLocale(): void
@@ -101,7 +102,6 @@ final class MenuExtensionTest extends TestCase
 
         $extension = $this->createExtension(menuTreeLoader: $loader, requestStack: $requestStack);
         $result    = $extension->getMenuTree('nav');
-        self::assertIsArray($result);
         self::assertSame([], $result);
     }
 
@@ -118,9 +118,10 @@ final class MenuExtensionTest extends TestCase
 
         $extension = $this->createExtension(configResolver: $configResolver, requestStack: $stack);
         $config    = $extension->getMenuConfig('sidebar', [null, []]);
-        self::assertArrayHasKey('classes', $config);
-        self::assertArrayHasKey('ul_id', $config);
-        self::assertArrayHasKey('depth_limit', $config);
+        self::assertSame('dashboard-menu', $config['classes']['menu']);
+        self::assertSame('menu-section-label', $config['classes']['section_label']);
+        self::assertNull($config['ul_id']);
+        self::assertNull($config['depth_limit']);
     }
 
     public function testGetMenuTreeWithRequestUsesResolvedCodeAndLocale(): void
@@ -139,7 +140,7 @@ final class MenuExtensionTest extends TestCase
 
         $extension = $this->createExtension(menuTreeLoader: $loader, requestStack: $stack);
         $result    = $extension->getMenuTree('nav');
-        self::assertIsArray($result);
+        self::assertSame([], $result);
     }
 
     public function testGetMenuTreeWithRequestAndDataCollectorCallsAddMenuLoadWhenTreeHasItemWithMenu(): void
@@ -226,7 +227,6 @@ final class MenuExtensionTest extends TestCase
         $dataCollector->collect($request, new \Symfony\Component\HttpFoundation\Response());
 
         self::assertCount(1, $dataCollector->getMenus());
-        self::assertArrayHasKey('query_count', $dataCollector->getMenus()[0]);
         self::assertSame(0, $dataCollector->getMenus()[0]['query_count']);
     }
 

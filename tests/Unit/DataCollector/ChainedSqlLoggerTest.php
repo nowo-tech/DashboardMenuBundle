@@ -14,22 +14,7 @@ final class ChainedSqlLoggerTest extends TestCase
     public function testStartQueryRecordsAndForwardsToInner(): void
     {
         $counter = new MenuQueryCounter();
-        $calls   = [];
-        $inner   = new class($calls) {
-            public function __construct(private array &$calls)
-            {
-            }
-
-            public function startQuery($sql, $params = null, $types = null): void
-            {
-                $this->calls[] = ['startQuery', $sql, $params, $types];
-            }
-
-            public function stopQuery(): void
-            {
-                $this->calls[] = ['stopQuery'];
-            }
-        };
+        $inner   = new SqlLoggerSpy();
 
         $logger = new ChainedSqlLogger($inner, $counter);
         $counter->startSegment();
@@ -37,7 +22,7 @@ final class ChainedSqlLoggerTest extends TestCase
         $logger->startQuery('SELECT 2', ['a' => 1], ['a' => 'integer']);
 
         self::assertSame(2, $counter->getSegmentCount());
-        self::assertSame([['startQuery', 'SELECT 1', null, null], ['startQuery', 'SELECT 2', ['a' => 1], ['a' => 'integer']]], $calls);
+        self::assertSame([['startQuery', 'SELECT 1', null, null], ['startQuery', 'SELECT 2', ['a' => 1], ['a' => 'integer']]], $inner->calls);
     }
 
     public function testStartQueryRecordsWhenInnerNull(): void
@@ -65,23 +50,13 @@ final class ChainedSqlLoggerTest extends TestCase
     public function testStopQueryForwardsToInner(): void
     {
         $counter = new MenuQueryCounter();
-        $calls   = [];
-        $inner   = new class($calls) {
-            public function __construct(private array &$calls)
-            {
-            }
-
-            public function stopQuery(): void
-            {
-                $this->calls[] = ['stopQuery'];
-            }
-        };
+        $inner   = new SqlLoggerSpy();
 
         $logger = new ChainedSqlLogger($inner, $counter);
         $logger->stopQuery();
         $logger->stopQuery();
 
-        self::assertSame([['stopQuery'], ['stopQuery']], $calls);
+        self::assertSame([['stopQuery'], ['stopQuery']], $inner->calls);
     }
 
     public function testStopQueryNoOpWhenInnerNull(): void
@@ -99,5 +74,26 @@ final class ChainedSqlLoggerTest extends TestCase
         $logger  = new ChainedSqlLogger($inner, $counter);
         $logger->stopQuery();
         self::assertSame(0, $counter->getSegmentCount());
+    }
+}
+
+final class SqlLoggerSpy
+{
+    /** @var list<list<mixed>> */
+    public array $calls = [];
+
+    /**
+     * @param mixed $sql
+     * @param mixed $params
+     * @param mixed $types
+     */
+    public function startQuery($sql, $params = null, $types = null): void
+    {
+        $this->calls[] = ['startQuery', $sql, $params, $types];
+    }
+
+    public function stopQuery(): void
+    {
+        $this->calls[] = ['stopQuery'];
     }
 }

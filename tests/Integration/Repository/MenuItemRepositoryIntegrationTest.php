@@ -26,9 +26,13 @@ final class MenuItemRepositoryIntegrationTest extends KernelTestCase
     protected function setUp(): void
     {
         self::bootKernel();
-        $this->entityManager = self::getContainer()->get('doctrine.orm.entity_manager');
+        $entityManager = self::getContainer()->get('doctrine.orm.entity_manager');
+        self::assertInstanceOf(EntityManagerInterface::class, $entityManager);
+        $this->entityManager = $entityManager;
         $this->createSchema();
-        $this->repository = $this->entityManager->getRepository(MenuItem::class);
+        $repository = $this->entityManager->getRepository(MenuItem::class);
+        self::assertInstanceOf(MenuItemRepository::class, $repository);
+        $this->repository = $repository;
     }
 
     protected function tearDown(): void
@@ -193,7 +197,9 @@ final class MenuItemRepositoryIntegrationTest extends KernelTestCase
         $this->entityManager->persist($item);
         $this->entityManager->flush();
 
-        $qb     = $this->repository->getPossibleParentsQueryBuilder($menu, [$item->getId()]);
+        $itemId = $item->getId();
+        self::assertNotNull($itemId);
+        $qb     = $this->repository->getPossibleParentsQueryBuilder($menu, [$itemId]);
         $result = $qb->getQuery()->getResult();
         self::assertCount(0, $result);
     }
@@ -223,10 +229,14 @@ final class MenuItemRepositoryIntegrationTest extends KernelTestCase
 
         $this->entityManager->flush();
 
-        $result = $this->repository->countForMenus([$menuA->getId(), $menuB->getId()]);
+        $menuAId = $menuA->getId();
+        $menuBId = $menuB->getId();
+        self::assertNotNull($menuAId);
+        self::assertNotNull($menuBId);
+        $result = $this->repository->countForMenus([$menuAId, $menuBId]);
 
-        self::assertSame(2, $result[$menuA->getId()] ?? null);
-        self::assertSame(1, $result[$menuB->getId()] ?? null);
+        self::assertSame(2, $result[$menuAId] ?? null);
+        self::assertSame(1, $result[$menuBId] ?? null);
     }
 
     public function testCountForMenusWithEmptyInputReturnsEmptyArray(): void

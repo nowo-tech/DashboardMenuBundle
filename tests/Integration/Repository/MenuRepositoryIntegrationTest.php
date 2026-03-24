@@ -26,9 +26,13 @@ final class MenuRepositoryIntegrationTest extends KernelTestCase
     protected function setUp(): void
     {
         self::bootKernel();
-        $this->entityManager = self::getContainer()->get('doctrine.orm.entity_manager');
+        $entityManager = self::getContainer()->get('doctrine.orm.entity_manager');
+        self::assertInstanceOf(EntityManagerInterface::class, $entityManager);
+        $this->entityManager = $entityManager;
         $this->createSchema();
-        $this->repository = $this->entityManager->getRepository(Menu::class);
+        $repository = $this->entityManager->getRepository(Menu::class);
+        self::assertInstanceOf(MenuRepository::class, $repository);
+        $this->repository = $repository;
     }
 
     protected function tearDown(): void
@@ -178,8 +182,6 @@ final class MenuRepositoryIntegrationTest extends KernelTestCase
 
         $raw = $this->repository->findMenuAndItemsRaw('raw', [null, []]);
         self::assertIsArray($raw);
-        self::assertArrayHasKey('menu', $raw);
-        self::assertArrayHasKey('items', $raw);
         self::assertSame('raw', $raw['menu']['code'] ?? null);
         self::assertCount(1, $raw['items']);
         self::assertSame('Item1', $raw['items'][0]['label'] ?? null);

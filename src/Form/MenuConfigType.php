@@ -57,7 +57,7 @@ final class MenuConfigType extends AbstractType
         // while still persisting the same technical value.
         /** @var array<string, string> $checkerChoices */
         $checkerChoices = [];
-        foreach ($choicesById as $serviceId => $_label) {
+        foreach (array_keys($choicesById) as $serviceId) {
             $display = (string) $serviceId;
             if ($current !== null && $current !== '' && $current === $serviceId) {
                 $display .= ' (current)';

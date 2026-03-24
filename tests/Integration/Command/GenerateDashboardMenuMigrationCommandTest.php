@@ -23,7 +23,9 @@ final class GenerateDashboardMenuMigrationCommandTest extends KernelTestCase
     protected function setUp(): void
     {
         self::bootKernel();
-        $this->entityManager = self::getContainer()->get('doctrine.orm.entity_manager');
+        $entityManager = self::getContainer()->get('doctrine.orm.entity_manager');
+        self::assertInstanceOf(EntityManagerInterface::class, $entityManager);
+        $this->entityManager = $entityManager;
     }
 
     protected function tearDown(): void
@@ -122,6 +124,7 @@ final class GenerateDashboardMenuMigrationCommandTest extends KernelTestCase
             self::assertNotEmpty($files, 'Expected a generated migration file');
 
             $content = file_get_contents($files[0]);
+            self::assertIsString($content);
             self::assertStringContainsString('ADD class_section_label', $content);
         } finally {
             // Avoid leaving dmb_migration_* artefacts in the repo/workspace.

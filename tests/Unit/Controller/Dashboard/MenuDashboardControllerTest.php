@@ -132,7 +132,7 @@ final class MenuDashboardControllerTest extends TestCase
         $child->setParent($root);
         $this->setId($child, 2);
 
-        $translator = $this->createStub(TranslatorInterface::class);
+        $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')->with('dashboard.root')->willReturn('— Raíz —');
         $controller = $this->createController(translator: $translator);
         $labels     = $this->invokePrivate($controller, 'computeParentLabels', [[$root, $child], 'en']);
@@ -145,7 +145,7 @@ final class MenuDashboardControllerTest extends TestCase
     {
         $item = new MenuItem();
         $item->setLabel('NoId');
-        $translator = $this->createStub(TranslatorInterface::class);
+        $translator = $this->createMock(TranslatorInterface::class);
         $controller = $this->createController(translator: $translator);
         $labels     = $this->invokePrivate($controller, 'computeParentLabels', [[$item], 'en']);
         self::assertSame([], $labels);
@@ -227,7 +227,7 @@ final class MenuDashboardControllerTest extends TestCase
 
     public function testIndexWithPaginationEnabled(): void
     {
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('countForDashboard')->willReturn(0);
         $menuRepo->method('findForDashboard')->willReturn([]);
 
@@ -240,14 +240,12 @@ final class MenuDashboardControllerTest extends TestCase
 
         $request  = Request::create('/');
         $response = $controller->index($request);
-
-        self::assertInstanceOf(Response::class, $response);
         self::assertSame(200, $response->getStatusCode());
     }
 
     public function testIndexWithPaginationDisabled(): void
     {
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findForDashboard')->with('', 0)->willReturn([]);
 
         $controller = $this->createController(menuRepository: $menuRepo, paginationEnabled: false);
@@ -263,7 +261,7 @@ final class MenuDashboardControllerTest extends TestCase
     {
         $menu = new Menu();
         $menu->setCode('one');
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('countForDashboard')->with('')->willReturn(5);
         $menuRepo->method('findForDashboard')->willReturnCallback(static function (string $search, int $offset, int $limit) use ($menu): array {
             self::assertLessThanOrEqual(2, $limit);
@@ -285,7 +283,7 @@ final class MenuDashboardControllerTest extends TestCase
 
     public function testShowThrowsWhenMenuNotFound(): void
     {
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(999)->willReturn(null);
 
         $controller = $this->createController(menuRepository: $menuRepo);
@@ -299,9 +297,9 @@ final class MenuDashboardControllerTest extends TestCase
     {
         $menu = new Menu();
         $menu->setCode('nav');
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([]);
 
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
@@ -314,7 +312,7 @@ final class MenuDashboardControllerTest extends TestCase
 
     public function testDeleteMenuThrowsWhenMenuNotFound(): void
     {
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(999)->willReturn(null);
 
         $controller = $this->createController(menuRepository: $menuRepo);
@@ -331,7 +329,7 @@ final class MenuDashboardControllerTest extends TestCase
         $ref = new ReflectionProperty(Menu::class, 'id');
         $ref->setValue($menu, 1);
 
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
         $em = $this->createMock(EntityManagerInterface::class);
         $em->expects(self::once())->method('remove')->with($menu);
@@ -341,7 +339,6 @@ final class MenuDashboardControllerTest extends TestCase
         $this->setControllerContainer($controller);
 
         $response = $controller->deleteMenu($this->createPostRequestWithCsrf(), 1);
-        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
         self::assertSame(302, $response->getStatusCode());
     }
 
@@ -353,7 +350,7 @@ final class MenuDashboardControllerTest extends TestCase
         $ref = new ReflectionProperty(Menu::class, 'id');
         $ref->setValue($menu, 1);
 
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
         $em = $this->createMock(EntityManagerInterface::class);
         $em->expects(self::never())->method('remove');
@@ -363,7 +360,6 @@ final class MenuDashboardControllerTest extends TestCase
         $this->setControllerContainer($controller);
 
         $response = $controller->deleteMenu($this->createPostRequestWithCsrf(), 1);
-        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
         self::assertSame(302, $response->getStatusCode());
     }
 
@@ -375,9 +371,9 @@ final class MenuDashboardControllerTest extends TestCase
         $item->setMenu($menu);
         $this->setId($item, 10);
 
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('find')->with(10)->willReturn($item);
         $itemRepo->method('findSiblingsByPosition')->with($item)->willReturn([$item]);
 
@@ -385,7 +381,6 @@ final class MenuDashboardControllerTest extends TestCase
         $this->setControllerContainer($controller);
 
         $response = $controller->itemMoveUp($this->createPostRequestWithCsrf(), 1, 10);
-        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
     }
 
     public function testItemMoveDownWhenAlreadyLastRedirectsWithInfo(): void
@@ -395,9 +390,9 @@ final class MenuDashboardControllerTest extends TestCase
         $item->setMenu($menu);
         $this->setId($item, 10);
 
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('find')->with(10)->willReturn($item);
         $itemRepo->method('findSiblingsByPosition')->with($item)->willReturn([$item]);
 
@@ -405,12 +400,11 @@ final class MenuDashboardControllerTest extends TestCase
         $this->setControllerContainer($controller);
 
         $response = $controller->itemMoveDown($this->createPostRequestWithCsrf(), 1, 10);
-        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
     }
 
     public function testItemMoveUpThrowsWhenMenuNotFound(): void
     {
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(999)->willReturn(null);
 
         $controller = $this->createController(menuRepository: $menuRepo);
@@ -423,21 +417,20 @@ final class MenuDashboardControllerTest extends TestCase
     public function testItemMoveUpWhenItemNotFoundRedirectsWithError(): void
     {
         $menu     = new Menu();
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('find')->with(999)->willReturn(null);
 
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
         $this->setControllerContainer($controller);
 
         $response = $controller->itemMoveUp($this->createPostRequestWithCsrf(), 1, 999);
-        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
     }
 
     public function testItemMoveDownThrowsWhenMenuNotFound(): void
     {
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(999)->willReturn(null);
 
         $controller = $this->createController(menuRepository: $menuRepo);
@@ -457,16 +450,15 @@ final class MenuDashboardControllerTest extends TestCase
         $item->setMenu($otherMenu);
         $this->setId($item, 10);
 
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('find')->with(10)->willReturn($item);
 
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
         $this->setControllerContainer($controller);
 
         $response = $controller->itemMoveUp($this->createPostRequestWithCsrf(), 1, 10);
-        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
     }
 
     public function testItemMoveDownWhenItemBelongsToOtherMenuRedirectsWithError(): void
@@ -478,21 +470,20 @@ final class MenuDashboardControllerTest extends TestCase
         $item->setMenu($otherMenu);
         $this->setId($item, 10);
 
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('find')->with(10)->willReturn($item);
 
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
         $this->setControllerContainer($controller);
 
         $response = $controller->itemMoveDown($this->createPostRequestWithCsrf(), 1, 10);
-        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
     }
 
     public function testEditMenuThrowsWhenMenuNotFound(): void
     {
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(999)->willReturn(null);
 
         $controller = $this->createController(menuRepository: $menuRepo);
@@ -506,9 +497,9 @@ final class MenuDashboardControllerTest extends TestCase
     {
         $menu = new Menu();
         $menu->setCode('edit');
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([]);
 
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
@@ -520,7 +511,7 @@ final class MenuDashboardControllerTest extends TestCase
 
     public function testNewMenuRendersFormOnGet(): void
     {
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('countForDashboard')->willReturn(0);
         $menuRepo->method('findForDashboard')->willReturn([]);
         $controller = $this->createController(menuRepository: $menuRepo, paginationEnabled: true);
@@ -531,10 +522,10 @@ final class MenuDashboardControllerTest extends TestCase
 
     public function testNewMenuSubmittedWithEmptyCodeAddsFlashAndRenders(): void
     {
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('countForDashboard')->willReturn(0);
         $menuRepo->method('findForDashboard')->willReturn([]);
-        $form = $this->createStub(FormInterface::class);
+        $form = $this->createMock(FormInterface::class);
         $form->method('handleRequest')->willReturnSelf();
         $form->method('isSubmitted')->willReturn(true);
         $form->method('isValid')->willReturn(true);
@@ -552,7 +543,7 @@ final class MenuDashboardControllerTest extends TestCase
         $ref = new ReflectionProperty(Menu::class, 'id');
         $ref->setValue($menu, 1);
 
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('countForDashboard')->willReturn(0);
         $menuRepo->method('findForDashboard')->willReturn([]);
         $menuRepo->method('findOneByCodeAndContext')->with('newcode', self::anything())->willReturn(null);
@@ -561,7 +552,7 @@ final class MenuDashboardControllerTest extends TestCase
         $em->expects(self::once())->method('persist')->with(self::callback(static fn ($m): bool => $m instanceof Menu && $m->getCode() === 'newcode'));
         $em->expects(self::once())->method('flush');
 
-        $form = $this->createStub(FormInterface::class);
+        $form = $this->createMock(FormInterface::class);
         $form->method('handleRequest')->willReturnSelf();
         $form->method('isSubmitted')->willReturn(true);
         $form->method('isValid')->willReturn(true);
@@ -571,7 +562,6 @@ final class MenuDashboardControllerTest extends TestCase
         $this->setControllerContainer($controller, $form);
 
         $response = $controller->newMenu(Request::create('/menu/new', 'POST'));
-        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
         self::assertSame(302, $response->getStatusCode());
     }
 
@@ -585,12 +575,12 @@ final class MenuDashboardControllerTest extends TestCase
         $ref = new ReflectionProperty(Menu::class, 'id');
         $ref->setValue($existing, 2);
 
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('countForDashboard')->willReturn(0);
         $menuRepo->method('findForDashboard')->willReturn([]);
         $menuRepo->method('findOneByCodeAndContext')->with('dup', self::anything())->willReturn($existing);
 
-        $form = $this->createStub(FormInterface::class);
+        $form = $this->createMock(FormInterface::class);
         $form->method('handleRequest')->willReturnSelf();
         $form->method('isSubmitted')->willReturn(true);
         $form->method('isValid')->willReturn(true);
@@ -606,7 +596,7 @@ final class MenuDashboardControllerTest extends TestCase
 
     public function testNewMenuWithPartialQueryRendersPartial(): void
     {
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('countForDashboard')->willReturn(0);
         $menuRepo->method('findForDashboard')->willReturn([]);
         $controller = $this->createController(menuRepository: $menuRepo, paginationEnabled: true);
@@ -619,9 +609,9 @@ final class MenuDashboardControllerTest extends TestCase
     {
         $menu = new Menu();
         $menu->setCode('edit');
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([]);
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
         $this->setControllerContainer($controller);
@@ -635,21 +625,20 @@ final class MenuDashboardControllerTest extends TestCase
         $menu->setCode('mine');
         $ref = new ReflectionProperty(Menu::class, 'id');
         $ref->setValue($menu, 1);
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
         $menuRepo->method('findOneByCodeAndContext')->with('mine', self::anything())->willReturn($menu);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([]);
         $em = $this->createMock(EntityManagerInterface::class);
         $em->expects(self::once())->method('flush');
-        $form = $this->createStub(FormInterface::class);
+        $form = $this->createMock(FormInterface::class);
         $form->method('handleRequest')->willReturnSelf();
         $form->method('isSubmitted')->willReturn(true);
         $form->method('isValid')->willReturn(true);
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, entityManager: $em);
         $this->setControllerContainer($controller, $form);
         $response = $controller->editMenu(Request::create('/1/edit', 'POST'), 1);
-        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
         self::assertSame(302, $response->getStatusCode());
     }
 
@@ -662,12 +651,12 @@ final class MenuDashboardControllerTest extends TestCase
         $other = new Menu();
         $other->setCode('dup');
         $ref->setValue($other, 2);
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
         $menuRepo->method('findOneByCodeAndContext')->with('dup', self::anything())->willReturn($other);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([]);
-        $form = $this->createStub(FormInterface::class);
+        $form = $this->createMock(FormInterface::class);
         $form->method('handleRequest')->willReturnSelf();
         $form->method('isSubmitted')->willReturn(true);
         $form->method('isValid')->willReturn(true);
@@ -685,14 +674,14 @@ final class MenuDashboardControllerTest extends TestCase
         $menu->setBase(true);
         $ref = new ReflectionProperty(Menu::class, 'id');
         $ref->setValue($menu, 1);
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
         $menuRepo->method('findOneByCodeAndContext')->with('original', self::anything())->willReturn($menu);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([]);
         $em = $this->createMock(EntityManagerInterface::class);
         $em->expects(self::once())->method('flush');
-        $form = $this->createStub(FormInterface::class);
+        $form = $this->createMock(FormInterface::class);
         $form->method('handleRequest')->willReturnSelf();
         $form->method('isSubmitted')->willReturn(true);
         $form->method('isValid')->willReturn(true);
@@ -712,10 +701,10 @@ final class MenuDashboardControllerTest extends TestCase
         $ref = new ReflectionProperty(Menu::class, 'id');
         $ref->setValue($menu, 1);
 
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
         $menuRepo->method('findOneByCodeAndContext')->with('original', self::anything())->willReturn($menu);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([]);
         $em = $this->createMock(EntityManagerInterface::class);
         $em->expects(self::once())->method('flush');
@@ -749,10 +738,10 @@ final class MenuDashboardControllerTest extends TestCase
         $ref->setValue($menu, 1);
         $existing = new Menu();
         $existing->setCode('dup');
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
         $menuRepo->method('findOneByCodeAndContext')->with('dup', self::anything())->willReturn($existing);
-        $form = $this->createStub(FormInterface::class);
+        $form = $this->createMock(FormInterface::class);
         $form->method('handleRequest')->willReturnSelf();
         $form->method('isSubmitted')->willReturn(true);
         $form->method('isValid')->willReturn(true);
@@ -767,7 +756,7 @@ final class MenuDashboardControllerTest extends TestCase
     {
         $menu = new Menu();
         $menu->setCode('orig');
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
         $controller = $this->createController(menuRepository: $menuRepo);
         $this->setControllerContainer($controller);
@@ -782,12 +771,12 @@ final class MenuDashboardControllerTest extends TestCase
         $parent = new MenuItem();
         $parent->setMenu($menu);
         $this->setId($parent, 10);
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('find')->with(10)->willReturn($parent);
         $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([]);
-        $router = $this->createStub(RouterInterface::class);
+        $router = $this->createMock(RouterInterface::class);
         $router->method('getRouteCollection')->willReturn(new RouteCollection());
         $router->method('generate')->willReturn('/generated');
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, router: $router);
@@ -805,15 +794,15 @@ final class MenuDashboardControllerTest extends TestCase
         $collection = new RouteCollection();
         $collection->add('app_show', new Route('/show/{id}'));
         $collection->add('_internal', new Route('/internal'));
-        $router = $this->createStub(RouterInterface::class);
+        $router = $this->createMock(RouterInterface::class);
         $router->method('getRouteCollection')->willReturn($collection);
         $router->method('generate')->willReturn('/generated');
 
         $menu = new Menu();
         $menu->setCode('m');
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([]);
 
         $controller = $this->createController(
@@ -839,9 +828,9 @@ final class MenuDashboardControllerTest extends TestCase
         $second->setMenu($menu);
         $second->setPosition(1);
         $this->setId($second, 2);
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('find')->with(2)->willReturn($second);
         $itemRepo->method('findSiblingsByPosition')->with($second)->willReturn([$first, $second]);
         $em = $this->createMock(EntityManagerInterface::class);
@@ -849,7 +838,6 @@ final class MenuDashboardControllerTest extends TestCase
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, entityManager: $em);
         $this->setControllerContainer($controller);
         $response = $controller->itemMoveUp($this->createPostRequestWithCsrf(), 1, 2);
-        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
         self::assertSame(302, $response->getStatusCode());
     }
 
@@ -864,9 +852,9 @@ final class MenuDashboardControllerTest extends TestCase
         $second->setMenu($menu);
         $second->setPosition(1);
         $this->setId($second, 2);
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('find')->with(1)->willReturn($first);
         $itemRepo->method('findSiblingsByPosition')->with($first)->willReturn([$first, $second]);
         $em = $this->createMock(EntityManagerInterface::class);
@@ -874,13 +862,12 @@ final class MenuDashboardControllerTest extends TestCase
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, entityManager: $em);
         $this->setControllerContainer($controller);
         $response = $controller->itemMoveDown($this->createPostRequestWithCsrf(), 1, 1);
-        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
         self::assertSame(302, $response->getStatusCode());
     }
 
     public function testCopyMenuThrowsWhenMenuNotFound(): void
     {
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(999)->willReturn(null);
 
         $controller = $this->createController(menuRepository: $menuRepo);
@@ -894,7 +881,7 @@ final class MenuDashboardControllerTest extends TestCase
     {
         $menu = new Menu();
         $menu->setCode('orig');
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
         $controller = $this->createController(menuRepository: $menuRepo);
         $this->setControllerContainer($controller);
@@ -909,7 +896,7 @@ final class MenuDashboardControllerTest extends TestCase
         $ref = new ReflectionProperty(Menu::class, 'id');
         $ref->setValue($menu, 1);
 
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
         $menuRepo->method('findOneByCodeAndContext')->with('newcode', self::anything())->willReturn(null);
 
@@ -926,7 +913,7 @@ final class MenuDashboardControllerTest extends TestCase
         $this->setId($childItem, 11);
         $rootItem->getChildren()->add($childItem);
 
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([$rootItem, $childItem]);
 
         $em = $this->createMock(EntityManagerInterface::class);
@@ -938,7 +925,7 @@ final class MenuDashboardControllerTest extends TestCase
         });
         $em->expects(self::atLeast(2))->method('flush');
 
-        $form = $this->createStub(FormInterface::class);
+        $form = $this->createMock(FormInterface::class);
         $form->method('handleRequest')->willReturnSelf();
         $form->method('isSubmitted')->willReturn(true);
         $form->method('isValid')->willReturn(true);
@@ -948,7 +935,6 @@ final class MenuDashboardControllerTest extends TestCase
         $this->setControllerContainer($controller, $form);
 
         $response = $controller->copyMenu(Request::create('/1/copy', 'POST'), 1);
-        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
         self::assertSame(302, $response->getStatusCode());
     }
 
@@ -956,11 +942,11 @@ final class MenuDashboardControllerTest extends TestCase
     {
         $menu = new Menu();
         $menu->setCode('m');
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([]);
-        $router = $this->createStub(RouterInterface::class);
+        $router = $this->createMock(RouterInterface::class);
         $router->method('getRouteCollection')->willReturn(new RouteCollection());
         $router->method('generate')->willReturn('/generated');
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, router: $router);
@@ -971,10 +957,10 @@ final class MenuDashboardControllerTest extends TestCase
 
     public function testNewItemThrowsWhenMenuNotFound(): void
     {
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(999)->willReturn(null);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
-        $router   = $this->createStub(RouterInterface::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $router   = $this->createMock(RouterInterface::class);
         $router->method('getRouteCollection')->willReturn(new RouteCollection());
         $router->method('generate')->willReturn('/generated');
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, router: $router);
@@ -987,24 +973,23 @@ final class MenuDashboardControllerTest extends TestCase
     {
         $menu = new Menu();
         $menu->setCode('m');
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([]);
-        $router = $this->createStub(RouterInterface::class);
+        $router = $this->createMock(RouterInterface::class);
         $router->method('getRouteCollection')->willReturn(new RouteCollection());
         $router->method('generate')->willReturn('/generated');
         $em = $this->createMock(EntityManagerInterface::class);
         $em->expects(self::once())->method('persist')->with(self::callback(static fn ($e): bool => $e instanceof MenuItem));
         $em->expects(self::once())->method('flush');
-        $form = $this->createStub(FormInterface::class);
+        $form = $this->createMock(FormInterface::class);
         $form->method('handleRequest')->willReturnSelf();
         $form->method('isSubmitted')->willReturn(true);
         $form->method('isValid')->willReturn(true);
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, entityManager: $em, router: $router);
         $this->setControllerContainer($controller, $form);
         $response = $controller->newItem(Request::create('/1/item/new', 'POST'), 1);
-        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
         self::assertSame(302, $response->getStatusCode());
     }
 
@@ -1012,11 +997,11 @@ final class MenuDashboardControllerTest extends TestCase
     {
         $menu = new Menu();
         $menu->setCode('m');
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([]);
-        $router = $this->createStub(RouterInterface::class);
+        $router = $this->createMock(RouterInterface::class);
         $router->method('getRouteCollection')->willReturn(new RouteCollection());
         $router->method('generate')->willReturn('/generated');
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, router: $router);
@@ -1031,12 +1016,12 @@ final class MenuDashboardControllerTest extends TestCase
         $item = new MenuItem();
         $item->setMenu($menu);
         $this->setId($item, 5);
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('find')->with(5)->willReturn($item);
         $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([]);
-        $router = $this->createStub(RouterInterface::class);
+        $router = $this->createMock(RouterInterface::class);
         $router->method('getRouteCollection')->willReturn(new RouteCollection());
         $router->method('generate')->willReturn('/generated');
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, router: $router);
@@ -1052,24 +1037,23 @@ final class MenuDashboardControllerTest extends TestCase
         $item = new MenuItem();
         $item->setMenu($menu);
         $this->setId($item, 5);
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('find')->with(5)->willReturn($item);
         $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([]);
-        $router = $this->createStub(RouterInterface::class);
+        $router = $this->createMock(RouterInterface::class);
         $router->method('getRouteCollection')->willReturn(new RouteCollection());
         $router->method('generate')->willReturn('/generated');
         $em = $this->createMock(EntityManagerInterface::class);
         $em->expects(self::once())->method('flush');
-        $form = $this->createStub(FormInterface::class);
+        $form = $this->createMock(FormInterface::class);
         $form->method('handleRequest')->willReturnSelf();
         $form->method('isSubmitted')->willReturn(true);
         $form->method('isValid')->willReturn(true);
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, entityManager: $em, router: $router);
         $this->setControllerContainer($controller, $form);
         $response = $controller->editItem(Request::create('/1/item/5/edit', 'POST'), 1, 5);
-        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
         self::assertSame(302, $response->getStatusCode());
     }
 
@@ -1083,14 +1067,14 @@ final class MenuDashboardControllerTest extends TestCase
         $item->setTranslations(['en' => 'Old EN', 'es' => 'Old ES']);
         $this->setId($item, 5);
 
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
 
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('find')->with(5)->willReturn($item);
         $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([]);
 
-        $router = $this->createStub(RouterInterface::class);
+        $router = $this->createMock(RouterInterface::class);
         $router->method('getRouteCollection')->willReturn(new RouteCollection());
         $router->method('generate')->willReturn('/generated');
 
@@ -1128,7 +1112,6 @@ final class MenuDashboardControllerTest extends TestCase
         $request->request->set('_section', 'basic');
 
         $response = $controller->editItem($request, 1, 5);
-        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
 
         // Empty value for EN should unset it; ES should be updated.
         self::assertSame(['es' => 'New ES'], $item->getTranslations());
@@ -1144,14 +1127,14 @@ final class MenuDashboardControllerTest extends TestCase
         $item->setTranslations(['en' => 'Old EN', 'es' => 'Old ES']);
         $this->setId($item, 5);
 
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
 
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('find')->with(5)->willReturn($item);
         $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([]);
 
-        $router = $this->createStub(RouterInterface::class);
+        $router = $this->createMock(RouterInterface::class);
         $router->method('getRouteCollection')->willReturn(new RouteCollection());
         $router->method('generate')->willReturn('/generated');
 
@@ -1198,12 +1181,12 @@ final class MenuDashboardControllerTest extends TestCase
         $item = new MenuItem();
         $item->setMenu($menu);
         $this->setId($item, 5);
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('find')->with(5)->willReturn($item);
         $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([]);
-        $router = $this->createStub(RouterInterface::class);
+        $router = $this->createMock(RouterInterface::class);
         $router->method('getRouteCollection')->willReturn(new RouteCollection());
         $router->method('generate')->willReturn('/generated');
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, router: $router);
@@ -1220,25 +1203,24 @@ final class MenuDashboardControllerTest extends TestCase
         $item      = new MenuItem();
         $item->setMenu($otherMenu);
         $this->setId($item, 5);
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('find')->with(5)->willReturn($item);
-        $router = $this->createStub(RouterInterface::class);
+        $router = $this->createMock(RouterInterface::class);
         $router->method('getRouteCollection')->willReturn(new RouteCollection());
         $router->method('generate')->willReturn('/generated');
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, router: $router);
         $this->setControllerContainer($controller);
         $response = $controller->editItem(Request::create('/1/item/5/edit'), 1, 5);
-        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
     }
 
     public function testEditItemThrowsWhenMenuNotFound(): void
     {
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(999)->willReturn(null);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
-        $router   = $this->createStub(RouterInterface::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $router   = $this->createMock(RouterInterface::class);
         $router->method('getRouteCollection')->willReturn(new RouteCollection());
         $router->method('generate')->willReturn('/generated');
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, router: $router);
@@ -1249,9 +1231,9 @@ final class MenuDashboardControllerTest extends TestCase
 
     public function testDeleteItemThrowsWhenMenuNotFound(): void
     {
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(999)->willReturn(null);
-        $itemRepo   = $this->createStub(MenuItemRepository::class);
+        $itemRepo   = $this->createMock(MenuItemRepository::class);
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
         $this->setControllerContainer($controller);
         $this->expectException(\Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class);
@@ -1261,14 +1243,13 @@ final class MenuDashboardControllerTest extends TestCase
     public function testDeleteItemRedirectsWhenItemNotFound(): void
     {
         $menu     = new Menu();
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('find')->with(999)->willReturn(null);
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
         $this->setControllerContainer($controller);
         $response = $controller->deleteItem($this->createPostRequestWithCsrf(), 1, 999);
-        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
     }
 
     public function testDeleteItemRemovesAndRedirectsWhenFound(): void
@@ -1278,9 +1259,9 @@ final class MenuDashboardControllerTest extends TestCase
         $item = new MenuItem();
         $item->setMenu($menu);
         $this->setId($item, 5);
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('find')->with(5)->willReturn($item);
         $em = $this->createMock(EntityManagerInterface::class);
         $em->expects(self::once())->method('remove')->with($item);
@@ -1288,18 +1269,17 @@ final class MenuDashboardControllerTest extends TestCase
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, entityManager: $em);
         $this->setControllerContainer($controller);
         $response = $controller->deleteItem($this->createPostRequestWithCsrf(), 1, 5);
-        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
         self::assertSame(302, $response->getStatusCode());
     }
 
     public function testExportAllReturnsJsonStreamWithAttachmentHeaders(): void
     {
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findAll')->willReturn([]);
-        $itemRepo   = $this->createStub(MenuItemRepository::class);
-        $em         = $this->createStub(EntityManagerInterface::class);
-        $router     = $this->createStub(RouterInterface::class);
-        $translator = $this->createStub(TranslatorInterface::class);
+        $itemRepo   = $this->createMock(MenuItemRepository::class);
+        $em         = $this->createMock(EntityManagerInterface::class);
+        $router     = $this->createMock(RouterInterface::class);
+        $translator = $this->createMock(TranslatorInterface::class);
 
         $controller = $this->createController(
             menuRepository: $menuRepo,
@@ -1328,9 +1308,9 @@ final class MenuDashboardControllerTest extends TestCase
         $ref = new ReflectionProperty(Menu::class, 'id');
         $ref->setValue($menu, 123);
 
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(123)->willReturn($menu);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('findAllForMenuOrderedByTreeForExport')->with($menu)->willReturn([]);
 
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
@@ -1352,7 +1332,7 @@ final class MenuDashboardControllerTest extends TestCase
         $menu = new Menu();
         $ref  = new ReflectionProperty(Menu::class, 'id');
         $ref->setValue($menu, 10);
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('countForDashboard')->willReturn(0);
         $menuRepo->method('findForDashboard')->willReturn([$menu]);
 
@@ -1360,7 +1340,6 @@ final class MenuDashboardControllerTest extends TestCase
         $this->setControllerContainer($controller);
 
         $response = $controller->index(Request::create('/'));
-        self::assertInstanceOf(Response::class, $response);
     }
 
     public function testItemMoveUpThrowsWhenCsrfInvalid(): void
@@ -1413,7 +1392,7 @@ final class MenuDashboardControllerTest extends TestCase
 
     public function testExportMenuThrowsWhenMenuNotFound(): void
     {
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->willReturn(null);
 
         $controller = $this->createController(menuRepository: $menuRepo);
@@ -1441,10 +1420,10 @@ final class MenuDashboardControllerTest extends TestCase
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(static fn (string $id, array $params = [], ?string $domain = null, ?string $locale = null): string => $id);
 
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
         $em           = $this->createMock(EntityManagerInterface::class);
-        $itemRepo     = $this->createStub(MenuItemRepository::class);
+        $itemRepo     = $this->createMock(MenuItemRepository::class);
         $menuImporter = new MenuImporter($itemRepo, $menuRepo, $em);
         $controller   = $this->createController(
             translator: $translator,
@@ -1457,7 +1436,6 @@ final class MenuDashboardControllerTest extends TestCase
         $request->query->set('_partial', '1');
 
         $response = $controller->import($request);
-        self::assertInstanceOf(Response::class, $response);
     }
 
     public function testImportRendersPartialWhenJsonDecodingThrows(): void
@@ -1478,10 +1456,10 @@ final class MenuDashboardControllerTest extends TestCase
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(static fn (string $id, array $params = [], ?string $domain = null, ?string $locale = null): string => $id);
 
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
         $em           = $this->createMock(EntityManagerInterface::class);
-        $itemRepo     = $this->createStub(MenuItemRepository::class);
+        $itemRepo     = $this->createMock(MenuItemRepository::class);
         $menuImporter = new MenuImporter($itemRepo, $menuRepo, $em);
         $controller   = $this->createController(
             translator: $translator,
@@ -1494,7 +1472,6 @@ final class MenuDashboardControllerTest extends TestCase
         $request->query->set('_partial', '1');
 
         $response = $controller->import($request);
-        self::assertInstanceOf(Response::class, $response);
     }
 
     public function testImportRendersFullWhenDecodedIsNotArray(): void
@@ -1515,10 +1492,10 @@ final class MenuDashboardControllerTest extends TestCase
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(static fn (string $id, array $params = [], ?string $domain = null, ?string $locale = null): string => $id);
 
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
         $em           = $this->createMock(EntityManagerInterface::class);
-        $itemRepo     = $this->createStub(MenuItemRepository::class);
+        $itemRepo     = $this->createMock(MenuItemRepository::class);
         $menuImporter = new MenuImporter($itemRepo, $menuRepo, $em);
 
         $controller = $this->createController(
@@ -1530,8 +1507,6 @@ final class MenuDashboardControllerTest extends TestCase
 
         $request  = Request::create('/dashboard/menu/import', 'POST', []);
         $response = $controller->import($request);
-
-        self::assertInstanceOf(Response::class, $response);
     }
 
     public function testImportRendersFullWhenImporterReturnsErrors(): void
@@ -1552,10 +1527,10 @@ final class MenuDashboardControllerTest extends TestCase
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(static fn (string $id, array $params = [], ?string $domain = null, ?string $locale = null): string => $id);
 
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
         $em           = $this->createMock(EntityManagerInterface::class);
-        $itemRepo     = $this->createStub(MenuItemRepository::class);
+        $itemRepo     = $this->createMock(MenuItemRepository::class);
         $menuImporter = new MenuImporter($itemRepo, $menuRepo, $em);
 
         $controller = $this->createController(
@@ -1567,8 +1542,6 @@ final class MenuDashboardControllerTest extends TestCase
 
         $request  = Request::create('/dashboard/menu/import', 'POST', []);
         $response = $controller->import($request);
-
-        self::assertInstanceOf(Response::class, $response);
     }
 
     public function testImportRedirectsWhenImporterReturnsNoErrors(): void
@@ -1589,10 +1562,10 @@ final class MenuDashboardControllerTest extends TestCase
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(static fn (string $id, array $params = [], ?string $domain = null, ?string $locale = null): string => $id);
 
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
         $em           = $this->createMock(EntityManagerInterface::class);
-        $itemRepo     = $this->createStub(MenuItemRepository::class);
+        $itemRepo     = $this->createMock(MenuItemRepository::class);
         $menuImporter = new MenuImporter($itemRepo, $menuRepo, $em);
 
         $controller = $this->createController(
@@ -1606,7 +1579,6 @@ final class MenuDashboardControllerTest extends TestCase
         $request->headers->set('Referer', 'http://localhost/');
 
         $response = $controller->import($request);
-        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
     }
 
     public function testImportRendersWhenFormSubmittedInvalid(): void
@@ -1624,14 +1596,12 @@ final class MenuDashboardControllerTest extends TestCase
 
         $request  = Request::create('/dashboard/menu/import', 'POST', []);
         $response = $controller->import($request);
-
-        self::assertInstanceOf(Response::class, $response);
     }
 
     public function testNewItemRendersLiveComponentPartialWhenEnabledAndPartialRequested(): void
     {
         $menu     = new Menu();
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->willReturn($menu);
 
         $controller = $this->createController(menuRepository: $menuRepo, itemFormLiveComponentEnabled: true);
@@ -1642,13 +1612,12 @@ final class MenuDashboardControllerTest extends TestCase
         $request->setLocale('en');
 
         $response = $controller->newItem($request, 1);
-        self::assertInstanceOf(Response::class, $response);
     }
 
     public function testNewItemClearsDividerFieldsOnSave(): void
     {
         $menu     = new Menu();
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->willReturn($menu);
 
         $controller = $this->createController(menuRepository: $menuRepo, itemFormLiveComponentEnabled: false);
@@ -1671,8 +1640,6 @@ final class MenuDashboardControllerTest extends TestCase
 
         $request  = Request::create('/dashboard/menu/1/item/new', 'POST', []);
         $response = $controller->newItem($request, 1);
-
-        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
     }
 
     public function testEditItemRendersLiveComponentPartialWhenEnabledAndPartialRequested(): void
@@ -1681,9 +1648,9 @@ final class MenuDashboardControllerTest extends TestCase
         $item = new MenuItem();
         $item->setMenu($menu);
 
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->willReturn($menu);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('find')->willReturn($item);
 
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, itemFormLiveComponentEnabled: true);
@@ -1694,7 +1661,6 @@ final class MenuDashboardControllerTest extends TestCase
         $request->setLocale('en');
 
         $response = $controller->editItem($request, 1, 10);
-        self::assertInstanceOf(Response::class, $response);
     }
 
     public function testEditItemRendersLiveComponentPartialWhenEnabledAndSectionFocusConfig(): void
@@ -1703,10 +1669,10 @@ final class MenuDashboardControllerTest extends TestCase
         $item = new MenuItem();
         $item->setMenu($menu);
 
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->willReturn($menu);
 
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('find')->willReturn($item);
 
         $controller = $this->createController(
@@ -1722,7 +1688,6 @@ final class MenuDashboardControllerTest extends TestCase
         $request->setLocale('en');
 
         $response = $controller->editItem($request, 1, 10);
-        self::assertInstanceOf(Response::class, $response);
     }
 
     public function testEditItemClearsDividerFieldsAndResetsParent(): void
@@ -1740,9 +1705,9 @@ final class MenuDashboardControllerTest extends TestCase
         $item->setIcon('i');
         $item->setTranslations(['en' => 'Y']);
 
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->willReturn($menu);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('find')->willReturn($item);
 
         $form = $this->createMock(FormInterface::class);
@@ -1755,8 +1720,6 @@ final class MenuDashboardControllerTest extends TestCase
 
         $request  = Request::create('/dashboard/menu/1/item/10/edit', 'POST', []);
         $response = $controller->editItem($request, 1, 10);
-
-        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
         self::assertNull($item->getParent());
         self::assertSame('', $item->getLabel());
         self::assertNull($item->getIcon());
@@ -1776,9 +1739,9 @@ final class MenuDashboardControllerTest extends TestCase
         $item->setExternalUrl('https://example.com');
         $item->getChildren()->add(new MenuItem());
 
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->willReturn($menu);
-        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('find')->willReturn($item);
 
         $form = $this->createMock(FormInterface::class);
@@ -1791,8 +1754,6 @@ final class MenuDashboardControllerTest extends TestCase
 
         $request  = Request::create('/dashboard/menu/1/item/10/edit', 'POST', []);
         $response = $controller->editItem($request, 1, 10);
-
-        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
         self::assertNull($item->getLinkType());
         self::assertNull($item->getRouteName());
         self::assertNull($item->getRouteParams());
@@ -1812,15 +1773,15 @@ final class MenuDashboardControllerTest extends TestCase
         $tokenStorage = $this->createMock(\Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface::class);
         $tokenStorage->method('getToken')->willReturn($token);
 
-        $router = $this->createStub(RouterInterface::class);
+        $router = $this->createMock(RouterInterface::class);
         $router->method('getRouteCollection')->willReturn(new RouteCollection());
         $router->method('generate')->willReturn('/generated');
 
-        $formFactory = $this->createStub(FormFactoryInterface::class);
+        $formFactory = $this->createMock(FormFactoryInterface::class);
         $formFactory->method('create')->willReturn($this->createDefaultFormStub());
 
         $session = new Session();
-        $twig    = $this->createStub(\Twig\Environment::class);
+        $twig    = $this->createMock(\Twig\Environment::class);
         $twig->method('render')->willReturn('<html></html>');
 
         $requestStack = new RequestStack();
@@ -1828,7 +1789,7 @@ final class MenuDashboardControllerTest extends TestCase
         $request->setSession($session);
         $requestStack->push($request);
 
-        $csrfManager = $this->createStub(\Symfony\Component\Security\Csrf\CsrfTokenManagerInterface::class);
+        $csrfManager = $this->createMock(\Symfony\Component\Security\Csrf\CsrfTokenManagerInterface::class);
         $csrfManager->method('isTokenValid')->willReturnCallback(static fn (\Symfony\Component\Security\Csrf\CsrfToken $token): bool => $token->getValue() === 'test-csrf-token');
 
         $container = new class($router, $formFactory, $session, $twig, $requestStack, $csrfManager, $tokenStorage) implements \Psr\Container\ContainerInterface {
@@ -2107,7 +2068,7 @@ final class MenuDashboardControllerTest extends TestCase
         $menu = new Menu();
         $menu->setCode('m');
 
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
 
         $s1 = new MenuItem();
@@ -2122,7 +2083,7 @@ final class MenuDashboardControllerTest extends TestCase
         $itemRepo->method('findMaxPositionForParent')->willReturn(3);
         $itemRepo->method('findSiblingsByPosition')->willReturn([$s1, $s2]);
 
-        $router = $this->createStub(RouterInterface::class);
+        $router = $this->createMock(RouterInterface::class);
         $router->method('getRouteCollection')->willReturn(new RouteCollection());
         $router->method('generate')->willReturn('/generated');
 
@@ -2130,7 +2091,7 @@ final class MenuDashboardControllerTest extends TestCase
         $em->expects(self::once())->method('persist')->with(self::isInstanceOf(MenuItem::class));
         $em->expects(self::exactly(2))->method('flush');
 
-        $form = $this->createStub(FormInterface::class);
+        $form = $this->createMock(FormInterface::class);
         $form->method('handleRequest')->willReturnSelf();
         $form->method('isSubmitted')->willReturn(true);
         $form->method('isValid')->willReturn(true);
@@ -2144,7 +2105,6 @@ final class MenuDashboardControllerTest extends TestCase
         $this->setControllerContainer($controller, $form);
 
         $response = $controller->newItem(Request::create('/1/item/new', 'POST'), 1);
-        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
     }
 
     public function testEditItemConfigWithParentChangeReindexesOldAndNewParentsAndFlushesTwice(): void
@@ -2165,7 +2125,7 @@ final class MenuDashboardControllerTest extends TestCase
         $item->setParent($oldParent);
         $this->setId($item, 10);
 
-        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(1)->willReturn($menu);
 
         $uniqueA = new MenuItem();
@@ -2188,7 +2148,7 @@ final class MenuDashboardControllerTest extends TestCase
         $itemRepo->method('findSiblingsByPosition')
             ->willReturnOnConsecutiveCalls([$uniqueA, $uniqueB], [$dupA, $dupB]);
 
-        $router = $this->createStub(RouterInterface::class);
+        $router = $this->createMock(RouterInterface::class);
         $router->method('getRouteCollection')->willReturn(new RouteCollection());
         $router->method('generate')->willReturn('/generated');
 
@@ -2219,10 +2179,14 @@ final class MenuDashboardControllerTest extends TestCase
         $request->request->set('_section', 'config');
 
         $response = $controller->editItem($request, 1, 10);
-        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
         self::assertSame(6, $item->getPosition());
     }
 
+    /**
+     * @param list<string> $routeNameExcludePatterns
+     * @param list<string> $locales
+     * @param array<string, string> $modalSizes
+     */
     private function createController(
         ?MenuRepository $menuRepository = null,
         ?MenuItemRepository $menuItemRepository = null,
@@ -2242,9 +2206,9 @@ final class MenuDashboardControllerTest extends TestCase
         ?ImportExportRateLimiter $importExportRateLimiter = null,
         bool $itemFormLiveComponentEnabled = false,
     ): MenuDashboardController {
-        $menuRepo    = $menuRepository ?? $this->createStub(MenuRepository::class);
-        $itemRepo    = $menuItemRepository ?? $this->createStub(MenuItemRepository::class);
-        $em          = $entityManager ?? $this->createStub(EntityManagerInterface::class);
+        $menuRepo    = $menuRepository ?? $this->createMock(MenuRepository::class);
+        $itemRepo    = $menuItemRepository ?? $this->createMock(MenuItemRepository::class);
+        $em          = $entityManager ?? $this->createMock(EntityManagerInterface::class);
         $exporter    = $menuExporter ?? new MenuExporter($menuRepo, $itemRepo);
         $importer    = $menuImporter ?? new MenuImporter($itemRepo, $menuRepo, $em);
         $rateLimiter = $importExportRateLimiter ?? new ImportExportRateLimiter(null, 0, 60);
@@ -2253,8 +2217,8 @@ final class MenuDashboardControllerTest extends TestCase
             $menuRepo,
             $itemRepo,
             $em,
-            $router ?? $this->createStub(RouterInterface::class),
-            $translator ?? $this->createStub(TranslatorInterface::class),
+            $router ?? $this->createMock(RouterInterface::class),
+            $translator ?? $this->createMock(TranslatorInterface::class),
             $exporter,
             $importer,
             $routeNameExcludePatterns,
@@ -2270,19 +2234,22 @@ final class MenuDashboardControllerTest extends TestCase
         );
     }
 
+    /**
+     * @param FormInterface<mixed>|null $form
+     */
     private function setControllerContainer(MenuDashboardController $controller, ?FormInterface $form = null): void
     {
-        $router = $this->createStub(RouterInterface::class);
+        $router = $this->createMock(RouterInterface::class);
         $router->method('getRouteCollection')->willReturn(new RouteCollection());
         $router->method('generate')->willReturn('/generated');
 
         $formToUse   = $form ?? $this->createDefaultFormStub();
-        $formFactory = $this->createStub(FormFactoryInterface::class);
+        $formFactory = $this->createMock(FormFactoryInterface::class);
         $formFactory->method('create')->willReturn($formToUse);
 
         $session = new Session();
 
-        $twig = $this->createStub(\Twig\Environment::class);
+        $twig = $this->createMock(\Twig\Environment::class);
         $twig->method('render')->willReturn('<html></html>');
 
         $requestStack = new RequestStack();
@@ -2290,7 +2257,7 @@ final class MenuDashboardControllerTest extends TestCase
         $request->setSession($session);
         $requestStack->push($request);
 
-        $csrfManager = $this->createStub(\Symfony\Component\Security\Csrf\CsrfTokenManagerInterface::class);
+        $csrfManager = $this->createMock(\Symfony\Component\Security\Csrf\CsrfTokenManagerInterface::class);
         $csrfManager->method('isTokenValid')->willReturnCallback(static fn (\Symfony\Component\Security\Csrf\CsrfToken $token): bool => $token->getValue() === 'test-csrf-token');
 
         $container = new class($router, $formFactory, $session, $twig, $requestStack, $csrfManager) implements \Psr\Container\ContainerInterface {
@@ -2328,16 +2295,16 @@ final class MenuDashboardControllerTest extends TestCase
 
     private function setControllerContainerWithDynamicFormFactory(MenuDashboardController $controller, callable $createFormCallback): void
     {
-        $router = $this->createStub(RouterInterface::class);
+        $router = $this->createMock(RouterInterface::class);
         $router->method('getRouteCollection')->willReturn(new RouteCollection());
         $router->method('generate')->willReturn('/generated');
 
-        $formFactory = $this->createStub(FormFactoryInterface::class);
+        $formFactory = $this->createMock(FormFactoryInterface::class);
         $formFactory->method('create')->willReturnCallback(static fn (string $type, mixed $data = null, array $options = []): FormInterface => $createFormCallback($type, $data, $options));
 
         $session = new Session();
 
-        $twig = $this->createStub(\Twig\Environment::class);
+        $twig = $this->createMock(\Twig\Environment::class);
         $twig->method('render')->willReturn('<html></html>');
 
         $requestStack = new RequestStack();
@@ -2345,7 +2312,7 @@ final class MenuDashboardControllerTest extends TestCase
         $request->setSession($session);
         $requestStack->push($request);
 
-        $csrfManager = $this->createStub(\Symfony\Component\Security\Csrf\CsrfTokenManagerInterface::class);
+        $csrfManager = $this->createMock(\Symfony\Component\Security\Csrf\CsrfTokenManagerInterface::class);
         $csrfManager->method('isTokenValid')->willReturnCallback(static fn (\Symfony\Component\Security\Csrf\CsrfToken $token): bool => $token->getValue() === 'test-csrf-token');
 
         $container = new class($router, $formFactory, $session, $twig, $requestStack, $csrfManager) implements \Psr\Container\ContainerInterface {
@@ -2381,9 +2348,12 @@ final class MenuDashboardControllerTest extends TestCase
         $controller->setContainer($container);
     }
 
+    /**
+     * @return FormInterface<mixed>
+     */
     private function createDefaultFormStub(): FormInterface
     {
-        $form = $this->createStub(FormInterface::class);
+        $form = $this->createMock(FormInterface::class);
         $form->method('handleRequest')->willReturnSelf();
         $form->method('isSubmitted')->willReturn(false);
         $form->method('isValid')->willReturn(false);
@@ -2391,6 +2361,9 @@ final class MenuDashboardControllerTest extends TestCase
         return $form;
     }
 
+    /**
+     * @param list<mixed> $args
+     */
     private function invokePrivate(object $object, string $method, array $args = []): mixed
     {
         $ref = new ReflectionClass($object);

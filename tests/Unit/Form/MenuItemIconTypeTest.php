@@ -21,6 +21,12 @@ use function class_exists;
 
 final class MenuItemIconTypeTest extends TestCase
 {
+    /**
+     * @param list<array{name: string, type: mixed, options: array<string, mixed>}> $addCalls
+     * @param array<string, callable(FormEvent): void> $eventListeners
+     *
+     * @return FormBuilderInterface<mixed>
+     */
     private function createBuilderMockWithCaptures(mixed $data, array &$addCalls, array &$eventListeners): FormBuilderInterface
     {
         $builder = $this->createMock(FormBuilderInterface::class);
@@ -87,7 +93,7 @@ final class MenuItemIconTypeTest extends TestCase
         }
 
         self::assertNotNull($iconCall);
-        self::assertSame(\Nowo\IconSelectorBundle\Form\IconSelectorType::class, $iconCall['type']);
+        self::assertSame('Nowo\\IconSelectorBundle\\Form\\IconSelectorType', $iconCall['type']);
         self::assertContains($iconCall['options']['constraints'] ?? null, [null, []]);
         self::assertContains($iconCall['options']['mapped'] ?? null, [null, true]);
         self::assertContains($iconCall['options']['required'] ?? null, [null, false]);

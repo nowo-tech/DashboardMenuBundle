@@ -141,7 +141,7 @@ final class MenuItemTest extends TestCase
     public function testSetPermissionKeysNormalizesAndDeduplicatesValues(): void
     {
         $item = new MenuItem();
-        $item->setPermissionKeys([' authenticated ', '', 'admin', 'admin', 123, 'path:/']);
+        $item->setPermissionKeys([' authenticated ', '', 'admin', 'admin', 'path:/']);
 
         self::assertSame(['authenticated', 'admin', 'path:/'], $item->getPermissionKeys());
         self::assertSame('authenticated', $item->getPermissionKey());

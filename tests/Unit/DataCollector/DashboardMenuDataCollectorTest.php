@@ -126,6 +126,7 @@ final class DashboardMenuDataCollectorTest extends TestCase
             {
             }
 
+            /** @return array<string, mixed> */
             public function getData(): array
             {
                 return [
@@ -164,6 +165,7 @@ final class DashboardMenuDataCollectorTest extends TestCase
             {
             }
 
+            /** @return array<string, mixed> */
             public function getData(): array
             {
                 return [
@@ -200,6 +202,7 @@ final class DashboardMenuDataCollectorTest extends TestCase
             {
             }
 
+            /** @return array<string, mixed> */
             public function getData(): array
             {
                 return [
@@ -260,6 +263,7 @@ final class DashboardMenuDataCollectorTest extends TestCase
             {
             }
 
+            /** @return array<string, mixed> */
             public function getData(): array
             {
                 return [

@@ -37,7 +37,7 @@ final class MenuItemTypeTest extends TestCase
     public function testMenuItemTypeConfigureOptions(): void
     {
         $repo     = $this->createStub(MenuItemRepository::class);
-        $type     = new MenuItemType($repo, 'en', []);
+        $type     = new MenuItemType();
         $resolver = new OptionsResolver();
         $type->configureOptions($resolver);
 
@@ -58,7 +58,7 @@ final class MenuItemTypeTest extends TestCase
         $addCalls = [];
         $builder  = $this->createFormBuilderMock($addCalls);
 
-        $type = new MenuItemType($repo, 'en', []);
+        $type = new MenuItemType();
         $type->buildForm($builder, [
             'app_routes'        => [],
             'available_locales' => [],
@@ -78,7 +78,7 @@ final class MenuItemTypeTest extends TestCase
         $addCalls = [];
         $builder  = $this->createFormBuilderMock($addCalls);
 
-        $type = new MenuItemType($repo, 'en', []);
+        $type = new MenuItemType();
         $type->buildForm($builder, [
             'app_routes'        => [],
             'available_locales' => [],
@@ -99,7 +99,7 @@ final class MenuItemTypeTest extends TestCase
         $addCalls = [];
         $builder  = $this->createFormBuilderMock($addCalls);
 
-        $type = new MenuItemType($repo, 'en', []);
+        $type = new MenuItemType();
         $type->buildForm($builder, [
             'app_routes'        => [],
             'available_locales' => [],
@@ -488,7 +488,6 @@ final class MenuItemTypeTest extends TestCase
         $form->expects(self::never())->method('getData');
 
         $type->finishView($view, $form, ['available_locales' => []]);
-        self::assertIsArray($view->children);
     }
 
     public function testMenuItemBasicTypeFinishViewReturnsEarlyWhenFormDataIsNotMenuItem(): void
@@ -573,6 +572,7 @@ final class MenuItemTypeTest extends TestCase
         ]);
 
         $pc = $this->findAddCall($addCalls, 'permissionKeys');
+        self::assertNotNull($pc);
         self::assertSame(ChoiceType::class, $pc['type']);
 
         $choices = $pc['choices'] ?? [];
@@ -582,6 +582,7 @@ final class MenuItemTypeTest extends TestCase
         self::assertSame('path:/', $choices['path:/ (current)']);
 
         $unanimous = $this->findAddCall($addCalls, 'isUnanimous');
+        self::assertNotNull($unanimous);
         self::assertSame(CheckboxType::class, $unanimous['type']);
     }
 
@@ -640,6 +641,7 @@ final class MenuItemTypeTest extends TestCase
         ]);
 
         $routeName = $this->findAddCall($addCalls, 'routeName');
+        self::assertNotNull($routeName);
         self::assertSame(ChoiceType::class, $routeName['type']);
         $choiceAttr = $routeName['choice_attr'] ?? null;
         self::assertIsCallable($choiceAttr);
@@ -681,6 +683,7 @@ final class MenuItemTypeTest extends TestCase
         ]);
 
         $parentCall = $this->findAddCall($addCalls, 'parent');
+        self::assertNotNull($parentCall);
         self::assertSame(\Symfony\Bridge\Doctrine\Form\Type\EntityType::class, $parentCall['type']);
         self::assertSame($qb, $parentCall['query_builder']);
 
@@ -819,6 +822,12 @@ final class MenuItemTypeTest extends TestCase
         $type->validateParentNoCircular($item, $context);
     }
 
+    /**
+     * @param list<array{name: string, type: mixed, options: array<string, mixed>}> $addCalls
+     * @param array<string, callable(FormEvent): void> $eventListeners
+     *
+     * @return FormBuilderInterface<mixed>
+     */
     private function createFormBuilderMock(
         array &$addCalls,
         mixed $data = null,
@@ -840,12 +849,10 @@ final class MenuItemTypeTest extends TestCase
             $routeParamsForm->expects(self::once())->method('addModelTransformer');
             $permissionKeysForm = $this->createMock(FormBuilderInterface::class);
             $permissionKeysForm->expects(self::atMost(1))->method('addModelTransformer');
-            $builder->method('get')->willReturnCallback(static function (string $name) use ($routeParamsForm, $permissionKeysForm): FormBuilderInterface {
-                return match ($name) {
-                    'routeParams'    => $routeParamsForm,
-                    'permissionKeys' => $permissionKeysForm,
-                    default          => $routeParamsForm,
-                };
+            $builder->method('get')->willReturnCallback(static fn (string $name): FormBuilderInterface => match ($name) {
+                'routeParams'    => $routeParamsForm,
+                'permissionKeys' => $permissionKeysForm,
+                default          => $routeParamsForm,
             });
         }
 
@@ -860,10 +867,15 @@ final class MenuItemTypeTest extends TestCase
         return $builder;
     }
 
+    /**
+     * @param list<array{name: string, type: mixed, options: array<string, mixed>}> $addCalls
+     *
+     * @return array<string, mixed>|null
+     */
     private function findAddCall(array $addCalls, string $name): ?array
     {
         foreach ($addCalls as $call) {
-            if (($call['name'] ?? null) === $name) {
+            if ($call['name'] === $name) {
                 return array_merge(['type' => $call['type']], $call['options']);
             }
         }

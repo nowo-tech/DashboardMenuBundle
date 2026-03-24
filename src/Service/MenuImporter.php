@@ -141,6 +141,11 @@ final readonly class MenuImporter
      *
      * @param array<string, mixed> $menuData
      */
+    /**
+     * @param array<string, mixed> $menuData
+     *
+     * @return array<string, bool|int|string>|null
+     */
     private function menuContextFromMenuData(array $menuData): ?array
     {
         if (!isset($menuData['context']) || !is_array($menuData['context'])) {

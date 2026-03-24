@@ -1125,7 +1125,7 @@
             "dist": {
                 "type": "path",
                 "url": "/var/dashboard-menu-bundle",
-                "reference": "0c3253f3dc8612ed389bd11d4f60e98957173270"
+                "reference": "50808886ed51d7b301768d306c7f21b1118b7b8f"
             },
             "require": {
                 "doctrine/doctrine-bundle": "^2.8 || ^3.0",

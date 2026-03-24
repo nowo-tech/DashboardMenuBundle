@@ -36,6 +36,7 @@ final class PermissionCheckerPassTest extends TestCase
         $pass->process($container);
 
         $choices = $container->getParameter('nowo_dashboard_menu.permission_checker_choices');
+        self::assertIsArray($choices);
         self::assertSame('my_checker', $choices['my_checker']);
     }
 
@@ -49,6 +50,7 @@ final class PermissionCheckerPassTest extends TestCase
         $pass->process($container);
 
         $choices = $container->getParameter('nowo_dashboard_menu.permission_checker_choices');
+        self::assertIsArray($choices);
         $ids     = array_keys($choices);
         self::assertSame('a_checker', $ids[0]);
         self::assertSame('z_checker', $ids[1]);
@@ -61,7 +63,9 @@ final class PermissionCheckerPassTest extends TestCase
         $pass = new PermissionCheckerPass();
         $pass->process($container);
 
-        self::assertSame([], $container->getParameter('nowo_dashboard_menu.permission_checker_choices'));
+        $choices = $container->getParameter('nowo_dashboard_menu.permission_checker_choices');
+        self::assertIsArray($choices);
+        self::assertSame([], $choices);
     }
 
     public function testProcessMergesConfigPermissionCheckerChoices(): void
@@ -78,6 +82,7 @@ final class PermissionCheckerPassTest extends TestCase
         $pass->process($container);
 
         $choices = $container->getParameter('nowo_dashboard_menu.permission_checker_choices');
+        self::assertIsArray($choices);
         self::assertSame('Label from YAML', $choices['checker_a'], 'Config overrides tag label');
         self::assertSame('checker_b', $choices['checker_b']);
     }
@@ -96,6 +101,7 @@ final class PermissionCheckerPassTest extends TestCase
         $pass->process($container);
 
         $choices = $container->getParameter('nowo_dashboard_menu.permission_checker_choices');
+        self::assertIsArray($choices);
         $ids     = array_keys($choices);
         self::assertSame('z_first', $ids[0]);
         self::assertSame('a_second', $ids[1]);
@@ -116,6 +122,7 @@ final class PermissionCheckerPassTest extends TestCase
         $pass->process($container);
 
         $choices = $container->getParameter('nowo_dashboard_menu.permission_checker_choices');
+        self::assertIsArray($choices);
         $ids     = array_keys($choices);
         self::assertSame('checker_a', $ids[0]);
         self::assertSame('checker_b', $ids[1]);
@@ -131,6 +138,7 @@ final class PermissionCheckerPassTest extends TestCase
         $pass->process($container);
 
         $choices = $container->getParameter('nowo_dashboard_menu.permission_checker_choices');
+        self::assertIsArray($choices);
         self::assertSame([], $choices);
     }
 
@@ -148,6 +156,7 @@ final class PermissionCheckerPassTest extends TestCase
         $pass->process($container);
 
         $choices = $container->getParameter('nowo_dashboard_menu.permission_checker_choices');
+        self::assertIsArray($choices);
         $ids     = array_keys($choices);
         self::assertSame('a_checker', $ids[0]);
         self::assertSame('z_checker', $ids[1]);
@@ -166,6 +175,7 @@ final class PermissionCheckerPassTest extends TestCase
         $pass->process($container);
 
         $choices = $container->getParameter('nowo_dashboard_menu.permission_checker_choices');
+        self::assertIsArray($choices);
         self::assertSame('From tag', $choices['my_checker']);
     }
 
@@ -182,6 +192,7 @@ final class PermissionCheckerPassTest extends TestCase
         $pass->process($container);
 
         $choices = $container->getParameter('nowo_dashboard_menu.permission_checker_choices');
+        self::assertIsArray($choices);
         $ids     = array_keys($choices);
         self::assertSame('checker_a', $ids[0]);
         self::assertCount(1, $choices);

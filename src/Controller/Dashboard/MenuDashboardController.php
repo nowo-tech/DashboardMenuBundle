@@ -34,6 +34,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 
+use function array_is_list;
 use function count;
 use function in_array;
 use function is_array;
@@ -223,7 +224,7 @@ final class MenuDashboardController extends AbstractController
                     $this->entityManager->flush();
                     $this->addFlash('success', 'Menu created.');
 
-                    return $this->redirectToRefererOr($request, self::ROUTE_SHOW, ['id' => $menu->getId()]);
+                    return $this->redirectToRefererOr($request, self::ROUTE_INDEX, []);
                 }
             } else {
                 $this->addFlash('error', 'Code is required.');
@@ -627,6 +628,14 @@ final class MenuDashboardController extends AbstractController
                 if (!is_array($decoded)) {
                     $this->addFlash('error', $this->translator->trans('dashboard.import_json_invalid', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN));
                 } else {
+                    $formatErrors = $this->validateImportPayloadFormat($decoded);
+                    if ($formatErrors !== []) {
+                        foreach ($formatErrors as $formatError) {
+                            $this->addFlash('error', $formatError);
+                        }
+
+                        return $this->redirectToRefererOr($request, self::ROUTE_INDEX, []);
+                    }
                     $strategy = is_string($data['strategy'] ?? '') ? $data['strategy'] : MenuImporter::STRATEGY_SKIP_EXISTING;
                     $result   = $this->menuImporter->import($decoded, $strategy);
                     foreach ($result['errors'] as $err) {
@@ -644,6 +653,8 @@ final class MenuDashboardController extends AbstractController
                     return $this->redirectToRefererOr($request, self::ROUTE_INDEX, []);
                 }
             }
+
+            return $this->redirectToRefererOr($request, self::ROUTE_INDEX, []);
         }
 
         if ($form->isSubmitted() && !$form->isValid()) {
@@ -653,6 +664,9 @@ final class MenuDashboardController extends AbstractController
         return $this->renderImportResponse($request, $form, $isModal);
     }
 
+    /**
+     * @param FormInterface<mixed> $form
+     */
     private function renderImportResponse(Request $request, FormInterface $form, bool $usePartial): Response
     {
         $vars = [
@@ -664,6 +678,26 @@ final class MenuDashboardController extends AbstractController
         }
 
         return $this->render('@NowoDashboardMenuBundle/dashboard/import.html.twig', $vars);
+    }
+
+    /**
+     * @param array<mixed> $decoded
+     *
+     * @return list<string>
+     */
+    private function validateImportPayloadFormat(array $decoded): array
+    {
+        if (isset($decoded['menu']) && is_array($decoded['menu']) && isset($decoded['items']) && is_array($decoded['items'])) {
+            return [];
+        }
+        if (isset($decoded['menus']) && is_array($decoded['menus'])) {
+            return [];
+        }
+        if (array_is_list($decoded)) {
+            return ['Invalid format: root JSON array is not supported. Use {"menu": {...}, "items": [...]} or {"menus": [...]}'];
+        }
+
+        return ['Invalid format: expected "menu" + "items" or "menus" array.'];
     }
 
     #[Route(path: '/{id}/copy', name: 'menu_copy', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
@@ -1236,11 +1270,13 @@ final class MenuDashboardController extends AbstractController
             $childrenByParent[$parentId][] = $candidateId;
         }
 
-        $out   = [$id];
+        /** @var list<int> $out */
+        $out = [$id];
+        /** @var list<int> $queue */
         $queue = [$id];
         while ($queue !== []) {
             $current = array_shift($queue);
-            if (!is_int($current) || !isset($childrenByParent[$current])) {
+            if (!isset($childrenByParent[$current])) {
                 continue;
             }
             foreach ($childrenByParent[$current] as $childId) {

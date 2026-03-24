@@ -135,7 +135,7 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
      *
      * @param list<array<string, bool|int|string>|null>|null $contextSets
      *
-     * @return list<array{item: MenuItem, children: list<array>}>
+     * @return list<array<string, mixed>>
      */
     public function getMenuTree(string $menuCode, mixed $permissionContext = null, ?array $contextSets = null): array
     {
