@@ -721,7 +721,7 @@ final class MenuDashboardControllerTest extends TestCase
         $em->expects(self::once())->method('flush');
 
         $form = $this->createMock(FormInterface::class);
-        $form->method('handleRequest')->willReturnCallback(function () use ($form, $menu): FormInterface {
+        $form->method('handleRequest')->willReturnCallback(static function () use ($form, $menu): FormInterface {
             $menu->setCode('changed');
             $menu->setName('Changed name');
             $menu->setBase(false);
