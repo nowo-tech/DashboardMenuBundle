@@ -7,8 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.30] - 2026-03-24
+
 ### Fixed
 - **Import duplicate menus:** `menus` payloads that repeated the same `code` + context block are deduplicated (single import). Dashboard `dashboard.js` guards against registering modal listeners twice when the script is loaded more than once, avoiding a double POST on one submit.
+- **Base menu protection:** base menus can no longer be deleted from the dashboard. Editing is restricted: when a menu is marked as base, its persisted fields are treated as immutable and only unsetting the `base` flag is allowed.
+- **Dashboard actions for base menus:** dashboard menu list and menu detail views hide destructive/configuration actions for base menus (`delete`, `edit config`) to match backend protection rules.
 
 ## [0.3.29] - 2026-03-23
 
@@ -419,7 +423,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.29...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.30...HEAD
+[0.3.30]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.29...v0.3.30
 [0.3.29]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.28...v0.3.29
 [0.3.28]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.27...v0.3.28
 [0.3.27]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.26...v0.3.27

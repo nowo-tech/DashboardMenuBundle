@@ -2,9 +2,17 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
-## From 0.3.29 to next
+## From 0.3.30 to next
 
 No breaking changes.
+
+## From 0.3.29 to 0.3.30
+
+No breaking changes.
+
+- **Base menu deletion:** dashboard no longer allows deleting menus marked as `base`.
+- **Base menu edition policy:** base menus are now treated as immutable in dashboard edit flows; only unsetting the `base` flag is allowed. Any other submitted field changes are ignored while the menu remains base.
+- **Dashboard actions:** base menus hide delete and configuration-edit actions in menu list/detail views to align UI with backend constraints.
 
 ## From 0.3.28 to 0.3.29
 
