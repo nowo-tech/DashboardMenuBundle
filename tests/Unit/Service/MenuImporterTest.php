@@ -89,7 +89,7 @@ final class MenuImporterTest extends TestCase
 
         $menuPersistCount = 0;
         $em               = $this->createMock(EntityManagerInterface::class);
-        $em->method('persist')->willReturnCallback(function (object $entity) use (&$menuPersistCount): void {
+        $em->method('persist')->willReturnCallback(static function (object $entity) use (&$menuPersistCount): void {
             if ($entity instanceof Menu) {
                 ++$menuPersistCount;
             }
