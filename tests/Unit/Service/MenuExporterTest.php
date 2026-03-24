@@ -35,6 +35,8 @@ final class MenuExporterTest extends TestCase
         self::assertFalse($data['menu']['nestedCollapsibleSections']);
         self::assertFalse($data['menu']['base']);
         self::assertSame([], $data['items']);
+        self::assertArrayHasKey('permissionChecker', $data['menu']);
+        self::assertNull($data['menu']['permissionChecker']);
     }
 
     public function testExportMenuIncludesBaseWhenTrue(): void
@@ -77,10 +79,12 @@ final class MenuExporterTest extends TestCase
         self::assertSame('app.permission.checker', $data['menu']['permissionChecker']);
         self::assertSame('Home', $data['items'][0]['label']);
         self::assertSame('app_home', $data['items'][0]['routeName']);
-        self::assertSame('app.home.view', $data['items'][0]['permissionKey']);
+        self::assertArrayNotHasKey('permissionKey', $data['items'][0]);
         self::assertSame(['app.home.view', 'authenticated'], $data['items'][0]['permissionKeys']);
         self::assertFalse($data['items'][0]['isUnanimous']);
         self::assertSame(0, $data['items'][0]['position']);
+        self::assertArrayHasKey('children', $data['items'][0]);
+        self::assertNull($data['items'][0]['children']);
     }
 
     public function testExportMenuKeepsPermissionKeysEvenWhenNull(): void
@@ -101,9 +105,11 @@ final class MenuExporterTest extends TestCase
         $data     = $exporter->exportMenu($menu);
 
         self::assertNull($data['menu']['permissionChecker']);
-        self::assertNull($data['items'][0]['permissionKey']);
+        self::assertArrayNotHasKey('permissionKey', $data['items'][0]);
         self::assertNull($data['items'][0]['permissionKeys']);
         self::assertTrue($data['items'][0]['isUnanimous']);
+        self::assertArrayHasKey('children', $data['items'][0]);
+        self::assertNull($data['items'][0]['children']);
     }
 
     public function testExportMenuIncludesChildrenKeyWhenChildrenNotEmpty(): void
@@ -137,6 +143,36 @@ final class MenuExporterTest extends TestCase
         self::assertCount(1, $data['items']);
         self::assertCount(1, $data['items'][0]['children']);
         self::assertSame('Child', $data['items'][0]['children'][0]['label']);
+    }
+
+    public function testExportMenuSortsKeysAlphabetically(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('ordered');
+        $menu->setName('Ordered');
+        $menu->setClassMenu('dashboard-menu');
+
+        $item = new MenuItem();
+        $item->setMenu($menu);
+        $item->setLabel('Item');
+        $item->setPosition(1);
+
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo->method('findAllForMenuOrderedByTreeForExport')->willReturn([$item]);
+
+        $exporter = new MenuExporter($menuRepo, $itemRepo);
+        $data     = $exporter->exportMenu($menu);
+
+        $menuKeys = array_keys($data['menu']);
+        $sorted   = $menuKeys;
+        sort($sorted);
+        self::assertSame($sorted, $menuKeys);
+
+        $itemKeys   = array_keys($data['items'][0]);
+        $sortedItem = $itemKeys;
+        sort($sortedItem);
+        self::assertSame($sortedItem, $itemKeys);
     }
 
     public function testExportAllReturnsMenusKeyWithArray(): void

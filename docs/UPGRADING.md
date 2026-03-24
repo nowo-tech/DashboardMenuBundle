@@ -2,9 +2,17 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
-## From 0.3.31 to next
+## From 0.3.33 to next
 
 No breaking changes.
+
+## From 0.3.32 to 0.3.33
+
+No breaking changes.
+
+- **Export payload shape:** menu/item exports now preserve declared keys and emit `null` when values are empty (instead of dropping keys).
+- **Deterministic ordering:** exported associative objects are alphabetically sorted by key, including nested item objects.
+- **Permission key export:** legacy `permissionKey` is no longer exported; canonical fields are `permissionKeys` and `isUnanimous`.
 
 ## From 0.3.31 to 0.3.32
 
@@ -15,6 +23,7 @@ No breaking changes.
 - **Dashboard form:** menu config UI includes fields for the new section/divider class options.
 - **Import/export and persistence:** JSON import/export includes `classSection`/`classDivider`; database schema includes nullable `class_section`/`class_divider` columns (migration generator `--update` can add them to existing installations).
 - **Translations:** new config field labels/placeholders are available across bundle locales.
+- **Export payload cleanup:** exported items no longer include legacy `permissionKey`; only `permissionKeys` and `isUnanimous` are exported. Import remains backward-compatible and still accepts `permissionKey`.
 - **QA:** risky-test cases were converted into assertion-based tests; test + coverage + cs-fix/check + rector + phpstan are green.
 
 ## From 0.3.30 to 0.3.31

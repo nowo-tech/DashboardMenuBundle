@@ -9,7 +9,8 @@ use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 
-use function array_key_exists;
+use function is_array;
+use function is_string;
 
 /**
  * Exports menus and their items to a JSON-serializable array (config + links).
@@ -36,8 +37,8 @@ final readonly class MenuExporter
         $tree  = $this->buildItemTree($items);
 
         return [
-            'menu'  => $this->menuToArray($menu),
             'items' => $tree,
+            'menu'  => $this->menuToArray($menu),
         ];
     }
 
@@ -69,7 +70,7 @@ final readonly class MenuExporter
      */
     private function menuToArray(Menu $menu): array
     {
-        $data = array_filter([
+        $data = [
             'code'                      => $menu->getCode(),
             'name'                      => $menu->getName(),
             'context'                   => $menu->getContext(),
@@ -94,15 +95,9 @@ final readonly class MenuExporter
             'nestedCollapsible'         => $menu->getNestedCollapsible(),
             'nestedCollapsibleSections' => $menu->getNestedCollapsibleSections(),
             'base'                      => $menu->isBase(),
-        ], static fn (mixed $v): bool => $v !== null && $v !== '');
+        ];
 
-        // Keep permission metadata keys always present in exports to avoid
-        // ambiguity for downstream importers/processors.
-        if (!array_key_exists('permissionChecker', $data)) {
-            $data['permissionChecker'] = $menu->getPermissionChecker();
-        }
-
-        return $data;
+        return $this->sortAssociativeKeysRecursive($this->normalizeAssociativeForExport($data));
     }
 
     /**
@@ -160,24 +155,83 @@ final readonly class MenuExporter
             'routeParams'    => $item->getRouteParams(),
             'externalUrl'    => $item->getExternalUrl(),
             'icon'           => $item->getIcon(),
-            'permissionKey'  => $item->getPermissionKey(),
             'permissionKeys' => $item->getPermissionKeys(),
             'isUnanimous'    => $item->isUnanimous(),
             'itemType'       => $item->getItemType(),
             'targetBlank'    => $item->getTargetBlank(),
             'position'       => $item->getPosition(),
+            'children'       => $children !== [] ? $children : null,
         ];
-        $data = array_filter($data, static fn (mixed $v): bool => $v !== null && $v !== '');
-        if (!array_key_exists('permissionKey', $data)) {
-            $data['permissionKey'] = $item->getPermissionKey();
+
+        return $this->sortAssociativeKeysRecursive($this->normalizeAssociativeForExport($data));
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     *
+     * @return array<string, mixed>
+     */
+    private function normalizeAssociativeForExport(array $data): array
+    {
+        $normalized = [];
+        foreach ($data as $k => $v) {
+            $normalized[$k] = $this->normalizeValueForExport($v);
         }
-        if (!array_key_exists('permissionKeys', $data)) {
-            $data['permissionKeys'] = $item->getPermissionKeys();
-        }
-        if ($children !== []) {
-            $data['children'] = $children;
+
+        return $normalized;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     *
+     * @return array<string, mixed>
+     */
+    private function sortAssociativeKeysRecursive(array $data): array
+    {
+        ksort($data);
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                if (array_is_list($value)) {
+                    $list = [];
+                    foreach ($value as $entry) {
+                        $list[] = is_array($entry) && !array_is_list($entry)
+                            ? $this->sortAssociativeKeysRecursive($entry)
+                            : $entry;
+                    }
+                    $data[$key] = $list;
+                    continue;
+                }
+
+                $data[$key] = $this->sortAssociativeKeysRecursive($value);
+            }
         }
 
         return $data;
+    }
+
+    private function normalizeValueForExport(mixed $value): mixed
+    {
+        if (is_string($value)) {
+            return $value === '' ? null : $value;
+        }
+
+        if (!is_array($value)) {
+            return $value;
+        }
+
+        if ($value === []) {
+            return null;
+        }
+
+        if (array_is_list($value)) {
+            $normalizedList = [];
+            foreach ($value as $entry) {
+                $normalizedList[] = $this->normalizeValueForExport($entry);
+            }
+
+            return $normalizedList;
+        }
+
+        return $this->normalizeAssociativeForExport($value);
     }
 }

@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.33] - 2026-03-24
+
+### Changed
+- **Export payload completeness:** menu/item export now keeps schema keys present and exports `null` for empty values (instead of omitting keys), improving downstream parser stability.
+- **Export key ordering:** exported associative objects are now emitted with stable alphabetical key order (including nested item objects) for deterministic snapshots and diffs.
+
+### Fixed
+- **Permission payload canonicalization:** item export no longer emits legacy `permissionKey`; only `permissionKeys` and `isUnanimous` are exported.
+- **Exporter tests:** service tests now validate null-preserving exports and deterministic key ordering.
+
 ## [0.3.32] - 2026-03-24
 
 ### Added
@@ -21,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - **Import/export parity:** menu import/export payloads now include `classSection` and `classDivider`, preventing class loss during round-trips.
+- **Export permission payload:** item exports no longer emit legacy `permissionKey`; exports now include only `permissionKeys` (plus `isUnanimous`) as the canonical permission model.
 - **Migration update flow:** `nowo_dashboard_menu:generate-migration --update` now adds missing DB columns `class_section` and `class_divider` when needed.
 - **QA stability:** test suite no longer reports risky tests for dashboard/import/compiler/access scenarios after adding missing assertions.
 
@@ -449,7 +460,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.32...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.33...HEAD
+[0.3.33]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.32...v0.3.33
 [0.3.32]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.31...v0.3.32
 [0.3.31]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.30...v0.3.31
 [0.3.30]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.29...v0.3.30
