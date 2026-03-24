@@ -2,9 +2,20 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
-## From 0.3.30 to next
+## From 0.3.31 to next
 
 No breaking changes.
+
+## From 0.3.31 to 0.3.32
+
+No breaking changes.
+
+- **Menu CSS classes by item type:** menus now support dedicated class settings for `section` and `divider` item types (`classSection`, `classDivider`) resolved from menu config and applied in Twig rendering.
+- **Configuration options:** `dashboard.css_class_options` now includes `section` and `divider` option lists (demos and recipe include examples such as `navigation-header` for section).
+- **Dashboard form:** menu config UI includes fields for the new section/divider class options.
+- **Import/export and persistence:** JSON import/export includes `classSection`/`classDivider`; database schema includes nullable `class_section`/`class_divider` columns (migration generator `--update` can add them to existing installations).
+- **Translations:** new config field labels/placeholders are available across bundle locales.
+- **QA:** risky-test cases were converted into assertion-based tests; test + coverage + cs-fix/check + rector + phpstan are green.
 
 ## From 0.3.30 to 0.3.31
 

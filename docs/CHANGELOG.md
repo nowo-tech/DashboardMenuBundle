@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.32] - 2026-03-24
+
+### Added
+- **Menu section/divider classes:** menu configuration now supports dedicated class selectors for item types `section` and `divider` (`classSection`, `classDivider`) with YAML-defined options (including `navigation-header` example for sections).
+- **Dashboard form support:** menu configuration form now exposes editable fields for section and divider classes, aligned with existing class options UX.
+- **Translations:** added bundle translation keys for the new menu config fields (`class section` / `class divider`) across all shipped locales.
+
+### Changed
+- **Resolved menu config/classes:** resolved menu classes now merge entity overrides for `section` and `divider`, including defaults from `dashboard.css_class_options`.
+- **Menu rendering template:** `menu.html.twig` now applies configured `section` and `divider` classes at render time instead of relying only on hardcoded fallback classes.
+- **Demo/recipe defaults:** Symfony 7 demo, Symfony 8 demo and Flex recipe now include/document `dashboard.css_class_options.section` and `dashboard.css_class_options.divider`.
+
+### Fixed
+- **Import/export parity:** menu import/export payloads now include `classSection` and `classDivider`, preventing class loss during round-trips.
+- **Migration update flow:** `nowo_dashboard_menu:generate-migration --update` now adds missing DB columns `class_section` and `class_divider` when needed.
+- **QA stability:** test suite no longer reports risky tests for dashboard/import/compiler/access scenarios after adding missing assertions.
+
 ## [0.3.31] - 2026-03-24
 
 ### Fixed
@@ -432,7 +449,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.31...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.32...HEAD
+[0.3.32]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.31...v0.3.32
 [0.3.31]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.30...v0.3.31
 [0.3.30]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.29...v0.3.30
 [0.3.29]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.28...v0.3.29
