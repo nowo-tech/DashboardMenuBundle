@@ -1,4 +1,4 @@
-.PHONY: help build up down restart shell install setup clean logs ensure-up update-bundle verify cache-clear schema-update migrations-status migrate test test-coverage ts-assets assets
+.PHONY: help build up down restart shell install setup clean logs ensure-up update-bundle verify cache-clear schema-update migrations-status migrate test test-coverage ts-assets assets demo-started-msg
 
 help:
 	@echo "Dashboard Menu Bundle Demo - Symfony 7"
@@ -58,7 +58,11 @@ up:
 	docker-compose exec -T php php bin/console doctrine:migrations:migrate --no-interaction
 	@echo "Loading fixtures..."
 	docker-compose exec -T php php bin/console doctrine:fixtures:load --no-interaction
-	@echo "Demo ready. Open http://localhost:8010"
+	@$(MAKE) demo-started-msg
+
+demo-started-msg:
+	@DU=$$(grep -E '^DEFAULT_URI=' .env.example 2>/dev/null | cut -d= -f2- | tr -d '\r'); \
+	if [ -n "$$DU" ]; then echo "Demo started at: $$DU"; else PORT=$$(grep -E '^PORT=' .env.example | cut -d= -f2 | tr -d '\r'); echo "Demo started at: http://localhost:$$PORT"; fi
 
 down:
 	docker-compose down
@@ -102,7 +106,7 @@ setup: ensure-up install
 	docker-compose exec -T php php bin/console doctrine:migrations:migrate --no-interaction
 	@echo "Loading fixtures..."
 	docker-compose exec -T php php bin/console doctrine:fixtures:load --no-interaction
-	@echo "Demo ready. Open http://localhost:8010"
+	@$(MAKE) demo-started-msg
 
 clean:
 	rm -rf vendor var/cache/* var/log/*

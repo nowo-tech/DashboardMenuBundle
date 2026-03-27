@@ -1,10 +1,12 @@
-/.data
-# Environment (do not commit; copy from .env.example)
+# Local environment (do not commit secrets; copy from .env.example)
 .env
+.env.dev
 .env.local
 .env.*.local
-.env.dev
+.env.test.local
 
+# Demo data & dependencies
+/.data
 /var
 /vendor
 /.pnpm-store
@@ -24,3 +26,11 @@
 /public/build/
 /package-lock.json
 ###< pentatrion/vite-bundle ###
+
+# Archives / compressed
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z

@@ -1,5 +1,5 @@
 # Makefile for Dashboard Menu Bundle
-.PHONY: help up down build shell install test test-coverage cs-check cs-fix qa clean assets ensure-up rector rector-dry phpstan release-check release-check-demos composer-sync update validate
+.PHONY: help up down build shell install test test-coverage validate-translations cs-check cs-fix qa clean assets ensure-up rector rector-dry phpstan release-check release-check-demos composer-sync update validate
 
 help:
 	@echo "Dashboard Menu Bundle - Development Commands"
@@ -16,6 +16,7 @@ help:
 	@echo "  assets          Build frontend assets (Vite: dashboard.js + stimulus-live.js)"
 	@echo "  test            Run PHPUnit tests"
 	@echo "  test-coverage   Run PHPUnit tests with code coverage"
+	@echo "  validate-translations  Lint bundle translation YAML files"
 	@echo "  cs-check        Check code style"
 	@echo "  cs-fix          Fix code style"
 	@echo "  rector          Apply Rector refactoring"
@@ -69,7 +70,11 @@ test: ensure-up
 	$(COMPOSE) exec $(SERVICE_PHP) composer test
 
 test-coverage: ensure-up
-	$(COMPOSE) exec $(SERVICE_PHP) composer test-coverage
+	$(COMPOSE) exec $(SERVICE_PHP) composer test-coverage | tee coverage-php.txt
+	sh ./.scripts/php-coverage-percent.sh coverage-php.txt
+
+validate-translations: ensure-up
+	$(COMPOSE) exec -T $(SERVICE_PHP) php .scripts/validate-translations.php
 
 cs-check: ensure-up
 	$(COMPOSE) exec -T $(SERVICE_PHP) composer cs-check

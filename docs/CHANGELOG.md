@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- **README** & **docs/DEMO.md** — Demos: default **`APP_ENV=dev`** uses **Caddyfile.dev** (no PHP worker); worker mode documented as production-style. Default ports **8010** (symfony7) / **8011** (symfony8). Clarified that only **symfony7** and **symfony8** demos exist in-repo; Symfony **6.4** remains supported via Composer.
+- **docs/DEMO-FRANKENPHP.md** — Example `bundles.php` aligned with **demo/symfony8** (Security, Doctrine, Migrations, Fixtures, Vite, Stimulus, Twig Inspector, UX Icons, Icon Selector, Autocomplete, Twig/Live Component).
+
 ## [0.3.33] - 2026-03-24
 
 ### Changed

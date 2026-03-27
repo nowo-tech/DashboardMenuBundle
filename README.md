@@ -1,6 +1,6 @@
 # Nowo Dashboard Menu Bundle
 
-[![CI](https://github.com/nowo-tech/DashboardMenuBundle/actions/workflows/ci.yml/badge.svg)](https://github.com/nowo-tech/DashboardMenuBundle/actions/workflows/ci.yml) [![Packagist Version](https://img.shields.io/packagist/v/nowo-tech/dashboard-menu-bundle.svg?style=flat)](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) [![Packagist Downloads](https://img.shields.io/packagist/dt/nowo-tech/dashboard-menu-bundle.svg)](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php)](https://php.net) [![Symfony](https://img.shields.io/badge/Symfony-6.4%20%7C%207%20%7C%208-000000?logo=symfony)](https://symfony.com) [![GitHub stars](https://img.shields.io/github/stars/nowo-tech/dashboard-menu-bundle.svg?style=social&label=Star)](https://github.com/nowo-tech/DashboardMenuBundle)
+[![CI](https://github.com/nowo-tech/DashboardMenuBundle/actions/workflows/ci.yml/badge.svg)](https://github.com/nowo-tech/DashboardMenuBundle/actions/workflows/ci.yml) [![Packagist Version](https://img.shields.io/packagist/v/nowo-tech/dashboard-menu-bundle.svg?style=flat)](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) [![Packagist Downloads](https://img.shields.io/packagist/dt/nowo-tech/dashboard-menu-bundle.svg)](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php)](https://php.net) [![Symfony](https://img.shields.io/badge/Symfony-6.4%20%7C%207%20%7C%208-000000?logo=symfony)](https://symfony.com) [![GitHub stars](https://img.shields.io/github/stars/nowo-tech/dashboard-menu-bundle.svg?style=social&label=Star)](https://github.com/nowo-tech/DashboardMenuBundle) [![Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen)](#tests-and-coverage)
 
 > ⭐ **Found this useful?** [Install from Packagist](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) · Give it a **star** on [GitHub](https://github.com/nowo-tech/DashboardMenuBundle) so more developers can find it.
 
@@ -47,19 +47,19 @@ Menus are **defined in the database** (dashboard at `/admin/menus` or fixtures):
 ```yaml
 # config/packages/nowo_dashboard_menu.yaml
 nowo_dashboard_menu:
-    project: my_app
-    doctrine:
-        connection: default
-        table_prefix: ''
-    cache:
-        ttl: 60
-        pool: cache.app
-    icon_library_prefix_map:
-        bootstrap-icons: bi
-    locales: ['es', 'en']
-    api:
-        enabled: true
-        path_prefix: /api/menu
+  project: my_app
+  doctrine:
+    connection: default
+    table_prefix: ''
+  cache:
+    ttl: 60
+    pool: cache.app
+  icon_library_prefix_map:
+    bootstrap-icons: bi
+  locales: ['es', 'en']
+  api:
+    enabled: true
+    path_prefix: /api/menu
 ```
 
 ## Usage
@@ -85,7 +85,6 @@ Full details: [docs/USAGE.md](docs/USAGE.md).
 
 ## Documentation
 
-- [Demo with FrankenPHP (development and production)](docs/DEMO-FRANKENPHP.md)
 - [Installation](docs/INSTALLATION.md)
 - [Configuration](docs/CONFIGURATION.md)
 - [Usage](docs/USAGE.md)
@@ -98,6 +97,7 @@ Full details: [docs/USAGE.md](docs/USAGE.md).
 
 ### Additional documentation
 
+- [Demo with FrankenPHP (development and production)](docs/DEMO-FRANKENPHP.md)
 - [Demo](docs/DEMO.md)
 - [Development](docs/DEVELOPMENT.md)
 
@@ -111,16 +111,16 @@ See [docs/INSTALLATION.md](docs/INSTALLATION.md#requirements) and [docs/UPGRADIN
 
 ## Demo
 
-Demos (Symfony 7 and 8; the bundle also supports Symfony 6.4) are in `demo/symfony7` and `demo/symfony8`. Each uses **FrankenPHP** with **Caddy** (worker mode) serving HTTP. Quick start: [docs/DEMO.md](docs/DEMO.md).
+Demos (**Symfony 7** and **8** only in this repo; the bundle also supports **Symfony 6.4** via Composer) are in `demo/symfony7` and `demo/symfony8`. Each uses **FrankenPHP** with **Caddy** (HTTP on port 80 in the container). **`docker-compose`** defaults to **`APP_ENV=dev`**, so the entrypoint uses **Caddyfile.dev** (no PHP worker) so Twig/PHP changes show on refresh. **Worker mode** applies to a production-style Caddyfile — [docs/DEMO-FRANKENPHP.md](docs/DEMO-FRANKENPHP.md). Quick start: [docs/DEMO.md](docs/DEMO.md).
 
-**FrankenPHP worker:** The demos are configured to run with FrankenPHP in runtime worker mode (Caddyfile `:80`, `php_server { worker /app/public/index.php 2 }`). The bundle is compatible with and tested in this setup.
+Default host ports: **8010** (symfony7), **8011** (symfony8) via `PORT` in each demo’s `.env`.
 
 From bundle root:
 
 ```bash
 make -C demo/symfony8 up
 make -C demo/symfony8 install
-# Open http://localhost:8011 (or port from demo .env)
+# Open http://localhost:8011 (symfony8) or http://localhost:8010 (symfony7), unless PORT is overridden
 ```
 
 ## Development
@@ -131,13 +131,20 @@ Run tests and QA with Docker: `make up && make install && make test` (or `make t
 
 ```bash
 pnpm install
-pnpm run build        # production build (dashboard.js + stimulus-live.js)
-pnpm run dev          # watch dashboard.js
-pnpm run build:dashboard        # only dashboard.js
-pnpm run build:stimulus-live    # only stimulus-live.js
+pnpm run build    # production build (dashboard.js + stimulus-live.js)
+pnpm run dev     # watch dashboard.js
+pnpm run build:dashboard    # only dashboard.js
+pnpm run build:stimulus-live  # only stimulus-live.js
 ```
 
 Then run `php bin/console assets:install` in the app so `public/bundles/nowodashboardmenu/js/` is updated.
+
+## Tests and coverage
+
+- Tests: PHPUnit (unit and integration suites)
+- PHP (Lines): ~100%
+- TS/JS: N/A (bundle ships built assets; optional local `pnpm run build` for contributors)
+- Python: N/A
 
 ## License
 

@@ -2,6 +2,7 @@
   "name": "nowo-tech/dashboard-menu-bundle",
   "description": "Assets build for Dashboard Menu Bundle (TypeScript)",
   "private": true,
+  "packageManager": "pnpm@9.15.0",
   "scripts": {
     "build": "VITE_ENTRY=dashboard vite build && VITE_ENTRY=stimulus-live vite build",
     "dev": "VITE_ENTRY=dashboard vite build --watch",
