@@ -60,8 +60,9 @@ up:
 	@$(MAKE) demo-started-msg
 
 demo-started-msg:
-	@DU=$$(grep -E '^DEFAULT_URI=' .env.example 2>/dev/null | cut -d= -f2- | tr -d '\r'); \
-	if [ -n "$$DU" ]; then echo "Demo started at: $$DU"; else PORT=$$(grep -E '^PORT=' .env.example | cut -d= -f2 | tr -d '\r'); echo "Demo started at: http://localhost:$$PORT"; fi
+	@PORT=$$(grep "^PORT=" .env 2>/dev/null | cut -d= -f2 | tr -d '\r'); \
+	[ -z "$$PORT" ] && PORT=$$(grep "^PORT=" .env.example 2>/dev/null | cut -d= -f2 | tr -d '\r'); \
+	echo "Demo started at: http://localhost:$$PORT"
 
 down:
 	docker-compose down

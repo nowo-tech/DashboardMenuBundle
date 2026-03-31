@@ -72,7 +72,7 @@ final class MenuItemIconType extends AbstractType
             ->add('position', IntegerType::class, [
                 'required' => false,
                 // Avoid null mapping to MenuItem::setPosition(int).
-                'empty_data' => 0,
+                'empty_data' => '0',
                 'label'      => 'form.menu_item_type.position.label',
                 'attr'       => ['min' => 0, 'class' => 'form-control'],
                 'row_attr'   => ['class' => 'mb-1'],
@@ -91,7 +91,7 @@ final class MenuItemIconType extends AbstractType
             // If the field is absent (e.g. icon section hidden), setting it here would
             // overwrite the entity value with `0`.
             if (array_key_exists('position', $data) && ($data['position'] === null || $data['position'] === '')) {
-                $data['position'] = 0;
+                $data['position'] = '0';
                 $event->setData($data);
             }
         });
