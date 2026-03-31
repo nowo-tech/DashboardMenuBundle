@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.34] - 2026-03-31
+
+### Added
+
+- **Repository governance files:** added `.github/CODEOWNERS`, `.github/PULL_REQUEST_TEMPLATE.md`, `.github/SECURITY.md`, and `.github/workflows/sync-releases.yml` to align with bundle standards and release operations.
+- **Translation validation tooling:** added `.scripts/validate-translations.php` and root Makefile target `validate-translations` to validate bundle translation YAML files during QA/release checks.
+- **Demo env policy files:** committed `demo/symfony7/.env.test` and `demo/symfony8/.env.test`, and expanded demo `.env.example` with `DEFAULT_URI` and documented `DATABASE_URL` guidance.
+
+### Changed
+
+- **Documentation structure:** normalized README `## Documentation` ordering and moved demo-related links under `### Additional documentation` (canonical format).
+- **README tests section:** `## Tests and coverage` now explicitly reports PHP and non-applicable language coverage (`TS/JS N/A`, `Python N/A`).
+- **Demo release flow:** demo aggregate `release-check` now runs `update-bundle` for all demos before coverage/verify steps.
+- **Issue templates:** bug report template now references the correct package (`nowo-tech/dashboard-menu-bundle`).
+- **Assets metadata:** added `packageManager` to root `package.json` (`pnpm@9.15.0`) to document/lock the expected package manager.
+
+### Fixed
+
+- **Database container exposure:** mysql services in root and demo compose files no longer expose host ports; access stays on Docker network only.
+- **Coverage post-processing:** `make test-coverage` now executes the coverage parser safely and `.scripts/php-coverage-percent.sh` robustly parses ANSI-colored PHPUnit output.
+- **Form reverse transform:** `MenuItemIconType` normalizes `position` empty input as string (`'0'`) in form submission, preventing `IntegerType` reverse-transform errors while preserving entity `int` mapping.
+- **Demo gitignore policy:** demo `.gitignore` files are now categorized/commented and include archive patterns and local env exclusions required by standards.
+
 ### Documentation
 
 - **README** & **docs/DEMO.md** — Demos: default **`APP_ENV=dev`** uses **Caddyfile.dev** (no PHP worker); worker mode documented as production-style. Default ports **8010** (symfony7) / **8011** (symfony8). Clarified that only **symfony7** and **symfony8** demos exist in-repo; Symfony **6.4** remains supported via Composer.
@@ -465,7 +488,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.33...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.34...HEAD
+[0.3.34]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.33...v0.3.34
 [0.3.33]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.32...v0.3.33
 [0.3.32]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.31...v0.3.32
 [0.3.31]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.30...v0.3.31

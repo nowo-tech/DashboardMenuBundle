@@ -2,9 +2,19 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
-## From 0.3.33 to next
+## From 0.3.34 to next
 
 No breaking changes.
+
+## From 0.3.33 to 0.3.34
+
+No breaking changes.
+
+- **Release/governance files:** repository now includes CODEOWNERS, PR template, SECURITY policy, and `sync-releases` workflow.
+- **Makefile tooling:** new `validate-translations` target validates bundle translation YAML files via `.scripts/validate-translations.php`.
+- **Demo env policy:** demos now include `.env.test`, documented `DEFAULT_URI` in `.env.example`, categorized `.gitignore` blocks, and release flow runs `update-bundle` before demo checks.
+- **Coverage parser hardening:** `.scripts/php-coverage-percent.sh` now supports ANSI-colored PHPUnit output and keeps compatibility with `make test-coverage`.
+- **Form input normalization:** `MenuItemIconType` now normalizes empty `position` as `'0'` at submit level to satisfy `IntegerType` reverse transform.
 
 ## From 0.3.32 to 0.3.33
 
