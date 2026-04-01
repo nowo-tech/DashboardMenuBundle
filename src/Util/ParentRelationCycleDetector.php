@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\Util;
 
+use function array_key_exists;
+use function array_slice;
+use function in_array;
+
 /**
  * Detects cycles in a parent map (item id → parent id or null for root).
  *
@@ -28,15 +32,15 @@ final class ParentRelationCycleDetector
             $path    = [];
             $current = $startId;
             while (true) {
-                if (\in_array($current, $path, true)) {
+                if (in_array($current, $path, true)) {
                     $idx = array_search($current, $path, true);
                     if ($idx === false) {
                         break;
                     }
 
-                    return array_values(\array_slice($path, (int) $idx));
+                    return array_values(array_slice($path, (int) $idx));
                 }
-                if (!\array_key_exists($current, $parentOf)) {
+                if (!array_key_exists($current, $parentOf)) {
                     break;
                 }
                 $path[]  = $current;

@@ -31,7 +31,6 @@ use Symfony\Component\Validator\Violation\ConstraintViolationBuilderInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function in_array;
-use function is_array;
 
 final class MenuItemTypeTest extends TestCase
 {
@@ -955,8 +954,8 @@ final class MenuItemTypeTest extends TestCase
 
     public function testParentChoiceBreadcrumbLabelStopsOnParentCycle(): void
     {
-        $a = new MenuItem();
-        $b = new MenuItem();
+        $a   = new MenuItem();
+        $b   = new MenuItem();
         $ref = new ReflectionProperty(MenuItem::class, 'id');
         $ref->setValue($a, 1);
         $ref->setValue($b, 2);

@@ -41,7 +41,7 @@ final readonly class MenuImporter
      * - { "menus": [ { "menu": {...}, "items": [...] }, ... ] } for multiple
      * - [ { "menu": {...}, "items": [...] }, ... ] — same as "menus", as a root JSON array (non-empty)
      *
-     * @param array<string|int, mixed> $data
+     * @param array<int|string, mixed> $data
      * @param self::STRATEGY_* $strategy skip_existing = do not overwrite menu with same code+context; replace = replace items of existing menu
      *
      * @return array{created: int, updated: int, skipped: int, errors: list<string>}
@@ -93,9 +93,9 @@ final readonly class MenuImporter
      * either an object with a "menus" key or a literal JSON array of exports.
      * Empty [] is left unchanged (still invalid for import).
      *
-     * @param array<string|int, mixed> $data
+     * @param array<int|string, mixed> $data
      *
-     * @return array<string|int, mixed>
+     * @return array<int|string, mixed>
      */
     public static function normalizeImportPayload(array $data): array
     {

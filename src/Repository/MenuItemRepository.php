@@ -7,6 +7,7 @@ namespace Nowo\DashboardMenuBundle\Repository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use InvalidArgumentException;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Util\ParentRelationCycleDetector;
@@ -14,7 +15,6 @@ use Nowo\DashboardMenuBundle\Util\ParentRelationCycleDetector;
 use function array_keys;
 use function array_merge;
 use function array_shift;
-use function array_values;
 use function assert;
 use function count;
 use function is_array;
@@ -324,14 +324,14 @@ class MenuItemRepository extends ServiceEntityRepository
 
     /**
      * Reassigns `position` for every item in the menu: within each sibling group (same parent),
-     * keeps sort order by current position then id, then sets positions to step, 2*step, 3*step, …
+     * keeps sort order by current position then id, then sets positions to step, 2*step, 3*step, ….
      *
      * @return int Number of items whose position value changed
      */
     public function reindexPositionsWithStep(Menu $menu, int $step): int
     {
         if ($step < 1) {
-            throw new \InvalidArgumentException('position step must be >= 1');
+            throw new InvalidArgumentException('position step must be >= 1');
         }
 
         $items = $this->findAllForMenuOrderedByTreeForExport($menu);
@@ -376,7 +376,7 @@ class MenuItemRepository extends ServiceEntityRepository
     public function applyTreeLayout(Menu $menu, array $nodes, int $positionStep): void
     {
         if ($positionStep < 1) {
-            throw new \InvalidArgumentException('position step must be >= 1');
+            throw new InvalidArgumentException('position step must be >= 1');
         }
 
         $items = $this->findAllForMenuOrderedByTreeForExport($menu);
@@ -394,15 +394,15 @@ class MenuItemRepository extends ServiceEntityRepository
                 return;
             }
 
-            throw new \InvalidArgumentException('tree payload is empty but menu has items');
+            throw new InvalidArgumentException('tree payload is empty but menu has items');
         }
 
         if (!array_is_list($nodes)) {
-            throw new \InvalidArgumentException('tree payload must be a JSON array');
+            throw new InvalidArgumentException('tree payload must be a JSON array');
         }
 
         if (count($nodes) !== count($byId)) {
-            throw new \InvalidArgumentException('tree node count does not match menu item count');
+            throw new InvalidArgumentException('tree node count does not match menu item count');
         }
 
         /** @var array<int, int|null> $parentOf */
@@ -413,14 +413,14 @@ class MenuItemRepository extends ServiceEntityRepository
 
         foreach ($nodes as $row) {
             if (!is_array($row)) {
-                throw new \InvalidArgumentException('each tree node must be an object');
+                throw new InvalidArgumentException('each tree node must be an object');
             }
             $id = isset($row['id']) ? (int) $row['id'] : 0;
             if ($id <= 0 || !isset($byId[$id])) {
-                throw new \InvalidArgumentException('unknown or invalid item id in tree payload');
+                throw new InvalidArgumentException('unknown or invalid item id in tree payload');
             }
             if (isset($seenIds[$id])) {
-                throw new \InvalidArgumentException('duplicate item id in tree payload');
+                throw new InvalidArgumentException('duplicate item id in tree payload');
             }
             $seenIds[$id] = true;
 
@@ -429,7 +429,7 @@ class MenuItemRepository extends ServiceEntityRepository
             if ($parentRaw !== null && $parentRaw !== '') {
                 $parentId = (int) $parentRaw;
                 if ($parentId <= 0 || !isset($byId[$parentId])) {
-                    throw new \InvalidArgumentException('invalid parent id in tree payload');
+                    throw new InvalidArgumentException('invalid parent id in tree payload');
                 }
             }
 
@@ -444,7 +444,7 @@ class MenuItemRepository extends ServiceEntityRepository
         }
 
         if (count($seenIds) !== count($byId)) {
-            throw new \InvalidArgumentException('tree payload must include every menu item');
+            throw new InvalidArgumentException('tree payload must include every menu item');
         }
 
         foreach ($parentOf as $itemId => $parentId) {
@@ -452,13 +452,13 @@ class MenuItemRepository extends ServiceEntityRepository
                 continue;
             }
             if ($byId[$itemId]->getItemType() === MenuItem::ITEM_TYPE_SECTION) {
-                throw new \InvalidArgumentException(self::TREE_LAYOUT_SECTION_MUST_BE_ROOT);
+                throw new InvalidArgumentException(self::TREE_LAYOUT_SECTION_MUST_BE_ROOT);
             }
         }
 
         $cycle = ParentRelationCycleDetector::findFirstCycle($parentOf);
         if ($cycle !== null) {
-            throw new \InvalidArgumentException('tree payload introduces a parent cycle');
+            throw new InvalidArgumentException('tree payload introduces a parent cycle');
         }
 
         foreach ($parentOf as $itemId => $parentId) {
@@ -466,10 +466,10 @@ class MenuItemRepository extends ServiceEntityRepository
                 continue;
             }
             if ($parentId === $itemId) {
-                throw new \InvalidArgumentException('item cannot be its own parent');
+                throw new InvalidArgumentException('item cannot be its own parent');
             }
             if ($this->isAncestorOfInParentMap($itemId, $parentId, $parentOf)) {
-                throw new \InvalidArgumentException('cannot set parent to a descendant of the item');
+                throw new InvalidArgumentException('cannot set parent to a descendant of the item');
             }
         }
 
@@ -479,7 +479,7 @@ class MenuItemRepository extends ServiceEntityRepository
             foreach (array_keys($parentOf) as $itemId) {
                 $depth = $this->computeDepthInParentMap((int) $itemId, $parentOf, []);
                 if ($depth > $maxDepthIndex) {
-                    throw new \InvalidArgumentException('tree exceeds menu depth limit');
+                    throw new InvalidArgumentException('tree exceeds menu depth limit');
                 }
             }
         }
@@ -544,7 +544,7 @@ class MenuItemRepository extends ServiceEntityRepository
 
     /**
      * @param array<int, int|null> $parentOf
-     * @param array<int, int>      $memo
+     * @param array<int, int> $memo
      */
     private function computeDepthInParentMap(int $id, array $parentOf, array &$memo): int
     {
@@ -585,7 +585,7 @@ class MenuItemRepository extends ServiceEntityRepository
             if ($id <= 0) {
                 continue;
             }
-            $pidRaw = $row['parentId'] ?? null;
+            $pidRaw        = $row['parentId'] ?? null;
             $parentOf[$id] = ($pidRaw === null || $pidRaw === '') ? null : (int) $pidRaw;
         }
 

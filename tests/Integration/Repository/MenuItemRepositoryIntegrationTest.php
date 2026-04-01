@@ -6,6 +6,7 @@ namespace Nowo\DashboardMenuBundle\Tests\Integration\Repository;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
+use InvalidArgumentException;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
@@ -534,7 +535,7 @@ final class MenuItemRepositoryIntegrationTest extends KernelTestCase
             ['id' => $sectionId, 'parent_id' => $linkId, 'position' => 0],
         ];
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(MenuItemRepository::TREE_LAYOUT_SECTION_MUST_BE_ROOT);
         $this->repository->applyTreeLayout($menu, $nodes, 100);
     }

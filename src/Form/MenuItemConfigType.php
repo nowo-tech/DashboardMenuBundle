@@ -64,9 +64,9 @@ final class MenuItemConfigType extends AbstractType
                 ],
                 'label' => 'form.menu_item_type.link_type.label',
                 // 'required'     => false,
-                'attr'         => ['class' => 'form-select'],
-                'row_attr'     => ['class' => 'mb-1'],
-                'label_attr'   => ['class' => 'form-label'],
+                'attr'               => ['class' => 'form-select'],
+                'row_attr'           => ['class' => 'mb-1'],
+                'label_attr'         => ['class' => 'form-label'],
                 'autocomplete'       => true,
                 'tom_select_options' => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
             ])
@@ -140,12 +140,12 @@ final class MenuItemConfigType extends AbstractType
 
         $menu = $options['menu'];
         if ($menu instanceof Menu) {
-            $locale     = $options['locale'];
+            $locale         = $options['locale'];
             $baseExcludeIds = array_values(array_unique($options['exclude_ids']));
             /** @var MenuItem|null $menuItemFormData set by reference: EntityType may reload choices after bind */
             $menuItemFormData = $builder->getData() instanceof MenuItem ? $builder->getData() : null;
             $itemRepository   = $this->menuItemRepository;
-            $queryBuilder = function ($_repository) use ($itemRepository, $menu, $baseExcludeIds, $menuItemFormData): QueryBuilder {
+            $queryBuilder     = static function ($_repository) use ($itemRepository, $menu, $baseExcludeIds, $menuItemFormData): QueryBuilder {
                 unset($_repository);
                 $excludeIds = $baseExcludeIds;
                 if ($menuItemFormData instanceof MenuItem && $menuItemFormData->getId() !== null) {
@@ -164,12 +164,12 @@ final class MenuItemConfigType extends AbstractType
                 'choice_label'  => static function (MenuItem $item) use ($locale): string {
                     return self::parentChoiceBreadcrumbLabel($item, $locale);
                 },
-                'placeholder'  => $t('form.menu_item_type.parent.placeholder'),
-                'required'     => false,
-                'label'        => 'form.menu_item_type.parent.label',
-                'attr'         => ['class' => 'form-select'],
-                'row_attr'     => ['class' => 'mb-1'],
-                'label_attr'   => ['class' => 'form-label'],
+                'placeholder' => $t('form.menu_item_type.parent.placeholder'),
+                'required'    => false,
+                'label'       => 'form.menu_item_type.parent.label',
+                'attr'        => ['class' => 'form-select'],
+                'row_attr'    => ['class' => 'mb-1'],
+                'label_attr'  => ['class' => 'form-label'],
                 // No UX Autocomplete here: remote Tom Select queries rebuild the form without the
                 // editing MenuItem, so excluded ids (self + subtree) are not applied and the item
                 // can appear as its own parent. Plain EntityType uses query_builder choices only.
