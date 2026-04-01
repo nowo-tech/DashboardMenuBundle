@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Nowo\DashboardMenuBundle\Util;
 
 use function array_key_exists;
+use function array_keys;
+use function array_search;
 use function array_slice;
+use function array_values;
 use function in_array;
 
 /**

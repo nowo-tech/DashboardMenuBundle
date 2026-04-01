@@ -2,6 +2,12 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 0.3.35 to 0.3.36
+
+No breaking changes.
+
+- **Patch release:** Twig spacing fix for the sortable reorder tree, internal CS/static-analysis cleanups (imports, `static` closures), and demo `reference.php` stub alignment. No configuration or public API changes.
+
 ## From 0.3.34 to 0.3.35
 
 No breaking changes.

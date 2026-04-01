@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.36] - 2026-04-01
+
+### Fixed
+
+- **Dashboard sortable tree:** removed unnecessary margin on nested rows in `_sortable_tree_macro.html.twig` so the reorder list aligns more tightly.
+
+### Changed
+
+- **Code style / static analysis:** use imported `InvalidArgumentException` in dashboard controller and `MenuItemRepository`; `static` closures where safe (sortable tree builder, parent `EntityType` query builder); explicit `use function` imports in `ParentRelationCycleDetector`; remove unused `is_array` import in `MenuItemBasicType`; align form option arrays in menu/item types; `GoogleSyncTranslationsCommand` uses explicit `ENT_*` / `JSON_THROW_ON_ERROR` imports; `MenuImporter` phpdoc key order (`array<int|string, mixed>`).
+- **Demos:** regenerated `demo/symfony7` and `demo/symfony8` `config/reference.php` stubs include `declare(strict_types=1);` at the top.
+
 ## [0.3.35] - 2026-04-01
 
 ### Added
@@ -511,7 +522,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.35...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.36...HEAD
+[0.3.36]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.35...v0.3.36
 [0.3.35]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.34...v0.3.35
 [0.3.34]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.33...v0.3.34
 [0.3.33]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.32...v0.3.33
