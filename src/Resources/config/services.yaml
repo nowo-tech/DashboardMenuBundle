@@ -109,6 +109,7 @@ services:
       $iconSelectorScriptUrl: '%nowo_dashboard_menu.dashboard.icon_selector_script_url%'
       $stimulusScriptUrl: '%nowo_dashboard_menu.dashboard.stimulus_script_url%'
       $importMaxBytes: '%nowo_dashboard_menu.dashboard.import_max_bytes%'
+      $positionStep: '%nowo_dashboard_menu.dashboard.position_step%'
       $importExportRateLimiter: '@Nowo\DashboardMenuBundle\Service\ImportExportRateLimiter'
       $itemFormLiveComponentEnabled: '%nowo_dashboard_menu.dashboard.item_form_live_component_enabled%'
     public: true
@@ -123,5 +124,9 @@ services:
     arguments:
       $connectionName: '%nowo_dashboard_menu.doctrine.connection%'
       $tablePrefix: '%nowo_dashboard_menu.table_prefix%'
+    tags:
+      - { name: console.command }
+
+  Nowo\DashboardMenuBundle\Command\GoogleSyncTranslationsCommand:
     tags:
       - { name: console.command }

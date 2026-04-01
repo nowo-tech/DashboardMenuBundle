@@ -42,6 +42,10 @@ final class MenuDashboardControllerTest extends TestCase
         self::assertSame(MenuDashboardController::ROUTE_SHOW, $routes['show']);
         self::assertSame(MenuDashboardController::ROUTE_MENU_NEW, $routes['menu_new']);
         self::assertSame(MenuDashboardController::ROUTE_ITEM_DELETE, $routes['item_delete']);
+        self::assertSame(MenuDashboardController::ROUTE_ITEMS_REINDEX_POSITIONS, $routes['items_reindex_positions']);
+        self::assertSame(MenuDashboardController::ROUTE_ITEMS_CHECK_PARENT_CYCLES, $routes['items_check_parent_cycles']);
+        self::assertSame(MenuDashboardController::ROUTE_ITEMS_REORDER_TREE, $routes['items_reorder_tree']);
+        self::assertSame(MenuDashboardController::ROUTE_SHOW_ITEMS_REORDER, $routes['show_items_reorder']);
     }
 
     public function testGetModalClassesMapsSizesToBootstrapClasses(): void
@@ -207,21 +211,6 @@ final class MenuDashboardControllerTest extends TestCase
 
         self::assertCount(1, $result);
         self::assertSame('Home', $result['app_home']['label']);
-    }
-
-    public function testGetDescendantIds(): void
-    {
-        $root = new MenuItem();
-        $this->setId($root, 1);
-        $child = new MenuItem();
-        $this->setId($child, 2);
-        $child->setParent($root);
-        $root->getChildren()->add($child);
-
-        $controller = $this->createController();
-        $ids        = $this->invokePrivate($controller, 'getDescendantIds', [$root]);
-
-        self::assertSame([1, 2], $ids);
     }
 
     public function testIndexWithPaginationEnabled(): void
@@ -1965,30 +1954,6 @@ final class MenuDashboardControllerTest extends TestCase
         self::assertSame(1, $b->getPosition());
     }
 
-    public function testGetDescendantIdsUsesRepositoryBranchWhenMenuExists(): void
-    {
-        $menu = new Menu();
-        $root = new MenuItem();
-        $root->setMenu($menu);
-        $this->setId($root, 1);
-
-        $child = new MenuItem();
-        $child->setMenu($menu);
-        $child->setParent($root);
-        $this->setId($child, 2);
-
-        $itemRepo = $this->createMock(MenuItemRepository::class);
-        $itemRepo->expects(self::once())
-            ->method('findAllForMenuOrderedByTreeForExport')
-            ->with($menu)
-            ->willReturn([$root, $child]);
-
-        $controller = $this->createController(menuItemRepository: $itemRepo);
-        $ids        = $this->invokePrivate($controller, 'getDescendantIds', [$root]);
-
-        self::assertSame([1, 2], $ids);
-    }
-
     public function testCloneMenuWithItemsCopiesItemsAndParentRelationsUsingExportRepository(): void
     {
         $source = new Menu();
@@ -2213,6 +2178,7 @@ final class MenuDashboardControllerTest extends TestCase
         ?string $iconSelectorScriptUrl = null,
         ?string $stimulusScriptUrl = null,
         int $importMaxBytes = 2_097_152,
+        int $positionStep = 100,
         ?ImportExportRateLimiter $importExportRateLimiter = null,
         bool $itemFormLiveComponentEnabled = false,
     ): MenuDashboardController {
@@ -2239,6 +2205,7 @@ final class MenuDashboardControllerTest extends TestCase
             $iconSelectorScriptUrl,
             $stimulusScriptUrl,
             $importMaxBytes,
+            $positionStep,
             $rateLimiter,
             $itemFormLiveComponentEnabled,
         );

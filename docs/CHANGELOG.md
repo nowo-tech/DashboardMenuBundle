@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Dashboard (menu detail):** action **Check parent cycles** next to re-index positions — POST with CSRF — reports via flash whether the persisted parent chain forms a loop (item ids shown).
+- **Translations tooling:** new command `nowo_dashboard_menu:translations:google-sync` audits missing keys per locale using a base locale and can auto-translate missing strings with Google Translate API (`--translate-missing`, optional `--write`).
+- **Import:** JSON import accepts a **root-level array** of menu blocks `[{ "menu": {...}, "items": [...] }, ...]`, equivalent to `{ "menus": [ ... ] }`. `MenuImporter::normalizeImportPayload()` performs the normalization; dashboard validation messages for invalid root arrays are translated (`dashboard.import_format_*`).
+
+### Changed
+
+- **Divider items:** optional label/translations are allowed (null or empty); persistence normalizes whitespace and no longer clears user-provided names. Dashboard forms show the label fields for dividers with a hint that a name is recommended but optional.
+- **Dashboard menu detail (links column):** no longer resolves each item’s route URL via `dashboard_menu_href` in the table. The column shows `routeName` and `routeParams` only, avoiding Symfony router failures that added one flash error per row when mandatory parameters were missing.
+- **Parent selector (item config):** disabled Symfony UX Autocomplete / Tom Select on the `parent` `EntityType` so choices always come from `query_builder` (excludes self and subtree). Remote autocomplete rebuilt the form without the editing item and could list the item as its own parent. Validation `validateParentNoCircular` now treats same parent/item by numeric id as well as strict `===`.
+
 ## [0.3.34] - 2026-03-31
 
 ### Added

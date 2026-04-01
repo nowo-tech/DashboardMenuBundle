@@ -30,7 +30,8 @@ build:
 	docker-compose build --no-cache
 
 cache-clear: ensure-up
-	docker-compose exec -T php php bin/console cache:clear
+	docker-compose exec -T php sh -c "rm -rf var/cache/*"
+	docker-compose exec -T php php bin/console cache:clear --no-interaction --no-warmup
 
 up:
 	@if [ ! -f .env ]; then cp .env.example .env; fi
@@ -49,8 +50,10 @@ up:
 	docker-compose restart php
 	@echo "Waiting for PHP container..."
 	@for i in 1 2 3 4 5 6 7 8 9 10; do docker-compose exec -T php true 2>/dev/null && break || sleep 2; done
+	@sleep 2
 	@echo "Clearing cache..."
-	docker-compose exec -T php php bin/console cache:clear --no-interaction
+	docker-compose exec -T php sh -c "rm -rf var/cache/*"
+	docker-compose exec -T php php bin/console cache:clear --no-interaction --no-warmup
 	@echo "Recreating database and running migrations (fresh)..."
 	docker-compose exec -T php php bin/console doctrine:database:drop --if-exists --force --no-interaction
 	docker-compose exec -T php php bin/console doctrine:database:create --no-interaction
@@ -84,9 +87,10 @@ ensure-up:
 update-bundle: ensure-up
 	@if docker-compose exec -T php true 2>/dev/null; then \
 		docker-compose exec -T php sh -c "if [ -f composer.lock ]; then composer update nowo-tech/dashboard-menu-bundle --no-interaction; else composer update --no-interaction; fi"; \
-		docker-compose exec -T php php bin/console cache:clear; \
+		docker-compose exec -T php sh -c "rm -rf var/cache/*"; \
+		docker-compose exec -T php php bin/console cache:clear --no-interaction --no-warmup; \
 	else \
-		docker-compose run --rm --entrypoint '' php sh -c "if [ -f composer.lock ]; then composer update nowo-tech/dashboard-menu-bundle --no-interaction; else composer update --no-interaction; fi; php bin/console cache:clear"; \
+		docker-compose run --rm --entrypoint '' php sh -c "if [ -f composer.lock ]; then composer update nowo-tech/dashboard-menu-bundle --no-interaction; else composer update --no-interaction; fi; rm -rf var/cache/*; php bin/console cache:clear --no-interaction --no-warmup"; \
 	fi
 
 install: ensure-up
@@ -99,7 +103,8 @@ setup: ensure-up install
 	docker-compose restart php
 	@sleep 3
 	@echo "Clearing cache..."
-	docker-compose exec -T php php bin/console cache:clear --no-interaction
+	docker-compose exec -T php sh -c "rm -rf var/cache/*"
+	docker-compose exec -T php php bin/console cache:clear --no-interaction --no-warmup
 	@echo "Recreating database and running migrations (fresh)..."
 	docker-compose exec -T php php bin/console doctrine:database:drop --if-exists --force --no-interaction
 	docker-compose exec -T php php bin/console doctrine:database:create --no-interaction

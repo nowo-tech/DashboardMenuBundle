@@ -67,7 +67,8 @@ final class MenuItemIconType extends AbstractType
                 'attr'         => ['class' => 'form-select'],
                 'row_attr'     => ['class' => 'mb-1'],
                 'label_attr'   => ['class' => 'form-label'],
-                'autocomplete' => true,
+                'autocomplete'       => true,
+                'tom_select_options' => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
             ])
             ->add('position', IntegerType::class, [
                 'required' => false,
@@ -93,6 +94,16 @@ final class MenuItemIconType extends AbstractType
             if (array_key_exists('position', $data) && ($data['position'] === null || $data['position'] === '')) {
                 $data['position'] = '0';
                 $event->setData($data);
+            }
+        });
+
+        $builder->addEventListener(FormEvents::SUBMIT, static function (FormEvent $event): void {
+            $data = $event->getData();
+            if (!$data instanceof MenuItem) {
+                return;
+            }
+            if ($data->getItemType() === MenuItem::ITEM_TYPE_SECTION) {
+                $data->setParent(null);
             }
         });
 

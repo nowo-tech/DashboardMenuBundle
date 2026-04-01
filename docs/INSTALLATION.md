@@ -94,6 +94,15 @@ php bin/console doctrine:migrations:migrate --conn=YOUR_CONNECTION
 
 Alternatively you can use `doctrine:schema:update --force` if you use the default connection and no table prefix; the bundle command is recommended so the migration matches your YAML config.
 
+**Existing database (column errors such as `class_section` / `class_divider`):** If `dashboard_menu` was created with an older migration and Doctrine reports unknown columns when loading menus, generate ALTER statements from the current entity mapping and run migrations:
+
+```bash
+php bin/console nowo_dashboard_menu:generate-migration --update
+php bin/console doctrine:migrations:migrate
+```
+
+Use `--dump` first to print SQL without writing a file. If you use a non-default connection, pass `--conn=` to `doctrine:migrations:migrate` as above.
+
 ## Verify
 
 - Open the dashboard at the configured path (default `/admin/menus`) to create menus and items.

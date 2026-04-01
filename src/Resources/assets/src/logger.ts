@@ -18,6 +18,10 @@
  *
  *    log.scriptLoaded();
  *
+ * 2b. Optional one-line notices that must appear even when debug is off:
+ *
+ *    log.announce('Feature X enabled', { count: 3 });
+ *
  * 3. Call setDebug(true) when your bundle's debug mode is on (e.g. from config or data attribute).
  *    When debug is false, only scriptLoaded() output is shown; info/debug/warn/error are no-ops.
  *
@@ -46,6 +50,10 @@ export type BundleLoggerOptions = {
 export type BundleLogger = {
   /** Call once at startup. Logs "script loaded" and optional build time. Always shown. */
   scriptLoaded: () => void;
+  /**
+   * Short notice always printed (ignores setDebug). Use for feature activation lines in the console.
+   */
+  announce: (message: string, ...args: unknown[]) => void;
   /** When false, debug/info/warn/error are no-ops (only scriptLoaded is shown). */
   setDebug: (enabled: boolean) => void;
   debug: (...args: unknown[]) => void;
@@ -97,6 +105,14 @@ export function createBundleLogger(name: string, options: BundleLoggerOptions = 
         );
       } else {
         console.log(`%c${EMOJI.script} ${prefix} script loaded`, STYLES.script);
+      }
+    },
+
+    announce(message: string, ...args: unknown[]): void {
+      if (args.length > 0) {
+        console.log(`%c${EMOJI.info} ${prefix}%c ${message}`, STYLES.info, 'color:inherit', ...formatArgs(args));
+      } else {
+        console.log(`%c${EMOJI.info} ${prefix}%c ${message}`, STYLES.info, 'color:inherit');
       }
     },
 

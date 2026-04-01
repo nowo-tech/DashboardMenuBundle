@@ -14,6 +14,7 @@ use Nowo\DashboardMenuBundle\Entity\MenuItem;
 /**
  * Loads sample menus with at least 3 levels (root → children → grandchildren) for the demo.
  * Sidebar and Aside have collapsible items (nested_collapsible in config).
+ * Section headers keep at least one child so they still render after empty-section pruning; includes a nested section under Settings.
  */
 class MenuFixtures extends Fixture
 {
@@ -196,9 +197,13 @@ class MenuFixtures extends Fixture
         $manager->persist($this->item($menu, $account, 0, 'Profile', MenuItem::ITEM_TYPE_LINK, HomeController::APP_CONFIGURATION_ROUTE, ['section' => 'account', 'tab' => 'profile'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:person-badge', null, ['en' => 'Profile', 'es' => 'Perfil']));
         $manager->persist($this->item($menu, $account, 1, 'Security', MenuItem::ITEM_TYPE_LINK, HomeController::APP_CONFIGURATION_ROUTE, ['section' => 'account', 'tab' => 'security'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:lock', null, ['en' => 'Security', 'es' => 'Seguridad']));
         $manager->persist($this->item($menu, $settings, 1, 'Notifications', MenuItem::ITEM_TYPE_LINK, HomeController::APP_CONFIGURATION_ROUTE, ['section' => 'notifications'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:bell', null, ['en' => 'Notifications', 'es' => 'Notificaciones']));
+        $settingsNestedSection = $this->item($menu, $settings, 2, 'Nested section (demo)', MenuItem::ITEM_TYPE_SECTION, null, [], MenuItem::LINK_TYPE_ROUTE, null, null, null, ['en' => 'Nested section (demo)', 'es' => 'Sección anidada (demo)']);
+        $manager->persist($settingsNestedSection);
+        $manager->persist($this->item($menu, $settingsNestedSection, 0, 'Shortcut', MenuItem::ITEM_TYPE_LINK, HomeController::APP_CONFIGURATION_ROUTE, ['section' => 'shortcut'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:link-45deg', null, ['en' => 'Shortcut', 'es' => 'Atajo']));
 
         $pagesSection = $this->item($menu, null, 3, 'Pages', MenuItem::ITEM_TYPE_SECTION, null, [], MenuItem::LINK_TYPE_ROUTE, null, null, null, ['en' => 'Pages', 'es' => 'Páginas']);
         $manager->persist($pagesSection);
+        $manager->persist($this->item($menu, $pagesSection, 0, 'All pages', MenuItem::ITEM_TYPE_LINK, HomeController::APP_HOME_ROUTE, ['page' => 'all'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:files', null, ['en' => 'All pages', 'es' => 'Todas las páginas']));
 
         // Level 1 → 2 → 3 → 4: Configuration → General → Options, Profile; Configuration → Security → Two-factor, Sessions
         $configuration = $this->item($menu, null, 4, 'Configuration', MenuItem::ITEM_TYPE_LINK, HomeController::APP_CONFIGURATION_ROUTE, [], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:sliders', null, ['en' => 'Configuration', 'es' => 'Configuración']);
@@ -240,17 +245,17 @@ class MenuFixtures extends Fixture
 
         $resSection = $this->item($menu, null, 6, 'Resources', MenuItem::ITEM_TYPE_SECTION, null, [], MenuItem::LINK_TYPE_ROUTE, null, null, null, ['en' => 'Resources', 'es' => 'Recursos']);
         $manager->persist($resSection);
-        $apiLink = $this->item($menu, null, 7, 'Menu API (JSON)', MenuItem::ITEM_TYPE_LINK, 'nowo_dashboard_menu_api', ['code' => 'sidebar'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:code-slash');
+        $apiLink = $this->item($menu, $resSection, 0, 'Menu API (JSON)', MenuItem::ITEM_TYPE_LINK, 'nowo_dashboard_menu_api', ['code' => 'sidebar'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:code-slash');
         $manager->persist($apiLink);
 
-        $extSection = $this->item($menu, null, 8, 'External', MenuItem::ITEM_TYPE_SECTION, null, [], MenuItem::LINK_TYPE_ROUTE, null, null, null, ['en' => 'External', 'es' => 'Enlaces externos']);
+        $extSection = $this->item($menu, null, 7, 'External', MenuItem::ITEM_TYPE_SECTION, null, [], MenuItem::LINK_TYPE_ROUTE, null, null, null, ['en' => 'External', 'es' => 'Enlaces externos']);
         $manager->persist($extSection);
-        $symfony = $this->item($menu, null, 9, 'Symfony', MenuItem::ITEM_TYPE_LINK, null, [], MenuItem::LINK_TYPE_EXTERNAL, 'https://symfony.com', 'bootstrap-icons:link');
+        $symfony = $this->item($menu, $extSection, 0, 'Symfony', MenuItem::ITEM_TYPE_LINK, null, [], MenuItem::LINK_TYPE_EXTERNAL, 'https://symfony.com', 'bootstrap-icons:link');
         $manager->persist($symfony);
-        $docs = $this->item($menu, null, 10, 'Documentation', MenuItem::ITEM_TYPE_LINK, null, [], MenuItem::LINK_TYPE_EXTERNAL, 'https://symfony.com/doc', 'bootstrap-icons:book');
+        $docs = $this->item($menu, $extSection, 1, 'Documentation', MenuItem::ITEM_TYPE_LINK, null, [], MenuItem::LINK_TYPE_EXTERNAL, 'https://symfony.com/doc', 'bootstrap-icons:book');
         $manager->persist($docs);
 
-        $footerSection = $this->item($menu, null, 11, 'Footer links', MenuItem::ITEM_TYPE_SECTION, null, [], MenuItem::LINK_TYPE_ROUTE, null, null, null, ['en' => 'Footer links', 'es' => 'Enlaces del pie']);
+        $footerSection = $this->item($menu, null, 8, 'Footer links', MenuItem::ITEM_TYPE_SECTION, null, [], MenuItem::LINK_TYPE_ROUTE, null, null, null, ['en' => 'Footer links', 'es' => 'Enlaces del pie']);
         $manager->persist($footerSection);
         $footerItems = [
             [['en' => 'About', 'es' => 'Acerca de'], 'about', 'bootstrap-icons:info-circle'],
@@ -261,10 +266,10 @@ class MenuFixtures extends Fixture
         ];
         foreach ($footerItems as $i => $row) {
             [$translations, $section, $icon] = $row;
-            $manager->persist($this->item($menu, null, 12 + $i, $translations['en'], MenuItem::ITEM_TYPE_LINK, HomeController::APP_INFO_ROUTE, ['section' => $section], MenuItem::LINK_TYPE_ROUTE, null, $icon, null, $translations));
+            $manager->persist($this->item($menu, $footerSection, $i, $translations['en'], MenuItem::ITEM_TYPE_LINK, HomeController::APP_INFO_ROUTE, ['section' => $section], MenuItem::LINK_TYPE_ROUTE, null, $icon, null, $translations));
         }
         // Status as parent with children (link + chevron; children visible/collapsible)
-        $status = $this->item($menu, null, 17, 'Status', MenuItem::ITEM_TYPE_LINK, HomeController::APP_INFO_ROUTE, ['section' => 'status'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:activity', null, ['en' => 'Status', 'es' => 'Estado']);
+        $status = $this->item($menu, null, 9, 'Status', MenuItem::ITEM_TYPE_LINK, HomeController::APP_INFO_ROUTE, ['section' => 'status'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:activity', null, ['en' => 'Status', 'es' => 'Estado']);
         $manager->persist($status);
         $manager->persist($this->item($menu, $status, 0, 'Overview', MenuItem::ITEM_TYPE_LINK, HomeController::APP_INFO_ROUTE, ['section' => 'status', 'view' => 'overview'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:bar-chart', null, ['en' => 'Overview', 'es' => 'Resumen']));
         $manager->persist($this->item($menu, $status, 1, 'Incidents', MenuItem::ITEM_TYPE_LINK, HomeController::APP_INFO_ROUTE, ['section' => 'status', 'view' => 'incidents'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:exclamation-triangle', null, ['en' => 'Incidents', 'es' => 'Incidentes']));
@@ -274,7 +279,9 @@ class MenuFixtures extends Fixture
     /** Shorter menu for sidebar variant (premium/default) so we can see which one resolved. */
     private function addSidebarVariantItems(ObjectManager $manager, Menu $menu, string $variantLabel): void
     {
-        $manager->persist($this->item($menu, null, 0, $variantLabel . ' menu', MenuItem::ITEM_TYPE_SECTION, null, [], MenuItem::LINK_TYPE_ROUTE, null, null, null, ['en' => $variantLabel . ' menu', 'es' => 'Menú ' . $variantLabel]));
+        $variantHeader = $this->item($menu, null, 0, $variantLabel . ' menu', MenuItem::ITEM_TYPE_SECTION, null, [], MenuItem::LINK_TYPE_ROUTE, null, null, null, ['en' => $variantLabel . ' menu', 'es' => 'Menú ' . $variantLabel]);
+        $manager->persist($variantHeader);
+        $manager->persist($this->item($menu, $variantHeader, 0, 'Welcome', MenuItem::ITEM_TYPE_LINK, HomeController::APP_HOME_ROUTE, [], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:house', null, ['en' => 'Welcome', 'es' => 'Bienvenida']));
         $manager->persist($this->item($menu, null, 1, 'Home', MenuItem::ITEM_TYPE_LINK, HomeController::APP_HOME_ROUTE, [], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:house', null, ['en' => 'Home', 'es' => 'Inicio']));
         $manager->persist($this->item($menu, null, 2, $variantLabel . ' feature', MenuItem::ITEM_TYPE_LINK, HomeController::APP_HOME_ROUTE, ['page' => strtolower($variantLabel)], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:star', null, ['en' => $variantLabel . ' feature', 'es' => 'Función ' . $variantLabel]));
         $manager->persist($this->item($menu, null, 3, 'Configuration', MenuItem::ITEM_TYPE_LINK, HomeController::APP_CONFIGURATION_ROUTE, [], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:gear', null, ['en' => 'Configuration', 'es' => 'Configuración']));

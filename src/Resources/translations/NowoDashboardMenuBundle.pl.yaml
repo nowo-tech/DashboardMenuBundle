@@ -71,6 +71,8 @@ dashboard:
   import_json_error: "Invalid JSON: %message%"
   import_file_too_large: "File is too large. Maximum size is %max% MiB."
   import_done: "Import complete: %created% created, %updated% updated, %skipped% skipped."
+  import_format_invalid_root_array: 'Invalid format: a root JSON array must contain only objects with "menu" and "items". You can also use {"menus": [...]} or {"menu": {...}, "items": [...]}.'
+  import_format_expected: 'Invalid format: expected "menu" + "items", or "menus", or a root array of menu blocks.'
 
 # Form: MenuType
 form:

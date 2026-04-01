@@ -1,0 +1,13 @@
+{# Renders item.icon when set (same rules as menu.html.twig: ux_icon if "lib:name", else data-icon span). #}
+{% set iconRaw = item.icon|default('') %}
+{% if iconRaw is not empty %}
+    {% set iconName = iconRaw|dashboard_menu_icon_name %}
+    {% set _iconSize = icon_size|default('1.1em') %}
+    <span class="d-inline-flex align-items-center me-1 text-body-secondary flex-shrink-0 dashboard-menu-item-icon-wrap" title="{{ iconRaw }}">
+        {% if ':' in iconName %}
+            {{ ux_icon(iconName, { class: 'nowo-dashboard-menu-item-icon align-middle', style: 'height:' ~ _iconSize ~ '; width:' ~ _iconSize ~ ';', 'aria-hidden': true }) }}
+        {% else %}
+            <span class="nowo-dashboard-menu-item-icon-fallback align-middle" data-icon="{{ iconName }}" aria-hidden="true" style="font-size: {{ _iconSize }}; line-height: 1;">🔣</span>
+        {% endif %}
+    </span>
+{% endif %}

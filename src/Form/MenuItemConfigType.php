@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nowo\DashboardMenuBundle\Form;
 
 use Closure;
+use Doctrine\ORM\QueryBuilder;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Form\DataTransformer\JsonToArrayTransformer;
@@ -22,7 +23,11 @@ use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+use function array_merge;
+use function array_unique;
+use function array_values;
 use function in_array;
+use function spl_object_id;
 
 /**
  * Form type for menu item configuration: parent, link (route / external URL), target, permission.
@@ -62,7 +67,8 @@ final class MenuItemConfigType extends AbstractType
                 'attr'         => ['class' => 'form-select'],
                 'row_attr'     => ['class' => 'mb-1'],
                 'label_attr'   => ['class' => 'form-label'],
-                'autocomplete' => true,
+                'autocomplete'       => true,
+                'tom_select_options' => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
             ])
             ->add('routeName', ChoiceType::class, [
                 'required'    => false,
@@ -77,7 +83,8 @@ final class MenuItemConfigType extends AbstractType
 
                     return ['data-params' => json_encode($params)];
                 },
-                'autocomplete' => true,
+                'autocomplete'       => true,
+                'tom_select_options' => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
             ])
             ->add('routeParams', TextType::class, [
                 'required'   => false,
@@ -113,11 +120,11 @@ final class MenuItemConfigType extends AbstractType
             'attr'                      => ['class' => 'form-select'],
             'autocomplete'              => true,
             'multiple'                  => true,
-            'tom_select_options'        => [
+            'tom_select_options'        => array_merge([
                 'plugins'          => ['remove_button'],
                 'closeAfterSelect' => false,
                 'hidePlaceholder'  => true,
-            ],
+            ], NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN),
         ];
         $builder->add('permissionKeys', ChoiceType::class, $permissionKeyOptions);
         $builder->add('isUnanimous', CheckboxType::class, [
@@ -134,20 +141,28 @@ final class MenuItemConfigType extends AbstractType
         $menu = $options['menu'];
         if ($menu instanceof Menu) {
             $locale     = $options['locale'];
-            $excludeIds = $options['exclude_ids'];
-            $qb         = $this->menuItemRepository->getPossibleParentsQueryBuilder($menu, $excludeIds);
+            $baseExcludeIds = array_values(array_unique($options['exclude_ids']));
+            /** @var MenuItem|null $menuItemFormData set by reference: EntityType may reload choices after bind */
+            $menuItemFormData = $builder->getData() instanceof MenuItem ? $builder->getData() : null;
+            $itemRepository   = $this->menuItemRepository;
+            $queryBuilder = function ($_repository) use ($itemRepository, $menu, $baseExcludeIds, $menuItemFormData): QueryBuilder {
+                unset($_repository);
+                $excludeIds = $baseExcludeIds;
+                if ($menuItemFormData instanceof MenuItem && $menuItemFormData->getId() !== null) {
+                    $excludeIds = array_values(array_unique(array_merge(
+                        $excludeIds,
+                        $itemRepository->findIdsInSubtreeStartingAt($menu, (int) $menuItemFormData->getId()),
+                    )));
+                }
+
+                return $itemRepository->getPossibleParentsQueryBuilder($menu, $excludeIds);
+            };
             $builder->add('parent', EntityType::class, [
                 'class'         => MenuItem::class,
-                'query_builder' => $qb,
+                'query_builder' => $queryBuilder,
+                'help'          => $t('form.menu_item_type.parent.help_inheritance'),
                 'choice_label'  => static function (MenuItem $item) use ($locale): string {
-                    $parts = [];
-                    $p     = $item;
-                    while ($p instanceof MenuItem) {
-                        array_unshift($parts, $p->getLabelForLocale($locale));
-                        $p = $p->getParent();
-                    }
-
-                    return implode(' > ', $parts);
+                    return self::parentChoiceBreadcrumbLabel($item, $locale);
                 },
                 'placeholder'  => $t('form.menu_item_type.parent.placeholder'),
                 'required'     => false,
@@ -155,7 +170,9 @@ final class MenuItemConfigType extends AbstractType
                 'attr'         => ['class' => 'form-select'],
                 'row_attr'     => ['class' => 'mb-1'],
                 'label_attr'   => ['class' => 'form-label'],
-                'autocomplete' => true,
+                // No UX Autocomplete here: remote Tom Select queries rebuild the form without the
+                // editing MenuItem, so excluded ids (self + subtree) are not applied and the item
+                // can appear as its own parent. Plain EntityType uses query_builder choices only.
             ]);
         }
     }
@@ -170,6 +187,7 @@ final class MenuItemConfigType extends AbstractType
             'locale'      => $this->defaultLocale,
             'constraints' => [
                 new Callback($this->validateParentNoCircular(...)),
+                new Callback($this->validateSectionMustBeRoot(...)),
             ],
             'translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
         ]);
@@ -194,6 +212,21 @@ final class MenuItemConfigType extends AbstractType
             return;
         }
 
+        $itemId   = $item->getId();
+        $parentId = $parent->getId();
+        $menu     = $item->getMenu();
+        if ($menu instanceof Menu && $itemId !== null && $parentId !== null) {
+            $forbidden = $this->menuItemRepository->findIdsInSubtreeStartingAt($menu, (int) $itemId);
+            if (in_array((int) $parentId, $forbidden, true)) {
+                $context->buildViolation('form.menu_item_type.parent.circular_violation')
+                    ->atPath('parent')
+                    ->setTranslationDomain(NowoDashboardMenuBundle::TRANSLATION_DOMAIN)
+                    ->addViolation();
+
+                return;
+            }
+        }
+
         // Direct cycle: parent is the same node.
         if ($parent === $item) {
             $context->buildViolation('form.menu_item_type.parent.circular_violation')
@@ -204,10 +237,8 @@ final class MenuItemConfigType extends AbstractType
             return;
         }
 
-        // Compare by id (covers detached objects).
-        $itemId   = $item->getId();
-        $parentId = $parent->getId();
-        if ($itemId !== null && $parentId !== null && $itemId === $parentId) {
+        // Compare by id (covers detached objects and strict int/string mismatches from forms).
+        if ($itemId !== null && $parentId !== null && (int) $itemId === (int) $parentId) {
             $context->buildViolation('form.menu_item_type.parent.circular_violation')
                 ->atPath('parent')
                 ->setTranslationDomain(NowoDashboardMenuBundle::TRANSLATION_DOMAIN)
@@ -216,8 +247,8 @@ final class MenuItemConfigType extends AbstractType
             return;
         }
 
-        // Walk upwards from the chosen parent. If we reach $item, the new parent
-        // would create a cycle.
+        // Walk upwards from the chosen parent. Stop if we hit $item again (same object, e.g. corrupt
+        // chain in memory) or the same persisted id (different object instances for the same row).
         $cursor  = $parent;
         $visited = [];
         while ($cursor instanceof MenuItem) {
@@ -231,16 +262,83 @@ final class MenuItemConfigType extends AbstractType
             }
 
             $cid = $cursor->getId();
+            if ($itemId !== null && $cid !== null && (int) $cid === (int) $itemId) {
+                $context->buildViolation('form.menu_item_type.parent.circular_violation')
+                    ->atPath('parent')
+                    ->setTranslationDomain(NowoDashboardMenuBundle::TRANSLATION_DOMAIN)
+                    ->addViolation();
+
+                return;
+            }
+
             if ($cid !== null) {
-                if (isset($visited[$cid])) {
+                if (isset($visited[(int) $cid])) {
                     // Avoid infinite loops if the DB already contains a cycle.
                     return;
                 }
-                $visited[$cid] = true;
+                $visited[(int) $cid] = true;
             }
 
             $cursor = $cursor->getParent();
         }
+    }
+
+    public function validateSectionMustBeRoot(MenuItem $item, ExecutionContextInterface $context): void
+    {
+        if ($item->getItemType() !== MenuItem::ITEM_TYPE_SECTION) {
+            return;
+        }
+        if ($item->getParent() !== null) {
+            $context->buildViolation('form.menu_item_type.parent.section_must_be_root')
+                ->atPath('parent')
+                ->setTranslationDomain(NowoDashboardMenuBundle::TRANSLATION_DOMAIN)
+                ->addViolation();
+        }
+    }
+
+    /**
+     * Breadcrumb for parent dropdown (root &gt; … &gt; item). Safe if DB has a parent cycle (corrupt tree).
+     */
+    private static function parentChoiceBreadcrumbLabel(MenuItem $item, string $locale): string
+    {
+        $parts         = [];
+        $p             = $item;
+        $seenIds       = [];
+        $seenObjectIds = [];
+        $maxSteps      = 256;
+        $step          = 0;
+        while ($step < $maxSteps && $p instanceof MenuItem) {
+            $id = $p->getId();
+            if ($id !== null) {
+                $k = (int) $id;
+                if (isset($seenIds[$k])) {
+                    array_unshift($parts, '…');
+                    break;
+                }
+                $seenIds[$k] = true;
+            } else {
+                $oid = spl_object_id($p);
+                if (isset($seenObjectIds[$oid])) {
+                    array_unshift($parts, '…');
+                    break;
+                }
+                $seenObjectIds[$oid] = true;
+            }
+
+            array_unshift($parts, $p->getLabelForLocale($locale));
+            $next = $p->getParent();
+            if ($next === $p) {
+                break;
+            }
+            $p = $next;
+            ++$step;
+        }
+
+        if ($step >= $maxSteps && $p instanceof MenuItem) {
+            array_unshift($parts, '…');
+        }
+
+        return implode(' > ', $parts);
     }
 
     /**

@@ -24,6 +24,16 @@ final class NowoDashboardMenuBundle extends Bundle
     /** Translation domain for bundle strings (dashboard UI, form labels, validation messages). */
     public const TRANSLATION_DOMAIN = 'NowoDashboardMenuBundle';
 
+    /**
+     * Tom Select: append the dropdown to document body so it is not clipped by Bootstrap scrollable modals.
+     * Merge into {@code tom_select_options} for fields using Symfony UX Autocomplete.
+     *
+     * @var array<string, mixed>
+     */
+    public const TOM_SELECT_MODAL_DROPDOWN = [
+        'dropdownParent' => 'body',
+    ];
+
     public function build(ContainerBuilder $container): void
     {
         $container->addCompilerPass(new AutoTagPermissionCheckersPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 200);

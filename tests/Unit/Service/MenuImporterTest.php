@@ -109,6 +109,40 @@ final class MenuImporterTest extends TestCase
         self::assertSame([], $result['errors']);
     }
 
+    public function testNormalizeImportPayloadWrapsNonEmptyListOfMenuBlocks(): void
+    {
+        $blocks = [
+            ['menu' => ['code' => 'a'], 'items' => []],
+            ['menu' => ['code' => 'b'], 'items' => []],
+        ];
+        self::assertSame(['menus' => $blocks], MenuImporter::normalizeImportPayload($blocks));
+    }
+
+    public function testNormalizeImportPayloadLeavesEmptyOrInvalidListsUnchanged(): void
+    {
+        self::assertSame([], MenuImporter::normalizeImportPayload([]));
+        self::assertSame([['foo' => 1]], MenuImporter::normalizeImportPayload([['foo' => 1]]));
+    }
+
+    public function testImportRootJsonArrayEquivalentToMenusObject(): void
+    {
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::atLeastOnce())->method('persist');
+        $em->expects(self::atLeastOnce())->method('flush');
+
+        $importer = new MenuImporter($this->createStub(MenuItemRepository::class), $menuRepo, $em);
+        $payload  = [
+            ['menu' => ['code' => 'alpha'], 'items' => [['label' => 'A']]],
+            ['menu' => ['code' => 'beta'], 'items' => [['label' => 'B']]],
+        ];
+        $result = $importer->import($payload);
+
+        self::assertSame(2, $result['created']);
+        self::assertSame([], $result['errors']);
+    }
+
     public function testImportSkipsExistingWhenStrategySkip(): void
     {
         $existing = new Menu();

@@ -43,6 +43,26 @@ dashboard:
   last: Último
   move_up: Subir
   move_down: Bajar
+  reindex_positions: "Reindexar posiciones (salto %step%)"
+  reindex_positions_title: "Reasigna posiciones con saltos de %step% en cada grupo de hermanos (se mantiene el orden)."
+  reindex_positions_done: "Posiciones reindexadas con salto %step%."
+  reindex_positions_unchanged: No fue necesario cambiar ninguna posición.
+  check_parent_cycles: Comprobar ciclos de padres
+  check_parent_cycles_title: "Comprueba que la cadena de padres no tenga bucles infinitos (mismo menú)."
+  check_parent_cycles_ok: No se han encontrado referencias circulares entre padres.
+  check_parent_cycles_loop: "Cadena de padres circular detectada: %chain%"
+  sortable_page_heading: Reordenar arrastrando
+  open_sortable_reorder: Reordenar (arrastrar)
+  back_to_items_table: Vista tabla
+  sortable_title: Arrastrar para reordenar
+  sortable_help: "Arrastra por el asa para reordenar, anidar bajo un padre o cambiar de nivel. Luego aplica para guardar."
+  sortable_apply: Aplicar orden del árbol
+  sortable_drag_handle: Arrastrar para reordenar
+  reorder_tree_done: Árbol del menú actualizado.
+  reorder_tree_invalid_json: Datos de árbol no válidos (JSON).
+  reorder_tree_invalid_payload: Carga de árbol no válida.
+  reorder_tree_invalid_layout: "No se pudo aplicar el árbol (ciclo, límite de profundidad o ítems faltantes)."
+  reorder_tree_section_not_root: "Las secciones deben estar en la raíz. Saca la sección de las listas anidadas y vuelve a aplicar."
   edit: Editar
   create: Crear
   update: Actualizar
@@ -69,7 +89,9 @@ dashboard:
   export: Exportar
   export_all: Exportar todos los menús
   import: Importar
-  import_help: "Sube un archivo JSON exportado desde este panel (un menú o todos). Elige si omitir menús que ya existan (mismo código y contexto) o reemplazar sus ítems."
+  import_help: "Sube un archivo JSON exportado desde este panel. Formas admitidas: un menú {\"menu\": {...}, \"items\": [...]}, varios menús {\"menus\": [{...}, ...]}, o la misma lista como array raíz [{\"menu\": {...}, \"items\": [...]}, ...]. Elige si omitir menús que ya existan (mismo código y contexto) o reemplazar sus ítems."
+  import_format_invalid_root_array: 'Formato no válido: un array JSON raíz solo puede contener objetos con "menu" e "items". También puedes usar {"menus": [...]} o {"menu": {...}, "items": [...]}.'
+  import_format_expected: 'Formato no válido: se esperaba "menu" + "items", o "menus", o un array raíz de bloques de menú.'
   import_json_invalid: Archivo JSON no válido.
   import_json_error: "JSON no válido: %message%"
   import_file_too_large: "El archivo es demasiado grande. Tamaño máximo %max% MiB."
@@ -167,6 +189,7 @@ form:
     label:
       label: Etiqueta
     label_locale: "Etiqueta (%locale%)"
+    divider_label_hint: "Nombre opcional para este divisor (recomendado por accesibilidad y para la lista del panel). Déjalo vacío si solo necesitas un separador visual."
     type:
       label: Tipo
       link: Enlace
@@ -206,7 +229,9 @@ form:
     parent:
       label: Padre
       placeholder: "— Raíz (sin padre) —"
+      help_inheritance: "Los ítems padre quedan por encima en el árbol. Las claves de permiso de esta fila aplican a este ítem; tu MenuPermissionChecker define cómo se combinan reglas de padres e hijos. Las secciones y los enlaces con hijos solo se muestran si al menos un hijo es visible."
       circular_violation: "No se permite una jerarquía circular de padres."
+      section_must_be_root: "Los ítems de tipo sección deben quedar en la raíz (sin padre)."
 
   import_menu_type:
     file:

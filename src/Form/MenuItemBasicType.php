@@ -115,18 +115,6 @@ final class MenuItemBasicType extends AbstractType
             });
         }
 
-        $builder->addEventListener(FormEvents::PRE_SUBMIT, static function (FormEvent $event) use ($availableLocales): void {
-            $data   = $event->getData();
-            $parent = $event->getForm()->getParent()?->getData();
-            if (!is_array($data) || !($parent instanceof MenuItem) || $parent->getItemType() !== MenuItem::ITEM_TYPE_DIVIDER) {
-                return;
-            }
-            $data['label'] = '';
-            foreach ($availableLocales as $locale) {
-                $data['label_' . $locale] = null;
-            }
-            $event->setData($data);
-        });
     }
 
     public function finishView(FormView $view, FormInterface $form, array $options): void

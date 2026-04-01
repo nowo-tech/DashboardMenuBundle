@@ -39,14 +39,16 @@ final readonly class MenuImporter
      * Import from array. Expects either:
      * - { "menu": {...}, "items": [...] } for one menu
      * - { "menus": [ { "menu": {...}, "items": [...] }, ... ] } for multiple
+     * - [ { "menu": {...}, "items": [...] }, ... ] — same as "menus", as a root JSON array (non-empty)
      *
-     * @param array<string, mixed> $data
+     * @param array<string|int, mixed> $data
      * @param self::STRATEGY_* $strategy skip_existing = do not overwrite menu with same code+context; replace = replace items of existing menu
      *
      * @return array{created: int, updated: int, skipped: int, errors: list<string>}
      */
     public function import(array $data, string $strategy = self::STRATEGY_SKIP_EXISTING): array
     {
+        $data   = self::normalizeImportPayload($data);
         $result = ['created' => 0, 'updated' => 0, 'skipped' => 0, 'errors' => []];
 
         if (isset($data['menus']) && is_array($data['menus'])) {
@@ -84,6 +86,29 @@ final readonly class MenuImporter
         }
 
         return $result;
+    }
+
+    /**
+     * Normalizes a root-level JSON array of menu blocks to {"menus": [...]} so importers can use
+     * either an object with a "menus" key or a literal JSON array of exports.
+     * Empty [] is left unchanged (still invalid for import).
+     *
+     * @param array<string|int, mixed> $data
+     *
+     * @return array<string|int, mixed>
+     */
+    public static function normalizeImportPayload(array $data): array
+    {
+        if ($data === [] || !array_is_list($data)) {
+            return $data;
+        }
+        foreach ($data as $block) {
+            if (!is_array($block) || !isset($block['menu'], $block['items'])) {
+                return $data;
+            }
+        }
+
+        return ['menus' => array_values($data)];
     }
 
     /**

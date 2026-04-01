@@ -1,6 +1,6 @@
 # Full configuration keys available in YAML:
 # project, doctrine, cache, icon_library_prefix_map, locales, default_locale,
-# permission_checker_choices, api, dashboard.
+# permission_checker_choices, api, dashboard (incl. position_step, import_max_bytes, etc.).
 # Menus are registered and configured only in the database (dashboard or fixtures).
 nowo_dashboard_menu:
     doctrine:
@@ -27,6 +27,7 @@ nowo_dashboard_menu:
         'bootstrap-icons': bi
 
     cache:
+        # ttl: seconds (minimum 0). 0 = immediate expiry for cached tree entries.
         ttl: 60
         pool: cache.app
 
@@ -61,6 +62,8 @@ nowo_dashboard_menu:
             delete: normal
         # Maximum JSON import size in bytes (default 2 MiB).
         import_max_bytes: 2097152
+        # Step used by the dashboard “Re-index positions” action (sibling groups: step, 2*step, …).
+        position_step: 100
         # Require role for dashboard routes (null to rely on app access_control).
         # required_role: null
         # required_role: ROLE_ADMIN

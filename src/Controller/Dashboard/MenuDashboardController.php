@@ -62,7 +62,8 @@ use const SORT_NATURAL;
 final class MenuDashboardController extends AbstractController
 {
     public const ROUTE_INDEX          = 'nowo_dashboard_menu_dashboard_index';
-    public const ROUTE_SHOW           = 'nowo_dashboard_menu_dashboard_show';
+    public const ROUTE_SHOW                = 'nowo_dashboard_menu_dashboard_show';
+    public const ROUTE_SHOW_ITEMS_REORDER  = 'nowo_dashboard_menu_dashboard_show_items_reorder';
     public const ROUTE_MENU_NEW       = 'nowo_dashboard_menu_dashboard_menu_new';
     public const ROUTE_MENU_EDIT      = 'nowo_dashboard_menu_dashboard_menu_edit';
     public const ROUTE_MENU_DELETE    = 'nowo_dashboard_menu_dashboard_menu_delete';
@@ -72,6 +73,9 @@ final class MenuDashboardController extends AbstractController
     public const ROUTE_ITEM_DELETE    = 'nowo_dashboard_menu_dashboard_item_delete';
     public const ROUTE_ITEM_MOVE_UP   = 'nowo_dashboard_menu_dashboard_item_move_up';
     public const ROUTE_ITEM_MOVE_DOWN = 'nowo_dashboard_menu_dashboard_item_move_down';
+    public const ROUTE_ITEMS_REINDEX_POSITIONS = 'nowo_dashboard_menu_dashboard_items_reindex_positions';
+    public const ROUTE_ITEMS_CHECK_PARENT_CYCLES = 'nowo_dashboard_menu_dashboard_items_check_parent_cycles';
+    public const ROUTE_ITEMS_REORDER_TREE        = 'nowo_dashboard_menu_dashboard_items_reorder_tree';
     public const ROUTE_EXPORT_MENU    = 'nowo_dashboard_menu_dashboard_export_menu';
     public const ROUTE_EXPORT_ALL     = 'nowo_dashboard_menu_dashboard_export_all';
     public const ROUTE_IMPORT         = 'nowo_dashboard_menu_dashboard_import';
@@ -84,6 +88,7 @@ final class MenuDashboardController extends AbstractController
         return [
             'index'          => self::ROUTE_INDEX,
             'show'           => self::ROUTE_SHOW,
+            'show_items_reorder' => self::ROUTE_SHOW_ITEMS_REORDER,
             'menu_new'       => self::ROUTE_MENU_NEW,
             'menu_edit'      => self::ROUTE_MENU_EDIT,
             'menu_delete'    => self::ROUTE_MENU_DELETE,
@@ -93,6 +98,9 @@ final class MenuDashboardController extends AbstractController
             'item_delete'    => self::ROUTE_ITEM_DELETE,
             'item_move_up'   => self::ROUTE_ITEM_MOVE_UP,
             'item_move_down' => self::ROUTE_ITEM_MOVE_DOWN,
+            'items_reindex_positions' => self::ROUTE_ITEMS_REINDEX_POSITIONS,
+            'items_check_parent_cycles' => self::ROUTE_ITEMS_CHECK_PARENT_CYCLES,
+            'items_reorder_tree'        => self::ROUTE_ITEMS_REORDER_TREE,
             'export_menu'    => self::ROUTE_EXPORT_MENU,
             'export_all'     => self::ROUTE_EXPORT_ALL,
             'import'         => self::ROUTE_IMPORT,
@@ -106,6 +114,7 @@ final class MenuDashboardController extends AbstractController
      * @param string|null $iconSelectorScriptUrl Optional URL of the icon-selector script (Stimulus/UX) for the item form modal
      * @param string|null $stimulusScriptUrl Optional URL of the script that loads Stimulus + Live controller (sets window.Stimulus). When null and Live is enabled, the bundle uses its own asset.
      * @param int $importMaxBytes Maximum allowed size in bytes for JSON import uploads (default 2 MiB)
+     * @param int $positionStep Gap for dashboard "re-index positions" action (e.g. 100 → 100, 200, 300 per sibling group)
      * @param ImportExportRateLimiter $importExportRateLimiter Rate limiter for import/export (no-op when disabled in config)
      * @param bool $itemFormLiveComponentEnabled Whether the item form modal uses the Live Component (true when symfony/ux-live-component is installed)
      */
@@ -125,6 +134,7 @@ final class MenuDashboardController extends AbstractController
         private readonly ?string $iconSelectorScriptUrl,
         private readonly ?string $stimulusScriptUrl,
         private readonly int $importMaxBytes,
+        private readonly int $positionStep,
         private readonly ImportExportRateLimiter $importExportRateLimiter,
         private readonly bool $itemFormLiveComponentEnabled = false,
     ) {
@@ -248,6 +258,27 @@ final class MenuDashboardController extends AbstractController
         ]);
     }
 
+    #[Route(path: '/{id}/items/reorder', name: 'show_items_reorder', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function showItemsReorder(int $id): Response
+    {
+        $menu = $this->menuRepository->findOneById($id);
+        if (!$menu instanceof Menu) {
+            throw $this->createNotFoundException('Menu not found.');
+        }
+        $itemsRaw  = $this->menuItemRepository->findAllForMenuOrderedByTree($menu, 'en');
+        $itemsTree = $this->buildMenuItemTreeForSortable($itemsRaw);
+
+        return $this->render('@NowoDashboardMenuBundle/dashboard/show_items_reorder.html.twig', [
+            'menu'                     => $menu,
+            'items_tree'               => $itemsTree,
+            'modal_classes'            => $this->getModalClasses(),
+            'dashboard_show_route'     => self::ROUTE_SHOW,
+            'dashboard_routes'         => $this->getDashboardRoutes(),
+            'icon_selector_script_url' => $this->iconSelectorScriptUrl,
+            'stimulus_script_url'      => $this->stimulusScriptUrl,
+        ]);
+    }
+
     #[Route(path: '/{id}', name: 'show', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function show(int $id): Response
     {
@@ -273,7 +304,192 @@ final class MenuDashboardController extends AbstractController
             'dashboard_routes'         => $this->getDashboardRoutes(),
             'icon_selector_script_url' => $this->iconSelectorScriptUrl,
             'stimulus_script_url'      => $this->stimulusScriptUrl,
+            'position_step'            => $this->positionStep,
         ]);
+    }
+
+    #[Route(path: '/{id}/items/reindex-positions', name: 'items_reindex_positions', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function itemsReindexPositions(Request $request, int $id): RedirectResponse
+    {
+        if (!$this->isCsrfTokenValid('reindex_positions_' . $id, $request->request->getString('_token'))) {
+            throw new AccessDeniedException('Invalid CSRF token.');
+        }
+        $menu = $this->menuRepository->findOneById($id);
+        if (!$menu instanceof Menu) {
+            throw $this->createNotFoundException('Menu not found.');
+        }
+        $changed = $this->menuItemRepository->reindexPositionsWithStep($menu, $this->positionStep);
+        $this->entityManager->flush();
+        if ($changed > 0) {
+            $this->addFlash(
+                'success',
+                $this->translator->trans('dashboard.reindex_positions_done', ['%step%' => (string) $this->positionStep], NowoDashboardMenuBundle::TRANSLATION_DOMAIN),
+            );
+        } else {
+            $this->addFlash(
+                'info',
+                $this->translator->trans('dashboard.reindex_positions_unchanged', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN),
+            );
+        }
+
+        return $this->redirectToRefererOr($request, self::ROUTE_SHOW, ['id' => $id]);
+    }
+
+    #[Route(path: '/{id}/items/check-parent-cycles', name: 'items_check_parent_cycles', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function itemsCheckParentCycles(Request $request, int $id): RedirectResponse
+    {
+        if (!$this->isCsrfTokenValid('check_parent_cycles_' . $id, $request->request->getString('_token'))) {
+            throw new AccessDeniedException('Invalid CSRF token.');
+        }
+        $menu = $this->menuRepository->findOneById($id);
+        if (!$menu instanceof Menu) {
+            throw $this->createNotFoundException('Menu not found.');
+        }
+        $cycle = $this->menuItemRepository->findFirstParentIdCycleChain($menu);
+        if ($cycle === null) {
+            $this->addFlash(
+                'success',
+                $this->translator->trans('dashboard.check_parent_cycles_ok', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN),
+            );
+        } else {
+            $chain = implode(' → ', array_map(static fn (int $i): string => (string) $i, $cycle));
+            if ($cycle !== []) {
+                $chain .= ' → ' . (string) $cycle[0];
+            }
+            $this->addFlash(
+                'error',
+                $this->translator->trans('dashboard.check_parent_cycles_loop', ['%chain%' => $chain], NowoDashboardMenuBundle::TRANSLATION_DOMAIN),
+            );
+        }
+
+        return $this->redirectToRefererOr($request, self::ROUTE_SHOW, ['id' => $id]);
+    }
+
+    #[Route(path: '/{id}/items/reorder-tree', name: 'items_reorder_tree', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function itemsReorderTree(Request $request, int $id): RedirectResponse
+    {
+        if (!$this->isCsrfTokenValid('reorder_tree_' . $id, $request->request->getString('_token'))) {
+            throw new AccessDeniedException('Invalid CSRF token.');
+        }
+        $menu = $this->menuRepository->findOneById($id);
+        if (!$menu instanceof Menu) {
+            throw $this->createNotFoundException('Menu not found.');
+        }
+        $raw = $request->request->getString('tree');
+        try {
+            $decoded = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException) {
+            $this->addFlash(
+                'error',
+                $this->translator->trans('dashboard.reorder_tree_invalid_json', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN),
+            );
+
+            return $this->redirectToRefererOr($request, self::ROUTE_SHOW, ['id' => $id]);
+        }
+        if (!is_array($decoded) || !array_is_list($decoded)) {
+            $this->addFlash(
+                'error',
+                $this->translator->trans('dashboard.reorder_tree_invalid_payload', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN),
+            );
+
+            return $this->redirectToRefererOr($request, self::ROUTE_SHOW, ['id' => $id]);
+        }
+        /** @var list<array{id: int, parent_id: int|null, position: int}> $nodes */
+        $nodes = [];
+        foreach ($decoded as $row) {
+            if (!is_array($row)) {
+                $this->addFlash(
+                    'error',
+                    $this->translator->trans('dashboard.reorder_tree_invalid_payload', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN),
+                );
+
+                return $this->redirectToRefererOr($request, self::ROUTE_SHOW, ['id' => $id]);
+            }
+            $itemId = isset($row['id']) ? (int) $row['id'] : 0;
+            if ($itemId <= 0) {
+                $this->addFlash(
+                    'error',
+                    $this->translator->trans('dashboard.reorder_tree_invalid_payload', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN),
+                );
+
+                return $this->redirectToRefererOr($request, self::ROUTE_SHOW, ['id' => $id]);
+            }
+            $parentRaw = $row['parent_id'] ?? null;
+            $parentId  = null;
+            if ($parentRaw !== null && $parentRaw !== '') {
+                $parentId = (int) $parentRaw;
+            }
+            $position = isset($row['position']) ? (int) $row['position'] : 0;
+            $nodes[]  = ['id' => $itemId, 'parent_id' => $parentId, 'position' => $position];
+        }
+        try {
+            $this->menuItemRepository->applyTreeLayout($menu, $nodes, $this->positionStep);
+        } catch (\InvalidArgumentException $e) {
+            $flashKey = $e->getMessage() === MenuItemRepository::TREE_LAYOUT_SECTION_MUST_BE_ROOT
+                ? 'dashboard.reorder_tree_section_not_root'
+                : 'dashboard.reorder_tree_invalid_layout';
+            $this->addFlash(
+                'error',
+                $this->translator->trans($flashKey, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN),
+            );
+
+            return $this->redirectToRefererOr($request, self::ROUTE_SHOW, ['id' => $id]);
+        }
+        $this->entityManager->flush();
+        $this->addFlash(
+            'success',
+            $this->translator->trans('dashboard.reorder_tree_done', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN),
+        );
+
+        return $this->redirectToRefererOr($request, self::ROUTE_SHOW, ['id' => $id]);
+    }
+
+    /**
+     * @param list<MenuItem> $items Items for one menu (any order)
+     *
+     * @return list<array{item: MenuItem, children: list<array{item: MenuItem, children: array}>}>
+     */
+    private function buildMenuItemTreeForSortable(array $items): array
+    {
+        /** @var array<string, list<MenuItem>> $byParent */
+        $byParent = [];
+        foreach ($items as $item) {
+            $parentId = $item->getParent()?->getId();
+            $key      = $parentId !== null ? (string) $parentId : '__root';
+            if (!isset($byParent[$key])) {
+                $byParent[$key] = [];
+            }
+            $byParent[$key][] = $item;
+        }
+
+        foreach ($byParent as &$siblings) {
+            usort($siblings, static function (MenuItem $a, MenuItem $b): int {
+                $diff = $a->getPosition() <=> $b->getPosition();
+                if ($diff !== 0) {
+                    return $diff;
+                }
+
+                return ($a->getId() ?? 0) <=> ($b->getId() ?? 0);
+            });
+        }
+        unset($siblings);
+
+        $build = function (string $parentKey) use (&$build, $byParent): array {
+            $out = [];
+            foreach ($byParent[$parentKey] ?? [] as $item) {
+                $itemId = $item->getId();
+                $children = $itemId !== null ? $build((string) $itemId) : [];
+
+                $out[] = [
+                    'item'     => $item,
+                    'children' => $children,
+                ];
+            }
+
+            return $out;
+        };
+
+        return $build('__root');
     }
 
     /**
@@ -628,6 +844,7 @@ final class MenuDashboardController extends AbstractController
                 if (!is_array($decoded)) {
                     $this->addFlash('error', $this->translator->trans('dashboard.import_json_invalid', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN));
                 } else {
+                    $decoded        = MenuImporter::normalizeImportPayload($decoded);
                     $formatErrors = $this->validateImportPayloadFormat($decoded);
                     if ($formatErrors !== []) {
                         foreach ($formatErrors as $formatError) {
@@ -694,10 +911,10 @@ final class MenuDashboardController extends AbstractController
             return [];
         }
         if (array_is_list($decoded)) {
-            return ['Invalid format: root JSON array is not supported. Use {"menu": {...}, "items": [...]} or {"menus": [...]}'];
+            return [$this->translator->trans('dashboard.import_format_invalid_root_array', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN)];
         }
 
-        return ['Invalid format: expected "menu" + "items" or "menus" array.'];
+        return [$this->translator->trans('dashboard.import_format_expected', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN)];
     }
 
     #[Route(path: '/{id}/copy', name: 'menu_copy', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
@@ -918,13 +1135,8 @@ final class MenuDashboardController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $item->setMenu($menu);
-            if ($item->getItemType() === MenuItem::ITEM_TYPE_SECTION || $item->getItemType() === MenuItem::ITEM_TYPE_DIVIDER) {
-                $item->setParent(null);
-            }
             if ($item->getItemType() === MenuItem::ITEM_TYPE_DIVIDER) {
-                $item->setLabel('');
-                $item->setIcon(null);
-                $item->setTranslations(null);
+                $item->normalizeDividerState();
             }
 
             // Append new items at the end of their sibling group.
@@ -991,7 +1203,6 @@ final class MenuDashboardController extends AbstractController
         }
         $appRoutes        = $this->getAppRoutesForItem($item, $this->getAppRoutes());
         $locale           = $request->getLocale();
-        $excludeIds       = $this->getDescendantIds($item);
         $itemHasChildren  = $item->getChildren()->count() > 0;
         $originalParent   = $item->getParent();
         $originalParentId = $originalParent?->getId();
@@ -1013,7 +1224,7 @@ final class MenuDashboardController extends AbstractController
                     'menu'              => $menu,
                     'item'              => $item,
                     'app_routes'        => $appRoutes,
-                    'exclude_ids'       => $excludeIds,
+                    'exclude_ids'       => [],
                     'locale'            => $locale,
                     'is_edit'           => true,
                     'item_has_children' => $itemHasChildren,
@@ -1026,7 +1237,7 @@ final class MenuDashboardController extends AbstractController
             $form = $this->createForm(MenuItemType::class, $item, [
                 'app_routes'        => $appRoutes,
                 'menu'              => $menu,
-                'exclude_ids'       => $excludeIds,
+                'exclude_ids'       => [],
                 'locale'            => $locale,
                 'available_locales' => $this->locales,
                 'action'            => $this->generateUrl(self::ROUTE_ITEM_EDIT, ['id' => $id, 'itemId' => $itemId]),
@@ -1049,7 +1260,7 @@ final class MenuDashboardController extends AbstractController
         $form = $this->createForm(MenuItemType::class, $item, [
             'app_routes'        => $appRoutes,
             'menu'              => $menu,
-            'exclude_ids'       => $excludeIds,
+            'exclude_ids'       => [],
             'locale'            => $locale,
             'available_locales' => $this->locales,
             'action'            => $this->generateUrl(self::ROUTE_ITEM_EDIT, ['id' => $id, 'itemId' => $itemId]),
@@ -1059,13 +1270,8 @@ final class MenuDashboardController extends AbstractController
         ]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($item->getItemType() === MenuItem::ITEM_TYPE_SECTION || $item->getItemType() === MenuItem::ITEM_TYPE_DIVIDER) {
-                $item->setParent(null);
-            }
             if ($item->getItemType() === MenuItem::ITEM_TYPE_DIVIDER) {
-                $item->setLabel('');
-                $item->setIcon(null);
-                $item->setTranslations(null);
+                $item->normalizeDividerState();
             }
             if ($item->getItemType() === MenuItem::ITEM_TYPE_LINK && $item->getChildren()->count() > 0) {
                 $item->setLinkType(null);
@@ -1235,59 +1441,6 @@ final class MenuDashboardController extends AbstractController
         }
 
         return $appRoutes;
-    }
-
-    /**
-     * @return list<int>
-     */
-    private function getDescendantIds(MenuItem $item): array
-    {
-        $id = $item->getId();
-        if ($id === null) {
-            return [];
-        }
-
-        $menu = $item->getMenu();
-        if (!$menu instanceof Menu) {
-            $ids = [$id];
-            foreach ($item->getChildren() as $child) {
-                $ids = array_merge($ids, $this->getDescendantIds($child));
-            }
-
-            return $ids;
-        }
-
-        $items = $this->menuItemRepository->findAllForMenuOrderedByTreeForExport($menu);
-        /** @var array<int, list<int>> $childrenByParent */
-        $childrenByParent = [];
-        foreach ($items as $candidate) {
-            $candidateId = $candidate->getId();
-            $parentId    = $candidate->getParent()?->getId();
-            if ($candidateId === null || $parentId === null) {
-                continue;
-            }
-            if (!isset($childrenByParent[$parentId])) {
-                $childrenByParent[$parentId] = [];
-            }
-            $childrenByParent[$parentId][] = $candidateId;
-        }
-
-        /** @var list<int> $out */
-        $out = [$id];
-        /** @var list<int> $queue */
-        $queue = [$id];
-        while ($queue !== []) {
-            $current = array_shift($queue);
-            if (!isset($childrenByParent[$current])) {
-                continue;
-            }
-            foreach ($childrenByParent[$current] as $childId) {
-                $out[]   = $childId;
-                $queue[] = $childId;
-            }
-        }
-
-        return $out;
     }
 
     /**

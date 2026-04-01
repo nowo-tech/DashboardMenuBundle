@@ -20,7 +20,7 @@ use Symfony\UX\LiveComponent\DefaultActionTrait;
 use function is_array;
 
 /**
- * Live form for creating/editing a menu item. Toggles parent/link fields by itemType (section/divider = root only, hide link; link = show parent and link unless has children).
+ * Live form for creating/editing a menu item. Toggles parent/link fields by itemType (divider = root only; sections can have a parent; link = show parent and link unless has children).
  *
  * @internal
  */
@@ -192,7 +192,7 @@ final class ItemFormLiveComponent
     {
         $type = $this->getItemType();
 
-        return $type !== MenuItem::ITEM_TYPE_SECTION && $type !== MenuItem::ITEM_TYPE_DIVIDER;
+        return $type !== MenuItem::ITEM_TYPE_DIVIDER;
     }
 
     public function showLinkFields(): bool
@@ -294,13 +294,8 @@ final class ItemFormLiveComponent
         $this->submitForm();
         /** @var MenuItem $item */
         $item = $this->getForm()->getData();
-        if ($item->getItemType() === MenuItem::ITEM_TYPE_SECTION || $item->getItemType() === MenuItem::ITEM_TYPE_DIVIDER) {
-            $item->setParent(null);
-        }
         if ($item->getItemType() === MenuItem::ITEM_TYPE_DIVIDER) {
-            $item->setLabel('');
-            $item->setIcon(null);
-            $item->setTranslations(null);
+            $item->normalizeDividerState();
         }
         if ($item->getItemType() === MenuItem::ITEM_TYPE_LINK && $item->getChildren()->count() > 0) {
             $item->setLinkType(null);

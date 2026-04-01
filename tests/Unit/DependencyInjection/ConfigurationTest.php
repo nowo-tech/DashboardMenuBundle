@@ -38,6 +38,7 @@ final class ConfigurationTest extends TestCase
         self::assertSame('normal', $config['dashboard']['modals']['copy']);
         self::assertSame('lg', $config['dashboard']['modals']['item_form']);
         self::assertSame('normal', $config['dashboard']['modals']['delete']);
+        self::assertSame(100, $config['dashboard']['position_step']);
         self::assertArrayHasKey('menu', $config['dashboard']['css_class_options']);
         self::assertArrayHasKey('item', $config['dashboard']['css_class_options']);
         self::assertSame(['order' => [], 'labels' => []], $config['permission_checker_choices']);

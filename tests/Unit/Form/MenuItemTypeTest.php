@@ -13,6 +13,7 @@ use Nowo\DashboardMenuBundle\Form\MenuItemType;
 use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use PHPUnit\Framework\TestCase;
+use ReflectionMethod;
 use ReflectionProperty;
 use stdClass;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -135,7 +136,7 @@ final class MenuItemTypeTest extends TestCase
 
     // Icon editing lives in MenuItemIconType now (icon-only partial).
 
-    public function testMenuItemBasicTypeAddsLocaleFieldsAndPreSubmitClearsDividerValues(): void
+    public function testMenuItemBasicTypeAddsLocaleFieldsForDividerWithoutPreSubmitClear(): void
     {
         $availableLocales = ['en', 'es'];
 
@@ -158,35 +159,7 @@ final class MenuItemTypeTest extends TestCase
 
         self::assertNotNull($this->findAddCall($addCalls, 'label_en'));
         self::assertNotNull($this->findAddCall($addCalls, 'label_es'));
-
-        self::assertArrayHasKey(FormEvents::PRE_SUBMIT, $eventListeners);
-        $preSubmitListener = $eventListeners[FormEvents::PRE_SUBMIT];
-
-        $event = $this->createMock(FormEvent::class);
-        $event->method('getData')->willReturn([
-            'label'    => 'X',
-            'label_en' => 'should-clear',
-            'label_es' => 'should-clear',
-        ]);
-        $form       = $this->createMock(FormInterface::class);
-        $formParent = $this->createMock(FormInterface::class);
-        $formParent->method('getData')->willReturn($menuItem);
-        $form->method('getParent')->willReturn($formParent);
-        $event->method('getForm')->willReturn($form);
-
-        $event->expects(self::once())
-            ->method('setData')
-            ->with(self::callback(static function (mixed $data): bool {
-                if (!is_array($data)) {
-                    return false;
-                }
-
-                return $data['label'] === ''
-                    && $data['label_en'] === null
-                    && $data['label_es'] === null;
-            }));
-
-        $preSubmitListener($event);
+        self::assertArrayNotHasKey(FormEvents::PRE_SUBMIT, $eventListeners);
     }
 
     public function testMenuItemBasicTypeSubmitListenerUpdatesTranslations(): void
@@ -354,7 +327,7 @@ final class MenuItemTypeTest extends TestCase
         $type->validateLabelWhenNotDivider($item, $context);
     }
 
-    public function testMenuItemBasicTypePreSubmitListenerReturnsEarlyWhenNotDivider(): void
+    public function testMenuItemBasicTypeDoesNotRegisterPreSubmitListener(): void
     {
         $availableLocales = ['en', 'es'];
         $type             = new MenuItemBasicType(availableLocales: $availableLocales);
@@ -370,27 +343,7 @@ final class MenuItemTypeTest extends TestCase
 
         $type->buildForm($builder, ['available_locales' => $availableLocales]);
 
-        self::assertArrayHasKey(FormEvents::PRE_SUBMIT, $eventListeners);
-        $preSubmitListener = $eventListeners[FormEvents::PRE_SUBMIT];
-
-        $parentItem = new MenuItem();
-        $parentItem->setItemType(MenuItem::ITEM_TYPE_LINK);
-
-        $form       = $this->createMock(FormInterface::class);
-        $formParent = $this->createMock(FormInterface::class);
-        $formParent->method('getData')->willReturn($parentItem);
-        $form->method('getParent')->willReturn($formParent);
-
-        $event = $this->createMock(FormEvent::class);
-        $event->method('getData')->willReturn([
-            'label'    => 'should-stay',
-            'label_en' => 'keep',
-            'label_es' => 'keep',
-        ]);
-        $event->method('getForm')->willReturn($form);
-
-        $event->expects(self::never())->method('setData');
-        $preSubmitListener($event);
+        self::assertArrayNotHasKey(FormEvents::PRE_SUBMIT, $eventListeners);
     }
 
     public function testMenuItemBasicTypeConfigureOptionsSetsDefaultsAndAllowedTypes(): void
@@ -685,7 +638,9 @@ final class MenuItemTypeTest extends TestCase
         $parentCall = $this->findAddCall($addCalls, 'parent');
         self::assertNotNull($parentCall);
         self::assertSame(\Symfony\Bridge\Doctrine\Form\Type\EntityType::class, $parentCall['type']);
-        self::assertSame($qb, $parentCall['query_builder']);
+        $parentQb = $parentCall['query_builder'];
+        self::assertIsCallable($parentQb);
+        self::assertSame($qb, $parentQb($repo));
 
         $choiceLabel = $parentCall['choice_label'];
         self::assertIsCallable($choiceLabel);
@@ -698,6 +653,51 @@ final class MenuItemTypeTest extends TestCase
         $child->setParent($parent);
 
         self::assertSame('Parent > Child', $choiceLabel($child));
+    }
+
+    public function testMenuItemConfigTypeMergesExcludeIdsWithSubtreeWhenItemHasId(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('menu');
+
+        $qb = $this->createMock(QueryBuilder::class);
+
+        $editing = new MenuItem();
+        $editing->setMenu($menu);
+        $editing->setLabel('Edit me');
+        $ref = new ReflectionProperty(MenuItem::class, 'id');
+        $ref->setValue($editing, 10);
+
+        $repo = $this->createMock(MenuItemRepository::class);
+        $repo->expects(self::once())
+            ->method('findIdsInSubtreeStartingAt')
+            ->with($menu, 10)
+            ->willReturn([10, 11, 12]);
+        $repo->expects(self::once())
+            ->method('getPossibleParentsQueryBuilder')
+            ->with($menu, [1, 10, 11, 12])
+            ->willReturn($qb);
+
+        $type = new MenuItemConfigType(
+            menuItemRepository: $repo,
+            permissionKeyChoices: [],
+            defaultLocale: 'en',
+        );
+
+        $addCalls = [];
+        $builder  = $this->createFormBuilderMock($addCalls, $editing, routeParamsFormTransformer: true);
+
+        $type->buildForm($builder, [
+            'app_routes'  => [],
+            'menu'        => $menu,
+            'exclude_ids' => [1],
+            'locale'      => 'en',
+        ]);
+
+        $parentCall = $this->findAddCall($addCalls, 'parent');
+        self::assertNotNull($parentCall);
+        self::assertIsCallable($parentCall['query_builder']);
+        self::assertSame($qb, $parentCall['query_builder']($repo));
     }
 
     public function testMenuItemConfigTypeValidateParentNoCircularDirectSelfViolation(): void
@@ -737,6 +737,92 @@ final class MenuItemTypeTest extends TestCase
 
         $context = $this->createMock(ExecutionContextInterface::class);
         $context->expects(self::never())->method('buildViolation');
+
+        $type->validateParentNoCircular($item, $context);
+    }
+
+    public function testMenuItemConfigTypeValidateSectionMustBeRootRejectsWhenParentSet(): void
+    {
+        $type = new MenuItemConfigType(
+            menuItemRepository: $this->createStub(MenuItemRepository::class),
+            permissionKeyChoices: [],
+            defaultLocale: 'en',
+        );
+
+        $parent  = new MenuItem();
+        $section = new MenuItem();
+        $section->setItemType(MenuItem::ITEM_TYPE_SECTION);
+        $section->setParent($parent);
+
+        $context = $this->createMock(ExecutionContextInterface::class);
+        $builder = $this->createMock(ConstraintViolationBuilderInterface::class);
+        $context->expects(self::once())
+            ->method('buildViolation')
+            ->with('form.menu_item_type.parent.section_must_be_root')
+            ->willReturn($builder);
+        $builder->method('atPath')->with('parent')->willReturn($builder);
+        $builder->method('setTranslationDomain')->with(NowoDashboardMenuBundle::TRANSLATION_DOMAIN)->willReturn($builder);
+        $builder->expects(self::once())->method('addViolation');
+
+        $type->validateSectionMustBeRoot($section, $context);
+    }
+
+    public function testMenuItemConfigTypeValidateSectionMustBeRootSkipsWhenRootOrNotSection(): void
+    {
+        $type = new MenuItemConfigType(
+            menuItemRepository: $this->createStub(MenuItemRepository::class),
+            permissionKeyChoices: [],
+            defaultLocale: 'en',
+        );
+
+        $section = new MenuItem();
+        $section->setItemType(MenuItem::ITEM_TYPE_SECTION);
+        $section->setParent(null);
+
+        $context = $this->createMock(ExecutionContextInterface::class);
+        $context->expects(self::never())->method('buildViolation');
+        $type->validateSectionMustBeRoot($section, $context);
+
+        $link = new MenuItem();
+        $link->setItemType(MenuItem::ITEM_TYPE_LINK);
+        $link->setParent(new MenuItem());
+        $type->validateSectionMustBeRoot($link, $context);
+    }
+
+    public function testMenuItemConfigTypeValidateParentNoCircularRejectsWhenParentIdIsInDbSubtree(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('m');
+
+        $repo = $this->createMock(MenuItemRepository::class);
+        $repo->expects(self::once())
+            ->method('findIdsInSubtreeStartingAt')
+            ->with($menu, 5)
+            ->willReturn([5, 6, 7]);
+
+        $type = new MenuItemConfigType(
+            menuItemRepository: $repo,
+            permissionKeyChoices: [],
+            defaultLocale: 'en',
+        );
+
+        $item = new MenuItem();
+        $item->setMenu($menu);
+        $parent = new MenuItem();
+        $item->setParent($parent);
+        $ref = new ReflectionProperty(MenuItem::class, 'id');
+        $ref->setValue($item, 5);
+        $ref->setValue($parent, 6);
+
+        $context = $this->createMock(ExecutionContextInterface::class);
+        $builder = $this->createMock(ConstraintViolationBuilderInterface::class);
+        $context->expects(self::once())
+            ->method('buildViolation')
+            ->with('form.menu_item_type.parent.circular_violation')
+            ->willReturn($builder);
+        $builder->method('atPath')->with('parent')->willReturn($builder);
+        $builder->method('setTranslationDomain')->with(NowoDashboardMenuBundle::TRANSLATION_DOMAIN)->willReturn($builder);
+        $builder->expects(self::once())->method('addViolation');
 
         $type->validateParentNoCircular($item, $context);
     }
@@ -865,6 +951,27 @@ final class MenuItemTypeTest extends TestCase
         }
 
         return $builder;
+    }
+
+    public function testParentChoiceBreadcrumbLabelStopsOnParentCycle(): void
+    {
+        $a = new MenuItem();
+        $b = new MenuItem();
+        $ref = new ReflectionProperty(MenuItem::class, 'id');
+        $ref->setValue($a, 1);
+        $ref->setValue($b, 2);
+        $a->setLabel('A');
+        $b->setLabel('B');
+        $a->setParent($b);
+        $b->setParent($a);
+
+        $method = new ReflectionMethod(MenuItemConfigType::class, 'parentChoiceBreadcrumbLabel');
+        $method->setAccessible(true);
+        $out = $method->invoke(null, $a, 'en');
+
+        self::assertStringContainsString('…', $out);
+        self::assertStringContainsString('A', $out);
+        self::assertStringContainsString('B', $out);
     }
 
     /**

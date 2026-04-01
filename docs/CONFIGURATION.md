@@ -28,7 +28,7 @@ Menus are **defined in the database** (dashboard at `/admin/menus` or fixtures):
 - **locales** / **default_locale**: Enabled locales for menu item labels and fallback.
 - **permission_checker_choices** (optional): List of service IDs (to order/filter) and/or map (service id → label) for the dashboard menu form dropdown; merged with tagged permission checkers.
 - **api**: Enable JSON API and path prefix.
-- **dashboard**: Enable admin CRUD, path prefix, route exclude patterns, pagination, modals, CSS class options, icon selector script.
+- **dashboard**: Enable admin CRUD, path prefix, route exclude patterns, pagination, modals, CSS class options, icon selector script, configurable step for re-indexing item positions.
 
 ## Root options
 
@@ -80,7 +80,7 @@ Tree cache stores the raw menu + items result per (menuCode, locale, contextSets
 
 | Option | Default       | Description |
 |--------|---------------|-------------|
-| `ttl`  | `60`          | Time-to-live in seconds. Minimum 60. |
+| `ttl`  | `60`          | Time-to-live in seconds. Minimum `0` (values below 60 are allowed; `0` means immediate expiry when the item is saved, so entries are typically not reused on later requests). |
 | `pool` | `cache.app`   | PSR-6 cache pool name. Set to `null` or empty to disable tree cache. |
 
 ```yaml
@@ -164,6 +164,7 @@ Options for the admin dashboard (list, create, edit, copy menus and manage items
 | `route_name_exclude_patterns`  | `[]`           | Regex patterns to hide route names from the route selector (e.g. `['^_', '^web_profiler']`). |
 | `pagination.enabled`         | `true`         | Paginate the menus list. |
 | `pagination.per_page`        | `20`           | Menus per page. |
+| `position_step`              | `100`          | Gap used by the dashboard “Re-index positions” action: within each sibling group (same parent), positions become `step`, `2*step`, `3*step`, … in current sort order. |
 | `modals`                      | see below      | Modal sizes: `menu_form`, `copy`, `item_form`, `delete` (Bootstrap 5: `normal`, `lg`, `xl`). |
 | `css_class_options`           | (defaults)     | Arrays of CSS class choices shown as dropdowns when editing a menu (menu, item, link, children, span, section_label, current, branch_expanded, has_children, expanded, collapsed). `span` also drives the optional wrapper class for non-section items when `item_span_active` is enabled. |
 | `icon_selector_script_url`   | `null`         | Optional URL of the icon-selector script (e.g. with `nowo-tech/icon-selector-bundle`). When set, the item form can show an icon selector. |

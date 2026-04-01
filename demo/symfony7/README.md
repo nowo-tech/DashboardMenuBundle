@@ -11,6 +11,10 @@ make setup
 
 Open http://localhost:8010. Menu is rendered in the layout; JSON API: http://localhost:8010/api/menu/sidebar.
 
+After pulling bundle changes, reload demo data: `make setup` (or `doctrine:fixtures:load`) so `MenuFixtures` matches the current tree rules (sections need at least one visible child; nested sections demo under Settings).
+
+See `config/packages/nowo_dashboard_menu.yaml` for `cache.ttl`, `dashboard.position_step`, and other bundle options.
+
 ## Frontend (TypeScript + Vite)
 
 Assets are in TypeScript (like the Symfony 8 demo). Entry: `assets/app.ts`; Stimulus controllers in `assets/controllers/*_controller.ts`.

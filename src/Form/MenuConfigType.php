@@ -76,8 +76,9 @@ final class MenuConfigType extends AbstractType
                 'attr'                      => ['class' => 'form-select'],
                 'row_attr'                  => ['class' => 'mb-1'],
                 'label_attr'                => ['class' => 'form-label'],
-                'autocomplete'              => true,
-                'help'                      => 'form.menu_type.permission_checker.help',
+                'autocomplete'       => true,
+                'tom_select_options' => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
+                'help'               => 'form.menu_type.permission_checker.help',
             ])
             ->add('depthLimit', IntegerType::class, [
                 'required'   => false,
@@ -166,7 +167,8 @@ final class MenuConfigType extends AbstractType
                 'attr'                      => ['class' => 'form-select'],
                 'row_attr'                  => ['class' => 'mb-1'],
                 'label_attr'                => ['class' => 'form-label'],
-                'autocomplete'              => true,
+                'autocomplete'       => true,
+                'tom_select_options' => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
             ]);
         } else {
             $placeholderText = $this->translator instanceof TranslatorInterface ? $this->translator->trans($placeholder, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN) : $placeholder;
@@ -210,7 +212,8 @@ final class MenuConfigType extends AbstractType
                 'attr'                      => ['class' => 'form-select'],
                 'row_attr'                  => ['class' => 'mb-1'],
                 'label_attr'                => ['class' => 'form-label'],
-                'autocomplete'              => true,
+                'autocomplete'       => true,
+                'tom_select_options' => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
             ]);
 
             return;

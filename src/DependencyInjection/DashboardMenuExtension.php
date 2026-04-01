@@ -177,6 +177,7 @@ final class DashboardMenuExtension extends Extension
         }
         $container->setParameter(Configuration::ALIAS . '.dashboard.stimulus_script_url', $stimulusUrl);
         $container->setParameter(Configuration::ALIAS . '.dashboard.import_max_bytes', $config['dashboard']['import_max_bytes'] ?? 2097152);
+        $container->setParameter(Configuration::ALIAS . '.dashboard.position_step', $config['dashboard']['position_step'] ?? 100);
         $container->setParameter(Configuration::ALIAS . '.dashboard.required_role', $config['dashboard']['required_role'] ?? null);
         $rateLimitConfig   = $config['dashboard']['import_export_rate_limit'] ?? false;
         $rateLimitLimit    = is_array($rateLimitConfig) ? ($rateLimitConfig['limit'] ?? 10) : 0;

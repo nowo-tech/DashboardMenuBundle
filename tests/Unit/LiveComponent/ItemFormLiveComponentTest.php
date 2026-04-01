@@ -104,7 +104,7 @@ final class ItemFormLiveComponentTest extends TestCase
             ],
         ];
         self::assertFalse($component->showLinkFields());
-        self::assertFalse($component->showParentField());
+        self::assertTrue($component->showParentField());
 
         // itemType == link and has children => parent visible, link fields hidden
         $component->itemHasChildren = true;

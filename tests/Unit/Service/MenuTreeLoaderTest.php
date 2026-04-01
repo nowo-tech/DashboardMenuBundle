@@ -19,6 +19,7 @@ use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Container\ContainerInterface;
 use ReflectionClass;
+use ReflectionMethod;
 use ReflectionProperty;
 use stdClass;
 
@@ -997,6 +998,71 @@ class MenuTreeLoaderTest extends TestCase
         $item = $tree[0]['item'];
         self::assertSame(['authenticated', 'admin'], $item->getPermissionKeys());
         self::assertFalse($item->isUnanimous());
+    }
+
+    public function testPruneEmptySectionsRemovesSectionWithNoVisibleChildren(): void
+    {
+        $menuRepo   = $this->createStub(MenuRepository::class);
+        $itemRepo   = $this->createStub(MenuItemRepository::class);
+        $resolver   = new MenuConfigResolver(['project' => null], $menuRepo);
+        $container  = $this->createStub(ContainerInterface::class);
+        $iconResolver = new MenuIconNameResolver([]);
+        $loader     = new MenuTreeLoader(
+            $menuRepo,
+            $itemRepo,
+            $resolver,
+            $iconResolver,
+            $container,
+            new AllowAllMenuPermissionChecker(),
+            null,
+            60,
+        );
+
+        $section = new MenuItem();
+        $section->setItemType(MenuItem::ITEM_TYPE_SECTION);
+        $section->setLabel('Empty section');
+
+        $nodes = [
+            ['item' => $section, 'children' => [], 'had_children' => false],
+        ];
+
+        $m = new ReflectionMethod(MenuTreeLoader::class, 'pruneEmptySections');
+        $m->setAccessible(true);
+        $out = $m->invoke($loader, $nodes);
+        self::assertSame([], $out);
+    }
+
+    public function testPruneEmptySectionsKeepsLeafLinkWithoutChildrenInDb(): void
+    {
+        $menuRepo   = $this->createStub(MenuRepository::class);
+        $itemRepo   = $this->createStub(MenuItemRepository::class);
+        $resolver   = new MenuConfigResolver(['project' => null], $menuRepo);
+        $container  = $this->createStub(ContainerInterface::class);
+        $iconResolver = new MenuIconNameResolver([]);
+        $loader     = new MenuTreeLoader(
+            $menuRepo,
+            $itemRepo,
+            $resolver,
+            $iconResolver,
+            $container,
+            new AllowAllMenuPermissionChecker(),
+            null,
+            60,
+        );
+
+        $link = new MenuItem();
+        $link->setItemType(MenuItem::ITEM_TYPE_LINK);
+        $link->setLabel('Leaf');
+
+        $nodes = [
+            ['item' => $link, 'children' => [], 'had_children' => false],
+        ];
+
+        $m = new ReflectionMethod(MenuTreeLoader::class, 'pruneEmptySections');
+        $m->setAccessible(true);
+        $out = $m->invoke($loader, $nodes);
+        self::assertCount(1, $out);
+        self::assertSame($link, $out[0]['item']);
     }
 
     private function setMenuItemId(MenuItem $item, ?int $id): void

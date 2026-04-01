@@ -1,0 +1,63 @@
+{# Shared modals for menu show + items reorder pages (fetch-loaded forms). #}
+<div class="modal fade" id="modal-menu-form" tabindex="-1" aria-labelledby="modal-menu-form-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable {{ modal_classes.menu_form|default('') }}">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-menu-form-label">{{ 'dashboard.edit_menu'|trans({}, 'NowoDashboardMenuBundle') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'dashboard.close'|trans({}, 'NowoDashboardMenuBundle') }}"></button>
+            </div>
+            <div class="modal-body" id="modal-menu-form-body">
+                <div class="text-center py-4 text-muted">{{ 'dashboard.loading'|trans({}, 'NowoDashboardMenuBundle') }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal-menu-copy" tabindex="-1" aria-labelledby="modal-menu-copy-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable {{ modal_classes.copy|default('') }}">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-menu-copy-label">{{ 'dashboard.copy_menu'|trans({}, 'NowoDashboardMenuBundle') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'dashboard.close'|trans({}, 'NowoDashboardMenuBundle') }}"></button>
+            </div>
+            <div class="modal-body" id="modal-menu-copy-body">
+                <div class="text-center py-4 text-muted">{{ 'dashboard.loading'|trans({}, 'NowoDashboardMenuBundle') }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal-item-form" tabindex="-1" aria-labelledby="modal-item-form-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable {{ modal_classes.item_form|default('modal-lg') }}">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-item-form-label">{{ 'dashboard.item'|trans({}, 'NowoDashboardMenuBundle') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'dashboard.close'|trans({}, 'NowoDashboardMenuBundle') }}"></button>
+            </div>
+            <div class="modal-body" id="modal-item-form-body">
+                <div class="text-center py-4 text-muted">{{ 'dashboard.loading'|trans({}, 'NowoDashboardMenuBundle') }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal-delete-item-confirm" tabindex="-1" aria-labelledby="modal-delete-item-label" aria-hidden="true">
+    <div class="modal-dialog {{ modal_classes.delete|default('') }}">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-delete-item-label">{{ 'dashboard.confirm_delete'|trans({}, 'NowoDashboardMenuBundle') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'dashboard.close'|trans({}, 'NowoDashboardMenuBundle') }}"></button>
+            </div>
+            <div class="modal-body">
+                <p id="modal-delete-item-message">{{ 'dashboard.delete_item_message'|trans({}, 'NowoDashboardMenuBundle') }}</p>
+                <form id="form-delete-item-confirm" method="post" action="">
+                    <input type="hidden" name="_token" value="">
+                    <div class="d-flex justify-content-end gap-1">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'dashboard.cancel'|trans({}, 'NowoDashboardMenuBundle') }}</button>
+                        <button type="submit" class="btn btn-danger">{{ 'dashboard.delete'|trans({}, 'NowoDashboardMenuBundle') }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

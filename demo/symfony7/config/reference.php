@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 // This file is auto-generated and is for apps only. Bundles SHOULD NOT rely on its content.
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
@@ -1343,7 +1341,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         table_prefix?: scalar|Param|null, // Prefix prepended to table names (dashboard_menu, dashboard_menu_item). Empty = no prefix. // Default: ""
  *     },
  *     cache?: array{ // Cache for the resolved menu tree (avoids N+1 and repeated DB hits). Uses filesystem when cache_pool is the default.
- *         ttl?: int|Param, // Time-to-live in seconds for the menu tree cache. Minimum 60. // Default: 60
+ *         ttl?: int|Param, // Time-to-live in seconds for the menu tree cache. Minimum 0 (0 = immediate expiry for saved items; behaviour depends on the PSR-6 pool). // Default: 60
  *         pool?: scalar|Param|null, // Cache pool name (e.g. cache.app). Set to null or empty to disable tree cache. // Default: "cache.app"
  *     },
  *     icon_library_prefix_map?: array<string, scalar|Param|null>,
@@ -1375,6 +1373,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         icon_selector_script_url?: scalar|Param|null, // Optional URL of the icon-selector Stimulus/script asset. When set, the dashboard layout sets window.dashboardMenuIconSelectorScriptUrl so the item form modal can init the icon selector. Use with nowo-tech/icon-selector-bundle and Symfony UX (Stimulus). // Default: null
  *         stimulus_script_url?: scalar|Param|null, // Optional URL of a script that loads Stimulus and the Live controller and sets window.Stimulus. When set, the dashboard layout includes this script so the item form Live Component works in the modal. Use the bundle default (null = use bundled script), or your app entry (e.g. Vite) that exposes window.Stimulus. // Default: null
  *         import_max_bytes?: int|Param, // Maximum size in bytes for JSON import file uploads. Default 2 MiB. Prevents DoS from very large uploads. // Default: 2097152
+ *         position_step?: int|Param, // Gap used when re-indexing item positions from the menu detail dashboard (e.g. 100 → positions 100, 200, 300 per sibling group). Minimum 1. // Default: 100
  *         required_role?: scalar|Param|null, // When set (e.g. ROLE_ADMIN), all dashboard routes require this role. Requires SecurityBundle. Leave null to rely on app access_control. // Default: null
  *         import_export_rate_limit?: bool|array{ // Optional rate limit for import and export actions: limit requests per interval per user/IP. E.g. { limit: 10, interval: 60 } = 10 per minute.
  *             enabled?: bool|Param, // Default: true

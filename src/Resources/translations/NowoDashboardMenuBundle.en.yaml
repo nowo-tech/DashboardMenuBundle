@@ -43,6 +43,26 @@ dashboard:
   last: Last
   move_up: Move up
   move_down: Move down
+  reindex_positions: "Re-index positions (step %step%)"
+  reindex_positions_title: "Reassign positions in steps of %step% within each parent group (order preserved)."
+  reindex_positions_done: "Positions re-indexed with step %step%."
+  reindex_positions_unchanged: No position changes were needed.
+  check_parent_cycles: Check parent cycles
+  check_parent_cycles_title: "Verify that the parent chain has no infinite loops (same menu)."
+  check_parent_cycles_ok: No circular parent references were found.
+  check_parent_cycles_loop: "Circular parent chain detected: %chain%"
+  sortable_page_heading: Drag reorder
+  open_sortable_reorder: Reorder (drag)
+  back_to_items_table: Table view
+  sortable_title: Drag to reorder
+  sortable_help: "Drag items by the handle to reorder, nest under a parent, or move to another level. Then apply to save."
+  sortable_apply: Apply tree order
+  sortable_drag_handle: Drag to reorder
+  reorder_tree_done: Menu tree updated.
+  reorder_tree_invalid_json: Invalid tree data (JSON).
+  reorder_tree_invalid_payload: Invalid tree payload.
+  reorder_tree_invalid_layout: "Could not apply the tree (cycle, depth limit, or missing items)."
+  reorder_tree_section_not_root: "Sections must stay at the root level. Move the section out of nested lists and apply again."
   edit: Edit
   create: Create
   update: Update
@@ -69,7 +89,9 @@ dashboard:
   export: Export
   export_all: Export all menus
   import: Import
-  import_help: "Upload a JSON file exported from this dashboard (one menu or all menus). Choose whether to skip menus that already exist (same code + context) or replace their items."
+  import_help: "Upload a JSON file exported from this dashboard. Accepted shapes: a single menu {\"menu\": {...}, \"items\": [...]}, several menus {\"menus\": [{...}, ...]}, or the same list as a root JSON array [{\"menu\": {...}, \"items\": [...]}, ...]. Choose whether to skip menus that already exist (same code + context) or replace their items."
+  import_format_invalid_root_array: 'Invalid format: a root JSON array must contain only objects with "menu" and "items". You can also use {"menus": [...]} or {"menu": {...}, "items": [...]}.'
+  import_format_expected: 'Invalid format: expected "menu" + "items", or "menus", or a root array of menu blocks.'
   import_json_invalid: Invalid JSON file.
   import_json_error: "Invalid JSON: %message%"
   import_file_too_large: "File is too large. Maximum size is %max% MiB."
@@ -167,6 +189,7 @@ form:
     label:
       label: Label
     label_locale: "Label (%locale%)"
+    divider_label_hint: "Optional name for this divider (recommended for accessibility and the dashboard list). Leave empty if you only need a visual separator."
     type:
       label: Type
       link: Link
@@ -206,7 +229,9 @@ form:
     parent:
       label: Parent
       placeholder: "— Root (no parent) —"
+      help_inheritance: "Parent items sit above this one in the tree. Permission keys on this row apply to this item; your MenuPermissionChecker decides how parent/child rules combine. Sections and expandable links only render when at least one child is shown."
       circular_violation: "Circular parent hierarchy is not allowed."
+      section_must_be_root: "Section items must stay at the root level (no parent)."
 
   import_menu_type:
     file:

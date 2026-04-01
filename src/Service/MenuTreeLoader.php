@@ -271,7 +271,9 @@ final readonly class MenuTreeLoader
     }
 
     /**
-     * Remove parents/section headers that have no visible children after permission filtering.
+     * After permission filtering: drop branch nodes whose children are all hidden, and drop
+     * section items with no visible children (including sections with no child rows in DB).
+     * Leaf links stay visible when allowed by the checker.
      *
      * @param list<array<string, mixed>> $nodes
      *
@@ -283,6 +285,15 @@ final readonly class MenuTreeLoader
         foreach ($nodes as $node) {
             $children    = $this->pruneEmptySections($node['children']);
             $hadChildren = $node['had_children'] ?? false;
+            $item        = $node['item'];
+            if ($item->getItemType() === MenuItem::ITEM_TYPE_SECTION) {
+                if (count($children) === 0) {
+                    continue;
+                }
+                $result[] = ['item' => $node['item'], 'children' => $children];
+
+                continue;
+            }
             if (count($children) > 0 || !$hadChildren) {
                 $result[] = ['item' => $node['item'], 'children' => $children];
             }

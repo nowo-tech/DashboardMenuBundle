@@ -18,6 +18,7 @@
             <i class="bi bi-pencil" aria-hidden="true"></i>
             {{ 'form.menu_item_type.section_basic'|trans({}, 'NowoDashboardMenuBundle') }}
         </h6>
+        <p id="divider_label_hint" class="form-text text-muted small mb-2" style="display: none;">{{ 'form.menu_item_type.divider_label_hint'|trans({}, 'NowoDashboardMenuBundle') }}</p>
         <div id="item_basic_label_icon_fields" class="mb-2">
             {{ form_row(form.basic.label, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-2' } }) }}
             {% if _show_translations and locales is defined and locales is not empty %}

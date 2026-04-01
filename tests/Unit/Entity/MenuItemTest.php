@@ -197,4 +197,49 @@ final class MenuItemTest extends TestCase
         $item->setTargetBlank(true);
         self::assertTrue($item->getTargetBlank());
     }
+
+    public function testNormalizeDividerStateClearsParentIconAndEmptyLabel(): void
+    {
+        $parent = new MenuItem();
+        $item   = new MenuItem();
+        $item->setItemType(MenuItem::ITEM_TYPE_DIVIDER);
+        $item->setParent($parent);
+        $item->setIcon('heroicons:minus');
+        $item->setLabel('   ');
+        $item->setTranslations(['en' => '', 'es' => '  ']);
+
+        $item->normalizeDividerState();
+
+        self::assertNull($item->getParent());
+        self::assertNull($item->getIcon());
+        self::assertSame('', $item->getLabel());
+        self::assertNull($item->getTranslations());
+    }
+
+    public function testNormalizeDividerStateKeepsOptionalLabelAndTranslations(): void
+    {
+        $item = new MenuItem();
+        $item->setItemType(MenuItem::ITEM_TYPE_DIVIDER);
+        $item->setLabel(' Separator ');
+        $item->setTranslations(['en' => ' EN ', 'es' => 'ES']);
+
+        $item->normalizeDividerState();
+
+        self::assertSame('Separator', $item->getLabel());
+        self::assertSame(['en' => 'EN', 'es' => 'ES'], $item->getTranslations());
+    }
+
+    public function testNormalizeDividerStateNoOpForLink(): void
+    {
+        $parent = new MenuItem();
+        $item   = new MenuItem();
+        $item->setItemType(MenuItem::ITEM_TYPE_LINK);
+        $item->setParent($parent);
+        $item->setLabel('X');
+
+        $item->normalizeDividerState();
+
+        self::assertSame($parent, $item->getParent());
+        self::assertSame('X', $item->getLabel());
+    }
 }

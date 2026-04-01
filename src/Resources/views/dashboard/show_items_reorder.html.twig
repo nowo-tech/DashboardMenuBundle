@@ -1,0 +1,83 @@
+{% extends nowo_dashboard_layout_template|default('@NowoDashboardMenuBundle/dashboard/layout.html.twig') %}
+{% import '@NowoDashboardMenuBundle/dashboard/_sortable_tree_macro.html.twig' as sortable %}
+
+{% block dashboard_title %}{{ 'dashboard.menu'|trans({}, 'NowoDashboardMenuBundle') }}: {{ menu.code }} — {{ 'dashboard.sortable_page_heading'|trans({}, 'NowoDashboardMenuBundle') }}{% endblock %}
+
+{% block nowo_dashboard_menu_content %}
+    {% for msg in app.flashes('success') %}
+        <div class="alert alert-success">{{ msg }}</div>
+    {% endfor %}
+    {% for msg in app.flashes('error') %}
+        <div class="alert alert-danger">{{ msg }}</div>
+    {% endfor %}
+    {% for msg in app.flashes('info') %}
+        <div class="alert alert-info">{{ msg }}</div>
+    {% endfor %}
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <a href="{{ path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index')) }}" class="btn btn-link text-decoration-none">{{ 'dashboard.menus_back'|trans({}, 'NowoDashboardMenuBundle') }}</a>
+            <h1 class="h3 d-inline">{% if menu.icon %}<span class="text-muted me-1" title="{{ menu.icon }}">🔣</span>{% endif %}{{ menu.code }}{% if menu.name %} <span class="text-muted">({{ menu.name }})</span>{% endif %}</h1>
+            <a href="{{ path(dashboard_routes.show|default('nowo_dashboard_menu_dashboard_show'), { id: menu.id }) }}" class="btn btn-outline-secondary btn-sm">{{ 'dashboard.back_to_items_table'|trans({}, 'NowoDashboardMenuBundle') }}</a>
+        </div>
+        <div class="d-flex flex-wrap align-items-center justify-content-end gap-2">
+            <a href="{{ path(dashboard_routes.export_menu|default('nowo_dashboard_menu_dashboard_export_menu'), { id: menu.id }) }}" class="btn btn-outline-secondary" target="_blank" rel="noopener noreferrer">{{ 'dashboard.export'|trans({}, 'NowoDashboardMenuBundle') }}</a>
+            <button type="button" class="btn btn-outline-info btn-copy-menu" data-id="{{ menu.id }}" data-copy-url="{{ path(dashboard_routes.menu_copy|default('nowo_dashboard_menu_dashboard_menu_copy'), { id: menu.id }) }}?_partial=1" data-bs-toggle="modal" data-bs-target="#modal-menu-copy">{{ 'dashboard.copy'|trans({}, 'NowoDashboardMenuBundle') }}</button>
+            <button type="button" class="btn btn-outline-primary btn-edit-menu" data-id="{{ menu.id }}" data-section="basic" data-bs-toggle="modal" data-bs-target="#modal-menu-form" title="{{ 'dashboard.edit_identity'|trans({}, 'NowoDashboardMenuBundle') }}">{{ 'dashboard.edit_menu'|trans({}, 'NowoDashboardMenuBundle') }}</button>
+            {% if not menu.base %}
+                <button type="button" class="btn btn-outline-secondary btn-edit-menu btn-edit-menu-config" data-id="{{ menu.id }}" data-section="config" data-bs-toggle="modal" data-bs-target="#modal-menu-form" title="{{ 'dashboard.edit_config'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.edit_config'|trans({}, 'NowoDashboardMenuBundle') }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/></svg>
+                </button>
+            {% endif %}
+            <button type="button" class="btn btn-primary btn-add-item" data-id="{{ menu.id }}" data-parent="" data-bs-toggle="modal" data-bs-target="#modal-item-form">{{ 'dashboard.add_item'|trans({}, 'NowoDashboardMenuBundle') }}</button>
+        </div>
+    </div>
+
+    {% if menu.permissionChecker or menu.depthLimit is not null or menu.collapsible is not null or menu.collapsibleExpanded is not null or menu.nestedCollapsible is not null or menu.nestedCollapsibleSections is not null %}
+        <div class="alert alert-light border mb-2 py-2">
+            {% if menu.permissionChecker %}<strong>{{ 'dashboard.permission_checker'|trans({}, 'NowoDashboardMenuBundle') }}:</strong> <code>{{ menu.permissionChecker }}</code>{% endif %}
+            {% if menu.depthLimit is not null %} {% if menu.permissionChecker %}·{% endif %} <strong>{{ 'dashboard.depth_limit'|trans({}, 'NowoDashboardMenuBundle') }}:</strong> {{ menu.depthLimit }}{% endif %}
+            {% if menu.collapsible is not null %} · <strong>{{ 'dashboard.collapsible'|trans({}, 'NowoDashboardMenuBundle') }}:</strong> {{ menu.collapsible ? 'dashboard.yes'|trans : 'dashboard.no'|trans({}, 'NowoDashboardMenuBundle') }}{% endif %}
+            {% if menu.collapsibleExpanded is not null %} · <strong>{{ 'dashboard.collapsible_expanded'|trans({}, 'NowoDashboardMenuBundle') }}:</strong> {{ menu.collapsibleExpanded ? 'dashboard.yes'|trans : 'dashboard.no'|trans({}, 'NowoDashboardMenuBundle') }}{% endif %}
+            {% if menu.nestedCollapsible is not null %} · <strong>{{ 'dashboard.nested_collapsible'|trans({}, 'NowoDashboardMenuBundle') }}:</strong> {{ menu.nestedCollapsible ? 'dashboard.yes'|trans : 'dashboard.no'|trans({}, 'NowoDashboardMenuBundle') }}{% endif %}
+            {% if menu.nestedCollapsibleSections is not null %} · <strong>{{ 'form.menu_type.nested_collapsible_sections.label'|trans({}, 'NowoDashboardMenuBundle') }}:</strong> {{ menu.nestedCollapsibleSections ? 'dashboard.yes'|trans : 'dashboard.no'|trans({}, 'NowoDashboardMenuBundle') }}{% endif %}
+        </div>
+    {% endif %}
+
+    {% set currentLocale = app.request.locale|default('en') %}
+    {% if items_tree is not defined or items_tree is empty %}
+        <p class="text-muted">{{ 'dashboard.no_items'|trans({}, 'NowoDashboardMenuBundle') }} <button type="button" class="btn btn-link p-0 align-baseline btn-add-item" data-id="{{ menu.id }}" data-parent="" data-bs-toggle="modal" data-bs-target="#modal-item-form">{{ 'dashboard.add_one'|trans({}, 'NowoDashboardMenuBundle') }}</button>.</p>
+    {% else %}
+        <div class="card border mb-3">
+            <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <span class="fw-semibold">{{ 'dashboard.sortable_title'|trans({}, 'NowoDashboardMenuBundle') }}</span>
+                <span class="small text-muted">{{ 'dashboard.sortable_help'|trans({}, 'NowoDashboardMenuBundle') }}</span>
+            </div>
+            <div class="card-body">
+                <style>
+                    .nowo-menu-sortable-nested { /* min-height: 1.5rem; */ }
+                </style>
+                <div id="nowo-menu-sortable-root">
+                    <ul class="nowo-menu-sortable-list list-unstyled mb-0" data-parent-id="">
+                        {{ sortable.sortable_items(items_tree, currentLocale) }}
+                    </ul>
+                </div>
+                <form id="nowo-menu-sortable-form" method="post" action="{{ path(dashboard_routes.items_reorder_tree|default('nowo_dashboard_menu_dashboard_items_reorder_tree'), { id: menu.id }) }}" class="mt-3">
+                    <input type="hidden" name="_token" value="{{ csrf_token('reorder_tree_' ~ menu.id) }}">
+                    <input type="hidden" name="tree" id="nowo-menu-sortable-payload" value="">
+                    <button type="submit" class="btn btn-primary">{{ 'dashboard.sortable_apply'|trans({}, 'NowoDashboardMenuBundle') }}</button>
+                </form>
+            </div>
+        </div>
+    {% endif %}
+
+    {% include '@NowoDashboardMenuBundle/dashboard/_menu_dashboard_modals.html.twig' %}
+
+    <script>
+    window.__nowoDashboardMenuConfig = Object.assign(window.__nowoDashboardMenuConfig || {}, {
+        baseUrl: {{ path(dashboard_show_route|default(dashboard_routes.show|default('nowo_dashboard_menu_dashboard_show')), { id: menu.id }) |json_encode|raw }},
+        menuId: {{ menu.id }},
+        debug: {{ app.debug ? 'true' : 'false' }}
+    });
+    </script>
+{% endblock %}

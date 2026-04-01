@@ -11,6 +11,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 
 use function in_array;
+use function is_string;
+use function trim;
 
 /**
  * Single menu entry: translatable label (label + optional translations JSON), link (route or external URL),
@@ -62,7 +64,7 @@ class MenuItem implements TranslatableInterface
 
     /**
      * Label (default/fallback). For i18n use translations JSON; repository resolves by locale on load.
-     * Null for divider items (no label).
+     * For dividers, null or empty is allowed (rendered as a horizontal rule); a name is optional but recommended for accessibility/listings.
      */
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $label = null;
@@ -393,5 +395,38 @@ class MenuItem implements TranslatableInterface
         $this->targetBlank = $targetBlank;
 
         return $this;
+    }
+
+    /**
+     * Dividers render as a horizontal rule at the root (no parent); icon is not used.
+     * Trims optional label/translations and stores null when empty.
+     */
+    public function normalizeDividerState(): void
+    {
+        if ($this->getItemType() !== self::ITEM_TYPE_DIVIDER) {
+            return;
+        }
+
+        $this->parent = null;
+        $this->icon   = null;
+
+        if ($this->label !== null) {
+            $t = trim($this->label);
+            $this->label = $t === '' ? null : $t;
+        }
+
+        if ($this->translations !== null) {
+            $filtered = [];
+            foreach ($this->translations as $locale => $value) {
+                if (!is_string($value)) {
+                    continue;
+                }
+                $tv = trim($value);
+                if ($tv !== '') {
+                    $filtered[$locale] = $tv;
+                }
+            }
+            $this->translations = $filtered === [] ? null : $filtered;
+        }
     }
 }

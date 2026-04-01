@@ -46,7 +46,10 @@
                 <i class="bi bi-pencil" aria-hidden="true"></i>
                 {{ 'form.menu_item_type.section_basic'|trans({}, 'NowoDashboardMenuBundle') }}
             </h6>
-            <div class="{{ this.getItemType() == 'divider' ? 'd-none' : '' }}">
+            {% if this.getItemType() == 'divider' %}
+                <p class="form-text text-muted small mb-2">{{ 'form.menu_item_type.divider_label_hint'|trans({}, 'NowoDashboardMenuBundle') }}</p>
+            {% endif %}
+            <div>
                 <div class="row">
                     {{ form_row(form.basic.label, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.basic.label' } }) }}
                 </div>

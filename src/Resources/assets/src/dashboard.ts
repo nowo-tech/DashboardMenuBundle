@@ -2,6 +2,8 @@
  * Dashboard menu bundle: single entry for all dashboard view scripts.
  * Reads config from window.__nowoDashboardMenuConfig (set by Twig) and initializes modals, Stimulus connection, and form toggles.
  */
+import Sortable from 'sortablejs';
+
 import { createBundleLogger } from './logger';
 
 declare const __DASHBOARD_MENU_BUILD_TIME__: string | undefined;
@@ -17,6 +19,7 @@ declare global {
     /** Prevents duplicate event listeners if dashboard.js is executed more than once (e.g. two script tags). */
     __dmDashboardMenuShowBound?: boolean;
     __dmDashboardMenuIndexBound?: boolean;
+    __dmTomSelectModalPatchBound?: boolean;
     dashboardMenuI18n?: Record<string, string>;
     dashboardMenuIconSelectorScriptUrl?: string;
     dashboardMenuDebugLive?: boolean;
@@ -174,6 +177,33 @@ function connectStimulusControllersInContainer(container: Element | null): void 
   );
 }
 
+/** Tom Select (incl. icon-selector-bundle) defaults dropdown to the control wrapper; modal overflow clips it. Moving to body + {@code settings.dropdownParent = 'body'} enables {@code positionDropdown()}. */
+type TomSelectPatchable = {
+  settings: { dropdownParent?: string };
+  dropdown: HTMLElement;
+};
+
+function patchTomSelectDropdownsToBody(container: Element | null): void {
+  if (!container) return;
+  container.querySelectorAll('select').forEach((sel) => {
+    const ts = (sel as HTMLSelectElement & { tomselect?: TomSelectPatchable }).tomselect;
+    if (!ts?.dropdown || !ts.settings) return;
+    if (ts.settings.dropdownParent === 'body') return;
+    try {
+      document.body.appendChild(ts.dropdown);
+      ts.settings.dropdownParent = 'body';
+    } catch {
+      /* ignore */
+    }
+  });
+}
+
+function scheduleTomSelectModalPatches(container: Element): void {
+  patchTomSelectDropdownsToBody(container);
+  setTimeout(() => patchTomSelectDropdownsToBody(container), 50);
+  setTimeout(() => patchTomSelectDropdownsToBody(container), 250);
+}
+
 function reinitIconSelectorInContainer(container: Element): void {
   const url =
     window.dashboardMenuIconSelectorScriptUrl ??
@@ -185,6 +215,7 @@ function reinitIconSelectorInContainer(container: Element): void {
   script.async = false;
   script.onload = () => {
     connectStimulusControllersInContainer(container);
+    scheduleTomSelectModalPatches(container);
     script.remove();
   };
   (document.head ?? document.documentElement).appendChild(script);
@@ -245,7 +276,101 @@ function attachLiveComponentDebug(_container: Element): void {
   log.info('Debug enabled: listeners re-attached + console logs.');
 }
 
+function serializeMenuSortable(root: HTMLElement): Array<{ id: number; parent_id: number | null; position: number }> {
+  const out: Array<{ id: number; parent_id: number | null; position: number }> = [];
+  const walk = (ul: HTMLElement, parentId: number | null): void => {
+    const items = ul.querySelectorAll(':scope > li.nowo-menu-sortable-item');
+    items.forEach((li, position) => {
+      const raw = li.getAttribute('data-item-id');
+      const id = raw ? parseInt(raw, 10) : 0;
+      if (!id) {
+        return;
+      }
+      out.push({ id, parent_id: parentId, position });
+      const nested = li.querySelector(':scope > ul.nowo-menu-sortable-list');
+      if (nested instanceof HTMLElement) {
+        walk(nested, id);
+      }
+    });
+  };
+  const firstUl = root.querySelector(':scope > ul.nowo-menu-sortable-list');
+  if (firstUl instanceof HTMLElement) {
+    walk(firstUl, null);
+  }
+  return out;
+}
+
+function initMenuSortablePanel(): void {
+  const root = document.getElementById('nowo-menu-sortable-root');
+  if (!root) {
+    return;
+  }
+  const lists = root.querySelectorAll<HTMLElement>('ul.nowo-menu-sortable-list');
+  let sortableListsInitialized = 0;
+  lists.forEach((list) => {
+    const existing = Sortable.get(list);
+    if (existing) {
+      existing.destroy();
+    }
+    new Sortable(list, {
+      group: { name: 'nowo-menu-dashboard', pull: true, put: true },
+      animation: 150,
+      handle: '.nowo-menu-sortable-handle',
+      draggable: '.nowo-menu-sortable-item',
+      fallbackOnBody: true,
+      swapThreshold: 0.65,
+      emptyInsertThreshold: 24,
+      onMove: (evt) => {
+        const dragged = evt.dragged as HTMLElement;
+        if (dragged.getAttribute('data-item-type') === 'section') {
+          const targetList = evt.to as HTMLElement;
+          const parentId = targetList.getAttribute('data-parent-id');
+          if (parentId !== null && parentId !== '') {
+            log.debug('SortableJS: blocked moving section into nested level', {
+              targetParentId: parentId,
+            });
+            return false;
+          }
+        }
+        return true;
+      },
+      onEnd: (evt) => {
+        const itemId = evt.item.getAttribute('data-item-id');
+        const fromParentAttr = evt.from.getAttribute('data-parent-id');
+        const toParentAttr = evt.to.getAttribute('data-parent-id');
+        log.debug('SortableJS: menu item position changed', {
+          itemId: itemId ?? null,
+          oldIndex: evt.oldIndex,
+          newIndex: evt.newIndex,
+          fromParentId: fromParentAttr === null || fromParentAttr === '' ? null : fromParentAttr,
+          toParentId: toParentAttr === null || toParentAttr === '' ? null : toParentAttr,
+          sameList: evt.from === evt.to,
+          pullMode: evt.pullMode ?? null,
+        });
+      },
+    });
+    sortableListsInitialized += 1;
+  });
+  if (sortableListsInitialized > 0) {
+    log.announce(
+      `SortableJS active (${sortableListsInitialized} drop zone(s); drag via ⋮⋮ handle)`,
+    );
+  }
+  const form = document.getElementById('nowo-menu-sortable-form');
+  const payload = document.getElementById('nowo-menu-sortable-payload') as HTMLInputElement | null;
+  if (form && payload && !form.dataset.dmSortableSubmitBound) {
+    form.dataset.dmSortableSubmitBound = '1';
+    form.addEventListener('submit', () => {
+      payload.value = JSON.stringify(serializeMenuSortable(root));
+    });
+  }
+}
+
 function initShowPage(config: NowoDashboardMenuConfig): void {
+  // Sortable must run even when modal listeners were already bound (e.g. Turbo / in-app navigation):
+  // otherwise visiting the table view first sets __dmDashboardMenuShowBound and skips the panel init.
+  initMenuSortablePanel();
+
   if (typeof window !== 'undefined' && window.__dmDashboardMenuShowBound) {
     return;
   }
@@ -547,6 +672,7 @@ function attachItemFormToggles(
     const routeFields = f.querySelector<HTMLElement>('#route_fields');
     const externalField = f.querySelector<HTMLElement>('#external_field');
     const basicLabelIconFields = f.querySelector<HTMLElement>('#item_basic_label_icon_fields');
+    const dividerLabelHint = f.querySelector<HTMLElement>('#divider_label_hint');
 
     const type = itemTypeField?.value ?? 'link';
     const isLink = type === 'link';
@@ -555,7 +681,10 @@ function attachItemFormToggles(
     const hasChildren = itemLinkFields?.getAttribute('data-item-has-children') === 'true';
 
     if (basicLabelIconFields) {
-      basicLabelIconFields.style.display = isDivider ? 'none' : 'block';
+      basicLabelIconFields.style.display = 'block';
+    }
+    if (dividerLabelHint) {
+      dividerLabelHint.style.display = isDivider ? 'block' : 'none';
     }
     if (itemLinkFields) {
       itemLinkFields.style.display = isLink && !hasChildren ? 'block' : 'none';
@@ -641,6 +770,13 @@ function initItemFormPage(config: NowoDashboardMenuConfig): void {
 function run(): void {
   const config = window.__nowoDashboardMenuConfig;
   if (!config) return;
+  if (typeof document !== 'undefined' && !window.__dmTomSelectModalPatchBound) {
+    window.__dmTomSelectModalPatchBound = true;
+    document.addEventListener('dashboard-menu:modal-content-loaded', (ev) => {
+      const detail = (ev as CustomEvent<{ element: HTMLElement }>).detail;
+      if (detail?.element) scheduleTomSelectModalPatches(detail.element);
+    });
+  }
   void ensureAutocompleteControllerRegistered();
   if (!window.__dmScriptLoaded) {
     log.scriptLoaded();
