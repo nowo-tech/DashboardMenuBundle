@@ -32,10 +32,14 @@ use function preg_match;
 use function rawurlencode;
 use function sort;
 use function sprintf;
-use function strtolower;
 use function stream_context_create;
+use function strtolower;
 use function trim;
 use function uasort;
+
+use const ENT_QUOTES;
+use const ENT_SUBSTITUTE;
+use const JSON_THROW_ON_ERROR;
 
 #[AsCommand(
     name: 'nowo_dashboard_menu:translations:google-sync',
@@ -76,8 +80,8 @@ final class GoogleSyncTranslationsCommand extends Command
             if (!preg_match('/NowoDashboardMenuBundle\.([^.]+)\.yaml$/', $file, $m)) {
                 continue;
             }
-            $locale        = strtolower($m[1]);
-            $data          = Yaml::parseFile($file);
+            $locale            = strtolower($m[1]);
+            $data              = Yaml::parseFile($file);
             $byLocale[$locale] = [
                 'file' => $file,
                 'data' => is_array($data) ? $data : [],
@@ -105,8 +109,8 @@ final class GoogleSyncTranslationsCommand extends Command
         $missingBy = [];
 
         foreach ($targetLocales as $locale) {
-            $targetFlat   = $this->flatten((array) $byLocale[$locale]['data']);
-            $missingKeys  = [];
+            $targetFlat  = $this->flatten((array) $byLocale[$locale]['data']);
+            $missingKeys = [];
             foreach ($baseKeys as $key) {
                 if (!array_key_exists($key, $targetFlat)) {
                     $missingKeys[] = $key;
@@ -221,7 +225,7 @@ final class GoogleSyncTranslationsCommand extends Command
 
     /**
      * @param array<string, mixed> $arr
-     * @param list<string>         $path
+     * @param list<string> $path
      */
     private function setNestedValue(array &$arr, array $path, string $value): void
     {
@@ -273,4 +277,3 @@ final class GoogleSyncTranslationsCommand extends Command
         return html_entity_decode($translated, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 }
-

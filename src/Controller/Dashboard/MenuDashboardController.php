@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nowo\DashboardMenuBundle\Controller\Dashboard;
 
 use Doctrine\ORM\EntityManagerInterface;
+use InvalidArgumentException;
 use JsonException;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
@@ -61,24 +62,24 @@ use const SORT_NATURAL;
 #[Route(path: '', name: 'nowo_dashboard_menu_dashboard_')]
 final class MenuDashboardController extends AbstractController
 {
-    public const ROUTE_INDEX          = 'nowo_dashboard_menu_dashboard_index';
-    public const ROUTE_SHOW                = 'nowo_dashboard_menu_dashboard_show';
-    public const ROUTE_SHOW_ITEMS_REORDER  = 'nowo_dashboard_menu_dashboard_show_items_reorder';
-    public const ROUTE_MENU_NEW       = 'nowo_dashboard_menu_dashboard_menu_new';
-    public const ROUTE_MENU_EDIT      = 'nowo_dashboard_menu_dashboard_menu_edit';
-    public const ROUTE_MENU_DELETE    = 'nowo_dashboard_menu_dashboard_menu_delete';
-    public const ROUTE_MENU_COPY      = 'nowo_dashboard_menu_dashboard_menu_copy';
-    public const ROUTE_ITEM_NEW       = 'nowo_dashboard_menu_dashboard_item_new';
-    public const ROUTE_ITEM_EDIT      = 'nowo_dashboard_menu_dashboard_item_edit';
-    public const ROUTE_ITEM_DELETE    = 'nowo_dashboard_menu_dashboard_item_delete';
-    public const ROUTE_ITEM_MOVE_UP   = 'nowo_dashboard_menu_dashboard_item_move_up';
-    public const ROUTE_ITEM_MOVE_DOWN = 'nowo_dashboard_menu_dashboard_item_move_down';
-    public const ROUTE_ITEMS_REINDEX_POSITIONS = 'nowo_dashboard_menu_dashboard_items_reindex_positions';
+    public const ROUTE_INDEX                     = 'nowo_dashboard_menu_dashboard_index';
+    public const ROUTE_SHOW                      = 'nowo_dashboard_menu_dashboard_show';
+    public const ROUTE_SHOW_ITEMS_REORDER        = 'nowo_dashboard_menu_dashboard_show_items_reorder';
+    public const ROUTE_MENU_NEW                  = 'nowo_dashboard_menu_dashboard_menu_new';
+    public const ROUTE_MENU_EDIT                 = 'nowo_dashboard_menu_dashboard_menu_edit';
+    public const ROUTE_MENU_DELETE               = 'nowo_dashboard_menu_dashboard_menu_delete';
+    public const ROUTE_MENU_COPY                 = 'nowo_dashboard_menu_dashboard_menu_copy';
+    public const ROUTE_ITEM_NEW                  = 'nowo_dashboard_menu_dashboard_item_new';
+    public const ROUTE_ITEM_EDIT                 = 'nowo_dashboard_menu_dashboard_item_edit';
+    public const ROUTE_ITEM_DELETE               = 'nowo_dashboard_menu_dashboard_item_delete';
+    public const ROUTE_ITEM_MOVE_UP              = 'nowo_dashboard_menu_dashboard_item_move_up';
+    public const ROUTE_ITEM_MOVE_DOWN            = 'nowo_dashboard_menu_dashboard_item_move_down';
+    public const ROUTE_ITEMS_REINDEX_POSITIONS   = 'nowo_dashboard_menu_dashboard_items_reindex_positions';
     public const ROUTE_ITEMS_CHECK_PARENT_CYCLES = 'nowo_dashboard_menu_dashboard_items_check_parent_cycles';
     public const ROUTE_ITEMS_REORDER_TREE        = 'nowo_dashboard_menu_dashboard_items_reorder_tree';
-    public const ROUTE_EXPORT_MENU    = 'nowo_dashboard_menu_dashboard_export_menu';
-    public const ROUTE_EXPORT_ALL     = 'nowo_dashboard_menu_dashboard_export_all';
-    public const ROUTE_IMPORT         = 'nowo_dashboard_menu_dashboard_import';
+    public const ROUTE_EXPORT_MENU               = 'nowo_dashboard_menu_dashboard_export_menu';
+    public const ROUTE_EXPORT_ALL                = 'nowo_dashboard_menu_dashboard_export_all';
+    public const ROUTE_IMPORT                    = 'nowo_dashboard_menu_dashboard_import';
 
     /**
      * @return array<string, string>
@@ -86,24 +87,24 @@ final class MenuDashboardController extends AbstractController
     private function getDashboardRoutes(): array
     {
         return [
-            'index'          => self::ROUTE_INDEX,
-            'show'           => self::ROUTE_SHOW,
-            'show_items_reorder' => self::ROUTE_SHOW_ITEMS_REORDER,
-            'menu_new'       => self::ROUTE_MENU_NEW,
-            'menu_edit'      => self::ROUTE_MENU_EDIT,
-            'menu_delete'    => self::ROUTE_MENU_DELETE,
-            'menu_copy'      => self::ROUTE_MENU_COPY,
-            'item_new'       => self::ROUTE_ITEM_NEW,
-            'item_edit'      => self::ROUTE_ITEM_EDIT,
-            'item_delete'    => self::ROUTE_ITEM_DELETE,
-            'item_move_up'   => self::ROUTE_ITEM_MOVE_UP,
-            'item_move_down' => self::ROUTE_ITEM_MOVE_DOWN,
-            'items_reindex_positions' => self::ROUTE_ITEMS_REINDEX_POSITIONS,
+            'index'                     => self::ROUTE_INDEX,
+            'show'                      => self::ROUTE_SHOW,
+            'show_items_reorder'        => self::ROUTE_SHOW_ITEMS_REORDER,
+            'menu_new'                  => self::ROUTE_MENU_NEW,
+            'menu_edit'                 => self::ROUTE_MENU_EDIT,
+            'menu_delete'               => self::ROUTE_MENU_DELETE,
+            'menu_copy'                 => self::ROUTE_MENU_COPY,
+            'item_new'                  => self::ROUTE_ITEM_NEW,
+            'item_edit'                 => self::ROUTE_ITEM_EDIT,
+            'item_delete'               => self::ROUTE_ITEM_DELETE,
+            'item_move_up'              => self::ROUTE_ITEM_MOVE_UP,
+            'item_move_down'            => self::ROUTE_ITEM_MOVE_DOWN,
+            'items_reindex_positions'   => self::ROUTE_ITEMS_REINDEX_POSITIONS,
             'items_check_parent_cycles' => self::ROUTE_ITEMS_CHECK_PARENT_CYCLES,
             'items_reorder_tree'        => self::ROUTE_ITEMS_REORDER_TREE,
-            'export_menu'    => self::ROUTE_EXPORT_MENU,
-            'export_all'     => self::ROUTE_EXPORT_ALL,
-            'import'         => self::ROUTE_IMPORT,
+            'export_menu'               => self::ROUTE_EXPORT_MENU,
+            'export_all'                => self::ROUTE_EXPORT_ALL,
+            'import'                    => self::ROUTE_IMPORT,
         ];
     }
 
@@ -424,7 +425,7 @@ final class MenuDashboardController extends AbstractController
         }
         try {
             $this->menuItemRepository->applyTreeLayout($menu, $nodes, $this->positionStep);
-        } catch (\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             $flashKey = $e->getMessage() === MenuItemRepository::TREE_LAYOUT_SECTION_MUST_BE_ROOT
                 ? 'dashboard.reorder_tree_section_not_root'
                 : 'dashboard.reorder_tree_invalid_layout';
@@ -474,10 +475,10 @@ final class MenuDashboardController extends AbstractController
         }
         unset($siblings);
 
-        $build = function (string $parentKey) use (&$build, $byParent): array {
+        $build = static function (string $parentKey) use (&$build, $byParent): array {
             $out = [];
             foreach ($byParent[$parentKey] ?? [] as $item) {
-                $itemId = $item->getId();
+                $itemId   = $item->getId();
                 $children = $itemId !== null ? $build((string) $itemId) : [];
 
                 $out[] = [
@@ -844,7 +845,7 @@ final class MenuDashboardController extends AbstractController
                 if (!is_array($decoded)) {
                     $this->addFlash('error', $this->translator->trans('dashboard.import_json_invalid', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN));
                 } else {
-                    $decoded        = MenuImporter::normalizeImportPayload($decoded);
+                    $decoded      = MenuImporter::normalizeImportPayload($decoded);
                     $formatErrors = $this->validateImportPayloadFormat($decoded);
                     if ($formatErrors !== []) {
                         foreach ($formatErrors as $formatError) {

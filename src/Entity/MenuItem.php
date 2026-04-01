@@ -411,7 +411,7 @@ class MenuItem implements TranslatableInterface
         $this->icon   = null;
 
         if ($this->label !== null) {
-            $t = trim($this->label);
+            $t           = trim($this->label);
             $this->label = $t === '' ? null : $t;
         }
 

@@ -1002,12 +1002,12 @@ class MenuTreeLoaderTest extends TestCase
 
     public function testPruneEmptySectionsRemovesSectionWithNoVisibleChildren(): void
     {
-        $menuRepo   = $this->createStub(MenuRepository::class);
-        $itemRepo   = $this->createStub(MenuItemRepository::class);
-        $resolver   = new MenuConfigResolver(['project' => null], $menuRepo);
-        $container  = $this->createStub(ContainerInterface::class);
+        $menuRepo     = $this->createStub(MenuRepository::class);
+        $itemRepo     = $this->createStub(MenuItemRepository::class);
+        $resolver     = new MenuConfigResolver(['project' => null], $menuRepo);
+        $container    = $this->createStub(ContainerInterface::class);
         $iconResolver = new MenuIconNameResolver([]);
-        $loader     = new MenuTreeLoader(
+        $loader       = new MenuTreeLoader(
             $menuRepo,
             $itemRepo,
             $resolver,
@@ -1034,12 +1034,12 @@ class MenuTreeLoaderTest extends TestCase
 
     public function testPruneEmptySectionsKeepsLeafLinkWithoutChildrenInDb(): void
     {
-        $menuRepo   = $this->createStub(MenuRepository::class);
-        $itemRepo   = $this->createStub(MenuItemRepository::class);
-        $resolver   = new MenuConfigResolver(['project' => null], $menuRepo);
-        $container  = $this->createStub(ContainerInterface::class);
+        $menuRepo     = $this->createStub(MenuRepository::class);
+        $itemRepo     = $this->createStub(MenuItemRepository::class);
+        $resolver     = new MenuConfigResolver(['project' => null], $menuRepo);
+        $container    = $this->createStub(ContainerInterface::class);
         $iconResolver = new MenuIconNameResolver([]);
-        $loader     = new MenuTreeLoader(
+        $loader       = new MenuTreeLoader(
             $menuRepo,
             $itemRepo,
             $resolver,
