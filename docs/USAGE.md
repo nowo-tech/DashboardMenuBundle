@@ -64,7 +64,11 @@ Copy the original from `vendor/nowo-tech/dashboard-menu-bundle/src/Resources/vie
 | `menu.html.twig` | Frontend menu tree (sidebar, nav, etc.). Receives `menuTree`, `menuCode`, `menuConfig`. |
 | `dashboard/layout.html.twig` | Layout that all dashboard pages extend. Defines the `content` block. |
 | `dashboard/index.html.twig` | Dashboard menu list. |
-| `dashboard/show.html.twig` | Single menu detail and item tree. |
+| `dashboard/show.html.twig` | Single menu detail and item table (links to reorder page). |
+| `dashboard/show_items_reorder.html.twig` | Drag-and-drop tree reorder (SortableJS); posts to `items_reorder_tree`. |
+| `dashboard/_sortable_tree_macro.html.twig` | Nested list markup for the reorder view. |
+| `dashboard/_menu_dashboard_modals.html.twig` | Shared modals for show and reorder pages. |
+| `dashboard/_dashboard_item_icon.html.twig` | Optional icon next to item labels in dashboard lists. |
 | `dashboard/menu_form.html.twig` | Create/edit menu form. |
 | `dashboard/item_form.html.twig` | Create/edit menu item form. |
 | `dashboard/copy_menu.html.twig` | Copy menu form. |
@@ -75,6 +79,8 @@ Copy the original from `vendor/nowo-tech/dashboard-menu-bundle/src/Resources/vie
 | `dashboard/_copy_menu_partial.html.twig` | Partial used in copy form. |
 | `components/ItemFormLiveComponent.html.twig` | Live Component template for the item form (modal). |
 | `Collector/dashboard_menu.html.twig` | Web debug toolbar / profiler panel. |
+
+**Dashboard reorder:** the item table (`show`) links to a separate page for drag-and-drop ordering. Symfony registers `nowo_dashboard_menu_dashboard_show_items_reorder` (GET `/{id}/items/reorder`) and `nowo_dashboard_menu_dashboard_items_reorder_tree` (POST `/{id}/items/reorder-tree`, CSRF). Bundle templates use the `dashboard_routes` map (`show_items_reorder`, `items_reorder_tree` keys → those full names) so overrides stay aligned if routing prefixes change.
 
 **Dashboard layout:** besides overriding `dashboard/layout.html.twig` in the bundle path above, you can keep using the bundle layout and only change the **wrapper** via config: set `dashboard.layout_template` in `nowo_dashboard_menu.yaml` to your app layout (e.g. `base.html.twig`) so the dashboard uses your shell (see [CONFIGURATION.md](CONFIGURATION.md#dashboard)). Overriding the file gives full control over the dashboard HTML; the config option only swaps the extended template.
 

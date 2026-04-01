@@ -2,7 +2,7 @@
 
 ## Before releasing
 
-> Current release target: **0.3.34** (`v0.3.34`).
+> Current release target: **0.3.35** (`v0.3.35`).
 
 1. **Run full checks**
 
@@ -31,7 +31,7 @@
    Example for this cycle:
 
    ```bash
-   git tag -a v0.3.34 -m "Release 0.3.34"
+   git tag -a v0.3.35 -m "Release 0.3.35"
    ```
 
 3. **Push the tag**

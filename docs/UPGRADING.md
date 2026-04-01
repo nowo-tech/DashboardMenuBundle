@@ -2,9 +2,13 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
-## From 0.3.34 to next
+## From 0.3.34 to 0.3.35
 
 No breaking changes.
+
+- **Dashboard URLs:** menu item **table** stays on `GET .../{id}`; **drag-and-drop reorder** is on `GET .../{id}/items/reorder` (route name `show_items_reorder`). Apply tree: `POST .../{id}/items/reorder-tree` (`items_reorder_tree`). Override templates can use `dashboard_routes.show_items_reorder` from the controller’s `getDashboardRoutes()` payload where the bundle already passes `dashboard_routes`.
+- **Assets:** if you rebuild dashboard JavaScript from this bundle’s sources (fork or path repository), run `npm install` and `npm run build` at the bundle root so `dashboard.js` includes SortableJS.
+- **Section items:** `section` rows must remain at **root** (no nested sections). Persisted trees that violate this will get a validation error when applying reorder; fix parent/positions in the dashboard or import before using the tree endpoint.
 
 ## From 0.3.33 to 0.3.34
 

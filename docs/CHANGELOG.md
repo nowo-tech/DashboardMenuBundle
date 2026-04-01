@@ -7,8 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.35] - 2026-04-01
+
 ### Added
 
+- **Dashboard tree reorder (SortableJS):** dedicated page `GET .../{id}/items/reorder` (route `show_items_reorder`); `POST .../{id}/items/reorder-tree` (`items_reorder_tree`, CSRF) applies parent/position from a nested list payload. Menu detail **table** remains on `GET .../{id}` with a link to the reorder view. `MenuItemRepository::applyTreeLayout()` persists the tree; root `package.json` includes `sortablejs` (run `npm run build` when rebuilding bundle `dashboard.js` from source).
+- **`dashboard_routes.show_items_reorder`** exposed via `MenuDashboardController::getDashboardRoutes()` for apps overriding dashboard Twig.
+- **Twig partials:** `dashboard/show_items_reorder.html.twig`, `dashboard/_sortable_tree_macro.html.twig`, `dashboard/_menu_dashboard_modals.html.twig`, `dashboard/_dashboard_item_icon.html.twig` (optional UX Icons next to item labels in dashboard lists).
+- **Bundle logger:** `announce()` for always-on console lines; Sortable move diagnostics when dashboard debug is enabled (`__nowoDashboardMenuConfig.debug`).
+- **Sections at root only:** `MenuItemRepository::TREE_LAYOUT_SECTION_MUST_BE_ROOT`; tree apply, Sortable guards, and item forms keep `section` items at root; user-facing flash when a reorder is rejected (`dashboard.reorder_tree_section_not_root`).
 - **Dashboard (menu detail):** action **Check parent cycles** next to re-index positions — POST with CSRF — reports via flash whether the persisted parent chain forms a loop (item ids shown).
 - **Translations tooling:** new command `nowo_dashboard_menu:translations:google-sync` audits missing keys per locale using a base locale and can auto-translate missing strings with Google Translate API (`--translate-missing`, optional `--write`).
 - **Import:** JSON import accepts a **root-level array** of menu blocks `[{ "menu": {...}, "items": [...] }, ...]`, equivalent to `{ "menus": [ ... ] }`. `MenuImporter::normalizeImportPayload()` performs the normalization; dashboard validation messages for invalid root arrays are translated (`dashboard.import_format_*`).
@@ -18,6 +25,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Divider items:** optional label/translations are allowed (null or empty); persistence normalizes whitespace and no longer clears user-provided names. Dashboard forms show the label fields for dividers with a hint that a name is recommended but optional.
 - **Dashboard menu detail (links column):** no longer resolves each item’s route URL via `dashboard_menu_href` in the table. The column shows `routeName` and `routeParams` only, avoiding Symfony router failures that added one flash error per row when mandatory parameters were missing.
 - **Parent selector (item config):** disabled Symfony UX Autocomplete / Tom Select on the `parent` `EntityType` so choices always come from `query_builder` (excludes self and subtree). Remote autocomplete rebuilt the form without the editing item and could list the item as its own parent. Validation `validateParentNoCircular` now treats same parent/item by numeric id as well as strict `===`.
+
+### Fixed
+
+- **Sortable init vs. show-page guard:** `initMenuSortablePanel()` runs before the `__dmDashboardMenuShowBound` short-circuit so drag-and-drop reorder still works after in-app navigation (e.g. Turbo) from the table view to the reorder page.
 
 ## [0.3.34] - 2026-03-31
 
@@ -500,7 +511,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.34...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.35...HEAD
+[0.3.35]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.34...v0.3.35
 [0.3.34]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.33...v0.3.34
 [0.3.33]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.32...v0.3.33
 [0.3.32]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.31...v0.3.32
