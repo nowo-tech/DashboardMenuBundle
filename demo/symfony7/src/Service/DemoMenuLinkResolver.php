@@ -10,6 +10,8 @@ use Nowo\DashboardMenuBundle\Service\MenuLinkResolverInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
+use function is_string;
+
 /**
  * Demo {@see MenuLinkResolverInterface} for the slim Symfony 7 demo: links to {@see HomeController::page}
  * using {@see MenuItem::getRouteParams()} key <code>page</code> (slug; default <code>overview</code>).

@@ -72,7 +72,7 @@ final class MenuItemIconType extends AbstractType
         if (!$itemTypeOnly) {
             $builder
                 ->add('position', IntegerType::class, [
-                    'required' => false,
+                    'required'   => false,
                     'empty_data' => '0',
                     'label'      => 'form.menu_item_type.position.label',
                     'attr'       => ['min' => 0, 'class' => 'form-control'],
@@ -110,7 +110,7 @@ final class MenuItemIconType extends AbstractType
 
             if (class_exists('Nowo\\IconSelectorBundle\\Form\\IconSelectorType')) {
                 $builder->add('icon', \Nowo\IconSelectorBundle\Form\IconSelectorType::class, [
-                    'required' => false,
+                    'required'           => false,
                     'mode'               => \Nowo\IconSelectorBundle\Form\IconSelectorType::MODE_TOM_SELECT,
                     'label'              => 'form.menu_item_type.icon.label',
                     'translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,

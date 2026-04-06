@@ -693,14 +693,14 @@ final class MenuItemTypeTest extends TestCase
         $item->setLinkResolver('App\\DemoResolver');
 
         $addCalls = [];
-        $builder = $this->createFormBuilderMock($addCalls, $item);
+        $builder  = $this->createFormBuilderMock($addCalls, $item);
 
         $type->buildForm($builder, [
-            'app_routes'         => [],
-            'menu'               => null,
-            'exclude_ids'        => [],
-            'locale'             => 'en',
-            'item_form_section'  => 'config',
+            'app_routes'        => [],
+            'menu'              => null,
+            'exclude_ids'       => [],
+            'locale'            => 'en',
+            'item_form_section' => 'config',
         ]);
 
         self::assertNull($this->findAddCall($addCalls, 'linkType'));
@@ -729,7 +729,7 @@ final class MenuItemTypeTest extends TestCase
         $item->setLinkResolver('App\\DemoResolver');
 
         $addCalls = [];
-        $builder = $this->createFormBuilderMock($addCalls, null);
+        $builder  = $this->createFormBuilderMock($addCalls, null);
 
         $type->buildForm($builder, [
             'app_routes'        => [],

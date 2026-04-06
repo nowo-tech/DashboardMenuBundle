@@ -8,8 +8,9 @@ use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Service\MenuLinkResolverInterface;
 use Nowo\DashboardMenuBundle\Service\MenuUrlResolver;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use RuntimeException;
+use stdClass;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -337,7 +338,7 @@ final class MenuUrlResolverTest extends TestCase
     {
         $container = $this->createStub(ContainerInterface::class);
         $container->method('has')->willReturn(true);
-        $container->method('get')->willThrowException(new \RuntimeException('Service error'));
+        $container->method('get')->willThrowException(new RuntimeException('Service error'));
 
         $item = new MenuItem();
         $item->setItemType(MenuItem::ITEM_TYPE_SERVICE);
@@ -356,7 +357,7 @@ final class MenuUrlResolverTest extends TestCase
     {
         $container = $this->createStub(ContainerInterface::class);
         $container->method('has')->willReturn(true);
-        $container->method('get')->willReturn(new \stdClass());
+        $container->method('get')->willReturn(new stdClass());
 
         $item = new MenuItem();
         $item->setItemType(MenuItem::ITEM_TYPE_SERVICE);
@@ -440,7 +441,7 @@ final class MenuUrlResolverTest extends TestCase
         $item->setItemType(MenuItem::ITEM_TYPE_SERVICE);
         $item->setLinkResolver('app.path_resolver');
 
-        $request = Request::create('https://example.com/base/');
+        $request      = Request::create('https://example.com/base/');
         $requestStack = new RequestStack();
         $requestStack->push($request);
 
@@ -450,7 +451,7 @@ final class MenuUrlResolverTest extends TestCase
 
         $menuUrlResolver = new MenuUrlResolver($urlGenerator, $requestStack, $router, $container);
 
-        $href = $menuUrlResolver->getHref($item, \Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL);
+        $href = $menuUrlResolver->getHref($item, UrlGeneratorInterface::ABSOLUTE_URL);
 
         self::assertSame('https://example.com/my/path', $href);
     }
@@ -466,7 +467,7 @@ final class MenuUrlResolverTest extends TestCase
 
         $resolver = $this->createResolver($urlGenerator, new RequestStack());
 
-        self::assertSame('https://already.absolute/path', $resolver->getHref($item, \Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL));
+        self::assertSame('https://already.absolute/path', $resolver->getHref($item, UrlGeneratorInterface::ABSOLUTE_URL));
     }
 
     public function testNormalizeMenuLinkResolverServiceIdMatchesByLabel(): void
@@ -508,7 +509,7 @@ final class MenuUrlResolverTest extends TestCase
         $resolver = new class implements MenuLinkResolverInterface {
             public function resolveHref(MenuItem $item, ?Request $request, mixed $permissionContext = null): string|array
             {
-                throw new \RuntimeException('Resolver failed');
+                throw new RuntimeException('Resolver failed');
             }
         };
 

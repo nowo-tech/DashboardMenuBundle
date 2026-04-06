@@ -104,9 +104,9 @@ final class DashboardMenuExtension extends Extension
             'doctrine'                   => $config['doctrine'] ?? [],
             'cache'                      => $config['cache'] ?? [],
             'icon_library_prefix_map'    => $config['icon_library_prefix_map'] ?? [],
-            'permission_checker_choices'   => $config['permission_checker_choices'] ?? [],
+            'permission_checker_choices' => $config['permission_checker_choices'] ?? [],
             'menu_link_resolver_choices' => $config['menu_link_resolver_choices'] ?? [],
-            'api'                          => $config['api'] ?? [],
+            'api'                        => $config['api'] ?? [],
             'dashboard'                  => $config['dashboard'] ?? [],
         ];
 

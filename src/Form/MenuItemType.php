@@ -33,10 +33,10 @@ final class MenuItemType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $data = $builder->getData();
-        $section  = $options['section'] ?? null;
-        $addBasic = in_array($section, [null, 'basic', 'identity', 'minimal'], true);
-        $addIcon  = in_array($section, [null, 'icon', 'identity', 'minimal'], true);
+        $data      = $builder->getData();
+        $section   = $options['section'] ?? null;
+        $addBasic  = in_array($section, [null, 'basic', 'identity', 'minimal'], true);
+        $addIcon   = in_array($section, [null, 'icon', 'identity', 'minimal'], true);
         $addConfig = $section !== 'minimal' && ($section === null || $section === 'config' || $section === 'identity');
 
         if ($addBasic) {

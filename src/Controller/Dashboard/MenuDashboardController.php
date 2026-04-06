@@ -1016,12 +1016,12 @@ final class MenuDashboardController extends AbstractController
         // "Add item" always uses a normal Symfony form (not LiveComponent) to avoid translation save issues.
         $includeTranslations = $isChild;
         $form                = $this->createForm(MenuItemType::class, $item, [
-            'app_routes'           => $appRoutes,
-            'menu'                 => $menu,
-            'exclude_ids'          => [],
-            'locale'               => $locale,
-            'available_locales'    => $this->locales,
-            'action'               => $actionUrl,
+            'app_routes'        => $appRoutes,
+            'menu'              => $menu,
+            'exclude_ids'       => [],
+            'locale'            => $locale,
+            'available_locales' => $this->locales,
+            'action'            => $actionUrl,
             // Keep CSRF consistent across Symfony versions.
             'csrf_token_id'        => 'submit',
             'section'              => 'minimal',

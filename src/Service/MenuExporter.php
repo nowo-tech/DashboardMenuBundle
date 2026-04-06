@@ -151,21 +151,21 @@ final readonly class MenuExporter
     private function itemToArray(MenuItem $item, array $children): array
     {
         $data = [
-            'label'          => $item->getLabel(),
-            'translations'   => $item->getTranslations(),
-            'linkType'       => $item->getLinkType(),
-            'routeName'      => $item->getRouteName(),
-            'routeParams'    => $item->getRouteParams(),
-            'externalUrl'    => $item->getExternalUrl(),
-            'icon'           => $item->getIcon(),
-            'permissionKeys' => $item->getPermissionKeys(),
-            'isUnanimous'    => $item->isUnanimous(),
+            'label'              => $item->getLabel(),
+            'translations'       => $item->getTranslations(),
+            'linkType'           => $item->getLinkType(),
+            'routeName'          => $item->getRouteName(),
+            'routeParams'        => $item->getRouteParams(),
+            'externalUrl'        => $item->getExternalUrl(),
+            'icon'               => $item->getIcon(),
+            'permissionKeys'     => $item->getPermissionKeys(),
+            'isUnanimous'        => $item->isUnanimous(),
             'itemType'           => $item->getItemType(),
             'linkResolver'       => $item->getItemType() === MenuItem::ITEM_TYPE_SERVICE ? $item->getLinkResolver() : null,
             'targetBlank'        => $item->getTargetBlank(),
             'sectionCollapsible' => $item->getItemType() === MenuItem::ITEM_TYPE_SECTION ? $item->getSectionCollapsible() : null,
             'position'           => $item->getPosition(),
-            'children'       => $children !== [] ? $children : null,
+            'children'           => $children !== [] ? $children : null,
         ];
 
         return $this->sortAssociativeKeysRecursive($this->normalizeAssociativeForExport($data));

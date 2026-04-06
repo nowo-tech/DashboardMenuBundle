@@ -24,9 +24,9 @@ use Symfony\Component\HttpFoundation\Request;
 interface MenuLinkResolverInterface
 {
     /**
-     * @return string|list<array{label: string, href: string, position: int, icon?: string|null, targetBlank?: bool}>
+     * @param mixed $permissionContext same value passed to the menu tree loader (often the current Request)
      *
-     * @param mixed $permissionContext Same value passed to the menu tree loader (often the current Request).
+     * @return list<array{label: string, href: string, position: int, icon?: string|null, targetBlank?: bool}>|string
      */
     public function resolveHref(MenuItem $item, ?Request $request, mixed $permissionContext = null): string|array;
 }

@@ -181,8 +181,8 @@ final class MenuConfigType extends AbstractType
                     }
                 }
             }
-            $emptyKey    = 'form.menu_type.empty_choice';
-            $placeholder = $this->translator instanceof TranslatorInterface ? $this->translator->trans($emptyKey, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN) : $emptyKey;
+            $emptyKey           = 'form.menu_type.empty_choice';
+            $placeholder        = $this->translator instanceof TranslatorInterface ? $this->translator->trans($emptyKey, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN) : $emptyKey;
             $choiceFieldOptions = [
                 'required'                  => false,
                 'label'                     => $label,
@@ -200,7 +200,7 @@ final class MenuConfigType extends AbstractType
             }
             $builder->add($fieldName, ChoiceType::class, $choiceFieldOptions);
         } else {
-            $placeholderText = $this->translator instanceof TranslatorInterface ? $this->translator->trans($placeholder, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN) : $placeholder;
+            $placeholderText  = $this->translator instanceof TranslatorInterface ? $this->translator->trans($placeholder, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN) : $placeholder;
             $textFieldOptions = [
                 'required'   => false,
                 'label'      => $label,

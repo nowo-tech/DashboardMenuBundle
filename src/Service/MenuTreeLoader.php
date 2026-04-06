@@ -14,6 +14,7 @@ use Psr\Container\ContainerInterface;
 use ReflectionProperty;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Throwable;
 
 use function array_is_list;
 use function array_key_exists;
@@ -440,7 +441,7 @@ final readonly class MenuTreeLoader
 
         try {
             $resolver = $this->linkResolverContainer->get($serviceId);
-        } catch (\Throwable) {
+        } catch (Throwable) {
             return [];
         }
 
@@ -451,7 +452,7 @@ final readonly class MenuTreeLoader
         $request = $this->requestStack?->getCurrentRequest();
         try {
             $resolved = $resolver->resolveHref($serviceItem, $request instanceof Request ? $request : null, $permissionContext);
-        } catch (\Throwable) {
+        } catch (Throwable) {
             return [];
         }
 
@@ -509,9 +510,9 @@ final readonly class MenuTreeLoader
             if (!is_int($position)) {
                 $position = (int) $position;
             }
-            $icon         = isset($row['icon']) && is_string($row['icon']) ? $row['icon'] : null;
-            $targetBlank  = isset($row['targetBlank']) && (bool) $row['targetBlank'];
-            $child        = MenuItem::createDynamicChildLink($menu, $label, trim($href), $position, $icon, $targetBlank);
+            $icon        = isset($row['icon']) && is_string($row['icon']) ? $row['icon'] : null;
+            $targetBlank = isset($row['targetBlank']) && (bool) $row['targetBlank'];
+            $child       = MenuItem::createDynamicChildLink($menu, $label, trim($href), $position, $icon, $targetBlank);
             $this->normalizeItemIcon($child);
 
             $visible = $checker->canView($child, $permissionContext);

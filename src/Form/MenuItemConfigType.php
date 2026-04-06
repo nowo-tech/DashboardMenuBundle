@@ -30,6 +30,8 @@ use function in_array;
 use function ksort;
 use function spl_object_id;
 
+use const SORT_NATURAL;
+
 /**
  * Form type for menu item configuration: parent, link (route / external URL / service resolver), target, permission.
  * Shown in the dashboard with a gear icon (configuration).
@@ -40,8 +42,8 @@ use function spl_object_id;
 final class MenuItemConfigType extends AbstractType
 {
     /**
-     * @param list<string>              $permissionKeyChoices
-     * @param array<string, string>     $menuLinkResolverChoices service id => label (after compiler pass)
+     * @param list<string> $permissionKeyChoices
+     * @param array<string, string> $menuLinkResolverChoices service id => label (after compiler pass)
      */
     public function __construct(
         private readonly MenuItemRepository $menuItemRepository,
@@ -107,9 +109,9 @@ final class MenuItemConfigType extends AbstractType
                 ]);
             } else {
                 $builder->add('linkResolver', TextType::class, [
-                    'required'   => false,
-                    'label'      => 'form.menu_item_type.link_resolver.label',
-                    'attr'       => [
+                    'required' => false,
+                    'label'    => 'form.menu_item_type.link_resolver.label',
+                    'attr'     => [
                         'class'       => 'form-control font-monospace',
                         'placeholder' => $t('form.menu_item_type.link_resolver.service_id_placeholder'),
                     ],
@@ -127,7 +129,7 @@ final class MenuItemConfigType extends AbstractType
                         'form.menu_item_type.link_type.route'        => MenuItem::LINK_TYPE_ROUTE,
                         'form.menu_item_type.link_type.external_url' => MenuItem::LINK_TYPE_EXTERNAL,
                     ],
-                    'label' => 'form.menu_item_type.link_type.label',
+                    'label'              => 'form.menu_item_type.link_type.label',
                     'attr'               => ['class' => 'form-select'],
                     'row_attr'           => ['class' => 'mb-1'],
                     'label_attr'         => ['class' => 'form-label'],
@@ -247,11 +249,11 @@ final class MenuItemConfigType extends AbstractType
         }
 
         $builder->add('sectionCollapsible', ChoiceType::class, [
-            'required'                  => false,
-            'label'                     => 'form.menu_item_type.section_collapsible.label',
-            'help'                      => 'form.menu_item_type.section_collapsible.help',
-            'placeholder'               => $t('form.menu_item_type.section_collapsible.inherit'),
-            'choices'                   => [
+            'required'    => false,
+            'label'       => 'form.menu_item_type.section_collapsible.label',
+            'help'        => 'form.menu_item_type.section_collapsible.help',
+            'placeholder' => $t('form.menu_item_type.section_collapsible.inherit'),
+            'choices'     => [
                 'form.menu_item_type.section_collapsible.yes' => true,
                 'form.menu_item_type.section_collapsible.no'  => false,
             ],
@@ -265,14 +267,14 @@ final class MenuItemConfigType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class'         => MenuItem::class,
-            'app_routes'         => [],
-            'menu'               => null,
-            'exclude_ids'        => [],
-            'locale'             => $this->defaultLocale,
-            'item_form_section'  => null,
+            'data_class'        => MenuItem::class,
+            'app_routes'        => [],
+            'menu'              => null,
+            'exclude_ids'       => [],
+            'locale'            => $this->defaultLocale,
+            'item_form_section' => null,
             // Passed from MenuItemType: child builder getData() is null during buildForm with inherit_data.
-            'menu_item'          => null,
+            'menu_item'   => null,
             'constraints' => [
                 new Callback($this->validateParentNoCircular(...)),
                 new Callback($this->validateSectionMustBeRoot(...)),
