@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Frontend menu (`menu.html.twig`):** when a **section** has **“Hijos de la sección colapsables: no”** (`sectionCollapsible === false`), child items are rendered as **sibling** `<li>` elements (same parent `<ul>` as the section header), not inside a nested `<ul>` under the section.
+
 ## [0.3.37] - 2026-04-06
 
 ### Added

@@ -1420,8 +1420,7 @@ final class MenuDashboardControllerTest extends TestCase
         );
         $this->setControllerContainer($controller, $form);
 
-        $request = Request::create('/dashboard/menu/import', 'POST', []);
-        $request->query->set('_partial', '1');
+        $request = Request::create('/dashboard/menu/import', 'POST', ['_modal' => '1']);
 
         $response = $controller->import($request);
         self::assertSame(200, $response->getStatusCode());
@@ -1457,8 +1456,7 @@ final class MenuDashboardControllerTest extends TestCase
         );
         $this->setControllerContainer($controller, $form);
 
-        $request = Request::create('/dashboard/menu/import', 'POST', []);
-        $request->query->set('_partial', '1');
+        $request = Request::create('/dashboard/menu/import', 'POST', ['_modal' => '1']);
 
         $response = $controller->import($request);
         self::assertSame(200, $response->getStatusCode());

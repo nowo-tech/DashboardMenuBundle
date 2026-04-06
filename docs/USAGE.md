@@ -118,6 +118,7 @@ Hierarchy is defined by the **Parent** field when creating or editing an item in
 
 - **Parent with link:** Use type **Link** and set a route or URL. The item is clickable and, when the menu has **nested collapsible** enabled, it shows a chevron to expand/collapse its children. Children are rendered in a nested list (and stay visible by default when the current route is in that branch).
 - **Parent without link:** Use type **Section**. The label is not a link; when it has children and the menu has **nested collapsible** enabled, only the chevron toggles the nested list. Use this for group headers that open/close a block of links.
+- **Section — “Hijos de la sección colapsables: no”** (per-item field `sectionCollapsible` = **No**): the bundle renders each child as a **top-level sibling** `<li>` under the same `<ul>` as the section row (no nested `<ul>` under the section). Use this when you want a visual heading followed by links that behave like independent menu rows. **Sí** / **Heredar** keep the usual nested list (and chevron when collapsible settings apply).
 
 So: **Link** = clickable, can have children (optional chevron + collapse). **Section** = label only, can have children (optional chevron + collapse). Both support any depth (children, grandchildren, etc.). Enable **nested_collapsible** on the menu (in config or in the dashboard) so that items with children get the expand/collapse control.
 

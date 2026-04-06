@@ -83,6 +83,17 @@
             padding: 0.75rem 0.75rem 0.35rem;
             font-weight: 600;
         }
+        /* Section heading uses <a> for DOM parity with link rows; keep visual “text”, not interactive link chrome. */
+        .app-sidebar .dashboard-menu-tree a.menu-section-label-link,
+        .app-aside .dashboard-menu-tree a.menu-section-label-link {
+            cursor: default;
+            pointer-events: none;
+        }
+        .app-sidebar .dashboard-menu-tree a.menu-section-label-link:hover,
+        .app-aside .dashboard-menu-tree a.menu-section-label-link:hover {
+            background: transparent;
+            color: #6c757d;
+        }
         .app-sidebar .dashboard-menu-tree .menu-divider hr,
         .app-aside .dashboard-menu-tree .menu-divider hr {
             margin: 0.5rem 0.75rem;

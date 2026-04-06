@@ -602,9 +602,11 @@ function initIndexPage(config: NowoDashboardMenuConfig): void {
   if (importModal && importModalBody) {
     importModal.addEventListener('show.bs.modal', (e) => {
       const btn = (e as Event & { relatedTarget: HTMLElement | null }).relatedTarget;
-      const importUrl = btn?.getAttribute('data-import-url') ?? `${dashboardBase}/import`;
+      const importUrlRaw = btn?.getAttribute('data-import-url') ?? `${dashboardBase}/import`;
+      const importUrl = new URL(importUrlRaw, window.location.origin);
+      importUrl.searchParams.set('_modal', '1');
       importModalBody.innerHTML = `<div class="text-center py-4 text-muted">${loading}</div>`;
-      fetch(importUrl)
+      fetch(importUrl.pathname + importUrl.search)
         .then((r) => r.text())
         .then((html) => { importModalBody.innerHTML = html; })
         .catch(() => {

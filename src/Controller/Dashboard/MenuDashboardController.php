@@ -762,7 +762,8 @@ final class MenuDashboardController extends AbstractController
             'action' => $this->generateUrl(DashboardRoutes::ROUTE_IMPORT),
         ]);
         $form->handleRequest($request);
-        $isModal = $request->request->has('_modal');
+        // GET (modal fetch) sends ?_modal=1; POST includes hidden _modal from the partial form.
+        $isModal = $request->request->has('_modal') || $request->query->has('_modal');
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
