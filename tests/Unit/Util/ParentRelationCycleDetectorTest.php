@@ -45,4 +45,38 @@ final class ParentRelationCycleDetectorTest extends TestCase
             2 => 99,
         ]));
     }
+
+    public function testCycleBuriedInLargerDisconnectedGraph(): void
+    {
+        // Nodes 10 and 11 are an acyclic subtree; nodes 20 → 21 → 20 form a cycle.
+        $cycle = ParentRelationCycleDetector::findFirstCycle([
+            10 => null,
+            11 => 10,
+            20 => 21,
+            21 => 20,
+        ]);
+
+        self::assertIsArray($cycle);
+        self::assertContains(20, $cycle);
+        self::assertContains(21, $cycle);
+    }
+
+    public function testLongerCycleIsDetected(): void
+    {
+        $cycle = ParentRelationCycleDetector::findFirstCycle([
+            1 => 2,
+            2 => 3,
+            3 => 4,
+            4 => 5,
+            5 => 1,
+        ]);
+
+        self::assertIsArray($cycle);
+        self::assertCount(5, $cycle);
+    }
+
+    public function testSingleNodeWithNullParentHasNoCycle(): void
+    {
+        self::assertNull(ParentRelationCycleDetector::findFirstCycle([42 => null]));
+    }
 }

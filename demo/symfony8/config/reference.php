@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 // This file is auto-generated and is for apps only. Bundles SHOULD NOT rely on its content.
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
@@ -1293,10 +1291,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     icon_library_prefix_map?: array<string, scalar|Param|null>,
  *     locales?: list<scalar|Param|null>,
  *     default_locale?: scalar|Param|null, // Fallback locale when the request locale is not in locales. If null, the first entry in locales is used. // Default: null
- *     permission_checker_choices?: array{ // Services shown in the dashboard "Permission checker" dropdown when creating/editing a Menu. Each must implement MenuPermissionCheckerInterface (canView(MenuItem, $context)). Tagged services (nowo_dashboard_menu.permission_checker) are included automatically; this list adds or orders them. Use a list of service IDs, or a map for custom labels: "FQCN: 'Display label'".
- *         order?: list<scalar|Param|null>,
- *         labels?: array<string, scalar|Param|null>,
- *     },
+ *     permission_checker_choices?: list<scalar|Param|null>,
+ *     menu_link_resolver_choices?: list<scalar|Param|null>,
  *     api?: array{
  *         enabled?: bool|Param, // Default: true
  *         path_prefix?: scalar|Param|null, // Default: "/api/menu"
@@ -1335,6 +1331,9 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             item?: list<scalar|Param|null>,
  *             link?: list<scalar|Param|null>,
  *             children?: list<scalar|Param|null>,
+ *             section_children?: list<scalar|Param|null>,
+ *             section_child_item?: list<scalar|Param|null>,
+ *             section_child_link?: list<scalar|Param|null>,
  *             section_label?: list<scalar|Param|null>,
  *             section?: list<scalar|Param|null>,
  *             divider?: list<scalar|Param|null>,

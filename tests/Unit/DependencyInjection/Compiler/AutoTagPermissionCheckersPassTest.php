@@ -210,7 +210,7 @@ final class AutoTagPermissionCheckersPassTest extends TestCase
     public function testAutoTagRunsBeforePermissionCheckerPassSoChoicesIncludeAutoTagged(): void
     {
         $container = new ContainerBuilder();
-        $container->setParameter('nowo_dashboard_menu.permission_checker_choices', ['order' => [], 'labels' => []]);
+        $container->setParameter('nowo_dashboard_menu.permission_checker_choices', []);
         $container->register('app.my_checker', StubCheckerWithConstant::class);
 
         $container->addCompilerPass(new AutoTagPermissionCheckersPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 200);

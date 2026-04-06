@@ -123,6 +123,30 @@ final class MenuConfigType extends AbstractType
         $this->addCssClassField($builder, 'classItem', 'item', 'form.menu_type.class_item.label', 'form.menu_type.class_item.placeholder');
         $this->addCssClassField($builder, 'classLink', 'link', 'form.menu_type.class_link.label', 'form.menu_type.class_link.placeholder');
         $this->addCssClassField($builder, 'classChildren', 'children', 'form.menu_type.class_children.label', 'form.menu_type.class_children.placeholder');
+        $this->addCssClassField(
+            $builder,
+            'classSectionChildren',
+            'section_children',
+            'form.menu_type.class_section_children.label',
+            'form.menu_type.class_section_children.placeholder',
+            'form.menu_type.class_section_children.help',
+        );
+        $this->addCssClassField(
+            $builder,
+            'classSectionChildItem',
+            'section_child_item',
+            'form.menu_type.class_section_child_item.label',
+            'form.menu_type.class_section_child_item.placeholder',
+            'form.menu_type.class_section_child_item.help',
+        );
+        $this->addCssClassField(
+            $builder,
+            'classSectionChildLink',
+            'section_child_link',
+            'form.menu_type.class_section_child_link.label',
+            'form.menu_type.class_section_child_link.placeholder',
+            'form.menu_type.class_section_child_link.help',
+        );
         $this->addCssClassField($builder, 'classSectionLabel', 'section_label', 'form.menu_type.class_section_label.label', 'form.menu_type.class_section_label.placeholder');
         $this->addCssClassField($builder, 'classSection', 'section', 'form.menu_type.class_section.label', 'form.menu_type.class_section.placeholder');
         $this->addCssClassField($builder, 'classDivider', 'divider', 'form.menu_type.class_divider.label', 'form.menu_type.class_divider.placeholder');
@@ -139,6 +163,7 @@ final class MenuConfigType extends AbstractType
         string $configKey,
         string $label,
         string $placeholder,
+        ?string $help = null,
     ): void {
         $options = $this->cssClassOptions[$configKey] ?? [];
 
@@ -158,7 +183,7 @@ final class MenuConfigType extends AbstractType
             }
             $emptyKey    = 'form.menu_type.empty_choice';
             $placeholder = $this->translator instanceof TranslatorInterface ? $this->translator->trans($emptyKey, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN) : $emptyKey;
-            $builder->add($fieldName, ChoiceType::class, [
+            $choiceFieldOptions = [
                 'required'                  => false,
                 'label'                     => $label,
                 'placeholder'               => $placeholder,
@@ -169,16 +194,24 @@ final class MenuConfigType extends AbstractType
                 'label_attr'                => ['class' => 'form-label'],
                 'autocomplete'              => true,
                 'tom_select_options'        => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
-            ]);
+            ];
+            if ($help !== null) {
+                $choiceFieldOptions['help'] = $help;
+            }
+            $builder->add($fieldName, ChoiceType::class, $choiceFieldOptions);
         } else {
             $placeholderText = $this->translator instanceof TranslatorInterface ? $this->translator->trans($placeholder, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN) : $placeholder;
-            $builder->add($fieldName, TextType::class, [
+            $textFieldOptions = [
                 'required'   => false,
                 'label'      => $label,
                 'attr'       => ['class' => 'form-control', 'placeholder' => $placeholderText],
                 'row_attr'   => ['class' => 'mb-1'],
                 'label_attr' => ['class' => 'form-label'],
-            ]);
+            ];
+            if ($help !== null) {
+                $textFieldOptions['help'] = $help;
+            }
+            $builder->add($fieldName, TextType::class, $textFieldOptions);
         }
     }
 

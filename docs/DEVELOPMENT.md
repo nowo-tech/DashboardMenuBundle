@@ -28,7 +28,7 @@ make test-coverage
 make qa
 ```
 
-Targets that run inside the container (`install`, `test`, `test-coverage`, `cs-check`, `cs-fix`, `rector`, `phpstan`, `qa`) depend on `ensure-up`: if the container is not running, `make up` is triggered and dependencies are installed before the command.
+Targets that run inside the container (`install`, `test`, `test-coverage`, `validate-translations`, `assets`, `cs-check`, `cs-fix`, `rector`, `phpstan`, `qa`) depend on `ensure-up`: if the container is not running, it is started and Composer (and pnpm for frontend assets) are installed before the command.
 
 ## Without Docker
 
@@ -48,7 +48,7 @@ composer test
 composer test-coverage
 ```
 
-Coverage is printed in the terminal. The bundle does not ship frontend assets; all tests are PHPUnit-based.
+Coverage is printed in the terminal. Automated tests are **PHPUnit-only** (PHP). TypeScript sources are built with Vite to committed JS under `src/Resources/public/js/`; use `make assets` (inside Docker) or `pnpm install && pnpm run build` on the host to rebuild them.
 
 ## Code quality
 
@@ -81,7 +81,7 @@ Before tagging a release, run:
 make release-check
 ```
 
-This runs: `composer-sync`, `cs-fix`, `cs-check`, `rector-dry`, `phpstan`, `test-coverage`, and `release-check-demos` (each demo is started, verified with an HTTP check, then stopped).
+This runs: `composer-sync`, `cs-fix`, `cs-check`, `rector-dry`, `phpstan`, `test-coverage`, `release-check-demos` (each demo is started, verified with an HTTP check, then stopped), and `assets` (Vite production build for dashboard and Stimulus live entry points).
 
 ## CI/CD
 

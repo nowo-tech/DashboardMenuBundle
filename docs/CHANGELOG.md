@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.37] - 2026-04-06
+
+### Added
+
+- **Menu link resolvers (`service` items):** `MenuLinkResolverInterface` for dynamic hrefs and optional virtual child links; compiler passes (`MenuLinkResolverPass`, `AutoTagMenuLinkResolversPass`); config `menu_link_resolver_choices`; optional `#[MenuLinkResolverLabel]` (or `DASHBOARD_LABEL` on the service class) for dashboard dropdown labels; persisted `MenuItem.link_resolver`; dashboard item form, import/export, `MenuTreeLoader` and `MenuUrlResolver` integration (resolver output merges with persisted children by `position`).
+- **Menu CSS (dashboard config):** extra optional classes on `Menu` for section label, section block, section children wrapper, child items, child links, and dividers; exposed in `MenuConfigType` and frontend Twig via `MenuConfigResolver`.
+- **Section items:** optional `section_collapsible` on `MenuItem` (inherit / yes / no), dashboard form field, and rendering support.
+- **`DashboardRoutes`:** central route name constants plus `all()` map for Twig `dashboard_routes`. **`DashboardControllerTrait`:** shared referer-safe redirect and Bootstrap modal class resolution.
+
+### Changed
+
+- **Dashboard:** single `MenuDashboardController`; internal redirects and `generateUrl` use `DashboardRoutes`; modal sizes via `DashboardControllerTrait::resolveModalClasses`. **`MenuDashboardController::ROUTE_*`** remain as aliases of `DashboardRoutes::ROUTE_*` for backward compatibility.
+- **Item form (`inherit_data` + Live Component):** `MenuItemType` passes `menu_item` into `MenuItemConfigType` so `buildForm()` sees the entity; `MenuItemBasicType` copies locale labels from the **root** form on submit (avoids `FormBuilder::getParent()`).
+- **`MenuItemBasicType` service definition:** removed unused `TranslatorInterface` constructor argument (see UPGRADING if you override this service in the app).
+
+### Fixed
+
+- **Live item modal:** no more `Call to undefined method FormBuilder::getParent()` during template render when the Live Component auto-submits the form.
+
+### Removed
+
+- **Internal dead code:** unfinished `MenuCrudController` and `MenuItemController` (never listed in `routes_dashboard.yaml`; duplicated logic and omitted export/import routes).
+
 ## [0.3.36] - 2026-04-01
 
 ### Fixed
@@ -522,7 +545,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.36...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.37...HEAD
+[0.3.37]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.36...v0.3.37
 [0.3.36]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.35...v0.3.36
 [0.3.35]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.34...v0.3.35
 [0.3.34]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.33...v0.3.34

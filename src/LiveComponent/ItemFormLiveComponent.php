@@ -115,13 +115,18 @@ final class ItemFormLiveComponent
             }
         }
         if ($itemId !== null) {
-            $needsHydration = $this->hydratedItemId === null || $this->hydratedItemId !== $itemId;
+            // Gear-only (config) modal has no `icon.itemType` field; Live deserializes `initialFormData`
+            // without reliable private state, so skipping hydration would rebuild the form as link.
+            $configGearModal = $this->sectionFocus === 'config';
+            $needsHydration  = $configGearModal
+                || $this->hydratedItemId === null
+                || $this->hydratedItemId !== $itemId;
             if ($needsHydration) {
                 // Avoid returning a potentially stale managed instance from Doctrine's identity map.
-                // Using clear() + repository findOneBy() makes sure we fetch the current row.
-                $this->entityManager->clear();
-                $repo  = $this->entityManager->getRepository(MenuItem::class);
-                $fresh = $repo->findOneBy(['id' => $itemId]);
+                // Detach only this entity (not all tracked entities) before re-fetching to avoid
+                // overwriting in-progress edits of other managed objects in the same request.
+                $this->entityManager->detach($initialData);
+                $fresh = $this->entityManager->find(MenuItem::class, $itemId);
                 if ($fresh instanceof MenuItem) {
                     $initialData = $fresh;
                 }
@@ -161,13 +166,22 @@ final class ItemFormLiveComponent
 
     public function getItemType(): string
     {
-        $values = $this->getFormValuesFlat();
-        $type   = $values['itemType'] ?? null;
-        if ($type !== null && $type !== '') {
-            return (string) $type;
+        $form     = $this->getForm();
+        $iconForm = $form->has('icon') ? $form->get('icon') : null;
+        // Gear (config-only) and basic-only partials omit `icon.itemType`. Live `formValues` may still carry a stale
+        // `itemType` from a previous render; prefer the persisted entity type when the field is not in the tree.
+        $iconFormHasItemType = $iconForm instanceof FormInterface && $iconForm->has('itemType');
+
+        if ($iconFormHasItemType) {
+            $values = $this->getFormValuesFlat();
+            $type   = $values['itemType'] ?? null;
+            if ($type !== null && $type !== '') {
+                return (string) $type;
+            }
         }
+
         /** @var MenuItem|null $data */
-        $data = $this->getForm()->getData();
+        $data = $form->getData();
 
         return $data instanceof MenuItem ? $data->getItemType() : MenuItem::ITEM_TYPE_LINK;
     }
@@ -195,24 +209,37 @@ final class ItemFormLiveComponent
         return $type !== MenuItem::ITEM_TYPE_DIVIDER;
     }
 
-    public function showLinkFields(): bool
+    public function showSectionCollapsibleField(): bool
+    {
+        return $this->getItemType() === MenuItem::ITEM_TYPE_SECTION;
+    }
+
+    public function showClassicLinkFields(): bool
     {
         $type = $this->getItemType();
-        if ($type !== MenuItem::ITEM_TYPE_LINK) {
-            return false;
-        }
 
-        return !$this->itemHasChildren;
+        return $type === MenuItem::ITEM_TYPE_LINK && !$this->itemHasChildren;
+    }
+
+    public function showServiceLinkFields(): bool
+    {
+        return $this->getItemType() === MenuItem::ITEM_TYPE_SERVICE;
+    }
+
+    /** True when classic route/external link fields apply (itemType link, no children). */
+    public function showLinkFields(): bool
+    {
+        return $this->showClassicLinkFields();
     }
 
     public function showRouteFields(): bool
     {
-        return $this->showLinkFields() && $this->getLinkType() !== MenuItem::LINK_TYPE_EXTERNAL;
+        return $this->showClassicLinkFields() && $this->getLinkType() !== MenuItem::LINK_TYPE_EXTERNAL;
     }
 
     public function showExternalUrlField(): bool
     {
-        return $this->showLinkFields() && $this->getLinkType() === MenuItem::LINK_TYPE_EXTERNAL;
+        return $this->showClassicLinkFields() && $this->getLinkType() === MenuItem::LINK_TYPE_EXTERNAL;
     }
 
     /**

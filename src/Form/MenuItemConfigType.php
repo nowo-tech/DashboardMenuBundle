@@ -27,10 +27,11 @@ use function array_merge;
 use function array_unique;
 use function array_values;
 use function in_array;
+use function ksort;
 use function spl_object_id;
 
 /**
- * Form type for menu item configuration: parent, link (route / external URL), target, permission.
+ * Form type for menu item configuration: parent, link (route / external URL / service resolver), target, permission.
  * Shown in the dashboard with a gear icon (configuration).
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
@@ -39,11 +40,13 @@ use function spl_object_id;
 final class MenuItemConfigType extends AbstractType
 {
     /**
-     * @param list<string> $permissionKeyChoices
+     * @param list<string>              $permissionKeyChoices
+     * @param array<string, string>     $menuLinkResolverChoices service id => label (after compiler pass)
      */
     public function __construct(
         private readonly MenuItemRepository $menuItemRepository,
         private readonly array $permissionKeyChoices = [],
+        private readonly array $menuLinkResolverChoices = [],
         private readonly string $defaultLocale = 'en',
         private readonly ?TranslatorInterface $translator = null,
     ) {
@@ -56,59 +59,128 @@ final class MenuItemConfigType extends AbstractType
         $routeChoices = $this->buildRouteChoices($appRoutes);
         $t            = fn (string $id): string => $this->translator instanceof TranslatorInterface ? $this->translator->trans($id, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN) : $id;
 
-        $builder
-            ->add('linkType', ChoiceType::class, [
-                'choices' => [
-                    'form.menu_item_type.link_type.route'        => MenuItem::LINK_TYPE_ROUTE,
-                    'form.menu_item_type.link_type.external_url' => MenuItem::LINK_TYPE_EXTERNAL,
-                ],
-                'label' => 'form.menu_item_type.link_type.label',
-                // 'required'     => false,
-                'attr'               => ['class' => 'form-select'],
-                'row_attr'           => ['class' => 'mb-1'],
-                'label_attr'         => ['class' => 'form-label'],
-                'autocomplete'       => true,
-                'tom_select_options' => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
-            ])
-            ->add('routeName', ChoiceType::class, [
-                'required'    => false,
-                'label'       => 'form.menu_item_type.route_name.label',
-                'placeholder' => $t('form.menu_item_type.route_name.placeholder'),
-                'choices'     => $routeChoices,
-                'attr'        => ['class' => 'form-select'],
-                'row_attr'    => ['class' => 'mb-1'],
-                'label_attr'  => ['class' => 'form-label'],
-                'choice_attr' => static function ($choice, $key, $value) use ($appRoutes): array {
-                    $params = $appRoutes[$value]['params'] ?? [];
+        // With inherit_data (nested under MenuItemType), getData() is often null during buildForm;
+        // MenuItemType passes the same model via the menu_item option.
+        $formData = $this->resolveMenuItemFormData($builder, $options);
+        $itemType = MenuItem::ITEM_TYPE_LINK;
+        if ($formData instanceof MenuItem) {
+            $itemType = $formData->getItemType() ?? MenuItem::ITEM_TYPE_LINK;
+        }
+        $hasChildren = $formData instanceof MenuItem && !$formData->getChildren()->isEmpty();
 
-                    return ['data-params' => json_encode($params)];
-                },
-                'autocomplete'       => true,
-                'tom_select_options' => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
-            ])
-            ->add('routeParams', TextType::class, [
+        // Full item form (modal / new / edit all sections): keep every link field so JS can toggle by itemType.
+        // Config-only partial (gear): expose only fields that apply to the current item type.
+        $configOnly           = $options['item_form_section'] === 'config';
+        $showClassicLinkBlock = !$configOnly || ($itemType === MenuItem::ITEM_TYPE_LINK && !$hasChildren);
+        // Service: resolver is used for the parent href; optional dynamic children are merged in the tree even when DB children exist.
+        $showServiceLinkBlock = !$configOnly || $itemType === MenuItem::ITEM_TYPE_SERVICE;
+        // routeParams: link only (not service — service has no static route params).
+        $showRouteParams = $showClassicLinkBlock;
+        // targetBlank: link AND service (service items can open in a new tab via their resolved href).
+        $showTargetBlank = $showClassicLinkBlock || $itemType === MenuItem::ITEM_TYPE_SERVICE;
+
+        $resolverChoices = [];
+        foreach ($this->menuLinkResolverChoices as $id => $label) {
+            $resolverChoices[$id] = $id;
+        }
+        if ($formData instanceof MenuItem) {
+            $currentResolver = $formData->getLinkResolver();
+            if ($currentResolver !== null && $currentResolver !== '' && !in_array($currentResolver, $resolverChoices, true)) {
+                $resolverChoices[$currentResolver . ' (current)'] = $currentResolver;
+            }
+        }
+        ksort($resolverChoices, SORT_NATURAL);
+        if ($showServiceLinkBlock) {
+            if ($resolverChoices !== []) {
+                $builder->add('linkResolver', ChoiceType::class, [
+                    'required'                  => true,
+                    'label'                     => 'form.menu_item_type.link_resolver.label',
+                    'placeholder'               => $t('form.menu_item_type.link_resolver.placeholder'),
+                    'choices'                   => $resolverChoices,
+                    'choice_translation_domain' => false,
+                    'attr'                      => ['class' => 'form-select'],
+                    'row_attr'                  => ['class' => 'mb-1'],
+                    'label_attr'                => ['class' => 'form-label'],
+                    'help'                      => 'form.menu_item_type.link_resolver.help',
+                    'autocomplete'              => true,
+                    'tom_select_options'        => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
+                ]);
+            } else {
+                $builder->add('linkResolver', TextType::class, [
+                    'required'   => false,
+                    'label'      => 'form.menu_item_type.link_resolver.label',
+                    'attr'       => [
+                        'class'       => 'form-control font-monospace',
+                        'placeholder' => $t('form.menu_item_type.link_resolver.service_id_placeholder'),
+                    ],
+                    'row_attr'   => ['class' => 'mb-1'],
+                    'label_attr' => ['class' => 'form-label'],
+                    'help'       => 'form.menu_item_type.link_resolver.help_free_text',
+                ]);
+            }
+        }
+
+        if ($showClassicLinkBlock) {
+            $builder
+                ->add('linkType', ChoiceType::class, [
+                    'choices' => [
+                        'form.menu_item_type.link_type.route'        => MenuItem::LINK_TYPE_ROUTE,
+                        'form.menu_item_type.link_type.external_url' => MenuItem::LINK_TYPE_EXTERNAL,
+                    ],
+                    'label' => 'form.menu_item_type.link_type.label',
+                    'attr'               => ['class' => 'form-select'],
+                    'row_attr'           => ['class' => 'mb-1'],
+                    'label_attr'         => ['class' => 'form-label'],
+                    'autocomplete'       => true,
+                    'tom_select_options' => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
+                ])
+                ->add('routeName', ChoiceType::class, [
+                    'required'    => false,
+                    'label'       => 'form.menu_item_type.route_name.label',
+                    'placeholder' => $t('form.menu_item_type.route_name.placeholder'),
+                    'choices'     => $routeChoices,
+                    'attr'        => ['class' => 'form-select'],
+                    'row_attr'    => ['class' => 'mb-1'],
+                    'label_attr'  => ['class' => 'form-label'],
+                    'choice_attr' => static function ($choice, $key, $value) use ($appRoutes): array {
+                        $params = $appRoutes[$value]['params'] ?? [];
+
+                        return ['data-params' => json_encode($params)];
+                    },
+                    'autocomplete'       => true,
+                    'tom_select_options' => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
+                ])
+                ->add('externalUrl', UrlType::class, [
+                    'required'   => false,
+                    'label'      => 'form.menu_item_type.external_url.label',
+                    'attr'       => ['class' => 'form-control', 'placeholder' => $t('form.menu_item_type.external_url.placeholder')],
+                    'row_attr'   => ['class' => 'mb-1'],
+                    'label_attr' => ['class' => 'form-label'],
+                ]);
+        }
+
+        if ($showRouteParams) {
+            $builder->add('routeParams', TextType::class, [
                 'required'   => false,
                 'label'      => 'form.menu_item_type.route_params.label',
                 'attr'       => ['class' => 'form-control font-monospace', 'placeholder' => $t('form.menu_item_type.route_params.placeholder')],
                 'row_attr'   => ['class' => 'mb-1'],
                 'label_attr' => ['class' => 'form-label'],
-            ])
-            ->add('externalUrl', UrlType::class, [
-                'required'   => false,
-                'label'      => 'form.menu_item_type.external_url.label',
-                'attr'       => ['class' => 'form-control', 'placeholder' => $t('form.menu_item_type.external_url.placeholder')],
-                'row_attr'   => ['class' => 'mb-1'],
-                'label_attr' => ['class' => 'form-label'],
-            ])
-            ->add('targetBlank', CheckboxType::class, [
+            ]);
+            $builder->get('routeParams')->addModelTransformer(new JsonToArrayTransformer());
+        }
+
+        if ($showTargetBlank) {
+            $builder->add('targetBlank', CheckboxType::class, [
                 'required'   => false,
                 'label'      => 'form.menu_item_type.target_blank.label',
                 'attr'       => ['class' => 'form-check-input'],
                 'row_attr'   => ['class' => 'ms-3 mb-1 form-check'],
                 'label_attr' => ['class' => 'form-check-label'],
             ]);
+        }
 
-        $choices              = $this->buildPermissionKeyChoices($t, $builder->getData());
+        $choices              = $this->buildPermissionKeyChoices($t, $formData);
         $permissionKeyOptions = [
             'required'                  => false,
             'label'                     => 'form.menu_item_type.permission_keys.label',
@@ -136,14 +208,12 @@ final class MenuItemConfigType extends AbstractType
             'label_attr' => ['class' => 'form-check-label'],
         ]);
 
-        $builder->get('routeParams')->addModelTransformer(new JsonToArrayTransformer());
-
         $menu = $options['menu'];
         if ($menu instanceof Menu) {
             $locale         = $options['locale'];
             $baseExcludeIds = array_values(array_unique($options['exclude_ids']));
             /** @var MenuItem|null $menuItemFormData set by reference: EntityType may reload choices after bind */
-            $menuItemFormData = $builder->getData() instanceof MenuItem ? $builder->getData() : null;
+            $menuItemFormData = $formData instanceof MenuItem ? $formData : null;
             $itemRepository   = $this->menuItemRepository;
             $queryBuilder     = static function ($_repository) use ($itemRepository, $menu, $baseExcludeIds, $menuItemFormData): QueryBuilder {
                 unset($_repository);
@@ -175,19 +245,38 @@ final class MenuItemConfigType extends AbstractType
                 // can appear as its own parent. Plain EntityType uses query_builder choices only.
             ]);
         }
+
+        $builder->add('sectionCollapsible', ChoiceType::class, [
+            'required'                  => false,
+            'label'                     => 'form.menu_item_type.section_collapsible.label',
+            'help'                      => 'form.menu_item_type.section_collapsible.help',
+            'placeholder'               => $t('form.menu_item_type.section_collapsible.inherit'),
+            'choices'                   => [
+                'form.menu_item_type.section_collapsible.yes' => true,
+                'form.menu_item_type.section_collapsible.no'  => false,
+            ],
+            'choice_translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
+            'attr'                      => ['class' => 'form-select'],
+            'row_attr'                  => ['class' => 'mb-1'],
+            'label_attr'                => ['class' => 'form-label'],
+        ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class'  => MenuItem::class,
-            'app_routes'  => [],
-            'menu'        => null,
-            'exclude_ids' => [],
-            'locale'      => $this->defaultLocale,
+            'data_class'         => MenuItem::class,
+            'app_routes'         => [],
+            'menu'               => null,
+            'exclude_ids'        => [],
+            'locale'             => $this->defaultLocale,
+            'item_form_section'  => null,
+            // Passed from MenuItemType: child builder getData() is null during buildForm with inherit_data.
+            'menu_item'          => null,
             'constraints' => [
                 new Callback($this->validateParentNoCircular(...)),
                 new Callback($this->validateSectionMustBeRoot(...)),
+                new Callback($this->validateServiceRequiresResolver(...)),
             ],
             'translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
         ]);
@@ -195,6 +284,26 @@ final class MenuItemConfigType extends AbstractType
         $resolver->setAllowedTypes('menu', [Menu::class, 'null']);
         $resolver->setAllowedTypes('exclude_ids', 'array');
         $resolver->setAllowedTypes('locale', 'string');
+        $resolver->setAllowedTypes('item_form_section', ['string', 'null']);
+        $resolver->setAllowedTypes('menu_item', [MenuItem::class, 'null']);
+    }
+
+    /**
+     * Model for this compound type: with inherit_data the child builder often has no data during
+     * buildForm(); MenuItemType sets menu_item, and unit tests may set data on the builder directly.
+     *
+     * @param array<string, mixed> $options
+     */
+    private function resolveMenuItemFormData(FormBuilderInterface $builder, array $options): mixed
+    {
+        $data = $builder->getData();
+        if ($data instanceof MenuItem) {
+            return $data;
+        }
+
+        $fromParent = $options['menu_item'] ?? null;
+
+        return $fromParent instanceof MenuItem ? $fromParent : $data;
     }
 
     /**
@@ -291,6 +400,20 @@ final class MenuItemConfigType extends AbstractType
         if ($item->getParent() !== null) {
             $context->buildViolation('form.menu_item_type.parent.section_must_be_root')
                 ->atPath('parent')
+                ->setTranslationDomain(NowoDashboardMenuBundle::TRANSLATION_DOMAIN)
+                ->addViolation();
+        }
+    }
+
+    public function validateServiceRequiresResolver(MenuItem $item, ExecutionContextInterface $context): void
+    {
+        if ($item->getItemType() !== MenuItem::ITEM_TYPE_SERVICE) {
+            return;
+        }
+        $resolver = $item->getLinkResolver();
+        if ($resolver === null || $resolver === '') {
+            $context->buildViolation('form.menu_item_type.link_resolver.required')
+                ->atPath('linkResolver')
                 ->setTranslationDomain(NowoDashboardMenuBundle::TRANSLATION_DOMAIN)
                 ->addViolation();
         }

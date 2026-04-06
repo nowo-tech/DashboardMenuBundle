@@ -2,6 +2,16 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 0.3.36 to 0.3.37
+
+No intentional breaking changes to the public HTTP API or route names.
+
+- **Database:** new nullable columns (e.g. `link_resolver` on menu items, `section_collapsible`, menu CSS class fields). Run `bin/console nowo_dashboard_menu:generate-migration` (or your own migration) against the bundle schema and migrate before using the new features in production.
+- **Config:** optional `menu_link_resolver_choices` (service id => label) when you register `MenuLinkResolverInterface` implementations; auto-tagging applies tag `nowo_dashboard_menu.menu_link_resolver` when enabled.
+- **Custom `MenuItemBasicType` service:** if you copied the bundle definition, remove the `$translator: '@translator'` argument — the type no longer accepts `TranslatorInterface`.
+- **Internal PHP classes:** `MenuCrudController` and `MenuItemController` were removed (they were never wired by the bundle’s `routes_dashboard.yaml`). If you forked them, keep your copy in the app namespace.
+- **Templates / integrations:** prefer `DashboardRoutes` (or the `dashboard_routes` map) for route names; `MenuDashboardController::ROUTE_*` still work as aliases.
+
 ## From 0.3.35 to 0.3.36
 
 No breaking changes.

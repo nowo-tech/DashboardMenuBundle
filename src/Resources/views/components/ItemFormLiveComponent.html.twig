@@ -13,6 +13,7 @@
              data-php-item-type="{{ this.getItemType() }}"
              data-php-link-type="{{ this.getLinkType() }}"
              data-php-show-link-fields="{{ this.showLinkFields() ? '1' : '0' }}"
+             data-php-show-service-fields="{{ this.showServiceLinkFields() ? '1' : '0' }}"
              data-php-show-route-fields="{{ this.showRouteFields() ? '1' : '0' }}"
              data-php-show-external-url="{{ this.showExternalUrlField() ? '1' : '0' }}"
              data-php-item-has-children="{{ this.itemHasChildren ? '1' : '0' }}"
@@ -115,31 +116,68 @@
                     <div class="d-none">{{ form_row(form.config.parent) }}</div>
                 {% endif %}
             {% endif %}
+            {% if form.config.sectionCollapsible is defined %}
+                {% if this.showSectionCollapsibleField() %}
+                    {% set formName = form.vars.name %}
+                    {{ form_row(form.config.sectionCollapsible, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.sectionCollapsible' } }) }}
+                {% else %}
+                    <div class="d-none">{{ form_row(form.config.sectionCollapsible) }}</div>
+                {% endif %}
+            {% endif %}
             <div class="row">
-                {% if this.showLinkFields() %}
+                {% if this.showLinkFields() and form.config.linkType is defined %}
                     <div class="col-md-6">{{ form_row(form.config.linkType, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.linkType' } }) }}</div>
                 {% endif %}
             </div>
-            {% if this.showLinkFields() %}
-                <div class="mb-2 {{ not this.showRouteFields() ? 'd-none' : '' }}">
-                    {{ form_row(form.config.routeName) }}
-                    {{ form_row(form.config.routeParams) }}
-                    {% set suggested = this.suggestedRouteParams %}
-                    {% if suggested is not empty %}
-                        <small class="form-text text-muted d-block mt-1">{{ 'Suggested:'|trans({}, 'NowoDashboardMenuBundle') }} {{ suggested|json_encode(2) }}</small>
+            {% if this.showServiceLinkFields() and form.config.linkResolver is defined %}
+                <div class="mb-2" id="item_service_link_block">
+                    {{ form_row(form.config.linkResolver, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.linkResolver' } }) }}
+                    {% if form.config.routeParams is defined %}
+                        <small class="form-text text-muted d-block mb-2">{{ 'form.menu_item_type.link_resolver.route_params_hint'|trans({}, 'NowoDashboardMenuBundle') }}</small>
                     {% endif %}
                 </div>
-                <div class="mb-2 {{ not this.showExternalUrlField() ? 'd-none' : '' }}">
-                    {{ form_row(form.config.externalUrl) }}
+            {% endif %}
+            {% if this.showLinkFields() and form.config.linkType is defined %}
+                <div class="mb-2" id="item_classic_link_block">
+                    {% if form.config.routeName is defined %}
+                    <div class="mb-2 {{ not this.showRouteFields() ? 'd-none' : '' }}" id="route_name_row">
+                        {{ form_row(form.config.routeName, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.routeName' } }) }}
+                    </div>
+                    {% endif %}
                 </div>
-                {{ form_row(form.config.targetBlank, { row_attr: { class: 'form-check ms-0 mb-1' } }) }}
-            {% else %}
+                {% if form.config.externalUrl is defined %}
+                <div class="mb-2 {{ not this.showExternalUrlField() ? 'd-none' : '' }}" id="item_external_link_block">
+                    {{ form_row(form.config.externalUrl, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.externalUrl' } }) }}
+                </div>
+                {% endif %}
+            {% endif %}
+            {% if (this.showLinkFields() or this.showServiceLinkFields()) and form.config.routeParams is defined %}
+                <div
+                    class="mb-2 {% if this.showLinkFields() and not this.showRouteFields() %}d-none{% endif %}"
+                    id="route_fields"
+                >
+                    {{ form_row(form.config.routeParams, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.routeParams' } }) }}
+                    {% if this.showRouteFields() %}
+                        {% set suggested = this.suggestedRouteParams %}
+                        {% if suggested is not empty %}
+                            <small class="form-text text-muted d-block mt-1">{{ 'Suggested:'|trans({}, 'NowoDashboardMenuBundle') }} {{ suggested|json_encode(2) }}</small>
+                        {% endif %}
+                    {% endif %}
+                    <small class="form-text text-muted d-none mt-1" id="route_params_hint" aria-hidden="true"></small>
+                </div>
+            {% endif %}
+            {% if (this.showLinkFields() or this.showServiceLinkFields()) and form.config.targetBlank is defined %}
+                {{ form_row(form.config.targetBlank, { row_attr: { class: 'form-check ms-0 mb-1' }, attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.targetBlank' } }) }}
+            {% elseif not this.showServiceLinkFields() %}
                 <div class="d-none">
-                    {{ form_row(form.config.linkType, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.linkType' } }) }}
-                    {{ form_row(form.config.routeName) }}
-                    {{ form_row(form.config.routeParams) }}
-                    {{ form_row(form.config.externalUrl) }}
-                    {{ form_row(form.config.targetBlank, { row_attr: { class: 'form-check ms-0 mb-1' } }) }}
+                    {% if form.config.linkType is defined %}{{ form_row(form.config.linkType, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.linkType' } }) }}{% endif %}
+                    {% if form.config.routeName is defined %}{{ form_row(form.config.routeName, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.routeName' } }) }}{% endif %}
+                    {% if form.config.routeParams is defined %}{{ form_row(form.config.routeParams, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.routeParams' } }) }}{% endif %}
+                    {% if form.config.externalUrl is defined %}{{ form_row(form.config.externalUrl, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.externalUrl' } }) }}{% endif %}
+                    {% if form.config.targetBlank is defined %}{{ form_row(form.config.targetBlank, { row_attr: { class: 'form-check ms-0 mb-1' }, attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.targetBlank' } }) }}{% endif %}
+                    {% if form.config.linkResolver is defined %}
+                        {{ form_row(form.config.linkResolver, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.linkResolver' } }) }}
+                    {% endif %}
                 </div>
             {% endif %}
             {% if form.config.permissionKeys is defined %}

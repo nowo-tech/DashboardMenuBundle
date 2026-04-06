@@ -84,7 +84,7 @@ final readonly class CurrentRouteTreeDecorator
      */
     private function isLinkCurrent(MenuItem $item, string $normalizedCurrentPath, array $currentQuery): bool
     {
-        if ($item->getItemType() !== MenuItem::ITEM_TYPE_LINK) {
+        if ($item->getItemType() !== MenuItem::ITEM_TYPE_LINK && $item->getItemType() !== MenuItem::ITEM_TYPE_SERVICE) {
             return false;
         }
         $href     = $this->urlResolver->getHref($item, UrlGeneratorInterface::ABSOLUTE_PATH);

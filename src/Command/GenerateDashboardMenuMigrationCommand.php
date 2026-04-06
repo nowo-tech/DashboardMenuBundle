@@ -131,6 +131,13 @@ PHP;
                     $quoted     = $platform->quoteSingleIdentifier($menuTable);
                     $alterSql[] = sprintf('ALTER TABLE %s ADD ul_id VARCHAR(255) DEFAULT NULL', $quoted);
                 }
+                if ($sm->tablesExist([$itemTable])) {
+                    $itemSchema = $sm->introspectTable($itemTable);
+                    if (!$itemSchema->hasColumn('link_resolver')) {
+                        $quoted     = $platform->quoteSingleIdentifier($itemTable);
+                        $alterSql[] = sprintf('ALTER TABLE %s ADD link_resolver VARCHAR(255) DEFAULT NULL', $quoted);
+                    }
+                }
                 // Only output ALTER statements for update mode.
                 $sql = $alterSql;
             }

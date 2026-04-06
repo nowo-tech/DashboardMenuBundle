@@ -114,6 +114,77 @@ final class MenuItemTypeTest extends TestCase
         self::assertContains('config', $names);
     }
 
+    public function testMenuItemTypeBuildFormAddsBasicIconAndConfigWhenSectionIdentity(): void
+    {
+        $this->createStub(MenuItemRepository::class);
+        $addCalls = [];
+        $builder  = $this->createFormBuilderMock($addCalls);
+
+        $type = new MenuItemType();
+        $type->buildForm($builder, [
+            'app_routes'        => [],
+            'available_locales' => [],
+            'menu'              => null,
+            'exclude_ids'       => [],
+            'locale'            => 'en',
+            'section'           => 'identity',
+        ]);
+
+        $names = array_map(static fn (array $c): string => $c['name'], $addCalls);
+        self::assertContains('basic', $names);
+        self::assertContains('icon', $names);
+        self::assertContains('config', $names);
+    }
+
+    public function testMenuItemTypeBuildFormAddsBasicIconWithoutConfigWhenSectionMinimal(): void
+    {
+        $this->createStub(MenuItemRepository::class);
+        $addCalls = [];
+        $builder  = $this->createFormBuilderMock($addCalls);
+
+        $type = new MenuItemType();
+        $type->buildForm($builder, [
+            'app_routes'           => [],
+            'available_locales'    => [],
+            'menu'                 => null,
+            'exclude_ids'          => [],
+            'locale'               => 'en',
+            'section'              => 'minimal',
+            'include_translations' => false,
+        ]);
+
+        $names = array_map(static fn (array $c): string => $c['name'], $addCalls);
+        self::assertContains('basic', $names);
+        self::assertContains('icon', $names);
+        self::assertNotContains('config', $names);
+
+        $iconCall = $this->findAddCall($addCalls, 'icon');
+        self::assertNotNull($iconCall);
+        self::assertTrue($iconCall['item_type_only'] ?? false);
+    }
+
+    public function testMenuItemTypeBuildFormAddsIconOnlyWhenSectionIcon(): void
+    {
+        $this->createStub(MenuItemRepository::class);
+        $addCalls = [];
+        $builder  = $this->createFormBuilderMock($addCalls);
+
+        $type = new MenuItemType();
+        $type->buildForm($builder, [
+            'app_routes'        => [],
+            'available_locales' => [],
+            'menu'              => null,
+            'exclude_ids'       => [],
+            'locale'            => 'en',
+            'section'           => 'icon',
+        ]);
+
+        $names = array_map(static fn (array $c): string => $c['name'], $addCalls);
+        self::assertNotContains('basic', $names);
+        self::assertContains('icon', $names);
+        self::assertNotContains('config', $names);
+    }
+
     public function testMenuItemBasicTypeBuildFormAddsLabelField(): void
     {
         $availableLocales = [];
@@ -209,9 +280,9 @@ final class MenuItemTypeTest extends TestCase
             default    => $labelEn,
         });
 
-        $formParent = $this->createMock(FormInterface::class);
-        $formParent->method('getData')->willReturn($menuItem);
-        $form->method('getParent')->willReturn($formParent);
+        $formRoot = $this->createMock(FormInterface::class);
+        $formRoot->method('getData')->willReturn($menuItem);
+        $form->method('getRoot')->willReturn($formRoot);
 
         $event = $this->createMock(FormEvent::class);
         $event->method('getData')->willReturn(new stdClass());
@@ -267,9 +338,9 @@ final class MenuItemTypeTest extends TestCase
             default    => $labelEn,
         });
 
-        $formParent = $this->createMock(FormInterface::class);
-        $formParent->method('getData')->willReturn($menuItem);
-        $form->method('getParent')->willReturn($formParent);
+        $formRoot = $this->createMock(FormInterface::class);
+        $formRoot->method('getData')->willReturn($menuItem);
+        $form->method('getRoot')->willReturn($formRoot);
 
         $event = $this->createMock(FormEvent::class);
         $event->method('getData')->willReturn(new stdClass());
@@ -299,10 +370,10 @@ final class MenuItemTypeTest extends TestCase
         self::assertArrayHasKey(FormEvents::SUBMIT, $eventListeners);
         $submitListener = $eventListeners[FormEvents::SUBMIT];
 
-        $form       = $this->createMock(FormInterface::class);
-        $formParent = $this->createMock(FormInterface::class);
-        $formParent->method('getData')->willReturn(new stdClass());
-        $form->method('getParent')->willReturn($formParent);
+        $form     = $this->createMock(FormInterface::class);
+        $formRoot = $this->createMock(FormInterface::class);
+        $formRoot->method('getData')->willReturn(new stdClass());
+        $form->method('getRoot')->willReturn($formRoot);
 
         $event = $this->createMock(FormEvent::class);
         $event->method('getData')->willReturn(new stdClass());
@@ -555,6 +626,8 @@ final class MenuItemTypeTest extends TestCase
         self::assertNull($options['menu']);
         self::assertSame([], $options['exclude_ids']);
         self::assertSame('en', $options['locale']);
+        self::assertNull($options['item_form_section']);
+        self::assertNull($options['menu_item']);
         self::assertSame(NowoDashboardMenuBundle::TRANSLATION_DOMAIN, $options['translation_domain']);
 
         $optionsOverride = $resolver->resolve([
@@ -603,6 +676,72 @@ final class MenuItemTypeTest extends TestCase
 
         $attrUnknown = $choiceAttr(null, 'Unknown', 'unknown_route');
         self::assertSame('[]', $attrUnknown['data-params']);
+    }
+
+    public function testMenuItemConfigTypeConfigSectionServiceOmitsClassicLinkFields(): void
+    {
+        $repo = $this->createStub(MenuItemRepository::class);
+        $type = new MenuItemConfigType(
+            menuItemRepository: $repo,
+            permissionKeyChoices: [],
+            menuLinkResolverChoices: ['App\\DemoResolver' => 'Demo resolver'],
+            defaultLocale: 'en',
+        );
+
+        $item = new MenuItem();
+        $item->setItemType(MenuItem::ITEM_TYPE_SERVICE);
+        $item->setLinkResolver('App\\DemoResolver');
+
+        $addCalls = [];
+        $builder = $this->createFormBuilderMock($addCalls, $item);
+
+        $type->buildForm($builder, [
+            'app_routes'         => [],
+            'menu'               => null,
+            'exclude_ids'        => [],
+            'locale'             => 'en',
+            'item_form_section'  => 'config',
+        ]);
+
+        self::assertNull($this->findAddCall($addCalls, 'linkType'));
+        self::assertNull($this->findAddCall($addCalls, 'routeName'));
+        self::assertNull($this->findAddCall($addCalls, 'externalUrl'));
+        self::assertNull($this->findAddCall($addCalls, 'routeParams'));
+        self::assertNotNull($this->findAddCall($addCalls, 'targetBlank'));
+        self::assertNotNull($this->findAddCall($addCalls, 'linkResolver'));
+    }
+
+    /**
+     * Same entity as inherit_data, but child FormBuilder::getData() is null during buildForm (Symfony).
+     */
+    public function testMenuItemConfigTypeUsesMenuItemOptionWhenBuilderDataIsNull(): void
+    {
+        $repo = $this->createStub(MenuItemRepository::class);
+        $type = new MenuItemConfigType(
+            menuItemRepository: $repo,
+            permissionKeyChoices: [],
+            menuLinkResolverChoices: ['App\\DemoResolver' => 'Demo resolver'],
+            defaultLocale: 'en',
+        );
+
+        $item = new MenuItem();
+        $item->setItemType(MenuItem::ITEM_TYPE_SERVICE);
+        $item->setLinkResolver('App\\DemoResolver');
+
+        $addCalls = [];
+        $builder = $this->createFormBuilderMock($addCalls, null);
+
+        $type->buildForm($builder, [
+            'app_routes'        => [],
+            'menu'              => null,
+            'exclude_ids'       => [],
+            'locale'            => 'en',
+            'item_form_section' => 'config',
+            'menu_item'         => $item,
+        ]);
+
+        self::assertNotNull($this->findAddCall($addCalls, 'linkResolver'));
+        self::assertNull($this->findAddCall($addCalls, 'linkType'));
     }
 
     public function testMenuItemConfigTypeAddsParentFieldWhenMenuOptionIsMenuInstance(): void

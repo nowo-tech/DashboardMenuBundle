@@ -1,19 +1,25 @@
 {# Renders a dashboard menu tree. Optional: pass menuConfig or use dashboard_menu_config(menuCode). #}
 {# Usage: {% set tree = dashboard_menu_tree('sidebar') %} {% set menuConfig = menuConfig|default(dashboard_menu_config('sidebar')) %} {{ include('@NowoDashboardMenuBundle/menu.html.twig', { menuTree: tree, menuCode: menuCode|default('sidebar'), menuConfig: menuConfig }) }} #}
-{% macro render_node(node, menuConfig, depth, idPrefix) %}
+{% macro render_node(node, menuConfig, depth, idPrefix, parentItemType) %}
     {% set idPrefix = idPrefix|default('menu') %}
+    {% set parentItemType = parentItemType|default('') %}
     {% set item = node.item %}
     {% set itemType = item.itemType|default('link') %}
     {% set depthLimit = menuConfig.depth_limit %}
     {% set maxReached = depthLimit is not null and depth >= depthLimit %}
-    {% set itemClasses = menuConfig.classes.item is defined ? menuConfig.classes.item : '' %}
-    {% set linkClasses = menuConfig.classes.link is defined ? menuConfig.classes.link : '' %}
+    {% set baseItemClasses = menuConfig.classes.item is defined ? menuConfig.classes.item : '' %}
+    {% set sectionChildItemClasses = menuConfig.classes.section_child_item is defined ? menuConfig.classes.section_child_item : '' %}
+    {% set itemClasses = parentItemType == 'section' and sectionChildItemClasses|trim != '' ? sectionChildItemClasses : baseItemClasses %}
+    {% set baseLinkClasses = menuConfig.classes.link is defined ? menuConfig.classes.link : '' %}
+    {% set sectionChildLinkClasses = menuConfig.classes.section_child_link is defined ? menuConfig.classes.section_child_link : '' %}
+    {% set linkClasses = parentItemType == 'section' and sectionChildLinkClasses|trim != '' ? sectionChildLinkClasses : baseLinkClasses %}
     {% set childrenClasses = menuConfig.classes.children is defined ? menuConfig.classes.children : '' %}
+    {% set sectionDirectChildrenClasses = menuConfig.classes.section_children is defined ? menuConfig.classes.section_children : '' %}
     {% set sectionLabelClasses = menuConfig.classes.section_label is defined ? menuConfig.classes.section_label : 'navigation-header' %}
     {% set sectionItemClasses = menuConfig.classes.section is defined ? menuConfig.classes.section : 'menu-section' %}
     {% set dividerItemClasses = menuConfig.classes.divider is defined ? menuConfig.classes.divider : 'menu-divider' %}
     {% set iconName = item.icon|default(menuConfig.icons.default) %}
-    {% set showIcon = menuConfig.icons.enabled and iconName is not empty and itemType == 'link' %}
+    {% set showIcon = menuConfig.icons.enabled and iconName is not empty and (itemType == 'link' or itemType == 'service') %}
     {% set classCurrent = menuConfig.classes.class_current is defined ? menuConfig.classes.class_current : 'active' %}
     {% set classBranchExpanded = menuConfig.classes.class_branch_expanded is defined ? menuConfig.classes.class_branch_expanded : 'active-branch' %}
     {% set classHasChildren = menuConfig.classes.class_has_children is defined ? menuConfig.classes.class_has_children : '' %}
@@ -23,8 +29,14 @@
     {% set hasCurrentInBranch = node.hasCurrentInBranch|default(false) %}
     {% set nestedCollapsible = menuConfig.nested_collapsible|default(false) %}
     {% set nestedCollapsibleSections = menuConfig.nested_collapsible_sections|default(true) %}
+    {% set menuDefaultSectionCollapsible = nestedCollapsible and nestedCollapsibleSections %}
     {% set hasChildren = not maxReached and node.children|length > 0 %}
-    {% set useNestedCollapsibleForChildren = nestedCollapsible and (itemType != 'section' or nestedCollapsibleSections) %}
+    {% if itemType == 'section' %}
+        {% set sectionChildrenCollapsible = item.sectionCollapsible is null ? menuDefaultSectionCollapsible : item.sectionCollapsible %}
+    {% else %}
+        {% set sectionChildrenCollapsible = false %}
+    {% endif %}
+    {% set useNestedCollapsibleForChildren = (itemType == 'section' and sectionChildrenCollapsible) or (itemType != 'section' and nestedCollapsible) %}
     {% set liExtra = (hasCurrentInBranch ? classBranchExpanded : '') %}
     {% set liExtra = liExtra ~ (hasChildren and classHasChildren is not empty ? ' ' ~ classHasChildren : '') %}
     {% set liExtra = liExtra ~ (hasChildren and hasCurrentInBranch and classExpanded is not empty ? ' ' ~ classExpanded : '') %}
@@ -37,10 +49,10 @@
         {% if itemType == 'divider' %}
             <hr>
         {% elseif itemType == 'section' %}
-            <span class="d-flex align-items-center flex-nowrap">
-                <span class="{{ sectionLabelClasses }}">{{ item.label }}</span>
+            <span class="d-flex align-items-center justify-content-between w-100 gap-2 flex-nowrap">
+                <span class="{{ sectionLabelClasses }} min-w-0">{{ item.label }}</span>
                 {% if useNestedCollapsibleForChildren and hasChildren %}
-                    <button type="button" class="btn btn-link btn-sm p-0 ms-1 menu-nested-toggle" data-bs-toggle="collapse" data-bs-target="#{{ collapseId }}" aria-expanded="true" aria-controls="{{ collapseId }}" title="{{ 'dashboard.toggle'|trans({}, 'NowoDashboardMenuBundle') }}">
+                    <button type="button" class="btn btn-link btn-sm p-0 menu-nested-toggle flex-shrink-0 align-self-center" data-bs-toggle="collapse" data-bs-target="#{{ collapseId }}" aria-expanded="true" aria-controls="{{ collapseId }}" title="{{ 'dashboard.toggle'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.toggle'|trans({}, 'NowoDashboardMenuBundle') }}">
                         <span class="menu-nested-toggle-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M2.5 5.5L8 11l5.5-5.5H2.5z"/></svg></span>
                     </button>
                 {% endif %}
@@ -71,18 +83,19 @@
             {% endif %}
         {% endif %}
         {% if hasChildren %}
+            {% set childUlClasses = itemType == 'section' and sectionDirectChildrenClasses|trim != '' ? sectionDirectChildrenClasses : childrenClasses %}
             {% if useNestedCollapsibleForChildren %}
                 <div id="{{ collapseId }}" class="collapse show">
-                    <ul{% if childrenClasses %} class="{{ childrenClasses }}"{% endif %}>
+                    <ul{% if childUlClasses %} class="{{ childUlClasses }}"{% endif %}>
                         {% for child in node.children %}
-                            {{ _self.render_node(child, menuConfig, depth + 1, idPrefix) }}
+                            {{ _self.render_node(child, menuConfig, depth + 1, idPrefix, itemType) }}
                         {% endfor %}
                     </ul>
                 </div>
             {% else %}
-                <ul{% if childrenClasses %} class="{{ childrenClasses }}"{% endif %}>
+                <ul{% if childUlClasses %} class="{{ childUlClasses }}"{% endif %}>
                     {% for child in node.children %}
-                        {{ _self.render_node(child, menuConfig, depth + 1, idPrefix) }}
+                        {{ _self.render_node(child, menuConfig, depth + 1, idPrefix, itemType) }}
                     {% endfor %}
                 </ul>
             {% endif %}
@@ -108,7 +121,7 @@
 {% set menuAttrs = menuConfig.context is defined and menuConfig.context is iterable ? menuConfig.context : [] %}
 <ul{% if menuConfig.ul_id is not null and menuConfig.ul_id != '' %} id="{{ menuConfig.ul_id|e('html_attr') }}"{% endif %} class="{{ rootClasses }} {{ code }} dashboard-menu-tree"{% for key, value in menuAttrs %} {{ key }}="{{ value is same as(true) ? 'true' : (value is same as(false) ? 'false' : value) }}"{% endfor %}>
     {% for node in menuTree %}
-        {{ _self.render_node(node, menuConfig, 1, code) }}
+        {{ _self.render_node(node, menuConfig, 1, code, '') }}
     {% endfor %}
 </ul>
 {% if collapsible %}

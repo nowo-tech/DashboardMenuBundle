@@ -12,7 +12,9 @@ dashboard:
   edit_item: Edit item
   edit_items: Edit items
   edit_identity: "Edit (icon, label, type)"
-  edit_config: "Edit configuration (position, link, permission)"
+  edit_labels: "Edit label and translations"
+  edit_type_position_icon: "Edit type, position and icon"
+  edit_config: "Edit configuration (parent, link, permissions)"
   copy: Copy
   copy_menu: Copy menu
   copy_menu_help: "Copy menu and all its items. You can change the code and name for the new menu."
@@ -135,8 +137,8 @@ form:
     nested_collapsible:
       label: "Nested collapsible (items with children have toggle)"
     nested_collapsible_sections:
-      label: "Allow section items to be collapsible"
-      help: "When nested collapsible is enabled, section items can show a toggle and collapse their children. Disable to always show section children (no toggle)."
+      label: "Collapsible sections"
+      help: "Requires nested collapsible. When enabled, section rows show a chevron on the right and their links can be folded. When disabled, section children stay always expanded (no chevron)."
     class_menu:
       label: "Class menu (root <ul>)"
       placeholder: "e.g. nav flex-column"
@@ -152,6 +154,18 @@ form:
     class_children:
       label: "Class children (nested <ul>)"
       placeholder: "e.g. nav flex-column ms-2"
+    class_section_children:
+      label: "Class section children (<ul> under itemType \"section\")"
+      placeholder: "e.g. nav flex-column list-unstyled ps-0 (flat; empty = same as children)"
+      help: "When set, the first-level list under each section uses these classes instead of “Class children”, so links can align with the section title (no indent). Leave empty to keep using the nested children class."
+    class_section_child_item:
+      label: "Class <li> for direct children of itemType \"section\""
+      placeholder: "e.g. nav-item ms-0 (empty = same as Class item)"
+      help: "When set, links and dividers that are direct children of a section use this for the <li> class instead of “Class item”. Use for margin/padding tweaks under flat section lists."
+    class_section_child_link:
+      label: "Class <a> for direct children of itemType \"section\""
+      placeholder: "e.g. d-flex align-items-center ps-0 (empty = same as Class link)"
+      help: "When set, links that are direct children of a section use this for the <a> class instead of “Class link”. Pairs with section child <li> for alignment."
     class_section_label:
       label: "Class section label (itemType \"section\")"
       placeholder: "e.g. navigation-header"
@@ -195,6 +209,15 @@ form:
       link: Link
       section: Section
       divider: Divider
+      service: Service (runtime URL)
+    link_resolver:
+      label: Link resolver
+      placeholder: "— Select resolver —"
+      help: "Choose a service that implements MenuLinkResolverInterface. It may return a single URL or a list of child link rows (label, href, position); the parent href is then \"#\"."
+      service_id_placeholder: "e.g. App\\Menu\\MyLinkResolver"
+      help_free_text: "Enter the service id (class name or container id) that implements MenuLinkResolverInterface."
+      required: A link resolver is required for item type “Service”.
+      route_params_hint: "Optional JSON passed to the resolver (for example route-like parameters)."
     position:
       label: Position
     link_type:
@@ -232,6 +255,12 @@ form:
       help_inheritance: "Parent items sit above this one in the tree. Permission keys on this row apply to this item; your MenuPermissionChecker decides how parent/child rules combine. Sections and expandable links only render when at least one child is shown."
       circular_violation: "Circular parent hierarchy is not allowed."
       section_must_be_root: "Section items must stay at the root level (no parent)."
+    section_collapsible:
+      label: "Section children collapsible"
+      inherit: "Use menu default"
+      yes: "Yes (collapsible with chevron)"
+      no: "No (always expanded)"
+      help: "Overrides the menu option “Collapsible sections” for this section only. “Use menu default” follows the menu configuration."
 
   import_menu_type:
     file:

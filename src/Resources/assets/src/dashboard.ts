@@ -382,6 +382,8 @@ function initShowPage(config: NowoDashboardMenuConfig): void {
   const loading = i18n('loading', 'Loading…');
   const errorMsg = i18n('errorLoadingForm', 'Error loading form.');
   const editItemLabel = i18n('editItem', 'Edit item');
+  const editLabelsLabel = i18n('editLabels', 'Edit label and translations');
+  const editTypePositionIconLabel = i18n('editTypePositionIcon', 'Edit type, position and icon');
   const addItemLabel = i18n('addItem', 'Add item');
   const deleteItemConfirmTpl = i18n('deleteItemConfirm', 'Delete this item and its children?');
 
@@ -401,8 +403,8 @@ function initShowPage(config: NowoDashboardMenuConfig): void {
       }
       if (body) {
         body.innerHTML = `<div class="text-center py-4 text-muted">${loading}</div>`;
-        let url = `${baseUrl}/${id}/edit?_partial=1`;
-        if (section) url += `&section=${encodeURIComponent(section)}`;
+        let url = `${baseUrl}/${id}/edit`;
+        if (section) url += `?section=${encodeURIComponent(section)}`;
         fetch(url)
           .then((r) => r.text())
           .then((html) => {
@@ -456,16 +458,18 @@ function initShowPage(config: NowoDashboardMenuConfig): void {
       if (title) {
         if (isAdd) title.textContent = addItemLabel;
         else if (section === 'config') title.textContent = editConfigLabel;
+        else if (section === 'basic') title.textContent = editLabelsLabel;
+        else if (section === 'icon') title.textContent = editTypePositionIconLabel;
         else title.textContent = editItemLabel;
       }
       if (body) {
         body.innerHTML = `<div class="text-center py-4 text-muted">${loading}</div>`;
         let url: string;
         if (isEdit) {
-          url = `${baseUrl}/${mid}/item/${itemId}/edit?_partial=1`;
-          if (section) url += `&section=${encodeURIComponent(section)}`;
+          url = `${baseUrl}/${mid}/item/${itemId}/edit`;
+          if (section) url += `?section=${encodeURIComponent(section)}`;
         } else {
-          url = `${baseUrl}/${mid}/item/new?_partial=1${parent ? `&parent=${encodeURIComponent(parent)}` : ''}`;
+          url = `${baseUrl}/${mid}/item/new${parent ? `?parent=${encodeURIComponent(parent)}` : ''}`;
         }
         fetch(url)
           .then((r) => r.text())
@@ -485,6 +489,11 @@ function initShowPage(config: NowoDashboardMenuConfig): void {
                 const basicEl = container.querySelector('#item_basic_section');
                 if (basicEl) {
                   basicEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+              } else if (section === 'icon') {
+                const iconEl = container.querySelector('#item_icon_section');
+                if (iconEl) {
+                  iconEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
               }
               document.dispatchEvent(
@@ -550,8 +559,8 @@ function initIndexPage(config: NowoDashboardMenuConfig): void {
         title.textContent = section === 'config' ? editConfigLabel : editMenuLabel;
       }
       body.innerHTML = `<div class="text-center py-4 text-muted">${loading}</div>`;
-      let url = `${dashboardBase}/${id}/edit?_partial=1`;
-      if (section) url += `&section=${encodeURIComponent(section)}`;
+      let url = `${dashboardBase}/${id}/edit`;
+      if (section) url += `?section=${encodeURIComponent(section)}`;
       fetch(url)
         .then((r) => r.text())
         .then((html) => {
@@ -593,7 +602,7 @@ function initIndexPage(config: NowoDashboardMenuConfig): void {
   if (importModal && importModalBody) {
     importModal.addEventListener('show.bs.modal', (e) => {
       const btn = (e as Event & { relatedTarget: HTMLElement | null }).relatedTarget;
-      const importUrl = btn?.getAttribute('data-import-url') ?? `${dashboardBase}/import?_partial=1`;
+      const importUrl = btn?.getAttribute('data-import-url') ?? `${dashboardBase}/import`;
       importModalBody.innerHTML = `<div class="text-center py-4 text-muted">${loading}</div>`;
       fetch(importUrl)
         .then((r) => r.text())
@@ -669,16 +678,25 @@ function attachItemFormToggles(
     const itemParentField = f.querySelector<HTMLElement>('#item_parent_field');
     const parentSelect = f.querySelector<HTMLSelectElement>('[name*="[parent]"]');
     const linkType = f.querySelector<HTMLSelectElement>('[name*="[linkType]"]');
+    const routeNameRow = f.querySelector<HTMLElement>('#route_name_row');
     const routeFields = f.querySelector<HTMLElement>('#route_fields');
     const externalField = f.querySelector<HTMLElement>('#external_field');
+    const serviceLinkBlock = f.querySelector<HTMLElement>('#item_service_link_block');
+    const classicLinkBlock = f.querySelector<HTMLElement>('#item_classic_link_block');
     const basicLabelIconFields = f.querySelector<HTMLElement>('#item_basic_label_icon_fields');
     const dividerLabelHint = f.querySelector<HTMLElement>('#divider_label_hint');
+    const sectionCollapsibleRow = f.querySelector<HTMLElement>('#item_section_collapsible_row');
 
-    const type = itemTypeField?.value ?? 'link';
+    const initialFromData = itemLinkFields?.dataset.initialItemType?.trim();
+    const type = itemTypeField?.value ?? initialFromData ?? 'link';
     const isLink = type === 'link';
+    const isService = type === 'service';
     const isSectionOrDivider = type === 'section' || type === 'divider';
     const isDivider = type === 'divider';
     const hasChildren = itemLinkFields?.getAttribute('data-item-has-children') === 'true';
+    // Service items always show the link area (resolver + targetBlank) regardless of DB children.
+    // Link items with children are dropdown parents (no leaf destination), so hide link area.
+    const showLinkArea = isService || (isLink && !hasChildren);
 
     if (basicLabelIconFields) {
       basicLabelIconFields.style.display = 'block';
@@ -687,18 +705,32 @@ function attachItemFormToggles(
       dividerLabelHint.style.display = isDivider ? 'block' : 'none';
     }
     if (itemLinkFields) {
-      itemLinkFields.style.display = isLink && !hasChildren ? 'block' : 'none';
+      itemLinkFields.style.display = showLinkArea ? 'block' : 'none';
     }
-    if (isLink && !hasChildren && linkType && routeFields && externalField) {
-      const isExternal = linkType.value === 'external';
-      routeFields.style.display = isExternal ? 'none' : 'block';
-      externalField.style.display = isExternal ? 'block' : 'none';
+    if (showLinkArea) {
+      /*if (serviceLinkBlock) {
+        serviceLinkBlock.style.display = isService ? 'block' : 'none';
+      }*/
+      if (classicLinkBlock) {
+        classicLinkBlock.style.display = isService ? 'none' : 'block';
+      }
+      if (isService) {
+        if (routeFields) routeFields.style.display = 'none';
+      } else if (isLink && linkType && routeFields && externalField) {
+        const isExternal = linkType.value === 'external';
+        if (routeNameRow) routeNameRow.style.display = isExternal ? 'none' : 'block';
+        routeFields.style.display = isExternal ? 'none' : 'block';
+        externalField.style.display = isExternal ? 'block' : 'none';
+      }
     }
     if (itemParentField) {
       itemParentField.style.display = isSectionOrDivider ? 'none' : 'block';
     }
     if (isSectionOrDivider && parentSelect) {
       parentSelect.value = '';
+    }
+    if (sectionCollapsibleRow) {
+      sectionCollapsibleRow.style.display = type === 'section' ? 'block' : 'none';
     }
   }
 

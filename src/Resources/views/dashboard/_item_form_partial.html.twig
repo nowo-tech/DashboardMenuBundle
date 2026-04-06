@@ -4,9 +4,11 @@
 {% set _section_focus = section_focus|default('') %}
 {% set _show_translations = show_translations|default(is_edit|default(false)) %}
 {# Pencil / Add item: only definition. Gear: only configuration. Full edit: both if available. #}
-{% set _show_basic = form.basic is defined and (_section_focus == '' or _section_focus == 'basic' or _section_focus == 'identity') %}
-{% set _show_icon = form.icon is defined and (_section_focus == '' or _section_focus == 'icon' or _section_focus == 'identity') %}
-{% set _show_config = form.config is defined and (_section_focus == 'config' or (_section_focus == '' and is_edit|default(false))) %}
+{% set _show_basic = form.basic is defined and (_section_focus == '' or _section_focus == 'basic' or _section_focus == 'identity' or _section_focus == 'minimal') %}
+{% set _show_icon = form.icon is defined and (_section_focus == '' or _section_focus == 'icon' or _section_focus == 'identity' or _section_focus == 'minimal') %}
+{# Gear / full-page edit: parent, collapsible, permissions. Identity (add root item): link + resolver only in same modal. #}
+{% set _show_config_gear = form.config is defined and (_section_focus == 'config' or (_section_focus == '' and is_edit|default(false))) %}
+{% set _show_config_identity = form.config is defined and _section_focus == 'identity' %}
 <div id="modal-item-form-container" data-app-routes="{{ app_routes|default({})|json_encode|e('html_attr') }}" data-item-has-children="{{ item_has_children|default(false) ? 'true' : 'false' }}" data-section-focus="{{ _section_focus }}">
 {{ form_start(form) }}
     {% if _section_focus != '' %}
@@ -44,48 +46,85 @@
             {{ 'form.menu_item_type.section_icon'|trans({}, 'NowoDashboardMenuBundle') }}
         </h6>
         {{ form_row(form.icon.itemType, { label_attr: { class: 'form-label' } }) }}
+        {% if form.icon.position is defined or form.icon.icon is defined %}
         <div class="{{ is_edit|default(false) ? '' : 'd-none' }}">
+            {% if form.icon.position is defined %}
             {% set positionAttr = {} %}
             {% if not is_edit|default(false) %}
                 {% set positionAttr = positionAttr|merge({ 'disabled': 'disabled' }) %}
             {% endif %}
             {{ form_row(form.icon.position, { label_attr: { class: 'form-label' }, attr: positionAttr }) }}
+            {% endif %}
 
+            {% if form.icon.icon is defined %}
             {% set iconAttr = {} %}
             {% if not is_edit|default(false) %}
                 {% set iconAttr = iconAttr|merge({ 'disabled': 'disabled' }) %}
             {% endif %}
             {{ form_row(form.icon.icon, { label_attr: { class: 'form-label' }, attr: iconAttr }) }}
+            {% endif %}
         </div>
+        {% endif %}
     </div>
     {% endif %}
 
-    {% if _show_config %}
+    {% if _show_config_gear or _show_config_identity %}
     <div id="item_config_section" class="mb-2">
-        {% if _show_basic %}<hr class="my-3">{% endif %}
+        {% if _show_basic or _show_icon %}<hr class="my-3">{% endif %}
         <h6 class="text-muted mb-2">
             <i class="bi bi-gear" aria-hidden="true"></i>
             {{ 'form.menu_item_type.section_config'|trans({}, 'NowoDashboardMenuBundle') }}
         </h6>
-        {% if form.config.parent is defined %}
+        {% if _show_config_gear and form.config.parent is defined %}
         <div class="mb-2" id="item_parent_field">
             {{ form_row(form.config.parent, { label_attr: { class: 'form-label' } }) }}
         </div>
         {% endif %}
-        <div id="item_link_fields" data-item-has-children="{{ item_has_children|default(false) ? 'true' : 'false' }}">
-            {{ form_row(form.config.linkType, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-2' } }) }}
+        {% if _show_config_gear and form.config.sectionCollapsible is defined %}
+        <div id="item_section_collapsible_row" class="mb-2" style="display: none;">
+            {{ form_row(form.config.sectionCollapsible, { label_attr: { class: 'form-label' } }) }}
+        </div>
+        {% endif %}
+        {% if form.config.linkResolver is defined or form.config.linkType is defined %}
+        {% set _item_type_ui = form.vars.data.itemType|default('link') %}
+        <div
+            id="item_link_fields"
+            data-item-has-children="{{ item_has_children|default(false) ? 'true' : 'false' }}"
+            data-initial-item-type="{{ _item_type_ui }}"
+        >
+            {% if form.config.linkResolver is defined %}
+            <div id="item_service_link_block" class="mb-2"{% if form.config.linkType is defined and _item_type_ui != 'service' %} style="display: none;"{% endif %}>
+                {{ form_row(form.config.linkResolver, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-2' } }) }}
+                {% if form.config.routeParams is defined %}
+                    <small class="form-text text-muted d-block mb-2" id="item_service_route_params_hint">{{ 'form.menu_item_type.link_resolver.route_params_hint'|trans({}, 'NowoDashboardMenuBundle') }}</small>
+                {% endif %}
+            </div>
+            {% endif %}
+            {% if form.config.linkType is defined %}
+            <div id="item_classic_link_block"{% if form.config.linkResolver is defined and _item_type_ui == 'service' %} style="display: none;"{% endif %}>
+                {{ form_row(form.config.linkType, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-2' } }) }}
+                <div class="mb-2" id="route_name_row">
+                    {{ form_row(form.config.routeName, { label_attr: { class: 'form-label' } }) }}
+                </div>
+                <div class="mb-2" id="external_field" style="display: none;">
+                    {{ form_row(form.config.externalUrl, { label_attr: { class: 'form-label' } }) }}
+                </div>
+            </div>
+            {% endif %}
+            {% if form.config.routeParams is defined %}
             <div class="mb-2" id="route_fields">
-                {{ form_row(form.config.routeName, { label_attr: { class: 'form-label' } }) }}
-                {{ form_row(form.config.routeParams, { label_attr: { class: 'form-label mt-2' } }) }}
+                {{ form_row(form.config.routeParams, { label_attr: { class: 'form-label' } }) }}
                 <small class="form-text text-muted d-block mt-1" id="route_params_hint"></small>
             </div>
-            <div class="mb-2" id="external_field" style="display: none;">
-                {{ form_row(form.config.externalUrl, { label_attr: { class: 'form-label' } }) }}
-            </div>
-            <div class="mb-2">
+            {% endif %}
+            {% if form.config.targetBlank is defined %}
+            <div class="mb-2" id="item_link_target_blank_row">
                 {{ form_row(form.config.targetBlank, { label_attr: { class: 'form-check-label' }, row_attr: { class: 'form-check ms-0 mb-1' } }) }}
             </div>
+            {% endif %}
         </div>
+        {% endif %}
+        {% if _show_config_gear %}
         <div class="mb-2">
             {% if form.config.permissionKeys is defined %}
                 {{ form_row(form.config.permissionKeys, { label_attr: { class: 'form-label' } }) }}
@@ -94,6 +133,16 @@
             {% endif %}
             {{ form_row(form.config.isUnanimous, { row_attr: { class: 'form-check ms-0 mb-1' } }) }}
         </div>
+        {% elseif _show_config_identity %}
+        <div class="d-none" aria-hidden="true">
+            {% if form.config.permissionKeys is defined %}
+                {{ form_row(form.config.permissionKeys) }}
+            {% else %}
+                {{ form_row(form.config.permissionKey) }}
+            {% endif %}
+            {{ form_row(form.config.isUnanimous, { row_attr: { class: 'form-check ms-0 mb-1' } }) }}
+        </div>
+        {% endif %}
     </div>
     {% endif %}
     {{ form_rest(form) }}

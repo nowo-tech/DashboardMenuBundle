@@ -85,6 +85,29 @@ final class MenuExporterTest extends TestCase
         self::assertSame(0, $data['items'][0]['position']);
         self::assertArrayHasKey('children', $data['items'][0]);
         self::assertNull($data['items'][0]['children']);
+        self::assertNull($data['items'][0]['sectionCollapsible']);
+    }
+
+    public function testExportMenuSectionItemIncludesSectionCollapsibleOverride(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('nav');
+
+        $section = new MenuItem();
+        $section->setMenu($menu);
+        $section->setLabel('Group');
+        $section->setItemType(MenuItem::ITEM_TYPE_SECTION);
+        $section->setSectionCollapsible(false);
+        $section->setPosition(0);
+
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $itemRepo = $this->createStub(MenuItemRepository::class);
+        $itemRepo->method('findAllForMenuOrderedByTreeForExport')->willReturn([$section]);
+
+        $exporter = new MenuExporter($menuRepo, $itemRepo);
+        $data     = $exporter->exportMenu($menu);
+
+        self::assertFalse($data['items'][0]['sectionCollapsible']);
     }
 
     public function testExportMenuKeepsPermissionKeysEvenWhenNull(): void

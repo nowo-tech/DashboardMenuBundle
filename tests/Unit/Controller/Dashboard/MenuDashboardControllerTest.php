@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nowo\DashboardMenuBundle\Tests\Controller\Dashboard;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Nowo\DashboardMenuBundle\Controller\Dashboard\DashboardRoutes;
 use Nowo\DashboardMenuBundle\Controller\Dashboard\MenuDashboardController;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
@@ -15,6 +16,7 @@ use Nowo\DashboardMenuBundle\Service\MenuExporter;
 use Nowo\DashboardMenuBundle\Service\MenuImporter;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
+use ReflectionMethod;
 use ReflectionProperty;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
@@ -38,25 +40,24 @@ final class MenuDashboardControllerTest extends TestCase
         $controller = $this->createController();
         $routes     = $this->invokePrivate($controller, 'getDashboardRoutes');
 
-        self::assertSame(MenuDashboardController::ROUTE_INDEX, $routes['index']);
-        self::assertSame(MenuDashboardController::ROUTE_SHOW, $routes['show']);
-        self::assertSame(MenuDashboardController::ROUTE_MENU_NEW, $routes['menu_new']);
-        self::assertSame(MenuDashboardController::ROUTE_ITEM_DELETE, $routes['item_delete']);
-        self::assertSame(MenuDashboardController::ROUTE_ITEMS_REINDEX_POSITIONS, $routes['items_reindex_positions']);
-        self::assertSame(MenuDashboardController::ROUTE_ITEMS_CHECK_PARENT_CYCLES, $routes['items_check_parent_cycles']);
-        self::assertSame(MenuDashboardController::ROUTE_ITEMS_REORDER_TREE, $routes['items_reorder_tree']);
-        self::assertSame(MenuDashboardController::ROUTE_SHOW_ITEMS_REORDER, $routes['show_items_reorder']);
+        self::assertSame(DashboardRoutes::ROUTE_INDEX, $routes['index']);
+        self::assertSame(DashboardRoutes::ROUTE_SHOW, $routes['show']);
+        self::assertSame(DashboardRoutes::ROUTE_MENU_NEW, $routes['menu_new']);
+        self::assertSame(DashboardRoutes::ROUTE_ITEM_DELETE, $routes['item_delete']);
+        self::assertSame(DashboardRoutes::ROUTE_ITEMS_REINDEX_POSITIONS, $routes['items_reindex_positions']);
+        self::assertSame(DashboardRoutes::ROUTE_ITEMS_CHECK_PARENT_CYCLES, $routes['items_check_parent_cycles']);
+        self::assertSame(DashboardRoutes::ROUTE_ITEMS_REORDER_TREE, $routes['items_reorder_tree']);
+        self::assertSame(DashboardRoutes::ROUTE_SHOW_ITEMS_REORDER, $routes['show_items_reorder']);
     }
 
     public function testGetModalClassesMapsSizesToBootstrapClasses(): void
     {
-        $controller = $this->createController(modalSizes: [
+        $classes = $this->invokeResolveModalClasses([
             'menu_form' => 'lg',
             'copy'      => 'normal',
             'item_form' => 'xl',
             'delete'    => 'normal',
         ]);
-        $classes = $this->invokePrivate($controller, 'getModalClasses');
 
         self::assertSame('modal-lg', $classes['menu_form']);
         self::assertSame('', $classes['copy']);
@@ -66,8 +67,7 @@ final class MenuDashboardControllerTest extends TestCase
 
     public function testGetModalClassesUsesDefaultsWhenKeysMissing(): void
     {
-        $controller = $this->createController(modalSizes: []);
-        $classes    = $this->invokePrivate($controller, 'getModalClasses');
+        $classes = $this->invokeResolveModalClasses([]);
 
         self::assertSame('', $classes['menu_form']);
         self::assertSame('modal-lg', $classes['item_form']);
@@ -75,8 +75,7 @@ final class MenuDashboardControllerTest extends TestCase
 
     public function testGetModalClassesMapsXlToModalXl(): void
     {
-        $controller = $this->createController(modalSizes: ['item_form' => 'xl']);
-        $classes    = $this->invokePrivate($controller, 'getModalClasses');
+        $classes = $this->invokeResolveModalClasses(['item_form' => 'xl']);
         self::assertSame('modal-xl', $classes['item_form']);
     }
 
@@ -1840,7 +1839,7 @@ final class MenuDashboardControllerTest extends TestCase
         $redirect = $this->invokePrivate(
             $controller,
             'redirectToRefererOr',
-            [$request, MenuDashboardController::ROUTE_INDEX, [], 'manual'],
+            [$request, DashboardRoutes::ROUTE_INDEX, [], 'manual'],
         );
 
         self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $redirect);
@@ -1858,7 +1857,7 @@ final class MenuDashboardControllerTest extends TestCase
         $redirect = $this->invokePrivate(
             $controller,
             'redirectToRefererOr',
-            [$request, MenuDashboardController::ROUTE_INDEX, [], 'frag'],
+            [$request, DashboardRoutes::ROUTE_INDEX, [], 'frag'],
         );
 
         self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $redirect);
@@ -2336,6 +2335,19 @@ final class MenuDashboardControllerTest extends TestCase
         $form->method('isValid')->willReturn(false);
 
         return $form;
+    }
+
+    /**
+     * @param array<string, string> $modalSizes
+     *
+     * @return array{menu_form: string, copy: string, item_form: string, delete: string}
+     */
+    private function invokeResolveModalClasses(array $modalSizes): array
+    {
+        $m = new ReflectionMethod(MenuDashboardController::class, 'resolveModalClasses');
+        $m->setAccessible(true);
+
+        return $m->invoke(null, $modalSizes);
     }
 
     /**

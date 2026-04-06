@@ -9,19 +9,14 @@ nowo_dashboard_menu:
     project: demo_app
     locales: ['en', 'es', 'fr']
     default_locale: 'en'
-    # Services shown in the dashboard "Permission checker" dropdown when creating/editing a Menu.
-    # Each must implement MenuPermissionCheckerInterface (canView(MenuItem, $context)). Tagged
-    # services (nowo_dashboard_menu.permission_checker) are included automatically; this list adds
-    # or orders them. Optional: use a map for custom labels, e.g. "FQCN: 'Display label'".
+    # Permission checker service IDs for the dashboard dropdown (label = id unless tag sets label=).
     permission_checker_choices:
-        order:
-            - Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker
-            - Nowo\DashboardMenuBundle\Service\PermissionKeyAwareMenuPermissionChecker
-            - App\Service\DemoMenuPermissionChecker
-        labels:
-            Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker: 'Allow all items'
-            Nowo\DashboardMenuBundle\Service\PermissionKeyAwareMenuPermissionChecker: 'By permission key'
-            App\Service\DemoMenuPermissionChecker: 'By user/role and path'
+        - Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker
+        - Nowo\DashboardMenuBundle\Service\PermissionKeyAwareMenuPermissionChecker
+        - App\Service\DemoMenuPermissionChecker
+
+    menu_link_resolver_choices:
+        - App\Service\DemoMenuLinkResolver
 
     icon_library_prefix_map:
         'bootstrap-icons': bi
@@ -84,6 +79,9 @@ nowo_dashboard_menu:
             item: ['nav-item', 'dropdown-item', '']
             link: ['nav-link', 'dropdown-item', 'nav-link link-secondary']
             children: ['nav flex-column ms-2', 'nav flex-column', 'dropdown-menu']
+            section_children: ['nav flex-column list-unstyled ps-0', 'nav flex-column ms-2', 'nav flex-column', '']
+            section_child_item: ['nav-item ms-0', 'nav-item', '']
+            section_child_link: ['nav-link py-0 d-flex align-items-center menu-title text-truncate ps-0', 'nav-link d-flex align-items-center ps-0', 'nav-link', 'nav-link link-secondary', '']
             section_label: ['menu-section-label', 'navigation-header', '']
             section: ['menu-section', 'navigation-header', '']
             divider: ['menu-divider', '']

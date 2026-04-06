@@ -44,12 +44,15 @@
                         </h6>
                         <div class="row">
                         <div class="col-md-6 mb-2">{{ form_row(form.icon.itemType) }}</div>
+                        {% if form.icon.position is defined %}
                         {% set positionAttr = {} %}
                         {% if not is_edit|default(false) %}
                             {% set positionAttr = positionAttr|merge({ 'disabled': 'disabled' }) %}
                         {% endif %}
                         <div class="col-md-6 mb-2 {{ is_edit|default(false) ? '' : 'd-none' }}">{{ form_row(form.icon.position, { attr: positionAttr }) }}</div>
+                        {% endif %}
                         </div>
+                        {% if form.icon.icon is defined %}
                         <div class="{{ is_edit|default(false) ? '' : 'd-none' }}">
                         {% set iconAttr = {} %}
                         {% if not is_edit|default(false) %}
@@ -57,6 +60,7 @@
                         {% endif %}
                         {{ form_row(form.icon.icon, { attr: iconAttr }) }}
                         </div>
+                        {% endif %}
                     </div>
                 {% endif %}
             </div>
@@ -69,16 +73,46 @@
                 {% if form.config.parent is defined %}
                     <div id="item_parent_field">{{ form_row(form.config.parent) }}</div>
                 {% endif %}
-                <div id="item_link_fields" data-item-has-children="{{ item_has_children|default(false) ? 'true' : 'false' }}">
-                    {{ form_row(form.config.linkType) }}
-                    <div id="route_fields">
-                        {{ form_row(form.config.routeName) }}
+                {% if form.config.sectionCollapsible is defined %}
+                    <div id="item_section_collapsible_row" class="mb-2" style="display: none;">
+                        {{ form_row(form.config.sectionCollapsible) }}
+                    </div>
+                {% endif %}
+                {% if form.config.linkResolver is defined or form.config.linkType is defined %}
+                {% set _item_type_ui = form.vars.data.itemType|default('link') %}
+                <div
+                    id="item_link_fields"
+                    data-item-has-children="{{ item_has_children|default(false) ? 'true' : 'false' }}"
+                    data-initial-item-type="{{ _item_type_ui }}"
+                >
+                    {% if form.config.linkResolver is defined %}
+                    <div id="item_service_link_block" class="mb-2"{% if form.config.linkType is defined and _item_type_ui != 'service' %} style="display: none;"{% endif %}>
+                        {{ form_row(form.config.linkResolver) }}
+                        {% if form.config.routeParams is defined %}
+                            <small class="form-text text-muted d-block mb-2" id="item_service_route_params_hint">{{ 'form.menu_item_type.link_resolver.route_params_hint'|trans({}, 'NowoDashboardMenuBundle') }}</small>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    {% if form.config.linkType is defined %}
+                    <div id="item_classic_link_block"{% if form.config.linkResolver is defined and _item_type_ui == 'service' %} style="display: none;"{% endif %}>
+                        {{ form_row(form.config.linkType) }}
+                        <div class="mb-2" id="route_name_row">{{ form_row(form.config.routeName) }}</div>
+                        <div id="external_field" style="display: none;">{{ form_row(form.config.externalUrl) }}</div>
+                    </div>
+                    {% endif %}
+                    {% if form.config.routeParams is defined %}
+                    <div class="mb-2" id="route_fields">
                         {{ form_row(form.config.routeParams) }}
                         <small class="form-text text-muted d-block mt-1" id="route_params_hint"></small>
                     </div>
-                    <div id="external_field" style="display: none;">{{ form_row(form.config.externalUrl) }}</div>
-                    {{ form_row(form.config.targetBlank, { row_attr: { class: 'form-check ms-0 mb-1' } }) }}
+                    {% endif %}
+                    {% if form.config.targetBlank is defined %}
+                    <div class="mb-2" id="item_link_target_blank_row">
+                        {{ form_row(form.config.targetBlank, { row_attr: { class: 'form-check ms-0 mb-1' } }) }}
+                    </div>
+                    {% endif %}
                 </div>
+                {% endif %}
                 {% if form.config.permissionKeys is defined %}
                     {{ form_row(form.config.permissionKeys) }}
                 {% else %}

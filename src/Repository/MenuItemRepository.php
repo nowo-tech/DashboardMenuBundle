@@ -476,8 +476,9 @@ class MenuItemRepository extends ServiceEntityRepository
         $depthLimit = $menu->getDepthLimit();
         if ($depthLimit !== null && $depthLimit >= 1) {
             $maxDepthIndex = $depthLimit - 1;
+            $depthMemo     = [];
             foreach (array_keys($parentOf) as $itemId) {
-                $depth = $this->computeDepthInParentMap((int) $itemId, $parentOf, []);
+                $depth = $this->computeDepthInParentMap((int) $itemId, $parentOf, $depthMemo);
                 if ($depth > $maxDepthIndex) {
                     throw new InvalidArgumentException('tree exceeds menu depth limit');
                 }
@@ -487,8 +488,9 @@ class MenuItemRepository extends ServiceEntityRepository
         /** @var list<int> $idsByDepthDesc */
         $idsByDepthDesc = array_keys($parentOf);
         usort($idsByDepthDesc, function (int $a, int $b) use ($parentOf): int {
-            $da = $this->computeDepthInParentMap($a, $parentOf, []);
-            $db = $this->computeDepthInParentMap($b, $parentOf, []);
+            $memo = [];
+            $da   = $this->computeDepthInParentMap($a, $parentOf, $memo);
+            $db   = $this->computeDepthInParentMap($b, $parentOf, $memo);
 
             return $db <=> $da;
         });

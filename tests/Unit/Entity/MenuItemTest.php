@@ -198,6 +198,26 @@ final class MenuItemTest extends TestCase
         self::assertTrue($item->getTargetBlank());
     }
 
+    public function testSectionCollapsibleGetterSetter(): void
+    {
+        $item = new MenuItem();
+        self::assertNull($item->getSectionCollapsible());
+        $item->setItemType(MenuItem::ITEM_TYPE_SECTION);
+        $item->setSectionCollapsible(false);
+        self::assertFalse($item->getSectionCollapsible());
+        $item->setSectionCollapsible(null);
+        self::assertNull($item->getSectionCollapsible());
+    }
+
+    public function testNormalizeSectionCollapsibleForItemTypeClearsWhenNotSection(): void
+    {
+        $item = new MenuItem();
+        $item->setItemType(MenuItem::ITEM_TYPE_LINK);
+        $item->setSectionCollapsible(false);
+        $item->normalizeSectionCollapsibleForItemType();
+        self::assertNull($item->getSectionCollapsible());
+    }
+
     public function testNormalizeDividerStateClearsParentIconAndEmptyLabel(): void
     {
         $parent = new MenuItem();
@@ -216,7 +236,7 @@ final class MenuItemTest extends TestCase
         self::assertNull($item->getTranslations());
     }
 
-    public function testNormalizeDividerStateKeepsOptionalLabelAndTranslations(): void
+    public function testNormalizeDividerStateClearsLabelAndTranslations(): void
     {
         $item = new MenuItem();
         $item->setItemType(MenuItem::ITEM_TYPE_DIVIDER);
@@ -225,8 +245,8 @@ final class MenuItemTest extends TestCase
 
         $item->normalizeDividerState();
 
-        self::assertSame('Separator', $item->getLabel());
-        self::assertSame(['en' => 'EN', 'es' => 'ES'], $item->getTranslations());
+        self::assertSame('', $item->getLabel());
+        self::assertNull($item->getTranslations());
     }
 
     public function testNormalizeDividerStateNoOpForLink(): void

@@ -12,10 +12,14 @@ use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Container\ContainerInterface;
 use ReflectionProperty;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
+use function array_is_list;
 use function array_key_exists;
 use function count;
 use function is_array;
+use function is_int;
 use function is_string;
 use function json_decode;
 use function md5;
@@ -37,8 +41,12 @@ final readonly class MenuTreeLoader
         private MenuItemRepository $menuItemRepository,
         private MenuConfigResolver $configResolver,
         private MenuIconNameResolver $menuIconNameResolver,
-        private ContainerInterface $container,
+        private ContainerInterface $permissionCheckerLocator,
         private AllowAllMenuPermissionChecker $defaultPermissionChecker,
+        private ContainerInterface $linkResolverContainer,
+        /** @var array<string, string> */
+        private array $menuLinkResolverChoices = [],
+        private ?RequestStack $requestStack = null,
         private ?CacheItemPoolInterface $cachePool = null,
         private int $cacheTtl = 60,
         private ?DashboardMenuDataCollector $dataCollector = null,
@@ -73,6 +81,7 @@ final readonly class MenuTreeLoader
                     $config                                         = $this->configResolver->getConfig($menuCode, $sets, $menu);
                     [$checker, $checkerServiceId, $checkerFallback] = $this->resolvePermissionChecker($config['permission_checker']);
                     $tree                                           = $this->buildTree($flat, $checker, $permissionContext, $menuCode, $config['permission_checker'], $checkerServiceId, $checkerFallback);
+                    $tree                                           = $this->mergeDynamicServiceChildren($tree, $checker, $permissionContext, $menuCode, $config['permission_checker'], $checkerServiceId, $checkerFallback);
                     $this->markNodesWithChildren($tree);
 
                     return $this->pruneEmptySections($tree);
@@ -96,6 +105,7 @@ final readonly class MenuTreeLoader
         $config                                         = $this->configResolver->getConfig($menuCode, $sets, $menu);
         [$checker, $checkerServiceId, $checkerFallback] = $this->resolvePermissionChecker($config['permission_checker']);
         $tree                                           = $this->buildTree($flat, $checker, $permissionContext, $menuCode, $config['permission_checker'], $checkerServiceId, $checkerFallback);
+        $tree                                           = $this->mergeDynamicServiceChildren($tree, $checker, $permissionContext, $menuCode, $config['permission_checker'], $checkerServiceId, $checkerFallback);
         $this->markNodesWithChildren($tree);
 
         return $this->pruneEmptySections($tree);
@@ -118,6 +128,7 @@ final readonly class MenuTreeLoader
         $config                                         = $this->configResolver->getConfig($menuCode, $sets, $menu);
         [$checker, $checkerServiceId, $checkerFallback] = $this->resolvePermissionChecker($config['permission_checker']);
         $tree                                           = $this->buildTree($flat, $checker, $permissionContext, $menuCode, $config['permission_checker'], $checkerServiceId, $checkerFallback);
+        $tree                                           = $this->mergeDynamicServiceChildren($tree, $checker, $permissionContext, $menuCode, $config['permission_checker'], $checkerServiceId, $checkerFallback);
         $this->markNodesWithChildren($tree);
 
         return $this->pruneEmptySections($tree);
@@ -156,6 +167,9 @@ final readonly class MenuTreeLoader
         $this->setMenuString($menu, 'classItem', $row['class_item'] ?? null);
         $this->setMenuString($menu, 'classLink', $row['class_link'] ?? null);
         $this->setMenuString($menu, 'classChildren', $row['class_children'] ?? null);
+        $this->setMenuString($menu, 'classSectionChildren', $row['class_section_children'] ?? null);
+        $this->setMenuString($menu, 'classSectionChildItem', $row['class_section_child_item'] ?? null);
+        $this->setMenuString($menu, 'classSectionChildLink', $row['class_section_child_link'] ?? null);
         $this->setMenuString($menu, 'classCurrent', $row['class_current'] ?? null);
         $this->setMenuString($menu, 'classBranchExpanded', $row['class_branch_expanded'] ?? null);
         $this->setMenuString($menu, 'classHasChildren', $row['class_has_children'] ?? null);
@@ -166,6 +180,7 @@ final readonly class MenuTreeLoader
         $menu->setCollapsible(isset($row['collapsible']) ? (bool) $row['collapsible'] : null);
         $menu->setCollapsibleExpanded(isset($row['collapsible_expanded']) ? (bool) $row['collapsible_expanded'] : null);
         $menu->setNestedCollapsible(isset($row['nested_collapsible']) ? (bool) $row['nested_collapsible'] : null);
+        $menu->setNestedCollapsibleSections(isset($row['nested_collapsible_sections']) ? (bool) $row['nested_collapsible_sections'] : null);
         if (isset($row['attributes'])) {
             $menu->setContext(is_array($row['attributes']) ? $row['attributes'] : (json_decode((string) $row['attributes'], true) ?: null));
         }
@@ -224,7 +239,14 @@ final readonly class MenuTreeLoader
             $item->setIsUnanimous(isset($row['is_unanimous']) ? (bool) $row['is_unanimous'] : true);
             $item->setIcon(isset($row['icon']) ? (string) $row['icon'] : null);
             $item->setItemType((string) ($row['item_type'] ?? MenuItem::ITEM_TYPE_LINK));
+            if (isset($row['link_resolver']) && is_string($row['link_resolver']) && $row['link_resolver'] !== '') {
+                $item->setLinkResolver($row['link_resolver']);
+            }
             $item->setTargetBlank(isset($row['target_blank']) && (bool) $row['target_blank']);
+            if (array_key_exists('section_collapsible', $row)) {
+                $sc = $row['section_collapsible'];
+                $item->setSectionCollapsible($sc === null ? null : (bool) $sc);
+            }
             $items[] = $item;
         }
 
@@ -271,9 +293,10 @@ final readonly class MenuTreeLoader
     }
 
     /**
-     * After permission filtering: drop branch nodes whose children are all hidden, and drop
-     * section items with no visible children (including sections with no child rows in DB).
-     * Leaf links stay visible when allowed by the checker.
+     * After permission filtering:
+     * - Sections are pruned when they had children but all were hidden by the permission checker.
+     * - Link nodes whose children are all hidden are also pruned.
+     * - Leaf links (no children at all) are always kept when the checker allows them.
      *
      * @param list<array<string, mixed>> $nodes
      *
@@ -286,16 +309,8 @@ final readonly class MenuTreeLoader
             $children    = $this->pruneEmptySections($node['children']);
             $hadChildren = $node['had_children'] ?? false;
             $item        = $node['item'];
-            if ($item->getItemType() === MenuItem::ITEM_TYPE_SECTION) {
-                if (count($children) === 0) {
-                    continue;
-                }
-                $result[] = ['item' => $node['item'], 'children' => $children];
-
-                continue;
-            }
             if (count($children) > 0 || !$hadChildren) {
-                $result[] = ['item' => $node['item'], 'children' => $children];
+                $result[] = ['item' => $item, 'children' => $children];
             }
         }
 
@@ -308,8 +323,8 @@ final readonly class MenuTreeLoader
     private function resolvePermissionChecker(?string $serviceId): array
     {
         $resolvedServiceId = $this->normalizePermissionCheckerServiceId($serviceId);
-        if ($resolvedServiceId !== null && $resolvedServiceId !== '' && $this->container->has($resolvedServiceId)) {
-            $service = $this->container->get($resolvedServiceId);
+        if ($resolvedServiceId !== null && $resolvedServiceId !== '' && $this->permissionCheckerLocator->has($resolvedServiceId)) {
+            $service = $this->permissionCheckerLocator->get($resolvedServiceId);
             if ($service instanceof MenuPermissionCheckerInterface) {
                 return [$service, $resolvedServiceId, false];
             }
@@ -323,12 +338,212 @@ final readonly class MenuTreeLoader
         if ($serviceId === null || $serviceId === '') {
             return $serviceId;
         }
-        if ($this->container->has($serviceId)) {
+        if ($this->permissionCheckerLocator->has($serviceId)) {
             return $serviceId;
         }
 
         foreach ($this->permissionCheckerChoices as $id => $label) {
-            if ($label === $serviceId && $this->container->has($id)) {
+            if ($label === $serviceId && $this->permissionCheckerLocator->has($id)) {
+                return $id;
+            }
+        }
+
+        return $serviceId;
+    }
+
+    /**
+     * Merges dynamic child rows from {@see MenuLinkResolverInterface::resolveHref()} (when it returns a list)
+     * with persisted children for itemType "service"
+     * (same ordering field: position on DB items and `position` in each dynamic row).
+     *
+     * @param list<array{item: MenuItem, children: list<array<string, mixed>>}> $nodes
+     *
+     * @return list<array{item: MenuItem, children: list<array<string, mixed>>}>
+     */
+    private function mergeDynamicServiceChildren(
+        array $nodes,
+        MenuPermissionCheckerInterface $checker,
+        mixed $permissionContext,
+        string $menuCode,
+        ?string $checkerSelectedServiceId,
+        ?string $checkerResolvedServiceId,
+        bool $checkerFallback,
+    ): array {
+        $out = [];
+        foreach ($nodes as $node) {
+            $children = $this->mergeDynamicServiceChildren(
+                $node['children'],
+                $checker,
+                $permissionContext,
+                $menuCode,
+                $checkerSelectedServiceId,
+                $checkerResolvedServiceId,
+                $checkerFallback,
+            );
+            $item = $node['item'];
+            if ($item->getItemType() === MenuItem::ITEM_TYPE_SERVICE) {
+                $dynamic = $this->buildDynamicChildNodes(
+                    $item,
+                    $checker,
+                    $permissionContext,
+                    $menuCode,
+                    $checkerSelectedServiceId,
+                    $checkerResolvedServiceId,
+                    $checkerFallback,
+                );
+                if ($dynamic !== []) {
+                    $children = $this->mergeChildNodesByPosition($dynamic, $children);
+                }
+            }
+
+            $out[] = ['item' => $item, 'children' => $children];
+        }
+
+        return $out;
+    }
+
+    /**
+     * @param list<array{item: MenuItem, children: list<array<string, mixed>>}> $dynamicNodes
+     * @param list<array{item: MenuItem, children: list<array<string, mixed>>}> $dbNodes
+     *
+     * @return list<array{item: MenuItem, children: list<array<string, mixed>>}>
+     */
+    private function mergeChildNodesByPosition(array $dynamicNodes, array $dbNodes): array
+    {
+        $merged = array_merge($dynamicNodes, $dbNodes);
+        usort($merged, static fn (array $a, array $b): int => $a['item']->getPosition() <=> $b['item']->getPosition());
+
+        return $merged;
+    }
+
+    /**
+     * @return list<array{item: MenuItem, children: list<array<string, mixed>>}>
+     */
+    private function buildDynamicChildNodes(
+        MenuItem $serviceItem,
+        MenuPermissionCheckerInterface $checker,
+        mixed $permissionContext,
+        string $menuCode,
+        ?string $checkerSelectedServiceId,
+        ?string $checkerResolvedServiceId,
+        bool $checkerFallback,
+    ): array {
+        $rawId = $serviceItem->getLinkResolver();
+        if ($rawId === null || $rawId === '') {
+            return [];
+        }
+
+        $serviceId = $this->normalizeMenuLinkResolverServiceId($rawId);
+        if ($serviceId === null || !$this->linkResolverContainer->has($serviceId)) {
+            return [];
+        }
+
+        try {
+            $resolver = $this->linkResolverContainer->get($serviceId);
+        } catch (\Throwable) {
+            return [];
+        }
+
+        if (!$resolver instanceof MenuLinkResolverInterface) {
+            return [];
+        }
+
+        $request = $this->requestStack?->getCurrentRequest();
+        try {
+            $resolved = $resolver->resolveHref($serviceItem, $request instanceof Request ? $request : null, $permissionContext);
+        } catch (\Throwable) {
+            return [];
+        }
+
+        if (is_string($resolved)) {
+            return [];
+        }
+
+        if (!is_array($resolved) || !array_is_list($resolved)) {
+            return [];
+        }
+
+        return $this->childRowsToMenuNodes(
+            $resolved,
+            $serviceItem,
+            $checker,
+            $permissionContext,
+            $menuCode,
+            $checkerSelectedServiceId,
+            $checkerResolvedServiceId,
+            $checkerFallback,
+        );
+    }
+
+    /**
+     * @param list<mixed> $rows
+     *
+     * @return list<array{item: MenuItem, children: list<array<string, mixed>>}>
+     */
+    private function childRowsToMenuNodes(
+        array $rows,
+        MenuItem $serviceItem,
+        MenuPermissionCheckerInterface $checker,
+        mixed $permissionContext,
+        string $menuCode,
+        ?string $checkerSelectedServiceId,
+        ?string $checkerResolvedServiceId,
+        bool $checkerFallback,
+    ): array {
+        $menu = $serviceItem->getMenu();
+        if (!$menu instanceof Menu) {
+            return [];
+        }
+
+        $nodes = [];
+        foreach ($rows as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+            $label = $row['label'] ?? null;
+            $href  = $row['href'] ?? null;
+            if (!is_string($label) || trim($label) === '' || !is_string($href) || trim($href) === '') {
+                continue;
+            }
+            $position = $row['position'] ?? 0;
+            if (!is_int($position)) {
+                $position = (int) $position;
+            }
+            $icon         = isset($row['icon']) && is_string($row['icon']) ? $row['icon'] : null;
+            $targetBlank  = isset($row['targetBlank']) && (bool) $row['targetBlank'];
+            $child        = MenuItem::createDynamicChildLink($menu, $label, trim($href), $position, $icon, $targetBlank);
+            $this->normalizeItemIcon($child);
+
+            $visible = $checker->canView($child, $permissionContext);
+            if ($this->dataCollector instanceof DashboardMenuDataCollector) {
+                $this->dataCollector->addPermissionCheck(
+                    $menuCode,
+                    $checkerSelectedServiceId,
+                    $checker::class,
+                    $checkerResolvedServiceId,
+                    $checkerFallback,
+                    $child,
+                    $visible,
+                );
+            }
+            if (!$visible) {
+                continue;
+            }
+
+            $nodes[] = ['item' => $child, 'children' => []];
+        }
+
+        return $nodes;
+    }
+
+    private function normalizeMenuLinkResolverServiceId(string $serviceId): ?string
+    {
+        if ($this->linkResolverContainer->has($serviceId)) {
+            return $serviceId;
+        }
+
+        foreach ($this->menuLinkResolverChoices as $id => $label) {
+            if ($label === $serviceId && $this->linkResolverContainer->has($id)) {
                 return $id;
             }
         }

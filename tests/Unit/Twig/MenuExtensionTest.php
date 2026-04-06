@@ -282,7 +282,10 @@ final class MenuExtensionTest extends TestCase
         $router = $this->createStub(RouterInterface::class);
         $router->method('getRouteCollection')->willReturn(new RouteCollection());
 
-        return new MenuUrlResolver($urlGenerator, $requestStack, $router);
+        $container = $this->createStub(\Symfony\Component\DependencyInjection\ContainerInterface::class);
+        $container->method('has')->willReturn(false);
+
+        return new MenuUrlResolver($urlGenerator, $requestStack, $router, $container);
     }
 
     private function createMenuTreeLoader(MenuRepository $menuRepo, MenuItemRepository $itemRepo, MenuConfigResolver $config, ContainerInterface $container): MenuTreeLoader
@@ -296,6 +299,9 @@ final class MenuExtensionTest extends TestCase
             $iconResolver,
             $container,
             new AllowAllMenuPermissionChecker(),
+            $container,
+            [],
+            null,
             null,
             60,
         );

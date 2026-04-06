@@ -23,7 +23,7 @@
         </div>
         <div class="d-flex flex-wrap align-items-center justify-content-end gap-2">
             <a href="{{ path(dashboard_routes.export_menu|default('nowo_dashboard_menu_dashboard_export_menu'), { id: menu.id }) }}" class="btn btn-outline-secondary" target="_blank" rel="noopener noreferrer">{{ 'dashboard.export'|trans({}, 'NowoDashboardMenuBundle') }}</a>
-            <button type="button" class="btn btn-outline-info btn-copy-menu" data-id="{{ menu.id }}" data-copy-url="{{ path(dashboard_routes.menu_copy|default('nowo_dashboard_menu_dashboard_menu_copy'), { id: menu.id }) }}?_partial=1" data-bs-toggle="modal" data-bs-target="#modal-menu-copy">{{ 'dashboard.copy'|trans({}, 'NowoDashboardMenuBundle') }}</button>
+            <button type="button" class="btn btn-outline-info btn-copy-menu" data-id="{{ menu.id }}" data-copy-url="{{ path(dashboard_routes.menu_copy|default('nowo_dashboard_menu_dashboard_menu_copy'), { id: menu.id }) }}" data-bs-toggle="modal" data-bs-target="#modal-menu-copy">{{ 'dashboard.copy'|trans({}, 'NowoDashboardMenuBundle') }}</button>
             <button type="button" class="btn btn-outline-primary btn-edit-menu" data-id="{{ menu.id }}" data-section="basic" data-bs-toggle="modal" data-bs-target="#modal-menu-form" title="{{ 'dashboard.edit_identity'|trans({}, 'NowoDashboardMenuBundle') }}">{{ 'dashboard.edit_menu'|trans({}, 'NowoDashboardMenuBundle') }}</button>
             {% if not menu.base %}
                 <button type="button" class="btn btn-outline-secondary btn-edit-menu btn-edit-menu-config" data-id="{{ menu.id }}" data-section="config" data-bs-toggle="modal" data-bs-target="#modal-menu-form" title="{{ 'dashboard.edit_config'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.edit_config'|trans({}, 'NowoDashboardMenuBundle') }}">
@@ -58,13 +58,16 @@
             {% if menu.nestedCollapsibleSections is not null %} · <strong>{{ 'form.menu_type.nested_collapsible_sections.label'|trans({}, 'NowoDashboardMenuBundle') }}:</strong> {{ menu.nestedCollapsibleSections ? 'dashboard.yes'|trans : 'dashboard.no'|trans({}, 'NowoDashboardMenuBundle') }}{% endif %}
         </div>
     {% endif %}
-    {% if menu.ulId or menu.classMenu or menu.classItem or menu.classLink or menu.classChildren or menu.classSectionLabel or menu.classSection or menu.classDivider or menu.classCurrent or menu.classBranchExpanded or menu.classHasChildren or menu.classExpanded or menu.classCollapsed %}
+    {% if menu.ulId or menu.classMenu or menu.classItem or menu.classLink or menu.classChildren or menu.classSectionChildren or menu.classSectionChildItem or menu.classSectionChildLink or menu.classSectionLabel or menu.classSection or menu.classDivider or menu.classCurrent or menu.classBranchExpanded or menu.classHasChildren or menu.classExpanded or menu.classCollapsed %}
         <div class="alert alert-light border mb-2 py-2">
             <strong>{{ 'dashboard.css_classes'|trans({}, 'NowoDashboardMenuBundle') }}</strong>: {% if menu.classMenu %}<code>menu: {{ menu.classMenu }}</code>{% endif %}
             {% if menu.ulId %}<code>ul_id: {{ menu.ulId }}</code>{% endif %}
             {% if menu.classItem %} <code>item: {{ menu.classItem }}</code>{% endif %}
             {% if menu.classLink %} <code>link: {{ menu.classLink }}</code>{% endif %}
             {% if menu.classChildren %} <code>children: {{ menu.classChildren }}</code>{% endif %}
+            {% if menu.classSectionChildren %} <code>section-children: {{ menu.classSectionChildren }}</code>{% endif %}
+            {% if menu.classSectionChildItem %} <code>section-child-item: {{ menu.classSectionChildItem }}</code>{% endif %}
+            {% if menu.classSectionChildLink %} <code>section-child-link: {{ menu.classSectionChildLink }}</code>{% endif %}
             {% if menu.classSectionLabel %} <code>section-label: {{ menu.classSectionLabel }}</code>{% endif %}
             {% if menu.classSection %} <code>section: {{ menu.classSection }}</code>{% endif %}
             {% if menu.classDivider %} <code>divider: {{ menu.classDivider }}</code>{% endif %}
@@ -135,14 +138,14 @@
                                         {% endif %}
                                     </div>
                                     <div class="d-inline-flex align-items-center gap-1">
-                                        {% set can_have_children = item.itemType == 'link' %}
+                                        {% set can_have_children = item.itemType == 'link' or item.itemType == 'service' %}
                                         <button type="button" class="btn btn-sm btn-outline-success btn-add-item{% if not can_have_children %} disabled{% endif %}" title="{{ can_have_children ? 'dashboard.add_child'|trans({}, 'NowoDashboardMenuBundle') : 'dashboard.add_child_disabled'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.add_child'|trans({}, 'NowoDashboardMenuBundle') }}" {% if can_have_children %}data-id="{{ menu.id }}" data-parent="{{ item.id }}" data-bs-toggle="modal" data-bs-target="#modal-item-form"{% else %}disabled aria-disabled="true"{% endif %}>
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1a.5.5 0 0 1 .5.5V7.5H14.5a.5.5 0 0 1 0 1H8.5V14.5a.5.5 0 0 1-1 0V8.5H1.5a.5.5 0 0 1 0-1H7.5V1.5A.5.5 0 0 1 8 1z"/></svg>
                                         </button>
-                                        <button type="button" class="btn btn-sm btn-outline-primary btn-edit-item" title="{{ 'dashboard.edit_identity'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.edit_identity'|trans({}, 'NowoDashboardMenuBundle') }}" data-id="{{ menu.id }}" data-item-id="{{ item.id }}" data-section="basic" data-bs-toggle="modal" data-bs-target="#modal-item-form">
+                                        <button type="button" class="btn btn-sm btn-outline-primary btn-edit-item" title="{{ 'dashboard.edit_labels'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.edit_labels'|trans({}, 'NowoDashboardMenuBundle') }}" data-id="{{ menu.id }}" data-item-id="{{ item.id }}" data-section="basic" data-bs-toggle="modal" data-bs-target="#modal-item-form">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/></svg>
                                         </button>
-                                        <button type="button" class="btn btn-sm btn-outline-warning btn-edit-item" title="{{ 'dashboard.edit_identity'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.edit_identity'|trans({}, 'NowoDashboardMenuBundle') }}" data-id="{{ menu.id }}" data-item-id="{{ item.id }}" data-section="icon" data-bs-toggle="modal" data-bs-target="#modal-item-form">
+                                        <button type="button" class="btn btn-sm btn-outline-warning btn-edit-item" title="{{ 'dashboard.edit_type_position_icon'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.edit_type_position_icon'|trans({}, 'NowoDashboardMenuBundle') }}" data-id="{{ menu.id }}" data-item-id="{{ item.id }}" data-section="icon" data-bs-toggle="modal" data-bs-target="#modal-item-form">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M6.002 5.5a.5.5 0 0 1 .492-.41h.006a.5.5 0 0 1 .498.5v.5h2v-.5a.5.5 0 0 1 .498-.5h.006a.5.5 0 0 1 .492.41L11.5 10H4.5l1.502-4.5zM2.5 12a.5.5 0 0 0 .5.5h10a.5.5 0 0 0 .5-.5V10.5h-13V12z"/></svg>
                                         </button>
                                         <button type="button" class="btn btn-sm btn-outline-secondary btn-edit-item btn-edit-item-config" title="{{ 'dashboard.edit_config'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.edit_config'|trans({}, 'NowoDashboardMenuBundle') }}" data-id="{{ menu.id }}" data-item-id="{{ item.id }}" data-section="config" data-bs-toggle="modal" data-bs-target="#modal-item-form">

@@ -83,6 +83,27 @@ class Menu
     private ?string $classChildren = null;
 
     /**
+     * CSS class for the <ul> directly under itemType "section" (e.g. "nav flex-column list-unstyled ps-0" for no indent).
+     * When null/empty, {@see $classChildren} is used for section children too (backward compatible).
+     */
+    #[ORM\Column(type: Types::STRING, length: 512, nullable: true)]
+    private ?string $classSectionChildren = null;
+
+    /**
+     * CSS class for <li> when the item is a direct child of itemType "section" (e.g. "nav-item ms-0").
+     * When null/empty, {@see $classItem} is used (backward compatible).
+     */
+    #[ORM\Column(type: Types::STRING, length: 512, nullable: true)]
+    private ?string $classSectionChildItem = null;
+
+    /**
+     * CSS class for <a> when the link is a direct child of itemType "section" (e.g. "d-flex align-items-center ps-0").
+     * When null/empty, {@see $classLink} is used (backward compatible).
+     */
+    #[ORM\Column(type: Types::STRING, length: 512, nullable: true)]
+    private ?string $classSectionChildLink = null;
+
+    /**
      * CSS class for section label span (itemType "section") (e.g. "navigation-header"). Overrides config when set.
      */
     #[ORM\Column(type: Types::STRING, length: 512, nullable: true)]
@@ -293,6 +314,42 @@ class Menu
     public function setClassChildren(?string $classChildren): self
     {
         $this->classChildren = $classChildren;
+
+        return $this;
+    }
+
+    public function getClassSectionChildren(): ?string
+    {
+        return $this->classSectionChildren;
+    }
+
+    public function setClassSectionChildren(?string $classSectionChildren): self
+    {
+        $this->classSectionChildren = $classSectionChildren;
+
+        return $this;
+    }
+
+    public function getClassSectionChildItem(): ?string
+    {
+        return $this->classSectionChildItem;
+    }
+
+    public function setClassSectionChildItem(?string $classSectionChildItem): self
+    {
+        $this->classSectionChildItem = $classSectionChildItem;
+
+        return $this;
+    }
+
+    public function getClassSectionChildLink(): ?string
+    {
+        return $this->classSectionChildLink;
+    }
+
+    public function setClassSectionChildLink(?string $classSectionChildLink): self
+    {
+        $this->classSectionChildLink = $classSectionChildLink;
 
         return $this;
     }

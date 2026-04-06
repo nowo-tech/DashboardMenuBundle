@@ -12,7 +12,9 @@ dashboard:
   edit_item: Editar ítem
   edit_items: Editar ítems
   edit_identity: "Editar (icono, etiqueta, tipo)"
-  edit_config: "Editar configuración (posición, enlace, permiso)"
+  edit_labels: "Editar etiqueta y traducciones"
+  edit_type_position_icon: "Editar tipo, posición e icono"
+  edit_config: "Editar configuración (padre, enlace, permisos)"
   copy: Copiar
   copy_menu: Copiar menú
   copy_menu_help: "Copiar el menú y todos sus ítems. Puedes cambiar el código y el nombre del nuevo menú."
@@ -135,8 +137,8 @@ form:
     nested_collapsible:
       label: "Colapsible anidado (los ítems con hijos tienen alternar)"
     nested_collapsible_sections:
-      label: "Permitir que las secciones sean colapsables"
-      help: "Cuando el colapsado anidado está activo, las secciones pueden mostrar un toggle y colapsar sus hijos. Desactívalo para mostrar siempre los hijos de las secciones (sin toggle)."
+      label: "Secciones colapsables"
+      help: "Requiere colapsible anidado activo. Si está marcado, la fila de cada sección muestra un chevron a la derecha y los enlaces debajo se pueden plegar. Si no, los hijos de la sección quedan siempre desplegados (sin chevron)."
     class_menu:
       label: "Clase menú (<ul> raíz)"
       placeholder: "ej. nav flex-column"
@@ -152,6 +154,18 @@ form:
     class_children:
       label: "Clase hijos (<ul> anidado)"
       placeholder: "ej. nav flex-column ms-2"
+    class_section_children:
+      label: "Clase hijos de sección (<ul> bajo itemType \"section\")"
+      placeholder: "ej. nav flex-column list-unstyled ps-0 (plano; vacío = igual que hijos)"
+      help: "Si se rellena, la lista bajo cada sección usa estas clases en lugar de «Clase hijos», para alinear los enlaces con el título de la sección (sin sangría). Vacío = se sigue usando la clase de hijos anidados."
+    class_section_child_item:
+      label: "Clase <li> de hijos directos de itemType \"section\""
+      placeholder: "ej. nav-item ms-0 (vacío = igual que Clase ítem)"
+      help: "Si se rellena, los enlaces y divisores hijos directos de una sección usan esta clase en el <li> en lugar de «Clase ítem». Útil para ajustar márgenes o padding bajo listas planas de sección."
+    class_section_child_link:
+      label: "Clase <a> de hijos directos de itemType \"section\""
+      placeholder: "ej. d-flex align-items-center ps-0 (vacío = igual que Clase enlace)"
+      help: "Si se rellena, los enlaces hijos directos de una sección usan esta clase en el <a> en lugar de «Clase enlace». Complementa la clase de <li> de hijo de sección."
     class_section_label:
       label: "Clase etiqueta de sección (itemType \"section\")"
       placeholder: "ej. navigation-header"
@@ -195,6 +209,15 @@ form:
       link: Enlace
       section: Sección
       divider: Divisor
+      service: Servicio (URL en tiempo de ejecución)
+    link_resolver:
+      label: Resolvedor de enlace
+      placeholder: "— Elegir resolvedor —"
+      help: "Elige un servicio que implemente MenuLinkResolverInterface. Puede devolver una URL o una lista de enlaces hijos (label, href, position); en ese caso el padre usa href \"#\"."
+      service_id_placeholder: "ej. App\\Menu\\MiResolvedorEnlace"
+      help_free_text: "Indica el id del servicio (FQCN o id de contenedor) que implementa MenuLinkResolverInterface."
+      required: El tipo «Servicio» requiere un resolvedor de enlace.
+      route_params_hint: "JSON opcional que recibe el resolvedor (por ejemplo parámetros tipo ruta)."
     position:
       label: Posición
     link_type:
@@ -232,6 +255,12 @@ form:
       help_inheritance: "Los ítems padre quedan por encima en el árbol. Las claves de permiso de esta fila aplican a este ítem; tu MenuPermissionChecker define cómo se combinan reglas de padres e hijos. Las secciones y los enlaces con hijos solo se muestran si al menos un hijo es visible."
       circular_violation: "No se permite una jerarquía circular de padres."
       section_must_be_root: "Los ítems de tipo sección deben quedar en la raíz (sin padre)."
+    section_collapsible:
+      label: "Hijos de la sección colapsables"
+      inherit: "Usar valor del menú"
+      yes: "Sí (colapsable con chevron)"
+      no: "No (siempre desplegados)"
+      help: "Anula la opción del menú «Secciones colapsables» solo para esta sección. «Usar valor del menú» aplica la configuración del menú."
 
   import_menu_type:
     file:

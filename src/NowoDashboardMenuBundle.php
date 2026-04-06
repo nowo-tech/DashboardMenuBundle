@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle;
 
+use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\AutoTagMenuLinkResolversPass;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\AutoTagPermissionCheckersPass;
+use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\MenuLinkResolverPass;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\PermissionCheckerPass;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\TwigPathsPass;
 use Nowo\DashboardMenuBundle\DependencyInjection\DashboardMenuExtension;
@@ -37,8 +39,10 @@ final class NowoDashboardMenuBundle extends Bundle
     public function build(ContainerBuilder $container): void
     {
         $container->addCompilerPass(new AutoTagPermissionCheckersPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 200);
+        $container->addCompilerPass(new AutoTagMenuLinkResolversPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 200);
         $container->addCompilerPass(new TwigPathsPass());
         $container->addCompilerPass(new PermissionCheckerPass());
+        $container->addCompilerPass(new MenuLinkResolverPass());
     }
 
     public function getContainerExtension(): ExtensionInterface

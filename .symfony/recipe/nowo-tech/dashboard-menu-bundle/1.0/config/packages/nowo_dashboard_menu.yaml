@@ -29,25 +29,14 @@ nowo_dashboard_menu:
     #     ttl: 60
     #     pool: cache.app
 
-    # Services shown in the dashboard "Permission checker" dropdown when creating/editing a Menu.
-    # Each must implement MenuPermissionCheckerInterface (canView(MenuItem, $context)).
-    # Tagged services (nowo_dashboard_menu.permission_checker) are included automatically; this list
-    # adds or orders them.
-    # permission_checker_choices:
-    #     order:
-    #         - Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker
-    #         - App\Service\Your\OperatorMenuPermissionChecker
-    #     labels:
-    #         Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker: 'Allow all'
-    #         App\Service\Your\OperatorMenuPermissionChecker: 'Operator checker'
-    # Also accepted shorthand:
+    # Ordered list of permission checker service IDs (FQCN). Dropdown shows the id unless the tag sets label=.
     # permission_checker_choices:
     #     - Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker
     #     - App\Service\Your\OperatorMenuPermissionChecker
-    # Or map shorthand (service_id => label):
-    # permission_checker_choices:
-    #     Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker: 'Allow all'
-    #     App\Service\Your\OperatorMenuPermissionChecker: 'Operator checker'
+    #
+    # Link resolvers for item type "service" (same: list of service ids).
+    # menu_link_resolver_choices:
+    #     - App\Service\YourMenuLinkResolver
 
     api:
         enabled: true
@@ -131,6 +120,9 @@ nowo_dashboard_menu:
         #     item: ['nav-item', 'dropdown-item', '']
         #     link: ['nav-link', 'dropdown-item', 'nav-link link-secondary']
         #     children: ['nav flex-column ms-2', 'nav flex-column', 'dropdown-menu']
+        #     section_children: ['nav flex-column list-unstyled ps-0', 'nav flex-column ms-2', 'nav flex-column', ''] # <ul> under itemType=section
+        #     section_child_item: ['nav-item ms-0', 'nav-item', ''] # <li> direct child of section
+        #     section_child_link: ['nav-link py-0 d-flex align-items-center menu-title text-truncate ps-0', 'nav-link d-flex align-items-center ps-0', 'nav-link', ''] # <a> direct child of section
         #     section_label: ['menu-section-label', '']
         #     section: ['menu-section', 'navigation-header', ''] # <li> class when itemType=section
         #     divider: ['menu-divider', ''] # <li> class when itemType=divider

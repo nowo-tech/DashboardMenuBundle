@@ -224,6 +224,9 @@ final readonly class MenuImporter
         $menu->setClassItem($this->stringOrNull($menuData['classItem'] ?? null));
         $menu->setClassLink($this->stringOrNull($menuData['classLink'] ?? null));
         $menu->setClassChildren($this->stringOrNull($menuData['classChildren'] ?? null));
+        $menu->setClassSectionChildren($this->stringOrNull($menuData['classSectionChildren'] ?? null));
+        $menu->setClassSectionChildItem($this->stringOrNull($menuData['classSectionChildItem'] ?? null));
+        $menu->setClassSectionChildLink($this->stringOrNull($menuData['classSectionChildLink'] ?? null));
         $menu->setClassSectionLabel($this->stringOrNull($menuData['classSectionLabel'] ?? null));
         $menu->setClassSection($this->stringOrNull($menuData['classSection'] ?? null));
         $menu->setClassDivider($this->stringOrNull($menuData['classDivider'] ?? null));
@@ -275,7 +278,9 @@ final readonly class MenuImporter
             $item->setPermissionKeys($this->permissionKeysFromRow($row));
             $item->setIsUnanimous($this->boolOrDefault($row['isUnanimous'] ?? null, true));
             $item->setItemType($this->stringOrDefault($row['itemType'] ?? null, MenuItem::ITEM_TYPE_LINK));
+            $item->setLinkResolver($this->stringOrNull($row['linkResolver'] ?? null));
             $item->setTargetBlank(!empty($row['targetBlank']));
+            $item->setSectionCollapsible($this->boolOrNull($row['sectionCollapsible'] ?? null));
             $this->entityManager->persist($item);
 
             $children = isset($row['children']) && is_array($row['children']) ? array_values($row['children']) : [];

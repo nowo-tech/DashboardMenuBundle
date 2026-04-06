@@ -9,6 +9,7 @@ use App\Controller\HomeController;
 use App\Controller\InfoController;
 use App\Controller\SecurityController;
 use App\Controller\SystemController;
+use App\Service\DemoMenuLinkResolver;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Nowo\DashboardMenuBundle\Entity\Menu;
@@ -18,6 +19,7 @@ use Nowo\DashboardMenuBundle\Entity\MenuItem;
  * Loads sample menus with at least 3 levels (root → children → grandchildren) for the demo.
  * Sidebar and Aside have collapsible items (nested_collapsible in config).
  * Section headers keep at least one child so they still render after empty-section pruning; includes a nested section under Settings.
+ * Sidebar and aside menus set classSectionChildren plus classSectionChildItem / classSectionChildLink so links under sections align without extra indent (demo Bootstrap classes).
  */
 class MenuFixtures extends Fixture
 {
@@ -53,6 +55,9 @@ class MenuFixtures extends Fixture
         $menu->setClassItem('nav-item');
         $menu->setClassLink('nav-link py-0 d-flex align-items-center menu-title text-truncate');
         $menu->setClassChildren('nav flex-column ms-2');
+        $menu->setClassSectionChildren('nav flex-column list-unstyled ps-0');
+        $menu->setClassSectionChildItem('nav-item ms-0');
+        $menu->setClassSectionChildLink('nav-link py-0 d-flex align-items-center menu-title text-truncate ps-0');
         $menu->setClassCurrent('active');
         $menu->setClassBranchExpanded('active-branch');
         $menu->setClassHasChildren('has-sub');
@@ -77,6 +82,9 @@ class MenuFixtures extends Fixture
         $menu->setClassItem('nav-item');
         $menu->setClassLink('nav-link py-0 d-flex align-items-center menu-title text-truncate');
         $menu->setClassChildren('nav flex-column ms-2');
+        $menu->setClassSectionChildren('nav flex-column list-unstyled ps-0');
+        $menu->setClassSectionChildItem('nav-item ms-0');
+        $menu->setClassSectionChildLink('nav-link py-0 d-flex align-items-center menu-title text-truncate ps-0');
         $menu->setClassCurrent('active');
         $menu->setClassBranchExpanded('active-branch');
         $menu->setClassHasChildren('has-sub');
@@ -100,6 +108,9 @@ class MenuFixtures extends Fixture
         $menu->setClassItem('nav-item');
         $menu->setClassLink('nav-link py-0 d-flex align-items-center menu-title text-truncate');
         $menu->setClassChildren('nav flex-column ms-2');
+        $menu->setClassSectionChildren('nav flex-column list-unstyled ps-0');
+        $menu->setClassSectionChildItem('nav-item ms-0');
+        $menu->setClassSectionChildLink('nav-link py-0 d-flex align-items-center menu-title text-truncate ps-0');
         $menu->setClassCurrent('active');
         $menu->setClassBranchExpanded('active-branch');
         $menu->setClassHasChildren('has-sub');
@@ -188,8 +199,25 @@ class MenuFixtures extends Fixture
         $home = $this->item($menu, null, 1, 'Home', MenuItem::ITEM_TYPE_LINK, HomeController::APP_HOME_ROUTE, [], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:house', 'path:/', ['en' => 'Home', 'es' => 'Inicio']);
         $manager->persist($home);
 
+        $serviceLink = $this->item(
+            $menu,
+            null,
+            2,
+            'Service link (demo)',
+            MenuItem::ITEM_TYPE_SERVICE,
+            null,
+            ['section' => 'about'],
+            MenuItem::LINK_TYPE_ROUTE,
+            null,
+            'bootstrap-icons:lightning-charge',
+            null,
+            ['en' => 'Service link (demo)', 'es' => 'Enlace por servicio (demo)'],
+            DemoMenuLinkResolver::class,
+        );
+        $manager->persist($serviceLink);
+
         // Level 1 → 2 → 3 → 4: Dashboard → Settings → Account → Profile, Security (and Notifications at 3)
-        $dashboard = $this->item($menu, null, 2, 'Dashboard', MenuItem::ITEM_TYPE_LINK, HomeController::APP_HOME_ROUTE, ['page' => 'dashboard'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:grid', null, ['en' => 'Dashboard', 'es' => 'Panel']);
+        $dashboard = $this->item($menu, null, 3, 'Dashboard', MenuItem::ITEM_TYPE_LINK, HomeController::APP_HOME_ROUTE, ['page' => 'dashboard'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:grid', null, ['en' => 'Dashboard', 'es' => 'Panel']);
         $manager->persist($dashboard);
         $overview = $this->item($menu, $dashboard, 0, 'Overview', MenuItem::ITEM_TYPE_LINK, HomeController::APP_HOME_ROUTE, ['page' => 'dashboard', 'view' => 'overview'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:grid', null, ['en' => 'Overview', 'es' => 'Resumen']);
         $manager->persist($overview);
@@ -204,12 +232,12 @@ class MenuFixtures extends Fixture
         $manager->persist($settingsNestedSection);
         $manager->persist($this->item($menu, $settingsNestedSection, 0, 'Shortcut', MenuItem::ITEM_TYPE_LINK, ConfigurationController::APP_CONFIGURATION_ROUTE, ['section' => 'shortcut'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:link-45deg', null, ['en' => 'Shortcut', 'es' => 'Atajo']));
 
-        $pagesSection = $this->item($menu, null, 3, 'Pages', MenuItem::ITEM_TYPE_SECTION, null, [], MenuItem::LINK_TYPE_ROUTE, null, null, null, ['en' => 'Pages', 'es' => 'Páginas']);
+        $pagesSection = $this->item($menu, null, 4, 'Pages', MenuItem::ITEM_TYPE_SECTION, null, [], MenuItem::LINK_TYPE_ROUTE, null, null, null, ['en' => 'Pages', 'es' => 'Páginas']);
         $manager->persist($pagesSection);
         $manager->persist($this->item($menu, $pagesSection, 0, 'All pages', MenuItem::ITEM_TYPE_LINK, HomeController::APP_HOME_ROUTE, ['page' => 'all'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:files', null, ['en' => 'All pages', 'es' => 'Todas las páginas']));
 
         // Level 1 → 2 → 3 → 4: Configuration → General → Options, Profile; Configuration → Security → Two-factor, Sessions
-        $configuration = $this->item($menu, null, 4, 'Configuration', MenuItem::ITEM_TYPE_LINK, ConfigurationController::APP_CONFIGURATION_ROUTE, [], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:sliders', null, ['en' => 'Configuration', 'es' => 'Configuración']);
+        $configuration = $this->item($menu, null, 5, 'Configuration', MenuItem::ITEM_TYPE_LINK, ConfigurationController::APP_CONFIGURATION_ROUTE, [], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:sliders', null, ['en' => 'Configuration', 'es' => 'Configuración']);
         $manager->persist($configuration);
         $configGeneral = $this->item($menu, $configuration, 0, 'General', MenuItem::ITEM_TYPE_LINK, ConfigurationController::APP_CONFIGURATION_ROUTE, ['section' => 'general'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:gear');
         $manager->persist($configGeneral);
@@ -225,7 +253,7 @@ class MenuFixtures extends Fixture
         $manager->persist($this->item($menu, $configuration, 5, 'Always denied demo', MenuItem::ITEM_TYPE_LINK, ConfigurationController::APP_CONFIGURATION_ROUTE, ['section' => 'permissions', 'mode' => 'deny'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:ban', '(authenticated|admin)&never', ['en' => 'Always denied demo', 'es' => 'Demo siempre denegado']));
 
         // Level 1 → 2 → 3 → 4: Documents → Doc A → A.1 → A.1.1, A.1.2; Doc B → B.1, B.2; Doc C → C.1 → C.1.a, C.1.b
-        $documents = $this->item($menu, null, 5, 'Documents', MenuItem::ITEM_TYPE_LINK, HomeController::APP_HOME_ROUTE, ['page' => 'documents'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:folder', null, ['en' => 'Documents', 'es' => 'Documentos']);
+        $documents = $this->item($menu, null, 6, 'Documents', MenuItem::ITEM_TYPE_LINK, HomeController::APP_HOME_ROUTE, ['page' => 'documents'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:folder', null, ['en' => 'Documents', 'es' => 'Documentos']);
         $manager->persist($documents);
         $docA = $this->item($menu, $documents, 0, 'Doc A', MenuItem::ITEM_TYPE_LINK, HomeController::APP_HOME_ROUTE, ['page' => 'documents', 'doc' => 'a'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:file-earmark');
         $manager->persist($docA);
@@ -246,19 +274,19 @@ class MenuFixtures extends Fixture
         $manager->persist($this->item($menu, $docC1, 0, 'C.1.a', MenuItem::ITEM_TYPE_LINK, HomeController::APP_HOME_ROUTE, ['page' => 'documents', 'doc' => 'c', 'section' => 'c1a'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:file-earmark-text'));
         $manager->persist($this->item($menu, $docC1, 1, 'C.1.b', MenuItem::ITEM_TYPE_LINK, ConfigurationController::APP_CONFIGURATION_ROUTE, ['section' => 'documents', 'doc' => 'c1b'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:file-earmark-text'));
 
-        $resSection = $this->item($menu, null, 6, 'Resources', MenuItem::ITEM_TYPE_SECTION, null, [], MenuItem::LINK_TYPE_ROUTE, null, null, null, ['en' => 'Resources', 'es' => 'Recursos']);
+        $resSection = $this->item($menu, null, 7, 'Resources', MenuItem::ITEM_TYPE_SECTION, null, [], MenuItem::LINK_TYPE_ROUTE, null, null, null, ['en' => 'Resources', 'es' => 'Recursos']);
         $manager->persist($resSection);
         $apiLink = $this->item($menu, $resSection, 0, 'Menu API (JSON)', MenuItem::ITEM_TYPE_LINK, 'nowo_dashboard_menu_api', ['code' => 'sidebar'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:code-slash');
         $manager->persist($apiLink);
 
-        $extSection = $this->item($menu, null, 7, 'External', MenuItem::ITEM_TYPE_SECTION, null, [], MenuItem::LINK_TYPE_ROUTE, null, null, null, ['en' => 'External', 'es' => 'Enlaces externos']);
+        $extSection = $this->item($menu, null, 8, 'External', MenuItem::ITEM_TYPE_SECTION, null, [], MenuItem::LINK_TYPE_ROUTE, null, null, null, ['en' => 'External', 'es' => 'Enlaces externos']);
         $manager->persist($extSection);
         $symfony = $this->item($menu, $extSection, 0, 'Symfony', MenuItem::ITEM_TYPE_LINK, null, [], MenuItem::LINK_TYPE_EXTERNAL, 'https://symfony.com', 'bootstrap-icons:link');
         $manager->persist($symfony);
         $docs = $this->item($menu, $extSection, 1, 'Documentation', MenuItem::ITEM_TYPE_LINK, null, [], MenuItem::LINK_TYPE_EXTERNAL, 'https://symfony.com/doc', 'bootstrap-icons:book');
         $manager->persist($docs);
 
-        $footerSection = $this->item($menu, null, 8, 'Footer links', MenuItem::ITEM_TYPE_SECTION, null, [], MenuItem::LINK_TYPE_ROUTE, null, null, null, ['en' => 'Footer links', 'es' => 'Enlaces del pie']);
+        $footerSection = $this->item($menu, null, 9, 'Footer links', MenuItem::ITEM_TYPE_SECTION, null, [], MenuItem::LINK_TYPE_ROUTE, null, null, null, ['en' => 'Footer links', 'es' => 'Enlaces del pie']);
         $manager->persist($footerSection);
         $footerItems = [
             [['en' => 'About', 'es' => 'Acerca de'], 'about', 'bootstrap-icons:info-circle'],
@@ -272,7 +300,7 @@ class MenuFixtures extends Fixture
             $manager->persist($this->item($menu, $footerSection, $i, $translations['en'], MenuItem::ITEM_TYPE_LINK, InfoController::APP_INFO_ROUTE, ['section' => $section], MenuItem::LINK_TYPE_ROUTE, null, $icon, null, $translations));
         }
         // Status as parent with children (link + chevron; children visible/collapsible)
-        $status = $this->item($menu, null, 9, 'Status', MenuItem::ITEM_TYPE_LINK, InfoController::APP_INFO_ROUTE, ['section' => 'status'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:activity', null, ['en' => 'Status', 'es' => 'Estado']);
+        $status = $this->item($menu, null, 10, 'Status', MenuItem::ITEM_TYPE_LINK, InfoController::APP_INFO_ROUTE, ['section' => 'status'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:activity', null, ['en' => 'Status', 'es' => 'Estado']);
         $manager->persist($status);
         $manager->persist($this->item($menu, $status, 0, 'Overview', MenuItem::ITEM_TYPE_LINK, InfoController::APP_INFO_ROUTE, ['section' => 'status', 'view' => 'overview'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:bar-chart', null, ['en' => 'Overview', 'es' => 'Resumen']));
         $manager->persist($this->item($menu, $status, 1, 'Incidents', MenuItem::ITEM_TYPE_LINK, InfoController::APP_INFO_ROUTE, ['section' => 'status', 'view' => 'incidents'], MenuItem::LINK_TYPE_ROUTE, null, 'bootstrap-icons:exclamation-triangle', null, ['en' => 'Incidents', 'es' => 'Incidentes']));
@@ -372,7 +400,8 @@ class MenuFixtures extends Fixture
         ?string $externalUrl = null,
         ?string $icon = null,
         ?string $permissionKey = null,
-        array $translations = []
+        array $translations = [],
+        ?string $linkResolver = null,
     ): MenuItem {
         $item = new MenuItem();
         $item->setMenu($menu);
@@ -383,13 +412,23 @@ class MenuFixtures extends Fixture
             $item->setTranslations($translations);
         }
         $item->setItemType($itemType);
-        $item->setLinkType($linkType);
-        if ($linkType === MenuItem::LINK_TYPE_ROUTE && $routeName !== null) {
-            $item->setRouteName($routeName);
-            $item->setRouteParams($routeParams ?: null);
-        }
-        if ($externalUrl !== null) {
-            $item->setExternalUrl($externalUrl);
+        if ($itemType === MenuItem::ITEM_TYPE_SERVICE) {
+            $item->setLinkType(null);
+            $item->setRouteName(null);
+            $item->setExternalUrl(null);
+            $item->setRouteParams($routeParams !== [] ? $routeParams : null);
+            if ($linkResolver !== null) {
+                $item->setLinkResolver($linkResolver);
+            }
+        } else {
+            $item->setLinkType($linkType);
+            if ($linkType === MenuItem::LINK_TYPE_ROUTE && $routeName !== null) {
+                $item->setRouteName($routeName);
+                $item->setRouteParams($routeParams !== [] ? $routeParams : null);
+            }
+            if ($externalUrl !== null) {
+                $item->setExternalUrl($externalUrl);
+            }
         }
         if ($icon !== null) {
             $item->setIcon($icon);

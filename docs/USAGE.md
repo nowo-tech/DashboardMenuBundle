@@ -9,6 +9,7 @@
 - [JSON API](#json-api)
 - [Resolving menu by criteria](#resolving-menu-by-criteria-operatorid-partnerid-menu-name)
 - [Permissions](#permissions)
+- [Item visibility rules](#item-visibility-rules)
 - [Web Profiler diagnostics](#web-profiler-diagnostics)
 
 ## Twig
@@ -271,6 +272,65 @@ Notes:
 - **Attribute:** `#[PermissionCheckerLabel('Your label')]` on the class (use `Nowo\DashboardMenuBundle\Attribute\PermissionCheckerLabel`)
 
 If neither is set, the service id (e.g. FQCN) is used as the label. You can discover your checker via a service directory (e.g. `App\Service\`: `resource: '../src/Service/'`) so you do not need to register it explicitly in `services.yaml`. You can still order or override labels via config: `permission_checker_choices` as a list of service IDs or a map (service id => label) in `nowo_dashboard_menu.yaml` (see [CONFIGURATION](CONFIGURATION.md#permission_checker_choices)). Assign a checker to a menu in the dashboard (per-menu) or leave the menu with no checker for default allow-all behaviour. Manually tagging with `nowo_dashboard_menu.permission_checker` in `services.yaml` or using `#[AsTaggedItem]` remains supported.
+
+## Item visibility rules
+
+The bundle applies the following rules in order to decide which items appear in the rendered tree. All rules are enforced in `MenuTreeLoader` (see `buildTree` + `pruneEmptySections`).
+
+### 1. Permission check (per item, all types)
+
+Every item — regardless of type — is evaluated once by the configured `MenuPermissionCheckerInterface::canView($item, $context)`. If the checker returns `false`, the item is excluded from the tree; none of its children are rendered either.
+
+The checker receives the full `MenuItem` object and can inspect `$item->getPermissionKeys()` and `$item->isUnanimous()` to implement OR / AND logic. The bundle does not enforce that logic itself; it is the checker's responsibility.
+
+### 2. Link (leaf) — always visible when the checker allows
+
+A link with **no children in the database** (`had_children = false`) is included as-is if the checker allows it.
+
+```
+visible = canView(item)
+```
+
+### 3. Link with children — visible only when it has at least one visible child
+
+A link that **has children in the database** (`had_children = true`) is pruned from the tree when all its children are hidden by the permission checker (or are themselves pruned recursively).
+
+```
+visible = canView(item) AND count(visible_children) > 0
+```
+
+Rationale: a parent link with no visible children renders as a clickable element with nowhere useful to go and an empty submenu.
+
+### 4. Section — visible only when it has at least one visible child
+
+A section (`itemType = section`) that **has children in the database** (`had_children = true`) is pruned when all its children are hidden by the permission checker.
+
+```
+visible = canView(item) AND count(visible_children) > 0
+```
+
+A section that **has no children in the database** (`had_children = false`) is always kept when the checker allows it (it may be an intentional standalone heading).
+
+### 5. Divider — visible when the checker allows
+
+Dividers (`itemType = divider`) follow the same rule as leaf links: visible if and only if `canView` returns `true`. Dividers have no children.
+
+### Summary table
+
+| Item type | Has DB children | Checker passes | Visible? |
+|-----------|-----------------|---------------|----------|
+| Link (leaf) | No | Yes | ✅ |
+| Link (leaf) | No | No | ❌ |
+| Link (parent) | Yes | Yes | Only if ≥ 1 child visible |
+| Link (parent) | Yes | No | ❌ |
+| Section | No | Yes | ✅ |
+| Section | No | No | ❌ |
+| Section | Yes | Yes | Only if ≥ 1 child visible |
+| Section | Yes | No | ❌ |
+| Divider | — | Yes | ✅ |
+| Divider | — | No | ❌ |
+
+> **Note:** pruning is applied recursively from the deepest level up. A grandchild being hidden can cause a parent link or section to be pruned if all its children end up hidden.
 
 ## Web Profiler diagnostics
 

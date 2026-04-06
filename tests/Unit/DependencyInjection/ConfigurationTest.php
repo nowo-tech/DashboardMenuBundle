@@ -41,7 +41,11 @@ final class ConfigurationTest extends TestCase
         self::assertSame(100, $config['dashboard']['position_step']);
         self::assertArrayHasKey('menu', $config['dashboard']['css_class_options']);
         self::assertArrayHasKey('item', $config['dashboard']['css_class_options']);
-        self::assertSame(['order' => [], 'labels' => []], $config['permission_checker_choices']);
+        self::assertArrayHasKey('section_children', $config['dashboard']['css_class_options']);
+        self::assertArrayHasKey('section_child_item', $config['dashboard']['css_class_options']);
+        self::assertArrayHasKey('section_child_link', $config['dashboard']['css_class_options']);
+        self::assertSame([], $config['permission_checker_choices']);
+        self::assertSame([], $config['menu_link_resolver_choices']);
     }
 
     public function testProcessConfigurationMergesCustomConfig(): void
@@ -59,7 +63,7 @@ final class ConfigurationTest extends TestCase
                     'pagination'                  => ['enabled' => false, 'per_page' => 50],
                     'modals'                      => ['menu_form' => 'lg', 'item_form' => 'xl'],
                 ],
-                'permission_checker_choices' => ['app.my_checker' => 'My checker'],
+                'permission_checker_choices' => ['app.my_checker'],
             ],
         ]);
 
@@ -74,7 +78,7 @@ final class ConfigurationTest extends TestCase
         self::assertSame(50, $config['dashboard']['pagination']['per_page']);
         self::assertSame('lg', $config['dashboard']['modals']['menu_form']);
         self::assertSame('xl', $config['dashboard']['modals']['item_form']);
-        self::assertSame(['order' => ['app.my_checker'], 'labels' => ['app.my_checker' => 'My checker']], $config['permission_checker_choices']);
+        self::assertSame(['app.my_checker'], $config['permission_checker_choices']);
     }
 
     public function testProcessConfigurationNormalizesPermissionCheckerChoicesList(): void
@@ -90,12 +94,24 @@ final class ConfigurationTest extends TestCase
         ]);
 
         self::assertSame(
-            [
-                'order'  => [\Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker::class, 'App\Service\DemoMenuPermissionChecker'],
-                'labels' => [],
-            ],
+            [\Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker::class, 'App\Service\DemoMenuPermissionChecker'],
             $config['permission_checker_choices'],
         );
+    }
+
+    public function testProcessConfigurationNormalizesLegacyOrderAndIgnoresLabels(): void
+    {
+        $processor = new Processor();
+        $config    = $processor->processConfiguration(new Configuration(), [
+            [
+                'permission_checker_choices' => [
+                    'order'  => ['app.a', 'app.b'],
+                    'labels' => ['app.a' => 'Should be ignored'],
+                ],
+            ],
+        ]);
+
+        self::assertSame(['app.a', 'app.b'], $config['permission_checker_choices']);
     }
 
     public function testProcessConfigurationValidatesModalValues(): void

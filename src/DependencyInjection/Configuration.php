@@ -77,34 +77,40 @@ final class Configuration implements ConfigurationInterface
                     ->defaultNull()
                 ->end()
                 ->arrayNode('permission_checker_choices')
-                    ->info('Services shown in the dashboard "Permission checker" dropdown when creating/editing a Menu. Each must implement MenuPermissionCheckerInterface (canView(MenuItem, $context)). Tagged services (nowo_dashboard_menu.permission_checker) are included automatically; this list adds or orders them. Use a list of service IDs, or a map for custom labels: "FQCN: \'Display label\'".')
+                    ->info('Ordered list of permission checker service IDs (FQCN) for the dashboard dropdown. Each must implement MenuPermissionCheckerInterface. Tagged services are merged automatically; this list adds or orders them. The visible label is the service id unless the tag defines label= (or class metadata). Legacy YAML with only `order:` (and ignored `labels:`) is normalized to this list.')
                     ->beforeNormalization()
                         ->ifArray()
                         ->then(static function (array $v): array {
-                            if (isset($v['order'], $v['labels'])) {
-                                return $v;
+                            if (isset($v['order']) && is_array($v['order'])) {
+                                return array_values(array_filter($v['order'], static fn ($id): bool => is_string($id)));
                             }
                             if (array_is_list($v)) {
-                                return ['order' => $v, 'labels' => []];
+                                return array_values(array_filter($v, static fn ($id): bool => is_string($id)));
                             }
 
-                            return ['order' => array_keys($v), 'labels' => $v];
+                            return array_values(array_filter(array_keys($v), static fn ($id): bool => is_string($id)));
                         })
                     ->end()
-                    ->addDefaultsIfNotSet()
-                    ->children()
-                        ->arrayNode('order')
-                            ->info('Ordered list of permission checker service IDs (FQCN). Labels come from the service tag unless overridden in labels.')
-                            ->scalarPrototype()->end()
-                            ->defaultValue([])
-                        ->end()
-                        ->arrayNode('labels')
-                            ->info('Optional map of service_id => label to override labels in the dropdown.')
-                            ->useAttributeAsKey('service_id')
-                            ->scalarPrototype()->end()
-                            ->defaultValue([])
-                        ->end()
+                    ->scalarPrototype()->end()
+                    ->defaultValue([])
+                ->end()
+                ->arrayNode('menu_link_resolver_choices')
+                    ->info('Ordered list of MenuLinkResolverInterface service IDs for the "Link resolver" dropdown (item type service). Tagged resolvers are merged; this list adds or orders them. The visible label is the service id unless the tag defines label=. Legacy YAML with only `order:` is normalized to this list.')
+                    ->beforeNormalization()
+                        ->ifArray()
+                        ->then(static function (array $v): array {
+                            if (isset($v['order']) && is_array($v['order'])) {
+                                return array_values(array_filter($v['order'], static fn ($id): bool => is_string($id)));
+                            }
+                            if (array_is_list($v)) {
+                                return array_values(array_filter($v, static fn ($id): bool => is_string($id)));
+                            }
+
+                            return array_values(array_filter(array_keys($v), static fn ($id): bool => is_string($id)));
+                        })
                     ->end()
+                    ->scalarPrototype()->end()
+                    ->defaultValue([])
                 ->end()
                 ->arrayNode('api')
                     ->addDefaultsIfNotSet()
@@ -270,6 +276,21 @@ final class Configuration implements ConfigurationInterface
                                     ->info('CSS classes for nested <ul>.')
                                     ->scalarPrototype()->end()
                                     ->defaultValue(['nav flex-column ms-2', 'nav flex-column', 'dropdown-menu'])
+                                ->end()
+                                ->arrayNode('section_children')
+                                    ->info('CSS classes for the <ul> directly under itemType "section" (when set on the menu entity).')
+                                    ->scalarPrototype()->end()
+                                    ->defaultValue(['nav flex-column list-unstyled ps-0', 'nav flex-column ms-2', 'nav flex-column', ''])
+                                ->end()
+                                ->arrayNode('section_child_item')
+                                    ->info('CSS classes for <li> when the item is a direct child of itemType "section" (when set on the menu entity).')
+                                    ->scalarPrototype()->end()
+                                    ->defaultValue(['nav-item ms-0', 'nav-item', ''])
+                                ->end()
+                                ->arrayNode('section_child_link')
+                                    ->info('CSS classes for <a> when the link is a direct child of itemType "section" (when set on the menu entity).')
+                                    ->scalarPrototype()->end()
+                                    ->defaultValue(['nav-link d-flex align-items-center ps-0', 'nav-link py-0 d-flex align-items-center menu-title text-truncate ps-0', 'nav-link', ''])
                                 ->end()
                                 ->arrayNode('section_label')
                                     ->info('CSS classes for the <span> label of section items (itemType "section").')

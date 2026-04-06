@@ -104,8 +104,9 @@ final class DashboardMenuExtension extends Extension
             'doctrine'                   => $config['doctrine'] ?? [],
             'cache'                      => $config['cache'] ?? [],
             'icon_library_prefix_map'    => $config['icon_library_prefix_map'] ?? [],
-            'permission_checker_choices' => $config['permission_checker_choices'] ?? [],
-            'api'                        => $config['api'] ?? [],
+            'permission_checker_choices'   => $config['permission_checker_choices'] ?? [],
+            'menu_link_resolver_choices' => $config['menu_link_resolver_choices'] ?? [],
+            'api'                          => $config['api'] ?? [],
             'dashboard'                  => $config['dashboard'] ?? [],
         ];
 
@@ -121,6 +122,7 @@ final class DashboardMenuExtension extends Extension
         $container->setParameter(Configuration::ALIAS . '.default_locale', $defaultLocale);
         $container->setParameter(Configuration::ALIAS . '.default_locale_resolved', $defaultLocale ?? ($locales[0] ?? 'en'));
         $container->setParameter(Configuration::ALIAS . '.permission_checker_choices', $config['permission_checker_choices'] ?? []);
+        $container->setParameter(Configuration::ALIAS . '.menu_link_resolver_choices', $config['menu_link_resolver_choices'] ?? []);
 
         $container->register(MenuLocaleResolver::class, MenuLocaleResolver::class)
             ->setArguments([

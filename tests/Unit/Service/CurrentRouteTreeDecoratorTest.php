@@ -426,6 +426,9 @@ final class CurrentRouteTreeDecoratorTest extends TestCase
         $router = $this->createStub(RouterInterface::class);
         $router->method('getRouteCollection')->willReturn(new RouteCollection());
 
-        return new MenuUrlResolver($urlGenerator, $requestStack, $router);
+        $container = $this->createStub(\Symfony\Component\DependencyInjection\ContainerInterface::class);
+        $container->method('has')->willReturn(false);
+
+        return new MenuUrlResolver($urlGenerator, $requestStack, $router, $container);
     }
 }

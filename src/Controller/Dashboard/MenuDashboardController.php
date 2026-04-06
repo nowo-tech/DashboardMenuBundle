@@ -62,50 +62,37 @@ use const SORT_NATURAL;
 #[Route(path: '', name: 'nowo_dashboard_menu_dashboard_')]
 final class MenuDashboardController extends AbstractController
 {
-    public const ROUTE_INDEX                     = 'nowo_dashboard_menu_dashboard_index';
-    public const ROUTE_SHOW                      = 'nowo_dashboard_menu_dashboard_show';
-    public const ROUTE_SHOW_ITEMS_REORDER        = 'nowo_dashboard_menu_dashboard_show_items_reorder';
-    public const ROUTE_MENU_NEW                  = 'nowo_dashboard_menu_dashboard_menu_new';
-    public const ROUTE_MENU_EDIT                 = 'nowo_dashboard_menu_dashboard_menu_edit';
-    public const ROUTE_MENU_DELETE               = 'nowo_dashboard_menu_dashboard_menu_delete';
-    public const ROUTE_MENU_COPY                 = 'nowo_dashboard_menu_dashboard_menu_copy';
-    public const ROUTE_ITEM_NEW                  = 'nowo_dashboard_menu_dashboard_item_new';
-    public const ROUTE_ITEM_EDIT                 = 'nowo_dashboard_menu_dashboard_item_edit';
-    public const ROUTE_ITEM_DELETE               = 'nowo_dashboard_menu_dashboard_item_delete';
-    public const ROUTE_ITEM_MOVE_UP              = 'nowo_dashboard_menu_dashboard_item_move_up';
-    public const ROUTE_ITEM_MOVE_DOWN            = 'nowo_dashboard_menu_dashboard_item_move_down';
-    public const ROUTE_ITEMS_REINDEX_POSITIONS   = 'nowo_dashboard_menu_dashboard_items_reindex_positions';
-    public const ROUTE_ITEMS_CHECK_PARENT_CYCLES = 'nowo_dashboard_menu_dashboard_items_check_parent_cycles';
-    public const ROUTE_ITEMS_REORDER_TREE        = 'nowo_dashboard_menu_dashboard_items_reorder_tree';
-    public const ROUTE_EXPORT_MENU               = 'nowo_dashboard_menu_dashboard_export_menu';
-    public const ROUTE_EXPORT_ALL                = 'nowo_dashboard_menu_dashboard_export_all';
-    public const ROUTE_IMPORT                    = 'nowo_dashboard_menu_dashboard_import';
+    use DashboardControllerTrait;
+
+    /**
+     * Prefer {@see DashboardRoutes} in new code; these remain for backward compatibility with
+     * `MenuDashboardController::ROUTE_*` references outside the bundle.
+     */
+    public const ROUTE_INDEX                     = DashboardRoutes::ROUTE_INDEX;
+    public const ROUTE_SHOW                      = DashboardRoutes::ROUTE_SHOW;
+    public const ROUTE_SHOW_ITEMS_REORDER        = DashboardRoutes::ROUTE_SHOW_ITEMS_REORDER;
+    public const ROUTE_MENU_NEW                  = DashboardRoutes::ROUTE_MENU_NEW;
+    public const ROUTE_MENU_EDIT                 = DashboardRoutes::ROUTE_MENU_EDIT;
+    public const ROUTE_MENU_DELETE               = DashboardRoutes::ROUTE_MENU_DELETE;
+    public const ROUTE_MENU_COPY                 = DashboardRoutes::ROUTE_MENU_COPY;
+    public const ROUTE_ITEM_NEW                  = DashboardRoutes::ROUTE_ITEM_NEW;
+    public const ROUTE_ITEM_EDIT                 = DashboardRoutes::ROUTE_ITEM_EDIT;
+    public const ROUTE_ITEM_DELETE               = DashboardRoutes::ROUTE_ITEM_DELETE;
+    public const ROUTE_ITEM_MOVE_UP              = DashboardRoutes::ROUTE_ITEM_MOVE_UP;
+    public const ROUTE_ITEM_MOVE_DOWN            = DashboardRoutes::ROUTE_ITEM_MOVE_DOWN;
+    public const ROUTE_ITEMS_REINDEX_POSITIONS   = DashboardRoutes::ROUTE_ITEMS_REINDEX_POSITIONS;
+    public const ROUTE_ITEMS_CHECK_PARENT_CYCLES = DashboardRoutes::ROUTE_ITEMS_CHECK_PARENT_CYCLES;
+    public const ROUTE_ITEMS_REORDER_TREE        = DashboardRoutes::ROUTE_ITEMS_REORDER_TREE;
+    public const ROUTE_EXPORT_MENU               = DashboardRoutes::ROUTE_EXPORT_MENU;
+    public const ROUTE_EXPORT_ALL                = DashboardRoutes::ROUTE_EXPORT_ALL;
+    public const ROUTE_IMPORT                    = DashboardRoutes::ROUTE_IMPORT;
 
     /**
      * @return array<string, string>
      */
     private function getDashboardRoutes(): array
     {
-        return [
-            'index'                     => self::ROUTE_INDEX,
-            'show'                      => self::ROUTE_SHOW,
-            'show_items_reorder'        => self::ROUTE_SHOW_ITEMS_REORDER,
-            'menu_new'                  => self::ROUTE_MENU_NEW,
-            'menu_edit'                 => self::ROUTE_MENU_EDIT,
-            'menu_delete'               => self::ROUTE_MENU_DELETE,
-            'menu_copy'                 => self::ROUTE_MENU_COPY,
-            'item_new'                  => self::ROUTE_ITEM_NEW,
-            'item_edit'                 => self::ROUTE_ITEM_EDIT,
-            'item_delete'               => self::ROUTE_ITEM_DELETE,
-            'item_move_up'              => self::ROUTE_ITEM_MOVE_UP,
-            'item_move_down'            => self::ROUTE_ITEM_MOVE_DOWN,
-            'items_reindex_positions'   => self::ROUTE_ITEMS_REINDEX_POSITIONS,
-            'items_check_parent_cycles' => self::ROUTE_ITEMS_CHECK_PARENT_CYCLES,
-            'items_reorder_tree'        => self::ROUTE_ITEMS_REORDER_TREE,
-            'export_menu'               => self::ROUTE_EXPORT_MENU,
-            'export_all'                => self::ROUTE_EXPORT_ALL,
-            'import'                    => self::ROUTE_IMPORT,
-        ];
+        return DashboardRoutes::all();
     }
 
     /**
@@ -139,28 +126,6 @@ final class MenuDashboardController extends AbstractController
         private readonly ImportExportRateLimiter $importExportRateLimiter,
         private readonly bool $itemFormLiveComponentEnabled = false,
     ) {
-    }
-
-    /**
-     * Returns Bootstrap modal CSS class for each modal type (e.g. '' for normal, 'modal-lg', 'modal-xl').
-     *
-     * @return array{menu_form: string, copy: string, item_form: string, delete: string}
-     */
-    private function getModalClasses(): array
-    {
-        $map = static fn (string $v): string => match ($v) {
-            'lg'    => 'modal-lg',
-            'xl'    => 'modal-xl',
-            default => '',
-        };
-        $sizes = $this->modalSizes;
-
-        return [
-            'menu_form' => $map($sizes['menu_form'] ?? 'normal'),
-            'copy'      => $map($sizes['copy'] ?? 'normal'),
-            'item_form' => $map($sizes['item_form'] ?? 'lg'),
-            'delete'    => $map($sizes['delete'] ?? 'normal'),
-        ];
     }
 
     #[Route(path: '', name: 'index', methods: ['GET'])]
@@ -197,7 +162,7 @@ final class MenuDashboardController extends AbstractController
 
         $newMenu     = new Menu();
         $newMenuForm = $this->createForm(MenuType::class, $newMenu, [
-            'action'  => $this->generateUrl(self::ROUTE_MENU_NEW),
+            'action'  => $this->generateUrl(DashboardRoutes::ROUTE_MENU_NEW),
             'section' => 'basic',
         ]);
 
@@ -207,9 +172,9 @@ final class MenuDashboardController extends AbstractController
             'search'                   => $search,
             'pagination'               => $pagination,
             'new_menu_form'            => $newMenuForm,
-            'dashboard_show_route'     => self::ROUTE_SHOW,
+            'dashboard_show_route'     => DashboardRoutes::ROUTE_SHOW,
             'dashboard_routes'         => $this->getDashboardRoutes(),
-            'modal_classes'            => $this->getModalClasses(),
+            'modal_classes'            => self::resolveModalClasses($this->modalSizes),
             'icon_selector_script_url' => $this->iconSelectorScriptUrl,
             'stimulus_script_url'      => $this->stimulusScriptUrl,
         ]);
@@ -220,7 +185,7 @@ final class MenuDashboardController extends AbstractController
     {
         $menu = new Menu();
         $form = $this->createForm(MenuType::class, $menu, [
-            'action'  => $this->generateUrl(self::ROUTE_MENU_NEW),
+            'action'  => $this->generateUrl(DashboardRoutes::ROUTE_MENU_NEW),
             'section' => 'basic',
         ]);
         $form->handleRequest($request);
@@ -235,27 +200,17 @@ final class MenuDashboardController extends AbstractController
                     $this->entityManager->flush();
                     $this->addFlash('success', 'Menu created.');
 
-                    return $this->redirectToRefererOr($request, self::ROUTE_INDEX, []);
+                    return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_INDEX, []);
                 }
             } else {
                 $this->addFlash('error', 'Code is required.');
             }
         }
 
-        if ($request->query->get('_partial')) {
-            return $this->render('@NowoDashboardMenuBundle/dashboard/_menu_form_partial.html.twig', [
-                'form'             => $form,
-                'is_edit'          => false,
-                'dashboard_routes' => $this->getDashboardRoutes(),
-            ]);
-        }
-
-        return $this->render('@NowoDashboardMenuBundle/dashboard/menu_form.html.twig', [
-            'form'                     => $form,
-            'is_edit'                  => false,
-            'dashboard_routes'         => $this->getDashboardRoutes(),
-            'icon_selector_script_url' => $this->iconSelectorScriptUrl,
-            'stimulus_script_url'      => $this->stimulusScriptUrl,
+        return $this->render('@NowoDashboardMenuBundle/dashboard/_menu_form_partial.html.twig', [
+            'form'             => $form,
+            'is_edit'          => false,
+            'dashboard_routes' => $this->getDashboardRoutes(),
         ]);
     }
 
@@ -272,8 +227,8 @@ final class MenuDashboardController extends AbstractController
         return $this->render('@NowoDashboardMenuBundle/dashboard/show_items_reorder.html.twig', [
             'menu'                     => $menu,
             'items_tree'               => $itemsTree,
-            'modal_classes'            => $this->getModalClasses(),
-            'dashboard_show_route'     => self::ROUTE_SHOW,
+            'modal_classes'            => self::resolveModalClasses($this->modalSizes),
+            'dashboard_show_route'     => DashboardRoutes::ROUTE_SHOW,
             'dashboard_routes'         => $this->getDashboardRoutes(),
             'icon_selector_script_url' => $this->iconSelectorScriptUrl,
             'stimulus_script_url'      => $this->stimulusScriptUrl,
@@ -296,12 +251,12 @@ final class MenuDashboardController extends AbstractController
         return $this->render('@NowoDashboardMenuBundle/dashboard/show.html.twig', [
             'menu'                     => $menu,
             'items'                    => $items,
-            'modal_classes'            => $this->getModalClasses(),
+            'modal_classes'            => self::resolveModalClasses($this->modalSizes),
             'prev_sibling'             => $siblings['prev'],
             'next_sibling'             => $siblings['next'],
             'item_depths'              => $itemDepths,
             'item_parent_labels'       => $itemParentLabels,
-            'dashboard_show_route'     => self::ROUTE_SHOW,
+            'dashboard_show_route'     => DashboardRoutes::ROUTE_SHOW,
             'dashboard_routes'         => $this->getDashboardRoutes(),
             'icon_selector_script_url' => $this->iconSelectorScriptUrl,
             'stimulus_script_url'      => $this->stimulusScriptUrl,
@@ -333,7 +288,7 @@ final class MenuDashboardController extends AbstractController
             );
         }
 
-        return $this->redirectToRefererOr($request, self::ROUTE_SHOW, ['id' => $id]);
+        return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
     }
 
     #[Route(path: '/{id}/items/check-parent-cycles', name: 'items_check_parent_cycles', requirements: ['id' => '\d+'], methods: ['POST'])]
@@ -363,7 +318,7 @@ final class MenuDashboardController extends AbstractController
             );
         }
 
-        return $this->redirectToRefererOr($request, self::ROUTE_SHOW, ['id' => $id]);
+        return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
     }
 
     #[Route(path: '/{id}/items/reorder-tree', name: 'items_reorder_tree', requirements: ['id' => '\d+'], methods: ['POST'])]
@@ -385,7 +340,7 @@ final class MenuDashboardController extends AbstractController
                 $this->translator->trans('dashboard.reorder_tree_invalid_json', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN),
             );
 
-            return $this->redirectToRefererOr($request, self::ROUTE_SHOW, ['id' => $id]);
+            return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
         }
         if (!is_array($decoded) || !array_is_list($decoded)) {
             $this->addFlash(
@@ -393,7 +348,7 @@ final class MenuDashboardController extends AbstractController
                 $this->translator->trans('dashboard.reorder_tree_invalid_payload', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN),
             );
 
-            return $this->redirectToRefererOr($request, self::ROUTE_SHOW, ['id' => $id]);
+            return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
         }
         /** @var list<array{id: int, parent_id: int|null, position: int}> $nodes */
         $nodes = [];
@@ -404,7 +359,7 @@ final class MenuDashboardController extends AbstractController
                     $this->translator->trans('dashboard.reorder_tree_invalid_payload', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN),
                 );
 
-                return $this->redirectToRefererOr($request, self::ROUTE_SHOW, ['id' => $id]);
+                return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
             }
             $itemId = isset($row['id']) ? (int) $row['id'] : 0;
             if ($itemId <= 0) {
@@ -413,7 +368,7 @@ final class MenuDashboardController extends AbstractController
                     $this->translator->trans('dashboard.reorder_tree_invalid_payload', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN),
                 );
 
-                return $this->redirectToRefererOr($request, self::ROUTE_SHOW, ['id' => $id]);
+                return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
             }
             $parentRaw = $row['parent_id'] ?? null;
             $parentId  = null;
@@ -434,7 +389,7 @@ final class MenuDashboardController extends AbstractController
                 $this->translator->trans($flashKey, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN),
             );
 
-            return $this->redirectToRefererOr($request, self::ROUTE_SHOW, ['id' => $id]);
+            return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
         }
         $this->entityManager->flush();
         $this->addFlash(
@@ -442,7 +397,7 @@ final class MenuDashboardController extends AbstractController
             $this->translator->trans('dashboard.reorder_tree_done', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN),
         );
 
-        return $this->redirectToRefererOr($request, self::ROUTE_SHOW, ['id' => $id]);
+        return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
     }
 
     /**
@@ -624,7 +579,7 @@ final class MenuDashboardController extends AbstractController
         if ($item === null || $item->getMenu() !== $menu) {
             $this->addFlash('error', 'Item not found.');
 
-            return $this->redirectToRoute(self::ROUTE_SHOW, ['id' => $id]);
+            return $this->redirectToRoute(DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
         }
         $siblings = $this->menuItemRepository->findSiblingsByPosition($item);
         $idx      = null;
@@ -637,7 +592,7 @@ final class MenuDashboardController extends AbstractController
         if ($idx === null || $idx === 0) {
             $this->addFlash('info', 'Item is already first among its siblings.');
 
-            return $this->redirectToRoute(self::ROUTE_SHOW, ['id' => $id]);
+            return $this->redirectToRoute(DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
         }
         $prev    = $siblings[$idx - 1];
         $itemPos = $item->getPosition();
@@ -647,7 +602,7 @@ final class MenuDashboardController extends AbstractController
         $this->entityManager->flush();
         $this->addFlash('success', 'Item moved up.');
 
-        return $this->redirectToRefererOr($request, self::ROUTE_SHOW, ['id' => $id], 'item-' . $itemId);
+        return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_SHOW, ['id' => $id], 'item-' . $itemId);
     }
 
     #[Route(path: '/{id}/item/{itemId}/move-down', name: 'item_move_down', requirements: ['id' => '\d+', 'itemId' => '\d+'], methods: ['POST'])]
@@ -664,7 +619,7 @@ final class MenuDashboardController extends AbstractController
         if ($item === null || $item->getMenu() !== $menu) {
             $this->addFlash('error', 'Item not found.');
 
-            return $this->redirectToRoute(self::ROUTE_SHOW, ['id' => $id]);
+            return $this->redirectToRoute(DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
         }
         $siblings = $this->menuItemRepository->findSiblingsByPosition($item);
         $idx      = null;
@@ -677,7 +632,7 @@ final class MenuDashboardController extends AbstractController
         if ($idx === null || $idx === count($siblings) - 1) {
             $this->addFlash('info', 'Item is already last among its siblings.');
 
-            return $this->redirectToRoute(self::ROUTE_SHOW, ['id' => $id]);
+            return $this->redirectToRoute(DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
         }
         $next    = $siblings[$idx + 1];
         $itemPos = $item->getPosition();
@@ -687,7 +642,7 @@ final class MenuDashboardController extends AbstractController
         $this->entityManager->flush();
         $this->addFlash('success', 'Item moved down.');
 
-        return $this->redirectToRefererOr($request, self::ROUTE_SHOW, ['id' => $id], 'item-' . $itemId);
+        return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_SHOW, ['id' => $id], 'item-' . $itemId);
     }
 
     #[Route(path: '/{id}/edit', name: 'menu_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
@@ -705,7 +660,7 @@ final class MenuDashboardController extends AbstractController
         $menuSnapshot = $this->snapshotMenuForBaseProtection($menu);
         $originalCode = $menu->getCode();
         $form         = $this->createForm(MenuType::class, $menu, [
-            'action'  => $this->generateUrl(self::ROUTE_MENU_EDIT, ['id' => $id]),
+            'action'  => $this->generateUrl(DashboardRoutes::ROUTE_MENU_EDIT, ['id' => $id]),
             'section' => $sectionFocus,
         ]);
         $form->handleRequest($request);
@@ -726,25 +681,15 @@ final class MenuDashboardController extends AbstractController
                 $this->entityManager->flush();
                 $this->addFlash('success', 'Menu updated.');
 
-                return $this->redirectToRefererOr($request, self::ROUTE_SHOW, ['id' => $id]);
+                return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
             }
         }
 
-        if ($request->query->get('_partial')) {
-            return $this->render('@NowoDashboardMenuBundle/dashboard/_menu_form_partial.html.twig', [
-                'form'             => $form,
-                'is_edit'          => true,
-                'dashboard_routes' => $this->getDashboardRoutes(),
-                'section_focus'    => $sectionFocus,
-            ]);
-        }
-
-        return $this->render('@NowoDashboardMenuBundle/dashboard/menu_form.html.twig', [
-            'form'                     => $form,
-            'is_edit'                  => true,
-            'dashboard_routes'         => $this->getDashboardRoutes(),
-            'icon_selector_script_url' => $this->iconSelectorScriptUrl,
-            'stimulus_script_url'      => $this->stimulusScriptUrl,
+        return $this->render('@NowoDashboardMenuBundle/dashboard/_menu_form_partial.html.twig', [
+            'form'             => $form,
+            'is_edit'          => true,
+            'dashboard_routes' => $this->getDashboardRoutes(),
+            'section_focus'    => $sectionFocus,
         ]);
     }
 
@@ -761,14 +706,14 @@ final class MenuDashboardController extends AbstractController
         if ($menu->isBase()) {
             $this->addFlash('error', 'Base menus cannot be deleted.');
 
-            return $this->redirectToRefererOr($request, self::ROUTE_INDEX, []);
+            return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_INDEX, []);
         }
         $em = $this->entityManager;
         $em->remove($menu);
         $em->flush();
         $this->addFlash('success', 'Menu deleted.');
 
-        return $this->redirectToRefererOr($request, self::ROUTE_INDEX, []);
+        return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_INDEX, []);
     }
 
     #[Route(path: '/export', name: 'export_all', methods: ['GET'])]
@@ -814,10 +759,10 @@ final class MenuDashboardController extends AbstractController
     public function import(Request $request): Response
     {
         $form = $this->createForm(ImportMenuType::class, null, [
-            'action' => $this->generateUrl(self::ROUTE_IMPORT),
+            'action' => $this->generateUrl(DashboardRoutes::ROUTE_IMPORT),
         ]);
         $form->handleRequest($request);
-        $isModal = $request->request->has('_modal') || $request->query->get('_partial');
+        $isModal = $request->request->has('_modal');
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
@@ -852,7 +797,7 @@ final class MenuDashboardController extends AbstractController
                             $this->addFlash('error', $formatError);
                         }
 
-                        return $this->redirectToRefererOr($request, self::ROUTE_INDEX, []);
+                        return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_INDEX, []);
                     }
                     $strategy = is_string($data['strategy'] ?? '') ? $data['strategy'] : MenuImporter::STRATEGY_SKIP_EXISTING;
                     $result   = $this->menuImporter->import($decoded, $strategy);
@@ -868,11 +813,11 @@ final class MenuDashboardController extends AbstractController
                         $this->addFlash('success', $msg);
                     }
 
-                    return $this->redirectToRefererOr($request, self::ROUTE_INDEX, []);
+                    return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_INDEX, []);
                 }
             }
 
-            return $this->redirectToRefererOr($request, self::ROUTE_INDEX, []);
+            return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_INDEX, []);
         }
 
         if ($form->isSubmitted() && !$form->isValid()) {
@@ -891,11 +836,10 @@ final class MenuDashboardController extends AbstractController
             'form'             => $form,
             'dashboard_routes' => $this->getDashboardRoutes(),
         ];
-        if ($usePartial || $request->query->get('_partial')) {
-            return $this->render('@NowoDashboardMenuBundle/dashboard/_import_partial.html.twig', $vars);
-        }
 
-        return $this->render('@NowoDashboardMenuBundle/dashboard/import.html.twig', $vars);
+        return $usePartial
+            ? $this->render('@NowoDashboardMenuBundle/dashboard/_import_partial.html.twig', $vars)
+            : $this->render('@NowoDashboardMenuBundle/dashboard/import.html.twig', $vars);
     }
 
     /**
@@ -930,7 +874,7 @@ final class MenuDashboardController extends AbstractController
             'name' => ($menu->getName() ?? $menu->getCode()) . ' (copy)',
         ];
         $form = $this->createForm(CopyMenuType::class, $defaults, [
-            'action' => $this->generateUrl(self::ROUTE_MENU_COPY, ['id' => $id]),
+            'action' => $this->generateUrl(DashboardRoutes::ROUTE_MENU_COPY, ['id' => $id]),
         ]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -941,36 +885,17 @@ final class MenuDashboardController extends AbstractController
             $existing   = $this->menuRepository->findOneByCodeAndContext($newCode, $newContext);
             if ($existing instanceof Menu) {
                 $this->addFlash('error', 'A menu with this code and context already exists.');
+            } else {
+                $copy = $this->cloneMenuWithItems($menu, $newCode, $newName);
+                $this->addFlash('success', 'Menu copied successfully.');
 
-                return $this->render('@NowoDashboardMenuBundle/dashboard/copy_menu.html.twig', [
-                    'menu'                     => $menu,
-                    'form'                     => $form,
-                    'dashboard_show_route'     => self::ROUTE_SHOW,
-                    'dashboard_routes'         => $this->getDashboardRoutes(),
-                    'icon_selector_script_url' => $this->iconSelectorScriptUrl,
-                    'stimulus_script_url'      => $this->stimulusScriptUrl,
-                ]);
+                return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_SHOW, ['id' => $copy->getId()]);
             }
-            $copy = $this->cloneMenuWithItems($menu, $newCode, $newName);
-            $this->addFlash('success', 'Menu copied successfully.');
-
-            return $this->redirectToRefererOr($request, self::ROUTE_SHOW, ['id' => $copy->getId()]);
         }
 
-        if ($request->query->get('_partial')) {
-            return $this->render('@NowoDashboardMenuBundle/dashboard/_copy_menu_partial.html.twig', [
-                'menu' => $menu,
-                'form' => $form,
-            ]);
-        }
-
-        return $this->render('@NowoDashboardMenuBundle/dashboard/copy_menu.html.twig', [
-            'menu'                     => $menu,
-            'form'                     => $form,
-            'dashboard_show_route'     => self::ROUTE_SHOW,
-            'dashboard_routes'         => $this->getDashboardRoutes(),
-            'icon_selector_script_url' => $this->iconSelectorScriptUrl,
-            'stimulus_script_url'      => $this->stimulusScriptUrl,
+        return $this->render('@NowoDashboardMenuBundle/dashboard/_copy_menu_partial.html.twig', [
+            'menu' => $menu,
+            'form' => $form,
         ]);
     }
 
@@ -1055,12 +980,8 @@ final class MenuDashboardController extends AbstractController
     /**
      * Creates a new menu item.
      *
-     * Supports both:
-     * - Full page rendering
-     * - Modal partial rendering via `?_partial=1`
-     *
-     * When creating a child item, the UI shows only `label` + per-locale translations
-     * (item type is fixed to Link in the form).
+     * New items use the `minimal` form section: label (and per-locale labels when adding a child)
+     * plus item type. Link, icon, position (except auto-append order), and permissions are edited afterward (gear / full edit).
      *
      * @param Request $request Incoming request (GET/POST)
      * @param int $id Dashboard menu id
@@ -1084,54 +1005,26 @@ final class MenuDashboardController extends AbstractController
         }
         $appRoutes = $this->getAppRoutes();
         $locale    = $request->getLocale();
-        $this->generateUrl(self::ROUTE_SHOW, ['id' => $id]);
+        $this->generateUrl(DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
         $parent    = $item->getParent();
         $isChild   = $parent instanceof MenuItem;
         $actionUrl = $parent instanceof MenuItem && $parent->getId() !== null
-            ? $this->generateUrl(self::ROUTE_ITEM_NEW, ['id' => $id, '_query' => ['parent' => $parent->getId()]])
-            : $this->generateUrl(self::ROUTE_ITEM_NEW, ['id' => $id]);
+            ? $this->generateUrl(DashboardRoutes::ROUTE_ITEM_NEW, ['id' => $id, '_query' => ['parent' => $parent->getId()]])
+            : $this->generateUrl(DashboardRoutes::ROUTE_ITEM_NEW, ['id' => $id]);
 
-        if ($request->query->get('_partial')) {
-            // "Add item" uses a normal Symfony form (not LiveComponent) to avoid translation save issues.
-            $sectionFocus        = $isChild ? 'basic' : 'identity';
-            $formSection         = $isChild ? 'basic' : 'identity';
-            $includeTranslations = $isChild;
-            $form                = $this->createForm(MenuItemType::class, $item, [
-                'app_routes'        => $appRoutes,
-                'menu'              => $menu,
-                'exclude_ids'       => [],
-                'locale'            => $locale,
-                'available_locales' => $this->locales,
-                'action'            => $actionUrl,
-                // Keep CSRF consistent across Symfony versions.
-                'csrf_token_id'        => 'submit',
-                'section'              => $formSection,
-                'include_translations' => $includeTranslations,
-            ]);
-
-            return $this->render('@NowoDashboardMenuBundle/dashboard/_item_form_partial.html.twig', [
-                'form'              => $form,
-                'menu'              => $menu,
-                'is_edit'           => false,
-                'app_routes'        => $appRoutes,
-                'locales'           => $this->locales,
-                'item_has_children' => false,
-                'section_focus'     => $sectionFocus,
-                'show_translations' => $includeTranslations,
-            ]);
-        }
-
-        $form = $this->createForm(MenuItemType::class, $item, [
-            'app_routes'        => $appRoutes,
-            'menu'              => $menu,
-            'exclude_ids'       => [],
-            'locale'            => $locale,
-            'available_locales' => $this->locales,
-            'action'            => $actionUrl,
+        // "Add item" always uses a normal Symfony form (not LiveComponent) to avoid translation save issues.
+        $includeTranslations = $isChild;
+        $form                = $this->createForm(MenuItemType::class, $item, [
+            'app_routes'           => $appRoutes,
+            'menu'                 => $menu,
+            'exclude_ids'          => [],
+            'locale'               => $locale,
+            'available_locales'    => $this->locales,
+            'action'               => $actionUrl,
             // Keep CSRF consistent across Symfony versions.
             'csrf_token_id'        => 'submit',
-            'section'              => $isChild ? 'basic' : 'identity',
-            'include_translations' => $isChild,
+            'section'              => 'minimal',
+            'include_translations' => $includeTranslations,
         ]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -1156,21 +1049,18 @@ final class MenuDashboardController extends AbstractController
 
             $this->addFlash('success', 'Item created.');
 
-            return $this->redirectToRefererOr($request, self::ROUTE_SHOW, ['id' => $id]);
+            return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
         }
 
-        return $this->render('@NowoDashboardMenuBundle/dashboard/item_form.html.twig', [
-            'menu'                     => $menu,
-            'form'                     => $form,
-            'is_edit'                  => false,
-            'app_routes'               => $appRoutes,
-            'locales'                  => $this->locales,
-            'show_translations'        => $isChild,
-            'dashboard_show_route'     => self::ROUTE_SHOW,
-            'dashboard_routes'         => $this->getDashboardRoutes(),
-            'icon_selector_script_url' => $this->iconSelectorScriptUrl,
-            'stimulus_script_url'      => $this->stimulusScriptUrl,
-            'item_has_children'        => false,
+        return $this->render('@NowoDashboardMenuBundle/dashboard/_item_form_partial.html.twig', [
+            'form'              => $form,
+            'menu'              => $menu,
+            'is_edit'           => false,
+            'app_routes'        => $appRoutes,
+            'locales'           => $this->locales,
+            'item_has_children' => false,
+            'section_focus'     => 'minimal',
+            'show_translations' => $includeTranslations,
         ]);
     }
 
@@ -1178,7 +1068,6 @@ final class MenuDashboardController extends AbstractController
     /**
      * Updates an existing menu item.
      *
-     * Supports both full page rendering and modal partial rendering via `?_partial=1`.
      * The `section` / `_section` parameter controls which part of the item form is built:
      * - `basic`/`identity`: labels and per-locale translations
      * - `icon`: item type + position + icon
@@ -1200,7 +1089,7 @@ final class MenuDashboardController extends AbstractController
         if ($item === null || $item->getMenu() !== $menu) {
             $this->addFlash('error', 'Item not found. It may have been deleted or the menu was reset.');
 
-            return $this->redirectToRoute(self::ROUTE_SHOW, ['id' => $id]);
+            return $this->redirectToRoute(DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
         }
         $appRoutes        = $this->getAppRoutesForItem($item, $this->getAppRoutes());
         $locale           = $request->getLocale();
@@ -1216,44 +1105,21 @@ final class MenuDashboardController extends AbstractController
                 : null;
         }
 
-        if ($request->query->get('_partial')) {
-            // Icon section uses a normal Symfony form to ensure the icon-selector widget refreshes correctly
-            // when the modal content changes.
-            $useLiveComponent = $this->itemFormLiveComponentEnabled && $sectionFocus === 'config';
-            if ($useLiveComponent) {
-                return $this->render('@NowoDashboardMenuBundle/dashboard/_item_form_live_partial.html.twig', [
-                    'menu'              => $menu,
-                    'item'              => $item,
-                    'app_routes'        => $appRoutes,
-                    'exclude_ids'       => [],
-                    'locale'            => $locale,
-                    'is_edit'           => true,
-                    'item_has_children' => $itemHasChildren,
-                    'action_url'        => $this->generateUrl(self::ROUTE_ITEM_EDIT, ['id' => $id, 'itemId' => $itemId]),
-                    'redirect_to_url'   => $this->generateUrl(self::ROUTE_SHOW, ['id' => $id]),
-                    'locales'           => $this->locales,
-                    'section_focus'     => $sectionFocus,
-                ]);
-            }
-            $form = $this->createForm(MenuItemType::class, $item, [
-                'app_routes'        => $appRoutes,
+        // Icon section uses a normal Symfony form to ensure the icon-selector widget refreshes correctly
+        // when the modal content changes. LiveComponent is only used for the config (gear) section on GET.
+        $useLiveComponent = $request->isMethod('GET') && $this->itemFormLiveComponentEnabled && $sectionFocus === 'config';
+        if ($useLiveComponent) {
+            return $this->render('@NowoDashboardMenuBundle/dashboard/_item_form_live_partial.html.twig', [
                 'menu'              => $menu,
+                'item'              => $item,
+                'app_routes'        => $appRoutes,
                 'exclude_ids'       => [],
                 'locale'            => $locale,
-                'available_locales' => $this->locales,
-                'action'            => $this->generateUrl(self::ROUTE_ITEM_EDIT, ['id' => $id, 'itemId' => $itemId]),
-                // Keep CSRF consistent across Symfony versions.
-                'csrf_token_id' => 'submit',
-                'section'       => $sectionFocus,
-            ]);
-
-            return $this->render('@NowoDashboardMenuBundle/dashboard/_item_form_partial.html.twig', [
-                'form'              => $form,
-                'menu'              => $menu,
                 'is_edit'           => true,
-                'app_routes'        => $appRoutes,
-                'locales'           => $this->locales,
                 'item_has_children' => $itemHasChildren,
+                'action_url'        => $this->generateUrl(DashboardRoutes::ROUTE_ITEM_EDIT, ['id' => $id, 'itemId' => $itemId]),
+                'redirect_to_url'   => $this->generateUrl(DashboardRoutes::ROUTE_SHOW, ['id' => $id]),
+                'locales'           => $this->locales,
                 'section_focus'     => $sectionFocus,
             ]);
         }
@@ -1264,7 +1130,7 @@ final class MenuDashboardController extends AbstractController
             'exclude_ids'       => [],
             'locale'            => $locale,
             'available_locales' => $this->locales,
-            'action'            => $this->generateUrl(self::ROUTE_ITEM_EDIT, ['id' => $id, 'itemId' => $itemId]),
+            'action'            => $this->generateUrl(DashboardRoutes::ROUTE_ITEM_EDIT, ['id' => $id, 'itemId' => $itemId]),
             // Keep CSRF consistent across Symfony versions.
             'csrf_token_id' => 'submit',
             'section'       => $sectionFocus,
@@ -1280,7 +1146,6 @@ final class MenuDashboardController extends AbstractController
                 $item->setRouteParams(null);
                 $item->setExternalUrl(null);
             }
-
             $parentChanged = $originalParentId !== $item->getParent()?->getId();
             // When moving an item between parents via the config (gear) section,
             // the position field isn't part of that form submission, so we append it.
@@ -1327,20 +1192,17 @@ final class MenuDashboardController extends AbstractController
 
             $this->addFlash('success', 'Item updated.');
 
-            return $this->redirectToRefererOr($request, self::ROUTE_SHOW, ['id' => $id]);
+            return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
         }
 
-        return $this->render('@NowoDashboardMenuBundle/dashboard/item_form.html.twig', [
-            'menu'                     => $menu,
-            'form'                     => $form,
-            'is_edit'                  => true,
-            'app_routes'               => $appRoutes,
-            'locales'                  => $this->locales,
-            'dashboard_show_route'     => self::ROUTE_SHOW,
-            'dashboard_routes'         => $this->getDashboardRoutes(),
-            'icon_selector_script_url' => $this->iconSelectorScriptUrl,
-            'stimulus_script_url'      => $this->stimulusScriptUrl,
-            'item_has_children'        => $itemHasChildren,
+        return $this->render('@NowoDashboardMenuBundle/dashboard/_item_form_partial.html.twig', [
+            'form'              => $form,
+            'menu'              => $menu,
+            'is_edit'           => true,
+            'app_routes'        => $appRoutes,
+            'locales'           => $this->locales,
+            'item_has_children' => $itemHasChildren,
+            'section_focus'     => $sectionFocus,
         ]);
     }
 
@@ -1358,14 +1220,14 @@ final class MenuDashboardController extends AbstractController
         if ($item === null || $item->getMenu() !== $menu) {
             $this->addFlash('error', 'Item not found. It may have been deleted or the menu was reset.');
 
-            return $this->redirectToRoute(self::ROUTE_SHOW, ['id' => $id]);
+            return $this->redirectToRoute(DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
         }
         $em = $this->entityManager;
         $em->remove($item);
         $em->flush();
         $this->addFlash('success', 'Item deleted.');
 
-        return $this->redirectToRefererOr($request, self::ROUTE_SHOW, ['id' => $id]);
+        return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
     }
 
     /**
@@ -1508,6 +1370,9 @@ final class MenuDashboardController extends AbstractController
             'classItem'                 => $menu->getClassItem(),
             'classLink'                 => $menu->getClassLink(),
             'classChildren'             => $menu->getClassChildren(),
+            'classSectionChildren'      => $menu->getClassSectionChildren(),
+            'classSectionChildItem'     => $menu->getClassSectionChildItem(),
+            'classSectionChildLink'     => $menu->getClassSectionChildLink(),
             'classSectionLabel'         => $menu->getClassSectionLabel(),
             'classSection'              => $menu->getClassSection(),
             'classDivider'              => $menu->getClassDivider(),
@@ -1539,6 +1404,9 @@ final class MenuDashboardController extends AbstractController
         $menu->setClassItem(is_string($snapshot['classItem'] ?? null) ? $snapshot['classItem'] : null);
         $menu->setClassLink(is_string($snapshot['classLink'] ?? null) ? $snapshot['classLink'] : null);
         $menu->setClassChildren(is_string($snapshot['classChildren'] ?? null) ? $snapshot['classChildren'] : null);
+        $menu->setClassSectionChildren(is_string($snapshot['classSectionChildren'] ?? null) ? $snapshot['classSectionChildren'] : null);
+        $menu->setClassSectionChildItem(is_string($snapshot['classSectionChildItem'] ?? null) ? $snapshot['classSectionChildItem'] : null);
+        $menu->setClassSectionChildLink(is_string($snapshot['classSectionChildLink'] ?? null) ? $snapshot['classSectionChildLink'] : null);
         $menu->setClassSectionLabel(is_string($snapshot['classSectionLabel'] ?? null) ? $snapshot['classSectionLabel'] : null);
         $menu->setClassSection(is_string($snapshot['classSection'] ?? null) ? $snapshot['classSection'] : null);
         $menu->setClassDivider(is_string($snapshot['classDivider'] ?? null) ? $snapshot['classDivider'] : null);

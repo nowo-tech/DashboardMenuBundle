@@ -29,3 +29,7 @@ services:
     App\Service\CustomDemoPermissionChecker:
         tags:
             - { name: nowo_dashboard_menu.permission_checker, label: 'Custom demo checker (with DENY)' }
+
+    App\Service\DemoMenuLinkResolver:
+        tags:
+            - { name: nowo_dashboard_menu.menu_link_resolver, label: 'Demo (Info section from route params JSON)' }

@@ -150,7 +150,7 @@ final class MenuApiControllerTest extends TestCase
         $request = Request::create('/api/menu/nav');
 
         $root  = $this->createItemWithId('Root', 'home', 'link', null, 1);
-        $child = $this->createItemWithId('Child', null, 'section', 'icon', 2);
+        $child = $this->createItemWithId('Child', 'child_route', 'link', 'icon', 2);
         $child->setParent($root);
         $loader = $this->createLoaderWithTree([$root, $child]);
 
@@ -168,7 +168,7 @@ final class MenuApiControllerTest extends TestCase
         self::assertCount(1, $data);
         self::assertCount(1, $data[0]['children']);
         self::assertSame('Child', $data[0]['children'][0]['label']);
-        self::assertSame('section', $data[0]['children'][0]['itemType']);
+        self::assertSame('link', $data[0]['children'][0]['itemType']);
         self::assertSame('icon', $data[0]['children'][0]['icon']);
     }
 
@@ -195,6 +195,9 @@ final class MenuApiControllerTest extends TestCase
             $iconResolver,
             $container,
             new AllowAllMenuPermissionChecker(),
+            $container,
+            [],
+            null,
             null,
             60,
         );
@@ -228,6 +231,9 @@ final class MenuApiControllerTest extends TestCase
         $router = $this->createStub(RouterInterface::class);
         $router->method('getRouteCollection')->willReturn(new \Symfony\Component\Routing\RouteCollection());
 
-        return new MenuUrlResolver($urlGenerator, $requestStack, $router);
+        $container = $this->createStub(\Symfony\Component\DependencyInjection\ContainerInterface::class);
+        $container->method('has')->willReturn(false);
+
+        return new MenuUrlResolver($urlGenerator, $requestStack, $router, $container);
     }
 }

@@ -128,6 +128,15 @@ final readonly class MenuConfigResolver
         if ($entity->getClassChildren() !== null && $entity->getClassChildren() !== '') {
             $classes['children'] = $entity->getClassChildren();
         }
+        if ($entity->getClassSectionChildren() !== null && $entity->getClassSectionChildren() !== '') {
+            $classes['section_children'] = $entity->getClassSectionChildren();
+        }
+        if ($entity->getClassSectionChildItem() !== null && $entity->getClassSectionChildItem() !== '') {
+            $classes['section_child_item'] = $entity->getClassSectionChildItem();
+        }
+        if ($entity->getClassSectionChildLink() !== null && $entity->getClassSectionChildLink() !== '') {
+            $classes['section_child_link'] = $entity->getClassSectionChildLink();
+        }
         if ($entity->getClassSectionLabel() !== null && $entity->getClassSectionLabel() !== '') {
             $classes['section_label'] = $entity->getClassSectionLabel();
         }

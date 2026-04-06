@@ -6,6 +6,7 @@ namespace Nowo\DashboardMenuBundle\Service;
 
 use Exception;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -15,7 +16,7 @@ use function array_key_exists;
 use function in_array;
 
 /**
- * Resolves the href for a menu item (route or external URL).
+ * Resolves the href for a menu item (route, external URL, or itemType "service" via MenuLinkResolverInterface).
  * When the app uses locale in routes, injects the current request locale so links keep the same language.
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
@@ -23,15 +24,29 @@ use function in_array;
  */
 final readonly class MenuUrlResolver
 {
+    /**
+     * @param array<string, string> $menuLinkResolverChoices Resolved id => label (after compiler pass).
+     */
     public function __construct(
         private UrlGeneratorInterface $urlGenerator,
         private RequestStack $requestStack,
         private RouterInterface $router,
+        private ContainerInterface $container,
+        private array $menuLinkResolverChoices = [],
     ) {
     }
 
     public function getHref(MenuItem $item, int $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH): string
     {
+        $runtime = $item->getRuntimeHref();
+        if ($runtime !== null && $runtime !== '') {
+            return $this->normalizeHrefReferenceType(trim($runtime), $referenceType);
+        }
+
+        if ($item->getItemType() === MenuItem::ITEM_TYPE_SERVICE) {
+            return $this->getHrefFromServiceResolver($item, $referenceType);
+        }
+
         $linkType = $item->getLinkType();
         if ($linkType === null) {
             return '#';
@@ -80,6 +95,81 @@ final readonly class MenuUrlResolver
 
             return '#';
         }
+    }
+
+    private function getHrefFromServiceResolver(MenuItem $item, int $referenceType): string
+    {
+        $rawId = $item->getLinkResolver();
+        if ($rawId === null || $rawId === '') {
+            return '#';
+        }
+
+        $serviceId = $this->normalizeMenuLinkResolverServiceId($rawId);
+        if ($serviceId === null || !$this->container->has($serviceId)) {
+            return '#';
+        }
+
+        try {
+            $resolver = $this->container->get($serviceId);
+        } catch (Exception) {
+            return '#';
+        }
+
+        if (!$resolver instanceof MenuLinkResolverInterface) {
+            return '#';
+        }
+
+        $request = $this->requestStack->getCurrentRequest();
+        $ctx     = $request;
+        try {
+            $resolved = $resolver->resolveHref($item, $request, $ctx);
+        } catch (Exception $e) {
+            $this->addFlashException($request, $e);
+
+            return '#';
+        }
+
+        if (is_array($resolved)) {
+            return '#';
+        }
+
+        if (!is_string($resolved)) {
+            return '#';
+        }
+
+        $href = trim($resolved);
+        if ($href === '' || $href === '#') {
+            return '#';
+        }
+
+        return $this->normalizeHrefReferenceType($href, $referenceType);
+    }
+
+    private function normalizeHrefReferenceType(string $href, int $referenceType): string
+    {
+        if ($referenceType === UrlGeneratorInterface::ABSOLUTE_URL && str_starts_with($href, '/')) {
+            $request = $this->requestStack->getCurrentRequest();
+            if ($request instanceof Request) {
+                return $request->getSchemeAndHttpHost() . $request->getBaseUrl() . $href;
+            }
+        }
+
+        return $href;
+    }
+
+    private function normalizeMenuLinkResolverServiceId(string $serviceId): ?string
+    {
+        if ($this->container->has($serviceId)) {
+            return $serviceId;
+        }
+
+        foreach ($this->menuLinkResolverChoices as $id => $label) {
+            if ($label === $serviceId && $this->container->has($id)) {
+                return $id;
+            }
+        }
+
+        return $serviceId;
     }
 
     private function addFlashException(?Request $request, Exception $e): void

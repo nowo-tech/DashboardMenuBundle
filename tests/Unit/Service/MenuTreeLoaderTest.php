@@ -12,8 +12,10 @@ use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 use Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker;
 use Nowo\DashboardMenuBundle\Service\MenuConfigResolver;
 use Nowo\DashboardMenuBundle\Service\MenuIconNameResolver;
+use Nowo\DashboardMenuBundle\Service\MenuLinkResolverInterface;
 use Nowo\DashboardMenuBundle\Service\MenuPermissionCheckerInterface;
 use Nowo\DashboardMenuBundle\Service\MenuTreeLoader;
+use Symfony\Component\HttpFoundation\Request;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
@@ -61,6 +63,9 @@ class MenuTreeLoaderTest extends TestCase
             $iconResolver,
             $container,
             new AllowAllMenuPermissionChecker(),
+            $container,
+            [],
+            null,
             null,
             60,
             $collector,
@@ -108,6 +113,9 @@ class MenuTreeLoaderTest extends TestCase
             $iconResolver,
             $container,
             new AllowAllMenuPermissionChecker(),
+            $container,
+            [],
+            null,
             null,
             60,
         );
@@ -183,6 +191,9 @@ class MenuTreeLoaderTest extends TestCase
             $iconResolver,
             $container,
             new AllowAllMenuPermissionChecker(),
+            $container,
+            [],
+            null,
             null,
             60,
         );
@@ -230,6 +241,9 @@ class MenuTreeLoaderTest extends TestCase
             $iconResolver,
             $container,
             new AllowAllMenuPermissionChecker(),
+            $container,
+            [],
+            null,
             null,
             60,
         );
@@ -271,6 +285,9 @@ class MenuTreeLoaderTest extends TestCase
             $iconResolver,
             $container,
             new AllowAllMenuPermissionChecker(),
+            $container,
+            [],
+            null,
             null,
             60,
         );
@@ -298,6 +315,9 @@ class MenuTreeLoaderTest extends TestCase
             $iconResolver,
             $container,
             new AllowAllMenuPermissionChecker(),
+            $container,
+            [],
+            null,
             null,
             60,
         );
@@ -372,6 +392,9 @@ class MenuTreeLoaderTest extends TestCase
             $iconResolver,
             $container,
             new AllowAllMenuPermissionChecker(),
+            $container,
+            [],
+            null,
             null,
             60,
         );
@@ -426,6 +449,9 @@ class MenuTreeLoaderTest extends TestCase
             $iconResolver,
             $container,
             new AllowAllMenuPermissionChecker(),
+            $container,
+            [],
+            null,
             null,
             60,
         );
@@ -514,6 +540,9 @@ class MenuTreeLoaderTest extends TestCase
             $iconResolver,
             $container,
             new AllowAllMenuPermissionChecker(),
+            $container,
+            [],
+            null,
             null,
             60,
         );
@@ -551,6 +580,9 @@ class MenuTreeLoaderTest extends TestCase
             $iconResolver,
             $container,
             new AllowAllMenuPermissionChecker(),
+            $container,
+            [],
+            null,
             null,
             60,
         );
@@ -618,6 +650,9 @@ class MenuTreeLoaderTest extends TestCase
             $iconResolver,
             $container,
             new AllowAllMenuPermissionChecker(),
+            $container,
+            [],
+            null,
             $cachePool,
             60,
         );
@@ -672,6 +707,9 @@ class MenuTreeLoaderTest extends TestCase
             $iconResolver,
             $container,
             new AllowAllMenuPermissionChecker(),
+            $container,
+            [],
+            null,
             $cachePool,
             60,
         );
@@ -721,6 +759,9 @@ class MenuTreeLoaderTest extends TestCase
             $iconResolver,
             $container,
             new AllowAllMenuPermissionChecker(),
+            $container,
+            [],
+            null,
             null,
             60,
             null,
@@ -776,6 +817,9 @@ class MenuTreeLoaderTest extends TestCase
             $iconResolver,
             $container,
             new AllowAllMenuPermissionChecker(),
+            $container,
+            [],
+            null,
             $cachePool,
             60,
         );
@@ -838,6 +882,9 @@ class MenuTreeLoaderTest extends TestCase
             $iconResolver,
             $container,
             new AllowAllMenuPermissionChecker(),
+            $container,
+            [],
+            null,
             null,
             60,
         );
@@ -904,6 +951,9 @@ class MenuTreeLoaderTest extends TestCase
             $iconResolver,
             $container,
             new AllowAllMenuPermissionChecker(),
+            $container,
+            [],
+            null,
             null,
             60,
         );
@@ -930,6 +980,9 @@ class MenuTreeLoaderTest extends TestCase
             $iconResolver,
             $container,
             new AllowAllMenuPermissionChecker(),
+            $container,
+            [],
+            null,
             null,
             60,
         );
@@ -989,6 +1042,9 @@ class MenuTreeLoaderTest extends TestCase
             $iconResolver,
             $container,
             new AllowAllMenuPermissionChecker(),
+            $container,
+            [],
+            null,
             null,
             60,
         );
@@ -1000,7 +1056,7 @@ class MenuTreeLoaderTest extends TestCase
         self::assertFalse($item->isUnanimous());
     }
 
-    public function testPruneEmptySectionsRemovesSectionWithNoVisibleChildren(): void
+    public function testPruneEmptySectionsKeepsSectionWithNoChildrenInDb(): void
     {
         $menuRepo     = $this->createStub(MenuRepository::class);
         $itemRepo     = $this->createStub(MenuItemRepository::class);
@@ -1014,13 +1070,18 @@ class MenuTreeLoaderTest extends TestCase
             $iconResolver,
             $container,
             new AllowAllMenuPermissionChecker(),
+            $container,
+            [],
+            null,
             null,
             60,
         );
 
+        // A section that never had children in the DB (had_children=false) is kept:
+        // it may be an intentional standalone heading.
         $section = new MenuItem();
         $section->setItemType(MenuItem::ITEM_TYPE_SECTION);
-        $section->setLabel('Empty section');
+        $section->setLabel('Standalone section');
 
         $nodes = [
             ['item' => $section, 'children' => [], 'had_children' => false],
@@ -1029,7 +1090,46 @@ class MenuTreeLoaderTest extends TestCase
         $m = new ReflectionMethod(MenuTreeLoader::class, 'pruneEmptySections');
         $m->setAccessible(true);
         $out = $m->invoke($loader, $nodes);
-        self::assertSame([], $out);
+        self::assertCount(1, $out);
+        self::assertSame($section, $out[0]['item']);
+        self::assertSame([], $out[0]['children']);
+    }
+
+    public function testPruneEmptySectionsRemovesSectionWhenAllChildrenHiddenByPermissions(): void
+    {
+        $menuRepo     = $this->createStub(MenuRepository::class);
+        $itemRepo     = $this->createStub(MenuItemRepository::class);
+        $resolver     = new MenuConfigResolver(['project' => null], $menuRepo);
+        $container    = $this->createStub(ContainerInterface::class);
+        $iconResolver = new MenuIconNameResolver([]);
+        $loader       = new MenuTreeLoader(
+            $menuRepo,
+            $itemRepo,
+            $resolver,
+            $iconResolver,
+            $container,
+            new AllowAllMenuPermissionChecker(),
+            $container,
+            [],
+            null,
+            null,
+            60,
+        );
+
+        // A section that had children in DB (had_children=true) but all were filtered
+        // by the permission checker (children=[]) must be pruned.
+        $section = new MenuItem();
+        $section->setItemType(MenuItem::ITEM_TYPE_SECTION);
+        $section->setLabel('Admin section');
+
+        $nodes = [
+            ['item' => $section, 'children' => [], 'had_children' => true],
+        ];
+
+        $m = new ReflectionMethod(MenuTreeLoader::class, 'pruneEmptySections');
+        $m->setAccessible(true);
+        $out = $m->invoke($loader, $nodes);
+        self::assertCount(0, $out, 'Section with all children hidden by permissions must be pruned.');
     }
 
     public function testPruneEmptySectionsKeepsLeafLinkWithoutChildrenInDb(): void
@@ -1046,6 +1146,9 @@ class MenuTreeLoaderTest extends TestCase
             $iconResolver,
             $container,
             new AllowAllMenuPermissionChecker(),
+            $container,
+            [],
+            null,
             null,
             60,
         );
@@ -1063,6 +1166,142 @@ class MenuTreeLoaderTest extends TestCase
         $out = $m->invoke($loader, $nodes);
         self::assertCount(1, $out);
         self::assertSame($link, $out[0]['item']);
+    }
+
+    public function testLoadTreeMergesDynamicServiceChildrenWithPersistedByPosition(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('main');
+        $menu->setPermissionChecker(null);
+
+        $service = new MenuItem();
+        $this->setMenuItemId($service, 1);
+        $service->setMenu($menu);
+        $service->setItemType(MenuItem::ITEM_TYPE_SERVICE);
+        $service->setLabel('Svc');
+        $service->setLinkResolver('test.dynamic_children');
+        $service->setPosition(0);
+
+        $dbChild = new MenuItem();
+        $this->setMenuItemId($dbChild, 2);
+        $dbChild->setMenu($menu);
+        $dbChild->setParent($service);
+        $dbChild->setItemType(MenuItem::ITEM_TYPE_LINK);
+        $dbChild->setLabel('DB B');
+        $dbChild->setPosition(20);
+        $dbChild->setLinkType(MenuItem::LINK_TYPE_EXTERNAL);
+        $dbChild->setExternalUrl('/b');
+
+        $resolverImpl = new class implements MenuLinkResolverInterface {
+            public function resolveHref(MenuItem $item, ?Request $request, mixed $permissionContext = null): string|array
+            {
+                return [
+                    ['label' => 'Dyn A', 'href' => '/a', 'position' => 10],
+                ];
+            }
+        };
+
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findForCodeWithContextSets')->with('main', [null, []])->willReturn($menu);
+
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->method('findAllForMenuOrderedByTree')->with($menu, 'en')->willReturn([$service, $dbChild]);
+
+        $configResolver = new MenuConfigResolver(['project' => null], $menuRepo);
+
+        $container = $this->createMock(ContainerInterface::class);
+        $container->method('has')->willReturnCallback(static fn (string $id): bool => $id === 'test.dynamic_children');
+        $container->method('get')->with('test.dynamic_children')->willReturn($resolverImpl);
+
+        $iconResolver = new MenuIconNameResolver([]);
+        $loader       = new MenuTreeLoader(
+            $menuRepo,
+            $itemRepo,
+            $configResolver,
+            $iconResolver,
+            $container,
+            new AllowAllMenuPermissionChecker(),
+            $container,
+            [],
+            null,
+            null,
+            60,
+        );
+
+        $tree = $loader->loadTree('main', 'en');
+        self::assertCount(1, $tree);
+        $children = $tree[0]['children'];
+        self::assertCount(2, $children);
+        self::assertSame('Dyn A', $children[0]['item']->getLabel());
+        self::assertSame('/a', $children[0]['item']->getRuntimeHref());
+        self::assertSame('DB B', $children[1]['item']->getLabel());
+    }
+
+    public function testLoadTreeMergedChildrenOrderUsesLowerPositionFirst(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('main');
+        $menu->setPermissionChecker(null);
+
+        $service = new MenuItem();
+        $this->setMenuItemId($service, 1);
+        $service->setMenu($menu);
+        $service->setItemType(MenuItem::ITEM_TYPE_SERVICE);
+        $service->setLabel('Svc');
+        $service->setLinkResolver('test.dynamic_children');
+        $service->setPosition(0);
+
+        $dbChild = new MenuItem();
+        $this->setMenuItemId($dbChild, 2);
+        $dbChild->setMenu($menu);
+        $dbChild->setParent($service);
+        $dbChild->setItemType(MenuItem::ITEM_TYPE_LINK);
+        $dbChild->setLabel('DB first');
+        $dbChild->setPosition(5);
+        $dbChild->setLinkType(MenuItem::LINK_TYPE_EXTERNAL);
+        $dbChild->setExternalUrl('/b');
+
+        $resolverImpl = new class implements MenuLinkResolverInterface {
+            public function resolveHref(MenuItem $item, ?Request $request, mixed $permissionContext = null): string|array
+            {
+                return [
+                    ['label' => 'Dyn later', 'href' => '/a', 'position' => 40],
+                ];
+            }
+        };
+
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findForCodeWithContextSets')->with('main', [null, []])->willReturn($menu);
+
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->method('findAllForMenuOrderedByTree')->with($menu, 'en')->willReturn([$service, $dbChild]);
+
+        $configResolver = new MenuConfigResolver(['project' => null], $menuRepo);
+
+        $container = $this->createMock(ContainerInterface::class);
+        $container->method('has')->willReturnCallback(static fn (string $id): bool => $id === 'test.dynamic_children');
+        $container->method('get')->with('test.dynamic_children')->willReturn($resolverImpl);
+
+        $iconResolver = new MenuIconNameResolver([]);
+        $loader       = new MenuTreeLoader(
+            $menuRepo,
+            $itemRepo,
+            $configResolver,
+            $iconResolver,
+            $container,
+            new AllowAllMenuPermissionChecker(),
+            $container,
+            [],
+            null,
+            null,
+            60,
+        );
+
+        $tree     = $loader->loadTree('main', 'en');
+        $children = $tree[0]['children'];
+        self::assertCount(2, $children);
+        self::assertSame('DB first', $children[0]['item']->getLabel());
+        self::assertSame('Dyn later', $children[1]['item']->getLabel());
     }
 
     private function setMenuItemId(MenuItem $item, ?int $id): void

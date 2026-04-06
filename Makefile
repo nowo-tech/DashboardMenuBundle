@@ -23,7 +23,7 @@ help:
 	@echo "  rector-dry      Run Rector in dry-run mode"
 	@echo "  phpstan         Run PHPStan static analysis"
 	@echo "  qa              Run all QA checks"
-	@echo "  release-check   Pre-release: cs-fix, cs-check, rector-dry, phpstan, test-coverage, demo verify"
+	@echo "  release-check   Pre-release: cs-fix, cs-check, rector-dry, phpstan, test-coverage, demo verify, Vite assets build"
 	@echo "  composer-sync   Validate composer.json and align composer.lock"
 	@echo "  clean           Remove vendor and cache"
 	@echo "  update          Run composer update"
@@ -47,6 +47,8 @@ up:
 	@sleep 3
 	@echo "Installing dependencies..."
 	$(COMPOSE) exec -T $(SERVICE_PHP) sh -c "composer install --no-interaction || composer update --no-interaction"
+	@echo "Installing Node dependencies (pnpm)..."
+	$(COMPOSE) exec -T -e CI=true $(SERVICE_PHP) sh -c "pnpm install --frozen-lockfile || pnpm install"
 	@echo "✅ Container ready!"
 
 down:
@@ -58,6 +60,7 @@ ensure-up:
 		$(COMPOSE) up -d; \
 		sleep 3; \
 		$(COMPOSE) exec -T $(SERVICE_PHP) sh -c "composer install --no-interaction || composer update --no-interaction"; \
+		$(COMPOSE) exec -T -e CI=true $(SERVICE_PHP) sh -c "pnpm install --frozen-lockfile || pnpm install"; \
 	fi
 
 shell:
@@ -65,6 +68,7 @@ shell:
 
 install: ensure-up
 	$(COMPOSE) exec -T $(SERVICE_PHP) composer install
+	$(COMPOSE) exec -T -e CI=true $(SERVICE_PHP) sh -c "pnpm install --frozen-lockfile || pnpm install"
 
 test: ensure-up
 	$(COMPOSE) exec $(SERVICE_PHP) composer test
@@ -104,15 +108,15 @@ update: ensure-up
 validate: ensure-up
 	$(COMPOSE) exec -T $(SERVICE_PHP) composer validate --strict
 
-release-check: ensure-up composer-sync cs-fix cs-check rector-dry phpstan test-coverage release-check-demos
+release-check: ensure-up composer-sync cs-fix cs-check rector-dry phpstan test-coverage release-check-demos assets
 
 release-check-demos:
 	@$(MAKE) -C demo release-check 2>/dev/null || true
 
-assets:
-	@if [ ! -d node_modules ]; then pnpm install; fi
-	@pnpm run build
+assets: ensure-up
+	$(COMPOSE) exec -T -e CI=true $(SERVICE_PHP) sh -c "pnpm install --frozen-lockfile || pnpm install"
+	$(COMPOSE) exec -T $(SERVICE_PHP) pnpm run build
 	@echo "✅ Assets built: src/Resources/public/js/dashboard.js, js/stimulus-live.js"
 
 clean:
-	rm -rf vendor .phpunit.cache coverage coverage.xml .php-cs-fixer.cache
+	rm -rf vendor node_modules .phpunit.cache coverage coverage.xml .php-cs-fixer.cache coverage-php.txt

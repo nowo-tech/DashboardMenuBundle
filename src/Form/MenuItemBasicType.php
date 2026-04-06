@@ -16,7 +16,6 @@ use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function is_string;
 
@@ -34,7 +33,6 @@ final class MenuItemBasicType extends AbstractType
      */
     public function __construct(
         private readonly array $availableLocales = [],
-        private readonly ?TranslatorInterface $translator = null,
     ) {
     }
 
@@ -53,7 +51,6 @@ final class MenuItemBasicType extends AbstractType
         /** @var list<string> $availableLocales */
         $includeTranslations = $options['include_translations'] ?? true;
         $availableLocales    = $includeTranslations ? $options['available_locales'] : [];
-        fn (string $id): string => $this->translator instanceof TranslatorInterface ? $this->translator->trans($id, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN) : $id;
 
         $builder
             ->add('label', TextType::class, [
@@ -85,7 +82,9 @@ final class MenuItemBasicType extends AbstractType
             $builder->addEventListener(FormEvents::SUBMIT, static function (FormEvent $event) use ($availableLocales): void {
                 $data = $event->getData();
                 if (!$data instanceof MenuItem) {
-                    $data = $event->getForm()->getParent()?->getData();
+                    // inherit_data + LiveComponent: event data may not be the entity; root form holds the MenuItem.
+                    $rootData = $event->getForm()->getRoot()->getData();
+                    $data     = $rootData instanceof MenuItem ? $rootData : null;
                 }
                 if (!$data instanceof MenuItem) {
                     return;

@@ -37,6 +37,15 @@ final class ItemFormLiveComponentTest extends TestCase
         return $view;
     }
 
+    /** Stubs root form + icon subform so {@see ItemFormLiveComponent::getItemType()} reads `icon.itemType` from Live values. */
+    private function stubFormTreeWithIconItemTypeField(FormInterface $formMock): void
+    {
+        $iconForm = $this->createMock(FormInterface::class);
+        $iconForm->method('has')->willReturnCallback(static fn (string $name): bool => $name === 'itemType');
+        $formMock->method('has')->willReturnCallback(static fn (string $name): bool => $name === 'icon');
+        $formMock->method('get')->with('icon')->willReturn($iconForm);
+    }
+
     public function testGetItemTypePrefersFormValues(): void
     {
         $formFactory  = $this->createMock(FormFactoryInterface::class);
@@ -51,17 +60,46 @@ final class ItemFormLiveComponentTest extends TestCase
         $data = new MenuItem();
         $data->setItemType(MenuItem::ITEM_TYPE_LINK);
         $formMock->method('getData')->willReturn($data);
+        $this->stubFormTreeWithIconItemTypeField($formMock);
 
         $this->setPrivateTraitProperty($component, 'form', $formMock);
 
         $component->formValues = [
             'live_name' => [
-                'basic'  => ['itemType' => MenuItem::ITEM_TYPE_DIVIDER],
+                'basic'  => [],
+                'icon'   => ['itemType' => MenuItem::ITEM_TYPE_DIVIDER],
                 'config' => [],
             ],
         ];
 
         self::assertSame(MenuItem::ITEM_TYPE_DIVIDER, $component->getItemType());
+    }
+
+    public function testGetItemTypeIgnoresStaleValuesWhenConfigPartialHasNoIconField(): void
+    {
+        $formFactory  = $this->createMock(FormFactoryInterface::class);
+        $em           = $this->createMock(EntityManagerInterface::class);
+        $requestStack = $this->createMock(RequestStack::class);
+
+        $component = new ItemFormLiveComponent($formFactory, $em, $requestStack);
+        $formMock  = $this->createMock(FormInterface::class);
+        $formMock->method('getName')->willReturn('live_name');
+        $formMock->method('has')->with('icon')->willReturn(false);
+
+        $data = new MenuItem();
+        $data->setItemType(MenuItem::ITEM_TYPE_SERVICE);
+        $formMock->method('getData')->willReturn($data);
+
+        $this->setPrivateTraitProperty($component, 'form', $formMock);
+
+        $component->formValues = [
+            'live_name' => [
+                'basic'  => ['itemType' => MenuItem::ITEM_TYPE_LINK],
+                'config' => ['linkType' => MenuItem::LINK_TYPE_ROUTE],
+            ],
+        ];
+
+        self::assertSame(MenuItem::ITEM_TYPE_SERVICE, $component->getItemType());
     }
 
     public function testGetItemTypeFallsBackToFormDataWhenUnset(): void
@@ -94,13 +132,15 @@ final class ItemFormLiveComponentTest extends TestCase
         $formMock  = $this->createMock(FormInterface::class);
         $formMock->method('getName')->willReturn('live_name');
         $formMock->method('getData')->willReturn(new MenuItem());
+        $this->stubFormTreeWithIconItemTypeField($formMock);
         $this->setPrivateTraitProperty($component, 'form', $formMock);
 
         // itemType != link => no link fields
         $component->itemHasChildren = false;
         $component->formValues      = [
             'live_name' => [
-                'basic' => ['itemType' => MenuItem::ITEM_TYPE_SECTION],
+                'basic' => [],
+                'icon'  => ['itemType' => MenuItem::ITEM_TYPE_SECTION],
             ],
         ];
         self::assertFalse($component->showLinkFields());
@@ -110,7 +150,8 @@ final class ItemFormLiveComponentTest extends TestCase
         $component->itemHasChildren = true;
         $component->formValues      = [
             'live_name' => [
-                'basic'  => ['itemType' => MenuItem::ITEM_TYPE_LINK],
+                'basic'  => [],
+                'icon'   => ['itemType' => MenuItem::ITEM_TYPE_LINK],
                 'config' => [],
             ],
         ];
@@ -132,13 +173,15 @@ final class ItemFormLiveComponentTest extends TestCase
         $formMock  = $this->createMock(FormInterface::class);
         $formMock->method('getName')->willReturn('live_name');
         $formMock->method('getData')->willReturn(new MenuItem());
+        $this->stubFormTreeWithIconItemTypeField($formMock);
         $this->setPrivateTraitProperty($component, 'form', $formMock);
 
         $component->itemHasChildren = false;
 
         $component->formValues = [
             'live_name' => [
-                'basic'  => ['itemType' => MenuItem::ITEM_TYPE_LINK],
+                'basic'  => [],
+                'icon'   => ['itemType' => MenuItem::ITEM_TYPE_LINK],
                 'config' => ['linkType' => MenuItem::LINK_TYPE_ROUTE],
             ],
         ];
@@ -277,14 +320,12 @@ final class ItemFormLiveComponentTest extends TestCase
         $component->initialFormData = new MenuItem(); // id is expected to be null
         $component->actionUrl       = '/dashboard/menu/1/item/55/edit';
 
-        $repo = $this->createMock(\Doctrine\ORM\EntityRepository::class);
-        $repo->expects(self::once())
-            ->method('findOneBy')
-            ->with(['id' => 55])
-            ->willReturn(new MenuItem());
-
-        $em->expects(self::once())->method('clear');
-        $em->expects(self::once())->method('getRepository')->with(MenuItem::class)->willReturn($repo);
+        $fetchedFromDb = new MenuItem();
+        $em->expects(self::once())->method('detach')->with(self::isInstanceOf(MenuItem::class));
+        $em->expects(self::once())
+            ->method('find')
+            ->with(MenuItem::class, 55)
+            ->willReturn($fetchedFromDb);
 
         $formMock = $this->createMock(FormInterface::class);
 
@@ -292,7 +333,7 @@ final class ItemFormLiveComponentTest extends TestCase
             ->method('create')
             ->with(
                 MenuItemType::class,
-                self::isInstanceOf(MenuItem::class),
+                $fetchedFromDb,
                 self::callback(static fn (array $options): bool => $options['menu'] instanceof Menu
                     && $options['exclude_ids'] === [1, 2]
                     && $options['locale'] === 'en'
@@ -305,6 +346,45 @@ final class ItemFormLiveComponentTest extends TestCase
         $ref    = new ReflectionMethod($component, 'instantiateForm');
         $result = $ref->invoke($component);
         self::assertSame($formMock, $result);
+    }
+
+    public function testInstantiateFormRefetchesFromDbWhenSectionConfigEvenIfHydrated(): void
+    {
+        $formFactory  = $this->createMock(FormFactoryInterface::class);
+        $em           = $this->createMock(EntityManagerInterface::class);
+        $requestStack = $this->createMock(RequestStack::class);
+
+        $component                 = new ItemFormLiveComponent($formFactory, $em, $requestStack);
+        $component->menu           = new Menu();
+        $component->appRoutes      = [];
+        $component->excludeIds     = [];
+        $component->locale         = 'en';
+        $component->locales        = ['en'];
+        $component->sectionFocus   = 'config';
+        $component->itemId         = 10;
+        $component->hydratedItemId = 10;
+
+        $fetched = new MenuItem();
+        $fetched->setItemType(MenuItem::ITEM_TYPE_SERVICE);
+
+        $em->expects(self::once())->method('detach')->with(self::isInstanceOf(MenuItem::class));
+        $em->expects(self::once())
+            ->method('find')
+            ->with(MenuItem::class, 10)
+            ->willReturn($fetched);
+
+        $formMock = $this->createMock(FormInterface::class);
+        $formFactory->expects(self::once())
+            ->method('create')
+            ->with(
+                MenuItemType::class,
+                $fetched,
+                self::callback(static fn (array $options): bool => $options['section'] === 'config'),
+            )
+            ->willReturn($formMock);
+
+        $ref = new ReflectionMethod($component, 'instantiateForm');
+        $ref->invoke($component);
     }
 
     public function testSaveResetsDividerFieldsAndPersists(): void

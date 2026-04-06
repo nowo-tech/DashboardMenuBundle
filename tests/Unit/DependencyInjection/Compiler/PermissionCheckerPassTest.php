@@ -71,10 +71,7 @@ final class PermissionCheckerPassTest extends TestCase
     public function testProcessMergesConfigPermissionCheckerChoices(): void
     {
         $container = new ContainerBuilder();
-        $container->setParameter('nowo_dashboard_menu.permission_checker_choices', [
-            'order'  => ['checker_a', 'checker_b'],
-            'labels' => ['checker_a' => 'Label from YAML'],
-        ]);
+        $container->setParameter('nowo_dashboard_menu.permission_checker_choices', ['checker_a', 'checker_b']);
         $container->register('checker_a')->addTag('nowo_dashboard_menu.permission_checker', ['label' => 'From tag']);
         $container->register('checker_b')->addTag('nowo_dashboard_menu.permission_checker');
 
@@ -83,17 +80,14 @@ final class PermissionCheckerPassTest extends TestCase
 
         $choices = $container->getParameter('nowo_dashboard_menu.permission_checker_choices');
         self::assertIsArray($choices);
-        self::assertSame('Label from YAML', $choices['checker_a'], 'Config overrides tag label');
+        self::assertSame('From tag', $choices['checker_a'], 'Label comes from the service tag, not YAML');
         self::assertSame('checker_b', $choices['checker_b']);
     }
 
     public function testProcessRespectsConfigOrder(): void
     {
         $container = new ContainerBuilder();
-        $container->setParameter('nowo_dashboard_menu.permission_checker_choices', [
-            'order'  => ['z_first', 'a_second'],
-            'labels' => [],
-        ]);
+        $container->setParameter('nowo_dashboard_menu.permission_checker_choices', ['z_first', 'a_second']);
         $container->register('a_second')->addTag('nowo_dashboard_menu.permission_checker', ['label' => 'A']);
         $container->register('z_first')->addTag('nowo_dashboard_menu.permission_checker', ['label' => 'Z']);
 
@@ -110,10 +104,7 @@ final class PermissionCheckerPassTest extends TestCase
     public function testProcessFillsMissingOrderEntriesWithRemainingChoices(): void
     {
         $container = new ContainerBuilder();
-        $container->setParameter('nowo_dashboard_menu.permission_checker_choices', [
-            'order'  => ['checker_a'],
-            'labels' => [],
-        ]);
+        $container->setParameter('nowo_dashboard_menu.permission_checker_choices', ['checker_a']);
 
         $container->register('checker_a')->addTag('nowo_dashboard_menu.permission_checker', ['label' => 'A']);
         $container->register('checker_b')->addTag('nowo_dashboard_menu.permission_checker', ['label' => 'B']);
@@ -147,7 +138,6 @@ final class PermissionCheckerPassTest extends TestCase
         $container = new ContainerBuilder();
         $container->setParameter('nowo_dashboard_menu.permission_checker_choices', [
             'order'  => 'not_an_array',
-            'labels' => [],
         ]);
         $container->register('z_checker')->addTag('nowo_dashboard_menu.permission_checker');
         $container->register('a_checker')->addTag('nowo_dashboard_menu.permission_checker');
@@ -162,30 +152,10 @@ final class PermissionCheckerPassTest extends TestCase
         self::assertSame('z_checker', $ids[1]);
     }
 
-    public function testProcessWhenConfigLabelsIsNotArrayIgnoresLabelsOverride(): void
-    {
-        $container = new ContainerBuilder();
-        $container->setParameter('nowo_dashboard_menu.permission_checker_choices', [
-            'order'  => [],
-            'labels' => 'not_an_array',
-        ]);
-        $container->register('my_checker')->addTag('nowo_dashboard_menu.permission_checker', ['label' => 'From tag']);
-
-        $pass = new PermissionCheckerPass();
-        $pass->process($container);
-
-        $choices = $container->getParameter('nowo_dashboard_menu.permission_checker_choices');
-        self::assertIsArray($choices);
-        self::assertSame('From tag', $choices['my_checker']);
-    }
-
     public function testProcessOrderOmitsIdsNotInTaggedChoices(): void
     {
         $container = new ContainerBuilder();
-        $container->setParameter('nowo_dashboard_menu.permission_checker_choices', [
-            'order'  => ['nonexistent', 'checker_a'],
-            'labels' => [],
-        ]);
+        $container->setParameter('nowo_dashboard_menu.permission_checker_choices', ['nonexistent', 'checker_a']);
         $container->register('checker_a')->addTag('nowo_dashboard_menu.permission_checker', ['label' => 'A']);
 
         $pass = new PermissionCheckerPass();

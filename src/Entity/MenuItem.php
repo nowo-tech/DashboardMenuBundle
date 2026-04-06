@@ -25,15 +25,17 @@ use function trim;
 #[ORM\Table(name: 'dashboard_menu_item')]
 #[ORM\Index(name: 'idx_menu_position', columns: ['menu_id', 'position'])]
 #[ORM\Index(name: 'idx_parent_id', columns: ['parent_id'])]
+#[ORM\HasLifecycleCallbacks]
 class MenuItem implements TranslatableInterface
 {
     public const LINK_TYPE_ROUTE    = 'route';
     public const LINK_TYPE_EXTERNAL = 'external';
 
-    /** Item display: "link" (default), "section" (label only, no link), "divider" (hr). */
+    /** Item display: "link" (default), "section" (label only, no link), "divider" (hr), "service" (href via MenuLinkResolverInterface). */
     public const ITEM_TYPE_LINK    = 'link';
     public const ITEM_TYPE_SECTION = 'section';
     public const ITEM_TYPE_DIVIDER = 'divider';
+    public const ITEM_TYPE_SERVICE = 'service';
 
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'AUTO')]
@@ -132,16 +134,35 @@ class MenuItem implements TranslatableInterface
     private ?string $icon = null;
 
     /**
-     * Display type: "link" (default), "section" (label only), "divider" (horizontal rule). Nullable for form/import.
+     * Display type: "link" (default), "section" (label only), "divider" (horizontal rule), "service" (URL from app service). Nullable for form/import.
      */
     #[ORM\Column(type: Types::STRING, length: 20, nullable: true, options: ['default' => 'link'])]
     private ?string $itemType = self::ITEM_TYPE_LINK;
+
+    /**
+     * When itemType is "service": Symfony service id implementing MenuLinkResolverInterface (resolves href at runtime).
+     */
+    #[ORM\Column(name: 'link_resolver', type: Types::STRING, length: 255, nullable: true)]
+    private ?string $linkResolver = null;
+
+    /**
+     * Resolved URL for non-persisted link rows (e.g. children merged from {@see MenuLinkResolverInterface} when it returns a list).
+     * Not mapped to the database.
+     */
+    private ?string $runtimeHref = null;
 
     /**
      * When true, the link opens in a new tab (target="_blank" with rel="noopener noreferrer").
      */
     #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
     private bool $targetBlank = false;
+
+    /**
+     * For itemType "section" only: when null, menu defaults (nested_collapsible + nested_collapsible_sections) apply;
+     * when true/false, overrides whether this section's children render in a collapsible block with chevron.
+     */
+    #[ORM\Column(name: 'section_collapsible', type: Types::BOOLEAN, nullable: true)]
+    private ?bool $sectionCollapsible = null;
 
     public function __construct()
     {
@@ -385,6 +406,60 @@ class MenuItem implements TranslatableInterface
         return $this;
     }
 
+    public function getLinkResolver(): ?string
+    {
+        return $this->linkResolver;
+    }
+
+    public function setLinkResolver(?string $linkResolver): self
+    {
+        $t = $linkResolver !== null ? trim($linkResolver) : null;
+        $this->linkResolver = $t !== '' ? $t : null;
+
+        return $this;
+    }
+
+    public function getRuntimeHref(): ?string
+    {
+        return $this->runtimeHref;
+    }
+
+    public function setRuntimeHref(?string $runtimeHref): self
+    {
+        $this->runtimeHref = $runtimeHref !== null && trim($runtimeHref) !== '' ? trim($runtimeHref) : null;
+
+        return $this;
+    }
+
+    /**
+     * Ephemeral link row merged under a service parent (not persisted).
+     */
+    public static function createDynamicChildLink(
+        Menu $menu,
+        string $label,
+        string $href,
+        int $position,
+        ?string $icon = null,
+        bool $targetBlank = false,
+    ): self {
+        $item = new self();
+        $item->setMenu($menu);
+        $item->setItemType(self::ITEM_TYPE_LINK);
+        $item->setLabel($label);
+        $item->setPosition($position);
+        $item->setLinkType(null);
+        $item->setRouteName(null);
+        $item->setRouteParams(null);
+        $item->setExternalUrl(null);
+        $item->setRuntimeHref($href);
+        $item->setTargetBlank($targetBlank);
+        if ($icon !== null && $icon !== '') {
+            $item->setIcon($icon);
+        }
+
+        return $item;
+    }
+
     public function getTargetBlank(): bool
     {
         return $this->targetBlank;
@@ -397,36 +472,68 @@ class MenuItem implements TranslatableInterface
         return $this;
     }
 
+    public function getSectionCollapsible(): ?bool
+    {
+        return $this->sectionCollapsible;
+    }
+
+    public function setSectionCollapsible(?bool $sectionCollapsible): self
+    {
+        $this->sectionCollapsible = $sectionCollapsible;
+
+        return $this;
+    }
+
     /**
-     * Dividers render as a horizontal rule at the root (no parent); icon is not used.
-     * Trims optional label/translations and stores null when empty.
+     * Clears per-section collapsible override when the item is not a section (keeps storage and export clean).
      */
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function normalizeSectionCollapsibleForItemType(): void
+    {
+        if ($this->getItemType() !== self::ITEM_TYPE_SECTION) {
+            $this->sectionCollapsible = null;
+        }
+    }
+
+    /**
+     * Clears link resolver when not a service item; clears static link fields when item is service-driven.
+     */
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function normalizeLinkFieldsForItemType(): void
+    {
+        if ($this->getItemType() !== self::ITEM_TYPE_SERVICE) {
+            $this->linkResolver = null;
+
+            return;
+        }
+
+        $this->linkType    = null;
+        $this->routeName   = null;
+        $this->routeParams = null;
+        $this->externalUrl = null;
+    }
+
+    /**
+     * Dividers render as a horizontal rule at the root (no parent); icon, label and translations are not used.
+     *
+     * Scalar fields (icon, label, translations) are cleared automatically via lifecycle callbacks.
+     * The parent association ($parent = null) is also cleared here; callers should set it before
+     * persisting when possible, as Doctrine does not guarantee association changes in PreUpdate
+     * are reflected in the UPDATE SQL if the changeset was already computed.
+     */
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
     public function normalizeDividerState(): void
     {
         if ($this->getItemType() !== self::ITEM_TYPE_DIVIDER) {
             return;
         }
 
-        $this->parent = null;
-        $this->icon   = null;
-
-        if ($this->label !== null) {
-            $t           = trim($this->label);
-            $this->label = $t === '' ? null : $t;
-        }
-
-        if ($this->translations !== null) {
-            $filtered = [];
-            foreach ($this->translations as $locale => $value) {
-                if (!is_string($value)) {
-                    continue;
-                }
-                $tv = trim($value);
-                if ($tv !== '') {
-                    $filtered[$locale] = $tv;
-                }
-            }
-            $this->translations = $filtered === [] ? null : $filtered;
-        }
+        $this->parent       = null;
+        $this->icon         = null;
+        $this->label        = null;
+        $this->translations = null;
     }
 }

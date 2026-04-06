@@ -92,7 +92,12 @@ class MenuRepository extends ServiceEntityRepository
 
         $placeholders = implode(',', array_fill(0, count($contextKeys), '?'));
         $quotedMenu   = $this->quoteTableName($conn, $menuTable);
-        $sql          = "SELECT * FROM {$quotedMenu} WHERE code = ? AND attributes_key IN ({$placeholders})";
+        $menuColumns  = 'id, code, attributes_key, name, icon, class_menu, ul_id, class_item, class_link,'
+            . ' class_children, class_section_children, class_section_child_item, class_section_child_link,'
+            . ' class_current, class_branch_expanded, class_has_children, class_expanded, class_collapsed,'
+            . ' permission_checker, depth_limit, collapsible, collapsible_expanded,'
+            . ' nested_collapsible, nested_collapsible_sections, attributes, base';
+        $sql          = "SELECT {$menuColumns} FROM {$quotedMenu} WHERE code = ? AND attributes_key IN ({$placeholders})";
         $params       = array_merge([$code], $contextKeys);
         $menuRows     = $conn->fetchAllAssociative($sql, $params);
         if ($menuRows === []) {
@@ -119,8 +124,11 @@ class MenuRepository extends ServiceEntityRepository
             return null;
         }
 
-        $quotedItem = $this->quoteTableName($conn, $itemTable);
-        $itemsSql   = "SELECT * FROM {$quotedItem} WHERE menu_id = ? ORDER BY parent_id ASC, position ASC";
+        $quotedItem  = $this->quoteTableName($conn, $itemTable);
+        $itemColumns = 'id, menu_id, parent_id, position, label, translations, link_type, route_name, route_params,'
+            . ' external_url, permission_key, permission_keys, is_unanimous, icon, item_type,'
+            . ' link_resolver, target_blank, section_collapsible';
+        $itemsSql    = "SELECT {$itemColumns} FROM {$quotedItem} WHERE menu_id = ? ORDER BY parent_id ASC, position ASC";
         $itemRows   = $conn->fetchAllAssociative($itemsSql, [$menuId]);
 
         return ['menu' => $menuRow, 'items' => $itemRows];

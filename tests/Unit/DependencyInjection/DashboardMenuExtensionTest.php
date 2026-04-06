@@ -140,7 +140,7 @@ final class DashboardMenuExtensionTest extends TestCase
         self::assertTrue($container->hasParameter(Configuration::ALIAS . '.locales'));
         self::assertSame([], $container->getParameter(Configuration::ALIAS . '.locales'));
         self::assertTrue($container->hasParameter(Configuration::ALIAS . '.permission_checker_choices'));
-        self::assertSame(['order' => [], 'labels' => []], $container->getParameter(Configuration::ALIAS . '.permission_checker_choices'));
+        self::assertSame([], $container->getParameter(Configuration::ALIAS . '.permission_checker_choices'));
         self::assertTrue($container->hasParameter(Configuration::ALIAS . '.default_locale_resolved'));
         self::assertSame('en', $container->getParameter(Configuration::ALIAS . '.default_locale_resolved'));
         self::assertTrue($container->hasDefinition(MenuExtension::class));
@@ -176,7 +176,7 @@ final class DashboardMenuExtensionTest extends TestCase
                 'enabled'    => true,
                 'pagination' => ['enabled' => false, 'per_page' => 10],
             ],
-            'permission_checker_choices' => ['order' => ['checker.id'], 'labels' => ['checker.id' => 'Custom label']],
+            'permission_checker_choices' => ['checker.id'],
         ];
 
         $extension = new DashboardMenuExtension();
@@ -198,7 +198,7 @@ final class DashboardMenuExtensionTest extends TestCase
         self::assertTrue($container->getParameter(Configuration::ALIAS . '.dashboard.enabled'));
         self::assertFalse($container->getParameter(Configuration::ALIAS . '.dashboard.pagination.enabled'));
         self::assertSame(10, $container->getParameter(Configuration::ALIAS . '.dashboard.pagination.per_page'));
-        self::assertSame(['order' => ['checker.id'], 'labels' => ['checker.id' => 'Custom label']], $container->getParameter(Configuration::ALIAS . '.permission_checker_choices'));
+        self::assertSame(['checker.id'], $container->getParameter(Configuration::ALIAS . '.permission_checker_choices'));
     }
 
     public function testGetAlias(): void

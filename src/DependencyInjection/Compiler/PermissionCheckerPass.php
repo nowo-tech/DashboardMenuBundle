@@ -15,7 +15,8 @@ use const SORT_NATURAL;
 /**
  * Collects all services tagged "nowo_dashboard_menu.permission_checker" and
  * builds the permission_checker_choices parameter (id => label) for the menu form.
- * Config may provide an ordered list of IDs and/or label overrides (order + labels).
+ * Config is an ordered list of service IDs; dropdown label defaults to the service id
+ * unless the tag sets label=.
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
@@ -46,20 +47,7 @@ final class PermissionCheckerPass implements CompilerPassInterface
             $config = [];
         }
 
-        $order  = $config['order'] ?? [];
-        $labels = $config['labels'] ?? [];
-        if (!is_array($order)) {
-            $order = [];
-        }
-        if (!is_array($labels)) {
-            $labels = [];
-        }
-
-        foreach ($labels as $id => $label) {
-            if (is_string($id) && is_string($label)) {
-                $choices[$id] = $label;
-            }
-        }
+        $order = self::extractOrderedServiceIds($config);
 
         if ($order !== []) {
             $ordered = [];
@@ -79,5 +67,23 @@ final class PermissionCheckerPass implements CompilerPassInterface
         }
 
         $container->setParameter(self::PARAM_CHOICES, $choices);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function extractOrderedServiceIds(mixed $config): array
+    {
+        if (!is_array($config)) {
+            return [];
+        }
+        if (array_is_list($config)) {
+            return array_values(array_filter($config, static fn ($id): bool => is_string($id)));
+        }
+        if (isset($config['order']) && is_array($config['order'])) {
+            return array_values(array_filter($config['order'], static fn ($id): bool => is_string($id)));
+        }
+
+        return [];
     }
 }

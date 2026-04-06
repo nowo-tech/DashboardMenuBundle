@@ -43,7 +43,7 @@ use const JSON_THROW_ON_ERROR;
 
 #[AsCommand(
     name: 'nowo_dashboard_menu:translations:google-sync',
-    description: 'Review missing translation keys and optionally auto-translate from a base locale using Google Translate API.',
+    description: 'Review missing bundle translation keys and optionally auto-translate them via the Google Translate REST API (no extra PHP library needed; requires a Google API key).',
 )]
 final class GoogleSyncTranslationsCommand extends Command
 {
@@ -55,7 +55,15 @@ final class GoogleSyncTranslationsCommand extends Command
             ->addOption('translate-missing', null, InputOption::VALUE_NONE, 'Translate missing keys with Google API')
             ->addOption('write', null, InputOption::VALUE_NONE, 'Write translated values back to files')
             ->addOption('api-key', null, InputOption::VALUE_REQUIRED, 'Google Translate API key (or env GOOGLE_TRANSLATE_API_KEY)')
-            ->addOption('strict', null, InputOption::VALUE_NONE, 'Exit with failure when missing keys are found');
+            ->addOption('strict', null, InputOption::VALUE_NONE, 'Exit with failure when missing keys are found')
+            ->setHelp(
+                'Compares bundle YAML translation files against a base locale and reports missing keys.' . "\n\n"
+                . 'Pass <info>--translate-missing</info> to auto-translate via the Google Translate REST API' . "\n"
+                . '(uses native PHP HTTP — no external SDK required).' . "\n\n"
+                . 'Provide your API key via <info>--api-key</info> or the <info>GOOGLE_TRANSLATE_API_KEY</info> environment variable.' . "\n\n"
+                . 'Use <info>--write</info> to persist translated values back to the YAML files.' . "\n"
+                . 'Use <info>--strict</info> to exit with a non-zero code when missing keys are found (useful in CI).',
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

@@ -12,7 +12,9 @@ dashboard:
   edit_item: Modifier l’élément
   edit_items: Modifier les éléments
   edit_identity: "Modifier (icône, libellé, type)"
-  edit_config: "Modifier la configuration (position, lien, permission)"
+  edit_labels: "Modifier le libellé et les traductions"
+  edit_type_position_icon: "Modifier le type, la position et l’icône"
+  edit_config: "Modifier la configuration (parent, lien, permissions)"
   copy: Copier
   copy_menu: Copier le menu
   copy_menu_help: "Copier le menu et tous ses éléments. Vous pouvez modifier le code et le nom du nouveau menu."

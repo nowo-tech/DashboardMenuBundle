@@ -1,4 +1,4 @@
-# Root Dockerfile: dev + tests (§2.1 BUNDLES_STANDARDS_PROMPT)
+# Root Dockerfile: PHP CLI + PCOV + Node/pnpm for Vite asset builds (bundle full specs).
 FROM php:8.2-cli-alpine
 
 RUN apk add --no-cache git unzip bash icu-dev libzip-dev nodejs npm \
