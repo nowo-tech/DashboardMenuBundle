@@ -137,7 +137,7 @@ final class PermissionCheckerPassTest extends TestCase
     {
         $container = new ContainerBuilder();
         $container->setParameter('nowo_dashboard_menu.permission_checker_choices', [
-            'order'  => 'not_an_array',
+            'order' => 'not_an_array',
         ]);
         $container->register('z_checker')->addTag('nowo_dashboard_menu.permission_checker');
         $container->register('a_checker')->addTag('nowo_dashboard_menu.permission_checker');

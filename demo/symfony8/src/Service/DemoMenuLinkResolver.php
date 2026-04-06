@@ -10,6 +10,9 @@ use Nowo\DashboardMenuBundle\Service\MenuLinkResolverInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
+use function in_array;
+use function is_string;
+
 /**
  * Demo {@see MenuLinkResolverInterface}: builds a link to the Info pages from {@see MenuItem::getRouteParams()}
  * (expects key <code>section</code> among the allowed path segments; default <code>about</code>).

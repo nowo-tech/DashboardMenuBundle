@@ -14,6 +14,8 @@ use Symfony\Component\Routing\RouterInterface;
 
 use function array_key_exists;
 use function in_array;
+use function is_array;
+use function is_string;
 
 /**
  * Resolves the href for a menu item (route, external URL, or itemType "service" via MenuLinkResolverInterface).
@@ -25,7 +27,7 @@ use function in_array;
 final readonly class MenuUrlResolver
 {
     /**
-     * @param array<string, string> $menuLinkResolverChoices Resolved id => label (after compiler pass).
+     * @param array<string, string> $menuLinkResolverChoices resolved id => label (after compiler pass)
      */
     public function __construct(
         private UrlGeneratorInterface $urlGenerator,

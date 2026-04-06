@@ -15,7 +15,6 @@ use Nowo\DashboardMenuBundle\Service\MenuIconNameResolver;
 use Nowo\DashboardMenuBundle\Service\MenuLinkResolverInterface;
 use Nowo\DashboardMenuBundle\Service\MenuPermissionCheckerInterface;
 use Nowo\DashboardMenuBundle\Service\MenuTreeLoader;
-use Symfony\Component\HttpFoundation\Request;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
@@ -24,6 +23,7 @@ use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
 use stdClass;
+use Symfony\Component\HttpFoundation\Request;
 
 class MenuTreeLoaderTest extends TestCase
 {
@@ -74,7 +74,7 @@ class MenuTreeLoaderTest extends TestCase
         $tree = $loader->loadTree('main', 'en');
         self::assertCount(1, $tree);
 
-        $collector->collect(new \Symfony\Component\HttpFoundation\Request(), new \Symfony\Component\HttpFoundation\Response());
+        $collector->collect(new Request(), new \Symfony\Component\HttpFoundation\Response());
         $checks = $collector->getPermissionChecks();
         self::assertCount(1, $checks);
         self::assertSame('main', $checks[0]['menu_code']);

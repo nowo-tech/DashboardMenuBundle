@@ -7,6 +7,9 @@ namespace Nowo\DashboardMenuBundle\DependencyInjection;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
+use function is_array;
+use function is_string;
+
 /**
  * Configuration for Dashboard Menu Bundle.
  *

@@ -11,7 +11,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 
 use function in_array;
-use function is_string;
 use function trim;
 
 /**
@@ -413,7 +412,7 @@ class MenuItem implements TranslatableInterface
 
     public function setLinkResolver(?string $linkResolver): self
     {
-        $t = $linkResolver !== null ? trim($linkResolver) : null;
+        $t                  = $linkResolver !== null ? trim($linkResolver) : null;
         $this->linkResolver = $t !== '' ? $t : null;
 
         return $this;
