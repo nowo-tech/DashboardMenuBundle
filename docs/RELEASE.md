@@ -43,7 +43,7 @@
    Example for this cycle:
 
    ```bash
-   git push origin v0.3.34
+   git push origin v0.3.37
    ```
 
 4. **GitHub Actions** (if `.github/workflows/release.yml` is configured) will create or update the GitHub Release for that tag, using the tag message and the corresponding section from `docs/CHANGELOG.md` as the release body.
