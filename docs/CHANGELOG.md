@@ -7,9 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.38] - 2026-04-07
+
 ### Changed
 
 - **Frontend menu (`menu.html.twig`):** when a **section** has **“Hijos de la sección colapsables: no”** (`sectionCollapsible === false`), child items are rendered as **sibling** `<li>` elements (same parent `<ul>` as the section header), not inside a nested `<ul>` under the section.
+- **Collapsible sections with children:** markup matches **link rows with children** — `<a class="… menu-section-label-link">` for the heading (non-navigating; `tabindex="-1"`) plus the same chevron `button` as link items; optional `item_span_active` wrapper unchanged. **Sections without a collapse row** (always expanded / no children) still use a plain `<span>` for the label.
+- **Menu macro:** additional Twig comments documenting depth limits, class resolution, and collapsible behaviour.
+
+### Fixed
+
+- **Dashboard import modal:** initial **GET** load now requests `?_modal=1` and `MenuDashboardController::import()` treats `_modal` in the **query** or **request** body as modal mode, so the response is `_import_partial.html.twig` instead of the full `import.html.twig` page (fixes broken layout inside the modal).
+
+### Documentation
+
+- **Demos (Symfony 7/8):** `base.html.twig` documents and styles `a.menu-section-label-link` (cursor, hover, `pointer-events`) so section headings do not look like normal menu links when global `a` rules apply.
 
 ## [0.3.37] - 2026-04-06
 
@@ -549,7 +561,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.37...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.38...HEAD
+[0.3.38]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.37...v0.3.38
 [0.3.37]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.36...v0.3.37
 [0.3.36]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.35...v0.3.36
 [0.3.35]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.34...v0.3.35

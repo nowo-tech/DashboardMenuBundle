@@ -2,6 +2,15 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 0.3.37 to 0.3.38
+
+No intentional breaking changes to the public HTTP API or route names.
+
+- **Twig overrides (`menu.html.twig`):** if you forked the bundle template, sync the **section** branch: collapsible sections with children now emit `<a class="… menu-section-label-link">` + chevron `button` (same pattern as link rows). Non-collapsible / leaf section headings remain `<span>`. If your CSS targets only `span` for section titles, extend selectors for `a.menu-section-label-link`.
+- **App CSS:** when you style `.dashboard-menu-tree a` globally (padding, hover), add rules for `a.menu-section-label-link` if section headings should stay visually “plain” (see demos `templates/base.html.twig` for an example).
+- **Import modal / custom JS:** the bundle dashboard appends `?_modal=1` to the import URL on modal open. If you reimplemented modal loading, pass `_modal` on GET or include the hidden `_modal` field on POST so the controller returns the partial template.
+- **Tests:** import-related controller tests that simulated modal mode should send `_modal` in the POST body (not `_partial` in the query).
+
 ## From 0.3.36 to 0.3.37
 
 No intentional breaking changes to the public HTTP API or route names.
