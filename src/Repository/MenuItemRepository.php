@@ -257,10 +257,10 @@ class MenuItemRepository extends ServiceEntityRepository
 
         $menu = $item->getMenu();
         if ($menu instanceof Menu) {
-            return $this->findIdsInSubtreeStartingAt($menu, (int) $id);
+            return $this->findIdsInSubtreeStartingAt($menu, $id);
         }
 
-        $ids = [(int) $id];
+        $ids = [$id];
         foreach ($item->getChildren() as $child) {
             $ids = array_merge($ids, $this->findIdsOfItemAndDescendants($child));
         }
@@ -415,7 +415,7 @@ class MenuItemRepository extends ServiceEntityRepository
             if (!is_array($row)) {
                 throw new InvalidArgumentException('each tree node must be an object');
             }
-            $id = isset($row['id']) ? (int) $row['id'] : 0;
+            $id = $row['id'] ?? 0;
             if ($id <= 0 || !isset($byId[$id])) {
                 throw new InvalidArgumentException('unknown or invalid item id in tree payload');
             }
@@ -433,7 +433,7 @@ class MenuItemRepository extends ServiceEntityRepository
                 }
             }
 
-            $position = isset($row['position']) ? (int) $row['position'] : 0;
+            $position = $row['position'] ?? 0;
 
             $parentOf[$id] = $parentId;
             $pkey          = $parentId === null ? '__root' : (string) $parentId;

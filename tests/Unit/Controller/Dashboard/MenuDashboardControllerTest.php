@@ -2343,7 +2343,6 @@ final class MenuDashboardControllerTest extends TestCase
     private function invokeResolveModalClasses(array $modalSizes): array
     {
         $m = new ReflectionMethod(MenuDashboardController::class, 'resolveModalClasses');
-        $m->setAccessible(true);
 
         return $m->invoke(null, $modalSizes);
     }

@@ -159,7 +159,7 @@ final readonly class MenuUrlResolver
         return $href;
     }
 
-    private function normalizeMenuLinkResolverServiceId(string $serviceId): ?string
+    private function normalizeMenuLinkResolverServiceId(string $serviceId): string
     {
         if ($this->container->has($serviceId)) {
             return $serviceId;

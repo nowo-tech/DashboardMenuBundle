@@ -1088,7 +1088,6 @@ class MenuTreeLoaderTest extends TestCase
         ];
 
         $m = new ReflectionMethod(MenuTreeLoader::class, 'pruneEmptySections');
-        $m->setAccessible(true);
         $out = $m->invoke($loader, $nodes);
         self::assertCount(1, $out);
         self::assertSame($section, $out[0]['item']);
@@ -1127,7 +1126,6 @@ class MenuTreeLoaderTest extends TestCase
         ];
 
         $m = new ReflectionMethod(MenuTreeLoader::class, 'pruneEmptySections');
-        $m->setAccessible(true);
         $out = $m->invoke($loader, $nodes);
         self::assertCount(0, $out, 'Section with all children hidden by permissions must be pruned.');
     }
@@ -1162,7 +1160,6 @@ class MenuTreeLoaderTest extends TestCase
         ];
 
         $m = new ReflectionMethod(MenuTreeLoader::class, 'pruneEmptySections');
-        $m->setAccessible(true);
         $out = $m->invoke($loader, $nodes);
         self::assertCount(1, $out);
         self::assertSame($link, $out[0]['item']);
@@ -1193,7 +1190,7 @@ class MenuTreeLoaderTest extends TestCase
         $dbChild->setExternalUrl('/b');
 
         $resolverImpl = new class implements MenuLinkResolverInterface {
-            public function resolveHref(MenuItem $item, ?Request $request, mixed $permissionContext = null): string|array
+            public function resolveHref(MenuItem $item, ?Request $request, mixed $permissionContext = null): array
             {
                 return [
                     ['label' => 'Dyn A', 'href' => '/a', 'position' => 10],
@@ -1262,7 +1259,7 @@ class MenuTreeLoaderTest extends TestCase
         $dbChild->setExternalUrl('/b');
 
         $resolverImpl = new class implements MenuLinkResolverInterface {
-            public function resolveHref(MenuItem $item, ?Request $request, mixed $permissionContext = null): string|array
+            public function resolveHref(MenuItem $item, ?Request $request, mixed $permissionContext = null): array
             {
                 return [
                     ['label' => 'Dyn later', 'href' => '/a', 'position' => 40],

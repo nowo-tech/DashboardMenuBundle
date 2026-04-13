@@ -85,13 +85,13 @@ final class Configuration implements ConfigurationInterface
                         ->ifArray()
                         ->then(static function (array $v): array {
                             if (isset($v['order']) && is_array($v['order'])) {
-                                return array_values(array_filter($v['order'], static fn ($id): bool => is_string($id)));
+                                return array_values(array_filter($v['order'], is_string(...)));
                             }
                             if (array_is_list($v)) {
-                                return array_values(array_filter($v, static fn ($id): bool => is_string($id)));
+                                return array_values(array_filter($v, is_string(...)));
                             }
 
-                            return array_values(array_filter(array_keys($v), static fn ($id): bool => is_string($id)));
+                            return array_values(array_filter(array_keys($v), is_string(...)));
                         })
                     ->end()
                     ->scalarPrototype()->end()
@@ -103,13 +103,13 @@ final class Configuration implements ConfigurationInterface
                         ->ifArray()
                         ->then(static function (array $v): array {
                             if (isset($v['order']) && is_array($v['order'])) {
-                                return array_values(array_filter($v['order'], static fn ($id): bool => is_string($id)));
+                                return array_values(array_filter($v['order'], is_string(...)));
                             }
                             if (array_is_list($v)) {
-                                return array_values(array_filter($v, static fn ($id): bool => is_string($id)));
+                                return array_values(array_filter($v, is_string(...)));
                             }
 
-                            return array_values(array_filter(array_keys($v), static fn ($id): bool => is_string($id)));
+                            return array_values(array_filter(array_keys($v), is_string(...)));
                         })
                     ->end()
                     ->scalarPrototype()->end()

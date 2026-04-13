@@ -310,7 +310,7 @@ final class MenuDashboardController extends AbstractController
         } else {
             $chain = implode(' → ', array_map(static fn (int $i): string => (string) $i, $cycle));
             if ($cycle !== []) {
-                $chain .= ' → ' . (string) $cycle[0];
+                $chain .= ' → ' . $cycle[0];
             }
             $this->addFlash(
                 'error',
@@ -776,7 +776,7 @@ final class MenuDashboardController extends AbstractController
                         '%max%' => (string) (int) ($this->importMaxBytes / 1024 / 1024),
                     ], NowoDashboardMenuBundle::TRANSLATION_DOMAIN));
 
-                    return $this->renderImportResponse($request, $form, $isModal);
+                    return $this->renderImportResponse($form, $isModal);
                 }
                 try {
                     $content = $file->getContent();
@@ -786,7 +786,7 @@ final class MenuDashboardController extends AbstractController
                         '%message%' => $e->getMessage(),
                     ], NowoDashboardMenuBundle::TRANSLATION_DOMAIN));
 
-                    return $this->renderImportResponse($request, $form, $isModal);
+                    return $this->renderImportResponse($form, $isModal);
                 }
                 if (!is_array($decoded)) {
                     $this->addFlash('error', $this->translator->trans('dashboard.import_json_invalid', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN));
@@ -822,16 +822,16 @@ final class MenuDashboardController extends AbstractController
         }
 
         if ($form->isSubmitted() && !$form->isValid()) {
-            return $this->renderImportResponse($request, $form, $isModal);
+            return $this->renderImportResponse($form, $isModal);
         }
 
-        return $this->renderImportResponse($request, $form, $isModal);
+        return $this->renderImportResponse($form, $isModal);
     }
 
     /**
      * @param FormInterface<mixed> $form
      */
-    private function renderImportResponse(Request $request, FormInterface $form, bool $usePartial): Response
+    private function renderImportResponse(FormInterface $form, bool $usePartial): Response
     {
         $vars = [
             'form'             => $form,

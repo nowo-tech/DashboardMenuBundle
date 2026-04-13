@@ -82,7 +82,7 @@ final class MenuItemConfigType extends AbstractType
         $showTargetBlank = $showClassicLinkBlock || $itemType === MenuItem::ITEM_TYPE_SERVICE;
 
         $resolverChoices = [];
-        foreach ($this->menuLinkResolverChoices as $id => $label) {
+        foreach (array_keys($this->menuLinkResolverChoices) as $id) {
             $resolverChoices[$id] = $id;
         }
         if ($formData instanceof MenuItem) {
@@ -223,7 +223,7 @@ final class MenuItemConfigType extends AbstractType
                 if ($menuItemFormData instanceof MenuItem && $menuItemFormData->getId() !== null) {
                     $excludeIds = array_values(array_unique(array_merge(
                         $excludeIds,
-                        $itemRepository->findIdsInSubtreeStartingAt($menu, (int) $menuItemFormData->getId()),
+                        $itemRepository->findIdsInSubtreeStartingAt($menu, $menuItemFormData->getId()),
                     )));
                 }
 
@@ -233,9 +233,7 @@ final class MenuItemConfigType extends AbstractType
                 'class'         => MenuItem::class,
                 'query_builder' => $queryBuilder,
                 'help'          => $t('form.menu_item_type.parent.help_inheritance'),
-                'choice_label'  => static function (MenuItem $item) use ($locale): string {
-                    return self::parentChoiceBreadcrumbLabel($item, $locale);
-                },
+                'choice_label'  => static fn(MenuItem $item): string => self::parentChoiceBreadcrumbLabel($item, $locale),
                 'placeholder' => $t('form.menu_item_type.parent.placeholder'),
                 'required'    => false,
                 'label'       => 'form.menu_item_type.parent.label',
@@ -327,8 +325,8 @@ final class MenuItemConfigType extends AbstractType
         $parentId = $parent->getId();
         $menu     = $item->getMenu();
         if ($menu instanceof Menu && $itemId !== null && $parentId !== null) {
-            $forbidden = $this->menuItemRepository->findIdsInSubtreeStartingAt($menu, (int) $itemId);
-            if (in_array((int) $parentId, $forbidden, true)) {
+            $forbidden = $this->menuItemRepository->findIdsInSubtreeStartingAt($menu, $itemId);
+            if (in_array($parentId, $forbidden, true)) {
                 $context->buildViolation('form.menu_item_type.parent.circular_violation')
                     ->atPath('parent')
                     ->setTranslationDomain(NowoDashboardMenuBundle::TRANSLATION_DOMAIN)
@@ -349,7 +347,7 @@ final class MenuItemConfigType extends AbstractType
         }
 
         // Compare by id (covers detached objects and strict int/string mismatches from forms).
-        if ($itemId !== null && $parentId !== null && (int) $itemId === (int) $parentId) {
+        if ($itemId !== null && $parentId !== null && $itemId === $parentId) {
             $context->buildViolation('form.menu_item_type.parent.circular_violation')
                 ->atPath('parent')
                 ->setTranslationDomain(NowoDashboardMenuBundle::TRANSLATION_DOMAIN)
@@ -373,7 +371,7 @@ final class MenuItemConfigType extends AbstractType
             }
 
             $cid = $cursor->getId();
-            if ($itemId !== null && $cid !== null && (int) $cid === (int) $itemId) {
+            if ($itemId !== null && $cid !== null && $cid === $itemId) {
                 $context->buildViolation('form.menu_item_type.parent.circular_violation')
                     ->atPath('parent')
                     ->setTranslationDomain(NowoDashboardMenuBundle::TRANSLATION_DOMAIN)
@@ -383,11 +381,11 @@ final class MenuItemConfigType extends AbstractType
             }
 
             if ($cid !== null) {
-                if (isset($visited[(int) $cid])) {
+                if (isset($visited[$cid])) {
                     // Avoid infinite loops if the DB already contains a cycle.
                     return;
                 }
-                $visited[(int) $cid] = true;
+                $visited[$cid] = true;
             }
 
             $cursor = $cursor->getParent();
@@ -399,7 +397,7 @@ final class MenuItemConfigType extends AbstractType
         if ($item->getItemType() !== MenuItem::ITEM_TYPE_SECTION) {
             return;
         }
-        if ($item->getParent() !== null) {
+        if ($item->getParent() instanceof \Nowo\DashboardMenuBundle\Entity\MenuItem) {
             $context->buildViolation('form.menu_item_type.parent.section_must_be_root')
                 ->atPath('parent')
                 ->setTranslationDomain(NowoDashboardMenuBundle::TRANSLATION_DOMAIN)
@@ -435,7 +433,7 @@ final class MenuItemConfigType extends AbstractType
         while ($step < $maxSteps && $p instanceof MenuItem) {
             $id = $p->getId();
             if ($id !== null) {
-                $k = (int) $id;
+                $k = $id;
                 if (isset($seenIds[$k])) {
                     array_unshift($parts, '…');
                     break;

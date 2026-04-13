@@ -37,7 +37,7 @@ final class MenuItemType extends AbstractType
         $section   = $options['section'] ?? null;
         $addBasic  = in_array($section, [null, 'basic', 'identity', 'minimal'], true);
         $addIcon   = in_array($section, [null, 'icon', 'identity', 'minimal'], true);
-        $addConfig = $section !== 'minimal' && ($section === null || $section === 'config' || $section === 'identity');
+        $addConfig = $section !== 'minimal' && (in_array($section, [null, 'config', 'identity'], true));
 
         if ($addBasic) {
             $builder->add('basic', MenuItemBasicType::class, [

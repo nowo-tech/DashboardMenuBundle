@@ -9,6 +9,8 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
+use function count;
+
 final class TwigPathsPassTest extends TestCase
 {
     private ?string $tempProjectDir = null;
@@ -66,7 +68,7 @@ final class TwigPathsPassTest extends TestCase
         (new TwigPathsPass())->process($container);
 
         $calls = $loaderDef->getMethodCalls();
-        self::assertGreaterThanOrEqual(2, \count($calls));
+        self::assertGreaterThanOrEqual(2, count($calls));
         self::assertSame('prependPath', $calls[0][0]);
         self::assertSame($this->tempProjectDir . '/templates/bundles/NowoDashboardMenuBundle', $calls[0][1][0]);
         self::assertSame('NowoDashboardMenuBundle', $calls[0][1][1]);
@@ -102,7 +104,7 @@ final class TwigPathsPassTest extends TestCase
 
         $calls = $loaderDef->getMethodCalls();
         self::assertNotEmpty($calls);
-        self::assertSame('addPath', $calls[\count($calls) - 1][0]);
+        self::assertSame('addPath', $calls[count($calls) - 1][0]);
     }
 
     public function testProcessAddsTwigPathToTwigLoaderNativeWhenNativeDefinitionExists(): void

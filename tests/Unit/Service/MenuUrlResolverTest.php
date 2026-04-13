@@ -233,7 +233,7 @@ final class MenuUrlResolverTest extends TestCase
     public function testGetHrefServiceReturnsHashWhenResolverReturnsChildList(): void
     {
         $resolver = new class implements MenuLinkResolverInterface {
-            public function resolveHref(MenuItem $item, ?Request $request, mixed $permissionContext = null): string|array
+            public function resolveHref(MenuItem $item, ?Request $request, mixed $permissionContext = null): array
             {
                 return [
                     ['label' => 'Child', 'href' => '/child', 'position' => 0],
@@ -289,7 +289,7 @@ final class MenuUrlResolverTest extends TestCase
     public function testGetHrefServiceReturnsValidStringHref(): void
     {
         $resolver = new class implements MenuLinkResolverInterface {
-            public function resolveHref(MenuItem $item, ?Request $request, mixed $permissionContext = null): string|array
+            public function resolveHref(MenuItem $item, ?Request $request, mixed $permissionContext = null): string
             {
                 return '/dashboard/profile';
             }
@@ -375,7 +375,7 @@ final class MenuUrlResolverTest extends TestCase
     public function testGetHrefServiceReturnsHashWhenResolvedIsEmptyString(): void
     {
         $resolver = new class implements MenuLinkResolverInterface {
-            public function resolveHref(MenuItem $item, ?Request $request, mixed $permissionContext = null): string|array
+            public function resolveHref(MenuItem $item, ?Request $request, mixed $permissionContext = null): string
             {
                 return '';
             }
@@ -401,7 +401,7 @@ final class MenuUrlResolverTest extends TestCase
     public function testGetHrefServiceReturnsHashWhenResolvedIsHash(): void
     {
         $resolver = new class implements MenuLinkResolverInterface {
-            public function resolveHref(MenuItem $item, ?Request $request, mixed $permissionContext = null): string|array
+            public function resolveHref(MenuItem $item, ?Request $request, mixed $permissionContext = null): string
             {
                 return '#';
             }
@@ -427,7 +427,7 @@ final class MenuUrlResolverTest extends TestCase
     public function testGetHrefServiceAddsAbsoluteSchemeWhenReferenceTypeIsAbsoluteUrl(): void
     {
         $resolver = new class implements MenuLinkResolverInterface {
-            public function resolveHref(MenuItem $item, ?Request $request, mixed $permissionContext = null): string|array
+            public function resolveHref(MenuItem $item, ?Request $request, mixed $permissionContext = null): string
             {
                 return '/my/path';
             }
@@ -473,7 +473,7 @@ final class MenuUrlResolverTest extends TestCase
     public function testNormalizeMenuLinkResolverServiceIdMatchesByLabel(): void
     {
         $linkResolver = new class implements MenuLinkResolverInterface {
-            public function resolveHref(MenuItem $item, ?Request $request, mixed $permissionContext = null): string|array
+            public function resolveHref(MenuItem $item, ?Request $request, mixed $permissionContext = null): string
             {
                 return '/resolved-by-label';
             }

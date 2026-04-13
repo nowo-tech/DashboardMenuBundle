@@ -729,7 +729,7 @@ final class MenuItemTypeTest extends TestCase
         $item->setLinkResolver('App\\DemoResolver');
 
         $addCalls = [];
-        $builder  = $this->createFormBuilderMock($addCalls, null);
+        $builder  = $this->createFormBuilderMock($addCalls);
 
         $type->buildForm($builder, [
             'app_routes'        => [],
@@ -1104,7 +1104,6 @@ final class MenuItemTypeTest extends TestCase
         $b->setParent($a);
 
         $method = new ReflectionMethod(MenuItemConfigType::class, 'parentChoiceBreadcrumbLabel');
-        $method->setAccessible(true);
         $out = $method->invoke(null, $a, 'en');
 
         self::assertStringContainsString('…', $out);

@@ -1391,7 +1391,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     debug?: bool|Param, // When true, the frontend logs all debug/info/warn messages to the console. When false, only the initial "script loaded" message is shown. // Default: false
  * }
  * @psalm-type TwigComponentConfig = array{
- *     defaults?: array<string, string|array{ // Default: ["__deprecated__use_old_naming_behavior"]
+ *     defaults?: array<string, string|array{ // Default: []
  *         template_directory?: scalar|Param|null, // Default: "components"
  *         name_prefix?: scalar|Param|null, // Default: ""
  *     }>,
@@ -1400,7 +1400,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         enabled?: bool|Param, // Default: "%kernel.debug%"
  *         collect_components?: bool|Param, // Collect components instances // Default: true
  *     },
- *     controllers_json?: scalar|Param|null, // Deprecated: The "twig_component.controllers_json" config option is deprecated, and will be removed in 3.0. // Default: null
  * }
  * @psalm-type LiveComponentConfig = array{
  *     secret?: scalar|Param|null, // The secret used to compute fingerprints and checksums // Default: "%kernel.secret%"

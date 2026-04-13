@@ -112,12 +112,12 @@ final class GoogleSyncTranslationsCommand extends Command
             return Command::SUCCESS;
         }
 
-        $baseFlat  = $this->flatten((array) $byLocale[$baseLocale]['data']);
+        $baseFlat  = $this->flatten($byLocale[$baseLocale]['data']);
         $baseKeys  = array_keys($baseFlat);
         $missingBy = [];
 
         foreach ($targetLocales as $locale) {
-            $targetFlat  = $this->flatten((array) $byLocale[$locale]['data']);
+            $targetFlat  = $this->flatten($byLocale[$locale]['data']);
             $missingKeys = [];
             foreach ($baseKeys as $key) {
                 if (!array_key_exists($key, $targetFlat)) {
@@ -162,7 +162,7 @@ final class GoogleSyncTranslationsCommand extends Command
                 continue;
             }
 
-            $targetData = (array) $byLocale[$locale]['data'];
+            $targetData = $byLocale[$locale]['data'];
             foreach ($keys as $key) {
                 $source = $baseFlat[$key] ?? null;
                 if (!is_string($source) || trim($source) === '') {
@@ -177,7 +177,7 @@ final class GoogleSyncTranslationsCommand extends Command
             $byLocale[$locale]['data'] = $targetData;
             if ($write) {
                 $yaml = Yaml::dump($targetData, 8, 2, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
-                file_put_contents((string) $byLocale[$locale]['file'], $yaml);
+                file_put_contents($byLocale[$locale]['file'], $yaml);
             }
         }
 

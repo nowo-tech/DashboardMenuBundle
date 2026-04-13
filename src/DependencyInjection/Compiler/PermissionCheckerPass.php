@@ -47,7 +47,7 @@ final class PermissionCheckerPass implements CompilerPassInterface
             $config = [];
         }
 
-        $order = self::extractOrderedServiceIds($config);
+        $order = $this->extractOrderedServiceIds($config);
 
         if ($order !== []) {
             $ordered = [];
@@ -72,16 +72,16 @@ final class PermissionCheckerPass implements CompilerPassInterface
     /**
      * @return list<string>
      */
-    private static function extractOrderedServiceIds(mixed $config): array
+    private function extractOrderedServiceIds(mixed $config): array
     {
         if (!is_array($config)) {
             return [];
         }
         if (array_is_list($config)) {
-            return array_values(array_filter($config, static fn ($id): bool => is_string($id)));
+            return array_values(array_filter($config, is_string(...)));
         }
         if (isset($config['order']) && is_array($config['order'])) {
-            return array_values(array_filter($config['order'], static fn ($id): bool => is_string($id)));
+            return array_values(array_filter($config['order'], is_string(...)));
         }
 
         return [];

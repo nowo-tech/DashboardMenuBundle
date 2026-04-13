@@ -429,9 +429,9 @@ final class MenuItemRepositoryIntegrationTest extends KernelTestCase
         $fromC = $this->repository->findIdsOfItemAndDescendants($c);
         self::assertSame([$cId], $fromC);
 
-        self::assertEqualsCanonicalizing($fromG, $this->repository->findIdsInSubtreeStartingAt($menu, (int) $gId));
-        self::assertEqualsCanonicalizing($fromP, $this->repository->findIdsInSubtreeStartingAt($menu, (int) $pId));
-        self::assertEqualsCanonicalizing($fromC, $this->repository->findIdsInSubtreeStartingAt($menu, (int) $cId));
+        self::assertEqualsCanonicalizing($fromG, $this->repository->findIdsInSubtreeStartingAt($menu, $gId));
+        self::assertEqualsCanonicalizing($fromP, $this->repository->findIdsInSubtreeStartingAt($menu, $pId));
+        self::assertEqualsCanonicalizing($fromC, $this->repository->findIdsInSubtreeStartingAt($menu, $cId));
     }
 
     public function testReindexPositionsWithStepReturnsZeroWhenAlreadySpaced(): void
@@ -496,10 +496,10 @@ final class MenuItemRepositoryIntegrationTest extends KernelTestCase
         foreach ($items as $it) {
             $byId[(int) $it->getId()] = $it;
         }
-        self::assertNull($byId[(int) $bId]->getParent());
-        self::assertSame((int) $bId, $byId[(int) $aId]->getParent()?->getId());
-        self::assertSame(100, $byId[(int) $bId]->getPosition());
-        self::assertSame(100, $byId[(int) $aId]->getPosition());
+        self::assertNull($byId[$bId]->getParent());
+        self::assertSame($bId, $byId[$aId]->getParent()?->getId());
+        self::assertSame(100, $byId[$bId]->getPosition());
+        self::assertSame(100, $byId[$aId]->getPosition());
     }
 
     public function testApplyTreeLayoutRejectsSectionNotAtRoot(): void

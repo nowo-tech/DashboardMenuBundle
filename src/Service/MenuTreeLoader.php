@@ -460,7 +460,7 @@ final readonly class MenuTreeLoader
             return [];
         }
 
-        if (!is_array($resolved) || !array_is_list($resolved)) {
+        if (!array_is_list($resolved)) {
             return [];
         }
 
@@ -537,7 +537,7 @@ final readonly class MenuTreeLoader
         return $nodes;
     }
 
-    private function normalizeMenuLinkResolverServiceId(string $serviceId): ?string
+    private function normalizeMenuLinkResolverServiceId(string $serviceId): string
     {
         if ($this->linkResolverContainer->has($serviceId)) {
             return $serviceId;
