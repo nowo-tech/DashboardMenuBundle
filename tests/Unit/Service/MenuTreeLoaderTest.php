@@ -1087,7 +1087,7 @@ class MenuTreeLoaderTest extends TestCase
             ['item' => $section, 'children' => [], 'had_children' => false],
         ];
 
-        $m = new ReflectionMethod(MenuTreeLoader::class, 'pruneEmptySections');
+        $m   = new ReflectionMethod(MenuTreeLoader::class, 'pruneEmptySections');
         $out = $m->invoke($loader, $nodes);
         self::assertCount(1, $out);
         self::assertSame($section, $out[0]['item']);
@@ -1125,7 +1125,7 @@ class MenuTreeLoaderTest extends TestCase
             ['item' => $section, 'children' => [], 'had_children' => true],
         ];
 
-        $m = new ReflectionMethod(MenuTreeLoader::class, 'pruneEmptySections');
+        $m   = new ReflectionMethod(MenuTreeLoader::class, 'pruneEmptySections');
         $out = $m->invoke($loader, $nodes);
         self::assertCount(0, $out, 'Section with all children hidden by permissions must be pruned.');
     }
@@ -1159,7 +1159,7 @@ class MenuTreeLoaderTest extends TestCase
             ['item' => $link, 'children' => [], 'had_children' => false],
         ];
 
-        $m = new ReflectionMethod(MenuTreeLoader::class, 'pruneEmptySections');
+        $m   = new ReflectionMethod(MenuTreeLoader::class, 'pruneEmptySections');
         $out = $m->invoke($loader, $nodes);
         self::assertCount(1, $out);
         self::assertSame($link, $out[0]['item']);
