@@ -49,8 +49,8 @@
         "symfony/translation": "^6.0 || ^7.0 || ^8.0",
         "symfony/mime": "^6.0 || ^7.0 || ^8.0",
         "symfony/twig-bundle": "^6.0 || ^7.0 || ^8.0",
-        "symfony/ux-autocomplete": "^2.33",
-        "symfony/ux-live-component": "^2.32",
+        "symfony/ux-autocomplete": "^2.33 || ^3.0",
+        "symfony/ux-live-component": "^2.32 || ^3.0",
         "symfony/validator": "^6.0 || ^7.0 || ^8.0"
     },
     "suggest": {

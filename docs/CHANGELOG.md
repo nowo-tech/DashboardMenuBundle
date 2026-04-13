@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.39] - 2026-04-13
+
+### Added
+
+- **CI:** workflow to validate semantic PR titles (`pr-lint.yml`); scheduled stale issues/PRs (`stale.yml`).
+- **Dependabot:** grouped version updates for `symfony/*` and `phpstan/*`.
+- **GitHub Copilot:** repository instructions in `.github/copilot-instructions.md`.
+
+### Changed
+
+- **Composer:** allow **Symfony UX 3.x** alongside 2.x for `symfony/ux-autocomplete` (`^2.33 || ^3.0`) and `symfony/ux-live-component` (`^2.32 || ^3.0`).
+
+### Fixed
+
+- **Twig (REQ-TWIG-001):** `TwigPathsPass` now **`prependPath()`** the app directory **`templates/bundles/NowoDashboardMenuBundle/`** when it exists, then **`addPath()`** the bundle views, and resolves **`twig.loader.native`** through **chained aliases** so method calls always target the real filesystem loader definition.
+
+### Documentation
+
+- **USAGE:** clarify override registration (`prependPath` / `addPath`) and REQ-TWIG-001 alignment.
+
 ## [0.3.38] - 2026-04-07
 
 ### Changed
@@ -561,7 +581,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.38...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.39...HEAD
+[0.3.39]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.38...v0.3.39
 [0.3.38]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.37...v0.3.38
 [0.3.37]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.36...v0.3.37
 [0.3.36]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.35...v0.3.36

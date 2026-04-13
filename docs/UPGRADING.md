@@ -2,6 +2,13 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 0.3.38 to 0.3.39
+
+No intentional breaking changes to the public HTTP API or route names.
+
+- **Composer / Symfony UX:** the bundle now requires **`symfony/ux-autocomplete` `^2.33 || ^3.0`** and **`symfony/ux-live-component` `^2.32 || ^3.0`**. Your application can require **Symfony UX 3.x** for those packages without this bundle blocking Composer. Other dependencies (for example libraries that still require **`symfony/ux-twig-component` ^2.x** only) may continue to prevent a full UX 3 stack until they widen their constraints.
+- **Twig overrides (REQ-TWIG-001):** if you override templates under **`templates/bundles/NowoDashboardMenuBundle/`**, the compiler pass **prepends** that path, then adds the bundle’s views, so app overrides should consistently take precedence. If you depended on the previous registration order, verify any custom templates still resolve as expected.
+
 ## From 0.3.37 to 0.3.38
 
 No intentional breaking changes to the public HTTP API or route names.
