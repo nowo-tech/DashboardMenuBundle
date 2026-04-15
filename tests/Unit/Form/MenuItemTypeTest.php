@@ -1104,7 +1104,7 @@ final class MenuItemTypeTest extends TestCase
         $b->setParent($a);
 
         $method = new ReflectionMethod(MenuItemConfigType::class, 'parentChoiceBreadcrumbLabel');
-        $out = $method->invoke(null, $a, 'en');
+        $out    = $method->invoke(null, $a, 'en');
 
         self::assertStringContainsString('…', $out);
         self::assertStringContainsString('A', $out);

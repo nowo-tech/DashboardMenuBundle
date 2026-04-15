@@ -233,13 +233,13 @@ final class MenuItemConfigType extends AbstractType
                 'class'         => MenuItem::class,
                 'query_builder' => $queryBuilder,
                 'help'          => $t('form.menu_item_type.parent.help_inheritance'),
-                'choice_label'  => static fn(MenuItem $item): string => self::parentChoiceBreadcrumbLabel($item, $locale),
-                'placeholder' => $t('form.menu_item_type.parent.placeholder'),
-                'required'    => false,
-                'label'       => 'form.menu_item_type.parent.label',
-                'attr'        => ['class' => 'form-select'],
-                'row_attr'    => ['class' => 'mb-1'],
-                'label_attr'  => ['class' => 'form-label'],
+                'choice_label'  => static fn (MenuItem $item): string => self::parentChoiceBreadcrumbLabel($item, $locale),
+                'placeholder'   => $t('form.menu_item_type.parent.placeholder'),
+                'required'      => false,
+                'label'         => 'form.menu_item_type.parent.label',
+                'attr'          => ['class' => 'form-select'],
+                'row_attr'      => ['class' => 'mb-1'],
+                'label_attr'    => ['class' => 'form-label'],
                 // No UX Autocomplete here: remote Tom Select queries rebuild the form without the
                 // editing MenuItem, so excluded ids (self + subtree) are not applied and the item
                 // can appear as its own parent. Plain EntityType uses query_builder choices only.
@@ -397,7 +397,7 @@ final class MenuItemConfigType extends AbstractType
         if ($item->getItemType() !== MenuItem::ITEM_TYPE_SECTION) {
             return;
         }
-        if ($item->getParent() instanceof \Nowo\DashboardMenuBundle\Entity\MenuItem) {
+        if ($item->getParent() instanceof MenuItem) {
             $context->buildViolation('form.menu_item_type.parent.section_must_be_root')
                 ->atPath('parent')
                 ->setTranslationDomain(NowoDashboardMenuBundle::TRANSLATION_DOMAIN)
