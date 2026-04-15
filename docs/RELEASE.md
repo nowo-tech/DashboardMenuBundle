@@ -2,7 +2,7 @@
 
 ## Before releasing
 
-> Current release target: **0.3.39** (`v0.3.39`).
+> Current release target: **0.3.40** (`v0.3.40`).
 
 1. **Run full checks**
 
@@ -31,7 +31,7 @@
    Example for this cycle:
 
    ```bash
-   git tag -a v0.3.39 -m "Release 0.3.39"
+   git tag -a v0.3.40 -m "Release 0.3.40"
    ```
 
 3. **Push the tag**
@@ -43,7 +43,7 @@
    Example for this cycle:
 
    ```bash
-   git push origin v0.3.39
+   git push origin v0.3.40
    ```
 
 4. **GitHub Actions** (if `.github/workflows/release.yml` is configured) will create or update the GitHub Release for that tag, using the tag message and the corresponding section from `docs/CHANGELOG.md` as the release body.

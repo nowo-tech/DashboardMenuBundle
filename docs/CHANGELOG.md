@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.40] - 2026-04-15
+
+### Changed
+
+- **Demos (Symfony 7/8):** `docker-compose.yml` sets explicit **`dns`** (`8.8.8.8`, `8.8.4.4`) on the PHP service to reduce **Docker/WSL** failures resolving `repo.packagist.org` during `composer` operations inside the container.
+
+### Fixed
+
+- **Doctrine ORM:** `Menu` entity mapping declares the `(code, attributes_key)` unique constraint with the **`#[ORM\UniqueConstraint]`** class attribute instead of **`uniqueConstraints`** on **`#[ORM\Table]`**, removing the ORM 3.x deprecation and aligning with ORM 4.0 expectations (no schema change).
+
 ## [0.3.39] - 2026-04-13
 
 ### Added
@@ -581,7 +591,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.39...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.40...HEAD
+[0.3.40]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.39...v0.3.40
 [0.3.39]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.38...v0.3.39
 [0.3.38]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.37...v0.3.38
 [0.3.37]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.36...v0.3.37

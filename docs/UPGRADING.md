@@ -2,6 +2,13 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 0.3.39 to 0.3.40
+
+No intentional breaking changes to the public HTTP API or route names.
+
+- **Doctrine ORM:** the `Menu` entity only changes **PHP mapping attributes** for the existing unique index (`uniq_menu_code_context`). No migration is required. If you copied the old `#[ORM\Table(..., uniqueConstraints: [...])]` pattern into a forked entity, mirror the bundle’s use of **`#[ORM\UniqueConstraint]`** on the class to avoid the same deprecation on Doctrine ORM 3.x.
+- **Demos:** Symfony 7/8 demo Compose files now set **`dns`** on the PHP service for reliability on some Docker/WSL setups; production apps are unaffected.
+
 ## From 0.3.38 to 0.3.39
 
 No intentional breaking changes to the public HTTP API or route names.
