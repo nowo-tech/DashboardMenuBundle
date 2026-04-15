@@ -21,7 +21,8 @@ use const SORT_STRING;
  * @copyright 2026 Nowo.tech
  */
 #[ORM\Entity(repositoryClass: MenuRepository::class)]
-#[ORM\Table(name: 'dashboard_menu', uniqueConstraints: [new ORM\UniqueConstraint(name: 'uniq_menu_code_context', columns: ['code', 'attributes_key'])])]
+#[ORM\Table(name: 'dashboard_menu')]
+#[ORM\UniqueConstraint(name: 'uniq_menu_code_context', columns: ['code', 'attributes_key'])]
 #[ORM\HasLifecycleCallbacks]
 class Menu
 {
