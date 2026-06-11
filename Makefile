@@ -120,3 +120,7 @@ assets: ensure-up
 
 clean:
 	rm -rf vendor node_modules .phpunit.cache coverage coverage.xml .php-cs-fixer.cache coverage-php.txt
+
+# REQ-MAKE-008: update-deps (REQ-MAKE-008)
+BUNDLE_ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+include $(BUNDLE_ROOT)/../.scripts/Makefile.update-deps.mk

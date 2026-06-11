@@ -1,4 +1,4 @@
-# CI: tests on PHP 8.2–8.5 × Symfony 6.4 / 7.0 / 8.0 (Symfony 8 requires PHP 8.4+).
+# CI: tests on PHP 8.2–8.5 × Symfony 6.4 / 7.0 / 7.4 / 8.0 / 8.1, 8.1 (Symfony 8 requires PHP 8.4+).
 # Coverage with PCOV; release updated via release.yml on tag push.
 name: CI
 
@@ -17,12 +17,16 @@ jobs:
       fail-fast: false
       matrix:
         php: ['8.2', '8.3', '8.4', '8.5']
-        symfony: ['6.4', '7.0', '8.0']
+        symfony: ['6.4', '7.0', '7.4', '8.0', '8.1']
         exclude:
           - php: '8.2'
             symfony: '8.0'
+          - php: '8.2'
+            symfony: '8.1'
           - php: '8.3'
             symfony: '8.0'
+          - php: '8.3'
+            symfony: '8.1'
 
     steps:
       - name: Checkout code
@@ -53,7 +57,7 @@ jobs:
             ${{ runner.os }}-php-${{ matrix.php }}-composer-
 
       - name: Override platform for Symfony 8 (requires PHP 8.4+)
-        if: matrix.symfony == '8.0'
+        if: startsWith(matrix.symfony, '8.')
         run: composer config platform.php 8.4
 
       - name: Install dependencies with Symfony ${{ matrix.symfony }}
