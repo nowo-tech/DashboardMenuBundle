@@ -2,6 +2,12 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 0.3.41 to 0.3.42
+
+No intentional breaking changes to the public HTTP API or route names.
+
+- **Patch release:** demo-only maintenance — Symfony 8 demo dependency bump (8.1.1), `reference.php` stub alignment, and Makefile defaults for `update-deps`. No bundle source, configuration, or public API changes for consuming applications.
+
 ## From 0.3.40 to 0.3.41
 
 No intentional breaking changes to the public HTTP API or route names.
