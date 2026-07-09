@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.41] - 2026-07-09
+
+### Added
+
+- **Spec-driven development:** GitHub Spec Kit baseline (`specs/001-baseline/`), Cursor Agent skills (`.cursor/skills/speckit-*`), and docs [`SPEC-DRIVEN-DEVELOPMENT.md`](SPEC-DRIVEN-DEVELOPMENT.md) / [`SPEC-KIT.md`](SPEC-KIT.md).
+- **CI:** CodeRabbit review workflow (`.github/workflows/coderabbit.yml`) and repository config (`.coderabbit.yaml`).
+- **Makefile:** `update-deps` target via shared include (`REQ-MAKE-008`).
+
+### Changed
+
+- **CI:** test matrix now includes Symfony **7.4** and **8.1** (PHP 8.4+ required for Symfony 8.x; PHP 8.2/8.3 excluded from 8.0/8.1 jobs).
+- **Composer:** corrected `homepage` / `support` URLs in `composer.json` to `nowo-tech/DashboardMenuBundle` casing.
+- **Translations:** refreshed **de**, **fr**, **it**, **nl**, and **pt** message catalogues (alignment with en/es keys).
+- **Dependencies:** bumped Symfony, Doctrine ORM, and dev tooling in root and demo `composer.lock` files.
+
+### Documentation
+
+- **README:** Symfony compatibility badges (6.0+, 7.4+, 8.0, 8.1+); links to spec-driven development docs; corrected IconSelectorBundle URL casing.
+
 ## [0.3.40] - 2026-04-15
 
 ### Changed
@@ -591,7 +610,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.40...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.41...HEAD
+[0.3.41]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.40...v0.3.41
 [0.3.40]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.39...v0.3.40
 [0.3.39]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.38...v0.3.39
 [0.3.38]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.37...v0.3.38

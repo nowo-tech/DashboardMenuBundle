@@ -167,9 +167,7 @@ class MenuTreeLoaderTest extends TestCase
         $permissionChecker = new class implements MenuPermissionCheckerInterface {
             public function canView(MenuItem $item, mixed $context = null): bool
             {
-                return !($context === 'deny-second' && $item->getLabel() === 'Child 2')
-
-                ;
+                return $context !== 'deny-second' || $item->getLabel() !== 'Child 2';
             }
         };
 

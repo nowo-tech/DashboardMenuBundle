@@ -107,7 +107,6 @@ final class MenuTypeTest extends TestCase
             cssClassOptions: [
                 'menu' => ['nav flex-column'],
             ],
-            translator: null,
         );
 
         $type->buildForm($builder, []);
@@ -131,7 +130,6 @@ final class MenuTypeTest extends TestCase
         $type     = new MenuConfigType(
             permissionCheckerChoices: [],
             cssClassOptions: [],
-            translator: null,
         );
 
         $type->configureOptions($resolver);

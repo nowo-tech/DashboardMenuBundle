@@ -435,7 +435,7 @@ final readonly class MenuTreeLoader
         }
 
         $serviceId = $this->normalizeMenuLinkResolverServiceId($rawId);
-        if ($serviceId === null || !$this->linkResolverContainer->has($serviceId)) {
+        if (!$this->linkResolverContainer->has($serviceId)) {
             return [];
         }
 

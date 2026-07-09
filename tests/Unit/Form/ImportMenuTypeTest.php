@@ -54,7 +54,6 @@ final class ImportMenuTypeTest extends TestCase
         self::assertInstanceOf(NotBlank::class, $constraints[0]);
         self::assertInstanceOf(FileConstraint::class, $constraints[1]);
 
-        /** @var FileConstraint $fileConstraint */
         $fileConstraint = $constraints[1];
         self::assertSame(2000000, $fileConstraint->maxSize);
         self::assertSame(['application/json', 'text/plain'], $fileConstraint->mimeTypes);

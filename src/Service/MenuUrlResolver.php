@@ -107,7 +107,7 @@ final readonly class MenuUrlResolver
         }
 
         $serviceId = $this->normalizeMenuLinkResolverServiceId($rawId);
-        if ($serviceId === null || !$this->container->has($serviceId)) {
+        if (!$this->container->has($serviceId)) {
             return '#';
         }
 

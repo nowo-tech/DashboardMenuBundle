@@ -2,6 +2,13 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 0.3.40 to 0.3.41
+
+No intentional breaking changes to the public HTTP API or route names.
+
+- **Patch release:** CI matrix (Symfony 7.4 / 8.1), spec-kit and CodeRabbit tooling for maintainers, translation refreshes, dependency bumps, and `composer.json` homepage/support URL correction. No configuration or public API changes for consuming applications.
+- **Spec Kit / `.specify/`:** optional maintainer workflow only; not required to install or run the bundle in production apps.
+
 ## From 0.3.39 to 0.3.40
 
 No intentional breaking changes to the public HTTP API or route names.
