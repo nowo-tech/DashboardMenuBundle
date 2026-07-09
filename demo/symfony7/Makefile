@@ -134,5 +134,7 @@ verify: ensure-up
 
 
 # REQ-MAKE-008: update-deps (REQ-MAKE-008)
+SERVICE_PHP ?= php
+COMPOSE     ?= docker-compose
 BUNDLE_ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/../..)
 include $(BUNDLE_ROOT)/../.scripts/Makefile.demo-update-deps.mk
