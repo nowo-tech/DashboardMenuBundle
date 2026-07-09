@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.42] - 2026-07-09
+
+### Changed
+
+- **Demos (Symfony 7/8):** `Makefile` sets default **`SERVICE_PHP`** and **`COMPOSE`** variables before including the shared `update-deps` script (`REQ-MAKE-008`).
+- **Demos (Symfony 8):** bumped Symfony components to **8.1.1** in `composer.lock`; regenerated `config/reference.php` (`_instanceof` array typing).
+
+### Fixed
+
+- **Demos:** PHP CS Fixer alignment in `config/reference.php` stubs (Symfony 7/8).
+
 ## [0.3.41] - 2026-07-09
 
 ### Added
@@ -610,7 +621,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.41...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.42...HEAD
+[0.3.42]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.41...v0.3.42
 [0.3.41]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.40...v0.3.41
 [0.3.40]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.39...v0.3.40
 [0.3.39]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.38...v0.3.39
