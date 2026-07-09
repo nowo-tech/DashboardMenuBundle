@@ -1227,7 +1227,7 @@
                 }
             ],
             "description": "Symfony bundle for configurable dashboard menus with i18n (JSON translations), tree structure (parent/position), permissions, Twig and JSON API. No external ORM extensions.",
-            "homepage": "https://github.com/nowo-tech/dashboard-menu-bundle",
+            "homepage": "https://github.com/nowo-tech/DashboardMenuBundle",
             "keywords": [
                 "api",
                 "dashboard",
@@ -1241,8 +1241,8 @@
                 "twig"
             ],
             "support": {
-                "issues": "https://github.com/nowo-tech/dashboard-menu-bundle/issues",
-                "source": "https://github.com/nowo-tech/dashboard-menu-bundle"
+                "issues": "https://github.com/nowo-tech/DashboardMenuBundle/issues",
+                "source": "https://github.com/nowo-tech/DashboardMenuBundle"
             },
             "transport-options": {
                 "relative": false

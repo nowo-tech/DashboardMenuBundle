@@ -22,6 +22,7 @@ release-check: update-bundle-all test-coverage-all release-verify
 release-verify:
 	@for d in $(DEMOS); do $(MAKE) -C $$d verify || true; done
 
+
 # REQ-MAKE-008: update-deps-all (REQ-MAKE-008)
 BUNDLE_ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/..)
-include $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/../../.scripts/Makefile.demo-aggregate-update-deps.mk
+include $(BUNDLE_ROOT)/../.scripts/Makefile.demo-aggregate-update-deps.mk

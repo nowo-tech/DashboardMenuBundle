@@ -1,4 +1,4 @@
-# Dashboard Menu Bundle – Français (clés sémantiques)
+# NowoDashboardMenuBundle – Français (domain: NowoDashboardMenuBundle)
 
 # Dashboard UI
 dashboard:
@@ -6,14 +6,14 @@ dashboard:
   title_suffix: Menus du tableau de bord
   menus: Menus
   menu: Menu
-  menus_back: "← Menus"
+  menus_back: "← Menus de navigation"
   new_menu: Nouveau menu
   edit_menu: Modifier le menu
-  edit_item: Modifier l’élément
+  edit_item: Modifier l'élément
   edit_items: Modifier les éléments
   edit_identity: "Modifier (icône, libellé, type)"
   edit_labels: "Modifier le libellé et les traductions"
-  edit_type_position_icon: "Modifier le type, la position et l’icône"
+  edit_type_position_icon: "Modifier le type, la position et l'icône"
   edit_config: "Modifier la configuration (parent, lien, permissions)"
   copy: Copier
   copy_menu: Copier le menu
@@ -34,7 +34,7 @@ dashboard:
   search: Rechercher
   search_placeholder: "Rechercher par code ou nom…"
   clear: Effacer
-  no_menus_yet: "Aucun menu pour l’instant. Créez-en un pour commencer."
+  no_menus_yet: "Aucun menu pour l'instant. Créez-en un pour commencer."
   no_items: Aucun élément.
   context: Contexte
   parent: Parent
@@ -45,6 +45,26 @@ dashboard:
   last: Dernier
   move_up: Monter
   move_down: Descendre
+  reindex_positions: "Réindexer les positions (pas %step%)"
+  reindex_positions_title: "Réassigne les positions par pas de %step% dans chaque groupe de frères (ordre conservé)."
+  reindex_positions_done: "Positions réindexées avec un pas de %step%."
+  reindex_positions_unchanged: Aucun changement de position n'était nécessaire.
+  check_parent_cycles: Vérifier les cycles de parents
+  check_parent_cycles_title: "Vérifiez que la chaîne de parents n'ait pas de boucles infinies (même menu)."
+  check_parent_cycles_ok: Aucune référence circulaire entre parents n'a été trouvée.
+  check_parent_cycles_loop: "Chaîne de parents circulaire détectée : %chain%"
+  sortable_page_heading: Réordonner par glisser-déposer
+  open_sortable_reorder: Réordonner (glisser)
+  back_to_items_table: Vue tableau
+  sortable_title: Glisser pour réordonner
+  sortable_help: "Glissez les éléments par la poignée pour réordonner, imbriquer sous un parent ou changer de niveau. Puis appliquez pour enregistrer."
+  sortable_apply: Appliquer l'ordre de l'arbre
+  sortable_drag_handle: Glisser pour réordonner
+  reorder_tree_done: Arborescence du menu mise à jour.
+  reorder_tree_invalid_json: Données d'arbre invalides (JSON).
+  reorder_tree_invalid_payload: Charge d'arbre invalide.
+  reorder_tree_invalid_layout: "Impossible d'appliquer l'arbre (cycle, limite de profondeur ou éléments manquants)."
+  reorder_tree_section_not_root: "Les sections doivent rester au niveau racine. Sortez la section des listes imbriquées et réappliquez."
   edit: Modifier
   create: Créer
   update: Mettre à jour
@@ -57,7 +77,7 @@ dashboard:
   depth_limit: Limite de profondeur
   permission_checker: Vérificateur de permissions
   collapsible: Repliable
-  collapsible_expanded: Repliable ouvert
+  collapsible_expanded: Repliable étendu
   nested_collapsible: Repliable imbriqué
   css_classes: Classes CSS
   root: "— Racine —"
@@ -71,13 +91,13 @@ dashboard:
   export: Exporter
   export_all: Exporter tous les menus
   import: Importer
-  import_help: "Téléversez un fichier JSON exporté depuis ce tableau de bord (un menu ou tous). Choisissez d’ignorer les menus déjà existants (même code + contexte) ou de remplacer leurs éléments."
+  import_help: "Téléversez un fichier JSON exporté depuis ce tableau de bord. Formats acceptés : un menu {\"menu\": {...}, \"items\": [...]}, plusieurs menus {\"menus\": [{...}, ...]} ou la même liste comme tableau JSON [{\"menu\": {...}, \"items\": [...]}, ...]. Choisissez d'ignorer les menus déjà existants (même code + contexte) ou de remplacer leurs éléments."
+  import_format_invalid_root_array: 'Format invalide : un tableau JSON racine ne doit contenir que des objets avec « menu » et « items ». Vous pouvez aussi utiliser {"menus": [...]} ou {"menu": {...}, "items": [...]}.'
+  import_format_expected: 'Format invalide : « menu » + « items », « menus » ou un tableau racine de blocs menu attendu.'
   import_json_invalid: Fichier JSON invalide.
   import_json_error: "JSON invalide : %message%"
   import_file_too_large: "Le fichier est trop volumineux. Taille maximale %max% Mio."
   import_done: "Import terminé : %created% créés, %updated% mis à jour, %skipped% ignorés."
-  import_format_invalid_root_array: 'Invalid format: a root JSON array must contain only objects with "menu" and "items". You can also use {"menus": [...]} or {"menu": {...}, "items": [...]}.'
-  import_format_expected: 'Invalid format: expected "menu" + "items", or "menus", or a root array of menu blocks.'
 
 # Form: MenuType
 form:
@@ -98,7 +118,7 @@ form:
       placeholder: '{"partnerId": 1, "operatorId": 1}'
     icon:
       label: Icône
-      help: "Identifiant d’icône optionnel (ex. Symfony UX Icons : heroicons:home, bootstrap:house)."
+      help: "Identifiant d'icône optionnel (ex. Symfony UX Icons : heroicons:home, bootstrap:house)."
       placeholder: "ex. heroicons:bars-3, bootstrap:list"
     permission_checker:
       label: Vérificateur de permissions
@@ -113,17 +133,17 @@ form:
     collapsible:
       label: "Repliable (menu dans un bloc avec bascule)"
     collapsible_expanded:
-      label: "Repliable ouvert (ouvert par défaut)"
+      label: "Repliable étendu (ouvert par défaut)"
     nested_collapsible:
       label: "Repliable imbriqué (les éléments avec enfants ont une bascule)"
     nested_collapsible_sections:
-      label: "Autoriser les sections à être repliables"
-      help: "Lorsque le repliable imbriqué est activé, les sections peuvent afficher une bascule et replier leurs enfants. Désactivez pour toujours afficher les enfants des sections (sans bascule)."
+      label: "Sections repliables"
+      help: "Nécessite le repliable imbriqué. Si activé, les lignes de section affichent un chevron à droite et leurs liens peuvent être repliés. Si désactivé, les enfants de section restent toujours dépliés (sans chevron)."
     class_menu:
       label: "Classe menu (<ul> racine)"
       placeholder: "ex. nav flex-column"
     ul_id:
-      label: "Id du menu (<ul> racine)"
+      label: "Id ul (racine <ul>)"
       placeholder: "ex. main-menu-navigation"
     class_item:
       label: "Classe élément (<li>)"
@@ -134,6 +154,18 @@ form:
     class_children:
       label: "Classe enfants (<ul> imbriqué)"
       placeholder: "ex. nav flex-column ms-2"
+    class_section_children:
+      label: "Classe enfants de section (<ul> sous itemType \"section\")"
+      placeholder: "ex. nav flex-column list-unstyled ps-0 (plat ; vide = comme enfants)"
+      help: "Si défini, la liste de premier niveau sous chaque section utilise ces classes au lieu de « Classe enfants », pour aligner les liens avec le titre de section (sans retrait). Laisser vide pour continuer à utiliser la classe enfants imbriqués."
+    class_section_child_item:
+      label: "Classe <li> pour enfants directs de itemType \"section\""
+      placeholder: "ex. nav-item ms-0 (vide = comme Classe élément)"
+      help: "Si défini, les liens et séparateurs enfants directs d'une section utilisent cette classe pour <li> au lieu de « Classe élément ». Utile pour les marges/padding sous listes plates de section."
+    class_section_child_link:
+      label: "Classe <a> pour enfants directs de itemType \"section\""
+      placeholder: "ex. d-flex align-items-center ps-0 (vide = comme Classe lien)"
+      help: "Si défini, les liens enfants directs d'une section utilisent cette classe pour <a> au lieu de « Classe lien ». S'associe à la classe <li> enfant de section pour l'alignement."
     class_section_label:
       label: "Classe libellé de section (itemType \"section\")"
       placeholder: "ex. navigation-header"
@@ -150,7 +182,7 @@ form:
       label: "Classe branche ouverte (<li> quand la route est dans la branche)"
       placeholder: "ex. active-branch"
     class_has_children:
-      label: "Classe avec enfants (<li> quand l’élément a des enfants)"
+      label: "Classe avec enfants (<li> quand l'élément a des enfants)"
       placeholder: "ex. has-children"
     class_expanded:
       label: "Classe ouvert (<li> quand le bloc enfants est ouvert)"
@@ -171,11 +203,21 @@ form:
     label:
       label: Libellé
     label_locale: "Libellé (%locale%)"
+    divider_label_hint: "Nom optionnel pour ce séparateur (recommandé pour l'accessibilité et la liste du tableau de bord). Laissez vide si vous n'avez besoin que d'un séparateur visuel."
     type:
       label: Type
       link: Lien
-      section: Section
+      section: Rubrique
       divider: Séparateur
+      service: Service (URL à l'exécution)
+    link_resolver:
+      label: Résolveur de lien
+      placeholder: "— Choisir un résolveur —"
+      help: "Choisissez un service qui implémente MenuLinkResolverInterface. Il peut renvoyer une URL unique ou une liste de lignes de liens enfants (label, href, position) ; l'href parent sera alors « # »."
+      service_id_placeholder: "ex. App\\Menu\\MyLinkResolver"
+      help_free_text: "Saisissez l'id du service (nom de classe ou id conteneur) qui implémente MenuLinkResolverInterface."
+      required: Un résolveur de lien est requis pour le type « Service ».
+      route_params_hint: "JSON optionnel passé au résolveur (par exemple paramètres de type route)."
     position:
       label: Position
     link_type:
@@ -196,7 +238,7 @@ form:
     permission_keys:
       label: Clés de permission
       placeholder: "— Tout autoriser —"
-      help_csv: "Clés séparées par des virgules (utilisé quand aucune liste configurée n’est disponible)."
+      help_csv: "Clés séparées par des virgules (utilisé quand aucune liste configurée n'est disponible)."
       choice:
         authenticated: "Authentifié uniquement"
         admin: "Admin uniquement"
@@ -210,7 +252,15 @@ form:
     parent:
       label: Parent
       placeholder: "— Racine (sans parent) —"
+      help_inheritance: "Les éléments parents sont au-dessus dans l'arbre. Les clés de permission de cette ligne s'appliquent à cet élément ; votre MenuPermissionChecker décide comment combiner les règles parent/enfant. Les sections et liens extensibles ne s'affichent que si au moins un enfant est visible."
       circular_violation: "La hiérarchie parent circulaire n'est pas autorisée."
+      section_must_be_root: "Les éléments section doivent rester au niveau racine (sans parent)."
+    section_collapsible:
+      label: "Enfants de section repliables"
+      inherit: "Utiliser la valeur du menu"
+      yes: "Oui (repliable avec chevron)"
+      no: "Non (toujours dépliés)"
+      help: "Remplace l'option du menu « Sections repliables » uniquement pour cette section. « Utiliser la valeur du menu » suit la configuration du menu."
 
   import_menu_type:
     file:
@@ -226,7 +276,7 @@ form:
     code:
       label: Code
       placeholder: "ex. sidebar_copie"
-      regex_message: "Le code ne peut contenir que des lettres, chiffres, tiret bas et trait d’union."
+      regex_message: "Le code ne peut contenir que des lettres, chiffres, tiret bas et trait d'union."
     name:
       label: Nom
       placeholder: "ex. Sidebar (copie)"

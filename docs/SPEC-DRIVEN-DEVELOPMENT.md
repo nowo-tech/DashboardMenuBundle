@@ -1,9 +1,10 @@
 # Spec-driven development
 
-In this repository, **spec-driven development** has two layers that stay in sync:
+In this repository, **spec-driven development** has three layers that stay in sync:
 
-1. **Product behavior** — what **DashboardMenuBundle** guarantees to applications that integrate it (see [`USAGE.md`](USAGE.md), [`CONFIGURATION.md`](CONFIGURATION.md), [`INSTALLATION.md`](INSTALLATION.md)). **PHPUnit** and **PHPStan** enforce contracts in CI where applicable.
-2. **Traceability anchors** — stable **`REQ-*`** identifiers in Makefiles and demos (when present) so changes to scripts, ports, and demo workflows stay discoverable from issues and PRs.
+1. **GitHub Spec Kit baseline** — [`specs/001-baseline/`](../specs/001-baseline/) ([`spec.md`](../specs/001-baseline/spec.md), [`code-inventory.md`](../specs/001-baseline/code-inventory.md)), initialized with [GitHub Spec Kit](https://github.com/github/spec-kit) (`.specify/`, **Cursor Agent** skills in `.cursor/skills/speckit-*`). The inventory maps **100%** of production code in `src/`. **How to install, initialize, and use Spec Kit:** [`SPEC-KIT.md`](SPEC-KIT.md).
+2. **Product behavior** — what **DashboardMenuBundle** guarantees to applications that integrate it (see [`USAGE.md`](USAGE.md), [`CONFIGURATION.md`](CONFIGURATION.md), [`INSTALLATION.md`](INSTALLATION.md)). **PHPUnit** and **PHPStan** enforce contracts in CI where applicable.
+3. **Traceability anchors** — stable **`REQ-*`** identifiers in Makefiles and demos (when present) so changes to scripts, ports, and demo workflows stay discoverable from issues and PRs.
 
 There is no separate executable spec language (for example Gherkin); tests and static analysis are the mechanical proof alongside this document.
 
@@ -15,11 +16,18 @@ The sections below state **behavior**; this subsection states **intent** in back
 
 | ID | Story |
 | --- | --- |
-| US-01 | **As a** Symfony integrator, **I want** to install and enable this package **so that** I can rely on documented services, configuration, and extension points. |
-| US-02 | **As an** integrator, **I want** stable configuration keys and defaults **so that** upgrades remain predictable (see [`CONFIGURATION.md`](CONFIGURATION.md)). |
-| US-03 | **As an** integrator, **I want** clear usage guidance **so that** I can integrate features without reverse-engineering internals (see [`USAGE.md`](USAGE.md)). |
-| US-04 | **As a** maintainer, **I want** behavior changes covered by automated tests **so that** regressions are caught in CI. |
-| US-05 | **As a** contributor, **I want** `REQ-*` anchors on scripted flows **so that** PRs and issues cite the same identifiers as this document. |
+| US-01 | **As a** Symfony integrator, **I want** tree-structured menus with parent/position ordering **so that** dashboard navigation reflects my app hierarchy. |
+| US-02 | **As an** integrator, **I want** JSON translations per menu item **so that** labels localize without redeploying copy. |
+| US-03 | **As an** integrator, **I want** context resolution (ordered context sets) **so that** the same menu code serves different partners/operators. |
+| US-04 | **As an** integrator, **I want** Twig helpers and a JSON API **so that** I can render menus in HTML or SPAs. |
+| US-05 | **As an** integrator, **I want** `MenuPermissionCheckerInterface` **so that** items filter per user without forking the bundle. |
+| US-06 | **As a** maintainer, **I want** PHPUnit and PHPStan in CI **so that** menu resolution and CRUD regressions are caught early. |
+| US-07 | **As a** maintainer, **I want** the bundled admin dashboard (CRUD, reorder, copy) **so that** menus are managed without custom tooling. |
+| US-08 | **As a** maintainer, **I want** JSON import/export with size and rate limits **so that** menus migrate safely between environments. |
+| US-09 | **As an** integrator, **I want** `nowo_dashboard_menu:generate-migration` **so that** schema matches configured connection and table prefix. |
+| US-10 | **As a** developer in `dev`, **I want** Web Profiler menu diagnostics **so that** cache hits and SQL counts are visible. |
+
+Detailed acceptance criteria and **`FR-*`** requirements grouped by domain live in [`specs/001-baseline/spec.md`](../specs/001-baseline/spec.md); per-file traceability is in [`code-inventory.md`](../specs/001-baseline/code-inventory.md).
 
 **Out of scope for these stories:** guarantees outside the stated public API and outside dependency limits (PHP, Symfony, third-party libraries).
 
@@ -68,6 +76,35 @@ When you change scripted behavior, **update the existing `REQ-*` comment** if th
 2. **Implement** with tests and static analysis.
 3. **Anchor scripts and demos** when dev UX changes: add or adjust `REQ-*` comments and this table.
 4. **Ship integrator docs** when behavior or configuration changes: [`USAGE.md`](USAGE.md), [`CONFIGURATION.md`](CONFIGURATION.md), [`CHANGELOG.md`](CHANGELOG.md), and [`UPGRADING.md`](UPGRADING.md) when consumers must change code or config.
+5. **Keep Spec Kit artifacts in sync** when production code under `src/` changes:
+   - Update [`specs/001-baseline/spec.md`](../specs/001-baseline/spec.md) and [`code-inventory.md`](../specs/001-baseline/code-inventory.md).
+   - Follow the maintainer checklist in [`SPEC-KIT.md`](SPEC-KIT.md).
+   - For **new features**, use Cursor Agent skills (`/speckit-specify`, `/speckit-plan`, `/speckit-tasks`) as documented in SPEC-KIT.
+
+---
+
+
+## GitHub Spec Kit (summary)
+
+This repository uses [GitHub Spec Kit](https://github.com/github/spec-kit) with **Cursor Agent** (`cursor-agent` integration).
+
+| Artifact | Path |
+| --- | --- |
+| **Operator manual** (install, init, usage) | [`SPEC-KIT.md`](SPEC-KIT.md) |
+| Baseline spec | [`specs/001-baseline/spec.md`](../specs/001-baseline/spec.md) |
+| Code inventory (100%) | [`specs/001-baseline/code-inventory.md`](../specs/001-baseline/code-inventory.md) |
+| Constitution | [`.specify/memory/constitution.md`](../.specify/memory/constitution.md) |
+| Cursor Agent skills | [`.cursor/skills/`](../.cursor/skills/) (`speckit-*`) |
+
+**Quick start (maintainers):**
+
+```bash
+# Install Specify CLI (once per machine) — see SPEC-KIT.md
+specify init --here --force --integration cursor-agent --script sh
+specify integration list   # Cursor → installed (default)
+```
+
+In Cursor Agent, start a new feature with `/speckit-specify <description>`. For day-to-day tooling details, skills reference, folder layout, and troubleshooting, read **[`SPEC-KIT.md`](SPEC-KIT.md)**.
 
 ---
 
@@ -79,6 +116,7 @@ When you change scripted behavior, **update the existing `REQ-*` comment** if th
 
 ## See also
 
+- [`SPEC-KIT.md`](SPEC-KIT.md) — GitHub Spec Kit manual (install, structure, usage)
 - [`USAGE.md`](USAGE.md)
 - [`CONFIGURATION.md`](CONFIGURATION.md)
 - [`CONTRIBUTING.md`](CONTRIBUTING.md)

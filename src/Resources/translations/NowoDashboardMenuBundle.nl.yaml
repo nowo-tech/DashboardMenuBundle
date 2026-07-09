@@ -1,210 +1,282 @@
-# Dashboard Menu Bundle – locale nl (fallback: messages.en)
+# NowoDashboardMenuBundle – Nederlands (domain: NowoDashboardMenuBundle)
 
 # Dashboard UI
 dashboard:
-  title: Menu dashboard
-  title_suffix: Dashboard Menu
-  menus: Menus
+  title: Menudashboard
+  title_suffix: Dashboardmenu
+  menus: Menu's
   menu: Menu
-  menus_back: "← Menus"
-  new_menu: New menu
-  edit_menu: Edit menu
-  edit_item: Edit item
-  edit_items: Edit items
-  copy: Copy
-  copy_menu: Copy menu
-  copy_menu_help: "Copy menu and all its items. You can change the code and name for the new menu."
-  delete: Delete
-  cancel: Cancel
-  close: Close
-  confirm_delete: Confirm delete
-  delete_menu_confirm: 'Delete menu "%name%" and all its items?'
-  delete_menu_message: Delete this menu and all its items?
-  delete_item_confirm: 'Delete "%name%" and its children?'
-  delete_item_message: Delete this item and its children?
-  add_item: Add item
-  new_item: New item
-  add_one: Add one
-  add_child: Add child
-  search: Search
-  search_placeholder: "Search by code or name…"
-  clear: Clear
-  no_menus_yet: "No menus yet. Create one to get started."
-  no_items: No items.
+  menus_back: "← Menu's"
+  new_menu: Nieuw menu
+  edit_menu: Menu bewerken
+  edit_item: Item bewerken
+  edit_items: Items bewerken
+  edit_identity: "Bewerken (pictogram, label, type)"
+  edit_labels: "Label en vertalingen bewerken"
+  edit_type_position_icon: "Type, positie en pictogram bewerken"
+  edit_config: "Configuratie bewerken (ouder, link, machtigingen)"
+  copy: Kopiëren
+  copy_menu: Menu kopiëren
+  copy_menu_help: "Kopieer het menu en alle items. U kunt de code en naam van het nieuwe menu wijzigen."
+  delete: Verwijderen
+  cancel: Annuleren
+  close: Sluiten
+  confirm_delete: Verwijderen bevestigen
+  delete_menu_confirm: 'Menu "%name%" en alle items verwijderen?'
+  delete_menu_message: Dit menu en alle items verwijderen?
+  delete_item_confirm: '"%name%" en onderliggende items verwijderen?'
+  delete_item_message: Dit item en onderliggende items verwijderen?
+  add_item: Item toevoegen
+  new_item: Nieuw item
+  add_one: Eén toevoegen
+  add_child: Kind toevoegen
+  add_child_disabled: "Sectie- en scheidingsitems kunnen geen kinderen hebben"
+  search: Zoeken
+  search_placeholder: "Zoeken op code of naam…"
+  clear: Wissen
+  no_menus_yet: "Nog geen menu's. Maak er een aan om te beginnen."
+  no_items: Geen items.
   context: Context
-  parent: Parent
+  parent: Ouder
   route_url: "Route / URL"
   item: Item
-  actions: Actions
-  first: First
-  last: Last
-  move_up: Move up
-  move_down: Move down
-  edit: Edit
-  create: Create
-  update: Update
-  loading: "Loading…"
-  error_loading_form: Error loading form.
-  previous: Previous
-  next: Next
-  pagination_menus: Menus pagination
-  showing_from_to_of_total: "Showing %from%-%to% of %total%"
-  depth_limit: Depth limit
-  permission_checker: Permission checker
-  collapsible: Collapsible
-  collapsible_expanded: Collapsible expanded
-  nested_collapsible: Nested collapsible
-  css_classes: CSS classes
+  actions: Acties
+  first: Eerste
+  last: Laatste
+  move_up: Omhoog
+  move_down: Omlaag
+  reindex_positions: "Posities herindexeren (stap %step%)"
+  reindex_positions_title: "Wijst posities toe in stappen van %step% binnen elke broedgroep (volgorde behouden)."
+  reindex_positions_done: "Posities herindexeerd met stap %step%."
+  reindex_positions_unchanged: Geen posities hoefden te worden gewijzigd.
+  check_parent_cycles: Oudercycli controleren
+  check_parent_cycles_title: "Controleer dat de ouderketen geen oneindige lussen heeft (zelfde menu)."
+  check_parent_cycles_ok: Geen circulaire ouderreferenties gevonden.
+  check_parent_cycles_loop: "Circulaire ouderketen gedetecteerd: %chain%"
+  sortable_page_heading: Herordenen door slepen
+  open_sortable_reorder: Herordenen (slepen)
+  back_to_items_table: Tabelweergave
+  sortable_title: Slepen om te herordenen
+  sortable_help: "Sleep items via het handvat om te herordenen, onder een ouder te nesten of van niveau te wisselen. Pas daarna toe om op te slaan."
+  sortable_apply: Boomvolgorde toepassen
+  sortable_drag_handle: Slepen om te herordenen
+  reorder_tree_done: Menuboom bijgewerkt.
+  reorder_tree_invalid_json: Ongeldige boomgegevens (JSON).
+  reorder_tree_invalid_payload: Ongeldige boompayload.
+  reorder_tree_invalid_layout: "Kon boom niet toepassen (lus, dieptelimiet of ontbrekende items)."
+  reorder_tree_section_not_root: "Secties moeten op rootniveau blijven. Verplaats de sectie uit geneste lijsten en pas opnieuw toe."
+  edit: Bewerken
+  create: Aanmaken
+  update: Bijwerken
+  loading: "Laden…"
+  error_loading_form: Fout bij laden van formulier.
+  previous: Vorige
+  next: Volgende
+  pagination_menus: Paginering menu's
+  showing_from_to_of_total: "%from%-%to% van %total%"
+  depth_limit: Dieptelimiet
+  permission_checker: Machtigingscontrole
+  collapsible: Inklapbaar
+  collapsible_expanded: Inklapbaar uitgevouwen
+  nested_collapsible: Genest inklapbaar
+  css_classes: CSS-klassen
   root: "— Root —"
-  no_label: "(no label)"
-  unique_code_context_error: A menu with this code and context already exists.
-  base: Base
-  base_badge_title: "Base menu: code cannot be changed after creation."
-  toggle: Toggle
-  yes: Yes
-  no: No
-  export: Export
-  export_all: Export all menus
-  import: Import
-  import_help: "Upload a JSON file exported from this dashboard (one menu or all menus). Choose whether to skip menus that already exist (same code + context) or replace their items."
-  import_json_invalid: Invalid JSON file.
-  import_json_error: "Invalid JSON: %message%"
-  import_file_too_large: "File is too large. Maximum size is %max% MiB."
-  import_done: "Import complete: %created% created, %updated% updated, %skipped% skipped."
-  import_format_invalid_root_array: 'Invalid format: a root JSON array must contain only objects with "menu" and "items". You can also use {"menus": [...]} or {"menu": {...}, "items": [...]}.'
-  import_format_expected: 'Invalid format: expected "menu" + "items", or "menus", or a root array of menu blocks.'
+  no_label: "(geen label)"
+  unique_code_context_error: Er bestaat al een menu met deze code en context.
+  base: Basis
+  base_badge_title: "Basismenu: code kan na aanmaak niet worden gewijzigd."
+  toggle: Schakelen
+  yes: Ja
+  no: Nee
+  export: Exporteren
+  export_all: Alle menu's exporteren
+  import: Importeren
+  import_help: "Upload een JSON-bestand geëxporteerd vanuit dit dashboard. Ondersteunde vormen: één menu {\"menu\": {...}, \"items\": [...]}, meerdere menu's {\"menus\": [{...}, ...]} of dezelfde lijst als JSON-array [{\"menu\": {...}, \"items\": [...]}, ...]. Kies of bestaande menu's (zelfde code + context) worden overgeslagen of hun items worden vervangen."
+  import_format_invalid_root_array: 'Ongeldig formaat: een JSON-array op rootniveau mag alleen objecten met "menu" en "items" bevatten. U kunt ook {"menus": [...]} of {"menu": {...}, "items": [...]} gebruiken.'
+  import_format_expected: 'Ongeldig formaat: "menu" + "items", "menus" of een root-array van menublokken verwacht.'
+  import_json_invalid: Ongeldig JSON-bestand.
+  import_json_error: "Ongeldige JSON: %message%"
+  import_file_too_large: "Bestand is te groot. Maximale grootte is %max% MiB."
+  import_done: "Import voltooid: %created% aangemaakt, %updated% bijgewerkt, %skipped% overgeslagen."
 
 # Form: MenuType
 form:
   menu_type:
     code:
       label: Code
-      help: "Unique identifier (letters, numbers, _ -). For base menus, code cannot be changed after creation."
-      placeholder: "e.g. sidebar"
+      help: "Unieke identificatie (letters, cijfers, _ -). Voor basismenu's kan de code na aanmaak niet worden gewijzigd."
+      placeholder: "bijv. sidebar"
     base:
-      label: "Base menu"
-      help: "When checked, this menu's code cannot be changed after creation."
+      label: "Basismenu"
+      help: "Indien aangevinkt, kan de code van dit menu na aanmaak niet worden gewijzigd."
     name:
-      label: Name
-      placeholder: "e.g. Sidebar"
+      label: Naam
+      placeholder: "bijv. Sidebar"
     context:
       label: Context
-      help: "Optional JSON key-value pairs to identify this menu variant. When resolving by code, the first matching menu in the ordered context sets is used; empty = fallback for that code."
+      help: "Optionele JSON-sleutel-waardeparen om deze menuvariant te identificeren. Bij opzoeken op code wordt het eerste overeenkomende menu in de geordende contextsets gebruikt; leeg = fallback voor die code."
       placeholder: '{"partnerId": 1, "operatorId": 1}'
     icon:
-      label: Icon
-      help: "Optional icon identifier (e.g. Symfony UX Icons: heroicons:home, bootstrap:house)."
-      placeholder: "e.g. heroicons:bars-3, bootstrap:list"
+      label: Pictogram
+      help: "Optionele pictogramidentificatie (bijv. Symfony UX Icons: heroicons:home, bootstrap:house)."
+      placeholder: "bijv. heroicons:bars-3, bootstrap:list"
     permission_checker:
-      label: Permission checker
-      placeholder: "— Allow all —"
-      allow_all: "— Allow all —"
-      help: "Service implementing MenuPermissionCheckerInterface (empty = allow all)."
+      label: Machtigingscontrole
+      placeholder: "— Alles toestaan —"
+      allow_all: "— Alles toestaan —"
+      permission_key_aware: "— Op machtigingssleutel (structuur) —"
+      help: "Service die MenuPermissionCheckerInterface implementeert (leeg = alles toestaan)."
     depth_limit:
-      label: Depth limit
-      placeholder: "empty = unlimited"
-      help: "Max depth to render (1 = root only, 2 = root + one level; empty = unlimited)."
+      label: Dieptelimiet
+      placeholder: "leeg = onbeperkt"
+      help: "Maximale diepte om te renderen (1 = alleen root, 2 = root + één niveau; leeg = onbeperkt)."
     collapsible:
-      label: "Collapsible (wrap menu in toggle block)"
+      label: "Inklapbaar (menu in schakelblok)"
     collapsible_expanded:
-      label: "Collapsible expanded (open by default)"
+      label: "Inklapbaar uitgevouwen (standaard open)"
     nested_collapsible:
-      label: "Nested collapsible (items with children have toggle)"
+      label: "Genest inklapbaar (items met kinderen hebben schakelaar)"
+    nested_collapsible_sections:
+      label: "Inklapbare secties"
+      help: "Vereist genest inklapbaar. Indien ingeschakeld tonen sectierijen een chevron rechts en hun links kunnen worden ingeklapt. Indien uitgeschakeld blijven sectiekinderen altijd uitgevouwen (zonder chevron)."
     class_menu:
-      label: "Class menu (root <ul>)"
-      placeholder: "e.g. nav flex-column"
+      label: "Klasse menu (root-<ul>)"
+      placeholder: "bijv. nav flex-column"
+    ul_id:
+      label: "Ul-id (root-<ul>)"
+      placeholder: "bijv. main-menu-navigation"
     class_item:
-      label: "Class item (<li>)"
-      placeholder: "e.g. nav-item"
+      label: "Klasse item (<li>)"
+      placeholder: "bijv. nav-item"
     class_link:
-      label: "Class link (<a>)"
-      placeholder: "e.g. nav-link"
+      label: "Klasse link (<a>)"
+      placeholder: "bijv. nav-link"
     class_children:
-      label: "Class children (nested <ul>)"
-      placeholder: "e.g. nav flex-column ms-2"
+      label: "Klasse kinderen (genest <ul>)"
+      placeholder: "bijv. nav flex-column ms-2"
+    class_section_children:
+      label: "Klasse sectiekinderen (<ul> onder itemType \"section\")"
+      placeholder: "bijv. nav flex-column list-unstyled ps-0 (vlak; leeg = zelfde als kinderen)"
+      help: "Indien ingesteld gebruikt de eerste niveaulijst onder elke sectie deze klassen in plaats van „Klasse kinderen“, zodat links uitlijnen met de sectietitel (zonder inspringing). Leeg laten om de geneste kinderenklasse te blijven gebruiken."
+    class_section_child_item:
+      label: "Klasse <li> voor directe kinderen van itemType \"section\""
+      placeholder: "bijv. nav-item ms-0 (leeg = zelfde als Klasse item)"
+      help: "Indien ingesteld gebruiken links en scheidingen die directe kinderen van een sectie zijn deze klasse voor <li> in plaats van „Klasse item“. Voor marge-/padding-aanpassingen onder vlakke sectielijsten."
+    class_section_child_link:
+      label: "Klasse <a> voor directe kinderen van itemType \"section\""
+      placeholder: "bijv. d-flex align-items-center ps-0 (leeg = zelfde als Klasse link)"
+      help: "Indien ingesteld gebruiken links die directe kinderen van een sectie zijn deze klasse voor <a> in plaats van „Klasse link“. Werkt samen met sectiekind-<li> voor uitlijning."
+    class_section_label:
+      label: "Klasse sectielabel (itemType \"section\")"
+      placeholder: "bijv. navigation-header"
     class_section:
-      label: "Class section (<li> when itemType \"section\")"
-      placeholder: "e.g. menu-section"
+      label: "Klasse sectie (<li> wanneer itemType \"section\")"
+      placeholder: "bijv. menu-section"
     class_divider:
-      label: "Class divider (<li> when itemType \"divider\")"
-      placeholder: "e.g. menu-divider"
+      label: "Klasse scheiding (<li> wanneer itemType \"divider\")"
+      placeholder: "bijv. menu-divider"
     class_current:
-      label: "Class current (link matching current route)"
-      placeholder: "e.g. active"
+      label: "Klasse actueel (link die overeenkomt met huidige route)"
+      placeholder: "bijv. active"
     class_branch_expanded:
-      label: "Class branch expanded (<li> when route in branch)"
-      placeholder: "e.g. active-branch"
+      label: "Klasse tak uitgevouwen (<li> wanneer route in tak)"
+      placeholder: "bijv. active-branch"
     class_has_children:
-      label: "Class has children (<li> when item has children)"
-      placeholder: "e.g. has-children"
+      label: "Klasse heeft kinderen (<li> wanneer item kinderen heeft)"
+      placeholder: "bijv. has-children"
     class_expanded:
-      label: "Class expanded (<li> when children block is open)"
-      placeholder: "e.g. is-expanded"
+      label: "Klasse uitgevouwen (<li> wanneer kinderenblok open is)"
+      placeholder: "bijv. is-expanded"
     class_collapsed:
-      label: "Class collapsed (<li> when children block is closed)"
-      placeholder: "e.g. is-collapsed"
-    empty_choice: "— Empty —"
-    css_section_heading: "CSS classes for rendering (override config when set)."
+      label: "Klasse ingeklapt (<li> wanneer kinderenblok gesloten is)"
+      placeholder: "bijv. is-collapsed"
+    empty_choice: "— Leeg —"
+    css_section_heading: "CSS-klassen voor rendering (overschrijven config indien ingesteld)."
+    section_definition: "Definitie (code, basis, naam, context, pictogram)"
+    section_config: "Configuratie (machtigingen, diepte, inklapbaar, CSS)"
 
   menu_item_type:
+    section_basic: "Identiteit (labels)"
+    section_icon: "Identiteit (type, positie, pictogram)"
+    section_config: "Configuratie (link, machtiging)"
+    label_required: "Label is verplicht voor Link en Sectie."
     label:
       label: Label
     label_locale: "Label (%locale%)"
+    divider_label_hint: "Optionele naam voor deze scheiding (aanbevolen voor toegankelijkheid en de dashboardlijst). Laat leeg als u alleen een visuele scheiding nodig hebt."
     type:
       label: Type
       link: Link
-      section: Section
-      divider: Divider
+      section: Sectie
+      divider: Scheiding
+      service: Service (runtime-URL)
+    link_resolver:
+      label: Linkresolver
+      placeholder: "— Resolver kiezen —"
+      help: "Kies een service die MenuLinkResolverInterface implementeert. Deze kan een enkele URL of een lijst van onderliggende linkrijen (label, href, position) retourneren; de bovenliggende href is dan \"#\"."
+      service_id_placeholder: "bijv. App\\Menu\\MyLinkResolver"
+      help_free_text: "Voer de service-id in (klassenaam of container-id) die MenuLinkResolverInterface implementeert."
+      required: Voor type „Service“ is een linkresolver vereist.
+      route_params_hint: "Optionele JSON doorgegeven aan de resolver (bijvoorbeeld routeparameters)."
     position:
-      label: Position
+      label: Positie
     link_type:
-      label: Link type
+      label: Linktype
       route: Route
-      external_url: External URL
+      external_url: Externe URL
     route_name:
-      label: Route name
-      placeholder: "— Select route —"
+      label: Routenaam
+      placeholder: "— Route selecteren —"
     route_params:
-      label: "Route params (JSON)"
+      label: "Routeparameters (JSON)"
       placeholder: "{}"
     external_url:
-      label: External URL
+      label: Externe URL
       placeholder: "https://..."
     target_blank:
-      label: Open in new tab
+      label: Openen in nieuw tabblad
     permission_keys:
-      label: Permission keys
-      placeholder: "— Allow all —"
-      help_csv: "Comma-separated keys (used when no configured choices are available)."
+      label: Machtigingssleutels
+      placeholder: "— Alles toestaan —"
+      help_csv: "Kommagescheiden sleutels (gebruikt wanneer geen geconfigureerde keuzes beschikbaar zijn)."
       choice:
-        authenticated: "Authenticated only"
-        admin: "Admin only"
-        path__: "Path: / (home only)"
+        authenticated: "Alleen geauthenticeerd"
+        admin: "Alleen admin"
+        path__: "Pad: / (alleen startpagina)"
     is_unanimous:
-      label: Require all selected keys
-      help: "Enabled: all keys must pass (AND). Disabled: any key may pass (OR)."
+      label: Alle geselecteerde sleutels vereisen
+      help: "Ingeschakeld: alle sleutels moeten slagen (EN). Uitgeschakeld: één sleutel volstaat (OF)."
     icon:
-      label: Icon
+      label: Pictogram
       placeholder: "heroicons:home"
     parent:
-      label: Parent
-      placeholder: "— Root (no parent) —"
+      label: Ouder
+      placeholder: "— Root (geen ouder) —"
+      help_inheritance: "Ouderitems staan hoger in de boom. Machtigingssleutels op deze rij gelden voor dit item; uw MenuPermissionChecker bepaalt hoe ouder/kind-regels combineren. Secties en uitklapbare links worden alleen getoond als minstens één kind zichtbaar is."
+      circular_violation: "Circulaire ouderhiërarchie is niet toegestaan."
+      section_must_be_root: "Sectie-items moeten op rootniveau blijven (geen ouder)."
+    section_collapsible:
+      label: "Sectiekinderen inklapbaar"
+      inherit: "Menustandaard gebruiken"
+      yes: "Ja (inklapbaar met chevron)"
+      no: "Nee (altijd uitgevouwen)"
+      help: "Overschrijft de menuoptie „Inklapbare secties“ alleen voor deze sectie. „Menustandaard gebruiken“ volgt de menuconfiguratie."
 
   import_menu_type:
     file:
-      label: JSON file
-      required: Please choose a file.
-      mime_message: File must be JSON.
+      label: JSON-bestand
+      required: Kies een bestand.
+      mime_message: Bestand moet JSON zijn.
     strategy:
-      label: When a menu with the same code and context already exists
-      skip_existing: Skip (do not import)
-      replace: Replace (delete existing items and import)
+      label: Wanneer een menu met dezelfde code en context al bestaat
+      skip_existing: Overslaan (niet importeren)
+      replace: Vervangen (bestaande items verwijderen en importeren)
 
   copy_menu_type:
     code:
       label: Code
-      placeholder: "e.g. sidebar_copy"
-      regex_message: "Code must contain only letters, numbers, underscore and hyphen."
+      placeholder: "bijv. sidebar_kopie"
+      regex_message: "Code mag alleen letters, cijfers, underscore en koppelteken bevatten."
     name:
-      label: Name
-      placeholder: "e.g. Sidebar (copy)"
+      label: Naam
+      placeholder: "bijv. Sidebar (kopie)"

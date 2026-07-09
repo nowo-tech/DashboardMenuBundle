@@ -95,7 +95,7 @@ Full details: [docs/USAGE.md](docs/USAGE.md).
 - [Security](docs/SECURITY.md)
 - [Engram](docs/ENGRAM.md)
 - [Spec-driven development](docs/SPEC-DRIVEN-DEVELOPMENT.md)
-
+- [GitHub Spec Kit](docs/SPEC-KIT.md)
 ### Additional documentation
 
 - [Demo with FrankenPHP (development and production)](docs/DEMO-FRANKENPHP.md)
@@ -129,7 +129,7 @@ make -C demo/symfony8 install
 
 Run tests and QA with Docker: `make up && make install && make test` (or `make test-coverage`, `make qa`). Without Docker: `composer install && composer test`. Full details: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
-**Dashboard assets (TS → JS):** Built with **Vite** (as in [IconSelectorBundle](https://github.com/nowo-tech/icon-selector-bundle)). Sources under `src/Resources/assets/src/` (dashboard.ts, stimulus-live.ts, logger.ts). Output: `src/Resources/public/js/dashboard.js` (IIFE) and `js/stimulus-live.js` (ESM), installed by Symfony to `public/bundles/nowodashboardmenu/js/`.
+**Dashboard assets (TS → JS):** Built with **Vite** (as in [IconSelectorBundle](https://github.com/nowo-tech/IconSelectorBundle)). Sources under `src/Resources/assets/src/` (dashboard.ts, stimulus-live.ts, logger.ts). Output: `src/Resources/public/js/dashboard.js` (IIFE) and `js/stimulus-live.js` (ESM), installed by Symfony to `public/bundles/nowodashboardmenu/js/`.
 
 ```bash
 pnpm install

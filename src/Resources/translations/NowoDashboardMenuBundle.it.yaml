@@ -1,4 +1,6 @@
-# Dashboard Menu Bundle – Italiano (chiavi semantiche)
+# NowoDashboardMenuBundle – Italiano (domain: NowoDashboardMenuBundle)
+
+# Dashboard UI
 dashboard:
   title: Dashboard menu
   title_suffix: Menu dashboard
@@ -9,6 +11,10 @@ dashboard:
   edit_menu: Modifica menu
   edit_item: Modifica voce
   edit_items: Modifica voci
+  edit_identity: "Modifica (icona, etichetta, tipo)"
+  edit_labels: "Modifica etichetta e traduzioni"
+  edit_type_position_icon: "Modifica tipo, posizione e icona"
+  edit_config: "Modifica configurazione (genitore, link, permessi)"
   copy: Copia
   copy_menu: Copia menu
   copy_menu_help: "Copia il menu e tutte le voci. Puoi modificare codice e nome del nuovo menu."
@@ -24,13 +30,14 @@ dashboard:
   new_item: Nuova voce
   add_one: Aggiungi una
   add_child: Aggiungi figlio
+  add_child_disabled: "Gli elementi sezione e divisore non possono avere figli"
   search: Cerca
   search_placeholder: "Cerca per codice o nome…"
   clear: Pulisci
   no_menus_yet: "Nessun menu. Creane uno per iniziare."
   no_items: Nessuna voce.
   context: Contesto
-  parent: Padre
+  parent: Genitore
   route_url: "Route / URL"
   item: Voce
   actions: Azioni
@@ -38,6 +45,26 @@ dashboard:
   last: Ultima
   move_up: Sposta su
   move_down: Sposta giù
+  reindex_positions: "Reindicizza posizioni (passo %step%)"
+  reindex_positions_title: "Riassegna posizioni a passi di %step% in ogni gruppo di fratelli (ordine preservato)."
+  reindex_positions_done: "Posizioni reindicizzate con passo %step%."
+  reindex_positions_unchanged: Non è stato necessario cambiare alcuna posizione.
+  check_parent_cycles: Verifica cicli dei genitori
+  check_parent_cycles_title: "Verifica che la catena di genitori non abbia loop infiniti (stesso menu)."
+  check_parent_cycles_ok: Nessun riferimento circolare tra genitori trovato.
+  check_parent_cycles_loop: "Catena di genitori circolare rilevata: %chain%"
+  sortable_page_heading: Riordina trascinando
+  open_sortable_reorder: Riordina (trascina)
+  back_to_items_table: Vista tabella
+  sortable_title: Trascina per riordinare
+  sortable_help: "Trascina gli elementi dalla maniglia per riordinare, annidare sotto un genitore o cambiare livello. Poi applica per salvare."
+  sortable_apply: Applica ordine albero
+  sortable_drag_handle: Trascina per riordinare
+  reorder_tree_done: Albero del menu aggiornato.
+  reorder_tree_invalid_json: Dati albero non validi (JSON).
+  reorder_tree_invalid_payload: Payload albero non valido.
+  reorder_tree_invalid_layout: "Impossibile applicare l'albero (ciclo, limite profondità o elementi mancanti)."
+  reorder_tree_section_not_root: "Le sezioni devono restare a livello radice. Sposta la sezione fuori dalle liste annidate e riapplica."
   edit: Modifica
   create: Crea
   update: Aggiorna
@@ -61,21 +88,23 @@ dashboard:
   toggle: Attiva/disattiva
   yes: Sì
   no: No
-  export: Export
-  export_all: Export all menus
-  import: Import
-  import_help: "Upload a JSON file exported from this dashboard (one menu or all menus). Choose whether to skip menus that already exist (same code + context) or replace their items."
-  import_json_invalid: Invalid JSON file.
-  import_json_error: "Invalid JSON: %message%"
-  import_file_too_large: "File is too large. Maximum size is %max% MiB."
-  import_done: "Import complete: %created% created, %updated% updated, %skipped% skipped."
-  import_format_invalid_root_array: 'Invalid format: a root JSON array must contain only objects with "menu" and "items". You can also use {"menus": [...]} or {"menu": {...}, "items": [...]}.'
-  import_format_expected: 'Invalid format: expected "menu" + "items", or "menus", or a root array of menu blocks.'
+  export: Esporta
+  export_all: Esporta tutti i menu
+  import: Importa
+  import_help: "Carica un file JSON esportato da questa dashboard. Formati accettati: un menu {\"menu\": {...}, \"items\": [...]}, più menu {\"menus\": [{...}, ...]} o la stessa lista come array JSON [{\"menu\": {...}, \"items\": [...]}, ...]. Scegli se saltare i menu già esistenti (stesso codice e contesto) o sostituire le relative voci."
+  import_format_invalid_root_array: 'Formato non valido: un array JSON radice deve contenere solo oggetti con "menu" e "items". Puoi anche usare {"menus": [...]} o {"menu": {...}, "items": [...]}.'
+  import_format_expected: 'Formato non valido: previsto "menu" + "items", o "menus", o un array radice di blocchi menu.'
+  import_json_invalid: File JSON non valido.
+  import_json_error: "JSON non valido: %message%"
+  import_file_too_large: "Il file è troppo grande. Dimensione massima %max% MiB."
+  import_done: "Importazione completata: %created% creati, %updated% aggiornati, %skipped% saltati."
+
+# Form: MenuType
 form:
   menu_type:
     code:
       label: Codice
-      help: "Identificatore univoco (lettere, numeri, _ -). Per i menu base il codice non può essere modificato."
+      help: "Identificatore univoco (lettere, numeri, _ -). Per i menu base il codice non può essere modificato dopo la creazione."
       placeholder: "es. sidebar"
     base:
       label: "Menu base"
@@ -85,30 +114,37 @@ form:
       placeholder: "es. Sidebar"
     context:
       label: Contesto
-      help: "Coppie chiave-valore JSON opzionali per identificare questa variante di menu."
+      help: "Coppie chiave-valore JSON opzionali per identificare questa variante di menu. In risoluzione per codice si usa il primo menu corrispondente nell'elenco ordinato dei contesti; vuoto = fallback per quel codice."
       placeholder: '{"partnerId": 1, "operatorId": 1}'
     icon:
       label: Icona
       help: "Identificativo icona opzionale (es. Symfony UX Icons: heroicons:home, bootstrap:house)."
-      placeholder: "es. heroicons:bars-3"
+      placeholder: "es. heroicons:bars-3, bootstrap:list"
     permission_checker:
       label: Controllo permessi
       placeholder: "— Consenti tutto —"
       allow_all: "— Consenti tutto —"
+      permission_key_aware: "— Per chiave permesso (struttura) —"
       help: "Servizio che implementa MenuPermissionCheckerInterface (vuoto = consenti tutto)."
     depth_limit:
       label: Limite profondità
       placeholder: "vuoto = illimitato"
-      help: "Profondità massima (1 = solo radice; vuoto = illimitato)."
+      help: "Profondità massima da renderizzare (1 = solo radice, 2 = radice + un livello; vuoto = illimitato)."
     collapsible:
       label: "Comprimibile (menu in blocco con toggle)"
     collapsible_expanded:
       label: "Comprimibile espanso (aperto di default)"
     nested_collapsible:
-      label: "Comprimibile annidato"
+      label: "Comprimibile annidato (elementi con figli hanno toggle)"
+    nested_collapsible_sections:
+      label: "Sezioni collassabili"
+      help: "Richiede comprimibile annidato. Se attivo, le righe sezione mostrano un chevron a destra e i link sottostanti possono essere ripiegati. Se disattivo, i figli della sezione restano sempre espansi (senza chevron)."
     class_menu:
       label: "Classe menu (<ul> radice)"
       placeholder: "es. nav flex-column"
+    ul_id:
+      label: "Id ul (radice <ul>)"
+      placeholder: "es. main-menu-navigation"
     class_item:
       label: "Classe voce (<li>)"
       placeholder: "es. nav-item"
@@ -118,38 +154,70 @@ form:
     class_children:
       label: "Classe figli (<ul> annidato)"
       placeholder: "es. nav flex-column ms-2"
+    class_section_children:
+      label: "Classe figli sezione (<ul> sotto itemType \"section\")"
+      placeholder: "es. nav flex-column list-unstyled ps-0 (piatto; vuoto = come figli)"
+      help: "Se impostato, la lista di primo livello sotto ogni sezione usa queste classi invece di «Classe figli», per allineare i link al titolo della sezione (senza rientro). Lasciare vuoto per continuare a usare la classe figli annidati."
+    class_section_child_item:
+      label: "Classe <li> per figli diretti di itemType \"section\""
+      placeholder: "es. nav-item ms-0 (vuoto = come Classe voce)"
+      help: "Se impostato, link e divisori figli diretti di una sezione usano questa classe per <li> invece di «Classe voce». Utile per margini/padding sotto liste piatte di sezione."
+    class_section_child_link:
+      label: "Classe <a> per figli diretti di itemType \"section\""
+      placeholder: "es. d-flex align-items-center ps-0 (vuoto = come Classe link)"
+      help: "Se impostato, i link figli diretti di una sezione usano questa classe per <a> invece di «Classe link». Si abbina alla classe <li> figlio sezione per l'allineamento."
+    class_section_label:
+      label: "Classe etichetta sezione (itemType \"section\")"
+      placeholder: "es. navigation-header"
     class_section:
-      label: "Class section (<li> when itemType \"section\")"
-      placeholder: "e.g. menu-section"
+      label: "Classe sezione (<li> quando itemType \"section\")"
+      placeholder: "es. menu-section"
     class_divider:
-      label: "Class divider (<li> when itemType \"divider\")"
-      placeholder: "e.g. menu-divider"
+      label: "Classe divisore (<li> quando itemType \"divider\")"
+      placeholder: "es. menu-divider"
     class_current:
       label: "Classe corrente (link alla route corrente)"
       placeholder: "es. active"
     class_branch_expanded:
-      label: "Classe ramo espanso"
+      label: "Classe ramo espanso (<li> quando la route è nel ramo)"
       placeholder: "es. active-branch"
     class_has_children:
-      label: "Classe ha figli"
+      label: "Classe ha figli (<li> quando l'elemento ha figli)"
       placeholder: "es. has-children"
     class_expanded:
-      label: "Classe espanso"
+      label: "Classe espanso (<li> quando il blocco figli è aperto)"
       placeholder: "es. is-expanded"
     class_collapsed:
-      label: "Classe compresso"
+      label: "Classe compresso (<li> quando il blocco figli è chiuso)"
       placeholder: "es. is-collapsed"
     empty_choice: "— Vuoto —"
-    css_section_heading: "Classi CSS per il rendering."
+    css_section_heading: "Classi CSS per il rendering (sovrascrivono la config se impostate)."
+    section_definition: "Definizione (codice, base, nome, contesto, icona)"
+    section_config: "Configurazione (permessi, profondità, collassabile, CSS)"
+
   menu_item_type:
+    section_basic: "Identità (etichette)"
+    section_icon: "Identità (tipo, posizione, icona)"
+    section_config: "Configurazione (link, permesso)"
+    label_required: "L'etichetta è obbligatoria per Link e Sezione."
     label:
       label: Etichetta
     label_locale: "Etichetta (%locale%)"
+    divider_label_hint: "Nome opzionale per questo divisore (consigliato per accessibilità e lista dashboard). Lascia vuoto se serve solo un separatore visivo."
     type:
       label: Tipo
       link: Link
       section: Sezione
       divider: Divisore
+      service: Servizio (URL runtime)
+    link_resolver:
+      label: Risolutore link
+      placeholder: "— Seleziona risolutore —"
+      help: "Scegli un servizio che implementa MenuLinkResolverInterface. Può restituire una singola URL o un elenco di righe link figlie (label, href, position); l'href del genitore sarà allora \"#\"."
+      service_id_placeholder: "es. App\\Menu\\MyLinkResolver"
+      help_free_text: "Inserisci l'id del servizio (nome classe o id contenitore) che implementa MenuLinkResolverInterface."
+      required: Il tipo «Servizio» richiede un risolutore link.
+      route_params_hint: "JSON opzionale passato al risolutore (ad esempio parametri simili a route)."
     position:
       label: Posizione
     link_type:
@@ -167,23 +235,42 @@ form:
       placeholder: "https://..."
     target_blank:
       label: Apri in nuova scheda
-    permission_key:
-      label: Chiave permesso
+    permission_keys:
+      label: Chiavi permesso
+      placeholder: "— Consenti tutti —"
+      help_csv: "Chiavi separate da virgola (usate quando non ci sono scelte configurate)."
+      choice:
+        authenticated: "Solo autenticati"
+        admin: "Solo admin"
+        path__: "Percorso: / (solo home)"
+    is_unanimous:
+      label: Richiedi tutte le chiavi selezionate
+      help: "Attivato: tutte le chiavi devono essere soddisfatte (AND). Disattivato: basta una chiave (OR)."
     icon:
       label: Icona
       placeholder: "heroicons:home"
     parent:
-      label: Padre
-      placeholder: "— Radice —"
+      label: Genitore
+      placeholder: "— Radice (nessun genitore) —"
+      help_inheritance: "Gli elementi genitore stanno sopra nell'albero. Le chiavi permesso di questa riga si applicano a questo elemento; il MenuPermissionChecker decide come combinare regole genitore/figlio. Sezioni e link espandibili si mostrano solo se almeno un figlio è visibile."
+      circular_violation: "Gerarchia circolare di genitori non consentita."
+      section_must_be_root: "Gli elementi sezione devono restare a livello radice (nessun genitore)."
+    section_collapsible:
+      label: "Figli sezione collassabili"
+      inherit: "Usa valore menu"
+      yes: "Sì (collassabile con chevron)"
+      no: "No (sempre espansi)"
+      help: "Sovrascrive l'opzione del menu «Sezioni collassabili» solo per questa sezione. «Usa valore menu» segue la configurazione del menu."
+
   import_menu_type:
     file:
-      label: JSON file
-      required: Please choose a file.
-      mime_message: File must be JSON.
+      label: File JSON
+      required: Scegli un file.
+      mime_message: Il file deve essere JSON.
     strategy:
-      label: When a menu with the same code and context already exists
-      skip_existing: Skip (do not import)
-      replace: Replace (delete existing items and import)
+      label: Se esiste già un menu con lo stesso codice e contesto
+      skip_existing: Salta (non importare)
+      replace: Sostituisci (elimina voci esistenti e importa)
 
   copy_menu_type:
     code:

@@ -1,4 +1,6 @@
-# Dashboard Menu Bundle – Deutsch (semantische Schlüssel)
+# NowoDashboardMenuBundle – Deutsch (domain: NowoDashboardMenuBundle)
+
+# Dashboard UI
 dashboard:
   title: Menü-Dashboard
   title_suffix: Dashboard-Menü
@@ -9,6 +11,10 @@ dashboard:
   edit_menu: Menü bearbeiten
   edit_item: Eintrag bearbeiten
   edit_items: Einträge bearbeiten
+  edit_identity: "Bearbeiten (Icon, Bezeichnung, Typ)"
+  edit_labels: "Bezeichnung und Übersetzungen bearbeiten"
+  edit_type_position_icon: "Typ, Position und Icon bearbeiten"
+  edit_config: "Konfiguration bearbeiten (übergeordnet, Link, Berechtigungen)"
   copy: Kopieren
   copy_menu: Menü kopieren
   copy_menu_help: "Menü und alle Einträge kopieren. Code und Name des neuen Menüs können geändert werden."
@@ -16,18 +22,19 @@ dashboard:
   cancel: Abbrechen
   close: Schließen
   confirm_delete: Löschen bestätigen
-  delete_menu_confirm: 'Menü "%name%" und alle Einträge löschen?'
+  delete_menu_confirm: 'Menü „%name%“ und alle Einträge löschen?'
   delete_menu_message: Dieses Menü und alle Einträge löschen?
-  delete_item_confirm: '"%name%" und untergeordnete Einträge löschen?'
-  delete_item_message: Diesen Eintrag und untergeordnete löschen?
+  delete_item_confirm: '„%name%“ und untergeordnete Einträge löschen?'
+  delete_item_message: Diesen Eintrag und untergeordnete Einträge löschen?
   add_item: Eintrag hinzufügen
   new_item: Neuer Eintrag
   add_one: Einen hinzufügen
   add_child: Untereintrag hinzufügen
+  add_child_disabled: "Abschnitts- und Trenner-Einträge können keine untergeordneten Elemente haben"
   search: Suchen
   search_placeholder: "Nach Code oder Name suchen…"
   clear: Zurücksetzen
-  no_menus_yet: "Noch keine Menüs. Erstellen Sie eines."
+  no_menus_yet: "Noch keine Menüs. Erstellen Sie eines, um zu beginnen."
   no_items: Keine Einträge.
   context: Kontext
   parent: Übergeordnet
@@ -38,6 +45,26 @@ dashboard:
   last: Letzte
   move_up: Nach oben
   move_down: Nach unten
+  reindex_positions: "Positionen neu indizieren (Schritt %step%)"
+  reindex_positions_title: "Weist Positionen in Schritten von %step% innerhalb jeder übergeordneten Gruppe neu zu (Reihenfolge bleibt erhalten)."
+  reindex_positions_done: "Positionen mit Schritt %step% neu indiziert."
+  reindex_positions_unchanged: Es waren keine Positionsänderungen nötig.
+  check_parent_cycles: Übergeordnete Zyklen prüfen
+  check_parent_cycles_title: "Prüfen Sie, dass die übergeordnete Kette keine Endlosschleifen hat (gleiches Menü)."
+  check_parent_cycles_ok: Es wurden keine zirkulären übergeordneten Referenzen gefunden.
+  check_parent_cycles_loop: "Zirkuläre übergeordnete Kette erkannt: %chain%"
+  sortable_page_heading: Neu anordnen per Drag
+  open_sortable_reorder: Neu anordnen (ziehen)
+  back_to_items_table: Tabellenansicht
+  sortable_title: Ziehen zum Neuordnen
+  sortable_help: "Ziehen Sie Einträge am Griff, um sie neu anzuordnen, unter einen übergeordneten Eintrag zu verschachteln oder die Ebene zu wechseln. Dann anwenden zum Speichern."
+  sortable_apply: Baumreihenfolge anwenden
+  sortable_drag_handle: Ziehen zum Neuordnen
+  reorder_tree_done: Menübaum aktualisiert.
+  reorder_tree_invalid_json: Ungültige Baumdaten (JSON).
+  reorder_tree_invalid_payload: Ungültige Baumnutzlast.
+  reorder_tree_invalid_layout: "Baum konnte nicht angewendet werden (Zyklus, Tiefenlimit oder fehlende Einträge)."
+  reorder_tree_section_not_root: "Abschnitte müssen auf Wurzelebene bleiben. Verschieben Sie den Abschnitt aus verschachtelten Listen und wenden Sie erneut an."
   edit: Bearbeiten
   create: Erstellen
   update: Aktualisieren
@@ -50,7 +77,7 @@ dashboard:
   depth_limit: Tiefenlimit
   permission_checker: Berechtigungsprüfung
   collapsible: Einklappbar
-  collapsible_expanded: Einklappbar (standardmäßig offen)
+  collapsible_expanded: Einklappbar erweitert
   nested_collapsible: Verschachtelt einklappbar
   css_classes: CSS-Klassen
   root: "— Wurzel —"
@@ -58,9 +85,21 @@ dashboard:
   unique_code_context_error: Ein Menü mit diesem Code und Kontext existiert bereits.
   base: Basis
   base_badge_title: "Basis-Menü: Code kann nach der Erstellung nicht geändert werden."
-  toggle: Um schalten
+  toggle: Umschalten
   yes: Ja
   no: Nein
+  export: Exportieren
+  export_all: Alle Menüs exportieren
+  import: Importieren
+  import_help: "Laden Sie eine aus diesem Dashboard exportierte JSON-Datei hoch. Unterstützte Formen: ein Menü {\"menu\": {...}, \"items\": [...]}, mehrere Menüs {\"menus\": [{...}, ...]} oder dieselbe Liste als JSON-Array [{\"menu\": {...}, \"items\": [...]}, ...]. Wählen Sie, ob bereits vorhandene Menüs (gleicher Code + Kontext) übersprungen oder deren Einträge ersetzt werden."
+  import_format_invalid_root_array: 'Ungültiges Format: Ein JSON-Array auf Wurzelebene darf nur Objekte mit „menu“ und „items“ enthalten. Sie können auch {"menus": [...]} oder {"menu": {...}, "items": [...]} verwenden.'
+  import_format_expected: 'Ungültiges Format: „menu“ + „items“, „menus“ oder ein Wurzel-Array von Menüblöcken erwartet.'
+  import_json_invalid: Ungültige JSON-Datei.
+  import_json_error: "Ungültiges JSON: %message%"
+  import_file_too_large: "Die Datei ist zu groß. Maximale Größe ist %max% MiB."
+  import_done: "Import abgeschlossen: %created% erstellt, %updated% aktualisiert, %skipped% übersprungen."
+
+# Form: MenuType
 form:
   menu_type:
     code:
@@ -75,12 +114,12 @@ form:
       placeholder: "z. B. Sidebar"
     context:
       label: Kontext
-      help: "Optionale JSON-Schlüssel-Wert-Paare zur Identifikation dieser Menüvariante."
+      help: "Optionale JSON-Schlüssel-Wert-Paare zur Identifikation dieser Menüvariante. Bei Auflösung nach Code wird das erste passende Menü in der geordneten Kontextliste verwendet; leer = Fallback für diesen Code."
       placeholder: '{"partnerId": 1, "operatorId": 1}'
     icon:
       label: Icon
       help: "Optionale Icon-Kennung (z. B. Symfony UX Icons: heroicons:home, bootstrap:house)."
-      placeholder: "z. B. heroicons:bars-3"
+      placeholder: "z. B. heroicons:bars-3, bootstrap:list"
     permission_checker:
       label: Berechtigungsprüfung
       placeholder: "— Alle erlauben —"
@@ -90,16 +129,22 @@ form:
     depth_limit:
       label: Tiefenlimit
       placeholder: "leer = unbegrenzt"
-      help: "Maximale Tiefe (1 = nur Wurzel; leer = unbegrenzt)."
+      help: "Maximale Tiefe zum Rendern (1 = nur Wurzel, 2 = Wurzel + eine Ebene; leer = unbegrenzt)."
     collapsible:
       label: "Einklappbar (Menü in ein-/ausblendbarem Block)"
     collapsible_expanded:
-      label: "Einklappbar geöffnet (standardmäßig offen)"
+      label: "Einklappbar erweitert (standardmäßig offen)"
     nested_collapsible:
-      label: "Verschachtelt einklappbar"
+      label: "Verschachtelt einklappbar (Einträge mit Kindern haben Umschalter)"
+    nested_collapsible_sections:
+      label: "Einklappbare Abschnitte"
+      help: "Erfordert verschachtelt einklappbar. Wenn aktiviert, zeigen Abschnittszeilen ein Chevron rechts und ihre Links können eingeklappt werden. Wenn deaktiviert, bleiben Abschnitts-Kinder immer ausgeklappt (ohne Chevron)."
     class_menu:
       label: "Klasse Menü (Stamm-<ul>)"
       placeholder: "z. B. nav flex-column"
+    ul_id:
+      label: "Ul-ID (Stamm-<ul>)"
+      placeholder: "z. B. main-menu-navigation"
     class_item:
       label: "Klasse Eintrag (<li>)"
       placeholder: "z. B. nav-item"
@@ -109,38 +154,70 @@ form:
     class_children:
       label: "Klasse Kinder (verschachteltes <ul>)"
       placeholder: "z. B. nav flex-column ms-2"
+    class_section_children:
+      label: "Klasse Abschnitts-Kinder (<ul> unter itemType „section“)"
+      placeholder: "z. B. nav flex-column list-unstyled ps-0 (flach; leer = wie Kinder)"
+      help: "Wenn gesetzt, verwendet die erste Ebene unter jedem Abschnitt diese Klassen statt „Klasse Kinder“, damit Links mit dem Abschnittstitel ausgerichtet werden (ohne Einrückung). Leer lassen, um die verschachtelte Kinder-Klasse zu verwenden."
+    class_section_child_item:
+      label: "Klasse <li> für direkte Kinder von itemType „section“"
+      placeholder: "z. B. nav-item ms-0 (leer = wie Klasse Eintrag)"
+      help: "Wenn gesetzt, verwenden Links und Trenner, die direkte Kinder eines Abschnitts sind, diese Klasse für <li> statt „Klasse Eintrag“. Für Abstands-/Padding-Anpassungen unter flachen Abschnittslisten."
+    class_section_child_link:
+      label: "Klasse <a> für direkte Kinder von itemType „section“"
+      placeholder: "z. B. d-flex align-items-center ps-0 (leer = wie Klasse Link)"
+      help: "Wenn gesetzt, verwenden Links, die direkte Kinder eines Abschnitts sind, diese Klasse für <a> statt „Klasse Link“. Ergänzt die Abschnitts-Kinder-<li>-Klasse zur Ausrichtung."
+    class_section_label:
+      label: "Klasse Abschnittsbezeichnung (itemType „section“)"
+      placeholder: "z. B. navigation-header"
     class_section:
-      label: "Class section (<li> when itemType \"section\")"
-      placeholder: "e.g. menu-section"
+      label: "Klasse Abschnitt (<li> wenn itemType „section“)"
+      placeholder: "z. B. menu-section"
     class_divider:
-      label: "Class divider (<li> when itemType \"divider\")"
-      placeholder: "e.g. menu-divider"
+      label: "Klasse Trenner (<li> wenn itemType „divider“)"
+      placeholder: "z. B. menu-divider"
     class_current:
       label: "Klasse aktuell (Link zur aktuellen Route)"
       placeholder: "z. B. active"
     class_branch_expanded:
-      label: "Klasse Zweig ausgeklappt"
+      label: "Klasse Zweig ausgeklappt (<li> wenn Route im Zweig)"
       placeholder: "z. B. active-branch"
     class_has_children:
-      label: "Klasse hat Kinder"
+      label: "Klasse hat Kinder (<li> wenn Eintrag Kinder hat)"
       placeholder: "z. B. has-children"
     class_expanded:
-      label: "Klasse ausgeklappt"
+      label: "Klasse ausgeklappt (<li> wenn Kinderblock offen)"
       placeholder: "z. B. is-expanded"
     class_collapsed:
-      label: "Klasse eingeklappt"
+      label: "Klasse eingeklappt (<li> wenn Kinderblock geschlossen)"
       placeholder: "z. B. is-collapsed"
     empty_choice: "— Leer —"
-    css_section_heading: "CSS-Klassen für die Ausgabe."
+    css_section_heading: "CSS-Klassen für die Ausgabe (überschreiben die Konfiguration, wenn gesetzt)."
+    section_definition: "Definition (Code, Basis, Name, Kontext, Icon)"
+    section_config: "Konfiguration (Berechtigungen, Tiefe, einklappbar, CSS)"
+
   menu_item_type:
+    section_basic: "Identität (Bezeichnungen)"
+    section_icon: "Identität (Typ, Position, Icon)"
+    section_config: "Konfiguration (Link, Berechtigung)"
+    label_required: "Bezeichnung ist für Link und Abschnitt erforderlich."
     label:
       label: Bezeichnung
     label_locale: "Bezeichnung (%locale%)"
+    divider_label_hint: "Optionaler Name für diesen Trenner (empfohlen für Barrierefreiheit und die Dashboard-Liste). Leer lassen, wenn nur ein visueller Separator benötigt wird."
     type:
       label: Typ
       link: Link
       section: Abschnitt
       divider: Trennlinie
+      service: Service (Laufzeit-URL)
+    link_resolver:
+      label: Link-Auflöser
+      placeholder: "— Auflöser wählen —"
+      help: "Wählen Sie einen Service, der MenuLinkResolverInterface implementiert. Er kann eine einzelne URL oder eine Liste von untergeordneten Link-Zeilen (label, href, position) zurückgeben; der übergeordnete href ist dann „#“."
+      service_id_placeholder: "z. B. App\\Menu\\MyLinkResolver"
+      help_free_text: "Geben Sie die Service-ID (Klassenname oder Container-ID) ein, die MenuLinkResolverInterface implementiert."
+      required: Für den Typ „Service“ ist ein Link-Auflöser erforderlich.
+      route_params_hint: "Optionales JSON für den Auflöser (z. B. routenähnliche Parameter)."
     position:
       label: Position
     link_type:
@@ -158,23 +235,42 @@ form:
       placeholder: "https://..."
     target_blank:
       label: In neuem Tab öffnen
-    permission_key:
+    permission_keys:
       label: Berechtigungsschlüssel
+      placeholder: "— Alle erlauben —"
+      help_csv: "Kommagetrennte Schlüssel (wird verwendet, wenn keine konfigurierten Auswahlen verfügbar sind)."
+      choice:
+        authenticated: "Nur authentifiziert"
+        admin: "Nur Admin"
+        path__: "Pfad: / (nur Startseite)"
+    is_unanimous:
+      label: Alle ausgewählten Schlüssel erfordern
+      help: "Aktiviert: alle Schlüssel müssen erfüllen (UND). Deaktiviert: ein beliebiger Schlüssel reicht (ODER)."
     icon:
       label: Icon
       placeholder: "heroicons:home"
     parent:
       label: Übergeordnet
-      placeholder: "— Wurzel —"
+      placeholder: "— Wurzel (kein übergeordneter Eintrag) —"
+      help_inheritance: "Übergeordnete Einträge stehen im Baum darüber. Berechtigungsschlüssel in dieser Zeile gelten für diesen Eintrag; Ihr MenuPermissionChecker entscheidet, wie Regeln für übergeordnete/untergeordnete Einträge kombiniert werden. Abschnitte und erweiterbare Links werden nur angezeigt, wenn mindestens ein untergeordneter Eintrag sichtbar ist."
+      circular_violation: "Zirkuläre übergeordnete Hierarchie ist nicht erlaubt."
+      section_must_be_root: "Abschnittseinträge müssen auf Wurzelebene bleiben (kein übergeordneter Eintrag)."
+    section_collapsible:
+      label: "Untergeordnete Abschnittseinträge einklappbar"
+      inherit: "Menüstandard verwenden"
+      yes: "Ja (einklappbar mit Chevron)"
+      no: "Nein (immer ausgeklappt)"
+      help: "Überschreibt die Menüoption „Einklappbare Abschnitte“ nur für diesen Abschnitt. „Menüstandard verwenden“ folgt der Menükonfiguration."
+
   import_menu_type:
     file:
-      label: JSON file
-      required: Please choose a file.
-      mime_message: File must be JSON.
+      label: JSON-Datei
+      required: Bitte wählen Sie eine Datei.
+      mime_message: Die Datei muss JSON sein.
     strategy:
-      label: When a menu with the same code and context already exists
-      skip_existing: Skip (do not import)
-      replace: Replace (delete existing items and import)
+      label: Wenn ein Menü mit dem gleichen Code und Kontext bereits existiert
+      skip_existing: Überspringen (nicht importieren)
+      replace: Ersetzen (vorhandene Einträge löschen und importieren)
 
   copy_menu_type:
     code:

@@ -132,5 +132,7 @@ verify: ensure-up
 	@docker-compose exec -T php php bin/console lint:container && \
 	 docker-compose exec -T php php -r "echo file_get_contents('http://127.0.0.1:80') ? 'OK' : 'FAIL';" 2>/dev/null || true
 
+
 # REQ-MAKE-008: update-deps (REQ-MAKE-008)
-include $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/../../../.scripts/Makefile.demo-update-deps.mk
+BUNDLE_ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/../..)
+include $(BUNDLE_ROOT)/../.scripts/Makefile.demo-update-deps.mk
