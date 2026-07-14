@@ -1120,7 +1120,7 @@
             "dist": {
                 "type": "path",
                 "url": "/var/dashboard-menu-bundle",
-                "reference": "36e3d4f8ef481d42ebe11240ea654d8dde54831b"
+                "reference": "958768c5514ca4c6baa4193bce0008a9ab6068c1"
             },
             "require": {
                 "doctrine/doctrine-bundle": "^2.8 || ^3.0",
@@ -6948,16 +6948,16 @@
         },
         {
             "name": "nowo-tech/twig-inspector-bundle",
-            "version": "v1.0.34",
+            "version": "v1.0.35",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nowo-tech/TwigInspectorBundle.git",
-                "reference": "e926c092b6df59edaded71ec011075e67190c783"
+                "reference": "08e29d6f4e226440c2125e0b9a3f896ce58aa07b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nowo-tech/TwigInspectorBundle/zipball/e926c092b6df59edaded71ec011075e67190c783",
-                "reference": "e926c092b6df59edaded71ec011075e67190c783",
+                "url": "https://api.github.com/repos/nowo-tech/TwigInspectorBundle/zipball/08e29d6f4e226440c2125e0b9a3f896ce58aa07b",
+                "reference": "08e29d6f4e226440c2125e0b9a3f896ce58aa07b",
                 "shasum": ""
             },
             "require": {
@@ -7046,7 +7046,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-07-07T14:45:27+00:00"
+            "time": "2026-07-13T11:13:24+00:00"
         },
         {
             "name": "symfony/debug-bundle",
