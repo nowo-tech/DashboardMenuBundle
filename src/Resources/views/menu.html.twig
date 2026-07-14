@@ -79,7 +79,7 @@
             {% if menuConfig.item_span_active|default(false) %}
                 <span{% if menuConfig.item_span_class is not empty %} class="{{ menuConfig.item_span_class }}"{% endif %}>
             {% endif %}
-                <a href="{{ dashboard_menu_href(item) }}"{% if aClass %} class="{{ aClass }}"{% endif %}{% if item.targetBlank %} target="_blank" rel="noopener noreferrer"{% endif %}>
+                <a href="{{ node.href|default(dashboard_menu_href(item)) }}"{% if aClass %} class="{{ aClass }}"{% endif %}{% if item.targetBlank %} target="_blank" rel="noopener noreferrer"{% endif %}>
                     {% if showIcon %}
                         {% if ':' in iconName %}
                             {% set iconSize = menuConfig.icon_size|default('1em') %}

@@ -14,6 +14,7 @@ use Nowo\DashboardMenuBundle\Service\MenuConfigResolver;
 use Nowo\DashboardMenuBundle\Service\MenuIconNameResolver;
 use Nowo\DashboardMenuBundle\Service\MenuLinkResolverInterface;
 use Nowo\DashboardMenuBundle\Service\MenuPermissionCheckerInterface;
+use Nowo\DashboardMenuBundle\Service\MenuTreeCacheInvalidator;
 use Nowo\DashboardMenuBundle\Service\MenuTreeLoader;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;
@@ -1297,6 +1298,87 @@ class MenuTreeLoaderTest extends TestCase
         self::assertCount(2, $children);
         self::assertSame('DB first', $children[0]['item']->getLabel());
         self::assertSame('Dyn later', $children[1]['item']->getLabel());
+    }
+
+    public function testLoadTreeMissesStaleCacheAfterVersionBump(): void
+    {
+        $raw = [
+            'menu' => [
+                'id'                 => 1, 'code' => 'sidebar', 'attributes_key' => '', 'name' => null, 'icon' => null,
+                'class_menu'         => null, 'class_item' => null, 'class_link' => null, 'class_children' => null,
+                'class_current'      => null, 'class_branch_expanded' => null, 'class_has_children' => null,
+                'class_expanded'     => null, 'class_collapsed' => null, 'permission_checker' => null,
+                'depth_limit'        => null, 'collapsible' => null, 'collapsible_expanded' => null,
+                'nested_collapsible' => null, 'attributes' => null, 'base' => false,
+            ],
+            'items' => [
+                [
+                    'id'             => 1, 'menu_id' => 1, 'parent_id' => null, 'position' => 0,
+                    'label'          => 'Stale', 'translations' => null, 'link_type' => 'route',
+                    'route_name'     => null, 'route_params' => null, 'external_url' => null,
+                    'permission_key' => null, 'icon' => null, 'item_type' => 'link', 'target_blank' => false,
+                ],
+            ],
+        ];
+
+        $freshRaw                      = $raw;
+        $freshRaw['items'][0]['label'] = 'Fresh';
+
+        $staleItem = $this->createMock(CacheItemInterface::class);
+        $staleItem->method('isHit')->willReturn(true);
+        $staleItem->method('get')->willReturn(serialize($raw));
+
+        $saveItem = $this->createMock(CacheItemInterface::class);
+        $saveItem->method('isHit')->willReturn(false);
+        $saveItem->method('set')->willReturnSelf();
+        $saveItem->method('expiresAfter')->willReturnSelf();
+
+        $versionItem = $this->createMock(CacheItemInterface::class);
+        $versionItem->method('isHit')->willReturn(true);
+        $versionItem->method('get')->willReturn(1);
+
+        $cachePool = $this->createMock(CacheItemPoolInterface::class);
+        $cachePool->method('getItem')->willReturnCallback(
+            static function (string $key) use ($staleItem, $saveItem, $versionItem): CacheItemInterface {
+                if ($key === MenuTreeCacheInvalidator::versionKey('sidebar')) {
+                    return $versionItem;
+                }
+                if (str_contains($key, '.v1')) {
+                    return $staleItem;
+                }
+
+                return $saveItem;
+            },
+        );
+        $cachePool->expects(self::once())->method('save')->with($saveItem);
+
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->expects(self::once())->method('findMenuAndItemsRaw')->with('sidebar', [null, []])->willReturn($freshRaw);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+
+        $resolver     = new MenuConfigResolver(['project' => null], $menuRepo);
+        $container    = $this->createStub(ContainerInterface::class);
+        $iconResolver = new MenuIconNameResolver([]);
+        $invalidator  = new MenuTreeCacheInvalidator($cachePool);
+        $loader       = new MenuTreeLoader(
+            $menuRepo,
+            $itemRepo,
+            $resolver,
+            $iconResolver,
+            $container,
+            new AllowAllMenuPermissionChecker(),
+            $container,
+            [],
+            null,
+            $cachePool,
+            60,
+            null,
+            [],
+            $invalidator,
+        );
+
+        $tree = $loader->loadTree('sidebar', 'en');
+        self::assertSame('Fresh', $tree[0]['item']->getLabel());
     }
 
     private function setMenuItemId(MenuItem $item, ?int $id): void

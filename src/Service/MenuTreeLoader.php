@@ -53,6 +53,7 @@ final readonly class MenuTreeLoader
         private ?DashboardMenuDataCollector $dataCollector = null,
         /** @var array<string, string> */
         private array $permissionCheckerChoices = [],
+        private ?MenuTreeCacheInvalidator $cacheInvalidator = null,
     ) {
     }
 
@@ -69,8 +70,9 @@ final readonly class MenuTreeLoader
     {
         $sets = $contextSets ?? [null, []];
 
+        $version  = $this->cacheInvalidator?->getVersionForMenuCode($menuCode) ?? 0;
         $cacheKey = $this->cachePool instanceof CacheItemPoolInterface
-            ? self::CACHE_KEY_PREFIX . md5($menuCode . '.' . $locale . '.' . serialize($sets))
+            ? self::CACHE_KEY_PREFIX . md5($menuCode . '.' . $locale . '.' . serialize($sets) . '.v' . $version)
             : null;
 
         if ($cacheKey !== null) {

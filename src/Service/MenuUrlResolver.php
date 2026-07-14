@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
 use function array_key_exists;
 use function in_array;
@@ -24,21 +25,42 @@ use function is_string;
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
  */
-final readonly class MenuUrlResolver
+final class MenuUrlResolver implements ResetInterface
 {
+    /** @var array<string, string> */
+    private array $hrefMemo = [];
+
     /**
      * @param array<string, string> $menuLinkResolverChoices resolved id => label (after compiler pass)
      */
     public function __construct(
-        private UrlGeneratorInterface $urlGenerator,
-        private RequestStack $requestStack,
-        private RouterInterface $router,
-        private ContainerInterface $container,
-        private array $menuLinkResolverChoices = [],
+        private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly RequestStack $requestStack,
+        private readonly RouterInterface $router,
+        private readonly ContainerInterface $container,
+        private readonly array $menuLinkResolverChoices = [],
     ) {
     }
 
     public function getHref(MenuItem $item, int $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH): string
+    {
+        $cacheKey = $this->hrefCacheKey($item, $referenceType);
+        if (array_key_exists($cacheKey, $this->hrefMemo)) {
+            return $this->hrefMemo[$cacheKey];
+        }
+
+        $href                      = $this->resolveHref($item, $referenceType);
+        $this->hrefMemo[$cacheKey] = $href;
+
+        return $href;
+    }
+
+    public function reset(): void
+    {
+        $this->hrefMemo = [];
+    }
+
+    private function resolveHref(MenuItem $item, int $referenceType): string
     {
         $runtime = $item->getRuntimeHref();
         if ($runtime !== null && $runtime !== '') {
@@ -183,5 +205,12 @@ final readonly class MenuUrlResolver
         $session  = $request->getSession();
         $flashBag = $session->getFlashBag();
         $flashBag->add('error', 'Menu URL: ' . $e->getMessage());
+    }
+
+    private function hrefCacheKey(MenuItem $item, int $referenceType): string
+    {
+        $id = $item->getId();
+
+        return ($id !== null ? (string) $id : 'o' . spl_object_id($item)) . ':' . $referenceType;
     }
 }

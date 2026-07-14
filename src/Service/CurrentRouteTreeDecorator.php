@@ -66,15 +66,28 @@ final readonly class CurrentRouteTreeDecorator
             $children,
         );
 
-        $isCurrent          = $this->isLinkCurrent($item, $normalizedCurrentPath, $currentQuery);
+        $itemType = $item->getItemType();
+        $href     = null;
+        if ($itemType === MenuItem::ITEM_TYPE_LINK || $itemType === MenuItem::ITEM_TYPE_SERVICE) {
+            $href      = $this->urlResolver->getHref($item, UrlGeneratorInterface::ABSOLUTE_PATH);
+            $isCurrent = $this->isLinkCurrent($item, $normalizedCurrentPath, $currentQuery, $href);
+        } else {
+            $isCurrent = false;
+        }
+
         $hasCurrentInBranch = $isCurrent || $this->anyChildHasCurrentInBranch($children);
 
-        return [
+        $decorated = [
             'item'               => $item,
             'children'           => $children,
             'isCurrent'          => $isCurrent,
             'hasCurrentInBranch' => $hasCurrentInBranch,
         ];
+        if ($href !== null) {
+            $decorated['href'] = $href;
+        }
+
+        return $decorated;
     }
 
     /**
@@ -82,12 +95,11 @@ final readonly class CurrentRouteTreeDecorator
      *
      * @param array<string, mixed> $currentQuery
      */
-    private function isLinkCurrent(MenuItem $item, string $normalizedCurrentPath, array $currentQuery): bool
+    private function isLinkCurrent(MenuItem $item, string $normalizedCurrentPath, array $currentQuery, string $href): bool
     {
         if ($item->getItemType() !== MenuItem::ITEM_TYPE_LINK && $item->getItemType() !== MenuItem::ITEM_TYPE_SERVICE) {
             return false;
         }
-        $href     = $this->urlResolver->getHref($item, UrlGeneratorInterface::ABSOLUTE_PATH);
         $linkPath = $this->normalizePath($href);
         if ($linkPath === '' || $linkPath === '#') {
             return false;

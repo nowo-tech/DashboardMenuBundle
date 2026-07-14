@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.43] - 2026-07-14
+
+### Added
+
+- **Menu tree cache invalidation:** `MenuTreeCacheInvalidator` bumps a per-`menu.code` version counter in the configured PSR-6 pool; `MenuCacheInvalidationSubscriber` invalidates on Doctrine `postPersist` / `postUpdate` / `postRemove` for `Menu` and `MenuItem` (including menu `code` renames).
+
+### Changed
+
+- **Frontend menu performance:** `CurrentRouteTreeDecorator` precomputes `href` on link/service nodes; Twig uses `node.href` (fallback `dashboard_menu_href(item)` for custom trees). `MenuUrlResolver` memoizes hrefs per request and implements **`ResetInterface`** (FrankenPHP worker-safe).
+- **Cache reads:** `MenuTreeCacheInvalidator` memoizes version lookups per request (also **`ResetInterface`**) so repeated `loadTree()` calls for the same menu code avoid extra pool reads. Tree cache keys include the version suffix (`.v{N}`).
+
+### Fixed
+
+- **Stale menu cache:** edits in the dashboard, import, or Live Component now invalidate cached trees immediately instead of waiting for TTL.
+
+### Changed (demos / tooling)
+
+- **Demos:** bumped dev dependencies in Symfony 7/8 `composer.lock` (e.g. PHP CS Fixer, Rector); `reference.php` stub alignment.
+- **Repository:** `.gitignore` excludes `.cursor/sandbox.json`.
+
 ## [0.3.42] - 2026-07-09
 
 ### Changed
@@ -621,7 +641,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.42...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.43...HEAD
+[0.3.43]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.42...v0.3.43
 [0.3.42]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.41...v0.3.42
 [0.3.41]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.40...v0.3.41
 [0.3.40]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.39...v0.3.40

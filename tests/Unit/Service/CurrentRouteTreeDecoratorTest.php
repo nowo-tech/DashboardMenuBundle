@@ -69,6 +69,8 @@ final class CurrentRouteTreeDecoratorTest extends TestCase
 
         $children = $rootNode['children'];
         self::assertCount(2, $children);
+        self::assertSame('/status?view=overview', $children[0]['href']);
+        self::assertSame('/status?view=other', $children[1]['href']);
         self::assertTrue($children[0]['isCurrent']);
         self::assertTrue($children[0]['hasCurrentInBranch']);
         self::assertFalse($children[1]['isCurrent']);
@@ -91,7 +93,7 @@ final class CurrentRouteTreeDecoratorTest extends TestCase
         $ref    = new ReflectionClass(CurrentRouteTreeDecorator::class);
         $method = $ref->getMethod('isLinkCurrent');
 
-        self::assertFalse($method->invoke($decorator, $item, '/page', []));
+        self::assertFalse($method->invoke($decorator, $item, '/page', [], '#'));
     }
 
     public function testIsLinkCurrentHandlesEmptyPath(): void
@@ -110,7 +112,7 @@ final class CurrentRouteTreeDecoratorTest extends TestCase
         $ref    = new ReflectionClass(CurrentRouteTreeDecorator::class);
         $method = $ref->getMethod('isLinkCurrent');
 
-        self::assertFalse($method->invoke($decorator, $item, '/status', []));
+        self::assertFalse($method->invoke($decorator, $item, '/status', [], ''));
     }
 
     public function testIsLinkCurrentHandlesHashPath(): void
@@ -129,7 +131,7 @@ final class CurrentRouteTreeDecoratorTest extends TestCase
         $ref    = new ReflectionClass(CurrentRouteTreeDecorator::class);
         $method = $ref->getMethod('isLinkCurrent');
 
-        self::assertFalse($method->invoke($decorator, $item, '/status', []));
+        self::assertFalse($method->invoke($decorator, $item, '/status', [], '#'));
     }
 
     public function testNormalizePathVariants(): void
@@ -394,7 +396,7 @@ final class CurrentRouteTreeDecoratorTest extends TestCase
 
         $normalizedPath = '/page';
         $currentQuery   = ['tags' => 'scalar'];
-        self::assertFalse($method->invoke($decorator, $item, $normalizedPath, $currentQuery));
+        self::assertFalse($method->invoke($decorator, $item, $normalizedPath, $currentQuery, '/page?tags[]=a&tags[]=b'));
     }
 
     /**
@@ -418,7 +420,27 @@ final class CurrentRouteTreeDecoratorTest extends TestCase
 
         $normalizedPath = '/page';
         $currentQuery   = ['tags' => ['a', 'c']];
-        self::assertFalse($method->invoke($decorator, $item, $normalizedPath, $currentQuery));
+        self::assertFalse($method->invoke($decorator, $item, $normalizedPath, $currentQuery, '/page?tags[]=a&tags[]=b'));
+    }
+
+    public function testDecorateDoesNotAddHrefToSectionNodes(): void
+    {
+        $section = new MenuItem();
+        $section->setItemType(MenuItem::ITEM_TYPE_SECTION);
+        $section->setLabel('Section');
+
+        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $urlGenerator->expects(self::never())->method('generate');
+        $requestStack = $this->createMock(\Symfony\Component\HttpFoundation\RequestStack::class);
+        $requestStack->method('getCurrentRequest')->willReturn(null);
+        $urlResolver = $this->createMenuUrlResolver($urlGenerator, $requestStack);
+        $decorator   = new CurrentRouteTreeDecorator($urlResolver);
+
+        $tree    = [['item' => $section, 'children' => []]];
+        $request = Request::create('/status', 'GET');
+        $result  = $decorator->decorate($tree, $request);
+
+        self::assertArrayNotHasKey('href', $result[0]);
     }
 
     private function createMenuUrlResolver(UrlGeneratorInterface $urlGenerator, \Symfony\Component\HttpFoundation\RequestStack $requestStack): MenuUrlResolver

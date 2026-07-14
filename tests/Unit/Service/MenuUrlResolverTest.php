@@ -530,6 +530,46 @@ final class MenuUrlResolverTest extends TestCase
         self::assertSame('#', $menuUrlResolver->getHref($item));
     }
 
+    public function testGetHrefMemoizesResultPerItemAndReferenceType(): void
+    {
+        $item = new MenuItem();
+        $item->setLinkType(MenuItem::LINK_TYPE_ROUTE);
+        $item->setRouteName('app_home');
+
+        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $urlGenerator
+            ->expects(self::once())
+            ->method('generate')
+            ->with('app_home', [], UrlGeneratorInterface::ABSOLUTE_PATH)
+            ->willReturn('/home');
+
+        $resolver = $this->createResolver($urlGenerator, new RequestStack());
+
+        self::assertSame('/home', $resolver->getHref($item));
+        self::assertSame('/home', $resolver->getHref($item));
+        self::assertSame('/home', $resolver->getHref($item, UrlGeneratorInterface::ABSOLUTE_PATH));
+    }
+
+    public function testResetClearsHrefMemoForFrankenPhpWorkerMode(): void
+    {
+        $item = new MenuItem();
+        $item->setLinkType(MenuItem::LINK_TYPE_ROUTE);
+        $item->setRouteName('app_home');
+
+        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $urlGenerator
+            ->expects(self::exactly(2))
+            ->method('generate')
+            ->with('app_home', [], UrlGeneratorInterface::ABSOLUTE_PATH)
+            ->willReturnOnConsecutiveCalls('/first', '/second');
+
+        $resolver = $this->createResolver($urlGenerator, new RequestStack());
+
+        self::assertSame('/first', $resolver->getHref($item));
+        $resolver->reset();
+        self::assertSame('/second', $resolver->getHref($item));
+    }
+
     public function testGetHrefUsesRuntimeHrefWhenSet(): void
     {
         $item = new MenuItem();

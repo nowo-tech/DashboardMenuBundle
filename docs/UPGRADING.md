@@ -2,6 +2,15 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 0.3.42 to 0.3.43
+
+No intentional breaking changes to the public HTTP API or route names.
+
+- **Menu tree cache:** when `nowo_dashboard_menu.cache.pool` is configured, menu/item writes now invalidate cached trees immediately via a version counter (no app changes required). You can raise `cache.ttl` in production if you relied on short TTL only for freshness.
+- **Twig (`menu.html.twig`):** decorated trees from `dashboard_menu_tree()` now include `node.href` on link/service nodes. Custom templates that only call `dashboard_menu_href(item)` still work; passing a tree through `CurrentRouteTreeDecorator` is unchanged for integrators building trees manually.
+- **FrankenPHP / long-lived workers:** `MenuUrlResolver` and `MenuTreeCacheInvalidator` implement Symfony `ResetInterface` so per-request memoization is cleared between requests.
+- **Demos:** dependency lockfile bumps and `reference.php` stub tweaks only; production apps are unaffected unless you copy demo files verbatim.
+
 ## From 0.3.41 to 0.3.42
 
 No intentional breaking changes to the public HTTP API or route names.

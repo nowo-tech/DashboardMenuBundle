@@ -15,6 +15,7 @@ use Nowo\DashboardMenuBundle\Service\MenuCodeResolverInterface;
 use Nowo\DashboardMenuBundle\Service\MenuConfigResolver;
 use Nowo\DashboardMenuBundle\Service\MenuIconNameResolver;
 use Nowo\DashboardMenuBundle\Service\MenuLocaleResolver;
+use Nowo\DashboardMenuBundle\Service\MenuTreeCacheInvalidator;
 use Nowo\DashboardMenuBundle\Service\MenuTreeLoader;
 use Nowo\DashboardMenuBundle\Twig\MenuExtension;
 use Symfony\Component\Config\FileLocator;
@@ -192,9 +193,11 @@ final class DashboardMenuExtension extends Extension
         $container->setParameter(Configuration::ALIAS . '.cache.pool', $cacheConfig['pool'] ?? 'cache.app');
         $menuTreeLoaderDef = $container->getDefinition(MenuTreeLoader::class);
         $menuTreeLoaderDef->setArgument('$cacheTtl', $container->getParameter(Configuration::ALIAS . '.cache.ttl'));
-        $poolName = $cacheConfig['pool'] ?? null;
+        $poolName            = $cacheConfig['pool'] ?? null;
+        $cacheInvalidatorDef = $container->getDefinition(MenuTreeCacheInvalidator::class);
         if ($poolName !== null && $poolName !== '') {
             $menuTreeLoaderDef->setArgument('$cachePool', new Reference($poolName));
+            $cacheInvalidatorDef->setArgument('$cachePool', new Reference($poolName));
         }
         $container->setParameter(Configuration::ALIAS . '.doctrine.connection', $config['doctrine']['connection'] ?? 'default');
         $container->setParameter(Configuration::ALIAS . '.doctrine.table_prefix', $config['doctrine']['table_prefix'] ?? '');

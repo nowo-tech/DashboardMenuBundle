@@ -60,6 +60,10 @@ services:
       - { name: nowo_dashboard_menu.permission_checker, label: 'form.menu_type.permission_checker.permission_key_aware' }
     public: false
 
+  Nowo\DashboardMenuBundle\Service\MenuTreeCacheInvalidator:
+    arguments:
+      $cachePool: null
+
   Nowo\DashboardMenuBundle\Service\MenuTreeLoader:
     arguments:
       $permissionCheckerLocator: !tagged_locator { tag: 'nowo_dashboard_menu.permission_checker' }
@@ -70,6 +74,7 @@ services:
       $menuIconNameResolver: '@Nowo\DashboardMenuBundle\Service\MenuIconNameResolver'
       $cachePool: null
       $cacheTtl: 60
+      $cacheInvalidator: '@Nowo\DashboardMenuBundle\Service\MenuTreeCacheInvalidator'
     public: true
 
   Nowo\DashboardMenuBundle\Service\MenuUrlResolver:
