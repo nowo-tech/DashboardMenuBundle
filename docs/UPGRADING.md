@@ -2,6 +2,12 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 0.3.44 to 0.3.45
+
+No intentional breaking changes to the public HTTP API or route names.
+
+- **Patch release:** CI Composer platform fix for Symfony 8.1 (`platform.php` 8.4.1), GitHub Actions version bumps, and lockfile maintenance. No configuration or public API changes for consuming applications.
+
 ## From 0.3.43 to 0.3.44
 
 No intentional breaking changes to the public HTTP API or route names.

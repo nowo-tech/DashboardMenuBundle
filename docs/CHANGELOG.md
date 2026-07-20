@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.45] - 2026-07-20
+
+### Fixed
+
+- **CI (Symfony 8 matrix):** set Composer `platform.php` to **8.4.1** (not `8.4`) so Symfony **8.1** packages that require `php >=8.4.1` resolve on PHP 8.4/8.5 runners.
+
+### Changed
+
+- **CI / Actions:** bumped `actions/checkout` to v6, `codecov/codecov-action` to v6, and `softprops/action-gh-release` to v3 (workflows `ci.yml`, `release.yml`, `sync-releases.yml`).
+- **Dependencies:** bumped root and Symfony 7 demo `composer.lock` (e.g. PHP CS Fixer).
+
 ## [0.3.44] - 2026-07-20
 
 ### Added
@@ -659,7 +670,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.44...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.45...HEAD
+[0.3.45]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.44...v0.3.45
 [0.3.44]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.43...v0.3.44
 [0.3.43]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.42...v0.3.43
 [0.3.42]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.41...v0.3.42
