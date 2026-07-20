@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.44] - 2026-07-20
+
+### Added
+
+- **REQ-GIT-001 (no Cursor co-author):** `.scripts/check-no-cursor-coauthor.sh`, `.scripts/strip-cursor-coauthor-from-history.sh`, `.githooks/commit-msg`, Cursor rule `.cursor/rules/01-git-commits.mdc`, and docs [`GITHUB_CI.md`](GITHUB_CI.md).
+- **CI:** `git-hygiene` job in `.github/workflows/ci.yml` runs the co-author check on full history.
+- **Makefile:** `setup-hooks`, `check-no-cursor-coauthor`, `strip-cursor-coauthor-from-history`; `release-check` depends on `check-no-cursor-coauthor`.
+- **Code of Conduct:** Contributor Covenant at repository root (`CODE_OF_CONDUCT.md`).
+
+### Changed
+
+- **PHPUnit coverage (`phpunit.xml.dist`):** exclude dashboard HTTP UI, selected compiler passes / heavy services, and Google Translate CLI from the aggregate Clover gate (manual/integration-only surfaces).
+- **Docs:** README links to `GITHUB_CI.md` and Code of Conduct; CONTRIBUTING documents hooks and REQ-GIT-001; RELEASE reminds to re-run the co-author check before push.
+
+### Fixed
+
+- **Demos:** PHP CS Fixer alignment in `config/reference.php` stubs after the 0.3.43 release (Symfony 7/8).
+
 ## [0.3.43] - 2026-07-14
 
 ### Added
@@ -641,7 +659,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.43...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.44...HEAD
+[0.3.44]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.43...v0.3.44
 [0.3.43]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.42...v0.3.43
 [0.3.42]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.41...v0.3.42
 [0.3.41]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.40...v0.3.41

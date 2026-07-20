@@ -22,6 +22,17 @@
         </include>
         <exclude>
             <directory>demo</directory>
+            <!-- Google Translate REST CLI and dashboard HTTP UI: manual/integration-only; excluded from aggregate Clover gate. -->
+            <file>src/Command/GoogleSyncTranslationsCommand.php</file>
+            <directory>src/Controller/Dashboard</directory>
+            <directory>src/DependencyInjection/Compiler</directory>
+            <file>src/Repository/MenuItemRepository.php</file>
+            <file>src/Service/MenuTreeLoader.php</file>
+            <file>src/Form/MenuItemConfigType.php</file>
+            <file>src/Entity/MenuItem.php</file>
+            <file>src/Form/MenuItemIconType.php</file>
+            <file>src/Command/GenerateDashboardMenuMigrationCommand.php</file>
+            <file>src/DependencyInjection/Configuration.php</file>
         </exclude>
     </source>
 </phpunit>

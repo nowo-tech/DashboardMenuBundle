@@ -2,7 +2,7 @@
 
 ## Before releasing
 
-> Current release target: **0.3.43** (`v0.3.43`).
+> Current release target: **0.3.44** (`v0.3.44`).
 
 1. **Run full checks**
 
@@ -31,7 +31,7 @@
    Example for this cycle:
 
    ```bash
-   git tag -a v0.3.43 -m "Release 0.3.43"
+   git tag -a v0.3.44 -m "Release 0.3.44"
    ```
 
 3. **Push the tag**
@@ -43,7 +43,7 @@
    Example for this cycle:
 
    ```bash
-   git push origin v0.3.43
+   git push origin v0.3.44
    ```
 
 4. **GitHub Actions** (if `.github/workflows/release.yml` is configured) will create or update the GitHub Release for that tag, using the tag message and the corresponding section from `docs/CHANGELOG.md` as the release body.
@@ -52,3 +52,5 @@
 
 - Ensure the new version appears on [Packagist](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) (auto-update from GitHub tags, or trigger manually).
 - Bump the development version in `composer.json` if you use a dev version string (e.g. `0.0.2-dev` or `1.0.x-dev` for the next cycle).
+
+After creating the release commit and tag, run `make check-no-cursor-coauthor` again **before** `git push` (REQ-GIT-001). The release commit itself is not covered by an earlier `release-check` run.

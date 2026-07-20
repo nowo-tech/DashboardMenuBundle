@@ -2,6 +2,14 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 0.3.43 to 0.3.44
+
+No intentional breaking changes to the public HTTP API or route names.
+
+- **Patch release:** repository governance (REQ-GIT-001 / Code of Conduct), CI hygiene job, PHPUnit coverage exclusions for dashboard/heavy surfaces, and demo `reference.php` CS Fixer alignment. No configuration or public API changes for consuming applications.
+- **Contributors:** run `make setup-hooks` once per clone so `.githooks/commit-msg` strips Cursor co-author trailers. See [`GITHUB_CI.md`](GITHUB_CI.md).
+- **Coverage gate:** if you consume this repo’s PHPUnit Clover configuration as a template, note the expanded `<exclude>` list in `phpunit.xml.dist`; runtime behaviour of the bundle is unchanged.
+
 ## From 0.3.42 to 0.3.43
 
 No intentional breaking changes to the public HTTP API or route names.
