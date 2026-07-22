@@ -116,7 +116,7 @@ See [docs/INSTALLATION.md](docs/INSTALLATION.md#requirements) and [docs/UPGRADIN
 
 ## Demo
 
-Demos (**Symfony 7** and **8** only in this repo; the bundle also supports **Symfony 6.4** via Composer) are in `demo/symfony7` and `demo/symfony8`. Each uses **FrankenPHP** with **Caddy** (HTTP on port 80 in the container). **`docker-compose`** defaults to **`APP_ENV=dev`**, so the entrypoint uses **Caddyfile.dev** (no PHP worker) so Twig/PHP changes show on refresh. **Worker mode** applies to a production-style Caddyfile — [docs/DEMO-FRANKENPHP.md](docs/DEMO-FRANKENPHP.md). Quick start: [docs/DEMO.md](docs/DEMO.md).
+Demos (**Symfony 7** and **8** only in this repo; the bundle also supports **Symfony 6.4** via Composer) are in `demo/symfony7` and `demo/symfony8`. Each uses **FrankenPHP** with **Caddy** (HTTP on port 80 in the container). Compose defaults to **`APP_ENV=dev`** and **`FRANKENPHP_MODE=worker`**; set **`FRANKENPHP_MODE=classic`** for hot-reload (Caddyfile.dev, no PHP worker) — [docs/DEMO-FRANKENPHP.md](docs/DEMO-FRANKENPHP.md). Quick start: [docs/DEMO.md](docs/DEMO.md).
 
 Default host ports: **8010** (symfony7), **8011** (symfony8) via `PORT` in each demo’s `.env`.
 

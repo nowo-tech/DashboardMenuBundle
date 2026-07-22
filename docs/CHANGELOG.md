@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.46] - 2026-07-22
+
+### Changed
+
+- **Demos (Symfony 7/8):** FrankenPHP classic vs worker is selected with **`FRANKENPHP_MODE`** (`.env` / Compose; default `worker`), independent of `APP_ENV`. Entrypoint extracted to `docker/entrypoint.sh` (no longer an inline Dockerfile script).
+
+### Documentation
+
+- [DEMO-FRANKENPHP.md](DEMO-FRANKENPHP.md), [DEMO.md](DEMO.md), and README: document `FRANKENPHP_MODE` and align overview / troubleshooting with the entrypoint.
+- [UPGRADING.md](UPGRADING.md): 0.3.45 → 0.3.46 (no API or schema changes).
+
 ## [0.3.45] - 2026-07-20
 
 ### Fixed
@@ -670,7 +681,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.45...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.46...HEAD
+[0.3.46]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.45...v0.3.46
 [0.3.45]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.44...v0.3.45
 [0.3.44]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.43...v0.3.44
 [0.3.43]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.42...v0.3.43

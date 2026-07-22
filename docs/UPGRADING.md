@@ -2,6 +2,13 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 0.3.45 to 0.3.46
+
+No intentional breaking changes to the public HTTP API or route names.
+
+- **Patch release:** demo-only FrankenPHP mode switch (`FRANKENPHP_MODE`) and docs. No configuration or public API changes for consuming applications.
+- **Local demos:** FrankenPHP mode is no longer implied by `APP_ENV=dev`. Set **`FRANKENPHP_MODE=classic`** or **`worker`** in `demo/symfony7/.env` / `demo/symfony8/.env` (default `worker`), then recreate the container (`docker compose up -d` / `make up`). See [DEMO-FRANKENPHP.md](DEMO-FRANKENPHP.md).
+
 ## From 0.3.44 to 0.3.45
 
 No intentional breaking changes to the public HTTP API or route names.

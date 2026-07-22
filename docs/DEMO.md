@@ -12,7 +12,7 @@ The bundle includes two demo applications, one per supported Symfony version. Ea
 - **Symfony 7 Demo**: `demo/symfony7/` (port configurable via `PORT` in `.env`, e.g. 8010)
 - **Symfony 8 Demo**: `demo/symfony8/` (port configurable via `PORT` in `.env`, e.g. 8011)
 
-**Docker stack:** Demos use **FrankenPHP** with **Caddy**. By default **`APP_ENV=dev`** uses **Caddyfile.dev** (no PHP worker). A production **Caddyfile** can enable worker mode — see [DEMO-FRANKENPHP.md](DEMO-FRANKENPHP.md). HTTP is served on port 80 inside the container; the host port is mapped via `docker-compose` (e.g. `8010:80` or `8011:80`).
+**Docker stack:** Demos use **FrankenPHP** with **Caddy**. FrankenPHP classic vs worker is selected with **`FRANKENPHP_MODE`** (default **`worker`**; set **`classic`** for hot-reload) — independent of `APP_ENV`. See [DEMO-FRANKENPHP.md](DEMO-FRANKENPHP.md). HTTP is served on port 80 inside the container; the host port is mapped via `docker-compose` (e.g. `8010:80` or `8011:80`).
 
 ## Quick start with Docker
 
@@ -51,7 +51,7 @@ Each demo’s `install` (or `setup`) will run `composer install`, create the dat
 ## What each demo includes
 
 - Independent `docker-compose.yml` and Makefile (`up`, `down`, `install`, `setup`, `test`, `test-coverage`, `update-bundle`, `verify`, etc.).
-- **FrankenPHP** with Caddy (HTTP on port 80 in container; default dev stack uses **Caddyfile.dev** without worker).
+- **FrankenPHP** with Caddy (HTTP on port 80 in container; default **`FRANKENPHP_MODE=worker`**; use **`classic`** for Caddyfile.dev / no worker).
 - Data fixtures: menus (e.g. `sidebar`, `footer`) and multilingual menu items; examples of **context resolution** (same code, different JSON context).
 - Web Profiler (Symfony debug toolbar) and translations for the demo UI.
 
