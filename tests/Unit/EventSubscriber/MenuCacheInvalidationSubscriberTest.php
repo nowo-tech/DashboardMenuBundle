@@ -152,11 +152,13 @@ final class MenuCacheInvalidationSubscriberTest extends TestCase
                     return $this;
                 }
 
+                /** @param list<string> $tags */
                 public function tag(array $tags): static
                 {
                     return $this;
                 }
 
+                /** @return array<string, mixed> */
                 public function getMetadata(): array
                 {
                     return [];

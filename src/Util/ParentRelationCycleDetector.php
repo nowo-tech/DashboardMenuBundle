@@ -8,7 +8,6 @@ use function array_key_exists;
 use function array_keys;
 use function array_search;
 use function array_slice;
-use function array_values;
 use function in_array;
 
 /**
@@ -41,13 +40,17 @@ final class ParentRelationCycleDetector
                         break;
                     }
 
-                    return array_values(array_slice($path, (int) $idx));
+                    return array_slice($path, $idx);
                 }
                 if (!array_key_exists($current, $parentOf)) {
                     break;
                 }
-                $path[]  = $current;
-                $current = $parentOf[$current];
+                $path[] = $current;
+                $next   = $parentOf[$current];
+                if ($next === null) {
+                    break;
+                }
+                $current = $next;
             }
         }
 

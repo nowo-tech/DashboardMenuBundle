@@ -248,16 +248,16 @@
         },
         {
             "name": "doctrine/doctrine-bundle",
-            "version": "2.18.4",
+            "version": "2.19.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/DoctrineBundle.git",
-                "reference": "175f8ffa7ad574e1b5ccb66f1301a21524c88ce6"
+                "reference": "07b90f707b82981097731c419f546e7ba97fba3c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/DoctrineBundle/zipball/175f8ffa7ad574e1b5ccb66f1301a21524c88ce6",
-                "reference": "175f8ffa7ad574e1b5ccb66f1301a21524c88ce6",
+                "url": "https://api.github.com/repos/doctrine/DoctrineBundle/zipball/07b90f707b82981097731c419f546e7ba97fba3c",
+                "reference": "07b90f707b82981097731c419f546e7ba97fba3c",
                 "shasum": ""
             },
             "require": {
@@ -279,7 +279,7 @@
                 "doctrine/cache": "< 1.11",
                 "doctrine/orm": "<2.17 || >=4.0",
                 "symfony/var-exporter": "< 6.4.1 || 7.0.0",
-                "twig/twig": "<2.13 || >=3.0 <3.0.4"
+                "twig/twig": "<2.13 || >=3.0 <3.0.4 || >=5"
             },
             "require-dev": {
                 "doctrine/annotations": "^1 || ^2",
@@ -307,7 +307,7 @@
                 "symfony/var-exporter": "^6.4.1 || ^7.0.1",
                 "symfony/web-profiler-bundle": "^6.4 || ^7.0",
                 "symfony/yaml": "^6.4 || ^7.0",
-                "twig/twig": "^2.14.7 || ^3.0.4"
+                "twig/twig": "^2.14.7 || ^3.0.4 || ^4"
             },
             "suggest": {
                 "doctrine/orm": "The Doctrine ORM integration is optional in the bundle.",
@@ -352,7 +352,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/DoctrineBundle/issues",
-                "source": "https://github.com/doctrine/DoctrineBundle/tree/2.18.4"
+                "source": "https://github.com/doctrine/DoctrineBundle/tree/2.19.0"
             },
             "funding": [
                 {
@@ -368,7 +368,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-07-11T08:41:11+00:00"
+            "time": "2026-07-23T14:52:05+00:00"
         },
         {
             "name": "doctrine/doctrine-migrations-bundle",
@@ -1129,7 +1129,7 @@
             "dist": {
                 "type": "path",
                 "url": "/var/dashboard-menu-bundle",
-                "reference": "6f74861d6307f285541a43897dae2c7d2227255b"
+                "reference": "2d763095589ddad19ef42859f00afc59227672a0"
             },
             "require": {
                 "doctrine/doctrine-bundle": "^2.8 || ^3.0",
@@ -1154,6 +1154,7 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.0",
+                "nowo-tech/phpstan-frankenphp": "^1.0",
                 "phpstan/extension-installer": "^1.0",
                 "phpstan/phpstan": "^2.0",
                 "phpstan/phpstan-phpunit": "^2.0",
@@ -7078,16 +7079,16 @@
         },
         {
             "name": "nowo-tech/twig-inspector-bundle",
-            "version": "v1.0.37",
+            "version": "v1.0.40",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nowo-tech/TwigInspectorBundle.git",
-                "reference": "87f257751802989a5fbe3e61da3cff3737edc928"
+                "reference": "38b44a33602670c6f4f44786dd529472be1aee3b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nowo-tech/TwigInspectorBundle/zipball/87f257751802989a5fbe3e61da3cff3737edc928",
-                "reference": "87f257751802989a5fbe3e61da3cff3737edc928",
+                "url": "https://api.github.com/repos/nowo-tech/TwigInspectorBundle/zipball/38b44a33602670c6f4f44786dd529472be1aee3b",
+                "reference": "38b44a33602670c6f4f44786dd529472be1aee3b",
                 "shasum": ""
             },
             "require": {
@@ -7105,6 +7106,7 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.0",
+                "nowo-tech/phpstan-frankenphp": "^1.0",
                 "phpstan/extension-installer": "^1.4",
                 "phpstan/phpstan": "^2.0",
                 "phpstan/phpstan-symfony": "^2.0",
@@ -7176,7 +7178,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-07-20T08:48:35+00:00"
+            "time": "2026-07-22T16:18:15+00:00"
         },
         {
             "name": "symfony/debug-bundle",

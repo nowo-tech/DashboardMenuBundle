@@ -150,7 +150,7 @@ final class TwigPathsPassTest extends TestCase
     }
 
     /**
-     * @param list<array{0: string, 1: array<int, mixed>}> $calls
+     * @param array<int, array{0: string, 1: array<int, mixed>}> $calls
      */
     private function countMethodCalls(array $calls, string $method): int
     {

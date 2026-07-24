@@ -2,6 +2,13 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 0.3.46 to 0.3.47
+
+No intentional breaking changes to the public HTTP API or route names.
+
+- **Patch release:** PHPStan clean-up (empty baseline), FrankenPHP PHPStan rulesets for maintainers, and lockfile bumps. No configuration or public API changes for consuming applications.
+- **Contributors:** `make phpstan` now also loads `nowo-tech/phpstan-frankenphp` classic/worker rules via `phpstan.neon.dist`. Run `composer update` (or `make install`) so the new dev dependency is present before local static analysis.
+
 ## From 0.3.45 to 0.3.46
 
 No intentional breaking changes to the public HTTP API or route names.

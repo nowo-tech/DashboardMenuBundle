@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.47] - 2026-07-24
+
+### Fixed
+
+- **PHPStan:** cleared `phpstan-baseline.neon` and resolved previously ignored findings across `src/` and `tests/` (redundant type guards, iterable PHPDoc, Twig path parameter casting, cycle detector null parent handling, and unit-test mock typing).
+
+### Changed
+
+- **Dev tooling:** require `nowo-tech/phpstan-frankenphp` and include its classic/worker rulesets from `phpstan.neon.dist`; keep an empty committed `phpstan-baseline.neon` for future ignores.
+- **Dependencies:** bumped root and demo `composer.lock` (e.g. Doctrine Bundle, PHP CS Fixer).
+
+### Documentation
+
+- [UPGRADING.md](UPGRADING.md): 0.3.46 → 0.3.47 (no API or schema changes).
+- [DEVELOPMENT.md](DEVELOPMENT.md): note PHPStan FrankenPHP rulesets and baseline file.
+
 ## [0.3.46] - 2026-07-22
 
 ### Changed
@@ -681,7 +697,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.46...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.47...HEAD
+[0.3.47]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.46...v0.3.47
 [0.3.46]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.45...v0.3.46
 [0.3.45]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.44...v0.3.45
 [0.3.44]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.43...v0.3.44

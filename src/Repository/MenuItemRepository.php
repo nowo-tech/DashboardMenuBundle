@@ -12,6 +12,7 @@ use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Util\ParentRelationCycleDetector;
 
+use function array_is_list;
 use function array_keys;
 use function array_merge;
 use function array_shift;
@@ -225,10 +226,8 @@ class MenuItemRepository extends ServiceEntityRepository
         $out   = [$rootItemId];
         $queue = [$rootItemId];
         while ($queue !== []) {
+            /** @var int $current */
             $current = array_shift($queue);
-            if (!is_int($current)) {
-                continue;
-            }
             if (!isset($childrenByParent[$current])) {
                 continue;
             }
@@ -371,7 +370,7 @@ class MenuItemRepository extends ServiceEntityRepository
      * Applies a full tree layout from a flat list of nodes (id, parent_id, position within siblings).
      * Validates menu ownership, counts, acyclicity, depth limit, and parent–descendant rules.
      *
-     * @param list<array{id: int, parent_id: int|null, position: int}> $nodes
+     * @param array<mixed> $nodes Untrusted tree payload (id, parent_id, position per node)
      */
     public function applyTreeLayout(Menu $menu, array $nodes, int $positionStep): void
     {
@@ -415,7 +414,7 @@ class MenuItemRepository extends ServiceEntityRepository
             if (!is_array($row)) {
                 throw new InvalidArgumentException('each tree node must be an object');
             }
-            $id = $row['id'] ?? 0;
+            $id = isset($row['id']) && is_int($row['id']) ? $row['id'] : (int) ($row['id'] ?? 0);
             if ($id <= 0 || !isset($byId[$id])) {
                 throw new InvalidArgumentException('unknown or invalid item id in tree payload');
             }
@@ -433,7 +432,7 @@ class MenuItemRepository extends ServiceEntityRepository
                 }
             }
 
-            $position = $row['position'] ?? 0;
+            $position = isset($row['position']) && is_int($row['position']) ? $row['position'] : (int) ($row['position'] ?? 0);
 
             $parentOf[$id] = $parentId;
             $pkey          = $parentId === null ? '__root' : (string) $parentId;

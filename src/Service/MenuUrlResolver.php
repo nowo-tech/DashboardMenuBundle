@@ -16,7 +16,6 @@ use Symfony\Contracts\Service\ResetInterface;
 use function array_key_exists;
 use function in_array;
 use function is_array;
-use function is_string;
 
 /**
  * Resolves the href for a menu item (route, external URL, or itemType "service" via MenuLinkResolverInterface).
@@ -154,10 +153,6 @@ final class MenuUrlResolver implements ResetInterface
         }
 
         if (is_array($resolved)) {
-            return '#';
-        }
-
-        if (!is_string($resolved)) {
             return '#';
         }
 

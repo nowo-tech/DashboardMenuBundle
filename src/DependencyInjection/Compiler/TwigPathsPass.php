@@ -9,6 +9,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 use function dirname;
 use function is_dir;
+use function is_string;
 use function rtrim;
 
 /**
@@ -33,10 +34,13 @@ final class TwigPathsPass implements CompilerPassInterface
         $definition = $container->getDefinition($loaderId);
 
         if ($container->hasParameter('kernel.project_dir')) {
-            $projectDir   = rtrim((string) $container->getParameter('kernel.project_dir'), '/\\');
-            $overridePath = $projectDir . '/templates/bundles/NowoDashboardMenuBundle';
-            if (is_dir($overridePath)) {
-                $definition->addMethodCall('prependPath', [$overridePath, self::TWIG_NAMESPACE]);
+            $projectDirParam = $container->getParameter('kernel.project_dir');
+            if (is_string($projectDirParam)) {
+                $projectDir   = rtrim($projectDirParam, '/\\');
+                $overridePath = $projectDir . '/templates/bundles/NowoDashboardMenuBundle';
+                if (is_dir($overridePath)) {
+                    $definition->addMethodCall('prependPath', [$overridePath, self::TWIG_NAMESPACE]);
+                }
             }
         }
 

@@ -52,7 +52,7 @@ final class PermissionCheckerPass implements CompilerPassInterface
         if ($order !== []) {
             $ordered = [];
             foreach ($order as $id) {
-                if (is_string($id) && isset($choices[$id])) {
+                if (isset($choices[$id])) {
                     $ordered[$id] = $choices[$id];
                 }
             }

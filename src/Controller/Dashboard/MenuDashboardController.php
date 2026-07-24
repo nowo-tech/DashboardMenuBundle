@@ -403,7 +403,7 @@ final class MenuDashboardController extends AbstractController
     /**
      * @param list<MenuItem> $items Items for one menu (any order)
      *
-     * @return list<array{item: MenuItem, children: list<array{item: MenuItem, children: array}>}>
+     * @return list<array{item: MenuItem, children: list<array<string, mixed>>}>
      */
     private function buildMenuItemTreeForSortable(array $items): array
     {

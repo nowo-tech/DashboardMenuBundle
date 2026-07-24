@@ -108,7 +108,7 @@ final readonly class MenuImporter
             }
         }
 
-        return ['menus' => array_values($data)];
+        return ['menus' => $data];
     }
 
     /**

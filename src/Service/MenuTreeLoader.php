@@ -16,7 +16,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Throwable;
 
-use function array_is_list;
 use function array_key_exists;
 use function count;
 use function is_array;
@@ -374,8 +373,10 @@ final readonly class MenuTreeLoader
     ): array {
         $out = [];
         foreach ($nodes as $node) {
-            $children = $this->mergeDynamicServiceChildren(
-                $node['children'],
+            /** @var list<array{item: MenuItem, children: list<array<string, mixed>>}> $nestedChildren */
+            $nestedChildren = $node['children'];
+            $children       = $this->mergeDynamicServiceChildren(
+                $nestedChildren,
                 $checker,
                 $permissionContext,
                 $menuCode,
@@ -459,10 +460,6 @@ final readonly class MenuTreeLoader
         }
 
         if (is_string($resolved)) {
-            return [];
-        }
-
-        if (!array_is_list($resolved)) {
             return [];
         }
 
@@ -559,7 +556,7 @@ final readonly class MenuTreeLoader
      *
      * @param list<MenuItem> $flat
      *
-     * @return list<array{item: MenuItem, children: list<array>}>
+     * @return list<array{item: MenuItem, children: list<array<string, mixed>>}>
      */
     private function buildTree(
         array $flat,

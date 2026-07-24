@@ -9,6 +9,7 @@ use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Form\MenuItemType;
 use Nowo\DashboardMenuBundle\LiveComponent\ItemFormLiveComponent;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use ReflectionProperty;
@@ -38,7 +39,10 @@ final class ItemFormLiveComponentTest extends TestCase
     }
 
     /** Stubs root form + icon subform so {@see ItemFormLiveComponent::getItemType()} reads `icon.itemType` from Live values. */
-    private function stubFormTreeWithIconItemTypeField(FormInterface $formMock): void
+    /**
+     * @param FormInterface<mixed>&MockObject $formMock
+     */
+    private function stubFormTreeWithIconItemTypeField(FormInterface&MockObject $formMock): void
     {
         $iconForm = $this->createMock(FormInterface::class);
         $iconForm->method('has')->willReturnCallback(static fn (string $name): bool => $name === 'itemType');

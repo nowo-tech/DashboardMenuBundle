@@ -243,7 +243,7 @@ final class MenuUrlResolverTest extends TestCase
 
         $container = $this->createStub(ContainerInterface::class);
         $container->method('has')->willReturnCallback(static fn (string $id): bool => $id === 'app.menu_dynamic');
-        $container->method('get')->with('app.menu_dynamic')->willReturn($resolver);
+        $container->method('get')->willReturn($resolver);
 
         $item = new MenuItem();
         $item->setItemType(MenuItem::ITEM_TYPE_SERVICE);
@@ -297,7 +297,7 @@ final class MenuUrlResolverTest extends TestCase
 
         $container = $this->createStub(ContainerInterface::class);
         $container->method('has')->willReturnCallback(static fn (string $id): bool => $id === 'app.menu_profile');
-        $container->method('get')->with('app.menu_profile')->willReturn($resolver);
+        $container->method('get')->willReturn($resolver);
 
         $item = new MenuItem();
         $item->setItemType(MenuItem::ITEM_TYPE_SERVICE);
@@ -482,7 +482,7 @@ final class MenuUrlResolverTest extends TestCase
         // Service is registered under its real ID but the item stores the human label
         $container = $this->createStub(ContainerInterface::class);
         $container->method('has')->willReturnCallback(static fn (string $id): bool => $id === 'App\\Service\\MyResolver');
-        $container->method('get')->with('App\\Service\\MyResolver')->willReturn($linkResolver);
+        $container->method('get')->willReturn($linkResolver);
 
         $item = new MenuItem();
         $item->setItemType(MenuItem::ITEM_TYPE_SERVICE);

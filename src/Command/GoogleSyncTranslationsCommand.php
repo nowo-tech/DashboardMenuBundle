@@ -83,6 +83,7 @@ final class GoogleSyncTranslationsCommand extends Command
             return Command::FAILURE;
         }
 
+        /** @var array<string, array{file: string, data: array<mixed>}> $byLocale */
         $byLocale = [];
         foreach ($files as $file) {
             if (!preg_match('/NowoDashboardMenuBundle\.([^.]+)\.yaml$/', $file, $m)) {
@@ -149,7 +150,7 @@ final class GoogleSyncTranslationsCommand extends Command
             return $strict ? Command::FAILURE : Command::SUCCESS;
         }
 
-        $apiKey = trim((string) ($input->getOption('api-key') ?: ($_ENV['GOOGLE_TRANSLATE_API_KEY'] ?? $_SERVER['GOOGLE_TRANSLATE_API_KEY'] ?? '')));
+        $apiKey = trim((string) ($input->getOption('api-key') ?: ($_SERVER['GOOGLE_TRANSLATE_API_KEY'] ?? getenv('GOOGLE_TRANSLATE_API_KEY') ?: '')));
         if ($apiKey === '') {
             $io->error('Google API key required. Use --api-key or GOOGLE_TRANSLATE_API_KEY.');
 
@@ -162,6 +163,7 @@ final class GoogleSyncTranslationsCommand extends Command
                 continue;
             }
 
+            $targetFile = $byLocale[$locale]['file'];
             $targetData = $byLocale[$locale]['data'];
             foreach ($keys as $key) {
                 $source = $baseFlat[$key] ?? null;
@@ -174,10 +176,13 @@ final class GoogleSyncTranslationsCommand extends Command
                 $io->text(sprintf('Translated [%s] %s', $locale, $key));
             }
 
-            $byLocale[$locale]['data'] = $targetData;
+            $byLocale[$locale] = [
+                'file' => $targetFile,
+                'data' => $targetData,
+            ];
             if ($write) {
                 $yaml = Yaml::dump($targetData, 8, 2, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
-                file_put_contents($byLocale[$locale]['file'], $yaml);
+                file_put_contents($targetFile, $yaml);
             }
         }
 
@@ -209,7 +214,7 @@ final class GoogleSyncTranslationsCommand extends Command
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param array<mixed, mixed> $data
      *
      * @return array<string, mixed>
      */
