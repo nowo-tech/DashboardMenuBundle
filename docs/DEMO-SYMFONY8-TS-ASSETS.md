@@ -2,6 +2,15 @@
 
 In `demo/symfony8` the Vite entrypoint is `./assets/app.ts`. Create these files (or run `scripts/create-ts-assets.sh` from `demo/symfony8`) and remove the equivalent `.js` files.
 
+## Table of contents
+
+- [assets/app.ts](#assetsappts)
+- [assets/bootstrap.ts](#assetsbootstrapts)
+- [assets/controllers/hello_controller.ts](#assetscontrollershello_controllerts)
+- [assets/controllers/csrf_protection_controller.ts](#assetscontrollerscsrf_protection_controllerts)
+- [After creating the .ts files](#after-creating-the-ts-files)
+
+
 ## assets/app.ts
 
 ```ts

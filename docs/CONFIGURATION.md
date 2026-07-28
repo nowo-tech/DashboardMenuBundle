@@ -174,10 +174,31 @@ Options for the admin dashboard (list, create, edit, copy menus and manage items
 | `icon_size`               | `1em`          | CSS size used to render menu item icons (applied to SVG via width/height and to legacy icons via `font-size`). Example: `16px`, `1.2em`. |
 | `item_span_active`         | `false`       | When `true`, non-section items are wrapped in an extra `<span>` in `menu.html.twig` (those wrapper lines are otherwise omitted). The wrapper `<span>` class comes from the first non-empty choice in `dashboard.css_class_options.span`. |
 | `import_max_bytes`           | `2097152` (2 MiB) | Maximum size in bytes for JSON import uploads. Reduces DoS risk from very large files. |
-| `required_role`              | `null`         | When set (e.g. `ROLE_ADMIN`), **all** dashboard routes require this role. Requires Symfony SecurityBundle. Leave `null` to rely on your app’s `access_control` or firewall. |
+| `required_role`              | *(deprecated)* | **DEPRECATED** — use `security.access_roles`. Still accepted for BC and mapped to a one-element role list. |
 | `import_export_rate_limit`   | disabled      | Rate limit for import and export actions. When set, use `limit` (requests per window) and `interval` (seconds). E.g. `{ limit: 10, interval: 60 }` = 10 requests per minute per user/IP. Set to `false` or omit to disable. |
 
 **Modal defaults:** `menu_form: normal`, `copy: normal`, `item_form: lg`, `delete: normal`.
+
+## Security (dashboard admin access)
+
+Canonical REQ-UI-002 keys under `nowo_dashboard_menu.security`:
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `access_roles` | `[ROLE_ADMIN]` | User must be granted **at least one** role for dashboard CRUD. Empty list disables bundle-level role checks (rely on firewall / custom checker). |
+| `access_checker` | `null` | Optional service id implementing `DashboardMenuAccessCheckerInterface`. |
+| `allow_unauthenticated` | `false` | **DEV/DEMO only.** When `true`, dashboard may load without SecurityBundle / login. Production **MUST** keep `false`. |
+
+```yaml
+nowo_dashboard_menu:
+    security:
+        access_roles: [ROLE_ADMIN]
+        # access_checker: App\Security\DashboardMenuAccessChecker
+        allow_unauthenticated: false
+    dashboard:
+        enabled: true
+        path_prefix: /admin/menus  # lock with host security.access_control
+```
 
 ## Per-menu options (database)
 

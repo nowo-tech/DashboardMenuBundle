@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Nowo\DashboardMenuBundle\Tests\Service;
+namespace Nowo\DashboardMenuBundle\Tests\Unit\Service;
 
 use Nowo\DashboardMenuBundle\Service\ImportExportRateLimiter;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 
 use function is_array;
@@ -16,16 +17,18 @@ final class ImportExportRateLimiterTest extends TestCase
 {
     public function testConsumeEarlyReturnsWhenLimitOrIntervalInvalid(): void
     {
+        $clock     = new MockClock();
         $cachePool = $this->createMock(CacheItemPoolInterface::class);
         $cachePool->expects(self::never())->method('getItem');
 
-        (new ImportExportRateLimiter($cachePool, 0, 60))->consume('k');
-        (new ImportExportRateLimiter($cachePool, 10, 0))->consume('k');
-        (new ImportExportRateLimiter(null, 10, 60))->consume('k');
+        (new ImportExportRateLimiter($cachePool, 0, 60, $clock))->consume('k');
+        (new ImportExportRateLimiter($cachePool, 10, 0, $clock))->consume('k');
+        (new ImportExportRateLimiter(null, 10, 60, $clock))->consume('k');
     }
 
     public function testConsumeCreatesNewWindowWhenItemNotHit(): void
     {
+        $clock     = new MockClock('2026-07-28T12:00:00+00:00');
         $cachePool = $this->createMock(CacheItemPoolInterface::class);
         $cacheItem = $this->createMock(CacheItemInterface::class);
 
@@ -57,17 +60,18 @@ final class ImportExportRateLimiterTest extends TestCase
             ->with($cacheItem)
             ->willReturn(true);
 
-        $limiter = new ImportExportRateLimiter($cachePool, 10, 60);
+        $limiter = new ImportExportRateLimiter($cachePool, 10, 60, $clock);
         $limiter->consume('key');
     }
 
     public function testConsumeIncrementsWindowWhenItemHitWithinInterval(): void
     {
+        $clock    = new MockClock('2026-07-28T12:00:00+00:00');
+        $now      = $clock->now()->getTimestamp();
+        $interval = 60;
+
         $cachePool = $this->createMock(CacheItemPoolInterface::class);
         $cacheItem = $this->createMock(CacheItemInterface::class);
-
-        $now      = time();
-        $interval = 60;
 
         $cachePool->expects(self::once())
             ->method('getItem')
@@ -101,18 +105,19 @@ final class ImportExportRateLimiterTest extends TestCase
             ->with($cacheItem)
             ->willReturn(true);
 
-        $limiter = new ImportExportRateLimiter($cachePool, 10, $interval);
+        $limiter = new ImportExportRateLimiter($cachePool, 10, $interval, $clock);
         $limiter->consume('key');
     }
 
     public function testConsumeThrowsWhenOverLimit(): void
     {
-        $cachePool = $this->createMock(CacheItemPoolInterface::class);
-        $cacheItem = $this->createMock(CacheItemInterface::class);
-
-        $now      = time();
+        $clock    = new MockClock('2026-07-28T12:00:00+00:00');
+        $now      = $clock->now()->getTimestamp();
         $interval = 60;
         $limit    = 2;
+
+        $cachePool = $this->createMock(CacheItemPoolInterface::class);
+        $cacheItem = $this->createMock(CacheItemInterface::class);
 
         $cachePool->expects(self::once())
             ->method('getItem')
@@ -131,7 +136,7 @@ final class ImportExportRateLimiterTest extends TestCase
 
         $this->expectException(TooManyRequestsHttpException::class);
 
-        $limiter = new ImportExportRateLimiter($cachePool, $limit, $interval);
+        $limiter = new ImportExportRateLimiter($cachePool, $limit, $interval, $clock);
         $limiter->consume('key');
     }
 }

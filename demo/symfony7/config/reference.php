@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 // This file is auto-generated and is for apps only. Bundles SHOULD NOT rely on its content.
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
@@ -1374,7 +1372,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         stimulus_script_url?: scalar|Param|null, // Optional URL of a script that loads Stimulus and the Live controller and sets window.Stimulus. When set, the dashboard layout includes this script so the item form Live Component works in the modal. Use the bundle default (null = use bundled script), or your app entry (e.g. Vite) that exposes window.Stimulus. // Default: null
  *         import_max_bytes?: int|Param, // Maximum size in bytes for JSON import file uploads. Default 2 MiB. Prevents DoS from very large uploads. // Default: 2097152
  *         position_step?: int|Param, // Gap used when re-indexing item positions from the menu detail dashboard (e.g. 100 → positions 100, 200, 300 per sibling group). Minimum 1. // Default: 100
- *         required_role?: scalar|Param|null, // When set (e.g. ROLE_ADMIN), all dashboard routes require this role. Requires SecurityBundle. Leave null to rely on app access_control. // Default: null
+ *         required_role?: scalar|Param|null, // Deprecated: Use "nowo_dashboard_menu.security.access_roles" instead of "dashboard.required_role". // DEPRECATED: use security.access_roles. When set (e.g. ROLE_ADMIN), maps to security.access_roles for BC. // Default: null
  *         import_export_rate_limit?: bool|array{ // Optional rate limit for import and export actions: limit requests per interval per user/IP. E.g. { limit: 10, interval: 60 } = 10 per minute.
  *             enabled?: bool|Param, // Default: true
  *             limit?: int|Param, // Default: 10
@@ -1402,6 +1400,11 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             expanded?: list<scalar|Param|null>,
  *             collapsed?: list<scalar|Param|null>,
  *         },
+ *     },
+ *     security?: array{ // Dashboard admin access control (REQ-UI-002). Host should also lock dashboard.path_prefix via security.access_control.
+ *         access_checker?: scalar|Param|null, // Optional service id implementing DashboardMenuAccessCheckerInterface. Null uses the built-in role checker. // Default: null
+ *         access_roles?: list<scalar|Param|null>,
+ *         allow_unauthenticated?: bool|Param, // DEV/DEMO ONLY. When true, dashboard may load without SecurityBundle / without login. Production MUST keep false. // Default: false
  *     },
  * }
  * @psalm-type NowoTwigInspectorConfig = array{

@@ -8,6 +8,10 @@
          beStrictAboutOutputDuringTests="true"
          failOnRisky="true"
 >
+    <php>
+        <!-- REQ-SF-005: fail on direct deprecations from this package -->
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="max[direct]=0"/>
+    </php>
     <testsuites>
         <testsuite name="unit">
             <directory>tests/Unit</directory>
@@ -21,7 +25,6 @@
             <directory>src</directory>
         </include>
         <exclude>
-            <directory>demo</directory>
             <!-- Google Translate REST CLI and dashboard HTTP UI: manual/integration-only; excluded from aggregate Clover gate. -->
             <file>src/Command/GoogleSyncTranslationsCommand.php</file>
             <directory>src/Controller/Dashboard</directory>

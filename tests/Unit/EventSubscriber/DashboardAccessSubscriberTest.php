@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Nowo\DashboardMenuBundle\Tests\EventSubscriber;
+namespace Nowo\DashboardMenuBundle\Tests\Unit\EventSubscriber;
 
 use Nowo\DashboardMenuBundle\EventSubscriber\DashboardAccessSubscriber;
+use Nowo\DashboardMenuBundle\Security\DashboardMenuAccessCheckerInterface;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\KernelInterface;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 final class DashboardAccessSubscriberTest extends TestCase
@@ -70,51 +70,38 @@ final class DashboardAccessSubscriberTest extends TestCase
         self::assertSame(['onKernelController', 0], $events[KernelEvents::CONTROLLER]);
     }
 
-    public function testOnKernelControllerReturnsWhenRequiredRoleIsNull(): void
+    public function testIgnoresNonDashboardRoutes(): void
     {
-        $subscriber = new DashboardAccessSubscriber(requiredRole: null);
+        $checker = $this->createMock(DashboardMenuAccessCheckerInterface::class);
+        $checker->expects(self::never())->method('canAccess');
 
-        $request = Request::create('/');
-        $event   = $this->createControllerEvent($request);
-
-        self::assertNull($request->attributes->get('_route'));
-
-        $subscriber->onKernelController($event);
-    }
-
-    public function testOnKernelControllerReturnsWhenRouteDoesNotMatchPrefix(): void
-    {
-        $auth = $this->createMock(AuthorizationCheckerInterface::class);
-        $auth->expects(self::never())->method('isGranted');
-
-        $subscriber = new DashboardAccessSubscriber(requiredRole: 'ROLE_X', authorizationChecker: $auth);
-
-        $request = Request::create('/');
+        $subscriber = new DashboardAccessSubscriber($checker);
+        $request    = Request::create('/');
         $request->attributes->set('_route', 'some_other_route');
-
-        $event = $this->createControllerEvent($request);
-
-        $subscriber->onKernelController($event);
+        $subscriber->onKernelController($this->createControllerEvent($request));
     }
 
-    public function testOnKernelControllerThrowsWhenRouteMatchesAndAccessDenied(): void
+    public function testDeniesWhenCheckerFails(): void
     {
-        $auth = $this->createMock(AuthorizationCheckerInterface::class);
-        $auth->expects(self::once())
-            ->method('isGranted')
-            ->with('ROLE_X')
-            ->willReturn(false);
+        $checker = $this->createMock(DashboardMenuAccessCheckerInterface::class);
+        $checker->method('canAccess')->willReturn(false);
 
-        $subscriber = new DashboardAccessSubscriber(requiredRole: 'ROLE_X', authorizationChecker: $auth);
-
-        $request = Request::create('/');
+        $subscriber = new DashboardAccessSubscriber($checker);
+        $request    = Request::create('/');
         $request->attributes->set('_route', 'nowo_dashboard_menu_dashboard_home');
 
-        $event = $this->createControllerEvent($request);
-
         $this->expectException(AccessDeniedException::class);
-        $this->expectExceptionMessage('Dashboard requires role "ROLE_X".');
+        $subscriber->onKernelController($this->createControllerEvent($request));
+    }
 
-        $subscriber->onKernelController($event);
+    public function testAllowsWhenCheckerPasses(): void
+    {
+        $checker = $this->createMock(DashboardMenuAccessCheckerInterface::class);
+        $checker->expects(self::once())->method('canAccess')->willReturn(true);
+
+        $subscriber = new DashboardAccessSubscriber($checker);
+        $request    = Request::create('/');
+        $request->attributes->set('_route', 'nowo_dashboard_menu_dashboard_index');
+        $subscriber->onKernelController($this->createControllerEvent($request));
     }
 }

@@ -1,5 +1,5 @@
 # Makefile for Dashboard Menu Bundle
-.PHONY: help up down build shell install test test-coverage validate-translations cs-check cs-fix qa clean assets ensure-up rector rector-dry phpstan release-check release-check-demos composer-sync update validate check-no-cursor-coauthor strip-cursor-coauthor-from-history
+.PHONY: help up down build shell install test test-coverage coverage-check validate-translations cs-check cs-fix qa clean assets ensure-up rector rector-dry phpstan release-check release-check-demos demo-smoke composer-sync update validate check-no-cursor-coauthor check-open-prs strip-cursor-coauthor-from-history
 
 help:
 	@echo "Dashboard Menu Bundle - Development Commands"
@@ -16,6 +16,8 @@ help:
 	@echo "  assets          Build frontend assets (Vite: dashboard.js + stimulus-live.js)"
 	@echo "  test            Run PHPUnit tests"
 	@echo "  test-coverage   Run PHPUnit tests with code coverage"
+	@echo "  coverage-check  Coverage with fail-under 99% lines"
+	@echo "  demo-smoke      Boot demos and assert HTTP 200"
 	@echo "  validate-translations  Lint bundle translation YAML files"
 	@echo "  cs-check        Check code style"
 	@echo "  cs-fix          Fix code style"
@@ -23,7 +25,7 @@ help:
 	@echo "  rector-dry      Run Rector in dry-run mode"
 	@echo "  phpstan         Run PHPStan static analysis"
 	@echo "  qa              Run all QA checks"
-	@echo "  release-check   Pre-release: cs-fix, cs-check, rector-dry, phpstan, test-coverage, demo verify, Vite assets build"
+	@echo "  release-check   Pre-release gates (PRs, QA, coverage-check, demos, assets)"
 	@echo "  composer-sync   Validate composer.json and align composer.lock"
 	@echo "  clean           Remove vendor and cache"
 	@echo "  update          Run composer update"
@@ -77,6 +79,9 @@ test-coverage: ensure-up
 	$(COMPOSE) exec $(SERVICE_PHP) composer test-coverage | tee coverage-php.txt
 	sh ./.scripts/php-coverage-percent.sh coverage-php.txt
 
+coverage-check: ensure-up
+	@$(COMPOSE) exec -T $(SERVICE_PHP) composer coverage-check
+
 validate-translations: ensure-up
 	$(COMPOSE) exec -T $(SERVICE_PHP) php .scripts/validate-translations.php
 
@@ -108,10 +113,13 @@ update: ensure-up
 validate: ensure-up
 	$(COMPOSE) exec -T $(SERVICE_PHP) composer validate --strict
 
-release-check: check-no-cursor-coauthor ensure-up composer-sync cs-fix cs-check rector-dry phpstan test-coverage release-check-demos assets
+release-check: check-no-cursor-coauthor check-open-prs ensure-up composer-sync cs-fix cs-check rector-dry phpstan coverage-check release-check-demos assets
 
 release-check-demos:
-	@$(MAKE) -C demo release-check 2>/dev/null || true
+	@if [ -f demo/Makefile ]; then $(MAKE) -C demo release-check; else true; fi
+
+demo-smoke:
+	@if [ -f demo/Makefile ]; then $(MAKE) -C demo release-verify; else echo "No demo/Makefile"; exit 1; fi
 
 assets: ensure-up
 	$(COMPOSE) exec -T -e CI=true $(SERVICE_PHP) sh -c "pnpm install --frozen-lockfile || pnpm install"
@@ -119,7 +127,7 @@ assets: ensure-up
 	@echo "✅ Assets built: src/Resources/public/js/dashboard.js, js/stimulus-live.js"
 
 clean:
-	rm -rf vendor node_modules .phpunit.cache coverage coverage.xml .php-cs-fixer.cache coverage-php.txt
+	rm -rf vendor node_modules .phpunit.cache coverage coverage.xml .php-cs-fixer.cache coverage-php.txt coverage-output.txt
 
 
 
@@ -135,6 +143,10 @@ include $(BUNDLE_ROOT)/../.scripts/Makefile.update-deps.mk
 check-no-cursor-coauthor:
 	@chmod +x .scripts/check-no-cursor-coauthor.sh
 	@./.scripts/check-no-cursor-coauthor.sh HEAD
+
+check-open-prs:
+	@chmod +x .scripts/check-open-prs.sh
+	@./.scripts/check-open-prs.sh
 
 strip-cursor-coauthor-from-history:
 	@chmod +x .scripts/strip-cursor-coauthor-from-history.sh

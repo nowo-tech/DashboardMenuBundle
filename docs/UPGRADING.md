@@ -2,6 +2,93 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## Table of contents
+
+- [Unreleased](#unreleased)
+- [From 0.3.47 to 0.3.48](#from-0347-to-0348)
+- [From 0.3.46 to 0.3.47](#from-0346-to-0347)
+- [From 0.3.45 to 0.3.46](#from-0345-to-0346)
+- [From 0.3.44 to 0.3.45](#from-0344-to-0345)
+- [From 0.3.43 to 0.3.44](#from-0343-to-0344)
+- [From 0.3.42 to 0.3.43](#from-0342-to-0343)
+- [From 0.3.41 to 0.3.42](#from-0341-to-0342)
+- [From 0.3.40 to 0.3.41](#from-0340-to-0341)
+- [From 0.3.39 to 0.3.40](#from-0339-to-0340)
+- [From 0.3.38 to 0.3.39](#from-0338-to-0339)
+- [From 0.3.37 to 0.3.38](#from-0337-to-0338)
+- [From 0.3.36 to 0.3.37](#from-0336-to-0337)
+- [From 0.3.35 to 0.3.36](#from-0335-to-0336)
+- [From 0.3.34 to 0.3.35](#from-0334-to-0335)
+- [From 0.3.33 to 0.3.34](#from-0333-to-0334)
+- [From 0.3.32 to 0.3.33](#from-0332-to-0333)
+- [From 0.3.31 to 0.3.32](#from-0331-to-0332)
+- [From 0.3.30 to 0.3.31](#from-0330-to-0331)
+- [From 0.3.29 to 0.3.30](#from-0329-to-0330)
+- [From 0.3.28 to 0.3.29](#from-0328-to-0329)
+- [From 0.3.27 to 0.3.28](#from-0327-to-0328)
+- [From 0.3.26 to 0.3.27](#from-0326-to-0327)
+- [From 0.3.25 to 0.3.26](#from-0325-to-0326)
+- [From 0.3.24 to 0.3.25](#from-0324-to-0325)
+- [From 0.3.22 to 0.3.23](#from-0322-to-0323)
+- [From 0.3.23 to 0.3.24](#from-0323-to-0324)
+- [From 0.3.21 to 0.3.22](#from-0321-to-0322)
+- [From 0.3.20 to 0.3.21](#from-0320-to-0321)
+- [From 0.3.18 to 0.3.19](#from-0318-to-0319)
+- [From 0.3.19 to 0.3.20](#from-0319-to-0320)
+- [From 0.3.17 to 0.3.18](#from-0317-to-0318)
+- [From 0.3.16 to 0.3.17](#from-0316-to-0317)
+- [From 0.3.15 to 0.3.16](#from-0315-to-0316)
+- [From 0.3.14 to 0.3.15](#from-0314-to-0315)
+- [From 0.3.13 to 0.3.14](#from-0313-to-0314)
+- [From 0.3.12 to 0.3.13](#from-0312-to-0313)
+- [From 0.3.11 to 0.3.12](#from-0311-to-0312)
+- [From 0.3.10 to 0.3.11](#from-0310-to-0311)
+- [From 0.3.9 to 0.3.10](#from-039-to-0310)
+- [From 0.3.8 to 0.3.9](#from-038-to-039)
+- [From 0.3.7 to 0.3.8](#from-037-to-038)
+- [From 0.3.6 to 0.3.7](#from-036-to-037)
+- [From 0.3.5 to 0.3.6](#from-035-to-036)
+- [From 0.3.4 to 0.3.5](#from-034-to-035)
+- [From 0.3.3 to 0.3.4](#from-033-to-034)
+- [From 0.3.2 to 0.3.3](#from-032-to-033)
+- [From 0.3.1 to 0.3.2](#from-031-to-032)
+- [From 0.3.0 to 0.3.1](#from-030-to-031)
+- [From 0.2.x to 0.3.0](#from-02x-to-030)
+- [From 0.1.x to 0.3.0](#from-01x-to-030)
+- [From 0.0.1 to 0.1.0](#from-001-to-010)
+- [0.0.1 (first release)](#001-first-release)
+
+## Unreleased
+
+## From 0.3.47 to 0.3.48
+
+### Security / dashboard access (REQ-UI-002)
+
+- Default dashboard access is now **`security.access_roles: [ROLE_ADMIN]`** (no longer “open” when `dashboard.required_role` was unset).
+- Migrate:
+
+```yaml
+# Before
+nowo_dashboard_menu:
+    dashboard:
+        required_role: ROLE_ADMIN
+
+# After
+nowo_dashboard_menu:
+    security:
+        access_roles: [ROLE_ADMIN]
+        allow_unauthenticated: false
+```
+
+- Without SecurityBundle and with `dashboard.enabled: true`, compilation fails unless `security.allow_unauthenticated: true` (demos only).
+- `dashboard.required_role` still works but is deprecated; prefer `security.access_roles`.
+- `ImportExportRateLimiter` now requires `Psr\Clock\ClockInterface` (FrameworkBundle `clock` service is registered by the extension when missing).
+
+### Tooling / CI (maintainers)
+
+- Coverage gate: `make coverage-check` fails under **99%** lines (see [COVERAGE.md](COVERAGE.md)).
+- `make release-check` includes `check-open-prs` and `demo-smoke` where applicable.
+
 ## From 0.3.46 to 0.3.47
 
 No intentional breaking changes to the public HTTP API or route names.

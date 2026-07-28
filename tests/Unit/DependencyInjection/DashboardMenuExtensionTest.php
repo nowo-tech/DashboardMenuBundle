@@ -98,7 +98,7 @@ final class DashboardMenuExtensionTest extends TestCase
         );
     }
 
-    public function testELoadRegistersDashboardAccessSubscriberWhenRequiredRoleProvided(): void
+    public function testELoadSetsSecurityDefaultsAndDoesNotRegisterSubscriberInExtension(): void
     {
         $container = new ContainerBuilder();
         $container->setParameter('kernel.environment', 'prod');
@@ -108,18 +108,98 @@ final class DashboardMenuExtensionTest extends TestCase
             [
                 'doctrine'  => ['connection' => 'default'],
                 'dashboard' => [
-                    'enabled'       => true,
-                    'required_role' => 'ROLE_ADMIN',
+                    'enabled' => true,
                 ],
             ],
         ], $container);
 
-        self::assertTrue($container->hasDefinition(\Nowo\DashboardMenuBundle\EventSubscriber\DashboardAccessSubscriber::class));
-        $def  = $container->getDefinition(\Nowo\DashboardMenuBundle\EventSubscriber\DashboardAccessSubscriber::class);
-        $args = $def->getArguments();
-        self::assertSame('ROLE_ADMIN', $args[0]);
-        self::assertInstanceOf(Reference::class, $args[1]);
-        self::assertSame('security.authorization_checker', (string) $args[1]);
+        self::assertSame(['ROLE_ADMIN'], $container->getParameter(Configuration::ALIAS . '.security.access_roles'));
+        self::assertFalse($container->getParameter(Configuration::ALIAS . '.security.allow_unauthenticated'));
+        self::assertSame('ROLE_ADMIN', $container->getParameter(Configuration::ALIAS . '.dashboard.required_role'));
+        self::assertFalse($container->hasDefinition(\Nowo\DashboardMenuBundle\EventSubscriber\DashboardAccessSubscriber::class));
+        self::assertTrue($container->hasAlias(\Nowo\DashboardMenuBundle\Security\DashboardMenuAccessCheckerInterface::class));
+    }
+
+    public function testLoadMapsLegacyRequiredRoleToAccessRoles(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'prod');
+
+        $extension = new DashboardMenuExtension();
+        $extension->load([
+            [
+                'dashboard' => [
+                    'enabled'       => true,
+                    'required_role' => 'ROLE_SUPER_ADMIN',
+                ],
+            ],
+        ], $container);
+
+        self::assertSame(['ROLE_SUPER_ADMIN'], $container->getParameter(Configuration::ALIAS . '.security.access_roles'));
+    }
+
+    public function testUsesCustomAccessCheckerServiceId(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'prod');
+        $container->setDefinition('app.custom_access_checker', new \Symfony\Component\DependencyInjection\Definition(
+            \Nowo\DashboardMenuBundle\Security\AllowAllDashboardMenuAccessChecker::class,
+        ));
+
+        $extension = new DashboardMenuExtension();
+        $extension->load([
+            [
+                'security' => [
+                    'access_checker' => 'app.custom_access_checker',
+                ],
+            ],
+        ], $container);
+
+        self::assertSame(
+            'app.custom_access_checker',
+            (string) $container->getAlias(\Nowo\DashboardMenuBundle\Security\DashboardMenuAccessCheckerInterface::class),
+        );
+    }
+
+    public function testAllowUnauthenticatedWithoutSecurityUsesAllowAllChecker(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'prod');
+
+        $extension = new DashboardMenuExtension();
+        $extension->load([
+            [
+                'security' => [
+                    'allow_unauthenticated' => true,
+                ],
+            ],
+        ], $container);
+
+        self::assertTrue($container->hasDefinition('nowo_dashboard_menu.access_checker.allow_all'));
+        self::assertSame(
+            'nowo_dashboard_menu.access_checker.allow_all',
+            (string) $container->getAlias(\Nowo\DashboardMenuBundle\Security\DashboardMenuAccessCheckerInterface::class),
+        );
+    }
+
+    public function testDefaultAccessCheckerWiresAuthorizationCheckerWhenPresent(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'prod');
+        $container->setDefinition('security.authorization_checker', new \Symfony\Component\DependencyInjection\Definition());
+        $container->setDefinition('logger', new \Symfony\Component\DependencyInjection\Definition());
+
+        $extension = new DashboardMenuExtension();
+        $extension->load([[]], $container);
+
+        $definition = $container->getDefinition('nowo_dashboard_menu.access_checker.default');
+        self::assertSame(
+            \Nowo\DashboardMenuBundle\Security\ConfigurableDashboardMenuAccessChecker::class,
+            $definition->getClass(),
+        );
+        self::assertArrayHasKey('$authorizationChecker', $definition->getArguments());
+        $limiter = $container->getDefinition(\Nowo\DashboardMenuBundle\Service\ImportExportRateLimiter::class);
+        self::assertArrayHasKey('$logger', $limiter->getArguments());
     }
 
     public function testLoadRegistersParametersAndServicesInProd(): void

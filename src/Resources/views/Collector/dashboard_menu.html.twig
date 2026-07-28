@@ -253,7 +253,15 @@
                             <td><code>{{ bundle_config.dashboard.enabled is defined ? (bundle_config.dashboard.enabled ? 'true' : 'false') : '∅' }}</code></td>
                         </tr>
                         <tr>
-                            <td><code>dashboard.required_role</code></td>
+                            <td><code>security.access_roles</code></td>
+                            <td><code>{{ bundle_config.security.access_roles is defined ? bundle_config.security.access_roles|join(', ') : '∅' }}</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>security.allow_unauthenticated</code></td>
+                            <td><code>{{ bundle_config.security.allow_unauthenticated is defined ? (bundle_config.security.allow_unauthenticated ? 'true' : 'false') : '∅' }}</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>dashboard.required_role</code> (legacy BC)</td>
                             <td><code>{{ bundle_config.dashboard.required_role|default('∅') }}</code></td>
                         </tr>
                         <tr>

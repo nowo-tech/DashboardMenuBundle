@@ -91,7 +91,7 @@ As a maintainer, I enable the bundled dashboard to CRUD menus/items, reorder tre
 
 1. **Given** `nowo_dashboard_menu.dashboard.enabled=true` and routes imported with prefix, **When** user opens index, **Then** paginated menu list renders with create/edit/delete/copy actions.
 2. **Given** reorder page, **When** user drags items and POSTs to `items_reorder_tree`, **Then** positions update using configured `position_step`.
-3. **Given** `dashboard.required_role=ROLE_ADMIN`, **When** unauthorized user hits dashboard route, **Then** `DashboardAccessSubscriber` denies access.
+3. **Given** `security.access_roles=[ROLE_ADMIN]`, **When** unauthorized user hits dashboard route, **Then** `DashboardAccessSubscriber` denies access.
 
 ---
 
@@ -202,7 +202,7 @@ As a bundle maintainer, I sync missing translation keys across locale files.
 - **FR-DASH-002**: `DashboardRoutes` MUST expose stable route name constants for templates and tests.
 - **FR-DASH-003**: Dashboard Twig views MUST render list/detail/forms/modals/reorder UI using translation domain `NowoDashboardMenuBundle` and configurable layout/CSS/modal sizes.
 - **FR-ROUT-002**: `routes_dashboard.yaml` MUST declare dashboard routes (integrator sets URL prefix on import).
-- **FR-SEC-001**: `DashboardAccessSubscriber` MUST require configured `dashboard.required_role` on dashboard routes when SecurityBundle is present.
+- **FR-SEC-001**: `DashboardMenuAccessCheckerInterface` + `DashboardAccessSubscriber` MUST enforce  `DashboardAccessSubscriber` MUST require configured `security.access_roles` on dashboard routes when SecurityBundle is present.
 
 ### Forms
 
@@ -280,7 +280,7 @@ As a bundle maintainer, I sync missing translation keys across locale files.
 | Cache | `cache.ttl`, `cache.pool` | Empty pool disables tree cache |
 | Locales | `locales`, `default_locale` | Whitelist request locale for labels |
 | API | `api.enabled`, `api.path_prefix` | Default prefix `/api/menu` |
-| Dashboard | `dashboard.enabled`, `dashboard.layout_template`, `dashboard.required_role`, `dashboard.import_max_bytes`, `dashboard.css_class_options`, … | See CONFIGURATION.md |
+| Dashboard | `dashboard.enabled`, `dashboard.layout_template`, `security.access_roles`, `dashboard.import_max_bytes`, `dashboard.css_class_options`, … | See CONFIGURATION.md |
 | Plugins | `permission_checker_choices`, `menu_link_resolver_choices` | Order/merge tagged services |
 
 ---
@@ -305,3 +305,8 @@ As a bundle maintainer, I sync missing translation keys across locale files.
 | Config parity | Compare `Configuration.php` with `docs/CONFIGURATION.md` |
 
 When changing behavior, update this spec, `code-inventory.md` if files are added/removed, tests, and integrator docs (`USAGE.md`, `CONFIGURATION.md`, `CHANGELOG.md`).
+
+
+### Security (2026-07-28)
+
+- Canonical `security.access_roles` / `access_checker` / `allow_unauthenticated` (REQ-UI-002).

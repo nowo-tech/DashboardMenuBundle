@@ -1,6 +1,8 @@
 # CI: tests on PHP 8.2–8.5 × Symfony 6.4 / 7.0 / 7.4 / 8.0 / 8.1, 8.1 (Symfony 8 requires PHP 8.4+).
 # Coverage with PCOV; release updated via release.yml on tag push.
 name: CI
+env:
+  SYMFONY_DEPRECATIONS_HELPER: max[direct]=0
 
 on:
   push:
@@ -14,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -44,7 +46,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -94,7 +96,7 @@ jobs:
         if: matrix.php == '8.2' && matrix.symfony == '7.0'
         run: |
           echo "📊 Generating coverage report..."
-          composer test-coverage
+          composer coverage-check
           if [ $? -ne 0 ]; then
             echo "❌ ERROR: Tests failed when generating coverage"
             exit 1
@@ -110,7 +112,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
@@ -152,7 +154,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -172,7 +174,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -191,7 +193,7 @@ jobs:
         run: |
           echo "🧪 Running tests with coverage..."
           rm -rf .phpunit.cache
-          composer test-coverage
+          composer coverage-check
           if [ $? -ne 0 ]; then
             echo "❌ ERROR: Tests failed"
             exit 1
@@ -207,7 +209,7 @@ jobs:
           echo "✅ coverage.xml generated"
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
         with:
           files: coverage.xml
           fail_ci_if_error: false

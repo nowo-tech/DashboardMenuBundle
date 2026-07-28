@@ -1,5 +1,5 @@
 # FrankenPHP (§2.4 BUNDLES_STANDARDS_PROMPT)
-FROM dunglas/frankenphp:1-php8.4-alpine
+FROM dunglas/frankenphp:1-php8.5-alpine
 
 RUN apk add --no-cache git unzip bash curl ca-certificates icu-dev libzip-dev nodejs npm
 RUN install-php-extensions zip pdo_mysql intl

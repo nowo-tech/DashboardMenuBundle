@@ -2184,7 +2184,7 @@ final class MenuDashboardControllerTest extends TestCase
         $em          = $entityManager ?? $this->createMock(EntityManagerInterface::class);
         $exporter    = $menuExporter ?? new MenuExporter($menuRepo, $itemRepo);
         $importer    = $menuImporter ?? new MenuImporter($itemRepo, $menuRepo, $em);
-        $rateLimiter = $importExportRateLimiter ?? new ImportExportRateLimiter(null, 0, 60);
+        $rateLimiter = $importExportRateLimiter ?? new ImportExportRateLimiter(null, 0, 60, new \Symfony\Component\Clock\MockClock());
 
         return new MenuDashboardController(
             $menuRepo,

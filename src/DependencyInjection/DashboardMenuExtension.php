@@ -7,8 +7,10 @@ namespace Nowo\DashboardMenuBundle\DependencyInjection;
 use Nowo\DashboardMenuBundle\DataCollector\DashboardMenuDataCollector;
 use Nowo\DashboardMenuBundle\DataCollector\MenuQueryCounter;
 use Nowo\DashboardMenuBundle\DataCollector\MenuQueryCountMiddleware;
-use Nowo\DashboardMenuBundle\EventSubscriber\DashboardAccessSubscriber;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
+use Nowo\DashboardMenuBundle\Security\AllowAllDashboardMenuAccessChecker;
+use Nowo\DashboardMenuBundle\Security\ConfigurableDashboardMenuAccessChecker;
+use Nowo\DashboardMenuBundle\Security\DashboardMenuAccessCheckerInterface;
 use Nowo\DashboardMenuBundle\Service\DefaultMenuCodeResolver;
 use Nowo\DashboardMenuBundle\Service\ImportExportRateLimiter;
 use Nowo\DashboardMenuBundle\Service\MenuCodeResolverInterface;
@@ -18,8 +20,11 @@ use Nowo\DashboardMenuBundle\Service\MenuLocaleResolver;
 use Nowo\DashboardMenuBundle\Service\MenuTreeCacheInvalidator;
 use Nowo\DashboardMenuBundle\Service\MenuTreeLoader;
 use Nowo\DashboardMenuBundle\Twig\MenuExtension;
+use Psr\Clock\ClockInterface;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
@@ -109,6 +114,7 @@ final class DashboardMenuExtension extends Extension
             'menu_link_resolver_choices' => $config['menu_link_resolver_choices'] ?? [],
             'api'                        => $config['api'] ?? [],
             'dashboard'                  => $config['dashboard'] ?? [],
+            'security'                   => $config['security'] ?? [],
         ];
 
         $container->setParameter(Configuration::ALIAS . '.config', $fullConfig);
@@ -181,7 +187,6 @@ final class DashboardMenuExtension extends Extension
         $container->setParameter(Configuration::ALIAS . '.dashboard.stimulus_script_url', $stimulusUrl);
         $container->setParameter(Configuration::ALIAS . '.dashboard.import_max_bytes', $config['dashboard']['import_max_bytes'] ?? 2097152);
         $container->setParameter(Configuration::ALIAS . '.dashboard.position_step', $config['dashboard']['position_step'] ?? 100);
-        $container->setParameter(Configuration::ALIAS . '.dashboard.required_role', $config['dashboard']['required_role'] ?? null);
         $rateLimitConfig   = $config['dashboard']['import_export_rate_limit'] ?? false;
         $rateLimitLimit    = is_array($rateLimitConfig) ? ($rateLimitConfig['limit'] ?? 10) : 0;
         $rateLimitInterval = is_array($rateLimitConfig) ? ($rateLimitConfig['interval'] ?? 60) : 60;
@@ -217,24 +222,92 @@ final class DashboardMenuExtension extends Extension
         $container->setAlias(MenuCodeResolverInterface::class, DefaultMenuCodeResolver::class)
             ->setPublic(false);
 
-        $requiredRole = $config['dashboard']['required_role'] ?? null;
-        if ($requiredRole !== null && $requiredRole !== '') {
-            $container->register(DashboardAccessSubscriber::class, DashboardAccessSubscriber::class)
-                ->setArguments([
-                    $requiredRole,
-                    new Reference('security.authorization_checker'),
-                ])
-                ->addTag('kernel.event_subscriber');
+        $security = $this->resolveSecurityConfig($config);
+        $container->setParameter(Configuration::ALIAS . '.security.access_roles', $security['access_roles']);
+        $container->setParameter(Configuration::ALIAS . '.security.allow_unauthenticated', $security['allow_unauthenticated']);
+        $container->setParameter(Configuration::ALIAS . '.security.access_checker', $security['access_checker']);
+        // BC parameter for profiler / older docs: first role or null when empty.
+        $legacyRole = $security['access_roles'][0] ?? null;
+        $container->setParameter(Configuration::ALIAS . '.dashboard.required_role', $legacyRole);
+        $this->registerAccessChecker($container, $security);
+
+        if (!$container->has('clock')) {
+            $container->register('clock', NativeClock::class);
+        }
+        if (!$container->hasAlias(ClockInterface::class) && !$container->hasDefinition(ClockInterface::class)) {
+            $container->setAlias(ClockInterface::class, 'clock');
         }
 
-        $cachePoolName = $cacheConfig['pool'] ?? 'cache.app';
-        $container->register(ImportExportRateLimiter::class, ImportExportRateLimiter::class)
+        $cachePoolName  = $cacheConfig['pool'] ?? 'cache.app';
+        $rateLimiterDef = $container->register(ImportExportRateLimiter::class, ImportExportRateLimiter::class)
             ->setArguments([
                 new Reference($cachePoolName),
                 '%' . Configuration::ALIAS . '.dashboard.import_export_rate_limit_limit%',
                 '%' . Configuration::ALIAS . '.dashboard.import_export_rate_limit_interval%',
+                new Reference('clock'),
             ])
             ->setPublic(false);
+        if ($container->hasDefinition('logger') || $container->hasAlias('logger')) {
+            $rateLimiterDef->setArgument('$logger', new Reference('logger'));
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     *
+     * @return array{access_checker: ?string, access_roles: list<string>, allow_unauthenticated: bool}
+     */
+    private function resolveSecurityConfig(array $config): array
+    {
+        /** @var array{access_checker: ?string, access_roles: list<string>, allow_unauthenticated: bool} $security */
+        $security = $config['security'] ?? [
+            'access_checker'        => null,
+            'access_roles'          => ['ROLE_ADMIN'],
+            'allow_unauthenticated' => false,
+        ];
+
+        $legacyRole = $config['dashboard']['required_role'] ?? null;
+        // Prefer explicit non-default security.access_roles; otherwise map legacy scalar.
+        if (is_string($legacyRole) && $legacyRole !== '' && $security['access_roles'] === ['ROLE_ADMIN']) {
+            $security['access_roles'] = [$legacyRole];
+        }
+
+        return $security;
+    }
+
+    /**
+     * @param array{access_checker: ?string, access_roles: list<string>, allow_unauthenticated: bool} $security
+     */
+    private function registerAccessChecker(ContainerBuilder $container, array $security): void
+    {
+        $accessCheckerId = $security['access_checker'] ?? null;
+        if (is_string($accessCheckerId) && $accessCheckerId !== '') {
+            $container->setAlias(DashboardMenuAccessCheckerInterface::class, $accessCheckerId);
+
+            return;
+        }
+
+        $hasAuthorizationChecker = $container->hasDefinition('security.authorization_checker')
+            || $container->hasAlias('security.authorization_checker');
+
+        if ($security['allow_unauthenticated'] && !$hasAuthorizationChecker) {
+            $accessCheckerId = 'nowo_dashboard_menu.access_checker.allow_all';
+            $container->setDefinition($accessCheckerId, new Definition(AllowAllDashboardMenuAccessChecker::class));
+            $container->setAlias(DashboardMenuAccessCheckerInterface::class, $accessCheckerId);
+
+            return;
+        }
+
+        $accessCheckerId = 'nowo_dashboard_menu.access_checker.default';
+        $definition      = new Definition(ConfigurableDashboardMenuAccessChecker::class);
+        $definition->setArgument('$accessRoles', $security['access_roles']);
+        if ($hasAuthorizationChecker) {
+            $definition->setArgument('$authorizationChecker', new Reference('security.authorization_checker'));
+        } else {
+            $definition->setAutowired(true);
+        }
+        $container->setDefinition($accessCheckerId, $definition);
+        $container->setAlias(DashboardMenuAccessCheckerInterface::class, $accessCheckerId);
     }
 
     public function getAlias(): string

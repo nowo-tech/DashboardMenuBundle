@@ -16,11 +16,11 @@ test-coverage-all:
 	@for d in $(DEMOS); do $(MAKE) -C $$d test-coverage || exit 1; done
 	@echo "test-coverage-all done."
 
-release-check: update-bundle-all test-coverage-all release-verify
+release-check: update-bundle-all release-verify
 	@echo "All demos passed release-check."
 
 release-verify:
-	@for d in $(DEMOS); do $(MAKE) -C $$d verify || true; done
+	@for d in $(DEMOS); do $(MAKE) -C $$d verify; done
 
 
 # REQ-MAKE-008: update-deps-all (REQ-MAKE-008)

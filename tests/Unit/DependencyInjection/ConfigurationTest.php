@@ -46,6 +46,9 @@ final class ConfigurationTest extends TestCase
         self::assertArrayHasKey('section_child_link', $config['dashboard']['css_class_options']);
         self::assertSame([], $config['permission_checker_choices']);
         self::assertSame([], $config['menu_link_resolver_choices']);
+        self::assertSame(['ROLE_ADMIN'], $config['security']['access_roles']);
+        self::assertFalse($config['security']['allow_unauthenticated']);
+        self::assertNull($config['security']['access_checker']);
     }
 
     public function testProcessConfigurationMergesCustomConfig(): void

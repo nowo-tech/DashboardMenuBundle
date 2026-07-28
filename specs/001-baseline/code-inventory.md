@@ -264,3 +264,9 @@ This file proves that **every production source artifact** under `src/` is refer
 | **Total production sources** | **119** | **119** |
 
 Built JavaScript is documented as published output of TypeScript sources; maintainers rebuild when TS changes.
+| `EventSubscriber/MenuCacheInvalidationSubscriber.php` | Invalidate menu tree cache on Doctrine updates | FR-CACHE-001 |
+| `Service/MenuTreeCacheInvalidator.php` | Cache invalidation helper for menu trees | FR-CACHE-001 |
+| `Security/DashboardMenuAccessCheckerInterface.php` | Dashboard admin access gate contract | FR-SEC-001 |
+| `Security/ConfigurableDashboardMenuAccessChecker.php` | Role-based access checker | FR-SEC-001 |
+| `Security/AllowAllDashboardMenuAccessChecker.php` | Demo/dev permissive access checker | FR-SEC-001 |
+| `DependencyInjection/Compiler/DashboardMenuSecurityPass.php` | Compile-time security gate for dashboard | FR-SEC-001 |

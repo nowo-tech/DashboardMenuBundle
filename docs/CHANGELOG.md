@@ -2,10 +2,88 @@
 
 All notable changes to this project will be documented in this file.
 
+## Table of contents
+
+- [[Unreleased]](#unreleased)
+- [[0.3.48] - 2026-07-29](#0348-2026-07-29)
+- [[0.3.47] - 2026-07-24](#0347-2026-07-24)
+- [[0.3.46] - 2026-07-22](#0346-2026-07-22)
+- [[0.3.45] - 2026-07-20](#0345-2026-07-20)
+- [[0.3.44] - 2026-07-20](#0344-2026-07-20)
+- [[0.3.43] - 2026-07-14](#0343-2026-07-14)
+- [[0.3.42] - 2026-07-09](#0342-2026-07-09)
+- [[0.3.41] - 2026-07-09](#0341-2026-07-09)
+- [[0.3.40] - 2026-04-15](#0340-2026-04-15)
+- [[0.3.39] - 2026-04-13](#0339-2026-04-13)
+- [[0.3.38] - 2026-04-07](#0338-2026-04-07)
+- [[0.3.37] - 2026-04-06](#0337-2026-04-06)
+- [[0.3.36] - 2026-04-01](#0336-2026-04-01)
+- [[0.3.35] - 2026-04-01](#0335-2026-04-01)
+- [[0.3.34] - 2026-03-31](#0334-2026-03-31)
+- [[0.3.33] - 2026-03-24](#0333-2026-03-24)
+- [[0.3.32] - 2026-03-24](#0332-2026-03-24)
+- [[0.3.31] - 2026-03-24](#0331-2026-03-24)
+- [[0.3.30] - 2026-03-24](#0330-2026-03-24)
+- [[0.3.29] - 2026-03-23](#0329-2026-03-23)
+- [[0.3.28] - 2026-03-23](#0328-2026-03-23)
+- [[0.3.27] - 2026-03-23](#0327-2026-03-23)
+- [[0.3.26] - 2026-03-23](#0326-2026-03-23)
+- [[0.3.25] - 2026-03-20](#0325-2026-03-20)
+- [[0.3.24] - 2026-03-20](#0324-2026-03-20)
+- [[0.3.23] - 2026-03-20](#0323-2026-03-20)
+- [[0.3.22] - 2026-03-20](#0322-2026-03-20)
+- [[0.3.21] - 2026-03-20](#0321-2026-03-20)
+- [[0.3.20] - 2026-03-20](#0320-2026-03-20)
+- [[0.3.19] - 2026-03-20](#0319-2026-03-20)
+- [[0.3.18] - 2026-03-20](#0318-2026-03-20)
+- [[0.3.17] - 2026-03-19](#0317-2026-03-19)
+- [[0.3.16] - 2026-03-20](#0316-2026-03-20)
+- [[0.3.15] - 2026-03-16](#0315-2026-03-16)
+- [[0.3.13] - 2026-03-18](#0313-2026-03-18)
+- [[0.3.12] - 2026-03-18](#0312-2026-03-18)
+- [[0.3.11] - 2026-03-18](#0311-2026-03-18)
+- [[0.3.10] - 2026-03-18](#0310-2026-03-18)
+- [[0.3.9] - 2026-03-19](#039-2026-03-19)
+- [[0.3.8] - 2026-03-18](#038-2026-03-18)
+- [[0.3.7] - 2026-03-18](#037-2026-03-18)
+- [[0.3.6] - 2026-03-18](#036-2026-03-18)
+- [[0.3.5] - 2026-03-18](#035-2026-03-18)
+- [[0.3.4] - 2026-03-18](#034-2026-03-18)
+- [[0.3.3] - 2026-03-17](#033-2026-03-17)
+- [[0.3.2] - 2026-03-17](#032-2026-03-17)
+- [[0.3.1] - 2026-03-17](#031-2026-03-17)
+- [[0.3.0] - 2026-03-17](#030-2026-03-17)
+- [[0.2.0] - 2026-03-18](#020-2026-03-18)
+- [[0.1.0] - 2026-03-17](#010-2026-03-17)
+- [[0.0.1] - 2026-03-10](#001-2026-03-10)
+
+
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.3.48] - 2026-07-29
+
+### Added
+
+- **Security (REQ-UI-002):** canonical `security.access_roles` (default `ROLE_ADMIN`), optional `access_checker`, `allow_unauthenticated` (demo/dev only); `DashboardMenuAccessCheckerInterface` + Configurable/AllowAll checkers; `DashboardMenuSecurityPass`.
+- **Docs (REQ-DOCS-005 / REQ-TEST-003):** TOC on long docs; [`COVERAGE.md`](COVERAGE.md) for the PHPUnit coverage gate.
+- **Tooling (REQ-REL-003 / REQ-MAKE-002 / REQ-TEST-003 / REQ-TEST-011):** `check-open-prs`, `coverage-check` (fail-under 99%), `demo-smoke` in `release-check`.
+
+### Changed
+
+- **Config BC:** `dashboard.required_role` maps to `security.access_roles` (deprecated config node). Default access is no longer open when `required_role` was unset.
+- **DI (REQ-DI-001 / REQ-OBS-001):** `ImportExportRateLimiter` uses `Psr\Clock\ClockInterface` and optional `LoggerInterface`.
+- **CI / PHPUnit (REQ-SF-005):** `SYMFONY_DEPRECATIONS_HELPER=max[direct]=0`.
+- **Demos (REQ-DEMO-010):** Symfony 8 FrankenPHP image `1-php8.5-alpine`; demos set `security.allow_unauthenticated: true`.
+- **Dependencies:** Dependabot bumps (PHPStan, PHP CS Fixer, Rector, `actions/cache` v6).
+- **Demos / QA:** `demo/Makefile` `release-check` runs update + HTTP verify (no nested path-repo PHPUnit coverage); drop redundant `demo` exclude from `phpunit.xml.dist` that broke coverage walks via Composer path symlinks.
+
+### Documentation
+
+- [UPGRADING.md](UPGRADING.md): 0.3.47 → 0.3.48 (security config migration).
+- [CONFIGURATION.md](CONFIGURATION.md), [SECURITY.md](SECURITY.md), [GITHUB_CI.md](GITHUB_CI.md): security + coverage gate notes.
 
 ## [0.3.47] - 2026-07-24
 
@@ -697,7 +775,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.47...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.48...HEAD
+[0.3.48]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.47...v0.3.48
 [0.3.47]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.46...v0.3.47
 [0.3.46]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.45...v0.3.46
 [0.3.45]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.44...v0.3.45

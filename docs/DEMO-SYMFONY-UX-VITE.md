@@ -2,6 +2,21 @@
 
 The bundle demos use **Symfony UX** with **Stimulus** and **Vite** in **TypeScript** (pentatrion/vite-bundle + vite-plugin-symfony) so the icon selector and other Stimulus controllers work in the dashboard, including the AJAX-loaded item form inside the modal.
 
+## Table of contents
+
+- [Installed packages](#installed-packages)
+- [Asset structure (TypeScript)](#asset-structure-typescript)
+  - [1. `vite.config.ts`](#1-viteconfigts)
+  - [2. `assets/app.ts`](#2-assetsappts)
+  - [3. `assets/bootstrap.ts`](#3-assetsbootstrapts)
+  - [4. `assets/controllers/hello_controller.ts` (example)](#4-assetscontrollershello_controllerts-example)
+  - [5. `package.json` (scripts and dependencies)](#5-packagejson-scripts-and-dependencies)
+- [Symfony configuration](#symfony-configuration)
+- [Dashboard layout](#dashboard-layout)
+- [Development](#development)
+- [Icon selector](#icon-selector)
+
+
 ## Installed packages
 
 - **symfony/stimulus-bundle**: Stimulus integration (controllers via `data-controller`, Twig `stimulus_controller()`, etc.).
