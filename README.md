@@ -14,13 +14,15 @@ This bundle is **FrankenPHP worker mode friendly**.
 
 - [Features](#features)
 - [Installation](#installation)
+- [Requirements](#requirements)
 - [Configuration](#configuration)
 - [Usage](#usage)
-- [Documentation](#documentation)
-- [Requirements](#requirements)
 - [Demo](#demo)
 - [Development](#development)
-- [License & author](#license--author)
+- [Documentation](#documentation)
+- [Tests and coverage](#tests-and-coverage)
+- [License](#license)
+- [Author](#author)
 
 ## Features
 
@@ -43,6 +45,15 @@ composer require nowo-tech/dashboard-menu-bundle
 [![Install from Packagist](https://img.shields.io/badge/Packagist-install-777BB4?logo=composer)](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle)
 
 With **Symfony Flex**, the recipe (if available) registers the bundle and adds config/routes. Without Flex, see [docs/INSTALLATION.md](docs/INSTALLATION.md) for manual steps.
+
+## Requirements
+
+- PHP >= 8.2, < 8.6
+- Symfony 6.4 (LTS), 7.x or 8.x (^6.4 || ^7.0 || ^8.0)
+- Doctrine ORM ^2.13 || ^3.0 (no Gedmo/Stof required)
+- Symfony UX Autocomplete & Live Component (installed with the bundle): **2.x** (from 2.32 / 2.33) or **3.x**
+
+See [docs/INSTALLATION.md](docs/INSTALLATION.md#requirements) and [docs/UPGRADING.md](docs/UPGRADING.md) for compatibility notes.
 
 ## Configuration
 
@@ -87,37 +98,6 @@ nowo_dashboard_menu:
 
 Full details: [docs/USAGE.md](docs/USAGE.md).
 
-## Documentation
-
-
-- [GitHub Actions CI requirements](docs/GITHUB_CI.md)
-- [Installation](docs/INSTALLATION.md)
-- [Configuration](docs/CONFIGURATION.md)
-- [Usage](docs/USAGE.md)
-- [Contributing](docs/CONTRIBUTING.md)
-- [Code of Conduct](CODE_OF_CONDUCT.md)
-- [Changelog](docs/CHANGELOG.md)
-- [Upgrading](docs/UPGRADING.md)
-- [Release](docs/RELEASE.md)
-- [Security](docs/SECURITY.md)
-- [Engram](docs/ENGRAM.md)
-- [Spec-driven development](docs/SPEC-DRIVEN-DEVELOPMENT.md)
-- [GitHub Spec Kit](docs/SPEC-KIT.md)
-### Additional documentation
-
-- [Demo with FrankenPHP (development and production)](docs/DEMO-FRANKENPHP.md)
-- [Demo](docs/DEMO.md)
-- [Development](docs/DEVELOPMENT.md)
-
-## Requirements
-
-- PHP >= 8.2, < 8.6
-- Symfony 6.4 (LTS), 7.x or 8.x (^6.4 || ^7.0 || ^8.0)
-- Doctrine ORM ^2.13 || ^3.0 (no Gedmo/Stof required)
-- Symfony UX Autocomplete & Live Component (installed with the bundle): **2.x** (from 2.32 / 2.33) or **3.x**
-
-See [docs/INSTALLATION.md](docs/INSTALLATION.md#requirements) and [docs/UPGRADING.md](docs/UPGRADING.md) for compatibility notes.
-
 ## Demo
 
 Demos (**Symfony 7** and **8** only in this repo; the bundle also supports **Symfony 6.4** via Composer) are in `demo/symfony7` and `demo/symfony8`. Each uses **FrankenPHP** with **Caddy** (HTTP on port 80 in the container). Compose defaults to **`APP_ENV=dev`** and **`FRANKENPHP_MODE=worker`**; set **`FRANKENPHP_MODE=classic`** for hot-reload (Caddyfile.dev, no PHP worker) — [docs/DEMO-FRANKENPHP.md](docs/DEMO-FRANKENPHP.md). Quick start: [docs/DEMO.md](docs/DEMO.md).
@@ -147,6 +127,27 @@ pnpm run build:stimulus-live  # only stimulus-live.js
 ```
 
 Then run `php bin/console assets:install` in the app so `public/bundles/nowodashboardmenu/js/` is updated.
+
+## Documentation
+
+- [GitHub Actions CI requirements](docs/GITHUB_CI.md)
+- [Installation](docs/INSTALLATION.md)
+- [Configuration](docs/CONFIGURATION.md)
+- [Usage](docs/USAGE.md)
+- [Contributing](docs/CONTRIBUTING.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Changelog](docs/CHANGELOG.md)
+- [Upgrading](docs/UPGRADING.md)
+- [Release](docs/RELEASE.md)
+- [Security](docs/SECURITY.md)
+- [Engram](docs/ENGRAM.md)
+- [Spec-driven development](docs/SPEC-DRIVEN-DEVELOPMENT.md)
+- [GitHub Spec Kit](docs/SPEC-KIT.md)
+### Additional documentation
+
+- [Demo with FrankenPHP (development and production)](docs/DEMO-FRANKENPHP.md)
+- [Demo](docs/DEMO.md)
+- [Development](docs/DEVELOPMENT.md)
 
 ## Tests and coverage
 
