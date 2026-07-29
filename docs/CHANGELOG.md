@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[1.0.2] - 2026-07-29](#102-2026-07-29)
 - [[1.0.1] - 2026-07-29](#101-2026-07-29)
 - [[1.0.0] - 2026-07-29](#100-2026-07-29)
 - [[0.3.50] - 2026-07-29](#0350-2026-07-29)
@@ -66,6 +67,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.0.2] - 2026-07-29
+
+### Added
+
+- **REQ-DOCS-017:** FrankenPHP Friendly Worker Mode banner in the root README (`docs/images/frankenphp-friendly.png`).
+- **REQ-MAKE-003:** Aggregate `demo/Makefile` with canonical `up` / `down` / `update-bundle` (and per-demo / `DEMO=` helpers), plus `demo-smoke`.
+
+### Changed
+
+- **Demos (REQ-MAKE-010 / REQ-DEMO-005):** Symfony 7/8 demo Makefiles prefer Compose V2 at the top, include `update-deps` in `.PHONY`, and print Waiting/Installing messages during `up`.
+
+### Documentation
+
+- [UPGRADING.md](UPGRADING.md): 1.0.1 → 1.0.2.
+- [RELEASE.md](RELEASE.md): release target **1.0.2**.
 
 ## [1.0.1] - 2026-07-29
 
@@ -840,7 +857,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.50...v1.0.0
 [0.3.50]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.49...v0.3.50

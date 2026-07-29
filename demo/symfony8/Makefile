@@ -1,4 +1,9 @@
-.PHONY: help build up down restart shell install setup clean logs ensure-up update-bundle verify cache-clear schema-update migrations-status migrate test test-coverage ts-assets assets demo-started-msg
+# Prefer Compose V2 plugin (GitHub Actions / modern Docker Desktop); fall back to docker-compose V1 (REQ-MAKE-010).
+COMPOSE     ?= $(shell docker compose version >/dev/null 2>&1 && echo "docker compose" || echo "docker-compose")
+SERVICE_PHP ?= php
+BUNDLE_ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/../..)
+
+.PHONY: help build up down update-deps restart shell install setup clean logs ensure-up update-bundle verify cache-clear schema-update migrations-status migrate test test-coverage ts-assets assets demo-started-msg
 
 help:
 	@echo "Dashboard Menu Bundle Demo - Symfony 8"
@@ -36,9 +41,10 @@ cache-clear: ensure-up
 up:
 	@if [ ! -f .env ]; then cp .env.example .env; fi
 	$(COMPOSE) down 2>/dev/null || true
-	$(COMPOSE) build
-	$(COMPOSE) up -d mysql
+	$(COMPOSE) up -d --build mysql
+	@echo "Waiting for container to be ready..."
 	@sleep 8
+	@echo "Installing dependencies..."
 	$(COMPOSE) run --rm --entrypoint '' php composer install --no-interaction --prefer-dist
 	$(COMPOSE) up -d
 	@sleep 5
@@ -131,11 +137,5 @@ verify: ensure-up
 	@$(COMPOSE) exec -T php php bin/console lint:container && \
 	 $(COMPOSE) exec -T php php -r "echo file_get_contents('http://127.0.0.1:80') ? 'OK' : 'FAIL';" 2>/dev/null || true
 
-
-# REQ-MAKE-008: update-deps (REQ-MAKE-008)
-SERVICE_PHP ?= php
-# Prefer Compose V2 plugin (GitHub Actions / modern Docker Desktop); fall back to docker-compose V1 (REQ-MAKE-010).
-COMPOSE     ?= $(shell docker compose version >/dev/null 2>&1 && echo "docker compose" || echo "docker-compose")
-BUNDLE_ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/../..)
-# Optional: monorepo helper absent on standalone GitHub Actions checkout (REQ-MAKE-009).
+# REQ-MAKE-008: update-deps (optional monorepo helper; REQ-MAKE-009 soft include)
 -include $(BUNDLE_ROOT)/../.scripts/Makefile.demo-update-deps.mk

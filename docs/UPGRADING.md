@@ -5,6 +5,7 @@ This document describes breaking changes and upgrade notes between versions. Sec
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [From 1.0.1 to 1.0.2](#from-101-to-102)
 - [From 1.0.0 to 1.0.1](#from-100-to-101)
 - [From 0.3.x to 1.0.0](#from-03x-to-100)
 - [From 0.3.49 to 0.3.50](#from-0349-to-0350)
@@ -63,6 +64,14 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## From 1.0.1 to 1.0.2
+
+No intentional breaking changes to the public HTTP API, route names, schema, or configuration.
+
+- **Patch release:** README FrankenPHP worker banner (REQ-DOCS-017); aggregate `demo/Makefile` gains `up` / `down` / `update-bundle` (REQ-MAKE-003); demo Symfony 7/8 Makefiles polish Compose V2 / `up` messaging.
+- **Consumers:** no Composer or config changes required. Continue requiring `nowo-tech/dashboard-menu-bundle: ^1.0`.
+- **Local demos:** from `demo/`, use `make up DEMO=symfony8` (or `make up-symfony8`); `make update-bundle-all` and `make release-check` behave as before.
 
 ## From 1.0.0 to 1.0.1
 

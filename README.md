@@ -6,6 +6,10 @@
 
 **Nowo Dashboard Menu Bundle** — Configurable dashboard menus with i18n (JSON translations), tree structure (parent + position), permissions, Twig rendering and JSON API. No external ORM extensions (Gedmo/Stof). For Symfony 6.4, 7 and 8 · PHP 8.2+.
 
+![FrankenPHP Friendly Worker Mode](docs/images/frankenphp-friendly.png)
+
+This bundle is **FrankenPHP worker mode friendly**.
+
 ## Table of contents
 
 - [Features](#features)
