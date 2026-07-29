@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[0.3.50] - 2026-07-29](#0350-2026-07-29)
 - [[0.3.49] - 2026-07-29](#0349-2026-07-29)
 - [[0.3.48] - 2026-07-29](#0348-2026-07-29)
 - [[0.3.47] - 2026-07-24](#0347-2026-07-24)
@@ -63,6 +64,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.3.50] - 2026-07-29
+
+### Changed
+
+- **Makefiles (REQ-MAKE-010):** prefer Docker Compose V2 (`docker compose`) with fallback to `docker-compose` V1 in the root and Symfony 7/8 demo Makefiles; demo targets consistently use `$(COMPOSE)`.
+
+### Fixed
+
+- **Demos:** PHP CS Fixer alignment in `config/reference.php` stubs (Symfony 7/8).
+
+### Documentation
+
+- [UPGRADING.md](UPGRADING.md): 0.3.49 → 0.3.50 (no API or schema changes).
 
 ## [0.3.49] - 2026-07-29
 
@@ -787,7 +802,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.49...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.50...HEAD
+[0.3.50]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.49...v0.3.50
 [0.3.49]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.48...v0.3.49
 [0.3.48]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.47...v0.3.48
 [0.3.47]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.46...v0.3.47

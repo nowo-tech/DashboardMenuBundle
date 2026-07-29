@@ -5,6 +5,7 @@ This document describes breaking changes and upgrade notes between versions. Sec
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [From 0.3.49 to 0.3.50](#from-0349-to-0350)
 - [From 0.3.48 to 0.3.49](#from-0348-to-0349)
 - [From 0.3.47 to 0.3.48](#from-0347-to-0348)
 - [From 0.3.46 to 0.3.47](#from-0346-to-0347)
@@ -60,6 +61,13 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## From 0.3.49 to 0.3.50
+
+No intentional breaking changes to the public HTTP API or route names.
+
+- **Patch release:** Makefiles prefer Compose V2 (`docker compose`) with V1 fallback (REQ-MAKE-010). No configuration or public API changes for consuming applications.
+- **Local demos / CI:** if your environment only has the Compose V2 plugin, `make` targets now detect it automatically; classic `docker-compose` remains supported when the plugin is absent.
 
 ## From 0.3.48 to 0.3.49
 
