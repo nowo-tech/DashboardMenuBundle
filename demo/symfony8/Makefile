@@ -6,60 +6,60 @@ help:
 
 assets: ensure-up
 	# Build assets inside the demo container (so pnpm/vite run with container tooling).
-	docker-compose exec -T php sh -c "cd /app && pnpm install && pnpm run build"
+	$(COMPOSE) exec -T php sh -c "cd /app && pnpm install && pnpm run build"
 
 ts-assets: ensure-up
 	# Generate TS→JS assets inside the demo container.
-	docker-compose exec -T php sh -c "cd /app && sh scripts/create-ts-assets.sh"
+	$(COMPOSE) exec -T php sh -c "cd /app && sh scripts/create-ts-assets.sh"
 
 restart: ensure-up
-	docker-compose restart
+	$(COMPOSE) restart
 
 schema-update: ensure-up
 	@echo "Updating database schema (adds missing columns, e.g. icon, class_* in dashboard_menu)..."
-	docker-compose exec -T php php bin/console doctrine:schema:update --force --no-interaction
+	$(COMPOSE) exec -T php php bin/console doctrine:schema:update --force --no-interaction
 	@echo "Done. If you still see 'Unknown column' errors, run: make setup"
 
 migrations-status: ensure-up
-	docker-compose exec -T php php bin/console doctrine:migrations:status
+	$(COMPOSE) exec -T php php bin/console doctrine:migrations:status
 
 migrate: ensure-up
-	docker-compose exec -T php php bin/console doctrine:migrations:migrate --no-interaction
+	$(COMPOSE) exec -T php php bin/console doctrine:migrations:migrate --no-interaction
 
 build:
-	docker-compose build --no-cache
+	$(COMPOSE) build --no-cache
 
 cache-clear: ensure-up
-	docker-compose exec -T php sh -c "rm -rf var/cache/*"
-	docker-compose exec -T php php bin/console cache:clear --no-interaction --no-warmup
+	$(COMPOSE) exec -T php sh -c "rm -rf var/cache/*"
+	$(COMPOSE) exec -T php php bin/console cache:clear --no-interaction --no-warmup
 
 up:
 	@if [ ! -f .env ]; then cp .env.example .env; fi
-	docker-compose down 2>/dev/null || true
-	docker-compose build
-	docker-compose up -d mysql
+	$(COMPOSE) down 2>/dev/null || true
+	$(COMPOSE) build
+	$(COMPOSE) up -d mysql
 	@sleep 8
-	docker-compose run --rm --entrypoint '' php composer install --no-interaction --prefer-dist
-	docker-compose up -d
+	$(COMPOSE) run --rm --entrypoint '' php composer install --no-interaction --prefer-dist
+	$(COMPOSE) up -d
 	@sleep 5
 	$(MAKE) ensure-up
 	$(MAKE) install
 	@echo "Syncing composer.lock (remove gedmo/stof if present)..."
-	docker-compose exec -T php composer update --no-interaction --no-scripts
+	$(COMPOSE) exec -T php composer update --no-interaction --no-scripts
 	@echo "Restarting PHP so workers load vendor without Gedmo..."
-	docker-compose restart php
+	$(COMPOSE) restart php
 	@echo "Waiting for PHP container..."
-	@for i in 1 2 3 4 5 6 7 8 9 10; do docker-compose exec -T php true 2>/dev/null && break || sleep 2; done
+	@for i in 1 2 3 4 5 6 7 8 9 10; do $(COMPOSE) exec -T php true 2>/dev/null && break || sleep 2; done
 	@sleep 2
 	@echo "Clearing cache..."
-	docker-compose exec -T php sh -c "rm -rf var/cache/*"
-	docker-compose exec -T php php bin/console cache:clear --no-interaction --no-warmup
+	$(COMPOSE) exec -T php sh -c "rm -rf var/cache/*"
+	$(COMPOSE) exec -T php php bin/console cache:clear --no-interaction --no-warmup
 	@echo "Recreating database and running migrations (fresh)..."
-	docker-compose exec -T php php bin/console doctrine:database:drop --if-exists --force --no-interaction
-	docker-compose exec -T php php bin/console doctrine:database:create --no-interaction
-	docker-compose exec -T php php bin/console doctrine:migrations:migrate --no-interaction
+	$(COMPOSE) exec -T php php bin/console doctrine:database:drop --if-exists --force --no-interaction
+	$(COMPOSE) exec -T php php bin/console doctrine:database:create --no-interaction
+	$(COMPOSE) exec -T php php bin/console doctrine:migrations:migrate --no-interaction
 	@echo "Loading fixtures..."
-	docker-compose exec -T php php bin/console doctrine:fixtures:load --no-interaction
+	$(COMPOSE) exec -T php php bin/console doctrine:fixtures:load --no-interaction
 	@$(MAKE) demo-started-msg
 
 demo-started-msg:
@@ -68,73 +68,74 @@ demo-started-msg:
 	echo "Demo started at: http://localhost:$$PORT"
 
 down:
-	docker-compose down
+	$(COMPOSE) down
 
 shell:
-	docker-compose exec php sh
+	$(COMPOSE) exec php sh
 
 ensure-up:
-	@if ! docker-compose exec -T php true 2>/dev/null; then \
+	@if ! $(COMPOSE) exec -T php true 2>/dev/null; then \
 		echo "Starting containers..."; \
 		[ ! -f .env ] && cp .env.example .env || true; \
-		docker-compose up -d mysql 2>/dev/null || true; \
+		$(COMPOSE) up -d mysql 2>/dev/null || true; \
 		sleep 5; \
-		docker-compose up -d; \
+		$(COMPOSE) up -d; \
 		sleep 5; \
-		docker-compose exec -T php sh -c "composer install --no-interaction || composer update --no-interaction"; \
+		$(COMPOSE) exec -T php sh -c "composer install --no-interaction || composer update --no-interaction"; \
 	fi
 
 update-bundle: ensure-up
-	@if docker-compose exec -T php true 2>/dev/null; then \
-		docker-compose exec -T php sh -c "if [ -f composer.lock ]; then composer update nowo-tech/dashboard-menu-bundle --no-interaction; else composer update --no-interaction; fi"; \
-		docker-compose exec -T php sh -c "rm -rf var/cache/*"; \
-		docker-compose exec -T php php bin/console cache:clear --no-interaction --no-warmup; \
+	@if $(COMPOSE) exec -T php true 2>/dev/null; then \
+		$(COMPOSE) exec -T php sh -c "if [ -f composer.lock ]; then composer update nowo-tech/dashboard-menu-bundle --no-interaction; else composer update --no-interaction; fi"; \
+		$(COMPOSE) exec -T php sh -c "rm -rf var/cache/*"; \
+		$(COMPOSE) exec -T php php bin/console cache:clear --no-interaction --no-warmup; \
 	else \
-		docker-compose run --rm --entrypoint '' php sh -c "if [ -f composer.lock ]; then composer update nowo-tech/dashboard-menu-bundle --no-interaction; else composer update --no-interaction; fi; rm -rf var/cache/*; php bin/console cache:clear --no-interaction --no-warmup"; \
+		$(COMPOSE) run --rm --entrypoint '' php sh -c "if [ -f composer.lock ]; then composer update nowo-tech/dashboard-menu-bundle --no-interaction; else composer update --no-interaction; fi; rm -rf var/cache/*; php bin/console cache:clear --no-interaction --no-warmup"; \
 	fi
 
 install: ensure-up
-	docker-compose exec -T php composer install --no-interaction
+	$(COMPOSE) exec -T php composer install --no-interaction
 
 setup: ensure-up install
 	@echo "Syncing composer.lock (remove gedmo/stof if present)..."
-	docker-compose exec -T php composer update --no-interaction --no-scripts
+	$(COMPOSE) exec -T php composer update --no-interaction --no-scripts
 	@echo "Restarting PHP so workers load vendor without Gedmo..."
-	docker-compose restart php
+	$(COMPOSE) restart php
 	@sleep 3
 	@echo "Clearing cache..."
-	docker-compose exec -T php sh -c "rm -rf var/cache/*"
-	docker-compose exec -T php php bin/console cache:clear --no-interaction --no-warmup
+	$(COMPOSE) exec -T php sh -c "rm -rf var/cache/*"
+	$(COMPOSE) exec -T php php bin/console cache:clear --no-interaction --no-warmup
 	@echo "Recreating database and running migrations (fresh)..."
-	docker-compose exec -T php php bin/console doctrine:database:drop --if-exists --force --no-interaction
-	docker-compose exec -T php php bin/console doctrine:database:create --no-interaction
-	docker-compose exec -T php php bin/console doctrine:migrations:migrate --no-interaction
+	$(COMPOSE) exec -T php php bin/console doctrine:database:drop --if-exists --force --no-interaction
+	$(COMPOSE) exec -T php php bin/console doctrine:database:create --no-interaction
+	$(COMPOSE) exec -T php php bin/console doctrine:migrations:migrate --no-interaction
 	@echo "Loading fixtures..."
-	docker-compose exec -T php php bin/console doctrine:fixtures:load --no-interaction
+	$(COMPOSE) exec -T php php bin/console doctrine:fixtures:load --no-interaction
 	@$(MAKE) demo-started-msg
 
 clean:
 	rm -rf vendor var/cache/* var/log/*
 
 logs:
-	docker-compose logs -f
+	$(COMPOSE) logs -f
 
 test: ensure-up
 	# Run bundle tests from within the demo container, using bundle PHPUnit config.
-	docker-compose exec -e APP_ENV=test -T php php /var/dashboard-menu-bundle/vendor/bin/phpunit -c /var/dashboard-menu-bundle/phpunit.xml.dist
+	$(COMPOSE) exec -e APP_ENV=test -T php php /var/dashboard-menu-bundle/vendor/bin/phpunit -c /var/dashboard-menu-bundle/phpunit.xml.dist
 
 test-coverage: ensure-up
 	# Run bundle tests from within the demo container, using bundle PHPUnit config.
-	docker-compose exec -e APP_ENV=test -T php php /var/dashboard-menu-bundle/vendor/bin/phpunit -c /var/dashboard-menu-bundle/phpunit.xml.dist --coverage-text
+	$(COMPOSE) exec -e APP_ENV=test -T php php /var/dashboard-menu-bundle/vendor/bin/phpunit -c /var/dashboard-menu-bundle/phpunit.xml.dist --coverage-text
 
 verify: ensure-up
-	@docker-compose exec -T php php bin/console lint:container && \
-	 docker-compose exec -T php php -r "echo file_get_contents('http://127.0.0.1:80') ? 'OK' : 'FAIL';" 2>/dev/null || true
+	@$(COMPOSE) exec -T php php bin/console lint:container && \
+	 $(COMPOSE) exec -T php php -r "echo file_get_contents('http://127.0.0.1:80') ? 'OK' : 'FAIL';" 2>/dev/null || true
 
 
 # REQ-MAKE-008: update-deps (REQ-MAKE-008)
 SERVICE_PHP ?= php
-COMPOSE     ?= docker-compose
+# Prefer Compose V2 plugin (GitHub Actions / modern Docker Desktop); fall back to docker-compose V1 (REQ-MAKE-010).
+COMPOSE     ?= $(shell docker compose version >/dev/null 2>&1 && echo "docker compose" || echo "docker-compose")
 BUNDLE_ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/../..)
 # Optional: monorepo helper absent on standalone GitHub Actions checkout (REQ-MAKE-009).
 -include $(BUNDLE_ROOT)/../.scripts/Makefile.demo-update-deps.mk

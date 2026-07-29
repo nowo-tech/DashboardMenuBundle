@@ -34,7 +34,9 @@ help:
 	@echo "Demos: make -C demo or make -C demo/symfony7"
 
 COMPOSE_FILE ?= docker-compose.yml
-COMPOSE     ?= docker-compose -f $(COMPOSE_FILE)
+# Prefer Compose V2 plugin (GitHub Actions / modern Docker Desktop); fall back to docker-compose V1 (REQ-MAKE-010).
+COMPOSE_BIN ?= $(shell docker compose version >/dev/null 2>&1 && echo "docker compose" || echo "docker-compose")
+COMPOSE     ?= $(COMPOSE_BIN) -f $(COMPOSE_FILE)
 SERVICE_PHP ?= php
 
 build:
