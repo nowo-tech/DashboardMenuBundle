@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[0.3.49] - 2026-07-29](#0349-2026-07-29)
 - [[0.3.48] - 2026-07-29](#0348-2026-07-29)
 - [[0.3.47] - 2026-07-24](#0347-2026-07-24)
 - [[0.3.46] - 2026-07-22](#0346-2026-07-22)
@@ -62,6 +63,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.3.49] - 2026-07-29
+
+### Fixed
+
+- **Makefiles (REQ-MAKE-009):** soft-include (`-include`) monorepo `update-deps` helpers so standalone GitHub Actions checkouts do not fail when `../.scripts/` is absent.
+- **Security DI:** `DashboardMenuSecurityPass` registers `DashboardAccessSubscriber` with an explicit class name (Symfony definition class), with unit coverage for the tag/class.
+
+### Documentation
+
+- [UPGRADING.md](UPGRADING.md): 0.3.48 → 0.3.49 (no API or schema changes).
 
 ## [0.3.48] - 2026-07-29
 
@@ -775,7 +787,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.48...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.49...HEAD
+[0.3.49]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.48...v0.3.49
 [0.3.48]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.47...v0.3.48
 [0.3.47]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.46...v0.3.47
 [0.3.46]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.45...v0.3.46

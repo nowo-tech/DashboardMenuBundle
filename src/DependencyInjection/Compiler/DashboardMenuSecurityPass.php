@@ -47,7 +47,7 @@ final class DashboardMenuSecurityPass implements CompilerPassInterface
             return;
         }
 
-        $container->register(DashboardAccessSubscriber::class)
+        $container->register(DashboardAccessSubscriber::class, DashboardAccessSubscriber::class)
             ->setArgument('$accessChecker', new Reference(DashboardMenuAccessCheckerInterface::class))
             ->addTag('kernel.event_subscriber');
     }

@@ -48,6 +48,9 @@ final class DashboardMenuSecurityPassTest extends TestCase
         (new DashboardMenuSecurityPass())->process($container);
 
         self::assertTrue($container->hasDefinition(DashboardAccessSubscriber::class));
+        $definition = $container->getDefinition(DashboardAccessSubscriber::class);
+        self::assertSame(DashboardAccessSubscriber::class, $definition->getClass());
+        self::assertTrue($definition->hasTag('kernel.event_subscriber'));
     }
 
     public function testNoopWhenAccessRolesEmpty(): void

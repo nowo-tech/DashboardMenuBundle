@@ -5,6 +5,7 @@ This document describes breaking changes and upgrade notes between versions. Sec
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [From 0.3.48 to 0.3.49](#from-0348-to-0349)
 - [From 0.3.47 to 0.3.48](#from-0347-to-0348)
 - [From 0.3.46 to 0.3.47](#from-0346-to-0347)
 - [From 0.3.45 to 0.3.46](#from-0345-to-0346)
@@ -59,6 +60,12 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## From 0.3.48 to 0.3.49
+
+No intentional breaking changes to the public HTTP API or route names.
+
+- **Patch release:** optional monorepo Makefile includes for CI (REQ-MAKE-009) and an explicit class on `DashboardAccessSubscriber` DI registration. No configuration or public API changes for consuming applications.
 
 ## From 0.3.47 to 0.3.48
 
