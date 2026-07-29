@@ -1,16 +1,13 @@
-{% extends nowo_dashboard_layout_template|default('@NowoDashboardMenuBundle/dashboard/layout.html.twig') %}
+{% extends '@NowoDashboardMenuBundle/dashboard/base.html.twig' %}
+{% import '@NowoDashboardMenuBundle/dashboard/_ui_macros.html.twig' as ui %}
 
 {% block dashboard_title %}{{ (is_edit ? 'Edit menu' : 'New menu')|trans({}, 'NowoDashboardMenuBundle') }}{% endblock %}
 
-{% block nowo_dashboard_menu_content %}
-    {% for msg in app.flashes('error') %}
-        <div class="alert alert-danger">{{ msg }}</div>
-    {% endfor %}
-
-    <p><a href="{{ path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index')) }}" class="btn btn-link text-decoration-none">{{ 'dashboard.menus_back'|trans({}, 'NowoDashboardMenuBundle') }}</a></p>
+{% block body %}
+    <p><a href="{{ path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index')) }}" class="{{ ui.btn('link') }}">{{ 'dashboard.menus_back'|trans({}, 'NowoDashboardMenuBundle') }}</a></p>
 
     {{ form_start(form, { attr: { style: 'max-width: 32rem;' } }) }}
-        <p class="text-muted small mb-2">
+        <p class="{{ ui.muted() }} small mb-2">
             <span class="bi bi-pencil-fill me-1" aria-hidden="true"></span>
             {{ 'form.menu_type.section_definition'|trans({}, 'NowoDashboardMenuBundle') }}
         </p>
@@ -22,7 +19,7 @@
 
         {% if form.config is defined %}
         <hr class="my-3">
-        <p class="text-muted small mb-2">
+        <p class="{{ ui.muted() }} small mb-2">
             <span class="bi bi-gear-fill me-1" aria-hidden="true"></span>
             {{ 'form.menu_type.section_config'|trans({}, 'NowoDashboardMenuBundle') }}
         </p>
@@ -41,7 +38,7 @@
             {{ form_row(form.config.nestedCollapsibleSections, { row_attr: { class: 'form-check' }, label_attr: { class: 'form-check-label' } }) }}
         </div>
         <hr class="my-3">
-        <p class="text-muted small mb-2">{{ 'form.menu_type.css_section_heading'|trans({}, 'NowoDashboardMenuBundle') }}</p>
+        <p class="{{ ui.muted() }} small mb-2">{{ 'form.menu_type.css_section_heading'|trans({}, 'NowoDashboardMenuBundle') }}</p>
         {{ form_row(form.config.classMenu, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
         {{ form_row(form.config.ulId, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
         {{ form_row(form.config.classItem, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
@@ -60,6 +57,6 @@
         {{ form_row(form.config.classCollapsed, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
         {% endif %}
         {{ form_rest(form) }}
-        <button type="submit" class="btn btn-primary">{{ (is_edit ? 'Update' : 'Create')|trans({}, 'NowoDashboardMenuBundle') }}</button>
+        <button type="submit" class="{{ ui.btn('primary') }}">{{ (is_edit ? 'Update' : 'Create')|trans({}, 'NowoDashboardMenuBundle') }}</button>
     {{ form_end(form) }}
 {% endblock %}

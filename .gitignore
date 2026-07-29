@@ -13,6 +13,8 @@
 /coverage
 /coverage.xml
 /coverage-php.txt
+/coverage-ts.txt
+/coverage-ts/
 
 # PHP tool caches
 /.php-cs-fixer.cache

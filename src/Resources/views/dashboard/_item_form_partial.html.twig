@@ -1,3 +1,4 @@
+{% import '@NowoDashboardMenuBundle/dashboard/_ui_macros.html.twig' as ui %}
 {% if nowo_dashboard_ux_autocomplete_available|default(false) %}
 {% form_theme form '@SymfonyUXAutocomplete/autocomplete_form_theme.html.twig' %}
 {% endif %}
@@ -146,6 +147,6 @@
     </div>
     {% endif %}
     {{ form_rest(form) }}
-    <button type="submit" class="btn btn-primary">{{ (is_edit|default(false) ? 'dashboard.update' : 'dashboard.create')|trans({}, 'NowoDashboardMenuBundle') }}</button>
+    <button type="submit" class="{{ ui.btn('primary') }}">{{ (is_edit|default(false) ? 'dashboard.update' : 'dashboard.create')|trans({}, 'NowoDashboardMenuBundle') }}</button>
 {{ form_end(form) }}
 </div>

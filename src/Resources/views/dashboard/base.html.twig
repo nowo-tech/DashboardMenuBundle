@@ -1,0 +1,52 @@
+{% extends nowo_dashboard_layout_template|default('@NowoDashboardMenuBundle/dashboard/layout.html.twig') %}
+{% trans_default_domain 'NowoDashboardMenuBundle' %}
+{% import '@NowoDashboardMenuBundle/dashboard/_ui_macros.html.twig' as ui %}
+
+{% set dashboard_routes = dashboard_routes|default({
+    index: 'nowo_dashboard_menu_dashboard_index',
+    show: 'nowo_dashboard_menu_dashboard_show',
+    export_all: 'nowo_dashboard_menu_dashboard_export_all',
+    export_menu: 'nowo_dashboard_menu_dashboard_export_menu',
+    import: 'nowo_dashboard_menu_dashboard_import',
+    menu_copy: 'nowo_dashboard_menu_dashboard_menu_copy',
+}) %}
+
+{# When the host sets layout_template to the project layout, stack assets via parent(). #}
+{% block stylesheets %}
+    {{ parent() }}
+    {% block nowo_ui_styles %}
+        <link href="{{ asset('css/nowo-ui.css', 'nowo_dashboard_menu') }}" rel="stylesheet">
+    {% endblock %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {% block nowo_ui_scripts %}{% endblock %}
+    <script src="{{ asset('js/dashboard.js', 'nowo_dashboard_menu') }}" defer></script>
+{% endblock %}
+
+{% block nowo_dashboard_menu_content %}
+    {% set modal_classes = modal_classes|default({}) %}
+    {% block nowo_ui_flashes %}
+        {% for msg in app.flashes('success') %}
+            <div class="{{ ui.flash('success') }}">{{ msg }}</div>
+        {% endfor %}
+        {% for msg in app.flashes('danger') %}
+            <div class="{{ ui.flash('danger') }}">{{ msg }}</div>
+        {% endfor %}
+        {% for msg in app.flashes('error') %}
+            <div class="{{ ui.flash('error') }}">{{ msg }}</div>
+        {% endfor %}
+        {% for msg in app.flashes('info') %}
+            <div class="{{ ui.flash('info') }}">{{ msg }}</div>
+        {% endfor %}
+    {% endblock %}
+
+    {% block nowo_ui_content %}
+        {% block body %}{% endblock %}
+    {% endblock %}
+
+    {% block nowo_ui_modals %}
+        {% include '@NowoDashboardMenuBundle/dashboard/_menu_dashboard_modals.html.twig' %}
+    {% endblock %}
+{% endblock %}

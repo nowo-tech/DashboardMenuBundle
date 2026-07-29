@@ -41,7 +41,7 @@ Generate href for an item:
 
 **REQ-TWIG-001:** `TwigPathsPass` registers your project directory **`templates/bundles/NowoDashboardMenuBundle/`** with **`prependPath()`** when that folder exists, then registers the bundle’s **`src/Resources/views`** with **`addPath()`**. Your copies are therefore always resolved **before** the vendor templates. If you have not created that folder yet, only the bundle path is added (still after Symfony’s default paths for the namespace). Controllers use logical names only (e.g. `@NowoDashboardMenuBundle/dashboard/show.html.twig`); overrides are never blocked. Translations are not prepended, so your app's translation files for the domain `NowoDashboardMenuBundle` take precedence by default.
 
-### Overriding templates (pisar vistas)
+### Overriding templates
 
 Place a file in your project under **`templates/bundles/NowoDashboardMenuBundle/`** with the **same relative path** as inside the bundle. Twig will use your template instead of the bundle’s (see **REQ-TWIG-001** note above).
 
@@ -63,7 +63,10 @@ Copy the original from `vendor/nowo-tech/dashboard-menu-bundle/src/Resources/vie
 | Path | Purpose |
 |------|---------|
 | `menu.html.twig` | Frontend menu tree (sidebar, nav, etc.). Receives `menuTree`, `menuCode`, `menuConfig`. |
-| `dashboard/layout.html.twig` | Layout that all dashboard pages extend. Defines the `content` block. |
+| `dashboard/layout.html.twig` | Demo/fallback full HTML shell. Defines `nowo_dashboard_menu_content` / `nowo_ui_content`. |
+| `dashboard/base.html.twig` | Intermediate layout: flashes, modals, `parent()` asset stacking, `{% block body %}`. Pages extend this. |
+| `dashboard/_ui_macros.html.twig` | REQ-UI-001 CSS class helpers (`btn`, `toolbar`, modal attrs, …). |
+| `dashboard/_icons.html.twig` | Inline SVG action icons. |
 | `dashboard/index.html.twig` | Dashboard menu list. |
 | `dashboard/show.html.twig` | Single menu detail and item table (links to reorder page). |
 | `dashboard/show_items_reorder.html.twig` | Drag-and-drop tree reorder (SortableJS); posts to `items_reorder_tree`. |
@@ -84,6 +87,15 @@ Copy the original from `vendor/nowo-tech/dashboard-menu-bundle/src/Resources/vie
 **Dashboard reorder:** the item table (`show`) links to a separate page for drag-and-drop ordering. Symfony registers `nowo_dashboard_menu_dashboard_show_items_reorder` (GET `/{id}/items/reorder`) and `nowo_dashboard_menu_dashboard_items_reorder_tree` (POST `/{id}/items/reorder-tree`, CSRF). Bundle templates use the `dashboard_routes` map (`show_items_reorder`, `items_reorder_tree` keys → those full names) so overrides stay aligned if routing prefixes change.
 
 **Dashboard layout:** besides overriding `dashboard/layout.html.twig` in the bundle path above, you can keep using the bundle layout and only change the **wrapper** via config: set `dashboard.layout_template` in `nowo_dashboard_menu.yaml` to your app layout (e.g. `base.html.twig`) so the dashboard uses your shell (see [CONFIGURATION.md](CONFIGURATION.md#dashboard)). Overriding the file gives full control over the dashboard HTML; the config option only swaps the extended template.
+
+**CSS stack (REQ-UI-001):** set `dashboard.css_framework` (`bootstrap5` default, or `tailwind` / `foundation` / `custom` / …) and optionally `dashboard.icon_set`. Markup always includes semantic `nowo-ui-*` classes; framework classes are added via `_ui_macros.html.twig`. Assets load through the named package `nowo_dashboard_menu` (REQ-ASSETS-004):
+
+```twig
+<link href="{{ asset('css/nowo-ui.css', 'nowo_dashboard_menu') }}" rel="stylesheet">
+<script src="{{ asset('js/dashboard.js', 'nowo_dashboard_menu') }}" defer></script>
+```
+
+When `layout_template` points at the **project** layout, the demo CDN is skipped; your layout must expose `stylesheets` / `javascripts` (bundle `base.html.twig` calls `{{ parent() }}`). Twig globals: `nowo_dashboard_layout_template`, `nowo_dashboard_menu_css_framework`, `nowo_dashboard_menu_icon_set`.
 
 After adding or changing template overrides, clear the Twig cache if needed: `php bin/console cache:clear`.
 

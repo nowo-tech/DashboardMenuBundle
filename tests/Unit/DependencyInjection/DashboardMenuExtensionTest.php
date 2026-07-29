@@ -286,4 +286,70 @@ final class DashboardMenuExtensionTest extends TestCase
         $extension = new DashboardMenuExtension();
         self::assertSame('nowo_dashboard_menu', $extension->getAlias());
     }
+
+    public function testLoadSetsCssFrameworkAndIconSetParameters(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'prod');
+
+        $extension = new DashboardMenuExtension();
+        $extension->load([], $container);
+
+        self::assertSame('bootstrap5', $container->getParameter(Configuration::ALIAS . '.dashboard.css_framework'));
+        self::assertSame('bootstrap-icons', $container->getParameter(Configuration::ALIAS . '.dashboard.icon_set'));
+    }
+
+    public function testLoadSetsCssFrameworkTailwindWhenConfigured(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'prod');
+
+        $extension = new DashboardMenuExtension();
+        $extension->load([['dashboard' => ['css_framework' => 'tailwind', 'icon_set' => 'tabler-icons']]], $container);
+
+        self::assertSame('tailwind', $container->getParameter(Configuration::ALIAS . '.dashboard.css_framework'));
+        self::assertSame('tabler-icons', $container->getParameter(Configuration::ALIAS . '.dashboard.icon_set'));
+    }
+
+    public function testLoadNormalizesCssFrameworkBootstrapAlias(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'prod');
+
+        $extension = new DashboardMenuExtension();
+        $extension->load([['dashboard' => ['css_framework' => 'bootstrap']]], $container);
+
+        // 'bootstrap' normalizes to 'bootstrap5'.
+        self::assertSame('bootstrap5', $container->getParameter(Configuration::ALIAS . '.dashboard.css_framework'));
+    }
+
+    public function testPrependRegistersAssetsPackageWhenFrameworkExtensionExists(): void
+    {
+        $container = new ContainerBuilder();
+        $container->registerExtension(new class extends \Symfony\Component\DependencyInjection\Extension\Extension {
+            public function getAlias(): string
+            {
+                return 'framework';
+            }
+
+            public function load(array $configs, ContainerBuilder $container): void
+            {
+            }
+        });
+
+        $extension = new DashboardMenuExtension();
+        $extension->prepend($container);
+
+        $configs = $container->getExtensionConfig('framework');
+        $found   = false;
+        foreach ($configs as $cfg) {
+            if (isset($cfg['assets']['packages'][Configuration::ALIAS]['base_path'])
+                && $cfg['assets']['packages'][Configuration::ALIAS]['base_path'] === '/bundles/nowodashboardmenu'
+            ) {
+                $found = true;
+                break;
+            }
+        }
+        self::assertTrue($found, 'Expected nowo_dashboard_menu asset package to be prepended.');
+    }
 }

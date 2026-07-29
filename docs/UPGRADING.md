@@ -5,6 +5,7 @@ This document describes breaking changes and upgrade notes between versions. Sec
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [From 1.0.0 to 1.0.1](#from-100-to-101)
 - [From 0.3.x to 1.0.0](#from-03x-to-100)
 - [From 0.3.49 to 0.3.50](#from-0349-to-0350)
 - [From 0.3.48 to 0.3.49](#from-0348-to-0349)
@@ -62,6 +63,27 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## From 1.0.0 to 1.0.1
+
+No intentional breaking changes. Default `css_framework` remains **`bootstrap5`**.
+
+### Optional host integration (REQ-UI-001 / REQ-ASSETS-004)
+
+```yaml
+# config/packages/nowo_dashboard_menu.yaml
+nowo_dashboard_menu:
+    dashboard:
+        enabled: true
+        layout_template: 'base.html.twig'   # project chrome; must expose nowo_dashboard_menu_content (or use a bridge)
+        css_framework: bootstrap5           # or: tailwind | foundation | custom | …
+        icon_set: bootstrap-icons
+```
+
+- Twig globals: `nowo_dashboard_layout_template`, `nowo_dashboard_menu_css_framework`, `nowo_dashboard_menu_icon_set`.
+- Bundle assets: `asset('css/nowo-ui.css', 'nowo_dashboard_menu')` / `asset('js/dashboard.js', 'nowo_dashboard_menu')` after `assets:install`. Requires `symfony/asset` (now a hard dependency of the package).
+- If you **overrode** dashboard Twig with hard-coded Bootstrap only, consider adopting `_ui_macros.html.twig` / `base.html.twig` so `css_framework` switches without forking every page.
+- Pages now extend `@NowoDashboardMenuBundle/dashboard/base.html.twig` (which extends your `layout_template`). Overrides of full pages should do the same if you want flashes/modals/`parent()` stacking.
 
 ## From 0.3.x to 1.0.0
 

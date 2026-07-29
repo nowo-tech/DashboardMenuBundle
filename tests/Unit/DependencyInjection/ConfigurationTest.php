@@ -44,6 +44,8 @@ final class ConfigurationTest extends TestCase
         self::assertArrayHasKey('section_children', $config['dashboard']['css_class_options']);
         self::assertArrayHasKey('section_child_item', $config['dashboard']['css_class_options']);
         self::assertArrayHasKey('section_child_link', $config['dashboard']['css_class_options']);
+        self::assertSame('bootstrap5', $config['dashboard']['css_framework']);
+        self::assertSame('bootstrap-icons', $config['dashboard']['icon_set']);
         self::assertSame([], $config['permission_checker_choices']);
         self::assertSame([], $config['menu_link_resolver_choices']);
         self::assertSame(['ROLE_ADMIN'], $config['security']['access_roles']);
@@ -125,6 +127,56 @@ final class ConfigurationTest extends TestCase
         $processor = new Processor();
         $processor->processConfiguration(new Configuration(), [
             ['dashboard' => ['modals' => ['menu_form' => 'invalid']]],
+        ]);
+    }
+
+    public function testProcessConfigurationAcceptsValidCssFramework(): void
+    {
+        $processor = new Processor();
+        $config    = $processor->processConfiguration(new Configuration(), [
+            ['dashboard' => ['css_framework' => 'tailwind']],
+        ]);
+
+        self::assertSame('tailwind', $config['dashboard']['css_framework']);
+    }
+
+    public function testProcessConfigurationAcceptsCssFrameworkBootstrapAlias(): void
+    {
+        $processor = new Processor();
+        $config    = $processor->processConfiguration(new Configuration(), [
+            ['dashboard' => ['css_framework' => 'bootstrap']],
+        ]);
+
+        self::assertSame('bootstrap', $config['dashboard']['css_framework']);
+    }
+
+    public function testProcessConfigurationRejectsInvalidCssFramework(): void
+    {
+        $this->expectException(\Symfony\Component\Config\Definition\Exception\InvalidConfigurationException::class);
+
+        $processor = new Processor();
+        $processor->processConfiguration(new Configuration(), [
+            ['dashboard' => ['css_framework' => 'invalid_framework']],
+        ]);
+    }
+
+    public function testProcessConfigurationAcceptsValidIconSet(): void
+    {
+        $processor = new Processor();
+        $config    = $processor->processConfiguration(new Configuration(), [
+            ['dashboard' => ['icon_set' => 'tabler-icons']],
+        ]);
+
+        self::assertSame('tabler-icons', $config['dashboard']['icon_set']);
+    }
+
+    public function testProcessConfigurationRejectsInvalidIconSet(): void
+    {
+        $this->expectException(\Symfony\Component\Config\Definition\Exception\InvalidConfigurationException::class);
+
+        $processor = new Processor();
+        $processor->processConfiguration(new Configuration(), [
+            ['dashboard' => ['icon_set' => 'invalid_icons']],
         ]);
     }
 

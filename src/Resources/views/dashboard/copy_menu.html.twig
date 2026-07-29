@@ -1,22 +1,18 @@
-{% extends nowo_dashboard_layout_template|default('@NowoDashboardMenuBundle/dashboard/layout.html.twig') %}
+{% extends '@NowoDashboardMenuBundle/dashboard/base.html.twig' %}
+{% import '@NowoDashboardMenuBundle/dashboard/_ui_macros.html.twig' as ui %}
 
 {% block dashboard_title %}{{ 'dashboard.copy_menu'|trans({}, 'NowoDashboardMenuBundle') }}: {{ menu.code }}{% endblock %}
 
-{% block nowo_dashboard_menu_content %}
-    {% for msg in app.flashes('error') %}
-        <div class="alert alert-danger">{{ msg }}</div>
-    {% endfor %}
+{% block body %}
+    <p><a href="{{ path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index')) }}" class="{{ ui.btn('link') }}">{{ 'dashboard.menus_back'|trans({}, 'NowoDashboardMenuBundle') }}</a></p>
 
-    <p><a href="{{ path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index')) }}" class="btn btn-link text-decoration-none">{{ 'dashboard.menus_back'|trans({}, 'NowoDashboardMenuBundle') }}</a></p>
-
-    <p class="text-muted">{{ 'dashboard.copy_menu_help'|trans({}, 'NowoDashboardMenuBundle') }}</p>
+    <p class="{{ ui.muted() }}">{{ 'dashboard.copy_menu_help'|trans({}, 'NowoDashboardMenuBundle') }}</p>
 
     {{ form_start(form) }}
         {{ form_row(form.code, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
         {{ form_row(form.name, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
         {{ form_rest(form) }}
-        <button type="submit" class="btn btn-primary">{{ 'dashboard.copy_menu'|trans({}, 'NowoDashboardMenuBundle') }}</button>
-        <a href="{{ path(dashboard_show_route|default(dashboard_routes.show|default('nowo_dashboard_menu_dashboard_show')), { id: menu.id }) }}" class="btn btn-secondary">{{ 'dashboard.cancel'|trans({}, 'NowoDashboardMenuBundle') }}</a>
+        <button type="submit" class="{{ ui.btn('primary') }}">{{ 'dashboard.copy_menu'|trans({}, 'NowoDashboardMenuBundle') }}</button>
+        <a href="{{ path(dashboard_show_route|default(dashboard_routes.show|default('nowo_dashboard_menu_dashboard_show')), { id: menu.id }) }}" class="{{ ui.btn('secondary') }}">{{ 'dashboard.cancel'|trans({}, 'NowoDashboardMenuBundle') }}</a>
     {{ form_end(form) }}
-
 {% endblock %}

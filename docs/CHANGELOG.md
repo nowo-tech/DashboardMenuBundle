@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[1.0.1] - 2026-07-29](#101-2026-07-29)
 - [[1.0.0] - 2026-07-29](#100-2026-07-29)
 - [[0.3.50] - 2026-07-29](#0350-2026-07-29)
 - [[0.3.49] - 2026-07-29](#0349-2026-07-29)
@@ -65,6 +66,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.0.1] - 2026-07-29
+
+### Added
+
+- **REQ-UI-001:** `dashboard.css_framework` (default `bootstrap5`) and `dashboard.icon_set` (default `bootstrap-icons`); Twig globals `nowo_dashboard_menu_css_framework` / `nowo_dashboard_menu_icon_set`.
+- **REQ-ASSETS-004:** named Symfony asset package `nowo_dashboard_menu` (`PrependExtensionInterface`); new require `symfony/asset`.
+- Twig `_ui_macros.html.twig` / `_icons.html.twig`, `dashboard/base.html.twig`, and semantic `nowo-ui.css` for framework-agnostic dashboard markup.
+- Dashboard pages extend `base.html.twig` and use `ui` / `icons` macros (Bootstrap classes remain for the default stack).
+- `dashboard.js`: `cssFramework` on `window.__nowoDashboardMenuConfig`; generic modal handler for non-Bootstrap stacks (`data-nowo-modal-open` / `data-nowo-modal-close`).
+- **REQ-TEST-009:** Vitest + `make test-ts` + `.scripts/ts-coverage-percent.sh` (logger.ts 100%).
+- **REQ-MAKE-007:** `make down-dev`.
+
+### Changed
+
+- Demo/fallback `layout.html.twig` loads CDN assets by `css_framework` and serves bundle CSS/JS via the named package.
+
+### Documentation
+
+- [CONFIGURATION.md](CONFIGURATION.md), [USAGE.md](USAGE.md), [UPGRADING.md](UPGRADING.md): CSS stack, named package, and host-layout integration (`parent()`).
 
 ## [1.0.0] - 2026-07-29
 
@@ -819,7 +840,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.50...v1.0.0
 [0.3.50]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.49...v0.3.50
 [0.3.49]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.48...v0.3.49

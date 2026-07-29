@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\DependencyInjection;
 
+use Nowo\DashboardMenuBundle\Enum\CssFramework;
+use Nowo\DashboardMenuBundle\Enum\IconSet;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -136,6 +138,22 @@ final class Configuration implements ConfigurationInterface
                         ->scalarNode('layout_template')
                             ->info('Twig template that dashboard views extend (e.g. @App/base.html.twig). Must define block "nowo_dashboard_menu_content". If not set or template does not exist, the bundle layout is used.')
                             ->defaultValue('@NowoDashboardMenuBundle/dashboard/layout.html.twig')
+                        ->end()
+                        ->scalarNode('css_framework')
+                            ->defaultValue(CssFramework::Bootstrap5->value)
+                            ->info('CSS stack for dashboard markup (REQ-UI-001): see Nowo\DashboardMenuBundle\Enum\CssFramework.')
+                            ->validate()
+                                ->ifNotInArray(CssFramework::values())
+                                ->thenInvalid('Invalid css_framework "%s".')
+                            ->end()
+                        ->end()
+                        ->scalarNode('icon_set')
+                            ->defaultValue(IconSet::BootstrapIcons->value)
+                            ->info('Icon set for dashboard row actions (REQ-UI-001): see Nowo\DashboardMenuBundle\Enum\IconSet.')
+                            ->validate()
+                                ->ifNotInArray(IconSet::values())
+                                ->thenInvalid('Invalid icon_set "%s".')
+                            ->end()
                         ->end()
                         ->scalarNode('path_prefix')
                             ->info('Deprecated: set the dashboard URL prefix in config/routes.yaml when importing routes_dashboard.yaml (e.g. prefix: /admin/menus).')

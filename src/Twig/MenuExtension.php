@@ -27,6 +27,7 @@ use Twig\TwigFunction;
  * Twig extension: dashboard_menu_tree(menuCode, permissionContext?, contextSets?), dashboard_menu_href(item), dashboard_menu_config(menuCode, contextSets?).
  * contextSets: ordered list of JSON key-value objects to try when resolving menu (code + context); use null/[] for no context.
  * Global nowo_dashboard_layout_template: layout template that dashboard views extend (from nowo_dashboard_menu.dashboard.layout_template).
+ * Globals nowo_dashboard_menu_css_framework / nowo_dashboard_menu_icon_set: REQ-UI-001 CSS stack and icon set.
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
@@ -50,6 +51,8 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
         private readonly bool $itemSpanActive = false,
         private readonly string $itemSpanClass = 'd-flex align-items-center flex-nowrap',
         private readonly string $iconSize = '1em',
+        private readonly string $cssFramework = 'bootstrap5',
+        private readonly string $iconSet = 'bootstrap-icons',
     ) {
     }
 
@@ -58,6 +61,8 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
         return [
             'nowo_dashboard_layout_template'           => $this->dashboardLayoutTemplate,
             'nowo_dashboard_ux_autocomplete_available' => $this->uxAutocompleteAvailable,
+            'nowo_dashboard_menu_css_framework'        => $this->cssFramework,
+            'nowo_dashboard_menu_icon_set'             => $this->iconSet,
         ];
     }
 

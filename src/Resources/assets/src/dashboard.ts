@@ -44,6 +44,7 @@ export interface NowoDashboardMenuConfig {
   dashboardBase?: string;
   appRoutes?: Record<string, { params?: string[] }>;
   debug?: boolean;
+  cssFramework?: string;
 }
 
 const i18n = (key: string, fallback: string) =>
@@ -801,6 +802,76 @@ function initItemFormPage(config: NowoDashboardMenuConfig): void {
   attachItemFormToggles(document.body, appRoutes);
 }
 
+/** Returns true when the configured CSS framework uses Bootstrap's modal API. */
+function isBootstrapFramework(fw: string | undefined): boolean {
+  const f = (fw ?? 'bootstrap5').trim().toLowerCase();
+  return f === 'bootstrap' || f === 'bootstrap5' || f === 'bootstrap4' || f === 'tabler';
+}
+
+/**
+ * Open a modal identified by {@code targetId} without Bootstrap.
+ * Adds `.nowo-ui-modal-open` to the element and `nowo-modal-open` to `<body>`.
+ */
+function nowoOpenModal(targetId: string): void {
+  const el = document.getElementById(targetId);
+  if (!el) return;
+  el.classList.add('nowo-ui-modal-open');
+  document.body.classList.add('nowo-modal-open');
+  el.removeAttribute('hidden');
+  el.setAttribute('aria-hidden', 'false');
+}
+
+/**
+ * Close a modal element identified by {@code targetId} without Bootstrap.
+ * Removes `.nowo-ui-modal-open` and `nowo-modal-open` from `<body>` when no other modal is open.
+ */
+function nowoCloseModal(targetId: string): void {
+  const el = document.getElementById(targetId);
+  if (!el) return;
+  el.classList.remove('nowo-ui-modal-open');
+  el.setAttribute('aria-hidden', 'true');
+  const anyOpen = document.querySelector('.nowo-ui-modal-open');
+  if (!anyOpen) document.body.classList.remove('nowo-modal-open');
+}
+
+/**
+ * Initialize generic (non-Bootstrap) modal open/close handlers.
+ * Buttons with {@code data-nowo-modal-open="<id>"} open the target modal;
+ * buttons with {@code data-nowo-modal-close} or inside {@code [data-nowo-modal-id]} close it.
+ * Also mirrors the Bootstrap `show.bs.modal` event via a custom `nowo:modal:show` for existing listeners.
+ */
+function initNowoModals(): void {
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    const opener = target.closest<HTMLElement>('[data-nowo-modal-open]');
+    if (opener) {
+      const id = opener.getAttribute('data-nowo-modal-open') ?? '';
+      if (id) {
+        nowoOpenModal(id);
+        const modal = document.getElementById(id);
+        if (modal) {
+          modal.dispatchEvent(new CustomEvent('nowo:modal:show', { detail: { relatedTarget: opener }, bubbles: true }));
+        }
+      }
+      return;
+    }
+    const closer = target.closest<HTMLElement>('[data-nowo-modal-close]');
+    if (closer) {
+      const modal = closer.closest<HTMLElement>('[id].nowo-ui-modal-open, [data-nowo-modal-id]');
+      const id = modal?.id ?? closer.getAttribute('data-nowo-modal-close') ?? '';
+      if (id) nowoCloseModal(id);
+    }
+  });
+
+  // Close on backdrop click (click on the modal root, not its content).
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (target.matches('.nowo-ui-modal-open[id]')) {
+      nowoCloseModal(target.id);
+    }
+  });
+}
+
 function run(): void {
   const config = window.__nowoDashboardMenuConfig;
   if (!config) return;
@@ -819,6 +890,9 @@ function run(): void {
   log.setDebug(!!config.debug);
   if (config.debug) window.dashboardMenuDebugLive = true;
   else window.dashboardMenuDebugLive = false;
+  if (!isBootstrapFramework(config.cssFramework)) {
+    initNowoModals();
+  }
   if (config.baseUrl != null || config.menuId != null) {
     initShowPage(config);
   }

@@ -96,6 +96,8 @@ services:
       $iconSize: '%nowo_dashboard_menu.dashboard.icon_size%'
       $itemSpanActive: '%nowo_dashboard_menu.dashboard.item_span_active%'
       $itemSpanClass: '%nowo_dashboard_menu.dashboard.item_span_class%'
+      $cssFramework: '%nowo_dashboard_menu.dashboard.css_framework%'
+      $iconSet: '%nowo_dashboard_menu.dashboard.icon_set%'
     tags:
       - { name: twig.extension }
     public: false

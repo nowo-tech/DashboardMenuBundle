@@ -2,7 +2,7 @@
 
 ## Before releasing
 
-> Current release target: **1.0.0** (`v1.0.0`).
+> Current release target: **1.0.1** (`v1.0.1`).
 
 1. **Run full checks**
 
@@ -10,13 +10,13 @@
    make release-check
    ```
 
-   This runs: `composer-sync`, `cs-fix`, `cs-check`, `rector-dry`, `phpstan`, `test-coverage`, and `release-check-demos` (each demo is started, HTTP-verified, then stopped).
+   This runs: `composer-sync`, `cs-fix`, `cs-check`, `rector-dry`, `phpstan`, `coverage-check`, `test-ts`, and `release-check-demos` (each demo is started, HTTP-verified, then stopped).
 
 2. **Update changelog and upgrading notes**
 
-   - Add a new section in `docs/CHANGELOG.md` for the release (e.g. `## [1.0.0] - YYYY-MM-DD`) and move any “Unreleased” entries into it. Update the comparison links at the bottom of the file.
-   - Add/update the corresponding section in `docs/UPGRADING.md` (e.g. `From 0.3.x to 1.0.0`).
-   - The package version for Packagist is taken from the git tag (e.g. `v1.0.0`); you do not need to set `version` in `composer.json`.
+   - Add a new section in `docs/CHANGELOG.md` for the release (e.g. `## [1.0.1] - YYYY-MM-DD`) and move any “Unreleased” entries into it. Update the comparison links at the bottom of the file.
+   - Add/update the corresponding section in `docs/UPGRADING.md` (e.g. `From 1.0.0 to 1.0.1`).
+   - The package version for Packagist is taken from the git tag (e.g. `v1.0.1`); you do not need to set `version` in `composer.json`.
 
 ## Creating the release
 
@@ -31,7 +31,7 @@
    Example for this cycle:
 
    ```bash
-   git tag -a v1.0.0 -m "Release 1.0.0"
+   git tag -a v1.0.1 -m "Release 1.0.1"
    ```
 
 3. **Push the tag**
@@ -43,7 +43,7 @@
    Example for this cycle:
 
    ```bash
-   git push origin v1.0.0
+   git push origin v1.0.1
    ```
 
 4. **GitHub Actions** (if `.github/workflows/release.yml` is configured) will create or update the GitHub Release for that tag, using the tag message and the corresponding section from `docs/CHANGELOG.md` as the release body.

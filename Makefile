@@ -1,5 +1,5 @@
 # Makefile for Dashboard Menu Bundle
-.PHONY: help up down build shell install test test-coverage coverage-check validate-translations cs-check cs-fix qa clean assets ensure-up rector rector-dry phpstan release-check release-check-demos demo-smoke composer-sync update validate check-no-cursor-coauthor check-open-prs strip-cursor-coauthor-from-history
+.PHONY: help up down down-dev build shell install test test-ts test-coverage coverage-check validate-translations cs-check cs-fix qa clean assets ensure-up rector rector-dry phpstan release-check release-check-demos demo-smoke composer-sync update validate check-no-cursor-coauthor check-open-prs strip-cursor-coauthor-from-history
 
 help:
 	@echo "Dashboard Menu Bundle - Development Commands"
@@ -9,12 +9,14 @@ help:
 	@echo "Targets:"
 	@echo "  up              Start Docker container"
 	@echo "  down            Stop Docker container"
+	@echo "  down-dev        Stop containers without removing volumes (dev)"
 	@echo "  ensure-up       Ensure container is up (start + composer install if needed)"
 	@echo "  build           Rebuild Docker image (no cache)"
 	@echo "  shell           Open shell in container"
 	@echo "  install         Install Composer dependencies"
 	@echo "  assets          Build frontend assets (Vite: dashboard.js + stimulus-live.js)"
 	@echo "  test            Run PHPUnit tests"
+	@echo "  test-ts         Run TypeScript (Vitest) unit tests + print global TS coverage"
 	@echo "  test-coverage   Run PHPUnit tests with code coverage"
 	@echo "  coverage-check  Coverage with fail-under 99% lines"
 	@echo "  demo-smoke      Boot demos and assert HTTP 200"
@@ -25,7 +27,7 @@ help:
 	@echo "  rector-dry      Run Rector in dry-run mode"
 	@echo "  phpstan         Run PHPStan static analysis"
 	@echo "  qa              Run all QA checks"
-	@echo "  release-check   Pre-release gates (PRs, QA, coverage-check, demos, assets)"
+	@echo "  release-check   Pre-release gates (PRs, QA, coverage-check, test-ts, demos, assets)"
 	@echo "  composer-sync   Validate composer.json and align composer.lock"
 	@echo "  clean           Remove vendor and cache"
 	@echo "  update          Run composer update"
@@ -58,6 +60,9 @@ up:
 down:
 	$(COMPOSE) down
 
+down-dev:
+	$(COMPOSE) down --remove-orphans
+
 ensure-up:
 	@if ! $(COMPOSE) exec -T $(SERVICE_PHP) true 2>/dev/null; then \
 		echo "Starting container..."; \
@@ -80,6 +85,11 @@ test: ensure-up
 test-coverage: ensure-up
 	$(COMPOSE) exec $(SERVICE_PHP) composer test-coverage | tee coverage-php.txt
 	sh ./.scripts/php-coverage-percent.sh coverage-php.txt
+
+test-ts: ensure-up
+	$(COMPOSE) exec -T -e CI=true $(SERVICE_PHP) sh -c "pnpm install --frozen-lockfile || pnpm install"
+	$(COMPOSE) exec -T $(SERVICE_PHP) pnpm run test:coverage | tee coverage-ts.txt
+	sh .scripts/ts-coverage-percent.sh coverage-ts.txt
 
 coverage-check: ensure-up
 	@$(COMPOSE) exec -T $(SERVICE_PHP) composer coverage-check
@@ -115,7 +125,7 @@ update: ensure-up
 validate: ensure-up
 	$(COMPOSE) exec -T $(SERVICE_PHP) composer validate --strict
 
-release-check: check-no-cursor-coauthor check-open-prs ensure-up composer-sync cs-fix cs-check rector-dry phpstan coverage-check release-check-demos assets
+release-check: check-no-cursor-coauthor check-open-prs ensure-up composer-sync cs-fix cs-check rector-dry phpstan coverage-check test-ts release-check-demos assets
 
 release-check-demos:
 	@if [ -f demo/Makefile ]; then $(MAKE) -C demo release-check; else true; fi

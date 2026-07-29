@@ -1,13 +1,14 @@
+{% import '@NowoDashboardMenuBundle/dashboard/_ui_macros.html.twig' as ui %}
 {% for msg in app.flashes('error') %}
-    <div class="alert alert-danger">{{ msg }}</div>
+    <div class="{{ ui.flash('error') }}">{{ msg }}</div>
 {% endfor %}
-<p class="text-muted small">{{ 'dashboard.copy_menu_help'|trans({}, 'NowoDashboardMenuBundle') }}</p>
+<p class="{{ ui.muted() }} small">{{ 'dashboard.copy_menu_help'|trans({}, 'NowoDashboardMenuBundle') }}</p>
 {{ form_start(form, { attr: { class: 'form form-vertical', style: 'max-width: 32rem;' } }) }}
     <div class="row mb-2">
         {% for field in form.children %}
             {{ form_row(field) }}
         {% endfor %}
     </div>
-    <button type="submit" class="btn btn-primary">{{ 'dashboard.copy_menu'|trans({}, 'NowoDashboardMenuBundle') }}</button>
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'dashboard.cancel'|trans({}, 'NowoDashboardMenuBundle') }}</button>
+    <button type="submit" class="{{ ui.btn('primary') }}">{{ 'dashboard.copy_menu'|trans({}, 'NowoDashboardMenuBundle') }}</button>
+    <button type="button" class="{{ ui.btn('secondary') }}" {{ ui.modal_dismiss_attrs()|raw }}>{{ 'dashboard.cancel'|trans({}, 'NowoDashboardMenuBundle') }}</button>
 {{ form_end(form) }}

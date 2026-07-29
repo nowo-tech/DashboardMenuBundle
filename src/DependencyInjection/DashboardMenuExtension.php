@@ -7,6 +7,8 @@ namespace Nowo\DashboardMenuBundle\DependencyInjection;
 use Nowo\DashboardMenuBundle\DataCollector\DashboardMenuDataCollector;
 use Nowo\DashboardMenuBundle\DataCollector\MenuQueryCounter;
 use Nowo\DashboardMenuBundle\DataCollector\MenuQueryCountMiddleware;
+use Nowo\DashboardMenuBundle\Enum\CssFramework;
+use Nowo\DashboardMenuBundle\Enum\IconSet;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 use Nowo\DashboardMenuBundle\Security\AllowAllDashboardMenuAccessChecker;
 use Nowo\DashboardMenuBundle\Security\ConfigurableDashboardMenuAccessChecker;
@@ -21,11 +23,13 @@ use Nowo\DashboardMenuBundle\Service\MenuTreeCacheInvalidator;
 use Nowo\DashboardMenuBundle\Service\MenuTreeLoader;
 use Nowo\DashboardMenuBundle\Twig\MenuExtension;
 use Psr\Clock\ClockInterface;
+use Symfony\Component\Asset\Package;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\Extension;
+use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use Throwable;
@@ -37,21 +41,33 @@ use function is_string;
 /**
  * Loads bundle configuration and services.
  *
- * Twig views are not registered here (no prepend). They are added at the end of the
- * native loader by TwigPathsPass so that app overrides in templates/bundles/NowoDashboardMenuBundle/
- * are consulted first.
+ * Twig views are registered by TwigPathsPass (app overrides first). This extension
+ * prepends the named assets package and optional Live Component defaults.
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
  */
-final class DashboardMenuExtension extends Extension
+final class DashboardMenuExtension extends Extension implements PrependExtensionInterface
 {
     /**
      * Prepend twig_component.defaults so the bundle's Live Component has a matching namespace
      * (avoids "Could not generate a component name ... no matching namespace found").
+     * Also registers the named assets package for serving bundle public files via asset().
      */
     public function prepend(ContainerBuilder $container): void
     {
+        if ($container->hasExtension('framework') && class_exists(Package::class)) {
+            $container->prependExtensionConfig('framework', [
+                'assets' => [
+                    'packages' => [
+                        Configuration::ALIAS => [
+                            'base_path' => '/bundles/nowodashboardmenu',
+                        ],
+                    ],
+                ],
+            ]);
+        }
+
         if (class_exists(\Symfony\UX\LiveComponent\Attribute\AsLiveComponent::class)) {
             $container->prependExtensionConfig('twig_component', [
                 'defaults' => [
@@ -143,6 +159,11 @@ final class DashboardMenuExtension extends Extension
         $container->setParameter(Configuration::ALIAS . '.dashboard.enabled', $config['dashboard']['enabled'] ?? false);
         $container->setParameter(Configuration::ALIAS . '.dashboard.layout_template', $config['dashboard']['layout_template'] ?? '@NowoDashboardMenuBundle/dashboard/layout.html.twig');
         $container->setParameter(Configuration::ALIAS . '.dashboard.path_prefix', $config['dashboard']['path_prefix'] ?? '/admin/menus');
+        $cssFrameworkRaw = (string) ($config['dashboard']['css_framework'] ?? CssFramework::Bootstrap5->value);
+        $cssFramework    = CssFramework::from($cssFrameworkRaw)->normalized()->value;
+        $container->setParameter(Configuration::ALIAS . '.dashboard.css_framework', $cssFramework);
+        $iconSet = IconSet::from((string) ($config['dashboard']['icon_set'] ?? IconSet::BootstrapIcons->value))->value;
+        $container->setParameter(Configuration::ALIAS . '.dashboard.icon_set', $iconSet);
         $container->setParameter(Configuration::ALIAS . '.dashboard.route_name_exclude_patterns', $config['dashboard']['route_name_exclude_patterns'] ?? []);
         $container->setParameter(Configuration::ALIAS . '.dashboard.pagination.enabled', $config['dashboard']['pagination']['enabled'] ?? true);
         $container->setParameter(Configuration::ALIAS . '.dashboard.pagination.per_page', $config['dashboard']['pagination']['per_page'] ?? 20);

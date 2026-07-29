@@ -1,28 +1,26 @@
-{% extends nowo_dashboard_layout_template|default('@NowoDashboardMenuBundle/dashboard/layout.html.twig') %}
+{% extends '@NowoDashboardMenuBundle/dashboard/base.html.twig' %}
+{% import '@NowoDashboardMenuBundle/dashboard/_ui_macros.html.twig' as ui %}
 
 {% block dashboard_title %}{{ (is_edit ? 'dashboard.edit_item' : 'dashboard.new_item')|trans({}, 'NowoDashboardMenuBundle') }}{% endblock %}
 
-{% block nowo_dashboard_menu_content %}
+{% block body %}
     {% if nowo_dashboard_ux_autocomplete_available|default(false) %}
 {% form_theme form '@SymfonyUXAutocomplete/autocomplete_form_theme.html.twig' %}
 {% endif %}
-    {% for msg in app.flashes('error') %}
-        <div class="alert alert-danger">{{ msg }}</div>
-    {% endfor %}
 
     <p>
-        <a href="{{ path(dashboard_show_route|default(dashboard_routes.show|default('nowo_dashboard_menu_dashboard_show')), { id: menu.id }) }}" class="btn btn-link text-decoration-none">← {{ menu.code }}</a>
+        <a href="{{ path(dashboard_show_route|default(dashboard_routes.show|default('nowo_dashboard_menu_dashboard_show')), { id: menu.id }) }}" class="{{ ui.btn('link') }}">← {{ menu.code }}</a>
     </p>
 
     {{ form_start(form, { attr: { class: 'form form-vertical' } }) }}
         {% set show_translations = show_translations|default(is_edit|default(false)) %}
         <div class="row">
             <div class="mb-2">
-                <h6 class="text-muted mb-2">
+                <h6 class="{{ ui.muted() }} mb-2">
                     <i class="bi bi-pencil" aria-hidden="true"></i>
                     {{ 'form.menu_item_type.section_basic'|trans({}, 'NowoDashboardMenuBundle') }}
                 </h6>
-                <p id="divider_label_hint" class="form-text text-muted small mb-2" style="display: none;">{{ 'form.menu_item_type.divider_label_hint'|trans({}, 'NowoDashboardMenuBundle') }}</p>
+                <p id="divider_label_hint" class="form-text {{ ui.muted() }} small mb-2" style="display: none;">{{ 'form.menu_item_type.divider_label_hint'|trans({}, 'NowoDashboardMenuBundle') }}</p>
                 <div id="item_basic_label_icon_fields" class="mb-2">
                     {{ form_row(form.basic.label) }}
                     {% if (show_translations|default(is_edit|default(false))) and locales is defined and locales is not empty %}
@@ -38,7 +36,7 @@
                 </div>
                 {% if form.icon is defined %}
                     <div class="mb-2">
-                        <h6 class="text-muted mb-2">
+                        <h6 class="{{ ui.muted() }} mb-2">
                             <i class="bi bi-image" aria-hidden="true"></i>
                             {{ 'form.menu_item_type.section_icon'|trans({}, 'NowoDashboardMenuBundle') }}
                         </h6>
@@ -66,7 +64,7 @@
             </div>
             {% if form.config is defined %}
             <div class="mb-2">
-                <h6 class="text-muted mb-2">
+                <h6 class="{{ ui.muted() }} mb-2">
                     <i class="bi bi-gear" aria-hidden="true"></i>
                     {{ 'form.menu_item_type.section_config'|trans({}, 'NowoDashboardMenuBundle') }}
                 </h6>
@@ -89,7 +87,7 @@
                     <div id="item_service_link_block" class="mb-2"{% if form.config.linkType is defined and _item_type_ui != 'service' %} style="display: none;"{% endif %}>
                         {{ form_row(form.config.linkResolver) }}
                         {% if form.config.routeParams is defined %}
-                            <small class="form-text text-muted d-block mb-2" id="item_service_route_params_hint">{{ 'form.menu_item_type.link_resolver.route_params_hint'|trans({}, 'NowoDashboardMenuBundle') }}</small>
+                            <small class="form-text {{ ui.muted() }} d-block mb-2" id="item_service_route_params_hint">{{ 'form.menu_item_type.link_resolver.route_params_hint'|trans({}, 'NowoDashboardMenuBundle') }}</small>
                         {% endif %}
                     </div>
                     {% endif %}
@@ -103,7 +101,7 @@
                     {% if form.config.routeParams is defined %}
                     <div class="mb-2" id="route_fields">
                         {{ form_row(form.config.routeParams) }}
-                        <small class="form-text text-muted d-block mt-1" id="route_params_hint"></small>
+                        <small class="form-text {{ ui.muted() }} d-block mt-1" id="route_params_hint"></small>
                     </div>
                     {% endif %}
                     {% if form.config.targetBlank is defined %}
@@ -123,7 +121,7 @@
             {% endif %}
         </div>
         {{ form_rest(form) }}
-        <button type="submit" class="btn btn-primary">{{ (is_edit ? 'dashboard.update' : 'dashboard.create')|trans({}, 'NowoDashboardMenuBundle') }}</button>
+        <button type="submit" class="{{ ui.btn('primary') }}">{{ (is_edit ? 'dashboard.update' : 'dashboard.create')|trans({}, 'NowoDashboardMenuBundle') }}</button>
     {{ form_end(form) }}
 
     <script>

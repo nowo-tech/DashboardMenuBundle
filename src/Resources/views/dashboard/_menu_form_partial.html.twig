@@ -1,3 +1,4 @@
+{% import '@NowoDashboardMenuBundle/dashboard/_ui_macros.html.twig' as ui %}
 {% set _section_focus = section_focus|default('') %}
 {# Definition modal: only form.definition. Configuration modal: only form.config. New menu / full edit: both if available. #}
 {% set _show_definition = form.definition is defined and (_section_focus == '' or _section_focus == 'basic') %}
@@ -9,7 +10,7 @@
     <div class="row mb-2">
         {% if _show_definition %}
         <div id="menu_definition_section">
-        <p class="text-muted small mb-2">
+        <p class="{{ ui.muted() }} small mb-2">
             <span class="bi bi-pencil-fill me-1" aria-hidden="true"></span>
             {{ 'form.menu_type.section_definition'|trans({}, 'NowoDashboardMenuBundle') }}
         </p>
@@ -22,19 +23,19 @@
         {% if _show_config %}
         <div id="menu_config_section">
         {% if _show_definition %}<hr class="my-3">{% endif %}
-        <p class="text-muted small mb-2">
+        <p class="{{ ui.muted() }} small mb-2">
             <span class="bi bi-gear-fill me-1" aria-hidden="true"></span>
             {{ 'form.menu_type.section_config'|trans({}, 'NowoDashboardMenuBundle') }}
         </p>
         {% for field in form.config %}
             {% if field.vars.name == 'classMenu' %}
                 <hr class="my-3">
-                <p class="text-muted small mb-2">{{ 'form.menu_type.css_section_heading'|trans({}, 'NowoDashboardMenuBundle') }}</p>
+                <p class="{{ ui.muted() }} small mb-2">{{ 'form.menu_type.css_section_heading'|trans({}, 'NowoDashboardMenuBundle') }}</p>
             {% endif %}
             {{ form_row(field) }}
         {% endfor %}
         </div>
         {% endif %}
     </div>
-    <button type="submit" class="btn btn-primary">{{ (is_edit|default(false) ? 'dashboard.update' : 'dashboard.create')|trans({}, 'NowoDashboardMenuBundle') }}</button>
+    <button type="submit" class="{{ ui.btn('primary') }}">{{ (is_edit|default(false) ? 'dashboard.update' : 'dashboard.create')|trans({}, 'NowoDashboardMenuBundle') }}</button>
 {{ form_end(form) }}
