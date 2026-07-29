@@ -32,7 +32,7 @@ The bundle does **not** require `nowo-tech/icon-selector-bundle`. The dashboard 
 composer require nowo-tech/dashboard-menu-bundle
 ```
 
-Use `^0.0` for the 0.x line (or the latest stable constraint).
+Use `^1.0` for the stable 1.x line (or `^0.3` only if you must stay on the pre-1.0 series).
 
 ## Register the bundle
 

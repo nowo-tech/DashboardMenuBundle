@@ -222,7 +222,7 @@ final class Configuration implements ConfigurationInterface
                         ->scalarNode('required_role')
                             ->info('DEPRECATED: use security.access_roles. When set (e.g. ROLE_ADMIN), maps to security.access_roles for BC.')
                             ->defaultNull()
-                            ->setDeprecated('nowo-tech/dashboard-menu-bundle', '0.4', 'Use "nowo_dashboard_menu.security.access_roles" instead of "dashboard.required_role".')
+                            ->setDeprecated('nowo-tech/dashboard-menu-bundle', '1.0', 'Use "nowo_dashboard_menu.security.access_roles" instead of "dashboard.required_role".')
                         ->end()
                         ->arrayNode('import_export_rate_limit')
                             ->info('Optional rate limit for import and export actions: limit requests per interval per user/IP. E.g. { limit: 10, interval: 60 } = 10 per minute.')

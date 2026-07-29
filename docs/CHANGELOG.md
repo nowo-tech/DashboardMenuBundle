@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[1.0.0] - 2026-07-29](#100-2026-07-29)
 - [[0.3.50] - 2026-07-29](#0350-2026-07-29)
 - [[0.3.49] - 2026-07-29](#0349-2026-07-29)
 - [[0.3.48] - 2026-07-29](#0348-2026-07-29)
@@ -64,6 +65,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.0.0] - 2026-07-29
+
+### Added
+
+- **Stable 1.0 API:** First major release. Public configuration, Twig helpers (`dashboard_menu_tree`, `dashboard_menu_href`, `dashboard_menu_config`), JSON API, dashboard CRUD, and documented extension points follow [Semantic Versioning](https://semver.org/); breaking changes will require a new major version.
+
+### Changed
+
+- **Packaging:** Consumers should require `nowo-tech/dashboard-menu-bundle: ^1.0`. Runtime behaviour matches the mature **0.3.50** line (no intentional BC break from 0.3.50).
+- **Deprecation metadata:** `dashboard.required_role` deprecation version bumped to `1.0` (prefer `security.access_roles`).
+
+### Documentation
+
+- [UPGRADING.md](UPGRADING.md): 0.3.x → 1.0.0.
+- [RELEASE.md](RELEASE.md), [INSTALLATION.md](INSTALLATION.md): 1.0 release target and Composer constraint.
 
 ## [0.3.50] - 2026-07-29
 
@@ -802,7 +819,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.50...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.50...v1.0.0
 [0.3.50]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.49...v0.3.50
 [0.3.49]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.48...v0.3.49
 [0.3.48]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.47...v0.3.48

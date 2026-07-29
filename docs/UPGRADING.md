@@ -5,6 +5,7 @@ This document describes breaking changes and upgrade notes between versions. Sec
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [From 0.3.x to 1.0.0](#from-03x-to-100)
 - [From 0.3.49 to 0.3.50](#from-0349-to-0350)
 - [From 0.3.48 to 0.3.49](#from-0348-to-0349)
 - [From 0.3.47 to 0.3.48](#from-0347-to-0348)
@@ -61,6 +62,15 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## From 0.3.x to 1.0.0
+
+No intentional breaking changes relative to **0.3.50** (public HTTP API, route names, schema, and config keys are unchanged).
+
+- **First stable major:** From 1.0.0 onward, the documented public surface follows Semantic Versioning. Prefer requiring `nowo-tech/dashboard-menu-bundle: ^1.0`.
+- **Composer:** replace `^0.3` (or other 0.x constraints) with `^1.0`, then `composer update nowo-tech/dashboard-menu-bundle`.
+- **If you are not already on 0.3.50:** apply the intermediate notes below in order, especially [From 0.3.47 to 0.3.48](#from-0347-to-0348) (`security.access_roles` / default dashboard access).
+- **Deprecated but still supported:** `dashboard.required_role` still maps to `security.access_roles`; migrate to the `security` node when convenient (see [SECURITY.md](SECURITY.md)).
 
 ## From 0.3.49 to 0.3.50
 
