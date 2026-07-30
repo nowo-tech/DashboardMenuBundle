@@ -34,6 +34,8 @@ dashboard:
   search: Zoeken
   search_placeholder: "Zoeken op code of naam…"
   clear: Wissen
+  filter: Filteren
+  clear_filters: Filters wissen
   no_menus_yet: "Nog geen menu's. Maak er een aan om te beginnen."
   no_items: Geen items.
   context: Context

@@ -5,6 +5,7 @@ This document describes breaking changes and upgrade notes between versions. Sec
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [From 1.0.2 to 1.0.3](#from-102-to-103)
 - [From 1.0.1 to 1.0.2](#from-101-to-102)
 - [From 1.0.0 to 1.0.1](#from-100-to-101)
 - [From 0.3.x to 1.0.0](#from-03x-to-100)
@@ -64,6 +65,14 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## From 1.0.2 to 1.0.3
+
+No intentional breaking changes to the public HTTP API, route names, schema, or configuration.
+
+- **Dashboard list filter UX:** menus index search is a dedicated row (Filter + always-visible Clear filters), separate from the Export/Import/New toolbar. New translation keys `dashboard.filter` / `dashboard.clear_filters`; `dashboard.search` / `dashboard.clear` remain for BC.
+- **Twig / CSS:** macros `search_form()` / `search_input()` and classes `.nowo-ui-search` / `.nowo-ui-search__input`. Hosts that override `dashboard/index.html.twig` may want to adopt the same layout.
+- **Consumers:** `composer update nowo-tech/dashboard-menu-bundle:^1.0` then `php bin/console assets:install` (new CSS hooks). No config changes required.
 
 ## From 1.0.1 to 1.0.2
 

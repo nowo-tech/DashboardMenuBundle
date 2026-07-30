@@ -40,12 +40,29 @@ nowo-ui-toolbar nowo-ui-page-header
 {%- endif -%}
 {%- endmacro %}
 
+{# List filter row (search + Filter + Clear filters), separate from action toolbar. #}
+{% macro search_form() -%}
+nowo-ui-search
+{%- set f = _self.fw()|trim -%}
+{%- if f in ['bootstrap', 'bootstrap5', 'bootstrap4', 'tabler'] %} d-flex flex-wrap gap-2 mb-3
+{%- elseif f == 'tailwind' %} flex flex-wrap gap-2 mb-4
+{%- elseif f == 'foundation' %} grid-x grid-margin-x mb-3
+{%- endif -%}
+{%- endmacro %}
+
 {% macro input() -%}
 nowo-ui-input
 {%- set f = _self.fw()|trim -%}
 {%- if f in ['bootstrap', 'bootstrap5', 'bootstrap4', 'tabler'] %} form-control
 {%- elseif f == 'tailwind' %} block w-full max-w-xs rounded-md border border-slate-300 px-3 py-1.5 text-sm
 {%- elseif f == 'foundation' %}
+{%- endif -%}
+{%- endmacro %}
+
+{% macro search_input() -%}
+{{ _self.input() }} nowo-ui-search__input
+{%- set f = _self.fw()|trim -%}
+{%- if f == 'tailwind' %} min-w-56 flex-1 max-w-none
 {%- endif -%}
 {%- endmacro %}
 

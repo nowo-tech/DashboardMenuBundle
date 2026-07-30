@@ -5,14 +5,13 @@
 {% block dashboard_title %}{{ 'dashboard.menus'|trans({}, 'NowoDashboardMenuBundle') }}{% endblock %}
 
 {% block body %}
+    <form method="get" action="{{ path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index')) }}" class="{{ ui.search_form() }}" role="search">
+        <input type="search" name="q" value="{{ search|e('html_attr') }}" class="{{ ui.search_input() }}" placeholder="{{ 'dashboard.search_placeholder'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.search'|trans({}, 'NowoDashboardMenuBundle') }}" autocomplete="off">
+        <button type="submit" class="{{ ui.btn('secondary') }}">{{ 'dashboard.filter'|trans({}, 'NowoDashboardMenuBundle') }}</button>
+        <a href="{{ path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index')) }}" class="{{ ui.btn('secondary') }}">{{ 'dashboard.clear_filters'|trans({}, 'NowoDashboardMenuBundle') }}</a>
+    </form>
+
     <div class="{{ ui.toolbar() }}">
-        <form method="get" action="{{ path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index')) }}" class="d-flex gap-1 flex-grow-1" role="search">
-            <input type="search" name="q" value="{{ search|e('html_attr') }}" class="{{ ui.input() }}" placeholder="{{ 'dashboard.search_placeholder'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.search'|trans({}, 'NowoDashboardMenuBundle') }}" style="max-width: 20rem;">
-            <button type="submit" class="{{ ui.btn('secondary') }}">{{ 'dashboard.search'|trans({}, 'NowoDashboardMenuBundle') }}</button>
-            {% if search is not empty %}
-                <a href="{{ path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index')) }}" class="{{ ui.btn('secondary') }}">{{ 'dashboard.clear'|trans({}, 'NowoDashboardMenuBundle') }}</a>
-            {% endif %}
-        </form>
         <a href="{{ path(dashboard_routes.export_all|default('nowo_dashboard_menu_dashboard_export_all')) }}" class="{{ ui.btn('secondary') }}" target="_blank" rel="noopener noreferrer">{{ 'dashboard.export_all'|trans({}, 'NowoDashboardMenuBundle') }}</a>
         <button type="button" class="{{ ui.btn('secondary') }} btn-import" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-import')|raw }} data-import-url="{{ path(dashboard_routes.import|default('nowo_dashboard_menu_dashboard_import')) }}">{{ 'dashboard.import'|trans({}, 'NowoDashboardMenuBundle') }}</button>
         <button type="button" class="{{ ui.btn('primary') }}" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-menu-new')|raw }}>{{ 'dashboard.new_menu'|trans({}, 'NowoDashboardMenuBundle') }}</button>

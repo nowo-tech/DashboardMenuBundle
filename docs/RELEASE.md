@@ -2,7 +2,7 @@
 
 ## Before releasing
 
-> Current release target: **1.0.2** (`v1.0.2`).
+> Current release target: **1.0.3** (`v1.0.3`).
 
 1. **Run full checks**
 
@@ -14,9 +14,9 @@
 
 2. **Update changelog and upgrading notes**
 
-   - Add a new section in `docs/CHANGELOG.md` for the release (e.g. `## [1.0.2] - YYYY-MM-DD`) and move any “Unreleased” entries into it. Update the comparison links at the bottom of the file.
-   - Add/update the corresponding section in `docs/UPGRADING.md` (e.g. `From 1.0.1 to 1.0.2`).
-   - The package version for Packagist is taken from the git tag (e.g. `v1.0.2`); you do not need to set `version` in `composer.json`.
+   - Add a new section in `docs/CHANGELOG.md` for the release (e.g. `## [1.0.3] - YYYY-MM-DD`) and move any “Unreleased” entries into it. Update the comparison links at the bottom of the file.
+   - Add/update the corresponding section in `docs/UPGRADING.md` (e.g. `From 1.0.2 to 1.0.3`).
+   - The package version for Packagist is taken from the git tag (e.g. `v1.0.3`); you do not need to set `version` in `composer.json`.
 
 ## Creating the release
 
@@ -31,7 +31,7 @@
    Example for this cycle:
 
    ```bash
-   git tag -a v1.0.2 -m "Release 1.0.2"
+   git tag -a v1.0.3 -m "Release 1.0.3"
    ```
 
 3. **Push the tag**
@@ -43,7 +43,7 @@
    Example for this cycle:
 
    ```bash
-   git push origin v1.0.2
+   git push origin v1.0.3
    ```
 
 4. **GitHub Actions** (if `.github/workflows/release.yml` is configured) will create or update the GitHub Release for that tag, using the tag message and the corresponding section from `docs/CHANGELOG.md` as the release body.

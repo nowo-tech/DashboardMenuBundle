@@ -29,6 +29,8 @@ dashboard:
   search: Search
   search_placeholder: "Search by code or name…"
   clear: Clear
+  filter: Filtrar
+  clear_filters: Netejar filtres
   no_menus_yet: "No menus yet. Create one to get started."
   no_items: No items.
   context: Context

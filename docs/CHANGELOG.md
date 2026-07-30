@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[1.0.3] - 2026-07-30](#103-2026-07-30)
 - [[1.0.2] - 2026-07-29](#102-2026-07-29)
 - [[1.0.1] - 2026-07-29](#101-2026-07-29)
 - [[1.0.0] - 2026-07-29](#100-2026-07-29)
@@ -67,6 +68,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.0.3] - 2026-07-30
+
+### Changed
+
+- Dashboard menus index: list filter row matches admin list UX (search input + Filter + always-visible Clear filters), separate from Export/Import/New toolbar.
+- Added `dashboard.filter` and `dashboard.clear_filters` translation keys (kept `dashboard.search` / `dashboard.clear` for BC).
+- Semantic CSS: `.nowo-ui-search` / `.nowo-ui-search__input`; Twig macros `search_form()` / `search_input()`.
 
 ## [1.0.2] - 2026-07-29
 
@@ -857,7 +866,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v1.0.2...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v1.0.3...HEAD
+[1.0.3]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v0.3.50...v1.0.0

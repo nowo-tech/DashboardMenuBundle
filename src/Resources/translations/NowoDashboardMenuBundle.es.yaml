@@ -34,6 +34,8 @@ dashboard:
   search: Buscar
   search_placeholder: "Buscar por código o nombre…"
   clear: Limpiar
+  filter: Filtrar
+  clear_filters: Limpiar filtros
   no_menus_yet: "Aún no hay menús. Crea uno para empezar."
   no_items: Sin ítems.
   context: Contexto
