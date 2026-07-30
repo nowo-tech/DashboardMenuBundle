@@ -95,6 +95,17 @@ Copy the original from `vendor/nowo-tech/dashboard-menu-bundle/src/Resources/vie
 <script src="{{ asset('js/dashboard.js', 'nowo_dashboard_menu') }}" defer></script>
 ```
 
+`nowo-ui.css` uses CSS custom properties (`--nowo-ui-primary`, `--nowo-ui-surface`, `--nowo-ui-border`, `--nowo-ui-text`, `--nowo-ui-muted`, …) with slate/blue defaults. Remap under your host chrome (e.g. `.kit-admin`) without forking templates:
+
+```css
+.kit-admin {
+  --nowo-ui-primary: var(--brand-primary);
+  --nowo-ui-text: var(--brand-ink);
+  --nowo-ui-border: var(--brand-border);
+  --nowo-ui-surface: var(--brand-surface);
+}
+```
+
 When `layout_template` points at the **project** layout, the demo CDN is skipped; your layout must expose `stylesheets` / `javascripts` (bundle `base.html.twig` calls `{{ parent() }}`). Twig globals: `nowo_dashboard_layout_template`, `nowo_dashboard_menu_css_framework`, `nowo_dashboard_menu_icon_set`.
 
 After adding or changing template overrides, clear the Twig cache if needed: `php bin/console cache:clear`.

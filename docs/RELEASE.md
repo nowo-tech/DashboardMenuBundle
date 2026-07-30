@@ -2,7 +2,7 @@
 
 ## Before releasing
 
-> Current release target: **1.0.3** (`v1.0.3`).
+> Current release target: **1.0.4** (`v1.0.4`).
 
 1. **Run full checks**
 

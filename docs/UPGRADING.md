@@ -5,6 +5,7 @@ This document describes breaking changes and upgrade notes between versions. Sec
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [From 1.0.3 to 1.0.4](#from-103-to-104)
 - [From 1.0.2 to 1.0.3](#from-102-to-103)
 - [From 1.0.1 to 1.0.2](#from-101-to-102)
 - [From 1.0.0 to 1.0.1](#from-100-to-101)
@@ -65,6 +66,18 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## From 1.0.3 to 1.0.4
+
+No Doctrine schema or public API changes.
+
+- **`nowo-ui.css`:** hard-coded colours replaced with `--nowo-ui-*` custom properties (defaults match the previous slate/blue look). Hosts can remap under `.kit-admin` without forking Twig.
+- Run `php bin/console assets:install` after upgrade.
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+php bin/console assets:install
+```
 
 ## From 1.0.2 to 1.0.3
 
