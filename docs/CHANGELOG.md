@@ -70,6 +70,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`nowo-ui.css`**: real modal overlay for `css_framework: custom` stacks — fixed backdrop, centered dialog, `body.nowo-modal-open { overflow: hidden }`, and minimal `.btn-close` styling. Scoped to `.nowo-ui-modal-open` so Bootstrap stacks are unaffected.
+- **`dashboard.ts` `initNowoModals()`**: target id now resolved from `data-nowo-modal-open` (if non-empty) or `data-nowo-modal-target` (leading `#` stripped), matching macro output. After opening, dispatches a synthetic `show.bs.modal` Event with `relatedTarget` set to the opener button (via `Object.defineProperty`) so existing form-loading listeners work without Bootstrap being present.
+- **`docs/INSTALLATION.md`**: new section "Using css_framework: custom (Bootstrap-free hosts)" covering `assets:install`, CSS token remapping, and modal JS behaviour.
+
 ## [1.0.4] - 2026-07-30
 
 ### Changed

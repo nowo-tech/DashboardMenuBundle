@@ -110,6 +110,43 @@ Use `--dump` first to print SQL without writing a file. If you use a non-default
 - In a Twig template, use `dashboard_menu_tree('sidebar')` and include `@NowoDashboardMenuBundle/menu.html.twig` (see [USAGE.md](USAGE.md)).
 - Call `GET /api/menu/sidebar` to get the JSON tree.
 
+## Using css_framework: custom (Bootstrap-free hosts)
+
+Set `dashboard.css_framework: custom` in your bundle config when your host layout does **not** load Bootstrap:
+
+```yaml
+# config/packages/nowo_dashboard_menu.yaml
+nowo_dashboard_menu:
+    dashboard:
+        css_framework: custom
+```
+
+After setting this option:
+
+1. **Do not** load Bootstrap CSS or JS in your layout. The bundle ships its own `nowo-ui.css` with a standalone modal overlay and UI tokens.
+2. Run `php bin/console assets:install` (or `assets:install --symlink`) so `public/bundles/nowodashboardmenubundle/css/nowo-ui.css` and `public/bundles/nowodashboardmenubundle/js/dashboard.js` are published.
+3. Include the bundle assets in your layout shell (e.g. under `templates/kit/`):
+
+```twig
+<link rel="stylesheet" href="{{ asset('bundles/nowodashboardmenubundle/css/nowo-ui.css') }}">
+<script src="{{ asset('bundles/nowodashboardmenubundle/js/dashboard.js') }}" defer></script>
+```
+
+4. **Remap design tokens** under your host shell class without forking templates:
+
+```css
+.kit-admin {
+    --nowo-ui-primary: #7c3aed;
+    --nowo-ui-surface: #ffffff;
+    --nowo-ui-border: #ddd4fe;
+    /* … any --nowo-ui-* token from nowo-ui.css */
+}
+```
+
+5. **Modals** are handled entirely by the kit JS (`dashboard.js`). Opener buttons use `data-nowo-modal-open` (boolean) + `data-nowo-modal-target="<id>"`. No Bootstrap JS is required; the script dispatches a synthetic `show.bs.modal` Event so existing form-loading listeners work transparently.
+
+> **Note:** The default `css_framework` remains `bootstrap5` for all demos and new installs. Set `custom` only when your host explicitly omits Bootstrap.
+
 ## Upgrading
 
 See [UPGRADING.md](UPGRADING.md) for version-to-version changes and breaking changes.
