@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[1.0.5] - 2026-08-01](#105-2026-08-01)
 - [[1.0.4] - 2026-07-30](#104-2026-07-30)
 - [[1.0.3] - 2026-07-30](#103-2026-07-30)
 - [[1.0.2] - 2026-07-29](#102-2026-07-29)
@@ -69,6 +70,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.0.5] - 2026-08-01
+
+### Added
+
+- **`nowo-ui.css`**: real modal overlay for `css_framework: custom` stacks — fixed backdrop, centered dialog, `body.nowo-modal-open { overflow: hidden }`, and minimal `.btn-close` styling. Scoped to `.nowo-ui-modal-open` so Bootstrap stacks are unaffected.
+- **`dashboard.ts` `initNowoModals()`**: target id now resolved from `data-nowo-modal-open` (if non-empty) or `data-nowo-modal-target` (leading `#` stripped), matching macro output. After opening, dispatches a synthetic `show.bs.modal` Event with `relatedTarget` set to the opener button (via `Object.defineProperty`) so existing form-loading listeners work without Bootstrap being present.
+- **`docs/INSTALLATION.md`**: new section "Using css_framework: custom (Bootstrap-free hosts)" covering `assets:install`, CSS token remapping, and modal JS behaviour.
 
 ## [1.0.4] - 2026-07-30
 

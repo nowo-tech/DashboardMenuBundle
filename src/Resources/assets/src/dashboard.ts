@@ -836,20 +836,34 @@ function nowoCloseModal(targetId: string): void {
 
 /**
  * Initialize generic (non-Bootstrap) modal open/close handlers.
- * Buttons with {@code data-nowo-modal-open="<id>"} open the target modal;
- * buttons with {@code data-nowo-modal-close} or inside {@code [data-nowo-modal-id]} close it.
- * Also mirrors the Bootstrap `show.bs.modal` event via a custom `nowo:modal:show` for existing listeners.
+ * Opener elements carry {@code data-nowo-modal-open} (boolean attribute, may be empty) and
+ * {@code data-nowo-modal-target="<id>"} (without leading #). If {@code data-nowo-modal-open}
+ * is non-empty it is used as the id directly (legacy); otherwise {@code data-nowo-modal-target}
+ * (leading # stripped) is used.
+ *
+ * After opening, dispatches a synthetic {@code show.bs.modal} Event with {@code relatedTarget}
+ * set to the opener (so existing show.bs.modal listeners load forms without Bootstrap), then also
+ * dispatches {@code nowo:modal:show} CustomEvent for forward-compat listeners.
+ *
+ * Buttons with {@code data-nowo-modal-close} or inside {@code [data-nowo-modal-id]} close the modal.
  */
 function initNowoModals(): void {
   document.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
     const opener = target.closest<HTMLElement>('[data-nowo-modal-open]');
     if (opener) {
-      const id = opener.getAttribute('data-nowo-modal-open') ?? '';
+      const raw = opener.getAttribute('data-nowo-modal-open') ?? '';
+      const targetAttr = opener.getAttribute('data-nowo-modal-target') ?? '';
+      const id = raw || targetAttr.replace(/^#/, '');
       if (id) {
         nowoOpenModal(id);
         const modal = document.getElementById(id);
         if (modal) {
+          // Synthetic show.bs.modal so existing listeners (initShowPage/initIndexPage) load
+          // forms via fetch without Bootstrap being present on the page.
+          const bsEvent = new Event('show.bs.modal', { bubbles: true });
+          Object.defineProperty(bsEvent, 'relatedTarget', { value: opener, configurable: true });
+          modal.dispatchEvent(bsEvent);
           modal.dispatchEvent(new CustomEvent('nowo:modal:show', { detail: { relatedTarget: opener }, bubbles: true }));
         }
       }
