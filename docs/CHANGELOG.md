@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.0.1] - 2026-08-04](#201-2026-08-04)
 - [[2.0.0] - 2026-08-04](#200-2026-08-04)
 - [[1.0.5] - 2026-08-01](#105-2026-08-01)
 - [[1.0.4] - 2026-07-30](#104-2026-07-30)
@@ -71,6 +72,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.0.1] - 2026-08-04
+
+### Added
+- **REQ-TWIG-004:** require `twig/extra-bundle` + `twig/string-extra`; `make check-twig-extra` in `release-check`; demos register `TwigExtraBundle`.
+- **Twig-CS-Fixer:** `vincentlanglet/twig-cs-fixer`, `.twig-cs-fixer.php`, `composer twig:lint` / `twig:fix`.
+- Unit coverage for `DashboardMenuExtension::prependFormKitDefaults` (css_framework mapping + `dashboard_menu` profile seed).
+
+### Fixed
+- **CI:** matrix aligned with **REQ-SF-001** minimum floor — PHP **8.2+**, Symfony **7.4** / **8.0** / **8.1** (no Symfony 6.x; FormKit requires `^7.4 || ^8.0`). Coverage gate uses PHP 8.2 + Symfony 7.4.
+
+### Documentation
+- README / INSTALLATION / UPGRADING: PHP 8.2+ and Symfony 7.4+ floor; Twig Extra host notes.
 
 ## [2.0.0] - 2026-08-04
 
@@ -916,7 +930,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v1.0.5...v2.0.0
 [1.0.5]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v1.0.4...v1.0.5
 [1.0.4]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v1.0.3...v1.0.4

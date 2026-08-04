@@ -1,10 +1,10 @@
 # Nowo Dashboard Menu Bundle
 
-[![CI](https://github.com/nowo-tech/DashboardMenuBundle/actions/workflows/ci.yml/badge.svg)](https://github.com/nowo-tech/DashboardMenuBundle/actions/workflows/ci.yml) [![Packagist Version](https://img.shields.io/packagist/v/nowo-tech/dashboard-menu-bundle.svg?style=flat)](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) [![Packagist Downloads](https://img.shields.io/packagist/dt/nowo-tech/dashboard-menu-bundle.svg)](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php)](https://php.net) [![Symfony](https://img.shields.io/badge/Symfony-7.4%2B%20%7C%208.0%2B-000000?logo=symfony)](https://symfony.com) [![GitHub stars](https://img.shields.io/github/stars/nowo-tech/dashboard-menu-bundle.svg?style=social&label=Star)](https://github.com/nowo-tech/DashboardMenuBundle) [![Coverage](https://img.shields.io/badge/Coverage-99.25%25-yellow)](#tests-and-coverage)
+[![CI](https://github.com/nowo-tech/DashboardMenuBundle/actions/workflows/ci.yml/badge.svg)](https://github.com/nowo-tech/DashboardMenuBundle/actions/workflows/ci.yml) [![Packagist Version](https://img.shields.io/packagist/v/nowo-tech/dashboard-menu-bundle.svg?style=flat)](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) [![Packagist Downloads](https://img.shields.io/packagist/dt/nowo-tech/dashboard-menu-bundle.svg)](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php)](https://php.net) [![Symfony](https://img.shields.io/badge/Symfony-7%2B%20%7C%208-000000?logo=symfony)](https://symfony.com) [![GitHub stars](https://img.shields.io/github/stars/nowo-tech/dashboard-menu-bundle.svg?style=social&label=Star)](https://github.com/nowo-tech/DashboardMenuBundle) [![Coverage](https://img.shields.io/badge/Coverage-99.27%25-brightgreen)](#tests-and-coverage)
 
 > ⭐ **Found this useful?** [Install from Packagist](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) · Give it a **star** on [GitHub](https://github.com/nowo-tech/DashboardMenuBundle) so more developers can find it.
 
-**Nowo Dashboard Menu Bundle** — Configurable dashboard menus with i18n (JSON translations), tree structure (parent + position), permissions, Twig rendering and JSON API. No external ORM extensions (Gedmo/Stof). For Symfony 7.4+ and 8 · PHP 8.2+.
+**Nowo Dashboard Menu Bundle** — Configurable dashboard menus with i18n (JSON translations), tree structure (parent + position), permissions, Twig rendering and JSON API. No external ORM extensions (Gedmo/Stof). Minimum: **PHP 8.2+**, **Symfony 7.4+** / **8** (`^7.4 || ^8.0`).
 
 ![FrankenPHP Friendly Worker Mode](docs/images/frankenphp-friendly.png)
 
@@ -49,7 +49,7 @@ With **Symfony Flex**, the recipe (if available) registers the bundle and adds c
 ## Requirements
 
 - PHP >= 8.2, < 8.6
-- Symfony 7.4+ or 8.x (`^7.4 || ^8.0`)
+- Symfony 7.4+ or 8.x (`^7.4 || ^8.0`) — Symfony **7** floor is **7.4** (REQ-SF-001; FormKit `^2.0`)
 - Doctrine ORM ^2.13 || ^3.0 (no Gedmo/Stof required)
 - **UiKitBundle** + **FormKitBundle** (required hard dependencies for the dashboard UI)
 - Symfony UX Autocomplete & Live Component (installed with the bundle): **2.x** (from 2.32 / 2.33) or **3.x**
@@ -153,7 +153,7 @@ Then run `php bin/console assets:install` in the app so `public/bundles/nowodash
 ## Tests and coverage
 
 - Tests: PHPUnit (unit and integration suites) + Vitest for TypeScript (`make test-ts`)
-- PHP (Lines): **99.25%** on the includable `src/` set — see [`docs/COVERAGE.md`](docs/COVERAGE.md). Run `make coverage-check` / `composer coverage-check`.
+- PHP (Lines): **99.27%** on the includable `src/` set — see [`docs/COVERAGE.md`](docs/COVERAGE.md). Run `make coverage-check` / `composer coverage-check`.
 - TS/JS: **100%** on `logger.ts` (Vitest + v8); run `make test-ts` (prints global TS coverage via `.scripts/ts-coverage-percent.sh`)
 - Python: N/A
 

@@ -5,6 +5,7 @@ This document describes breaking changes and upgrade notes between versions. Sec
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [From 2.0.0 to 2.0.1](#from-200-to-201)
 - [From 1.0.x to 2.0.0](#from-10x-to-200)
 - [From 1.0.4 to 1.0.5](#from-104-to-105)
 - [From 1.0.3 to 1.0.4](#from-103-to-104)
@@ -68,6 +69,23 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## From 2.0.0 to 2.0.1
+
+### Twig Extra Bundle (REQ-TWIG-004)
+
+Hosts that render this bundle's Twig templates must install:
+
+```bash
+composer require twig/extra-bundle twig/string-extra
+```
+
+and enable `Twig\Extra\TwigExtraBundle\TwigExtraBundle`. Flex recipes usually register it automatically. The package now requires these dependencies in `composer.json`.
+
+### Maintainers
+
+- Package maintainers: `composer twig:lint` / `composer twig:fix` use `.twig-cs-fixer.php` over `src/` (and `templates/` when present).
+- CI matrix is Symfony **7.4** / **8.0** / **8.1** only (PHP 8.2+; Symfony 8 requires PHP 8.4+).
 
 ## From 1.0.x to 2.0.0
 

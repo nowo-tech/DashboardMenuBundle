@@ -4,13 +4,13 @@
     "type": "project",
     "license": "MIT",
     "require": {
-        "php": ">=8.4",
         "doctrine/doctrine-bundle": "^3.0",
         "doctrine/doctrine-migrations-bundle": "^3.3",
         "doctrine/orm": "^2.17 || ^3.0",
         "nowo-tech/dashboard-menu-bundle": "@dev",
         "nowo-tech/icon-selector-bundle": "v1.0.7",
         "pentatrion/vite-bundle": "^8.0",
+        "php": ">=8.4",
         "symfony/asset": "^8.0",
         "symfony/console": "^8.0",
         "symfony/dotenv": "^8.0",
@@ -27,7 +27,9 @@
         "symfony/ux-autocomplete": "^2.33",
         "symfony/ux-live-component": "^2.32",
         "symfony/validator": "^8.0",
-        "symfony/yaml": "^8.0"
+        "symfony/yaml": "^8.0",
+        "twig/extra-bundle": "^3.12",
+        "twig/string-extra": "^3.12"
     },
     "config": {
         "allow-plugins": {
@@ -48,8 +50,12 @@
             "cache:clear": "symfony-cmd",
             "assets:install %PUBLIC_DIR%": "symfony-cmd"
         },
-        "post-install-cmd": ["@auto-scripts"],
-        "post-update-cmd": ["@auto-scripts"]
+        "post-install-cmd": [
+            "@auto-scripts"
+        ],
+        "post-update-cmd": [
+            "@auto-scripts"
+        ]
     },
     "conflict": {
         "symfony/symfony": "*"

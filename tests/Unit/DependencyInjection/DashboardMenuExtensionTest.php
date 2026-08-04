@@ -435,4 +435,155 @@ final class DashboardMenuExtensionTest extends TestCase
 
         self::assertSame([], $container->getExtensionConfig('nowo_ui_kit'));
     }
+
+    public function testPrependAlignsFormKitDefaultsFromDashboardWhenHostUnset(): void
+    {
+        $container = new ContainerBuilder();
+        $this->registerStubExtension($container, 'nowo_form_kit');
+        $container->prependExtensionConfig(Configuration::ALIAS, [
+            'dashboard' => [
+                'css_framework' => 'tailwind',
+            ],
+        ]);
+
+        $extension = new DashboardMenuExtension();
+        $extension->prepend($container);
+
+        $found = false;
+        foreach ($container->getExtensionConfig('nowo_form_kit') as $cfg) {
+            if (($cfg['css_framework'] ?? null) === 'tailwind'
+                && isset($cfg['profiles']['dashboard_menu']['alias'])
+                && $cfg['profiles']['dashboard_menu']['alias'] === 'dashboard_menu'
+            ) {
+                $found = true;
+                self::assertSame('NowoDashboardMenuBundle', $cfg['profiles']['dashboard_menu']['translation_domain']);
+                self::assertSame('nowo-ui-input form-control', $cfg['profiles']['dashboard_menu']['defaults']['attr']['class']);
+                break;
+            }
+        }
+        self::assertTrue($found, 'Expected nowo_form_kit dashboard_menu profile and css_framework from dashboard.');
+    }
+
+    /**
+     * @return list<array{0: string, 1: string}>
+     */
+    public static function formKitCssFrameworkProvider(): array
+    {
+        return [
+            ['tailwind', 'tailwind'],
+            ['foundation', 'foundation'],
+            ['none', 'none'],
+            ['bootstrap5', 'bootstrap'],
+            ['tabler', 'bootstrap'],
+        ];
+    }
+
+    /**
+     * @dataProvider formKitCssFrameworkProvider
+     */
+    public function testPrependMapsDashboardCssFrameworkToFormKit(string $dashboardFw, string $expectedFormKitFw): void
+    {
+        $container = new ContainerBuilder();
+        $this->registerStubExtension($container, 'nowo_form_kit');
+        $container->prependExtensionConfig(Configuration::ALIAS, [
+            'dashboard' => [
+                'css_framework' => $dashboardFw,
+            ],
+        ]);
+
+        (new DashboardMenuExtension())->prepend($container);
+
+        $mapped = null;
+        foreach ($container->getExtensionConfig('nowo_form_kit') as $cfg) {
+            if (isset($cfg['css_framework'])) {
+                $mapped = $cfg['css_framework'];
+                break;
+            }
+        }
+        self::assertSame($expectedFormKitFw, $mapped);
+    }
+
+    public function testPrependDoesNotOverrideExplicitFormKitHostConfig(): void
+    {
+        $container = new ContainerBuilder();
+        $this->registerStubExtension($container, 'nowo_form_kit');
+        $container->prependExtensionConfig('nowo_form_kit', [
+            'css_framework' => 'none',
+            'profiles'      => [
+                'dashboard_menu' => [
+                    'alias'              => 'dashboard_menu',
+                    'translation_domain' => 'HostDomain',
+                ],
+            ],
+        ]);
+        $container->prependExtensionConfig(Configuration::ALIAS, [
+            'dashboard' => [
+                'css_framework' => 'tailwind',
+            ],
+        ]);
+
+        (new DashboardMenuExtension())->prepend($container);
+
+        foreach ($container->getExtensionConfig('nowo_form_kit') as $cfg) {
+            if (($cfg['css_framework'] ?? null) === 'tailwind') {
+                self::fail('Dashboard must not prepend FormKit css_framework when host already set it.');
+            }
+            if (isset($cfg['profiles']['dashboard_menu']['translation_domain'])
+                && $cfg['profiles']['dashboard_menu']['translation_domain'] === 'NowoDashboardMenuBundle'
+            ) {
+                self::fail('Dashboard must not prepend dashboard_menu profile when host already defined it.');
+            }
+        }
+        $first = $container->getExtensionConfig('nowo_form_kit')[0];
+        self::assertSame('none', $first['css_framework'] ?? null);
+        self::assertSame('HostDomain', $first['profiles']['dashboard_menu']['translation_domain'] ?? null);
+    }
+
+    public function testPrependSeedsOnlyFormKitProfileWhenHostCssFrameworkSet(): void
+    {
+        $container = new ContainerBuilder();
+        $this->registerStubExtension($container, 'nowo_form_kit');
+        $container->prependExtensionConfig('nowo_form_kit', [
+            'css_framework' => 'foundation',
+        ]);
+
+        (new DashboardMenuExtension())->prepend($container);
+
+        $profileSeeded = false;
+        foreach ($container->getExtensionConfig('nowo_form_kit') as $cfg) {
+            if (($cfg['css_framework'] ?? null) === 'bootstrap' || ($cfg['css_framework'] ?? null) === 'tailwind') {
+                self::fail('Must not re-seed css_framework when host already set it.');
+            }
+            if (isset($cfg['profiles']['dashboard_menu'])) {
+                $profileSeeded = true;
+            }
+        }
+        self::assertTrue($profileSeeded);
+    }
+
+    public function testPrependSkipsFormKitWhenExtensionMissing(): void
+    {
+        $container = new ContainerBuilder();
+        (new DashboardMenuExtension())->prepend($container);
+
+        self::assertSame([], $container->getExtensionConfig('nowo_form_kit'));
+    }
+
+    private function registerStubExtension(ContainerBuilder $container, string $alias): void
+    {
+        $container->registerExtension(new class($alias) extends \Symfony\Component\DependencyInjection\Extension\Extension {
+            public function __construct(private readonly string $extensionAlias)
+            {
+            }
+
+            public function getAlias(): string
+            {
+                return $this->extensionAlias;
+            }
+
+            public function load(array $configs, ContainerBuilder $container): void
+            {
+            }
+        });
+    }
 }
