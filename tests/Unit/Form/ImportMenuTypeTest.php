@@ -23,7 +23,7 @@ final class ImportMenuTypeTest extends TestCase
 
     public function testConfigureOptionsSetsDefaults(): void
     {
-        $type     = new ImportMenuType();
+        $type = new ImportMenuType();
         $this->injectFormKitMerger($type);
         $resolver = new OptionsResolver();
         $type->configureOptions($resolver);
@@ -39,7 +39,7 @@ final class ImportMenuTypeTest extends TestCase
         $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(static fn (string $id): string => 't:' . $id);
 
-        $type     = new ImportMenuType($translator);
+        $type = new ImportMenuType($translator);
         $this->injectFormKitMerger($type);
         $addCalls = [];
         $builder  = $this->createFormBuilderMock($addCalls);

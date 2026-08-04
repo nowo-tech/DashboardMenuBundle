@@ -17,6 +17,8 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+use function is_array;
+
 use const SORT_NATURAL;
 
 /**
@@ -30,6 +32,7 @@ use const SORT_NATURAL;
 final class MenuConfigType extends AbstractType
 {
     use FormOptionsTrait;
+
     /**
      * @param array<string, string> $permissionCheckerChoices
      * @param array<string, list<string>> $cssClassOptions
@@ -82,11 +85,11 @@ final class MenuConfigType extends AbstractType
             'help'                      => 'form.menu_type.permission_checker.help',
         ]);
         $this->addWithDefaults($builder, 'depthLimit', IntegerType::class, [
-            'required'   => false,
-            'label'      => 'form.menu_type.depth_limit.label',
-            'attr'       => ['min' => 0, 'placeholder' => $t('form.menu_type.depth_limit.placeholder')],
-            'row_attr'   => ['class' => 'mb-1'],
-            'help'       => 'form.menu_type.depth_limit.help',
+            'required' => false,
+            'label'    => 'form.menu_type.depth_limit.label',
+            'attr'     => ['min' => 0, 'placeholder' => $t('form.menu_type.depth_limit.placeholder')],
+            'row_attr' => ['class' => 'mb-1'],
+            'help'     => 'form.menu_type.depth_limit.help',
         ]);
         $this->addWithDefaults($builder, 'collapsible', CheckboxType::class, [
             'required'   => false,
@@ -196,10 +199,10 @@ final class MenuConfigType extends AbstractType
         } else {
             $placeholderText  = $this->translator instanceof TranslatorInterface ? $this->translator->trans($placeholder, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN) : $placeholder;
             $textFieldOptions = [
-                'required'   => false,
-                'label'      => $label,
-                'attr'       => ['placeholder' => $placeholderText],
-                'row_attr'   => ['class' => 'mb-1'],
+                'required' => false,
+                'label'    => $label,
+                'attr'     => ['placeholder' => $placeholderText],
+                'row_attr' => ['class' => 'mb-1'],
             ];
             if ($help !== null) {
                 $textFieldOptions['help'] = $help;
@@ -248,10 +251,10 @@ final class MenuConfigType extends AbstractType
             : 'form.menu_type.ul_id.placeholder';
 
         $this->addWithDefaults($builder, 'ulId', TextType::class, [
-            'required'   => false,
-            'label'      => 'form.menu_type.ul_id.label',
-            'attr'       => ['placeholder' => $placeholderText],
-            'row_attr'   => ['class' => 'mb-1'],
+            'required' => false,
+            'label'    => 'form.menu_type.ul_id.label',
+            'attr'     => ['placeholder' => $placeholderText],
+            'row_attr' => ['class' => 'mb-1'],
         ]);
     }
 

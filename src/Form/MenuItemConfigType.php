@@ -10,9 +10,9 @@ use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Form\DataTransformer\JsonToArrayTransformer;
 use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
+use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use Nowo\FormKitBundle\Attribute\FormKitConfig;
 use Nowo\FormKitBundle\Form\FormOptionsTrait;
-use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -45,6 +45,7 @@ use const SORT_NATURAL;
 final class MenuItemConfigType extends AbstractType
 {
     use FormOptionsTrait;
+
     /**
      * @param list<string> $permissionKeyChoices
      * @param array<string, string> $menuLinkResolverChoices service id => label (after compiler pass)
@@ -114,54 +115,54 @@ final class MenuItemConfigType extends AbstractType
                     'required' => false,
                     'label'    => 'form.menu_item_type.link_resolver.label',
                     'attr'     => [
-                        'class' => 'nowo-ui-input form-control font-monospace',
+                        'class'       => 'nowo-ui-input form-control font-monospace',
                         'placeholder' => $t('form.menu_item_type.link_resolver.service_id_placeholder'),
                     ],
-                    'row_attr'   => ['class' => 'mb-1'],
-                    'help'       => 'form.menu_item_type.link_resolver.help_free_text',
+                    'row_attr' => ['class' => 'mb-1'],
+                    'help'     => 'form.menu_item_type.link_resolver.help_free_text',
                 ]);
             }
         }
 
         if ($showClassicLinkBlock) {
             $this->addWithDefaults($builder, 'linkType', ChoiceType::class, [
-                    'choices' => [
-                        'form.menu_item_type.link_type.route'        => MenuItem::LINK_TYPE_ROUTE,
-                        'form.menu_item_type.link_type.external_url' => MenuItem::LINK_TYPE_EXTERNAL,
-                    ],
-                    'label'              => 'form.menu_item_type.link_type.label',
-                    'row_attr'           => ['class' => 'mb-1'],
-                    'autocomplete'       => true,
-                    'tom_select_options' => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
-                ]);
-                $this->addWithDefaults($builder, 'routeName', ChoiceType::class, [
-                    'required'    => false,
-                    'label'       => 'form.menu_item_type.route_name.label',
-                    'placeholder' => $t('form.menu_item_type.route_name.placeholder'),
-                    'choices'     => $routeChoices,
-                    'row_attr'    => ['class' => 'mb-1'],
-                    'choice_attr' => static function ($choice, $key, $value) use ($appRoutes): array {
-                        $params = $appRoutes[$value]['params'] ?? [];
+                'choices' => [
+                    'form.menu_item_type.link_type.route'        => MenuItem::LINK_TYPE_ROUTE,
+                    'form.menu_item_type.link_type.external_url' => MenuItem::LINK_TYPE_EXTERNAL,
+                ],
+                'label'              => 'form.menu_item_type.link_type.label',
+                'row_attr'           => ['class' => 'mb-1'],
+                'autocomplete'       => true,
+                'tom_select_options' => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
+            ]);
+            $this->addWithDefaults($builder, 'routeName', ChoiceType::class, [
+                'required'    => false,
+                'label'       => 'form.menu_item_type.route_name.label',
+                'placeholder' => $t('form.menu_item_type.route_name.placeholder'),
+                'choices'     => $routeChoices,
+                'row_attr'    => ['class' => 'mb-1'],
+                'choice_attr' => static function ($choice, $key, $value) use ($appRoutes): array {
+                    $params = $appRoutes[$value]['params'] ?? [];
 
-                        return ['data-params' => json_encode($params)];
-                    },
-                    'autocomplete'       => true,
-                    'tom_select_options' => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
-                ]);
-                $this->addWithDefaults($builder, 'externalUrl', UrlType::class, [
-                    'required'   => false,
-                    'label'      => 'form.menu_item_type.external_url.label',
-                    'attr'       => ['placeholder' => $t('form.menu_item_type.external_url.placeholder')],
-                    'row_attr'   => ['class' => 'mb-1'],
-                ]);
+                    return ['data-params' => json_encode($params)];
+                },
+                'autocomplete'       => true,
+                'tom_select_options' => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
+            ]);
+            $this->addWithDefaults($builder, 'externalUrl', UrlType::class, [
+                'required' => false,
+                'label'    => 'form.menu_item_type.external_url.label',
+                'attr'     => ['placeholder' => $t('form.menu_item_type.external_url.placeholder')],
+                'row_attr' => ['class' => 'mb-1'],
+            ]);
         }
 
         if ($showRouteParams) {
             $this->addWithDefaults($builder, 'routeParams', TextType::class, [
-                'required'   => false,
-                'label'      => 'form.menu_item_type.route_params.label',
-                'attr'       => ['class' => 'nowo-ui-input form-control font-monospace', 'placeholder' => $t('form.menu_item_type.route_params.placeholder')],
-                'row_attr'   => ['class' => 'mb-1'],
+                'required' => false,
+                'label'    => 'form.menu_item_type.route_params.label',
+                'attr'     => ['class' => 'nowo-ui-input form-control font-monospace', 'placeholder' => $t('form.menu_item_type.route_params.placeholder')],
+                'row_attr' => ['class' => 'mb-1'],
             ]);
             $builder->get('routeParams')->addModelTransformer(new JsonToArrayTransformer());
         }

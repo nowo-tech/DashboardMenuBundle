@@ -93,7 +93,7 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
             return;
         }
 
-        $hostHasCssFramework       = false;
+        $hostHasCssFramework     = false;
         $hostHasDashboardProfile = false;
         foreach ($container->getExtensionConfig('nowo_form_kit') as $cfg) {
             /** @var array<string, mixed> $cfg */
@@ -109,17 +109,17 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
         $seed = [];
 
         if (!$hostHasCssFramework) {
-            $config    = $this->processConfiguration(new Configuration(), $container->getExtensionConfig(Configuration::ALIAS));
+            $config = $this->processConfiguration(new Configuration(), $container->getExtensionConfig(Configuration::ALIAS));
             /** @var array<string, mixed> $dashboard */
             $dashboard = $config['dashboard'] ?? [];
             $raw       = (string) ($dashboard['css_framework'] ?? CssFramework::Bootstrap5->value);
             $fw        = CssFramework::from($raw)->normalized();
             // FormKit accepts only bootstrap|tailwind|foundation|none (not bootstrap5 / tabler / …).
             $seed['css_framework'] = match ($fw) {
-                CssFramework::Tailwind => 'tailwind',
+                CssFramework::Tailwind   => 'tailwind',
                 CssFramework::Foundation => 'foundation',
-                CssFramework::None => 'none',
-                default => 'bootstrap',
+                CssFramework::None       => 'none',
+                default                  => 'bootstrap',
             };
         }
 

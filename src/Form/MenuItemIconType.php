@@ -6,9 +6,9 @@ namespace Nowo\DashboardMenuBundle\Form;
 
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
+use Nowo\DashboardMenuBundle\Service\MenuIconNameResolver;
 use Nowo\FormKitBundle\Attribute\FormKitConfig;
 use Nowo\FormKitBundle\Form\FormOptionsTrait;
-use Nowo\DashboardMenuBundle\Service\MenuIconNameResolver;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
@@ -30,6 +30,7 @@ use function is_array;
 final class MenuItemIconType extends AbstractType
 {
     use FormOptionsTrait;
+
     public function __construct(
         private readonly MenuIconNameResolver $menuIconNameResolver,
         private readonly ?TranslatorInterface $translator = null,
@@ -58,26 +59,26 @@ final class MenuItemIconType extends AbstractType
         }
 
         $this->addWithDefaults($builder, 'itemType', ChoiceType::class, [
-                'choices' => [
-                    'form.menu_item_type.type.link'    => MenuItem::ITEM_TYPE_LINK,
-                    'form.menu_item_type.type.service' => MenuItem::ITEM_TYPE_SERVICE,
-                    'form.menu_item_type.type.section' => MenuItem::ITEM_TYPE_SECTION,
-                    'form.menu_item_type.type.divider' => MenuItem::ITEM_TYPE_DIVIDER,
-                ],
-                'label'              => 'form.menu_item_type.type.label',
-                'row_attr'           => ['class' => 'mb-1'],
-                'autocomplete'       => true,
-                'tom_select_options' => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
-            ]);
+            'choices' => [
+                'form.menu_item_type.type.link'    => MenuItem::ITEM_TYPE_LINK,
+                'form.menu_item_type.type.service' => MenuItem::ITEM_TYPE_SERVICE,
+                'form.menu_item_type.type.section' => MenuItem::ITEM_TYPE_SECTION,
+                'form.menu_item_type.type.divider' => MenuItem::ITEM_TYPE_DIVIDER,
+            ],
+            'label'              => 'form.menu_item_type.type.label',
+            'row_attr'           => ['class' => 'mb-1'],
+            'autocomplete'       => true,
+            'tom_select_options' => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
+        ]);
 
         if (!$itemTypeOnly) {
             $this->addWithDefaults($builder, 'position', IntegerType::class, [
-                    'required'   => false,
-                    'empty_data' => '0',
-                    'label'      => 'form.menu_item_type.position.label',
-                    'attr'       => ['min' => 0],
-                    'row_attr'   => ['class' => 'mb-1'],
-                ]);
+                'required'   => false,
+                'empty_data' => '0',
+                'label'      => 'form.menu_item_type.position.label',
+                'attr'       => ['min' => 0],
+                'row_attr'   => ['class' => 'mb-1'],
+            ]);
 
             $builder->addEventListener(FormEvents::PRE_SUBMIT, static function (FormEvent $event): void {
                 $data = $event->getData();
@@ -124,7 +125,7 @@ final class MenuItemIconType extends AbstractType
                     'attr'               => [
                         'placeholder' => $t('form.menu_item_type.icon.placeholder'),
                     ],
-                    'row_attr'   => ['class' => 'mb-1'],
+                    'row_attr' => ['class' => 'mb-1'],
                 ]);
             }
         }

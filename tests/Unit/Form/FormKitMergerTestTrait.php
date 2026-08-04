@@ -8,6 +8,8 @@ use Nowo\FormKitBundle\Form\Constraint\ConstraintDefinitionFactory;
 use Nowo\FormKitBundle\Form\FormOptionsMerger;
 use PHPUnit\Framework\Assert;
 
+use function sprintf;
+
 /**
  * Shared FormKit profile stub for unit tests that build dashboard form types.
  */
@@ -19,13 +21,13 @@ trait FormKitMergerTestTrait
             [
                 'dashboard_menu' => [
                     'translation_domain' => 'NowoDashboardMenuBundle',
-                    'defaults' => [
-                        'attr' => ['class' => 'nowo-ui-input form-control'],
+                    'defaults'           => [
+                        'attr'     => ['class' => 'nowo-ui-input form-control'],
                         'row_attr' => ['class' => 'mb-1'],
                     ],
                     'field_types' => [
                         'checkbox' => [
-                            'attr' => ['class' => 'form-check-input'],
+                            'attr'     => ['class' => 'form-check-input'],
                             'row_attr' => ['class' => 'form-check mb-1'],
                         ],
                         'choice' => [

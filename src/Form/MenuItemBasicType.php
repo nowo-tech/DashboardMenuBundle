@@ -32,6 +32,7 @@ use function is_string;
 final class MenuItemBasicType extends AbstractType
 {
     use FormOptionsTrait;
+
     /**
      * @param list<string> $availableLocales
      */
@@ -57,10 +58,10 @@ final class MenuItemBasicType extends AbstractType
         $availableLocales    = $includeTranslations ? $options['available_locales'] : [];
 
         $this->addWithDefaults($builder, 'label', TextType::class, [
-                'required'   => false,
-                'label'      => 'form.menu_item_type.label.label',
-                'row_attr'   => ['class' => 'mb-1'],
-            ])
+            'required' => false,
+            'label'    => 'form.menu_item_type.label.label',
+            'row_attr' => ['class' => 'mb-1'],
+        ])
         ;
 
         if ($availableLocales !== []) {
