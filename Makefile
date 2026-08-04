@@ -33,7 +33,7 @@ help:
 	@echo "  update          Run composer update"
 	@echo "  validate        Run composer validate --strict"
 	@echo ""
-	@echo "Demos: make -C demo or make -C demo/symfony7"
+	@echo "Demos: make -C demo or make -C demo/symfony8"
 
 COMPOSE_FILE ?= docker-compose.yml
 # Prefer Compose V2 plugin (GitHub Actions / modern Docker Desktop); fall back to docker-compose V1 (REQ-MAKE-010).

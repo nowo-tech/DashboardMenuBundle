@@ -18,14 +18,14 @@ This document describes how the bundle's demo applications run under **FrankenPH
 
 **The `demo/` folder is not shipped when the bundle is installed** (e.g. via `composer require nowo-tech/dashboard-menu-bundle`). It is excluded from the Composer package (via `archive.exclude` in the bundle's `composer.json`). The demo applications exist only in the bundle's source repository and are intended for development, testing, and documentation. To run or modify the demos, use a clone of the bundle repository.
 
-The demos use:
+The demo uses:
 
 - **FrankenPHP** (Caddy + PHP) in a single container.
 - **Docker Compose** with the app and the parent bundle mounted as volumes (`../..` → `/var/dashboard-menu-bundle`).
 - **Two Caddyfiles**: `Caddyfile` (**worker**) and `Caddyfile.dev` (**classic** / no worker).
 - An **entrypoint** (`docker/entrypoint.sh`) that selects classic vs worker from **`FRANKENPHP_MODE`** (`classic` \| `worker`, default **`worker`** in `.env.example`). Independent of `APP_ENV`.
 
-There are demos for **Symfony 7** and **Symfony 8** (e.g. **demo/symfony7**, **demo/symfony8**). Each has its own Dockerfile, docker-compose.yml and Makefile. From the bundle root you run e.g. `make -C demo/symfony8 up` (see the demo's README for the URL and port).
+There is one in-repo demo for **Symfony 8** (`demo/symfony8`). It has its own Dockerfile, docker-compose.yml and Makefile. From the bundle root you run e.g. `make -C demo/symfony8 up` (see the demo's README for the URL and port). The package still supports Symfony **7.4+** via Composer.
 
 Compose demos run with `APP_ENV=dev` and default **`FRANKENPHP_MODE=worker`** so the worker Caddyfile is exercised while Symfony stays in debug mode. Set `FRANKENPHP_MODE=classic` for hot-reload-friendly classic PHP.
 
@@ -37,7 +37,7 @@ Compose demos run with `APP_ENV=dev` and default **`FRANKENPHP_MODE=worker`** so
 | HTTP cache headers | `no-store`, `no-cache` (in `Caddyfile.dev` / classic) | Omitted or cache-friendly |
 | `APP_ENV` / `APP_DEBUG` | `dev` / `1` | `prod` / `0` |
 
-**Ports:** Each demo uses `PORT` from its `.env` (default **8010** for symfony7, **8011** for symfony8). To run multiple demos at once, set a different `PORT` per demo.
+**Ports:** The demo uses `PORT` from its `.env` (default **8011** for symfony8).
 
 ---
 
@@ -86,15 +86,15 @@ Goal: Symfony stays in `APP_ENV=dev` (profiler, Twig cache off, OPcache revalida
 
 ### 1. Caddyfile (classic)
 
-The classic Caddyfile is **docker/frankenphp/Caddyfile.dev** in each demo. It uses plain `php_server` (no worker) and cache-busting headers. The entrypoint copies it over `/etc/frankenphp/Caddyfile` when **`FRANKENPHP_MODE=classic`**. Mount it in docker-compose so you can edit it without rebuilding.
+The classic Caddyfile is **docker/frankenphp/Caddyfile.dev** in the demo. It uses plain `php_server` (no worker) and cache-busting headers. The entrypoint copies it over `/etc/frankenphp/Caddyfile` when **`FRANKENPHP_MODE=classic`**. Mount it in docker-compose so you can edit it without rebuilding.
 
 ### 2. PHP configuration (development)
 
-The demos include **docker/php-dev.ini** with `opcache.revalidate_freq=0`. Mount it in docker-compose: `./docker/php-dev.ini:/usr/local/etc/php/conf.d/99-dev.ini:ro`.
+The demo includes **docker/php-dev.ini** with `opcache.revalidate_freq=0`. Mount it in docker-compose: `./docker/php-dev.ini:/usr/local/etc/php/conf.d/99-dev.ini:ro`.
 
 ### 3. Twig configuration (development)
 
-The demos use **config/packages/dev/twig.yaml** with `twig.cache: false` so template changes are visible on refresh (especially useful with classic mode).
+The demo uses **config/packages/dev/twig.yaml** with `twig.cache: false` so template changes are visible on refresh (especially useful with classic mode).
 
 ### 4. Docker Compose (development)
 
@@ -102,7 +102,7 @@ Each demo's **docker-compose.yml** sets `APP_ENV=dev`, `APP_DEBUG=1`, and **`FRA
 
 ### 5. Start the demo (development)
 
-From the bundle root: `make -C demo/symfony8 up` (or `make -C demo/symfony7 up`). Or from the demo directory: `make up`.
+From the bundle root: `make -C demo/symfony8 up`. Or from the demo directory: `make up`.
 
 ---
 

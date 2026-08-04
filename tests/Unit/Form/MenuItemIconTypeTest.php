@@ -8,6 +8,7 @@ use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Form\MenuItemIconType;
 use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
 use Nowo\DashboardMenuBundle\Service\MenuIconNameResolver;
+use Nowo\DashboardMenuBundle\Tests\Unit\Form\FormKitMergerTestTrait;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -21,6 +22,8 @@ use function class_exists;
 
 final class MenuItemIconTypeTest extends TestCase
 {
+    use FormKitMergerTestTrait;
+
     /**
      * @param list<array{name: string, type: mixed, options: array<string, mixed>}> $addCalls
      * @param array<string, callable(FormEvent): void> $eventListeners
@@ -52,6 +55,7 @@ final class MenuItemIconTypeTest extends TestCase
     {
         $resolver = new MenuIconNameResolver();
         $type     = new MenuItemIconType($resolver);
+        $this->injectFormKitMerger($type);
 
         $optionsResolver = new OptionsResolver();
         $type->configureOptions($optionsResolver);
@@ -82,6 +86,7 @@ final class MenuItemIconTypeTest extends TestCase
         $builder        = $this->createBuilderMockWithCaptures($item, $addCalls, $eventListeners);
 
         $type = new MenuItemIconType($iconResolver, $translator);
+        $this->injectFormKitMerger($type);
         $type->buildForm($builder, []);
 
         $iconCall = null;
@@ -160,6 +165,7 @@ final class MenuItemIconTypeTest extends TestCase
         $builder        = $this->createBuilderMockWithCaptures($item, $addCalls, $eventListeners);
 
         $type = new MenuItemIconType($iconResolver, $translator);
+        $this->injectFormKitMerger($type);
         $type->buildForm($builder, []);
 
         $iconCall = null;

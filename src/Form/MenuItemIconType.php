@@ -6,6 +6,8 @@ namespace Nowo\DashboardMenuBundle\Form;
 
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
+use Nowo\FormKitBundle\Attribute\FormKitConfig;
+use Nowo\FormKitBundle\Form\FormOptionsTrait;
 use Nowo\DashboardMenuBundle\Service\MenuIconNameResolver;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -24,8 +26,10 @@ use function is_array;
  * Form type for editing MenuItem identity fields that are tied to "icon identity":
  * itemType + position + icon.
  */
+#[FormKitConfig('dashboard_menu')]
 final class MenuItemIconType extends AbstractType
 {
+    use FormOptionsTrait;
     public function __construct(
         private readonly MenuIconNameResolver $menuIconNameResolver,
         private readonly ?TranslatorInterface $translator = null,
@@ -53,8 +57,7 @@ final class MenuItemIconType extends AbstractType
             $this->menuIconNameResolver->resolve($icon);
         }
 
-        $builder
-            ->add('itemType', ChoiceType::class, [
+        $this->addWithDefaults($builder, 'itemType', ChoiceType::class, [
                 'choices' => [
                     'form.menu_item_type.type.link'    => MenuItem::ITEM_TYPE_LINK,
                     'form.menu_item_type.type.service' => MenuItem::ITEM_TYPE_SERVICE,
@@ -62,22 +65,18 @@ final class MenuItemIconType extends AbstractType
                     'form.menu_item_type.type.divider' => MenuItem::ITEM_TYPE_DIVIDER,
                 ],
                 'label'              => 'form.menu_item_type.type.label',
-                'attr'               => ['class' => 'form-select'],
                 'row_attr'           => ['class' => 'mb-1'],
-                'label_attr'         => ['class' => 'form-label'],
                 'autocomplete'       => true,
                 'tom_select_options' => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
             ]);
 
         if (!$itemTypeOnly) {
-            $builder
-                ->add('position', IntegerType::class, [
+            $this->addWithDefaults($builder, 'position', IntegerType::class, [
                     'required'   => false,
                     'empty_data' => '0',
                     'label'      => 'form.menu_item_type.position.label',
-                    'attr'       => ['min' => 0, 'class' => 'form-control'],
+                    'attr'       => ['min' => 0],
                     'row_attr'   => ['class' => 'mb-1'],
-                    'label_attr' => ['class' => 'form-label'],
                 ]);
 
             $builder->addEventListener(FormEvents::PRE_SUBMIT, static function (FormEvent $event): void {
@@ -109,26 +108,23 @@ final class MenuItemIconType extends AbstractType
                 : $id;
 
             if (class_exists('Nowo\\IconSelectorBundle\\Form\\IconSelectorType')) {
-                $builder->add('icon', \Nowo\IconSelectorBundle\Form\IconSelectorType::class, [
+                $this->addWithDefaults($builder, 'icon', \Nowo\IconSelectorBundle\Form\IconSelectorType::class, [
                     'required'           => false,
                     'mode'               => \Nowo\IconSelectorBundle\Form\IconSelectorType::MODE_TOM_SELECT,
                     'label'              => 'form.menu_item_type.icon.label',
                     'translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
                     'attr'               => ['placeholder' => $t('form.menu_item_type.icon.placeholder')],
                     'row_attr'           => ['class' => 'mb-1'],
-                    'label_attr'         => ['class' => 'form-label'],
                 ]);
             } else {
-                $builder->add('icon', TextType::class, [
+                $this->addWithDefaults($builder, 'icon', TextType::class, [
                     'required'           => false,
                     'label'              => 'form.menu_item_type.icon.label',
                     'translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
                     'attr'               => [
-                        'class'       => 'form-control',
                         'placeholder' => $t('form.menu_item_type.icon.placeholder'),
                     ],
                     'row_attr'   => ['class' => 'mb-1'],
-                    'label_attr' => ['class' => 'form-label'],
                 ]);
             }
         }

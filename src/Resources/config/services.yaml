@@ -10,16 +10,19 @@ services:
   Nowo\DashboardMenuBundle\Repository\MenuItemRepository:
     public: true
 
-  Nowo\DashboardMenuBundle\Form\MenuItemType: ~
+  Nowo\DashboardMenuBundle\Form\MenuItemType:
+    tags: ['form.type']
 
   Nowo\DashboardMenuBundle\Form\MenuItemBasicType:
     arguments:
       $availableLocales: '%nowo_dashboard_menu.locales%'
+    tags: ['form.type']
 
   Nowo\DashboardMenuBundle\Form\MenuItemIconType:
     arguments:
       $menuIconNameResolver: '@Nowo\DashboardMenuBundle\Service\MenuIconNameResolver'
       $translator: '@translator'
+    tags: ['form.type']
 
   Nowo\DashboardMenuBundle\Form\MenuItemConfigType:
     arguments:
@@ -28,20 +31,25 @@ services:
       $menuLinkResolverChoices: '%nowo_dashboard_menu.menu_link_resolver_choices%'
       $defaultLocale: '%nowo_dashboard_menu.default_locale_resolved%'
       $translator: '@translator'
+    tags: ['form.type']
 
   Nowo\DashboardMenuBundle\Form\CopyMenuType:
     arguments:
       $translator: '@translator'
+    tags: ['form.type']
 
   Nowo\DashboardMenuBundle\Form\ImportMenuType:
     arguments:
       $translator: '@translator'
+    tags: ['form.type']
 
-  Nowo\DashboardMenuBundle\Form\MenuType: ~
+  Nowo\DashboardMenuBundle\Form\MenuType:
+    tags: ['form.type']
 
   Nowo\DashboardMenuBundle\Form\MenuDefinitionType:
     arguments:
       $translator: '@translator'
+    tags: ['form.type']
 
   Nowo\DashboardMenuBundle\Form\MenuConfigType:
     arguments:
@@ -49,6 +57,7 @@ services:
       $cssClassOptions: '%nowo_dashboard_menu.dashboard.css_class_options%'
       $ulIdOptions: '%nowo_dashboard_menu.dashboard.id_options%'
       $translator: '@translator'
+    tags: ['form.type']
 
   Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker:
     tags:

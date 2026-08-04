@@ -7,6 +7,7 @@ namespace Nowo\DashboardMenuBundle\Tests\Form;
 use Nowo\DashboardMenuBundle\Form\ImportMenuType;
 use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
 use Nowo\DashboardMenuBundle\Service\MenuImporter;
+use Nowo\DashboardMenuBundle\Tests\Unit\Form\FormKitMergerTestTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -18,9 +19,12 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class ImportMenuTypeTest extends TestCase
 {
+    use FormKitMergerTestTrait;
+
     public function testConfigureOptionsSetsDefaults(): void
     {
         $type     = new ImportMenuType();
+        $this->injectFormKitMerger($type);
         $resolver = new OptionsResolver();
         $type->configureOptions($resolver);
 
@@ -36,6 +40,7 @@ final class ImportMenuTypeTest extends TestCase
         $translator->method('trans')->willReturnCallback(static fn (string $id): string => 't:' . $id);
 
         $type     = new ImportMenuType($translator);
+        $this->injectFormKitMerger($type);
         $addCalls = [];
         $builder  = $this->createFormBuilderMock($addCalls);
 
@@ -47,7 +52,8 @@ final class ImportMenuTypeTest extends TestCase
         self::assertSame(FileType::class, $fileCall['type']);
         self::assertTrue($fileCall['options']['required']);
         self::assertSame('t:form.import_menu_type.file.label', $fileCall['options']['label']);
-        self::assertSame(['accept' => '.json,application/json'], $fileCall['options']['attr']);
+        self::assertSame('.json,application/json', $fileCall['options']['attr']['accept'] ?? null);
+        self::assertStringContainsString('form-control', (string) ($fileCall['options']['attr']['class'] ?? ''));
 
         $constraints = $fileCall['options']['constraints'] ?? [];
         self::assertCount(2, $constraints);

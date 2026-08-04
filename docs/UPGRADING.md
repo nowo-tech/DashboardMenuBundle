@@ -5,6 +5,8 @@ This document describes breaking changes and upgrade notes between versions. Sec
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [From 1.0.x to 2.0.0](#from-10x-to-200)
+- [From 1.0.4 to 1.0.5](#from-104-to-105)
 - [From 1.0.3 to 1.0.4](#from-103-to-104)
 - [From 1.0.2 to 1.0.3](#from-102-to-103)
 - [From 1.0.1 to 1.0.2](#from-101-to-102)
@@ -66,6 +68,36 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## From 1.0.x to 2.0.0
+
+### Breaking / migration (FormKit + UiKit)
+
+Dashboard admin UI depends on **[UiKitBundle](https://github.com/nowo-tech/UiKitBundle)** (`^1.4`) and **[FormKitBundle](https://github.com/nowo-tech/FormKitBundle)** (`^2.0`). Symfony floor is **`^7.4 || ^8.0`** (Symfony 6.x is no longer supported). Prefer requiring `nowo-tech/dashboard-menu-bundle: ^2.0`.
+
+1. Run `composer update nowo-tech/dashboard-menu-bundle` (pulls UiKit + FormKit). Register `NowoUiKitBundle` and `NowoFormKitBundle` if Flex does not. Prefer **DashboardMenu before** UiKit/FormKit in `bundles.php` so prepended kit defaults apply.
+2. Run `php bin/console assets:install` so kit CSS is published under `public/bundles/nowouikit/`.
+3. **Asset package rename for CSS:** replace `asset('css/nowo-ui.css', 'nowo_dashboard_menu')` with `asset('css/nowo-ui.css', 'nowo_ui_kit')`. Dashboard JS remains on `nowo_dashboard_menu`.
+4. **Twig macros:** replace `@NowoDashboardMenuBundle/dashboard/_ui_macros.html.twig` with `@NowoUiKitBundle/macros/ui.html.twig`.
+5. **Forms:** types use FormKit profile `dashboard_menu` (`#[FormKitConfig]`). Optional host stub: `config/packages/nowo_form_kit.yaml` (recipe). Do not hardcode Bootstrap field classes in Twig overrides for standard widgets.
+6. **Optional:** set `nowo_ui_kit` / `nowo_form_kit` in the host. If unset, DashboardMenu seeds UiKit from `dashboard.css_framework` / `icon_set` and prepends the `dashboard_menu` FormKit profile.
+
+```bash
+composer require nowo-tech/dashboard-menu-bundle:^2.0
+php bin/console assets:install
+php bin/console cache:clear
+```
+
+### Maintainers / local demos
+
+- **`demo/symfony7` removed.** Use `demo/symfony8` only (`make -C demo/symfony8 up`).
+
+## From 1.0.4 to 1.0.5
+
+No Doctrine schema or public API changes.
+
+- Custom (`css_framework: custom`) modal overlay and `initNowoModals()` opener/`relatedTarget` behaviour; see [INSTALLATION.md](INSTALLATION.md) “Using css_framework: custom”.
+- Run `php bin/console assets:install` after upgrade if you consume published dashboard/UiKit CSS assets.
 
 ## From 1.0.3 to 1.0.4
 

@@ -10,6 +10,8 @@ use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Form\DataTransformer\JsonToArrayTransformer;
 use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
+use Nowo\FormKitBundle\Attribute\FormKitConfig;
+use Nowo\FormKitBundle\Form\FormOptionsTrait;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -39,8 +41,10 @@ use const SORT_NATURAL;
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
  */
+#[FormKitConfig('dashboard_menu')]
 final class MenuItemConfigType extends AbstractType
 {
+    use FormOptionsTrait;
     /**
      * @param list<string> $permissionKeyChoices
      * @param array<string, string> $menuLinkResolverChoices service id => label (after compiler pass)
@@ -94,56 +98,48 @@ final class MenuItemConfigType extends AbstractType
         ksort($resolverChoices, SORT_NATURAL);
         if ($showServiceLinkBlock) {
             if ($resolverChoices !== []) {
-                $builder->add('linkResolver', ChoiceType::class, [
+                $this->addWithDefaults($builder, 'linkResolver', ChoiceType::class, [
                     'required'                  => true,
                     'label'                     => 'form.menu_item_type.link_resolver.label',
                     'placeholder'               => $t('form.menu_item_type.link_resolver.placeholder'),
                     'choices'                   => $resolverChoices,
                     'choice_translation_domain' => false,
-                    'attr'                      => ['class' => 'form-select'],
                     'row_attr'                  => ['class' => 'mb-1'],
-                    'label_attr'                => ['class' => 'form-label'],
                     'help'                      => 'form.menu_item_type.link_resolver.help',
                     'autocomplete'              => true,
                     'tom_select_options'        => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
                 ]);
             } else {
-                $builder->add('linkResolver', TextType::class, [
+                $this->addWithDefaults($builder, 'linkResolver', TextType::class, [
                     'required' => false,
                     'label'    => 'form.menu_item_type.link_resolver.label',
                     'attr'     => [
-                        'class'       => 'form-control font-monospace',
+                        'class' => 'nowo-ui-input form-control font-monospace',
                         'placeholder' => $t('form.menu_item_type.link_resolver.service_id_placeholder'),
                     ],
                     'row_attr'   => ['class' => 'mb-1'],
-                    'label_attr' => ['class' => 'form-label'],
                     'help'       => 'form.menu_item_type.link_resolver.help_free_text',
                 ]);
             }
         }
 
         if ($showClassicLinkBlock) {
-            $builder
-                ->add('linkType', ChoiceType::class, [
+            $this->addWithDefaults($builder, 'linkType', ChoiceType::class, [
                     'choices' => [
                         'form.menu_item_type.link_type.route'        => MenuItem::LINK_TYPE_ROUTE,
                         'form.menu_item_type.link_type.external_url' => MenuItem::LINK_TYPE_EXTERNAL,
                     ],
                     'label'              => 'form.menu_item_type.link_type.label',
-                    'attr'               => ['class' => 'form-select'],
                     'row_attr'           => ['class' => 'mb-1'],
-                    'label_attr'         => ['class' => 'form-label'],
                     'autocomplete'       => true,
                     'tom_select_options' => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
-                ])
-                ->add('routeName', ChoiceType::class, [
+                ]);
+                $this->addWithDefaults($builder, 'routeName', ChoiceType::class, [
                     'required'    => false,
                     'label'       => 'form.menu_item_type.route_name.label',
                     'placeholder' => $t('form.menu_item_type.route_name.placeholder'),
                     'choices'     => $routeChoices,
-                    'attr'        => ['class' => 'form-select'],
                     'row_attr'    => ['class' => 'mb-1'],
-                    'label_attr'  => ['class' => 'form-label'],
                     'choice_attr' => static function ($choice, $key, $value) use ($appRoutes): array {
                         $params = $appRoutes[$value]['params'] ?? [];
 
@@ -151,32 +147,29 @@ final class MenuItemConfigType extends AbstractType
                     },
                     'autocomplete'       => true,
                     'tom_select_options' => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
-                ])
-                ->add('externalUrl', UrlType::class, [
+                ]);
+                $this->addWithDefaults($builder, 'externalUrl', UrlType::class, [
                     'required'   => false,
                     'label'      => 'form.menu_item_type.external_url.label',
-                    'attr'       => ['class' => 'form-control', 'placeholder' => $t('form.menu_item_type.external_url.placeholder')],
+                    'attr'       => ['placeholder' => $t('form.menu_item_type.external_url.placeholder')],
                     'row_attr'   => ['class' => 'mb-1'],
-                    'label_attr' => ['class' => 'form-label'],
                 ]);
         }
 
         if ($showRouteParams) {
-            $builder->add('routeParams', TextType::class, [
+            $this->addWithDefaults($builder, 'routeParams', TextType::class, [
                 'required'   => false,
                 'label'      => 'form.menu_item_type.route_params.label',
-                'attr'       => ['class' => 'form-control font-monospace', 'placeholder' => $t('form.menu_item_type.route_params.placeholder')],
+                'attr'       => ['class' => 'nowo-ui-input form-control font-monospace', 'placeholder' => $t('form.menu_item_type.route_params.placeholder')],
                 'row_attr'   => ['class' => 'mb-1'],
-                'label_attr' => ['class' => 'form-label'],
             ]);
             $builder->get('routeParams')->addModelTransformer(new JsonToArrayTransformer());
         }
 
         if ($showTargetBlank) {
-            $builder->add('targetBlank', CheckboxType::class, [
+            $this->addWithDefaults($builder, 'targetBlank', CheckboxType::class, [
                 'required'   => false,
                 'label'      => 'form.menu_item_type.target_blank.label',
-                'attr'       => ['class' => 'form-check-input'],
                 'row_attr'   => ['class' => 'ms-3 mb-1 form-check'],
                 'label_attr' => ['class' => 'form-check-label'],
             ]);
@@ -187,11 +180,9 @@ final class MenuItemConfigType extends AbstractType
             'required'                  => false,
             'label'                     => 'form.menu_item_type.permission_keys.label',
             'row_attr'                  => ['class' => 'mb-1'],
-            'label_attr'                => ['class' => 'form-label'],
             'choices'                   => $choices,
             'placeholder'               => $t('form.menu_item_type.permission_keys.placeholder'),
             'choice_translation_domain' => false,
-            'attr'                      => ['class' => 'form-select'],
             'autocomplete'              => true,
             'multiple'                  => true,
             'tom_select_options'        => array_merge([
@@ -200,12 +191,11 @@ final class MenuItemConfigType extends AbstractType
                 'hidePlaceholder'  => true,
             ], NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN),
         ];
-        $builder->add('permissionKeys', ChoiceType::class, $permissionKeyOptions);
-        $builder->add('isUnanimous', CheckboxType::class, [
+        $this->addWithDefaults($builder, 'permissionKeys', ChoiceType::class, $permissionKeyOptions);
+        $this->addWithDefaults($builder, 'isUnanimous', CheckboxType::class, [
             'required'   => false,
             'label'      => 'form.menu_item_type.is_unanimous.label',
             'help'       => 'form.menu_item_type.is_unanimous.help',
-            'attr'       => ['class' => 'form-check-input'],
             'row_attr'   => ['class' => 'ms-3 mb-1 form-check'],
             'label_attr' => ['class' => 'form-check-label'],
         ]);
@@ -229,7 +219,7 @@ final class MenuItemConfigType extends AbstractType
 
                 return $itemRepository->getPossibleParentsQueryBuilder($menu, $excludeIds);
             };
-            $builder->add('parent', EntityType::class, [
+            $this->addWithDefaults($builder, 'parent', EntityType::class, [
                 'class'         => MenuItem::class,
                 'query_builder' => $queryBuilder,
                 'help'          => $t('form.menu_item_type.parent.help_inheritance'),
@@ -237,16 +227,14 @@ final class MenuItemConfigType extends AbstractType
                 'placeholder'   => $t('form.menu_item_type.parent.placeholder'),
                 'required'      => false,
                 'label'         => 'form.menu_item_type.parent.label',
-                'attr'          => ['class' => 'form-select'],
                 'row_attr'      => ['class' => 'mb-1'],
-                'label_attr'    => ['class' => 'form-label'],
                 // No UX Autocomplete here: remote Tom Select queries rebuild the form without the
                 // editing MenuItem, so excluded ids (self + subtree) are not applied and the item
                 // can appear as its own parent. Plain EntityType uses query_builder choices only.
             ]);
         }
 
-        $builder->add('sectionCollapsible', ChoiceType::class, [
+        $this->addWithDefaults($builder, 'sectionCollapsible', ChoiceType::class, [
             'required'    => false,
             'label'       => 'form.menu_item_type.section_collapsible.label',
             'help'        => 'form.menu_item_type.section_collapsible.help',
@@ -256,9 +244,7 @@ final class MenuItemConfigType extends AbstractType
                 'form.menu_item_type.section_collapsible.no'  => false,
             ],
             'choice_translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
-            'attr'                      => ['class' => 'form-select'],
             'row_attr'                  => ['class' => 'mb-1'],
-            'label_attr'                => ['class' => 'form-label'],
         ]);
     }
 

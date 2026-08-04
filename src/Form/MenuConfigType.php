@@ -6,6 +6,8 @@ namespace Nowo\DashboardMenuBundle\Form;
 
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
+use Nowo\FormKitBundle\Attribute\FormKitConfig;
+use Nowo\FormKitBundle\Form\FormOptionsTrait;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -24,8 +26,10 @@ use const SORT_NATURAL;
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
  */
+#[FormKitConfig('dashboard_menu')]
 final class MenuConfigType extends AbstractType
 {
+    use FormOptionsTrait;
     /**
      * @param array<string, string> $permissionCheckerChoices
      * @param array<string, list<string>> $cssClassOptions
@@ -66,57 +70,49 @@ final class MenuConfigType extends AbstractType
         }
         $t = fn (string $id): string => $this->translator instanceof TranslatorInterface ? $this->translator->trans($id, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN) : $id;
 
-        $builder
-            ->add('permissionChecker', ChoiceType::class, [
-                'required'                  => false,
-                'label'                     => 'form.menu_type.permission_checker.label',
-                'placeholder'               => 'form.menu_type.permission_checker.placeholder',
-                'choices'                   => $checkerChoices,
-                'choice_translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
-                'attr'                      => ['class' => 'form-select'],
-                'row_attr'                  => ['class' => 'mb-1'],
-                'label_attr'                => ['class' => 'form-label'],
-                'autocomplete'              => true,
-                'tom_select_options'        => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
-                'help'                      => 'form.menu_type.permission_checker.help',
-            ])
-            ->add('depthLimit', IntegerType::class, [
-                'required'   => false,
-                'label'      => 'form.menu_type.depth_limit.label',
-                'attr'       => ['class' => 'form-control', 'min' => 0, 'placeholder' => $t('form.menu_type.depth_limit.placeholder')],
-                'row_attr'   => ['class' => 'mb-1'],
-                'label_attr' => ['class' => 'form-label'],
-                'help'       => 'form.menu_type.depth_limit.help',
-            ])
-            ->add('collapsible', CheckboxType::class, [
-                'required'   => false,
-                'label'      => 'form.menu_type.collapsible.label',
-                'attr'       => ['class' => 'form-check-input'],
-                'row_attr'   => ['class' => 'ms-3 mb-1 form-check'],
-                'label_attr' => ['class' => 'form-check-label'],
-            ])
-            ->add('collapsibleExpanded', CheckboxType::class, [
-                'required'   => false,
-                'label'      => 'form.menu_type.collapsible_expanded.label',
-                'attr'       => ['class' => 'form-check-input'],
-                'row_attr'   => ['class' => 'ms-3 mb-1 form-check'],
-                'label_attr' => ['class' => 'form-check-label'],
-            ])
-            ->add('nestedCollapsible', CheckboxType::class, [
-                'required'   => false,
-                'label'      => 'form.menu_type.nested_collapsible.label',
-                'attr'       => ['class' => 'form-check-input'],
-                'row_attr'   => ['class' => 'ms-3 mb-1 form-check'],
-                'label_attr' => ['class' => 'form-check-label'],
-            ])
-            ->add('nestedCollapsibleSections', CheckboxType::class, [
-                'required'   => false,
-                'label'      => 'form.menu_type.nested_collapsible_sections.label',
-                'attr'       => ['class' => 'form-check-input'],
-                'row_attr'   => ['class' => 'ms-3 mb-1 form-check'],
-                'label_attr' => ['class' => 'form-check-label'],
-                'help'       => 'form.menu_type.nested_collapsible_sections.help',
-            ]);
+        $this->addChoiceWithKit($builder, 'permissionChecker', [
+            'required'                  => false,
+            'label'                     => 'form.menu_type.permission_checker.label',
+            'placeholder'               => 'form.menu_type.permission_checker.placeholder',
+            'choices'                   => $checkerChoices,
+            'choice_translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
+            'row_attr'                  => ['class' => 'mb-1'],
+            'autocomplete'              => true,
+            'tom_select_options'        => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
+            'help'                      => 'form.menu_type.permission_checker.help',
+        ]);
+        $this->addWithDefaults($builder, 'depthLimit', IntegerType::class, [
+            'required'   => false,
+            'label'      => 'form.menu_type.depth_limit.label',
+            'attr'       => ['min' => 0, 'placeholder' => $t('form.menu_type.depth_limit.placeholder')],
+            'row_attr'   => ['class' => 'mb-1'],
+            'help'       => 'form.menu_type.depth_limit.help',
+        ]);
+        $this->addWithDefaults($builder, 'collapsible', CheckboxType::class, [
+            'required'   => false,
+            'label'      => 'form.menu_type.collapsible.label',
+            'row_attr'   => ['class' => 'ms-3 mb-1 form-check'],
+            'label_attr' => ['class' => 'form-check-label'],
+        ]);
+        $this->addWithDefaults($builder, 'collapsibleExpanded', CheckboxType::class, [
+            'required'   => false,
+            'label'      => 'form.menu_type.collapsible_expanded.label',
+            'row_attr'   => ['class' => 'ms-3 mb-1 form-check'],
+            'label_attr' => ['class' => 'form-check-label'],
+        ]);
+        $this->addWithDefaults($builder, 'nestedCollapsible', CheckboxType::class, [
+            'required'   => false,
+            'label'      => 'form.menu_type.nested_collapsible.label',
+            'row_attr'   => ['class' => 'ms-3 mb-1 form-check'],
+            'label_attr' => ['class' => 'form-check-label'],
+        ]);
+        $this->addWithDefaults($builder, 'nestedCollapsibleSections', CheckboxType::class, [
+            'required'   => false,
+            'label'      => 'form.menu_type.nested_collapsible_sections.label',
+            'row_attr'   => ['class' => 'ms-3 mb-1 form-check'],
+            'label_attr' => ['class' => 'form-check-label'],
+            'help'       => 'form.menu_type.nested_collapsible_sections.help',
+        ]);
 
         $this->addCssClassField($builder, 'classMenu', 'menu', 'form.menu_type.class_menu.label', 'form.menu_type.class_menu.placeholder');
         $this->addUlIdField($builder);
@@ -189,29 +185,26 @@ final class MenuConfigType extends AbstractType
                 'placeholder'               => $placeholder,
                 'choices'                   => $choices,
                 'choice_translation_domain' => false,
-                'attr'                      => ['class' => 'form-select'],
                 'row_attr'                  => ['class' => 'mb-1'],
-                'label_attr'                => ['class' => 'form-label'],
                 'autocomplete'              => true,
                 'tom_select_options'        => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
             ];
             if ($help !== null) {
                 $choiceFieldOptions['help'] = $help;
             }
-            $builder->add($fieldName, ChoiceType::class, $choiceFieldOptions);
+            $this->addChoiceWithKit($builder, $fieldName, $choiceFieldOptions);
         } else {
             $placeholderText  = $this->translator instanceof TranslatorInterface ? $this->translator->trans($placeholder, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN) : $placeholder;
             $textFieldOptions = [
                 'required'   => false,
                 'label'      => $label,
-                'attr'       => ['class' => 'form-control', 'placeholder' => $placeholderText],
+                'attr'       => ['placeholder' => $placeholderText],
                 'row_attr'   => ['class' => 'mb-1'],
-                'label_attr' => ['class' => 'form-label'],
             ];
             if ($help !== null) {
                 $textFieldOptions['help'] = $help;
             }
-            $builder->add($fieldName, TextType::class, $textFieldOptions);
+            $this->addWithDefaults($builder, $fieldName, TextType::class, $textFieldOptions);
         }
     }
 
@@ -236,15 +229,13 @@ final class MenuConfigType extends AbstractType
                 ? $this->translator->trans($emptyKey, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN)
                 : $emptyKey;
 
-            $builder->add('ulId', ChoiceType::class, [
+            $this->addChoiceWithKit($builder, 'ulId', [
                 'required'                  => false,
                 'label'                     => 'form.menu_type.ul_id.label',
                 'placeholder'               => $placeholder,
                 'choices'                   => $choices,
                 'choice_translation_domain' => false,
-                'attr'                      => ['class' => 'form-select'],
                 'row_attr'                  => ['class' => 'mb-1'],
-                'label_attr'                => ['class' => 'form-label'],
                 'autocomplete'              => true,
                 'tom_select_options'        => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
             ]);
@@ -256,13 +247,30 @@ final class MenuConfigType extends AbstractType
             ? $this->translator->trans('form.menu_type.ul_id.placeholder', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN)
             : 'form.menu_type.ul_id.placeholder';
 
-        $builder->add('ulId', TextType::class, [
+        $this->addWithDefaults($builder, 'ulId', TextType::class, [
             'required'   => false,
             'label'      => 'form.menu_type.ul_id.label',
-            'attr'       => ['class' => 'form-control', 'placeholder' => $placeholderText],
+            'attr'       => ['placeholder' => $placeholderText],
             'row_attr'   => ['class' => 'mb-1'],
-            'label_attr' => ['class' => 'form-label'],
         ]);
+    }
+
+    /**
+     * FormKit moves root {@code placeholder} into {@code attr}; ChoiceType needs the root option.
+     *
+     * @param array<string, mixed> $options
+     */
+    private function addChoiceWithKit(FormBuilderInterface $builder, string $name, array $options): void
+    {
+        $placeholder = $options['placeholder'] ?? null;
+        $merged      = $this->resolveFieldOptions($name, ChoiceType::class, $options);
+        if ($placeholder !== null && $placeholder !== false) {
+            $merged['placeholder'] = $placeholder;
+            if (isset($merged['attr']) && is_array($merged['attr'])) {
+                unset($merged['attr']['placeholder']);
+            }
+        }
+        $builder->add($name, ChoiceType::class, $merged);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

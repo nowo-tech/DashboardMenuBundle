@@ -6,6 +6,8 @@ namespace Nowo\DashboardMenuBundle\Form;
 
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
+use Nowo\FormKitBundle\Attribute\FormKitConfig;
+use Nowo\FormKitBundle\Form\FormOptionsTrait;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -26,8 +28,10 @@ use function is_string;
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
  */
+#[FormKitConfig('dashboard_menu')]
 final class MenuItemBasicType extends AbstractType
 {
+    use FormOptionsTrait;
     /**
      * @param list<string> $availableLocales
      */
@@ -52,13 +56,10 @@ final class MenuItemBasicType extends AbstractType
         $includeTranslations = $options['include_translations'] ?? true;
         $availableLocales    = $includeTranslations ? $options['available_locales'] : [];
 
-        $builder
-            ->add('label', TextType::class, [
+        $this->addWithDefaults($builder, 'label', TextType::class, [
                 'required'   => false,
                 'label'      => 'form.menu_item_type.label.label',
-                'attr'       => ['class' => 'form-control'],
                 'row_attr'   => ['class' => 'mb-1'],
-                'label_attr' => ['class' => 'form-label'],
             ])
         ;
 
@@ -67,15 +68,13 @@ final class MenuItemBasicType extends AbstractType
             $translations = $data instanceof MenuItem ? ($data->getTranslations() ?? []) : [];
             foreach ($availableLocales as $locale) {
                 $fieldName = 'label_' . $locale;
-                $builder->add($fieldName, TextType::class, [
+                $this->addWithDefaults($builder, $fieldName, TextType::class, [
                     'required'                     => false,
                     'mapped'                       => false,
                     'label'                        => 'form.menu_item_type.label_locale',
                     'label_translation_parameters' => ['%locale%' => $locale],
                     'data'                         => $translations[$locale] ?? null,
-                    'attr'                         => ['class' => 'form-control'],
                     'row_attr'                     => ['class' => 'mb-1'],
-                    'label_attr'                   => ['class' => 'form-label'],
                 ]);
             }
 

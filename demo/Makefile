@@ -1,7 +1,7 @@
 # Dashboard Menu Bundle — demo aggregator (REQ-MAKE-003).
-# Delegates to each demo (symfony7, symfony8).
+# Delegates to the in-repo demo (symfony8).
 
-DEMOS := symfony7 symfony8
+DEMOS := symfony8
 
 .PHONY: help clean test-all test-coverage-all update-bundle-all verify-all release-check release-verify demo-smoke
 .PHONY: $(foreach d,$(DEMOS),up-$d down-$d restart-$d build-$d install-$d update-bundle-$d shell-$d logs-$d test-$d test-coverage-$d verify-$d)
@@ -12,21 +12,22 @@ help:
 	@echo ""
 	@echo "Usage: make <target>"
 	@echo ""
-	@echo "Per demo (symfony7, symfony8):"
-	@echo "  up-<demo>            Start demo (e.g. make up-symfony8)"
-	@echo "  down-<demo>          Stop demo"
-	@echo "  restart-<demo>       Restart demo containers"
-	@echo "  build-<demo>         Rebuild image (no cache)"
-	@echo "  install-<demo>       Install dependencies"
-	@echo "  update-bundle-<demo> Update bundle from path and clear cache"
-	@echo "  shell-<demo>         Open shell in container"
-	@echo "  logs-<demo>          Show logs"
-	@echo "  test-<demo>          Run tests"
-	@echo "  test-coverage-<demo> Run tests with coverage"
-	@echo "  verify-<demo>        Start demo and check HTTP 200"
+	@echo "Per demo (symfony8):"
+	@echo "  up-symfony8            Start demo"
+	@echo "  down-symfony8          Stop demo"
+	@echo "  restart-symfony8       Restart demo containers"
+	@echo "  build-symfony8         Rebuild image (no cache)"
+	@echo "  install-symfony8       Install dependencies"
+	@echo "  update-bundle-symfony8 Update bundle from path and clear cache"
+	@echo "  shell-symfony8         Open shell in container"
+	@echo "  logs-symfony8          Show logs"
+	@echo "  test-symfony8          Run tests"
+	@echo "  test-coverage-symfony8 Run tests with coverage"
+	@echo "  verify-symfony8        Start demo and check HTTP 200"
 	@echo ""
-	@echo "Generic (use DEMO=<name>): up, down, install, test, shell, logs, update-bundle"
+	@echo "Generic (use DEMO=symfony8): up, down, install, test, shell, logs, update-bundle"
 	@echo "  make up DEMO=symfony8"
+	@echo "  make up-symfony8"
 	@echo ""
 	@echo "Other:"
 	@echo "  update-bundle-all    Sync path repo in all demos"
@@ -38,103 +39,80 @@ help:
 	@echo "  demo-smoke           REQ-TEST-011: boot primary demo (symfony8) + HTTP 200"
 	@echo "  clean                Remove vendor and var from all demos"
 	@echo ""
-	@echo "Access (after make up-<demo>): see .env PORT in each demo."
+	@echo "Access (after make up-symfony8): see demo/symfony8/.env PORT (default 8011)."
 
-up-symfony7:
-	@$(MAKE) -C symfony7 up
 up-symfony8:
 	@$(MAKE) -C symfony8 up
 
-down-symfony7:
-	@$(MAKE) -C symfony7 down
 down-symfony8:
 	@$(MAKE) -C symfony8 down
 
-restart-symfony7:
-	@$(MAKE) -C symfony7 restart
 restart-symfony8:
 	@$(MAKE) -C symfony8 restart
 
-build-symfony7:
-	@$(MAKE) -C symfony7 build
 build-symfony8:
 	@$(MAKE) -C symfony8 build
 
-install-symfony7:
-	@$(MAKE) -C symfony7 install
 install-symfony8:
 	@$(MAKE) -C symfony8 install
 
-update-bundle-symfony7:
-	@$(MAKE) -C symfony7 update-bundle
 update-bundle-symfony8:
 	@$(MAKE) -C symfony8 update-bundle
 
-shell-symfony7:
-	@$(MAKE) -C symfony7 shell
 shell-symfony8:
 	@$(MAKE) -C symfony8 shell
 
-logs-symfony7:
-	@$(MAKE) -C symfony7 logs
 logs-symfony8:
 	@$(MAKE) -C symfony8 logs
 
-test-symfony7:
-	@$(MAKE) -C symfony7 test
 test-symfony8:
 	@$(MAKE) -C symfony8 test
 
-test-coverage-symfony7:
-	@$(MAKE) -C symfony7 test-coverage
 test-coverage-symfony8:
 	@$(MAKE) -C symfony8 test-coverage
 
-verify-symfony7:
-	@$(MAKE) -C symfony7 verify
 verify-symfony8:
 	@$(MAKE) -C symfony8 verify
 
 # Generic with DEMO= (REQ-MAKE-003: up / down / update-bundle)
 up:
-	@[ -n "$(DEMO)" ] || { echo "Usage: make up DEMO=symfony7|symfony8"; exit 1; }
+	@[ -n "$(DEMO)" ] || { echo "Usage: make up DEMO=symfony8"; exit 1; }
 	@$(MAKE) up-$(DEMO)
 down:
-	@[ -n "$(DEMO)" ] || { echo "Usage: make down DEMO=symfony7|symfony8"; exit 1; }
+	@[ -n "$(DEMO)" ] || { echo "Usage: make down DEMO=symfony8"; exit 1; }
 	@$(MAKE) down-$(DEMO)
 restart:
-	@[ -n "$(DEMO)" ] || { echo "Usage: make restart DEMO=symfony7|symfony8"; exit 1; }
+	@[ -n "$(DEMO)" ] || { echo "Usage: make restart DEMO=symfony8"; exit 1; }
 	@$(MAKE) restart-$(DEMO)
 build:
-	@[ -n "$(DEMO)" ] || { echo "Usage: make build DEMO=symfony7|symfony8"; exit 1; }
+	@[ -n "$(DEMO)" ] || { echo "Usage: make build DEMO=symfony8"; exit 1; }
 	@$(MAKE) build-$(DEMO)
 install:
-	@[ -n "$(DEMO)" ] || { echo "Usage: make install DEMO=symfony7|symfony8"; exit 1; }
+	@[ -n "$(DEMO)" ] || { echo "Usage: make install DEMO=symfony8"; exit 1; }
 	@$(MAKE) install-$(DEMO)
 update-bundle:
-	@[ -n "$(DEMO)" ] || { echo "Usage: make update-bundle DEMO=symfony7|symfony8"; exit 1; }
+	@[ -n "$(DEMO)" ] || { echo "Usage: make update-bundle DEMO=symfony8"; exit 1; }
 	@$(MAKE) update-bundle-$(DEMO)
 shell:
-	@[ -n "$(DEMO)" ] || { echo "Usage: make shell DEMO=symfony7|symfony8"; exit 1; }
+	@[ -n "$(DEMO)" ] || { echo "Usage: make shell DEMO=symfony8"; exit 1; }
 	@$(MAKE) shell-$(DEMO)
 logs:
-	@[ -n "$(DEMO)" ] || { echo "Usage: make logs DEMO=symfony7|symfony8"; exit 1; }
+	@[ -n "$(DEMO)" ] || { echo "Usage: make logs DEMO=symfony8"; exit 1; }
 	@$(MAKE) logs-$(DEMO)
 test:
-	@[ -n "$(DEMO)" ] || { echo "Usage: make test DEMO=symfony7|symfony8"; exit 1; }
+	@[ -n "$(DEMO)" ] || { echo "Usage: make test DEMO=symfony8"; exit 1; }
 	@$(MAKE) test-$(DEMO)
 test-coverage:
-	@[ -n "$(DEMO)" ] || { echo "Usage: make test-coverage DEMO=symfony7|symfony8"; exit 1; }
+	@[ -n "$(DEMO)" ] || { echo "Usage: make test-coverage DEMO=symfony8"; exit 1; }
 	@$(MAKE) test-coverage-$(DEMO)
 verify:
-	@[ -n "$(DEMO)" ] || { echo "Usage: make verify DEMO=symfony7|symfony8"; exit 1; }
+	@[ -n "$(DEMO)" ] || { echo "Usage: make verify DEMO=symfony8"; exit 1; }
 	@$(MAKE) verify-$(DEMO)
 
 update-bundle-all:
 	@for d in $(DEMOS); do $(MAKE) -C $$d update-bundle || exit 1; done
 
 test-all:
-	@$(MAKE) test-symfony7
 	@$(MAKE) test-symfony8
 	@echo "All demo tests passed."
 
@@ -143,7 +121,6 @@ test-coverage-all:
 	@echo "test-coverage-all done."
 
 verify-all:
-	@$(MAKE) verify-symfony7
 	@$(MAKE) verify-symfony8
 
 release-check: update-bundle-all release-verify
@@ -156,7 +133,7 @@ release-verify:
 demo-smoke:
 	@PORT=$$(grep "^PORT=" symfony8/.env 2>/dev/null | cut -d= -f2 | tr -d '\r'); \
 	[ -z "$$PORT" ] && PORT=$$(grep "^PORT=" symfony8/.env.example 2>/dev/null | cut -d= -f2 | tr -d '\r'); \
-	[ -z "$$PORT" ] && PORT=8008; \
+	[ -z "$$PORT" ] && PORT=8011; \
 	echo "Demo smoke: symfony8 (http://127.0.0.1:$$PORT)"; \
 	$(MAKE) -C symfony8 up || exit 1; \
 	sleep 12; \

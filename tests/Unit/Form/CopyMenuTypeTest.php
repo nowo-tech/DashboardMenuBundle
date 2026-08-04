@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nowo\DashboardMenuBundle\Tests\Form;
 
 use Nowo\DashboardMenuBundle\Form\CopyMenuType;
+use Nowo\DashboardMenuBundle\Tests\Unit\Form\FormKitMergerTestTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -12,6 +13,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class CopyMenuTypeTest extends TestCase
 {
+    use FormKitMergerTestTrait;
+
     public function testBuildFormAddsCodeAndNameWithTranslator(): void
     {
         $translator = $this->createStub(TranslatorInterface::class);
@@ -26,6 +29,7 @@ final class CopyMenuTypeTest extends TestCase
         });
 
         $type = new CopyMenuType($translator);
+        $this->injectFormKitMerger($type);
         $type->buildForm($builder, []);
 
         self::assertCount(2, $addCalls);
@@ -42,6 +46,7 @@ final class CopyMenuTypeTest extends TestCase
         $builder->expects(self::atLeastOnce())->method('add');
 
         $type = new CopyMenuType();
+        $this->injectFormKitMerger($type);
         $type->buildForm($builder, []);
     }
 
@@ -49,6 +54,7 @@ final class CopyMenuTypeTest extends TestCase
     {
         $resolver = new OptionsResolver();
         $type     = new CopyMenuType();
+        $this->injectFormKitMerger($type);
         $type->configureOptions($resolver);
 
         $options = $resolver->resolve([]);

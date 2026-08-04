@@ -28,7 +28,7 @@ The bundle demos use **Symfony UX** with **Stimulus** and **Vite** in **TypeScri
 
 At the root of each demo (e.g. `demo/symfony8/`) there are or are created:
 
-**Note:** In `demo/symfony8` the Vite entrypoint is configured as `./assets/app.ts`. If `assets/app.js` and `assets/stimulus_bootstrap.js` still exist, create the `.ts` files listed below (and optionally delete the `.js`). In `demo/symfony7` create from scratch `assets/app.ts`, `assets/bootstrap.ts` and `assets/controllers/hello_controller.ts`.
+**Note:** In `demo/symfony8` the Vite entrypoint is configured as `./assets/app.ts`. If `assets/app.js` and `assets/stimulus_bootstrap.js` still exist, create the `.ts` files listed below (and optionally delete the `.js`).
 
 - **tsconfig.json**: TypeScript build options (includes `assets/**/*.ts`, `vite.config.ts`).
 - **env.d.ts**: Vite type references and `vite-plugin-symfony/stimulus/env`.
@@ -98,7 +98,7 @@ export default class extends Controller {
 
 ### 5. `package.json` (scripts and dependencies)
 
-It includes `packageManager: "pnpm@9.15.0"`, and in `devDependencies`: `@hotwired/stimulus`, `@types/node`, `typescript`, `vite`, `vite-plugin-symfony`. See `demo/symfony8/package.json` or `demo/symfony7/package.json`.
+It includes `packageManager: "pnpm@9.15.0"`, and in `devDependencies`: `@hotwired/stimulus`, `@types/node`, `typescript`, `vite`, `vite-plugin-symfony`. See `demo/symfony8/package.json`.
 
 Run inside the demo folder: `pnpm install` (if you use Node 16.13+, run `corepack enable` and then `pnpm install`). Alternatively `npm install`.
 

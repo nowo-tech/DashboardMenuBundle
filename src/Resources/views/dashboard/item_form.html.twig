@@ -1,5 +1,5 @@
 {% extends '@NowoDashboardMenuBundle/dashboard/base.html.twig' %}
-{% import '@NowoDashboardMenuBundle/dashboard/_ui_macros.html.twig' as ui %}
+{% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
 
 {% block dashboard_title %}{{ (is_edit ? 'dashboard.edit_item' : 'dashboard.new_item')|trans({}, 'NowoDashboardMenuBundle') }}{% endblock %}
 
@@ -12,7 +12,7 @@
         <a href="{{ path(dashboard_show_route|default(dashboard_routes.show|default('nowo_dashboard_menu_dashboard_show')), { id: menu.id }) }}" class="{{ ui.btn('link') }}">← {{ menu.code }}</a>
     </p>
 
-    {{ form_start(form, { attr: { class: 'form form-vertical' } }) }}
+    {{ form_start(form, { attr: { class: 'form form-vertical dm-dashboard-form' } }) }}
         {% set show_translations = show_translations|default(is_edit|default(false)) %}
         <div class="row">
             <div class="mb-2">

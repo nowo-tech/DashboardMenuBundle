@@ -1,10 +1,10 @@
 # Nowo Dashboard Menu Bundle
 
-[![CI](https://github.com/nowo-tech/DashboardMenuBundle/actions/workflows/ci.yml/badge.svg)](https://github.com/nowo-tech/DashboardMenuBundle/actions/workflows/ci.yml) [![Packagist Version](https://img.shields.io/packagist/v/nowo-tech/dashboard-menu-bundle.svg?style=flat)](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) [![Packagist Downloads](https://img.shields.io/packagist/dt/nowo-tech/dashboard-menu-bundle.svg)](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php)](https://php.net) [![Symfony](https://img.shields.io/badge/Symfony-6.0%2B%20%7C%207.4%2B%20%7C%208.0%20%7C%208.1%2B-000000?logo=symfony)](https://symfony.com) [![GitHub stars](https://img.shields.io/github/stars/nowo-tech/dashboard-menu-bundle.svg?style=social&label=Star)](https://github.com/nowo-tech/DashboardMenuBundle) [![Coverage](https://img.shields.io/badge/Coverage-99.25%25-yellow)](#tests-and-coverage)
+[![CI](https://github.com/nowo-tech/DashboardMenuBundle/actions/workflows/ci.yml/badge.svg)](https://github.com/nowo-tech/DashboardMenuBundle/actions/workflows/ci.yml) [![Packagist Version](https://img.shields.io/packagist/v/nowo-tech/dashboard-menu-bundle.svg?style=flat)](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) [![Packagist Downloads](https://img.shields.io/packagist/dt/nowo-tech/dashboard-menu-bundle.svg)](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php)](https://php.net) [![Symfony](https://img.shields.io/badge/Symfony-7.4%2B%20%7C%208.0%2B-000000?logo=symfony)](https://symfony.com) [![GitHub stars](https://img.shields.io/github/stars/nowo-tech/dashboard-menu-bundle.svg?style=social&label=Star)](https://github.com/nowo-tech/DashboardMenuBundle) [![Coverage](https://img.shields.io/badge/Coverage-99.25%25-yellow)](#tests-and-coverage)
 
 > ⭐ **Found this useful?** [Install from Packagist](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) · Give it a **star** on [GitHub](https://github.com/nowo-tech/DashboardMenuBundle) so more developers can find it.
 
-**Nowo Dashboard Menu Bundle** — Configurable dashboard menus with i18n (JSON translations), tree structure (parent + position), permissions, Twig rendering and JSON API. No external ORM extensions (Gedmo/Stof). For Symfony 6.4, 7 and 8 · PHP 8.2+.
+**Nowo Dashboard Menu Bundle** — Configurable dashboard menus with i18n (JSON translations), tree structure (parent + position), permissions, Twig rendering and JSON API. No external ORM extensions (Gedmo/Stof). For Symfony 7.4+ and 8 · PHP 8.2+.
 
 ![FrankenPHP Friendly Worker Mode](docs/images/frankenphp-friendly.png)
 
@@ -49,8 +49,9 @@ With **Symfony Flex**, the recipe (if available) registers the bundle and adds c
 ## Requirements
 
 - PHP >= 8.2, < 8.6
-- Symfony 6.4 (LTS), 7.x or 8.x (^6.4 || ^7.0 || ^8.0)
+- Symfony 7.4+ or 8.x (`^7.4 || ^8.0`)
 - Doctrine ORM ^2.13 || ^3.0 (no Gedmo/Stof required)
+- **UiKitBundle** + **FormKitBundle** (required hard dependencies for the dashboard UI)
 - Symfony UX Autocomplete & Live Component (installed with the bundle): **2.x** (from 2.32 / 2.33) or **3.x**
 
 See [docs/INSTALLATION.md](docs/INSTALLATION.md#requirements) and [docs/UPGRADING.md](docs/UPGRADING.md) for compatibility notes.
@@ -100,16 +101,16 @@ Full details: [docs/USAGE.md](docs/USAGE.md).
 
 ## Demo
 
-Demos (**Symfony 7** and **8** only in this repo; the bundle also supports **Symfony 6.4** via Composer) are in `demo/symfony7` and `demo/symfony8`. Each uses **FrankenPHP** with **Caddy** (HTTP on port 80 in the container). Compose defaults to **`APP_ENV=dev`** and **`FRANKENPHP_MODE=worker`**; set **`FRANKENPHP_MODE=classic`** for hot-reload (Caddyfile.dev, no PHP worker) — [docs/DEMO-FRANKENPHP.md](docs/DEMO-FRANKENPHP.md). Quick start: [docs/DEMO.md](docs/DEMO.md).
+The in-repo demo is **`demo/symfony8`** (FrankenPHP + Caddy; HTTP on port 80 in the container). The package still supports Symfony **7.4+** and **8** via Composer. Compose defaults to **`APP_ENV=dev`** and **`FRANKENPHP_MODE=worker`**; set **`FRANKENPHP_MODE=classic`** for hot-reload (Caddyfile.dev, no PHP worker) — [docs/DEMO-FRANKENPHP.md](docs/DEMO-FRANKENPHP.md). Quick start: [docs/DEMO.md](docs/DEMO.md).
 
-Default host ports: **8010** (symfony7), **8011** (symfony8) via `PORT` in each demo’s `.env`.
+Default host port: **8011** via `PORT` in `demo/symfony8/.env`.
 
 From bundle root:
 
 ```bash
 make -C demo/symfony8 up
 make -C demo/symfony8 install
-# Open http://localhost:8011 (symfony8) or http://localhost:8010 (symfony7), unless PORT is overridden
+# Open http://localhost:8011 (or PORT from demo/symfony8/.env)
 ```
 
 ## Development

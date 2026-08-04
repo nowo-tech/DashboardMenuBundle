@@ -12,6 +12,7 @@ use Nowo\DashboardMenuBundle\Form\MenuItemConfigType;
 use Nowo\DashboardMenuBundle\Form\MenuItemType;
 use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
+use Nowo\DashboardMenuBundle\Tests\Unit\Form\FormKitMergerTestTrait;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use ReflectionProperty;
@@ -34,6 +35,8 @@ use function in_array;
 
 final class MenuItemTypeTest extends TestCase
 {
+    use FormKitMergerTestTrait;
+
     public function testMenuItemTypeConfigureOptions(): void
     {
         $this->createStub(MenuItemRepository::class);
@@ -189,6 +192,7 @@ final class MenuItemTypeTest extends TestCase
     {
         $availableLocales = [];
         $type             = new MenuItemBasicType(availableLocales: $availableLocales);
+        $this->injectFormKitMerger($type);
 
         $addCalls = [];
         $builder  = $this->createFormBuilderMock($addCalls, new MenuItem());
@@ -215,6 +219,7 @@ final class MenuItemTypeTest extends TestCase
         $menuItem->setItemType(MenuItem::ITEM_TYPE_DIVIDER);
 
         $type = new MenuItemBasicType(availableLocales: $availableLocales);
+        $this->injectFormKitMerger($type);
 
         $addCalls       = [];
         $eventListeners = [];
@@ -244,6 +249,7 @@ final class MenuItemTypeTest extends TestCase
         ]);
 
         $type = new MenuItemBasicType(availableLocales: $availableLocales);
+        $this->injectFormKitMerger($type);
 
         $addCalls       = [];
         $eventListeners = [];
@@ -304,6 +310,7 @@ final class MenuItemTypeTest extends TestCase
         ]);
 
         $type = new MenuItemBasicType(availableLocales: $availableLocales);
+        $this->injectFormKitMerger($type);
 
         $addCalls       = [];
         $eventListeners = [];
@@ -355,6 +362,7 @@ final class MenuItemTypeTest extends TestCase
     {
         $availableLocales = ['en', 'es'];
         $type             = new MenuItemBasicType(availableLocales: $availableLocales);
+        $this->injectFormKitMerger($type);
 
         $addCalls       = [];
         $eventListeners = [];
@@ -386,6 +394,7 @@ final class MenuItemTypeTest extends TestCase
     public function testMenuItemBasicTypeValidateLabelWhenNotDividerEarlyReturnsForDivider(): void
     {
         $type = new MenuItemBasicType(availableLocales: []);
+        $this->injectFormKitMerger($type);
 
         $item = new MenuItem();
         $item->setItemType(MenuItem::ITEM_TYPE_DIVIDER);
@@ -401,6 +410,7 @@ final class MenuItemTypeTest extends TestCase
     {
         $availableLocales = ['en', 'es'];
         $type             = new MenuItemBasicType(availableLocales: $availableLocales);
+        $this->injectFormKitMerger($type);
 
         $addCalls       = [];
         $eventListeners = [];
@@ -420,6 +430,7 @@ final class MenuItemTypeTest extends TestCase
     {
         $availableLocales = ['en', 'es'];
         $type             = new MenuItemBasicType(availableLocales: $availableLocales);
+        $this->injectFormKitMerger($type);
 
         $resolver = new OptionsResolver();
         $type->configureOptions($resolver);
@@ -443,6 +454,7 @@ final class MenuItemTypeTest extends TestCase
     public function testMenuItemBasicTypeValidateLabelWhenNotDividerAddsViolation(): void
     {
         $type = new MenuItemBasicType(availableLocales: []);
+        $this->injectFormKitMerger($type);
 
         $item = new MenuItem();
         $item->setItemType(MenuItem::ITEM_TYPE_LINK);
@@ -474,6 +486,7 @@ final class MenuItemTypeTest extends TestCase
     public function testMenuItemBasicTypeValidateLabelWhenBaseLabelNonEmptyReturnsEarly(): void
     {
         $type = new MenuItemBasicType(availableLocales: []);
+        $this->injectFormKitMerger($type);
 
         $item = new MenuItem();
         $item->setItemType(MenuItem::ITEM_TYPE_LINK);
@@ -488,6 +501,7 @@ final class MenuItemTypeTest extends TestCase
     public function testMenuItemBasicTypeValidateLabelWhenTranslationsHasNonEmptyStringReturnsEarly(): void
     {
         $type = new MenuItemBasicType(availableLocales: []);
+        $this->injectFormKitMerger($type);
 
         $item = new MenuItem();
         $item->setItemType(MenuItem::ITEM_TYPE_LINK);
@@ -503,6 +517,7 @@ final class MenuItemTypeTest extends TestCase
     public function testMenuItemBasicTypeFinishViewReturnsEarlyWhenAvailableLocalesEmpty(): void
     {
         $type = new MenuItemBasicType(availableLocales: ['en']);
+        $this->injectFormKitMerger($type);
 
         $view           = new FormView();
         $view->children = [];
@@ -516,6 +531,7 @@ final class MenuItemTypeTest extends TestCase
     public function testMenuItemBasicTypeFinishViewReturnsEarlyWhenFormDataIsNotMenuItem(): void
     {
         $type = new MenuItemBasicType(availableLocales: ['en']);
+        $this->injectFormKitMerger($type);
 
         $view           = new FormView();
         $view->children = [];
@@ -532,6 +548,7 @@ final class MenuItemTypeTest extends TestCase
     public function testMenuItemBasicTypeFinishViewHydratesLocaleLabelFieldsUsingFormOrTranslations(): void
     {
         $type = new MenuItemBasicType(availableLocales: ['en', 'es']);
+        $this->injectFormKitMerger($type);
 
         $menuItem = new MenuItem();
         $menuItem->setTranslations(['en' => 'FromEntity', 'es' => 'FromEntityEs']);
@@ -580,6 +597,7 @@ final class MenuItemTypeTest extends TestCase
             defaultLocale: 'en',
             translator: $translator,
         );
+        $this->injectFormKitMerger($type);
 
         $menuItem = new MenuItem();
         $menuItem->setPermissionKeys(['path:/']);
@@ -616,6 +634,7 @@ final class MenuItemTypeTest extends TestCase
             permissionKeyChoices: ['authenticated'],
             defaultLocale: 'en',
         );
+        $this->injectFormKitMerger($type);
 
         $resolver = new OptionsResolver();
         $type->configureOptions($resolver);
@@ -652,6 +671,7 @@ final class MenuItemTypeTest extends TestCase
             permissionKeyChoices: [],
             defaultLocale: 'en',
         );
+        $this->injectFormKitMerger($type);
 
         $addCalls = [];
         $builder  = $this->createFormBuilderMock($addCalls, new MenuItem(), routeParamsFormTransformer: true);
@@ -687,6 +707,7 @@ final class MenuItemTypeTest extends TestCase
             menuLinkResolverChoices: ['App\\DemoResolver' => 'Demo resolver'],
             defaultLocale: 'en',
         );
+        $this->injectFormKitMerger($type);
 
         $item = new MenuItem();
         $item->setItemType(MenuItem::ITEM_TYPE_SERVICE);
@@ -723,6 +744,7 @@ final class MenuItemTypeTest extends TestCase
             menuLinkResolverChoices: ['App\\DemoResolver' => 'Demo resolver'],
             defaultLocale: 'en',
         );
+        $this->injectFormKitMerger($type);
 
         $item = new MenuItem();
         $item->setItemType(MenuItem::ITEM_TYPE_SERVICE);
@@ -762,6 +784,7 @@ final class MenuItemTypeTest extends TestCase
             permissionKeyChoices: [],
             defaultLocale: 'en',
         );
+        $this->injectFormKitMerger($type);
 
         $addCalls = [];
         $builder  = $this->createFormBuilderMock($addCalls, new MenuItem(), routeParamsFormTransformer: true);
@@ -821,6 +844,7 @@ final class MenuItemTypeTest extends TestCase
             permissionKeyChoices: [],
             defaultLocale: 'en',
         );
+        $this->injectFormKitMerger($type);
 
         $addCalls = [];
         $builder  = $this->createFormBuilderMock($addCalls, $editing, routeParamsFormTransformer: true);
@@ -845,6 +869,7 @@ final class MenuItemTypeTest extends TestCase
             permissionKeyChoices: [],
             defaultLocale: 'en',
         );
+        $this->injectFormKitMerger($type);
 
         $item = new MenuItem();
         $item->setParent($item);
@@ -869,6 +894,7 @@ final class MenuItemTypeTest extends TestCase
             permissionKeyChoices: [],
             defaultLocale: 'en',
         );
+        $this->injectFormKitMerger($type);
 
         $item = new MenuItem();
         $item->setParent(null);
@@ -886,6 +912,7 @@ final class MenuItemTypeTest extends TestCase
             permissionKeyChoices: [],
             defaultLocale: 'en',
         );
+        $this->injectFormKitMerger($type);
 
         $parent  = new MenuItem();
         $section = new MenuItem();
@@ -912,6 +939,7 @@ final class MenuItemTypeTest extends TestCase
             permissionKeyChoices: [],
             defaultLocale: 'en',
         );
+        $this->injectFormKitMerger($type);
 
         $section = new MenuItem();
         $section->setItemType(MenuItem::ITEM_TYPE_SECTION);
@@ -943,6 +971,7 @@ final class MenuItemTypeTest extends TestCase
             permissionKeyChoices: [],
             defaultLocale: 'en',
         );
+        $this->injectFormKitMerger($type);
 
         $item = new MenuItem();
         $item->setMenu($menu);
@@ -972,6 +1001,7 @@ final class MenuItemTypeTest extends TestCase
             permissionKeyChoices: [],
             defaultLocale: 'en',
         );
+        $this->injectFormKitMerger($type);
 
         $item   = new MenuItem();
         $parent = new MenuItem();
@@ -1000,6 +1030,7 @@ final class MenuItemTypeTest extends TestCase
             permissionKeyChoices: [],
             defaultLocale: 'en',
         );
+        $this->injectFormKitMerger($type);
 
         $item   = new MenuItem();
         $parent = new MenuItem();
@@ -1027,6 +1058,7 @@ final class MenuItemTypeTest extends TestCase
             permissionKeyChoices: [],
             defaultLocale: 'en',
         );
+        $this->injectFormKitMerger($type);
 
         $item   = new MenuItem();
         $parent = new MenuItem();

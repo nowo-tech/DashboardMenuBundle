@@ -18,12 +18,21 @@
             {% elseif _dm_fw == 'foundation' %}
                 <link href="https://cdn.jsdelivr.net/npm/foundation-sites@6.8.1/dist/css/foundation.min.css" rel="stylesheet">
             {% endif %}
-            <link href="{{ asset('css/nowo-ui.css', 'nowo_dashboard_menu') }}" rel="stylesheet">
+            <link href="{{ asset('css/nowo-ui.css', 'nowo_ui_kit') }}" rel="stylesheet">
         {% endblock %}
         {% block dashboard_head %}
         <style>
             {# Tom Select dropdown appended to body must stack above Bootstrap 5 modals (z-index 1055). #}
             body > .ts-dropdown { z-index: 1060; }
+            {# UiKit .nowo-ui-modal { display:none } must not override Bootstrap .modal.show #}
+            .modal.nowo-ui-modal.show { display: block; }
+            {# UiKit .nowo-ui-input defaults to max-width:20rem (toolbar); modal forms need full width. #}
+            .dm-dashboard-form .nowo-ui-input,
+            .dm-dashboard-form .form-control,
+            .dm-dashboard-form .form-select {
+                max-width: none;
+                width: 100%;
+            }
         </style>
         {% endblock %}
     {% endblock %}
@@ -61,7 +70,7 @@
             {% endif %}
         {% endblock %}
         {% block dashboard_scripts %}{% endblock %}
-        <script src="{{ asset('js/dashboard.js', 'nowo_dashboard_menu') }}" defer></script>
+        {# dashboard.js is loaded from base.html.twig so host layouts that only parent() still get it. #}
         <script>
         {% if icon_selector_script_url is defined and icon_selector_script_url %}
         window.dashboardMenuIconSelectorScriptUrl = {{ (icon_selector_script_url starts with 'http') ? icon_selector_script_url : asset(icon_selector_script_url) |json_encode|raw }};

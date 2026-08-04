@@ -352,4 +352,87 @@ final class DashboardMenuExtensionTest extends TestCase
         }
         self::assertTrue($found, 'Expected nowo_dashboard_menu asset package to be prepended.');
     }
+
+    public function testPrependAlignsUiKitDefaultsFromDashboardWhenHostUnset(): void
+    {
+        $container = new ContainerBuilder();
+        $container->registerExtension(new class extends \Symfony\Component\DependencyInjection\Extension\Extension {
+            public function getAlias(): string
+            {
+                return 'nowo_ui_kit';
+            }
+
+            public function load(array $configs, ContainerBuilder $container): void
+            {
+            }
+        });
+        $container->prependExtensionConfig(Configuration::ALIAS, [
+            'dashboard' => [
+                'css_framework' => 'tailwind',
+                'icon_set'      => 'tabler-icons',
+            ],
+        ]);
+
+        $extension = new DashboardMenuExtension();
+        $extension->prepend($container);
+
+        $found = false;
+        foreach ($container->getExtensionConfig('nowo_ui_kit') as $cfg) {
+            if (($cfg['css_framework'] ?? null) === 'tailwind'
+                && ($cfg['icon_set'] ?? null) === 'tabler-icons'
+            ) {
+                $found = true;
+                break;
+            }
+        }
+        self::assertTrue($found, 'Expected nowo_ui_kit defaults from dashboard config.');
+    }
+
+    public function testPrependDoesNotOverrideExplicitUiKitHostConfig(): void
+    {
+        $container = new ContainerBuilder();
+        $container->registerExtension(new class extends \Symfony\Component\DependencyInjection\Extension\Extension {
+            public function getAlias(): string
+            {
+                return 'nowo_ui_kit';
+            }
+
+            public function load(array $configs, ContainerBuilder $container): void
+            {
+            }
+        });
+        $container->prependExtensionConfig('nowo_ui_kit', [
+            'css_framework' => 'custom',
+            'icon_set'      => 'ux_icon',
+        ]);
+        $container->prependExtensionConfig(Configuration::ALIAS, [
+            'dashboard' => [
+                'css_framework' => 'tailwind',
+                'icon_set'      => 'tabler-icons',
+            ],
+        ]);
+
+        $extension = new DashboardMenuExtension();
+        $extension->prepend($container);
+
+        $uiKitConfigs = $container->getExtensionConfig('nowo_ui_kit');
+        foreach ($uiKitConfigs as $cfg) {
+            if (($cfg['css_framework'] ?? null) === 'tailwind'
+                || ($cfg['icon_set'] ?? null) === 'tabler-icons'
+            ) {
+                self::fail('Dashboard must not prepend UiKit defaults when host set nowo_ui_kit explicitly.');
+            }
+        }
+        self::assertSame('custom', $uiKitConfigs[0]['css_framework'] ?? null);
+        self::assertSame('ux_icon', $uiKitConfigs[0]['icon_set'] ?? null);
+    }
+
+    public function testPrependSkipsUiKitWhenExtensionMissing(): void
+    {
+        $container = new ContainerBuilder();
+        $extension = new DashboardMenuExtension();
+        $extension->prepend($container);
+
+        self::assertSame([], $container->getExtensionConfig('nowo_ui_kit'));
+    }
 }

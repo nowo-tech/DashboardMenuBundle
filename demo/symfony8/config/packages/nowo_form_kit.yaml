@@ -1,0 +1,12 @@
+# Optional host overrides. Profile `dashboard_menu` is prepended by DashboardMenuBundle.
+nowo_form_kit:
+    default_profile: default
+    profiles:
+        default:
+            alias: default
+            translation_domain: messages
+            defaults:
+                attr:
+                    class: form-control
+                row_attr:
+                    class: mb-3

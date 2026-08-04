@@ -20,7 +20,7 @@ use Nowo\DashboardMenuBundle\Entity\MenuItem;
  *  a) Create a custom class implementing {@see MenuPermissionCheckerInterface} and inject Security.
  *  b) Copy this class and fill in the "resolve key against $context" section.
  *
- * See demo/symfony7 and demo/symfony8 for working examples with Symfony Security.
+ * See demo/symfony8 for working examples with Symfony Security.
  *
  * Usage note: if you want expression support (OR/AND/parentheses), parse strings like
  * "authenticated|admin" or "(path:/admin|path:/operator)&authenticated" in your custom checker.

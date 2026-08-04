@@ -1,9 +1,9 @@
-{% import '@NowoDashboardMenuBundle/dashboard/_ui_macros.html.twig' as ui %}
+{% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
 {% for msg in app.flashes('error') %}
     <div class="{{ ui.flash('error') }}">{{ msg }}</div>
 {% endfor %}
 <p class="{{ ui.muted() }} small">{{ 'dashboard.copy_menu_help'|trans({}, 'NowoDashboardMenuBundle') }}</p>
-{{ form_start(form, { attr: { class: 'form form-vertical', style: 'max-width: 32rem;' } }) }}
+{{ form_start(form, { attr: { class: 'form form-vertical dm-dashboard-form', style: 'max-width: 32rem;' } }) }}
     <div class="row mb-2">
         {% for field in form.children %}
             {{ form_row(field) }}

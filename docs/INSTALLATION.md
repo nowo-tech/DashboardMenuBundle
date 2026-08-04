@@ -18,11 +18,13 @@ This guide covers installing Dashboard Menu Bundle in a Symfony application.
 ## Requirements
 
 - **PHP** >= 8.2, < 8.6
-- **Symfony** 6.4 (LTS), 7.x or 8.x (the bundle supports all via `^6.4 || ^7.0 || ^8.0`)
+- **Symfony** 7.4+ or 8.x (`^7.4 || ^8.0`)
 - **Doctrine ORM** ^2.13 || ^3.0 (no Gedmo/Stof or other ORM extensions required)
+- **UiKitBundle** (`nowo-tech/ui-kit-bundle` `^1.4`) — required for dashboard Twig macros and `nowo-ui.css` (REQ-UI-001-kit)
+- **FormKitBundle** (`nowo-tech/form-kit-bundle` `^2.0`) — required for dashboard Symfony form field options / profile `dashboard_menu`
 - **Symfony UX:** `symfony/ux-autocomplete` and `symfony/ux-live-component` are required by Composer (dashboard autocomplete and the optional Live Component item form). The bundle supports **UX 2.x** (from 2.32 / 2.33) and **UX 3.x** on those packages.
 
-**Note:** Symfony **8.0** requires **PHP >= 8.4**. With PHP 8.2 or 8.3, Composer will resolve to Symfony **6.4** or **7.x**. With PHP 8.4+ you can use Symfony 6.4, 7 or 8.
+**Note:** Symfony **8.0** requires **PHP >= 8.4**. With PHP 8.2 or 8.3, Composer will resolve to Symfony **7.4+**. With PHP 8.4+ you can use Symfony 7.4+ or 8.
 
 The bundle does **not** require `nowo-tech/icon-selector-bundle`. The dashboard item form uses it when installed (Symfony ^7.0 || ^8.0); otherwise the icon field is a plain text input.
 
@@ -32,7 +34,7 @@ The bundle does **not** require `nowo-tech/icon-selector-bundle`. The dashboard 
 composer require nowo-tech/dashboard-menu-bundle
 ```
 
-Use `^1.0` for the stable 1.x line (or `^0.3` only if you must stay on the pre-1.0 series).
+Use `^2.0` for the stable 2.x line (or `^1.0` only if you must stay on the pre-2.0 series).
 
 ## Register the bundle
 
@@ -55,6 +57,8 @@ You do **not** need to edit any file manually. Then continue with [Import routes
 return [
     // ...
     Nowo\DashboardMenuBundle\NowoDashboardMenuBundle::class => ['all' => true],
+    Nowo\UiKitBundle\NowoUiKitBundle::class => ['all' => true],
+    Nowo\FormKitBundle\NowoFormKitBundle::class => ['all' => true],
 ];
 ```
 
@@ -112,24 +116,28 @@ Use `--dump` first to print SQL without writing a file. If you use a non-default
 
 ## Using css_framework: custom (Bootstrap-free hosts)
 
-Set `dashboard.css_framework: custom` in your bundle config when your host layout does **not** load Bootstrap:
+Set `dashboard.css_framework: custom` in your bundle config when your host layout does **not** load Bootstrap. UiKit macros and CSS supply the standalone modal overlay and UI tokens; this bundle aligns `nowo_ui_kit` from the dashboard keys unless you set `nowo_ui_kit` yourself:
 
 ```yaml
 # config/packages/nowo_dashboard_menu.yaml
 nowo_dashboard_menu:
     dashboard:
         css_framework: custom
+# optional explicit kit config (wins over dashboard alignment):
+# nowo_ui_kit:
+#     css_framework: custom
+#     icon_set: svg_inline
 ```
 
 After setting this option:
 
-1. **Do not** load Bootstrap CSS or JS in your layout. The bundle ships its own `nowo-ui.css` with a standalone modal overlay and UI tokens.
-2. Run `php bin/console assets:install` (or `assets:install --symlink`) so `public/bundles/nowodashboardmenubundle/css/nowo-ui.css` and `public/bundles/nowodashboardmenubundle/js/dashboard.js` are published.
-3. Include the bundle assets in your layout shell (e.g. under `templates/kit/`):
+1. **Do not** load Bootstrap CSS or JS in your layout. Use UiKit `nowo-ui.css` for tokens and the custom modal overlay.
+2. Run `php bin/console assets:install` (or `assets:install --symlink`) so `public/bundles/nowouikit/css/nowo-ui.css` and `public/bundles/nowodashboardmenu/js/dashboard.js` are published.
+3. Include the assets in your layout shell (prefer named packages):
 
 ```twig
-<link rel="stylesheet" href="{{ asset('bundles/nowodashboardmenubundle/css/nowo-ui.css') }}">
-<script src="{{ asset('bundles/nowodashboardmenubundle/js/dashboard.js') }}" defer></script>
+<link rel="stylesheet" href="{{ asset('css/nowo-ui.css', 'nowo_ui_kit') }}">
+<script src="{{ asset('js/dashboard.js', 'nowo_dashboard_menu') }}" defer></script>
 ```
 
 4. **Remap design tokens** under your host shell class without forking templates:
@@ -139,11 +147,11 @@ After setting this option:
     --nowo-ui-primary: #7c3aed;
     --nowo-ui-surface: #ffffff;
     --nowo-ui-border: #ddd4fe;
-    /* … any --nowo-ui-* token from nowo-ui.css */
+    /* … any --nowo-ui-* token from UiKit nowo-ui.css */
 }
 ```
 
-5. **Modals** are handled entirely by the kit JS (`dashboard.js`). Opener buttons use `data-nowo-modal-open` (boolean) + `data-nowo-modal-target="<id>"`. No Bootstrap JS is required; the script dispatches a synthetic `show.bs.modal` Event so existing form-loading listeners work transparently.
+5. **Modals** for non-Bootstrap stacks are handled by dashboard JS (`dashboard.js`). Opener buttons use `data-nowo-modal-open` (boolean) + `data-nowo-modal-target="<id>"` (from kit macros when `css_framework` is `custom` / `none` / `tailwind` / …). No Bootstrap JS is required; the script dispatches a synthetic `show.bs.modal` Event so existing form-loading listeners work transparently.
 
 > **Note:** The default `css_framework` remains `bootstrap5` for all demos and new installs. Set `custom` only when your host explicitly omits Bootstrap.
 

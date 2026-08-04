@@ -1,4 +1,4 @@
-{% import '@NowoDashboardMenuBundle/dashboard/_ui_macros.html.twig' as ui %}
+{% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
 {% if nowo_dashboard_ux_autocomplete_available|default(false) %}
 {% form_theme form '@SymfonyUXAutocomplete/autocomplete_form_theme.html.twig' %}
 {% endif %}
@@ -11,7 +11,7 @@
 {% set _show_config_gear = form.config is defined and (_section_focus == 'config' or (_section_focus == '' and is_edit|default(false))) %}
 {% set _show_config_identity = form.config is defined and _section_focus == 'identity' %}
 <div id="modal-item-form-container" data-app-routes="{{ app_routes|default({})|json_encode|e('html_attr') }}" data-item-has-children="{{ item_has_children|default(false) ? 'true' : 'false' }}" data-section-focus="{{ _section_focus }}">
-{{ form_start(form) }}
+{{ form_start(form, { attr: { class: 'dm-dashboard-form' } }) }}
     {% if _section_focus != '' %}
         <input type="hidden" name="_section" value="{{ _section_focus }}">
     {% endif %}

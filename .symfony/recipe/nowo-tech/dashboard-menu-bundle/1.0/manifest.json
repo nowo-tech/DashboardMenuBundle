@@ -1,11 +1,14 @@
 {
     "bundles": {
-        "Nowo\\DashboardMenuBundle\\NowoDashboardMenuBundle": ["all"]
+        "Nowo\\DashboardMenuBundle\\NowoDashboardMenuBundle": ["all"],
+        "Nowo\\UiKitBundle\\NowoUiKitBundle": ["all"],
+        "Nowo\\FormKitBundle\\NowoFormKitBundle": ["all"]
     },
     "copy-from-recipe": {
         "config/": "%CONFIG_DIR%/"
     },
     "post-install-output": [
+        "Register NowoUiKitBundle + NowoFormKitBundle (added by this recipe when Flex applies it).",
         "To enable the dashboard, set dashboard.enabled to true in config/packages/nowo_dashboard_menu.yaml and add to config/routes.yaml:",
         "  _nowo_dashboard_menu_dashboard:\n    resource: routes_nowo_dashboard_menu.yaml"
     ]

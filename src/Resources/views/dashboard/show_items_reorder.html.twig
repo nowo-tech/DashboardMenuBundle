@@ -1,6 +1,6 @@
 {% extends '@NowoDashboardMenuBundle/dashboard/base.html.twig' %}
 {% import '@NowoDashboardMenuBundle/dashboard/_sortable_tree_macro.html.twig' as sortable %}
-{% import '@NowoDashboardMenuBundle/dashboard/_ui_macros.html.twig' as ui %}
+{% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
 {% import '@NowoDashboardMenuBundle/dashboard/_icons.html.twig' as icons %}
 
 {% block dashboard_title %}{{ 'dashboard.menu'|trans({}, 'NowoDashboardMenuBundle') }}: {{ menu.code }} — {{ 'dashboard.sortable_page_heading'|trans({}, 'NowoDashboardMenuBundle') }}{% endblock %}

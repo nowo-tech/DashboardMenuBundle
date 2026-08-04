@@ -9,6 +9,7 @@ use Nowo\DashboardMenuBundle\Form\MenuConfigType;
 use Nowo\DashboardMenuBundle\Form\MenuDefinitionType;
 use Nowo\DashboardMenuBundle\Form\MenuType;
 use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
+use Nowo\DashboardMenuBundle\Tests\Unit\Form\FormKitMergerTestTrait;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -19,6 +20,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class MenuTypeTest extends TestCase
 {
+    use FormKitMergerTestTrait;
+
     public function testMenuTypeConfigureOptions(): void
     {
         $resolver = new OptionsResolver();
@@ -86,6 +89,7 @@ final class MenuTypeTest extends TestCase
         $builder = $this->createFormBuilderMock($addCalls, $menu, 'context', $contextForm);
 
         $type = new MenuDefinitionType();
+        $this->injectFormKitMerger($type);
         $type->buildForm($builder, []);
 
         $code = $this->findAddCall($addCalls, 'code');
@@ -108,6 +112,7 @@ final class MenuTypeTest extends TestCase
                 'menu' => ['nav flex-column'],
             ],
         );
+        $this->injectFormKitMerger($type);
 
         $type->buildForm($builder, []);
 
@@ -131,6 +136,7 @@ final class MenuTypeTest extends TestCase
             permissionCheckerChoices: [],
             cssClassOptions: [],
         );
+        $this->injectFormKitMerger($type);
 
         $type->configureOptions($resolver);
 
@@ -143,6 +149,7 @@ final class MenuTypeTest extends TestCase
     {
         $resolver = new OptionsResolver();
         $type     = new MenuDefinitionType();
+        $this->injectFormKitMerger($type);
 
         $type->configureOptions($resolver);
 
@@ -168,6 +175,7 @@ final class MenuTypeTest extends TestCase
             ulIdOptions: ['a' => 'a', 'b' => 'b'],
             translator: $translator,
         );
+        $this->injectFormKitMerger($type);
 
         $type->buildForm($builder, []);
 
@@ -194,6 +202,7 @@ final class MenuTypeTest extends TestCase
             ulIdOptions: [],
             translator: $translator,
         );
+        $this->injectFormKitMerger($type);
 
         $type->buildForm($builder, []);
 
@@ -216,6 +225,7 @@ final class MenuTypeTest extends TestCase
             cssClassOptions: [],
             ulIdOptions: ['a' => 'a', 'b' => 'b'],
         );
+        $this->injectFormKitMerger($type);
 
         $type->buildForm($builder, []);
 

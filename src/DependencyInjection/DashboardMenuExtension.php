@@ -52,7 +52,9 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
     /**
      * Prepend twig_component.defaults so the bundle's Live Component has a matching namespace
      * (avoids "Could not generate a component name ... no matching namespace found").
-     * Also registers the named assets package for serving bundle public files via asset().
+     * Also registers the named assets package for serving bundle public files via asset(),
+     * and aligns UiKit defaults from dashboard css_framework / icon_set when the host has
+     * not set nowo_ui_kit explicitly (REQ-UI-001-kit).
      */
     public function prepend(ContainerBuilder $container): void
     {
@@ -75,6 +77,131 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
                 ],
             ]);
         }
+
+        $this->prependUiKitDefaults($container);
+        $this->prependFormKitDefaults($container);
+    }
+
+    /**
+     * When FormKit is installed, register the {@code dashboard_menu} profile (labels domain +
+     * Bootstrap/UiKit-friendly field classes). Forms select it via {@code #[FormKitConfig]}.
+     * Does not change the host {@code default_profile}.
+     */
+    private function prependFormKitDefaults(ContainerBuilder $container): void
+    {
+        if (!$container->hasExtension('nowo_form_kit')) {
+            return;
+        }
+
+        $hostHasCssFramework       = false;
+        $hostHasDashboardProfile = false;
+        foreach ($container->getExtensionConfig('nowo_form_kit') as $cfg) {
+            /** @var array<string, mixed> $cfg */
+            if (array_key_exists('css_framework', $cfg)) {
+                $hostHasCssFramework = true;
+            }
+            $profiles = $cfg['profiles'] ?? null;
+            if (is_array($profiles) && array_key_exists('dashboard_menu', $profiles)) {
+                $hostHasDashboardProfile = true;
+            }
+        }
+
+        $seed = [];
+
+        if (!$hostHasCssFramework) {
+            $config    = $this->processConfiguration(new Configuration(), $container->getExtensionConfig(Configuration::ALIAS));
+            /** @var array<string, mixed> $dashboard */
+            $dashboard = $config['dashboard'] ?? [];
+            $raw       = (string) ($dashboard['css_framework'] ?? CssFramework::Bootstrap5->value);
+            $fw        = CssFramework::from($raw)->normalized();
+            // FormKit accepts only bootstrap|tailwind|foundation|none (not bootstrap5 / tabler / …).
+            $seed['css_framework'] = match ($fw) {
+                CssFramework::Tailwind => 'tailwind',
+                CssFramework::Foundation => 'foundation',
+                CssFramework::None => 'none',
+                default => 'bootstrap',
+            };
+        }
+
+        if (!$hostHasDashboardProfile) {
+            $seed['profiles'] = [
+                'dashboard_menu' => [
+                    'alias'              => 'dashboard_menu',
+                    'translation_domain' => 'NowoDashboardMenuBundle',
+                    'defaults'           => [
+                        'attr'     => ['class' => 'nowo-ui-input form-control'],
+                        'row_attr' => ['class' => 'mb-1'],
+                    ],
+                    'field_types' => [
+                        'checkbox' => [
+                            'attr'     => ['class' => 'form-check-input'],
+                            'row_attr' => ['class' => 'form-check mb-1'],
+                        ],
+                        'choice' => [
+                            'attr' => ['class' => 'form-select'],
+                        ],
+                        'entity' => [
+                            'attr' => ['class' => 'form-select'],
+                        ],
+                        'file' => [
+                            'attr' => ['class' => 'nowo-ui-input form-control'],
+                        ],
+                        'textarea' => [
+                            'attr' => ['class' => 'nowo-ui-input form-control'],
+                        ],
+                    ],
+                ],
+            ];
+        }
+
+        if ($seed !== []) {
+            $container->prependExtensionConfig('nowo_form_kit', $seed);
+        }
+    }
+
+    /**
+     * When UiKit is installed, seed nowo_ui_kit.css_framework / icon_set from dashboard
+     * config so kit macros (ui.btn, …) resolve the same stack without editing every call.
+     * Does not override keys the host already set under nowo_ui_kit.
+     */
+    private function prependUiKitDefaults(ContainerBuilder $container): void
+    {
+        if (!$container->hasExtension('nowo_ui_kit')) {
+            return;
+        }
+
+        $hostHasCssFramework = false;
+        $hostHasIconSet      = false;
+        foreach ($container->getExtensionConfig('nowo_ui_kit') as $cfg) {
+            /** @var array<string, mixed> $cfg */
+            if (array_key_exists('css_framework', $cfg)) {
+                $hostHasCssFramework = true;
+            }
+            if (array_key_exists('icon_set', $cfg)) {
+                $hostHasIconSet = true;
+            }
+        }
+
+        if ($hostHasCssFramework && $hostHasIconSet) {
+            return;
+        }
+
+        $config = $this->processConfiguration(new Configuration(), $container->getExtensionConfig(Configuration::ALIAS));
+        /** @var array<string, mixed> $dashboard */
+        $dashboard = $config['dashboard'] ?? [];
+        $defaults  = [];
+
+        if (!$hostHasCssFramework) {
+            $raw                       = (string) ($dashboard['css_framework'] ?? CssFramework::Bootstrap5->value);
+            $defaults['css_framework'] = CssFramework::from($raw)->normalized()->value;
+        }
+        if (!$hostHasIconSet) {
+            $defaults['icon_set'] = IconSet::from(
+                (string) ($dashboard['icon_set'] ?? IconSet::BootstrapIcons->value),
+            )->value;
+        }
+
+        $container->prependExtensionConfig('nowo_ui_kit', $defaults);
     }
 
     public function load(array $configs, ContainerBuilder $container): void

@@ -65,7 +65,6 @@ Copy the original from `vendor/nowo-tech/dashboard-menu-bundle/src/Resources/vie
 | `menu.html.twig` | Frontend menu tree (sidebar, nav, etc.). Receives `menuTree`, `menuCode`, `menuConfig`. |
 | `dashboard/layout.html.twig` | Demo/fallback full HTML shell. Defines `nowo_dashboard_menu_content` / `nowo_ui_content`. |
 | `dashboard/base.html.twig` | Intermediate layout: flashes, modals, `parent()` asset stacking, `{% block body %}`. Pages extend this. |
-| `dashboard/_ui_macros.html.twig` | REQ-UI-001 CSS class helpers (`btn`, `toolbar`, modal attrs, …). |
 | `dashboard/_icons.html.twig` | Inline SVG action icons. |
 | `dashboard/index.html.twig` | Dashboard menu list. |
 | `dashboard/show.html.twig` | Single menu detail and item table (links to reorder page). |
@@ -88,14 +87,22 @@ Copy the original from `vendor/nowo-tech/dashboard-menu-bundle/src/Resources/vie
 
 **Dashboard layout:** besides overriding `dashboard/layout.html.twig` in the bundle path above, you can keep using the bundle layout and only change the **wrapper** via config: set `dashboard.layout_template` in `nowo_dashboard_menu.yaml` to your app layout (e.g. `base.html.twig`) so the dashboard uses your shell (see [CONFIGURATION.md](CONFIGURATION.md#dashboard)). Overriding the file gives full control over the dashboard HTML; the config option only swaps the extended template.
 
-**CSS stack (REQ-UI-001):** set `dashboard.css_framework` (`bootstrap5` default, or `tailwind` / `foundation` / `custom` / …) and optionally `dashboard.icon_set`. Markup always includes semantic `nowo-ui-*` classes; framework classes are added via `_ui_macros.html.twig`. Assets load through the named package `nowo_dashboard_menu` (REQ-ASSETS-004):
+**CSS stack (REQ-UI-001 / REQ-UI-001-kit):** set `dashboard.css_framework` (`bootstrap5` default, or `tailwind` / `foundation` / `custom` / …) and optionally `dashboard.icon_set`. Markup always includes semantic `nowo-ui-*` classes; framework classes come from **[UiKitBundle](https://github.com/nowo-tech/UiKitBundle)** macros:
 
 ```twig
-<link href="{{ asset('css/nowo-ui.css', 'nowo_dashboard_menu') }}" rel="stylesheet">
+{% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
+```
+
+CSS loads from the kit named package; dashboard behaviour JS stays on `nowo_dashboard_menu` (REQ-ASSETS-004):
+
+```twig
+<link href="{{ asset('css/nowo-ui.css', 'nowo_ui_kit') }}" rel="stylesheet">
 <script src="{{ asset('js/dashboard.js', 'nowo_dashboard_menu') }}" defer></script>
 ```
 
-`nowo-ui.css` uses CSS custom properties (`--nowo-ui-primary`, `--nowo-ui-surface`, `--nowo-ui-border`, `--nowo-ui-text`, `--nowo-ui-muted`, …) with slate/blue defaults. Remap under your host chrome (e.g. `.kit-admin`) without forking templates:
+When the host does not configure `nowo_ui_kit`, this bundle prepends `nowo_ui_kit.css_framework` / `icon_set` from the dashboard keys so `ui.btn('primary')` and friends resolve the same stack. Explicit host `nowo_ui_kit` config wins.
+
+`nowo-ui.css` (from UiKit) uses CSS custom properties (`--nowo-ui-primary`, `--nowo-ui-surface`, `--nowo-ui-border`, `--nowo-ui-text`, `--nowo-ui-muted`, …) with slate/blue defaults. Remap under your host chrome (e.g. `.kit-admin`) without forking templates:
 
 ```css
 .kit-admin {
@@ -106,7 +113,7 @@ Copy the original from `vendor/nowo-tech/dashboard-menu-bundle/src/Resources/vie
 }
 ```
 
-When `layout_template` points at the **project** layout, the demo CDN is skipped; your layout must expose `stylesheets` / `javascripts` (bundle `base.html.twig` calls `{{ parent() }}`). Twig globals: `nowo_dashboard_layout_template`, `nowo_dashboard_menu_css_framework`, `nowo_dashboard_menu_icon_set`.
+When `layout_template` points at the **project** layout, the demo CDN is skipped; your layout must expose `stylesheets` / `javascripts` (bundle `base.html.twig` calls `{{ parent() }}`). Twig globals: `nowo_dashboard_layout_template`, `nowo_dashboard_menu_css_framework`, `nowo_dashboard_menu_icon_set` (and UiKit globals `nowo_ui_kit_css_framework` / `nowo_ui_kit_icon_set`).
 
 After adding or changing template overrides, clear the Twig cache if needed: `php bin/console cache:clear`.
 
@@ -264,7 +271,7 @@ public function canView(MenuItem $item, mixed $context = null): bool
 
 ### Demo expression syntax (AND / OR / parentheses)
 
-The demo checker in `demo/symfony7` and `demo/symfony8` supports simple expressions per key, and supports multiple keys via `permissionKeys` + `isUnanimous`:
+The demo checker in `demo/symfony8` supports simple expressions per key, and supports multiple keys via `permissionKeys` + `isUnanimous`:
 
 - `keyA|keyB` → OR (at least one token must pass)
 - `keyA&keyB` → AND (all tokens must pass)

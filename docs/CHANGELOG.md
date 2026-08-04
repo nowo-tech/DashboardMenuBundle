@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.0.0] - 2026-08-04](#200-2026-08-04)
 - [[1.0.5] - 2026-08-01](#105-2026-08-01)
 - [[1.0.4] - 2026-07-30](#104-2026-07-30)
 - [[1.0.3] - 2026-07-30](#103-2026-07-30)
@@ -70,6 +71,34 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.0.0] - 2026-08-04
+
+### Added
+
+- **FormKitBundle:** depend on [`nowo-tech/form-kit-bundle`](https://github.com/nowo-tech/FormKitBundle) `^2.0`. Dashboard form types use `FormOptionsTrait` + profile `dashboard_menu` (`#[FormKitConfig]`). Extension prepends that profile (and maps `dashboard.css_framework` → FormKit `css_framework`) without changing the host `default_profile`. Form types are tagged `form.type` so `FormOptionsMerger` is injected.
+- Flex recipe registers **UiKit** + **FormKit** and ships optional `nowo_form_kit.yaml` stub. The Symfony 8 demo registers both kits.
+
+### Changed
+
+- **REQ-UI-001-kit:** Dashboard Twig now composes **[UiKitBundle](https://github.com/nowo-tech/UiKitBundle)** (`nowo-tech/ui-kit-bundle` `^1.4`) instead of a local `_ui_macros.html.twig` / vendored `nowo-ui.css`.
+- Twig import: `{% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}`.
+- Stylesheet package: `asset('css/nowo-ui.css', 'nowo_ui_kit')` (dashboard JS stays on `nowo_dashboard_menu`).
+- When UiKit is installed and the host has not set `nowo_ui_kit` explicitly, `DashboardMenuExtension` prepends `nowo_ui_kit.css_framework` / `icon_set` from `dashboard.css_framework` / `icon_set` so kit macros keep working without editing every call site.
+- Dashboard form field chrome comes from FormKit (no hardcoded `form-control` / `form-select` on widgets); UiKit remains for buttons, toolbars, modals, and layout.
+- Symfony package constraints raised to **`^7.4 || ^8.0`** (aligned with FormKitBundle); PHP `>=8.2 <8.6` (Symfony 6.x no longer supported).
+- **Dashboard Twig (aligned with BreadcrumbKit):** `base.html.twig` no longer redefines nested `nowo_ui_styles` / `nowo_ui_scripts` / `nowo_ui_content` (avoids replacing layout CDN / dropping modals). `dashboard.js` loads once from `base`; layout adds UiKit modal/input CSS guards. Form partials use class `dm-dashboard-form`.
+
+### Removed
+
+- `src/Resources/views/dashboard/_ui_macros.html.twig`
+- `src/Resources/public/css/nowo-ui.css`
+- **Demo Symfony 7:** removed `demo/symfony7/`; in-repo Docker demo is **`demo/symfony8` only**.
+
+### Documentation
+
+- [UPGRADING.md](UPGRADING.md): From 1.0.x to 2.0.0 (FormKit + UiKit migration).
+- [INSTALLATION.md](INSTALLATION.md), [RELEASE.md](RELEASE.md), README: Symfony `^7.4 || ^8.0`, Composer `^2.0`, single demo.
 
 ## [1.0.5] - 2026-08-01
 
@@ -887,7 +916,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v1.0.3...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v1.0.5...v2.0.0
+[1.0.5]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v1.0.4...v1.0.5
+[1.0.4]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v1.0.0...v1.0.1
