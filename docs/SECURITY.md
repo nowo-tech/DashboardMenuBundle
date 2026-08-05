@@ -6,7 +6,9 @@ Report vulnerabilities to the maintainers privately. Do not open public issues f
 
 For production or sensitive setups, configure:
 
-- **Access control (REQ-UI-002):** Set `nowo_dashboard_menu.security.access_roles` (default `[ROLE_ADMIN]`) so dashboard CRUD requires an authorized user. Optionally provide `security.access_checker` (service implementing `DashboardMenuAccessCheckerInterface`). Also lock `dashboard.path_prefix` in the host `security.yaml` with `access_control`. Keep `security.allow_unauthenticated: false` in production (demos may set `true`).
+- **Access control (REQ-UI-002):** The **admin dashboard gate** already uses `nowo_dashboard_menu.security.access_roles` (default `[ROLE_ADMIN]`) so CRUD requires an authorized user. Optionally provide `security.access_checker` (service implementing `DashboardMenuAccessCheckerInterface`). Also lock `dashboard.path_prefix` in the host `security.yaml` with `access_control`. Keep `security.allow_unauthenticated: false` in production (demos may set `true`).
+
+- **Menu item visibility (residual):** `AllowAllMenuPermissionChecker` is the default **menu-item** permission checker (what each user sees in a rendered menu tree). It does **not** weaken the admin gate above. In production, replace it with a real `MenuPermissionCheckerInterface` implementation (e.g. `PermissionKeyAwareMenuPermissionChecker` or your own) for menus that expose sensitive links.
 
 - **Legacy:** `dashboard.required_role: ROLE_X` still maps to `security.access_roles: [ROLE_X]` but is deprecated.
 
