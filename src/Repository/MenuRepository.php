@@ -10,17 +10,26 @@ use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
+use Symfony\Contracts\Service\ResetInterface;
 
+use function array_key_exists;
 use function count;
 
 /**
  * @extends ServiceEntityRepository<Menu>
  *
+ * {@see findOneByCodeAndContext} is memoized for the request lifetime (Doctrine does not
+ * dedupe identical {@see findOneBy} lookups). Implements {@see ResetInterface} so
+ * FrankenPHP / long-lived workers clear the memo between requests.
+ *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
  */
-class MenuRepository extends ServiceEntityRepository
+class MenuRepository extends ServiceEntityRepository implements ResetInterface
 {
+    /** @var array<string, Menu|null> */
+    private array $byCodeContext = [];
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Menu::class);
@@ -38,13 +47,26 @@ class MenuRepository extends ServiceEntityRepository
     /**
      * Finds one menu by code and exact context match (null or [] = no context).
      *
+     * Results are memoized until {@see reset()} (end of request, or after menu write
+     * invalidation via {@see \Nowo\DashboardMenuBundle\EventSubscriber\MenuCacheInvalidationSubscriber}).
+     *
      * @param array<string, bool|int|string>|null $context
      */
     public function findOneByCodeAndContext(string $code, ?array $context): ?Menu
     {
-        $key = Menu::canonicalContextKey($context);
+        $key = $code . "\0" . Menu::canonicalContextKey($context);
+        if (array_key_exists($key, $this->byCodeContext)) {
+            return $this->byCodeContext[$key];
+        }
 
-        return $this->findOneBy(['code' => $code, 'contextKey' => $key]);
+        $contextKey = Menu::canonicalContextKey($context);
+
+        return $this->byCodeContext[$key] = $this->findOneBy(['code' => $code, 'contextKey' => $contextKey]);
+    }
+
+    public function reset(): void
+    {
+        $this->byCodeContext = [];
     }
 
     /**

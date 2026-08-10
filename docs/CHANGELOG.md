@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.1.1] - 2026-08-10](#211-2026-08-10)
 - [[2.1.0] - 2026-08-10](#210-2026-08-10)
 - [[2.0.1] - 2026-08-04](#201-2026-08-04)
 - [[2.0.0] - 2026-08-04](#200-2026-08-04)
@@ -73,6 +74,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.1.1] - 2026-08-10
+
+### Changed
+- **`MenuRepository::findOneByCodeAndContext`**: request-scoped memoization (including negative/`null` hits) so setup detectors + Twig `dashboard_menu_config` do not re-query the same `dashboard_menu` row many times per HTML request.
+- **`MenuRepository`** implements Symfony **`ResetInterface`** (`kernel.reset`) for FrankenPHP / long-lived workers.
+- **`MenuCacheInvalidationSubscriber`**: clears the repository memo after menu/item persist, update, or remove so lookups cannot stay stale within the same request after a write.
+
+### Documentation
+- USAGE / UPGRADING: request memo + FrankenPHP notes; RELEASE target **2.1.1**.
 
 ## [2.1.0] - 2026-08-10
 
@@ -938,7 +949,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.0...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.1...HEAD
+[2.1.1]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.0.1...v2.1.0
 [2.0.1]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v1.0.5...v2.0.0

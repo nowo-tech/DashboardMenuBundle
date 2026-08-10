@@ -9,6 +9,7 @@
 - [JSON API](#json-api)
 - [Resolving menu by criteria](#resolving-menu-by-criteria-operatorid-partnerid-menu-name)
 - [Current item matchers](#current-item-matchers)
+- [Request performance (menu lookup memo)](#request-performance-menu-lookup-memo)
 - [Permissions](#permissions)
 - [Item visibility rules](#item-visibility-rules)
 - [Web Profiler diagnostics](#web-profiler-diagnostics)
@@ -277,6 +278,14 @@ final class AdministrationMenuCurrentMatcher extends AbstractRoutePrefixMenuCurr
 ```
 
 `hasCurrentInBranch` still bubbles from children after custom matchers run, so nested collapsible sections stay open.
+
+## Request performance (menu lookup memo)
+
+`MenuRepository::findOneByCodeAndContext` memoizes each `(code, context)` result for the current HTTP request (including misses). That avoids repeated `SELECT … FROM dashboard_menu WHERE code = ? AND attributes_key = ?` when Twig calls `dashboard_menu_config()` several times or a host setup detector checks the same codes.
+
+The repository implements Symfony `ResetInterface` (`kernel.reset`) so FrankenPHP worker mode clears the memo between requests. Doctrine listeners also clear it after menu/item writes in the same request.
+
+Tree loading (`findMenuAndItemsRaw` / `MenuTreeLoader` cache pool) is separate; this memo only covers entity lookups by code+context.
 
 ## Permissions
 

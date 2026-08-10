@@ -11,12 +11,15 @@ use Doctrine\ORM\Event\PostUpdateEventArgs;
 use Doctrine\ORM\Events;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
+use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 use Nowo\DashboardMenuBundle\Service\MenuTreeCacheInvalidator;
 
 use function is_string;
 
 /**
  * Bumps the menu tree cache version when menus or items are persisted, updated, or removed.
+ * Also clears {@see MenuRepository} request memo so code/context lookups cannot stay stale
+ * after a write in the same request (FrankenPHP-safe via {@see MenuRepository::reset()}).
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
@@ -28,6 +31,7 @@ final readonly class MenuCacheInvalidationSubscriber
 {
     public function __construct(
         private MenuTreeCacheInvalidator $cacheInvalidator,
+        private MenuRepository $menuRepository,
     ) {
     }
 
@@ -45,6 +49,7 @@ final readonly class MenuCacheInvalidationSubscriber
             if (isset($changeSet['code'][0]) && is_string($changeSet['code'][0]) && $changeSet['code'][0] !== '') {
                 $this->cacheInvalidator->invalidateForMenuCode($changeSet['code'][0]);
             }
+            $this->menuRepository->reset();
 
             return;
         }
@@ -61,6 +66,7 @@ final readonly class MenuCacheInvalidationSubscriber
     {
         if ($entity instanceof Menu) {
             $this->cacheInvalidator->invalidateForMenuCode($entity->getCode());
+            $this->menuRepository->reset();
 
             return;
         }
@@ -69,6 +75,7 @@ final readonly class MenuCacheInvalidationSubscriber
             $menu = $entity->getMenu();
             if ($menu instanceof Menu) {
                 $this->cacheInvalidator->invalidateForMenuCode($menu->getCode());
+                $this->menuRepository->reset();
             }
         }
     }

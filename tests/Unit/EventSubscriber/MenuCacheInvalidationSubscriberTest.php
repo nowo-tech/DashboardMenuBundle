@@ -14,7 +14,9 @@ use Doctrine\ORM\UnitOfWork;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\EventSubscriber\MenuCacheInvalidationSubscriber;
+use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 use Nowo\DashboardMenuBundle\Service\MenuTreeCacheInvalidator;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
@@ -28,11 +30,12 @@ final class MenuCacheInvalidationSubscriberTest extends TestCase
     {
         $stored      = [];
         $invalidator = new MenuTreeCacheInvalidator($this->createInMemoryPool($stored));
+        $menuRepository = $this->createMenuRepositoryExpectingReset();
 
         $menu = new Menu();
         $menu->setCode('sidebar');
 
-        $subscriber = new MenuCacheInvalidationSubscriber($invalidator);
+        $subscriber = new MenuCacheInvalidationSubscriber($invalidator, $menuRepository);
         $subscriber->postPersist(new PostPersistEventArgs($menu, $this->createEntityManager()));
 
         self::assertSame(1, $invalidator->getVersionForMenuCode('sidebar'));
@@ -42,13 +45,14 @@ final class MenuCacheInvalidationSubscriberTest extends TestCase
     {
         $stored      = [];
         $invalidator = new MenuTreeCacheInvalidator($this->createInMemoryPool($stored));
+        $menuRepository = $this->createMenuRepositoryExpectingReset();
 
         $menu = new Menu();
         $menu->setCode('footer');
         $item = new MenuItem();
         $item->setMenu($menu);
 
-        $subscriber = new MenuCacheInvalidationSubscriber($invalidator);
+        $subscriber = new MenuCacheInvalidationSubscriber($invalidator, $menuRepository);
         $subscriber->postPersist(new PostPersistEventArgs($item, $this->createEntityManager()));
 
         self::assertSame(1, $invalidator->getVersionForMenuCode('footer'));
@@ -58,6 +62,7 @@ final class MenuCacheInvalidationSubscriberTest extends TestCase
     {
         $stored      = [];
         $invalidator = new MenuTreeCacheInvalidator($this->createInMemoryPool($stored));
+        $menuRepository = $this->createMenuRepositoryExpectingReset();
 
         $menu = new Menu();
         $menu->setCode('new-code');
@@ -68,7 +73,7 @@ final class MenuCacheInvalidationSubscriberTest extends TestCase
         $em = $this->createMock(EntityManagerInterface::class);
         $em->method('getUnitOfWork')->willReturn($uow);
 
-        $subscriber = new MenuCacheInvalidationSubscriber($invalidator);
+        $subscriber = new MenuCacheInvalidationSubscriber($invalidator, $menuRepository);
         $subscriber->postUpdate(new PostUpdateEventArgs($menu, $em));
 
         self::assertSame(1, $invalidator->getVersionForMenuCode('new-code'));
@@ -79,14 +84,23 @@ final class MenuCacheInvalidationSubscriberTest extends TestCase
     {
         $stored      = [];
         $invalidator = new MenuTreeCacheInvalidator($this->createInMemoryPool($stored));
+        $menuRepository = $this->createMenuRepositoryExpectingReset();
 
         $menu = new Menu();
         $menu->setCode('aside');
 
-        $subscriber = new MenuCacheInvalidationSubscriber($invalidator);
+        $subscriber = new MenuCacheInvalidationSubscriber($invalidator, $menuRepository);
         $subscriber->postRemove(new PostRemoveEventArgs($menu, $this->createEntityManager()));
 
         self::assertSame(1, $invalidator->getVersionForMenuCode('aside'));
+    }
+
+    private function createMenuRepositoryExpectingReset(): MenuRepository&MockObject
+    {
+        $menuRepository = $this->createMock(MenuRepository::class);
+        $menuRepository->expects(self::once())->method('reset');
+
+        return $menuRepository;
     }
 
     private function createEntityManager(): EntityManagerInterface

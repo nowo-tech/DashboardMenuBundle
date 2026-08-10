@@ -5,6 +5,7 @@ This document describes breaking changes and upgrade notes between versions. Sec
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [From 2.1.0 to 2.1.1](#from-210-to-211)
 - [From 2.0.x to 2.1.0](#from-20x-to-210)
 - [From 2.0.0 to 2.0.1](#from-200-to-201)
 - [From 1.0.x to 2.0.0](#from-10x-to-200)
@@ -70,6 +71,16 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## From 2.1.0 to 2.1.1
+
+### Request memo for `findOneByCodeAndContext` (FrankenPHP-safe)
+
+No breaking changes and no host configuration required.
+
+`MenuRepository::findOneByCodeAndContext` now memoizes results (including `null`) for the request lifetime and implements Symfony `ResetInterface` so FrankenPHP worker mode clears the memo between requests. Menu/item Doctrine writes clear the memo via `MenuCacheInvalidationSubscriber`.
+
+Hosts that added a custom decorator / override only to dedupe that lookup can remove it after upgrading to **2.1.1**.
 
 ## From 2.0.x to 2.1.0
 

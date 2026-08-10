@@ -6,6 +6,9 @@ services:
 
   Nowo\DashboardMenuBundle\Repository\MenuRepository:
     public: true
+    # ResetInterface: clear findOneByCodeAndContext memo between FrankenPHP worker requests.
+    tags:
+      - { name: kernel.reset, method: reset }
 
   Nowo\DashboardMenuBundle\Repository\MenuItemRepository:
     public: true
