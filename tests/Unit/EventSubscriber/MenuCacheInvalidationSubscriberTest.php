@@ -28,8 +28,8 @@ final class MenuCacheInvalidationSubscriberTest extends TestCase
 {
     public function testPostPersistInvalidatesMenuCode(): void
     {
-        $stored      = [];
-        $invalidator = new MenuTreeCacheInvalidator($this->createInMemoryPool($stored));
+        $stored         = [];
+        $invalidator    = new MenuTreeCacheInvalidator($this->createInMemoryPool($stored));
         $menuRepository = $this->createMenuRepositoryExpectingReset();
 
         $menu = new Menu();
@@ -43,8 +43,8 @@ final class MenuCacheInvalidationSubscriberTest extends TestCase
 
     public function testPostPersistInvalidatesMenuCodeFromMenuItem(): void
     {
-        $stored      = [];
-        $invalidator = new MenuTreeCacheInvalidator($this->createInMemoryPool($stored));
+        $stored         = [];
+        $invalidator    = new MenuTreeCacheInvalidator($this->createInMemoryPool($stored));
         $menuRepository = $this->createMenuRepositoryExpectingReset();
 
         $menu = new Menu();
@@ -60,8 +60,8 @@ final class MenuCacheInvalidationSubscriberTest extends TestCase
 
     public function testPostUpdateInvalidatesOldAndNewMenuCodeWhenCodeChanges(): void
     {
-        $stored      = [];
-        $invalidator = new MenuTreeCacheInvalidator($this->createInMemoryPool($stored));
+        $stored         = [];
+        $invalidator    = new MenuTreeCacheInvalidator($this->createInMemoryPool($stored));
         $menuRepository = $this->createMenuRepositoryExpectingReset();
 
         $menu = new Menu();
@@ -82,8 +82,8 @@ final class MenuCacheInvalidationSubscriberTest extends TestCase
 
     public function testPostRemoveInvalidatesMenuCode(): void
     {
-        $stored      = [];
-        $invalidator = new MenuTreeCacheInvalidator($this->createInMemoryPool($stored));
+        $stored         = [];
+        $invalidator    = new MenuTreeCacheInvalidator($this->createInMemoryPool($stored));
         $menuRepository = $this->createMenuRepositoryExpectingReset();
 
         $menu = new Menu();
