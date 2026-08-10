@@ -443,6 +443,38 @@ final class CurrentRouteTreeDecoratorTest extends TestCase
         self::assertArrayNotHasKey('href', $result[0]);
     }
 
+    public function testCustomMatcherMarksItemCurrentWhenPathDoesNotMatch(): void
+    {
+        $item = new MenuItem();
+        $item->setLabel('Ops');
+        $item->setItemType(MenuItem::ITEM_TYPE_LINK);
+        $item->setRouteName('admin_ops_defaults');
+
+        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $urlGenerator->method('generate')->willReturn('/admin/ops-defaults');
+        $requestStack = $this->createMock(\Symfony\Component\HttpFoundation\RequestStack::class);
+        $requestStack->method('getCurrentRequest')->willReturn(null);
+        $urlResolver = $this->createMenuUrlResolver($urlGenerator, $requestStack);
+
+        $matcher = new class implements \Nowo\DashboardMenuBundle\Service\MenuCurrentMatcherInterface {
+            public function isCurrent(MenuItem $item, Request $request, string $resolvedHref): bool
+            {
+                return $item->getRouteName() === 'admin_ops_defaults'
+                    && $request->attributes->get('_route') === 'admin_ops_defaults_section';
+            }
+        };
+
+        $decorator = new CurrentRouteTreeDecorator($urlResolver, [$matcher]);
+        $request = Request::create('/admin/ops-defaults/governance', 'GET');
+        $request->attributes->set('_route', 'admin_ops_defaults_section');
+
+        $result = $decorator->decorate([['item' => $item, 'children' => []]], $request);
+
+        self::assertTrue($result[0]['isCurrent']);
+        self::assertTrue($result[0]['hasCurrentInBranch']);
+        self::assertSame('/admin/ops-defaults', $result[0]['href']);
+    }
+
     private function createMenuUrlResolver(UrlGeneratorInterface $urlGenerator, \Symfony\Component\HttpFoundation\RequestStack $requestStack): MenuUrlResolver
     {
         $router = $this->createStub(RouterInterface::class);

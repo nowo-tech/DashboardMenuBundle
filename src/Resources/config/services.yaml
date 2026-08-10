@@ -94,6 +94,8 @@ services:
 
   Nowo\DashboardMenuBundle\Service\CurrentRouteTreeDecorator:
     class: Nowo\DashboardMenuBundle\Service\CurrentRouteTreeDecorator
+    arguments:
+      $currentMatchers: !tagged_iterator nowo_dashboard_menu.current_matcher
     public: false
 
   Nowo\DashboardMenuBundle\Twig\MenuExtension:

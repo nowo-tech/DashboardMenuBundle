@@ -5,6 +5,7 @@ This document describes breaking changes and upgrade notes between versions. Sec
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [From 2.0.x to 2.1.0](#from-20x-to-210)
 - [From 2.0.0 to 2.0.1](#from-200-to-201)
 - [From 1.0.x to 2.0.0](#from-10x-to-200)
 - [From 1.0.4 to 1.0.5](#from-104-to-105)
@@ -69,6 +70,16 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## From 2.0.x to 2.1.0
+
+### Optional: custom “current” menu matchers
+
+No breaking changes. The default path+query current detection is unchanged.
+
+To highlight a sidebar item on child routes (e.g. menu route `admin_ops_defaults` while the page is `admin_ops_defaults_section`), implement `MenuCurrentMatcherInterface` (autoconfigured tag `nowo_dashboard_menu.current_matcher`) or extend `AbstractRoutePrefixMenuCurrentMatcher`. See [USAGE — Current item matchers](USAGE.md#current-item-matchers).
+
+Hosts that previously post-processed the menu tree in Twig can remove that layer once matchers are registered as services.
 
 ## From 2.0.0 to 2.0.1
 

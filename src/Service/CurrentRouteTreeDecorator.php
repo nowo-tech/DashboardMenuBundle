@@ -17,21 +17,28 @@ use const PHP_URL_QUERY;
 
 /**
  * Decorates a menu tree with isCurrent and hasCurrentInBranch per node.
- * A link is current when the path matches and the current request contains
- * all the link's query params with the same values (the request may have extra params).
+ *
+ * A link is current when:
+ * - the path matches and the current request contains all the link's query params
+ *   with the same values (the request may have extra params), or
+ * - any tagged {@see MenuCurrentMatcherInterface} returns true for the item.
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
  */
 final readonly class CurrentRouteTreeDecorator
 {
+    /**
+     * @param iterable<MenuCurrentMatcherInterface> $currentMatchers
+     */
     public function __construct(
         private MenuUrlResolver $urlResolver,
+        private iterable $currentMatchers = [],
     ) {
     }
 
     /**
-     * Adds isCurrent (link matches current path + query subset) and hasCurrentInBranch to each node.
+     * Adds isCurrent (path+query match or custom matcher) and hasCurrentInBranch to each node.
      *
      * @param list<array<string, mixed>> $tree
      *
@@ -46,7 +53,7 @@ final readonly class CurrentRouteTreeDecorator
             /**
              * @param array{item: MenuItem, children: list<array>} $node
              */
-            fn (array $node): array => $this->decorateNode($node, $normalizedCurrentPath, $currentQuery),
+            fn (array $node): array => $this->decorateNode($node, $request, $normalizedCurrentPath, $currentQuery),
             $tree,
         );
     }
@@ -57,12 +64,16 @@ final readonly class CurrentRouteTreeDecorator
      *
      * @return array<string, mixed>
      */
-    private function decorateNode(array $node, string $normalizedCurrentPath, array $currentQuery): array
-    {
+    private function decorateNode(
+        array $node,
+        Request $request,
+        string $normalizedCurrentPath,
+        array $currentQuery,
+    ): array {
         $item     = $node['item'];
         $children = $node['children'];
         $children = array_map(
-            fn (array $child): array => $this->decorateNode($child, $normalizedCurrentPath, $currentQuery),
+            fn (array $child): array => $this->decorateNode($child, $request, $normalizedCurrentPath, $currentQuery),
             $children,
         );
 
@@ -70,7 +81,8 @@ final readonly class CurrentRouteTreeDecorator
         $href     = null;
         if ($itemType === MenuItem::ITEM_TYPE_LINK || $itemType === MenuItem::ITEM_TYPE_SERVICE) {
             $href      = $this->urlResolver->getHref($item, UrlGeneratorInterface::ABSOLUTE_PATH);
-            $isCurrent = $this->isLinkCurrent($item, $normalizedCurrentPath, $currentQuery, $href);
+            $isCurrent = $this->isLinkCurrent($item, $normalizedCurrentPath, $currentQuery, $href)
+                || $this->matchesCustom($item, $request, $href);
         } else {
             $isCurrent = false;
         }
@@ -88,6 +100,17 @@ final readonly class CurrentRouteTreeDecorator
         }
 
         return $decorated;
+    }
+
+    private function matchesCustom(MenuItem $item, Request $request, string $href): bool
+    {
+        foreach ($this->currentMatchers as $matcher) {
+            if ($matcher->isCurrent($item, $request, $href)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

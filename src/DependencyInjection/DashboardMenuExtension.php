@@ -17,6 +17,7 @@ use Nowo\DashboardMenuBundle\Service\DefaultMenuCodeResolver;
 use Nowo\DashboardMenuBundle\Service\ImportExportRateLimiter;
 use Nowo\DashboardMenuBundle\Service\MenuCodeResolverInterface;
 use Nowo\DashboardMenuBundle\Service\MenuConfigResolver;
+use Nowo\DashboardMenuBundle\Service\MenuCurrentMatcherInterface;
 use Nowo\DashboardMenuBundle\Service\MenuIconNameResolver;
 use Nowo\DashboardMenuBundle\Service\MenuLocaleResolver;
 use Nowo\DashboardMenuBundle\Service\MenuTreeCacheInvalidator;
@@ -206,6 +207,9 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
 
     public function load(array $configs, ContainerBuilder $container): void
     {
+        $container->registerForAutoconfiguration(MenuCurrentMatcherInterface::class)
+            ->addTag('nowo_dashboard_menu.current_matcher');
+
         $container->setParameter(
             Configuration::ALIAS . '.dashboard.item_form_live_component_enabled',
             class_exists(\Symfony\UX\LiveComponent\Attribute\AsLiveComponent::class),

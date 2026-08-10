@@ -8,6 +8,7 @@
 - [Resolving by context (context sets)](#resolving-by-context-context-sets)
 - [JSON API](#json-api)
 - [Resolving menu by criteria](#resolving-menu-by-criteria-operatorid-partnerid-menu-name)
+- [Current item matchers](#current-item-matchers)
 - [Permissions](#permissions)
 - [Item visibility rules](#item-visibility-rules)
 - [Web Profiler diagnostics](#web-profiler-diagnostics)
@@ -236,6 +237,46 @@ final class MyMenuCodeResolver implements MenuCodeResolverInterface
 ```
 
 The same resolution is used in Twig (`dashboard_menu_tree('sidebar')`) and in the API (`GET /api/menu/sidebar`). Only links that pass the permission checker are included; parents (and section titles) with no visible children are automatically pruned.
+
+## Current item matchers
+
+By default, `CurrentRouteTreeDecorator` marks a link **current** when the request path equals the item href path and the request query contains every query param from the href (extra request params are allowed).
+
+Hosts can OR additional rules by implementing `MenuCurrentMatcherInterface`. Autoconfigure tags the service as `nowo_dashboard_menu.current_matcher` (no manual tag needed):
+
+```php
+use Nowo\DashboardMenuBundle\Entity\MenuItem;
+use Nowo\DashboardMenuBundle\Service\MenuCurrentMatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
+
+final class OpsDefaultsCurrentMatcher implements MenuCurrentMatcherInterface
+{
+    public function isCurrent(MenuItem $item, Request $request, string $resolvedHref): bool
+    {
+        return $item->getRouteName() === 'admin_ops_defaults'
+            && str_starts_with((string) $request->attributes->get('_route'), 'admin_ops_defaults');
+    }
+}
+```
+
+For the common case “menu points at an index route, pages use `*_section` / kit prefixes”, extend `AbstractRoutePrefixMenuCurrentMatcher`:
+
+```php
+use Nowo\DashboardMenuBundle\Service\AbstractRoutePrefixMenuCurrentMatcher;
+
+final class AdministrationMenuCurrentMatcher extends AbstractRoutePrefixMenuCurrentMatcher
+{
+    protected function routePrefixes(): array
+    {
+        return [
+            'admin_ops_defaults' => ['admin_ops_defaults'],
+            'nowo_http_log_admin_index' => ['nowo_http_log_'],
+        ];
+    }
+}
+```
+
+`hasCurrentInBranch` still bubbles from children after custom matchers run, so nested collapsible sections stay open.
 
 ## Permissions
 

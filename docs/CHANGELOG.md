@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.1.0] - 2026-08-10](#210-2026-08-10)
 - [[2.0.1] - 2026-08-04](#201-2026-08-04)
 - [[2.0.0] - 2026-08-04](#200-2026-08-04)
 - [[1.0.5] - 2026-08-01](#105-2026-08-01)
@@ -72,6 +73,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.1.0] - 2026-08-10
+
+### Added
+- **`MenuCurrentMatcherInterface`** (tag `nowo_dashboard_menu.current_matcher`, autoconfigure): host services OR'd with the default path+query current match in `CurrentRouteTreeDecorator`.
+- **`AbstractRoutePrefixMenuCurrentMatcher`**: map menu item route name → request `_route` prefixes (index → `*_section`, kit families).
+- USAGE: [Current item matchers](USAGE.md#current-item-matchers).
 
 ## [2.0.1] - 2026-08-04
 
@@ -930,7 +938,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.0.1...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.0.1...v2.1.0
 [2.0.1]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v1.0.5...v2.0.0
 [1.0.5]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v1.0.4...v1.0.5
