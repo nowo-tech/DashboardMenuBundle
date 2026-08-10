@@ -465,7 +465,7 @@ final class CurrentRouteTreeDecoratorTest extends TestCase
         };
 
         $decorator = new CurrentRouteTreeDecorator($urlResolver, [$matcher]);
-        $request = Request::create('/admin/ops-defaults/governance', 'GET');
+        $request   = Request::create('/admin/ops-defaults/governance', 'GET');
         $request->attributes->set('_route', 'admin_ops_defaults_section');
 
         $result = $decorator->decorate([['item' => $item, 'children' => []]], $request);

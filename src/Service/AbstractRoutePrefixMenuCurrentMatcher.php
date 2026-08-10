@@ -31,7 +31,7 @@ abstract class AbstractRoutePrefixMenuCurrentMatcher implements MenuCurrentMatch
 
     public function isCurrent(MenuItem $item, Request $request, string $resolvedHref): bool
     {
-        $itemRoute = $item->getRouteName();
+        $itemRoute    = $item->getRouteName();
         $currentRoute = $request->attributes->get('_route');
         if (!is_string($itemRoute) || $itemRoute === '' || !is_string($currentRoute) || $currentRoute === '') {
             return false;

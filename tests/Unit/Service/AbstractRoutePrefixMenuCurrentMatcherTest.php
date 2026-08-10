@@ -18,7 +18,7 @@ final class AbstractRoutePrefixMenuCurrentMatcherTest extends TestCase
             {
                 return [
                     'admin_ops_defaults' => ['admin_ops_defaults'],
-                    'admin_appearance' => ['admin_appearance'],
+                    'admin_appearance'   => ['admin_appearance'],
                 ];
             }
         };
