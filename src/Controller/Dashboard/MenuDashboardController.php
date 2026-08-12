@@ -10,9 +10,12 @@ use JsonException;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Form\CopyMenuType;
+use Nowo\DashboardMenuBundle\Form\DashboardActionType;
 use Nowo\DashboardMenuBundle\Form\ImportMenuType;
 use Nowo\DashboardMenuBundle\Form\MenuItemType;
 use Nowo\DashboardMenuBundle\Form\MenuType;
+use Nowo\DashboardMenuBundle\Form\SearchQueryType;
+use Nowo\DashboardMenuBundle\Form\SortableTreeType;
 use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
@@ -131,7 +134,14 @@ final class MenuDashboardController extends AbstractController
     #[Route(path: '', name: 'index', methods: ['GET'])]
     public function index(Request $request): Response
     {
-        $search = trim((string) $request->query->get('q', ''));
+        $searchForm = $this->createForm(SearchQueryType::class, [
+            'q' => (string) $request->query->get('q', ''),
+        ], [
+            'action' => $this->generateUrl(DashboardRoutes::ROUTE_INDEX),
+        ]);
+        $searchForm->handleRequest($request);
+
+        $search = trim((string) (($searchForm->getData()['q'] ?? '') ?: ''));
         $page   = max(1, (int) $request->query->get('page', 1));
 
         if ($this->paginationEnabled) {
@@ -160,6 +170,20 @@ final class MenuDashboardController extends AbstractController
         }
         $menuItemCounts = $this->menuItemRepository->countForMenus($menuIds);
 
+        $menuDeleteTokens = [];
+        foreach ($menus as $menu) {
+            $menuId = $menu->getId();
+            if ($menuId === null || $menu->isBase()) {
+                continue;
+            }
+            $deleteForm = $this->createActionForm(
+                $this->generateUrl(DashboardRoutes::ROUTE_MENU_DELETE, ['id' => $menuId]),
+                'delete_menu_' . $menuId,
+            );
+            $deleteFormView                  = $deleteForm->createView();
+            $menuDeleteTokens[(int) $menuId] = (string) ($deleteFormView['_token']->vars['value'] ?? '');
+        }
+
         $newMenu     = new Menu();
         $newMenuForm = $this->createForm(MenuType::class, $newMenu, [
             'action'  => $this->generateUrl(DashboardRoutes::ROUTE_MENU_NEW),
@@ -170,6 +194,9 @@ final class MenuDashboardController extends AbstractController
             'menus'                    => $menus,
             'menu_item_counts'         => $menuItemCounts,
             'search'                   => $search,
+            'search_form'              => $searchForm->createView(),
+            'menu_delete_tokens'       => $menuDeleteTokens,
+            'delete_menu_modal_form'   => $this->createActionForm('#', 'delete_menu_modal')->createView(),
             'pagination'               => $pagination,
             'new_menu_form'            => $newMenuForm,
             'dashboard_show_route'     => DashboardRoutes::ROUTE_SHOW,
@@ -221,12 +248,17 @@ final class MenuDashboardController extends AbstractController
         if (!$menu instanceof Menu) {
             throw $this->createNotFoundException('Menu not found.');
         }
-        $itemsRaw  = $this->menuItemRepository->findAllForMenuOrderedByTree($menu, 'en');
-        $itemsTree = $this->buildMenuItemTreeForSortable($itemsRaw);
+        $itemsRaw    = $this->menuItemRepository->findAllForMenuOrderedByTree($menu, 'en');
+        $itemsTree   = $this->buildMenuItemTreeForSortable($itemsRaw);
+        $reorderForm = $this->createForm(SortableTreeType::class, null, [
+            'action'        => $this->generateUrl(DashboardRoutes::ROUTE_ITEMS_REORDER_TREE, ['id' => $id]),
+            'csrf_token_id' => 'reorder_tree_' . $id,
+        ]);
 
         return $this->render('@NowoDashboardMenuBundle/dashboard/show_items_reorder.html.twig', [
             'menu'                     => $menu,
             'items_tree'               => $itemsTree,
+            'reorder_form'             => $reorderForm->createView(),
             'modal_classes'            => self::resolveModalClasses($this->modalSizes),
             'dashboard_show_route'     => DashboardRoutes::ROUTE_SHOW,
             'dashboard_routes'         => $this->getDashboardRoutes(),
@@ -248,9 +280,51 @@ final class MenuDashboardController extends AbstractController
         $itemDepths       = $this->computeItemDepths($items);
         $itemParentLabels = $this->computeParentLabels($items, 'en');
 
+        $reindexPositionsForm = $this->createActionForm(
+            $this->generateUrl(DashboardRoutes::ROUTE_ITEMS_REINDEX_POSITIONS, ['id' => $id]),
+            'reindex_positions_' . $id,
+        );
+        $checkParentCyclesForm = $this->createActionForm(
+            $this->generateUrl(DashboardRoutes::ROUTE_ITEMS_CHECK_PARENT_CYCLES, ['id' => $id]),
+            'check_parent_cycles_' . $id,
+        );
+        $itemMoveUpForms   = [];
+        $itemMoveDownForms = [];
+        $itemDeleteTokens  = [];
+        foreach ($items as $item) {
+            $itemId = $item->getId();
+            if ($itemId === null) {
+                continue;
+            }
+            if (($siblings['prev'][(int) $itemId] ?? null) !== null) {
+                $itemMoveUpForms[(int) $itemId] = $this->createActionForm(
+                    $this->generateUrl(DashboardRoutes::ROUTE_ITEM_MOVE_UP, ['id' => $id, 'itemId' => $itemId]),
+                    'item_move_up_' . $itemId,
+                )->createView();
+            }
+            if (($siblings['next'][(int) $itemId] ?? null) !== null) {
+                $itemMoveDownForms[(int) $itemId] = $this->createActionForm(
+                    $this->generateUrl(DashboardRoutes::ROUTE_ITEM_MOVE_DOWN, ['id' => $id, 'itemId' => $itemId]),
+                    'item_move_down_' . $itemId,
+                )->createView();
+            }
+            $deleteForm = $this->createActionForm(
+                $this->generateUrl(DashboardRoutes::ROUTE_ITEM_DELETE, ['id' => $id, 'itemId' => $itemId]),
+                'delete_item_' . $itemId,
+            );
+            $deleteFormView                  = $deleteForm->createView();
+            $itemDeleteTokens[(int) $itemId] = (string) ($deleteFormView['_token']->vars['value'] ?? '');
+        }
+
         return $this->render('@NowoDashboardMenuBundle/dashboard/show.html.twig', [
             'menu'                     => $menu,
             'items'                    => $items,
+            'reindex_positions_form'   => $reindexPositionsForm->createView(),
+            'check_parent_cycles_form' => $checkParentCyclesForm->createView(),
+            'item_move_up_forms'       => $itemMoveUpForms,
+            'item_move_down_forms'     => $itemMoveDownForms,
+            'item_delete_tokens'       => $itemDeleteTokens,
+            'delete_item_modal_form'   => $this->createActionForm('#', 'delete_item_modal')->createView(),
             'modal_classes'            => self::resolveModalClasses($this->modalSizes),
             'prev_sibling'             => $siblings['prev'],
             'next_sibling'             => $siblings['next'],
@@ -267,9 +341,12 @@ final class MenuDashboardController extends AbstractController
     #[Route(path: '/{id}/items/reindex-positions', name: 'items_reindex_positions', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function itemsReindexPositions(Request $request, int $id): RedirectResponse
     {
-        if (!$this->isCsrfTokenValid('reindex_positions_' . $id, $request->request->getString('_token'))) {
-            throw new AccessDeniedException('Invalid CSRF token.');
-        }
+        $form = $this->createActionForm(
+            $this->generateUrl(DashboardRoutes::ROUTE_ITEMS_REINDEX_POSITIONS, ['id' => $id]),
+            'reindex_positions_' . $id,
+        );
+        $form->handleRequest($request);
+        $this->assertSubmittedValidActionForm($form);
         $menu = $this->menuRepository->findOneById($id);
         if (!$menu instanceof Menu) {
             throw $this->createNotFoundException('Menu not found.');
@@ -294,9 +371,12 @@ final class MenuDashboardController extends AbstractController
     #[Route(path: '/{id}/items/check-parent-cycles', name: 'items_check_parent_cycles', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function itemsCheckParentCycles(Request $request, int $id): RedirectResponse
     {
-        if (!$this->isCsrfTokenValid('check_parent_cycles_' . $id, $request->request->getString('_token'))) {
-            throw new AccessDeniedException('Invalid CSRF token.');
-        }
+        $form = $this->createActionForm(
+            $this->generateUrl(DashboardRoutes::ROUTE_ITEMS_CHECK_PARENT_CYCLES, ['id' => $id]),
+            'check_parent_cycles_' . $id,
+        );
+        $form->handleRequest($request);
+        $this->assertSubmittedValidActionForm($form);
         $menu = $this->menuRepository->findOneById($id);
         if (!$menu instanceof Menu) {
             throw $this->createNotFoundException('Menu not found.');
@@ -324,14 +404,18 @@ final class MenuDashboardController extends AbstractController
     #[Route(path: '/{id}/items/reorder-tree', name: 'items_reorder_tree', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function itemsReorderTree(Request $request, int $id): RedirectResponse
     {
-        if (!$this->isCsrfTokenValid('reorder_tree_' . $id, $request->request->getString('_token'))) {
-            throw new AccessDeniedException('Invalid CSRF token.');
-        }
+        $form = $this->createForm(SortableTreeType::class, null, [
+            'action'        => $this->generateUrl(DashboardRoutes::ROUTE_ITEMS_REORDER_TREE, ['id' => $id]),
+            'csrf_token_id' => 'reorder_tree_' . $id,
+        ]);
+        $form->handleRequest($request);
+        $this->assertSubmittedValidActionForm($form);
         $menu = $this->menuRepository->findOneById($id);
         if (!$menu instanceof Menu) {
             throw $this->createNotFoundException('Menu not found.');
         }
-        $raw = $request->request->getString('tree');
+        $data = $form->getData();
+        $raw  = is_array($data) ? (string) ($data['tree'] ?? '') : '';
         try {
             $decoded = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
         } catch (JsonException) {
@@ -568,9 +652,12 @@ final class MenuDashboardController extends AbstractController
     #[Route(path: '/{id}/item/{itemId}/move-up', name: 'item_move_up', requirements: ['id' => '\d+', 'itemId' => '\d+'], methods: ['POST'])]
     public function itemMoveUp(Request $request, int $id, int $itemId): RedirectResponse
     {
-        if (!$this->isCsrfTokenValid('item_move_up_' . $itemId, $request->request->getString('_token'))) {
-            throw new AccessDeniedException('Invalid CSRF token.');
-        }
+        $form = $this->createActionForm(
+            $this->generateUrl(DashboardRoutes::ROUTE_ITEM_MOVE_UP, ['id' => $id, 'itemId' => $itemId]),
+            'item_move_up_' . $itemId,
+        );
+        $form->handleRequest($request);
+        $this->assertSubmittedValidActionForm($form);
         $menu = $this->menuRepository->findOneById($id);
         if (!$menu instanceof Menu) {
             throw $this->createNotFoundException('Menu not found.');
@@ -608,9 +695,12 @@ final class MenuDashboardController extends AbstractController
     #[Route(path: '/{id}/item/{itemId}/move-down', name: 'item_move_down', requirements: ['id' => '\d+', 'itemId' => '\d+'], methods: ['POST'])]
     public function itemMoveDown(Request $request, int $id, int $itemId): RedirectResponse
     {
-        if (!$this->isCsrfTokenValid('item_move_down_' . $itemId, $request->request->getString('_token'))) {
-            throw new AccessDeniedException('Invalid CSRF token.');
-        }
+        $form = $this->createActionForm(
+            $this->generateUrl(DashboardRoutes::ROUTE_ITEM_MOVE_DOWN, ['id' => $id, 'itemId' => $itemId]),
+            'item_move_down_' . $itemId,
+        );
+        $form->handleRequest($request);
+        $this->assertSubmittedValidActionForm($form);
         $menu = $this->menuRepository->findOneById($id);
         if (!$menu instanceof Menu) {
             throw $this->createNotFoundException('Menu not found.');
@@ -696,9 +786,12 @@ final class MenuDashboardController extends AbstractController
     #[Route(path: '/{id}/delete', name: 'menu_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function deleteMenu(Request $request, int $id): RedirectResponse
     {
-        if (!$this->isCsrfTokenValid('delete_menu_' . $id, $request->request->getString('_token'))) {
-            throw new AccessDeniedException('Invalid CSRF token.');
-        }
+        $form = $this->createActionForm(
+            $this->generateUrl(DashboardRoutes::ROUTE_MENU_DELETE, ['id' => $id]),
+            'delete_menu_' . $id,
+        );
+        $form->handleRequest($request);
+        $this->assertSubmittedValidActionForm($form);
         $menu = $this->menuRepository->findOneById($id);
         if (!$menu instanceof Menu) {
             throw $this->createNotFoundException('Menu not found.');
@@ -1210,9 +1303,12 @@ final class MenuDashboardController extends AbstractController
     #[Route(path: '/{id}/item/{itemId}/delete', name: 'item_delete', requirements: ['id' => '\d+', 'itemId' => '\d+'], methods: ['POST'])]
     public function deleteItem(Request $request, int $id, int $itemId): RedirectResponse
     {
-        if (!$this->isCsrfTokenValid('delete_item_' . $itemId, $request->request->getString('_token'))) {
-            throw new AccessDeniedException('Invalid CSRF token.');
-        }
+        $form = $this->createActionForm(
+            $this->generateUrl(DashboardRoutes::ROUTE_ITEM_DELETE, ['id' => $id, 'itemId' => $itemId]),
+            'delete_item_' . $itemId,
+        );
+        $form->handleRequest($request);
+        $this->assertSubmittedValidActionForm($form);
         $menu = $this->menuRepository->findOneById($id);
         if (!$menu instanceof Menu) {
             throw $this->createNotFoundException('Menu not found.');
@@ -1234,6 +1330,21 @@ final class MenuDashboardController extends AbstractController
     /**
      * @return array<string, array{label: string, params: list<string>}> Map of route name => { label, params }
      */
+    private function createActionForm(string $action, string $csrfTokenId): FormInterface
+    {
+        return $this->createForm(DashboardActionType::class, null, [
+            'action'        => $action,
+            'csrf_token_id' => $csrfTokenId,
+        ]);
+    }
+
+    private function assertSubmittedValidActionForm(FormInterface $form): void
+    {
+        if (!$form->isSubmitted() || !$form->isValid()) {
+            throw new AccessDeniedException('Invalid CSRF token.');
+        }
+    }
+
     private function getAppRoutes(): array
     {
         $routes     = [];
