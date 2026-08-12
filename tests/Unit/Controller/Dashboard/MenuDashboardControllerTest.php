@@ -9,6 +9,8 @@ use Nowo\DashboardMenuBundle\Controller\Dashboard\DashboardRoutes;
 use Nowo\DashboardMenuBundle\Controller\Dashboard\MenuDashboardController;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
+use Nowo\DashboardMenuBundle\Form\DashboardActionType;
+use Nowo\DashboardMenuBundle\Form\SearchQueryType;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 use Nowo\DashboardMenuBundle\Service\ImportExportRateLimiter;
@@ -20,6 +22,7 @@ use ReflectionMethod;
 use ReflectionProperty;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormView;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -297,13 +300,93 @@ final class MenuDashboardControllerTest extends TestCase
         self::assertSame(200, $response->getStatusCode());
     }
 
+    public function testShowItemsReorderRendersWhenMenuFound(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('nav');
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findOneById')->with(1)->willReturn($menu);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([]);
+
+        $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
+        $this->setControllerContainer($controller);
+
+        $response = $controller->showItemsReorder(1);
+
+        self::assertSame(200, $response->getStatusCode());
+    }
+
+    public function testIndexBuildsSearchAndDeleteForms(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('main');
+        $this->setId($menu, 1);
+
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('countForDashboard')->with('abc')->willReturn(1);
+        $menuRepo->method('findForDashboard')->with('abc', 0, 10)->willReturn([$menu]);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->method('countForMenus')->with([1])->willReturn([1 => 0]);
+
+        $controller = $this->createController(
+            menuRepository: $menuRepo,
+            menuItemRepository: $itemRepo,
+            paginationEnabled: true,
+            paginationPerPage: 10,
+        );
+
+        $calls = [];
+        $this->setControllerContainerWithDynamicFormFactory($controller, function (string $type, mixed $data = null, array $options = []) use (&$calls): FormInterface {
+            $calls[] = ['type' => $type, 'data' => $data, 'options' => $options];
+
+            return $this->createSubmittedValidFormStub($type === SearchQueryType::class ? ['q' => 'abc'] : []);
+        });
+
+        $response = $controller->index(Request::create('/?q=abc'));
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame(SearchQueryType::class, $calls[0]['type']);
+        self::assertContains(DashboardActionType::class, array_column($calls, 'type'));
+    }
+
+    public function testItemsReorderTreeUsesSortableTreeFormData(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('nav');
+        $this->setId($menu, 1);
+
+        $item = new MenuItem();
+        $item->setMenu($menu);
+        $this->setId($item, 10);
+
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findOneById')->with(1)->willReturn($menu);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->method('findAllForMenuOrderedByTree')->with($menu, 'en')->willReturn([$item]);
+        $itemRepo->expects(self::once())->method('applyTreeLayout')->with($menu, [
+            ['id' => 10, 'parent_id' => null, 'position' => 0],
+        ], 100);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::once())->method('flush');
+
+        $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, entityManager: $em);
+        $this->setControllerContainer($controller, $this->createSubmittedValidFormStub([
+            'tree' => '[{"id":10,"parentId":null,"position":0}]',
+        ]));
+
+        $response = $controller->itemsReorderTree($this->createPostRequestWithCsrf(), 1);
+
+        self::assertSame(302, $response->getStatusCode());
+    }
+
     public function testDeleteMenuThrowsWhenMenuNotFound(): void
     {
         $menuRepo = $this->createMock(MenuRepository::class);
         $menuRepo->method('findOneById')->with(999)->willReturn(null);
 
         $controller = $this->createController(menuRepository: $menuRepo);
-        $this->setControllerContainer($controller);
+        $this->setControllerContainer($controller, $this->createSubmittedValidFormStub());
 
         $this->expectException(\Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class);
         $controller->deleteMenu($this->createPostRequestWithCsrf(), 999);
@@ -323,7 +406,7 @@ final class MenuDashboardControllerTest extends TestCase
         $em->expects(self::once())->method('flush');
 
         $controller = $this->createController(menuRepository: $menuRepo, entityManager: $em);
-        $this->setControllerContainer($controller);
+        $this->setControllerContainer($controller, $this->createSubmittedValidFormStub());
 
         $response = $controller->deleteMenu($this->createPostRequestWithCsrf(), 1);
         self::assertSame(302, $response->getStatusCode());
@@ -344,7 +427,7 @@ final class MenuDashboardControllerTest extends TestCase
         $em->expects(self::never())->method('flush');
 
         $controller = $this->createController(menuRepository: $menuRepo, entityManager: $em);
-        $this->setControllerContainer($controller);
+        $this->setControllerContainer($controller, $this->createSubmittedValidFormStub());
 
         $response = $controller->deleteMenu($this->createPostRequestWithCsrf(), 1);
         self::assertSame(302, $response->getStatusCode());
@@ -365,7 +448,7 @@ final class MenuDashboardControllerTest extends TestCase
         $itemRepo->method('findSiblingsByPosition')->with($item)->willReturn([$item]);
 
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
-        $this->setControllerContainer($controller);
+        $this->setControllerContainer($controller, $this->createSubmittedValidFormStub());
 
         $controller->itemMoveUp($this->createPostRequestWithCsrf(), 1, 10);
     }
@@ -384,7 +467,7 @@ final class MenuDashboardControllerTest extends TestCase
         $itemRepo->method('findSiblingsByPosition')->with($item)->willReturn([$item]);
 
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
-        $this->setControllerContainer($controller);
+        $this->setControllerContainer($controller, $this->createSubmittedValidFormStub());
 
         $controller->itemMoveDown($this->createPostRequestWithCsrf(), 1, 10);
     }
@@ -395,7 +478,7 @@ final class MenuDashboardControllerTest extends TestCase
         $menuRepo->method('findOneById')->with(999)->willReturn(null);
 
         $controller = $this->createController(menuRepository: $menuRepo);
-        $this->setControllerContainer($controller);
+        $this->setControllerContainer($controller, $this->createSubmittedValidFormStub());
 
         $this->expectException(\Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class);
         $controller->itemMoveUp($this->createPostRequestWithCsrf(), 999, 1);
@@ -410,7 +493,7 @@ final class MenuDashboardControllerTest extends TestCase
         $itemRepo->method('find')->with(999)->willReturn(null);
 
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
-        $this->setControllerContainer($controller);
+        $this->setControllerContainer($controller, $this->createSubmittedValidFormStub());
 
         $controller->itemMoveUp($this->createPostRequestWithCsrf(), 1, 999);
     }
@@ -421,7 +504,7 @@ final class MenuDashboardControllerTest extends TestCase
         $menuRepo->method('findOneById')->with(999)->willReturn(null);
 
         $controller = $this->createController(menuRepository: $menuRepo);
-        $this->setControllerContainer($controller);
+        $this->setControllerContainer($controller, $this->createSubmittedValidFormStub());
 
         $this->expectException(\Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class);
         $controller->itemMoveDown($this->createPostRequestWithCsrf(), 999, 1);
@@ -443,7 +526,7 @@ final class MenuDashboardControllerTest extends TestCase
         $itemRepo->method('find')->with(10)->willReturn($item);
 
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
-        $this->setControllerContainer($controller);
+        $this->setControllerContainer($controller, $this->createSubmittedValidFormStub());
 
         $controller->itemMoveUp($this->createPostRequestWithCsrf(), 1, 10);
     }
@@ -463,7 +546,7 @@ final class MenuDashboardControllerTest extends TestCase
         $itemRepo->method('find')->with(10)->willReturn($item);
 
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
-        $this->setControllerContainer($controller);
+        $this->setControllerContainer($controller, $this->createSubmittedValidFormStub());
 
         $controller->itemMoveDown($this->createPostRequestWithCsrf(), 1, 10);
     }
@@ -823,7 +906,7 @@ final class MenuDashboardControllerTest extends TestCase
         $em = $this->createMock(EntityManagerInterface::class);
         $em->expects(self::once())->method('flush');
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, entityManager: $em);
-        $this->setControllerContainer($controller);
+        $this->setControllerContainer($controller, $this->createSubmittedValidFormStub());
         $response = $controller->itemMoveUp($this->createPostRequestWithCsrf(), 1, 2);
         self::assertSame(302, $response->getStatusCode());
     }
@@ -847,7 +930,7 @@ final class MenuDashboardControllerTest extends TestCase
         $em = $this->createMock(EntityManagerInterface::class);
         $em->expects(self::once())->method('flush');
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, entityManager: $em);
-        $this->setControllerContainer($controller);
+        $this->setControllerContainer($controller, $this->createSubmittedValidFormStub());
         $response = $controller->itemMoveDown($this->createPostRequestWithCsrf(), 1, 1);
         self::assertSame(302, $response->getStatusCode());
     }
@@ -1222,7 +1305,7 @@ final class MenuDashboardControllerTest extends TestCase
         $menuRepo->method('findOneById')->with(999)->willReturn(null);
         $itemRepo   = $this->createMock(MenuItemRepository::class);
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
-        $this->setControllerContainer($controller);
+        $this->setControllerContainer($controller, $this->createSubmittedValidFormStub());
         $this->expectException(\Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class);
         $controller->deleteItem($this->createPostRequestWithCsrf(), 999, 1);
     }
@@ -1235,7 +1318,7 @@ final class MenuDashboardControllerTest extends TestCase
         $itemRepo = $this->createMock(MenuItemRepository::class);
         $itemRepo->method('find')->with(999)->willReturn(null);
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
-        $this->setControllerContainer($controller);
+        $this->setControllerContainer($controller, $this->createSubmittedValidFormStub());
         $controller->deleteItem($this->createPostRequestWithCsrf(), 1, 999);
     }
 
@@ -1254,7 +1337,7 @@ final class MenuDashboardControllerTest extends TestCase
         $em->expects(self::once())->method('remove')->with($item);
         $em->expects(self::once())->method('flush');
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, entityManager: $em);
-        $this->setControllerContainer($controller);
+        $this->setControllerContainer($controller, $this->createSubmittedValidFormStub());
         $response = $controller->deleteItem($this->createPostRequestWithCsrf(), 1, 5);
         self::assertSame(302, $response->getStatusCode());
     }
@@ -2331,8 +2414,46 @@ final class MenuDashboardControllerTest extends TestCase
         $form->method('handleRequest')->willReturnSelf();
         $form->method('isSubmitted')->willReturn(false);
         $form->method('isValid')->willReturn(false);
+        $form->method('getData')->willReturn([]);
+        $form->method('createView')->willReturn($this->createFormViewStub());
 
         return $form;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     *
+     * @return FormInterface<mixed>
+     */
+    private function createSubmittedValidFormStub(array $data = []): FormInterface
+    {
+        $form = $this->createMock(FormInterface::class);
+        $form->method('handleRequest')->willReturnSelf();
+        $form->method('isSubmitted')->willReturn(true);
+        $form->method('isValid')->willReturn(true);
+        $form->method('getData')->willReturn($data);
+        $form->method('createView')->willReturn($this->createFormViewStub());
+
+        return $form;
+    }
+
+    private function createFormViewStub(): FormView
+    {
+        $view = new FormView();
+
+        $tokenView                = new FormView($view);
+        $tokenView->vars['value'] = 'test-csrf-token';
+        $view->children['_token'] = $tokenView;
+
+        $qView                = new FormView($view);
+        $qView->vars['value'] = '';
+        $view->children['q']  = $qView;
+
+        $treeView                = new FormView($view);
+        $treeView->vars['value'] = '';
+        $view->children['tree']  = $treeView;
+
+        return $view;
     }
 
     /**
@@ -2358,10 +2479,10 @@ final class MenuDashboardControllerTest extends TestCase
         return $m->invoke($object, ...$args);
     }
 
-    private function setId(MenuItem $item, int $id): void
+    private function setId(object $entity, int $id): void
     {
-        $ref = new ReflectionProperty(MenuItem::class, 'id');
-        $ref->setValue($item, $id);
+        $ref = new ReflectionProperty($entity::class, 'id');
+        $ref->setValue($entity, $id);
     }
 
     private function createPostRequestWithCsrf(): Request

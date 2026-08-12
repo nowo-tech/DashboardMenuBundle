@@ -68,13 +68,14 @@
             </div>
             <div class="modal-body">
                 <p id="modal-delete-message">{{ 'dashboard.delete_menu_message'|trans }}</p>
-                <form id="form-delete-confirm" method="post" action="">
-                    <input type="hidden" name="_token" value="">
-                    <div class="{{ ui.row_actions() }}" style="justify-content:flex-end;">
-                        <button type="button" class="{{ ui.btn('secondary') }}" {{ ui.modal_dismiss_attrs()|raw }}>{{ 'dashboard.cancel'|trans }}</button>
-                        <button type="submit" class="{{ ui.btn('danger') }}">{{ 'dashboard.delete'|trans }}</button>
-                    </div>
-                </form>
+                {% if delete_menu_modal_form is defined %}
+                    {{ form_start(delete_menu_modal_form, { attr: { id: 'form-delete-confirm' } }) }}
+                        <div class="{{ ui.row_actions() }}" style="justify-content:flex-end;">
+                            <button type="button" class="{{ ui.btn('secondary') }}" {{ ui.modal_dismiss_attrs()|raw }}>{{ 'dashboard.cancel'|trans }}</button>
+                            <button type="submit" class="{{ ui.btn('danger') }}">{{ 'dashboard.delete'|trans }}</button>
+                        </div>
+                    {{ form_end(delete_menu_modal_form) }}
+                {% endif %}
             </div>
         </div>
     </div>
@@ -89,13 +90,14 @@
             </div>
             <div class="modal-body">
                 <p id="modal-delete-item-message">{{ 'dashboard.delete_item_message'|trans }}</p>
-                <form id="form-delete-item-confirm" method="post" action="">
-                    <input type="hidden" name="_token" value="">
-                    <div class="{{ ui.row_actions() }}" style="justify-content:flex-end;">
-                        <button type="button" class="{{ ui.btn('secondary') }}" {{ ui.modal_dismiss_attrs()|raw }}>{{ 'dashboard.cancel'|trans }}</button>
-                        <button type="submit" class="{{ ui.btn('danger') }}">{{ 'dashboard.delete'|trans }}</button>
-                    </div>
-                </form>
+                {% if delete_item_modal_form is defined %}
+                    {{ form_start(delete_item_modal_form, { attr: { id: 'form-delete-item-confirm' } }) }}
+                        <div class="{{ ui.row_actions() }}" style="justify-content:flex-end;">
+                            <button type="button" class="{{ ui.btn('secondary') }}" {{ ui.modal_dismiss_attrs()|raw }}>{{ 'dashboard.cancel'|trans }}</button>
+                            <button type="submit" class="{{ ui.btn('danger') }}">{{ 'dashboard.delete'|trans }}</button>
+                        </div>
+                    {{ form_end(delete_item_modal_form) }}
+                {% endif %}
             </div>
         </div>
     </div>

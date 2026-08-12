@@ -23,18 +23,16 @@
                 </button>
             {% endif %}
             {% if items|length > 0 %}
-                <form method="post" action="{{ path(dashboard_routes.items_reindex_positions|default('nowo_dashboard_menu_dashboard_items_reindex_positions'), { id: menu.id }) }}" class="d-inline">
-                    <input type="hidden" name="_token" value="{{ csrf_token('reindex_positions_' ~ menu.id) }}">
+                {{ form_start(reindex_positions_form, { attr: { class: 'd-inline' } }) }}
                     <button type="submit" class="{{ ui.btn('secondary') }}" title="{{ 'dashboard.reindex_positions_title'|trans({'%step%': position_step}, 'NowoDashboardMenuBundle') }}">
                         {{ 'dashboard.reindex_positions'|trans({'%step%': position_step}, 'NowoDashboardMenuBundle') }}
                     </button>
-                </form>
-                <form method="post" action="{{ path(dashboard_routes.items_check_parent_cycles|default('nowo_dashboard_menu_dashboard_items_check_parent_cycles'), { id: menu.id }) }}" class="d-inline">
-                    <input type="hidden" name="_token" value="{{ csrf_token('check_parent_cycles_' ~ menu.id) }}">
+                {{ form_end(reindex_positions_form) }}
+                {{ form_start(check_parent_cycles_form, { attr: { class: 'd-inline' } }) }}
                     <button type="submit" class="{{ ui.btn('secondary') }}" title="{{ 'dashboard.check_parent_cycles_title'|trans({}, 'NowoDashboardMenuBundle') }}">
                         {{ 'dashboard.check_parent_cycles'|trans({}, 'NowoDashboardMenuBundle') }}
                     </button>
-                </form>
+                {{ form_end(check_parent_cycles_form) }}
             {% endif %}
             <button type="button" class="{{ ui.btn('primary') }} btn-add-item" data-id="{{ menu.id }}" data-parent="" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-item-form')|raw }}>{{ 'dashboard.add_item'|trans({}, 'NowoDashboardMenuBundle') }}</button>
         </div>
@@ -102,24 +100,22 @@
                                 <div class="nowo-dashboard-menu-actions">
                                     <div class="nowo-dashboard-menu-move-stack" aria-label="{{ 'dashboard.actions'|trans({}, 'NowoDashboardMenuBundle') }}">
                                         {% if prev_sibling[item.id] is defined and prev_sibling[item.id] is not null %}
-                                            <form method="post" action="{{ path(dashboard_routes.item_move_up|default('nowo_dashboard_menu_dashboard_item_move_up'), { id: menu.id, itemId: item.id }) }}">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('item_move_up_' ~ item.id) }}">
+                                            {{ form_start(item_move_up_forms[item.id], { attr: { class: 'd-inline' } }) }}
                                                 <button type="submit" class="{{ ui.btn('secondary', 'sm') }}" title="{{ 'dashboard.move_up'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.move_up'|trans({}, 'NowoDashboardMenuBundle') }}">
                                                     {{ icons.arrow_up()|raw }}
                                                 </button>
-                                            </form>
+                                            {{ form_end(item_move_up_forms[item.id]) }}
                                         {% else %}
                                             <span class="{{ ui.btn('secondary', 'sm') }} disabled" title="{{ 'dashboard.first'|trans({}, 'NowoDashboardMenuBundle') }}" aria-hidden="true">
                                                 {{ icons.arrow_up()|raw }}
                                             </span>
                                         {% endif %}
                                         {% if next_sibling[item.id] is defined and next_sibling[item.id] is not null %}
-                                            <form method="post" action="{{ path(dashboard_routes.item_move_down|default('nowo_dashboard_menu_dashboard_item_move_down'), { id: menu.id, itemId: item.id }) }}">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('item_move_down_' ~ item.id) }}">
+                                            {{ form_start(item_move_down_forms[item.id], { attr: { class: 'd-inline' } }) }}
                                                 <button type="submit" class="{{ ui.btn('secondary', 'sm') }}" title="{{ 'dashboard.move_down'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.move_down'|trans({}, 'NowoDashboardMenuBundle') }}">
                                                     {{ icons.arrow_down()|raw }}
                                                 </button>
-                                            </form>
+                                            {{ form_end(item_move_down_forms[item.id]) }}
                                         {% else %}
                                             <span class="{{ ui.btn('secondary', 'sm') }} disabled" title="{{ 'dashboard.last'|trans({}, 'NowoDashboardMenuBundle') }}" aria-hidden="true">
                                                 {{ icons.arrow_down()|raw }}
@@ -140,7 +136,7 @@
                                         <button type="button" class="{{ ui.action('edit') }} btn-edit-item btn-edit-item-config" title="{{ 'dashboard.edit_config'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.edit_config'|trans({}, 'NowoDashboardMenuBundle') }}" data-id="{{ menu.id }}" data-item-id="{{ item.id }}" data-section="config" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-item-form')|raw }}>
                                             {{ icons.config()|raw }}
                                         </button>
-                                        <button type="button" class="{{ ui.action('delete') }} btn-delete-item" title="{{ 'dashboard.delete'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.delete'|trans({}, 'NowoDashboardMenuBundle') }}" data-id="{{ menu.id }}" data-item-id="{{ item.id }}" data-name="{{ item.getLabelForLocale(currentLocale) ?: ('dashboard.no_label'|trans({}, 'NowoDashboardMenuBundle')) }}" data-url="{{ path(dashboard_routes.item_delete|default('nowo_dashboard_menu_dashboard_item_delete'), { id: menu.id, itemId: item.id }) }}" data-token="{{ csrf_token('delete_item_' ~ item.id) }}" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-delete-item-confirm')|raw }}>
+                                        <button type="button" class="{{ ui.action('delete') }} btn-delete-item" title="{{ 'dashboard.delete'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.delete'|trans({}, 'NowoDashboardMenuBundle') }}" data-id="{{ menu.id }}" data-item-id="{{ item.id }}" data-name="{{ item.getLabelForLocale(currentLocale) ?: ('dashboard.no_label'|trans({}, 'NowoDashboardMenuBundle')) }}" data-url="{{ path(dashboard_routes.item_delete|default('nowo_dashboard_menu_dashboard_item_delete'), { id: menu.id, itemId: item.id }) }}" data-token="{{ item_delete_tokens[item.id]|default('') }}" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-delete-item-confirm')|raw }}>
                                             {{ icons.trash()|raw }}
                                         </button>
                                     </div>
