@@ -30,6 +30,8 @@ This bundle is **FrankenPHP worker mode friendly**.
 - **Context resolution**: Same `code` can have multiple menus with different JSON context (e.g. `partnerId`, `operatorId`); pass an ordered list of context sets and the first match is used; empty context = fallback
 - **Config**: Doctrine connection and table prefix; cache (TTL + pool) for the menu tree; `icon_library_prefix_map` (e.g. `bootstrap-icons` → `bi`); locales; per-menu options (classes, permission checker, depth limit, icons, collapsible) in the database
 - **Permissions**: `MenuPermissionCheckerInterface` — implement and tag to filter items per user/context
+- **Current item**: `MenuCurrentMatcherInterface` (v2.1) to mark the active item; request-scoped memo + `ResetInterface` for FrankenPHP worker mode (v2.1.1)
+- **CLI**: `nowo_dashboard_menu:generate-migration`, `nowo_dashboard_menu:translations:google-sync`
 - **Twig**: `dashboard_menu_tree(menuCode, permissionContext?, contextSets?)`, `dashboard_menu_href(item)`, `dashboard_menu_config(menuCode, contextSets?)`; include `@NowoDashboardMenuBundle/menu.html.twig`
 - **JSON API**: `GET /api/menu/{code}` for SPA consumption (optional `_locale`, `_context_sets` query params)
 - **Dashboard**: CRUD at `/admin/menus` (list, create, edit, copy menu, manage items); export/import menus as JSON; optional **drag-and-drop tree reorder** (SortableJS) on a dedicated route; forms split into definition (pencil) and configuration (gear); dashboard search/action flows use Symfony Form Types + FormKit-friendly Twig rendering (`form_start` / `form_end`); redirect to referer after successful actions; import available in a modal
