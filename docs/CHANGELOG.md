@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.1.2] - 2026-08-18](#212-2026-08-18)
 - [[2.1.1] - 2026-08-10](#211-2026-08-10)
 - [[2.1.0] - 2026-08-10](#210-2026-08-10)
 - [[2.0.1] - 2026-08-04](#201-2026-08-04)
@@ -74,6 +75,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.1.2] - 2026-08-18
+
+### Changed
+
+- **Demos:** pin `nowo-tech/hot-reload-bundle` to `^1.4` with FrankenPHP Mercure/`hot_reload` (`dev`/`test` only).
+
+[2.1.2]: https://github.com/nowo-tech/DashboardMenuBundle/releases/tag/v2.1.2
 
 ## [2.1.1] - 2026-08-10
 
@@ -949,7 +958,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.1...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.2...HEAD
 [2.1.1]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.0.1...v2.1.0
 [2.0.1]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.0.0...v2.0.1
