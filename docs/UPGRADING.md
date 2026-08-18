@@ -5,6 +5,7 @@ This document describes breaking changes and upgrade notes between versions. Sec
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [From 2.1.1 to 2.1.2](#from-211-to-212)
 - [From 2.1.0 to 2.1.1](#from-210-to-211)
 - [From 2.0.x to 2.1.0](#from-20x-to-210)
 - [From 2.0.0 to 2.0.1](#from-200-to-201)
@@ -71,6 +72,10 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## From 2.1.1 to 2.1.2
+
+No breaking changes. Demos only: Hot Reload Bundle `^1.4` (FrankenPHP Mercure/`hot_reload`, `dev`/`test`).
 
 ## From 2.1.0 to 2.1.1
 
