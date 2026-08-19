@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.1.4] - 2026-08-19](#214-2026-08-19)
 - [[2.1.2] - 2026-08-18](#212-2026-08-18)
 - [[2.1.1] - 2026-08-10](#211-2026-08-10)
 - [[2.1.0] - 2026-08-10](#210-2026-08-10)
@@ -75,6 +76,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.1.4] - 2026-08-19
+
+### Security
+
+- **CI:** run `composer audit --locked` after dependency install (REQ-SEC / P3).
+
+[2.1.4]: https://github.com/nowo-tech/DashboardMenuBundle/releases/tag/v2.1.4
 
 ## [2.1.2] - 2026-08-18
 

@@ -5,6 +5,7 @@ This document describes breaking changes and upgrade notes between versions. Sec
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [From 2.1.3 to 2.1.4](#from-213-to-214)
 - [From 2.1.1 to 2.1.2](#from-211-to-212)
 - [From 2.1.0 to 2.1.1](#from-210-to-211)
 - [From 2.0.x to 2.1.0](#from-20x-to-210)
@@ -72,6 +73,14 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## From 2.1.3 to 2.1.4
+
+No breaking changes. **No application upgrade steps.**
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
 
 ## From 2.1.1 to 2.1.2
 
