@@ -77,6 +77,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.6] - 2026-08-19
+
+### Security
+
+- **Flex recipe:** ship `security_nowo_dashboard_menu.yaml` access rules (REQ-SEC-004). Prefer **`^2.1.6`** over `v2.1.5` for recipe install.
+
 ## [2.1.5] - 2026-08-19
 
 ### Security
