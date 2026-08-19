@@ -1,0 +1,6 @@
+# Merged into security.access_control by Symfony (REQ-SEC-004).
+# Adjust paths if you changed dashboard.path_prefix or api.path_prefix.
+security:
+    access_control:
+        - { path: ^/admin/menus, roles: ROLE_ADMIN }
+        - { path: ^/api/menu, roles: ROLE_ADMIN }
