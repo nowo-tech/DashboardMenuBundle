@@ -138,6 +138,25 @@ final class DashboardMenuExtensionTest extends TestCase
         self::assertSame(['ROLE_SUPER_ADMIN'], $container->getParameter(Configuration::ALIAS . '.security.access_roles'));
     }
 
+    public function testLoadMapsNullLegacyRequiredRoleToEmptyAccessRoles(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'prod');
+
+        $extension = new DashboardMenuExtension();
+        $extension->load([
+            [
+                'dashboard' => [
+                    'enabled'       => true,
+                    'required_role' => null,
+                ],
+            ],
+        ], $container);
+
+        self::assertSame([], $container->getParameter(Configuration::ALIAS . '.security.access_roles'));
+        self::assertNull($container->getParameter(Configuration::ALIAS . '.dashboard.required_role'));
+    }
+
     public function testUsesCustomAccessCheckerServiceId(): void
     {
         $container = new ContainerBuilder();

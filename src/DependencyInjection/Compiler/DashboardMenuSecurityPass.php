@@ -39,7 +39,8 @@ final class DashboardMenuSecurityPass implements CompilerPassInterface
 
         /** @var list<string> $accessRoles */
         $accessRoles = $container->getParameter(Configuration::ALIAS . '.security.access_roles');
-        if ($accessRoles === []) {
+        $hasCustomChecker = (bool) $container->getParameter(Configuration::ALIAS . '.security.custom_access_checker');
+        if ($accessRoles === [] && !$hasCustomChecker) {
             return;
         }
 

@@ -63,6 +63,17 @@ final class DashboardMenuSecurityPassTest extends TestCase
         self::assertFalse($container->hasDefinition(DashboardAccessSubscriber::class));
     }
 
+    public function testRegistersSubscriberWhenCustomCheckerDespiteEmptyRoles(): void
+    {
+        $container = $this->baseContainer(allowUnauthenticated: false, accessRoles: [], customAccessChecker: true);
+        $container->setDefinition('security.authorization_checker', new Definition());
+        $container->setAlias(DashboardMenuAccessCheckerInterface::class, 'security.authorization_checker');
+
+        (new DashboardMenuSecurityPass())->process($container);
+
+        self::assertTrue($container->hasDefinition(DashboardAccessSubscriber::class));
+    }
+
     /**
      * @param list<string> $accessRoles
      */
@@ -70,11 +81,13 @@ final class DashboardMenuSecurityPassTest extends TestCase
         bool $enabled = true,
         bool $allowUnauthenticated = true,
         array $accessRoles = ['ROLE_ADMIN'],
+        bool $customAccessChecker = false,
     ): ContainerBuilder {
         $container = new ContainerBuilder();
         $container->setParameter(Configuration::ALIAS . '.dashboard.enabled', $enabled);
         $container->setParameter(Configuration::ALIAS . '.security.allow_unauthenticated', $allowUnauthenticated);
         $container->setParameter(Configuration::ALIAS . '.security.access_roles', $accessRoles);
+        $container->setParameter(Configuration::ALIAS . '.security.custom_access_checker', $customAccessChecker);
 
         return $container;
     }
