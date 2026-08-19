@@ -180,6 +180,16 @@ final class ConfigurationTest extends TestCase
         ]);
     }
 
+    public function testNullLegacyRequiredRoleMapsToEmptyAccessRoles(): void
+    {
+        $processor = new Processor();
+        $config    = $processor->processConfiguration(new Configuration(), [
+            ['dashboard' => ['required_role' => null]],
+        ]);
+
+        self::assertSame([], $config['security']['access_roles']);
+    }
+
     public function testAliasConstant(): void
     {
         self::assertGreaterThan(0, strlen(Configuration::ALIAS));

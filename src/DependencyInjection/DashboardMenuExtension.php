@@ -378,6 +378,10 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
         $container->setParameter(Configuration::ALIAS . '.security.access_roles', $security['access_roles']);
         $container->setParameter(Configuration::ALIAS . '.security.allow_unauthenticated', $security['allow_unauthenticated']);
         $container->setParameter(Configuration::ALIAS . '.security.access_checker', $security['access_checker']);
+        $container->setParameter(
+            Configuration::ALIAS . '.security.custom_access_checker',
+            is_string($security['access_checker'] ?? null) && $security['access_checker'] !== '',
+        );
         // BC parameter for profiler / older docs: first role or null when empty.
         $legacyRole = $security['access_roles'][0] ?? null;
         $container->setParameter(Configuration::ALIAS . '.dashboard.required_role', $legacyRole);
@@ -419,8 +423,13 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
         ];
 
         $legacyRole = $config['dashboard']['required_role'] ?? null;
-        // Prefer explicit non-default security.access_roles; otherwise map legacy scalar.
-        if (is_string($legacyRole) && $legacyRole !== '' && $security['access_roles'] === ['ROLE_ADMIN']) {
+        // Prefer explicit security.access_roles (incl. BC map from dashboard.required_role via Configuration::beforeNormalization).
+        if (
+            !array_key_exists('access_roles', $config['security'] ?? [])
+            && is_string($legacyRole)
+            && $legacyRole !== ''
+            && $security['access_roles'] === ['ROLE_ADMIN']
+        ) {
             $security['access_roles'] = [$legacyRole];
         }
 

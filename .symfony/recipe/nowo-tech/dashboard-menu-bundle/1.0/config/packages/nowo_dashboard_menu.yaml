@@ -8,6 +8,10 @@ nowo_dashboard_menu:
         access_roles: [ROLE_ADMIN]
         # access_checker: App\Security\DashboardMenuAccessChecker
         allow_unauthenticated: false
+    # Host firewall (recommended in production):
+    # security:
+    #     access_control:
+    #         - { path: ^/admin/menus, roles: ROLE_ADMIN }
     # Doctrine DBAL connection and table prefix for menu entities.
     # doctrine:
     #     connection: default

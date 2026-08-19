@@ -32,6 +32,26 @@ final class Configuration implements ConfigurationInterface
         $root        = $treeBuilder->getRootNode();
 
         $root
+            ->beforeNormalization()
+                ->ifArray()
+                ->then(static function (array $v): array {
+                    $dashboard = is_array($v['dashboard'] ?? null) ? $v['dashboard'] : [];
+                    $security  = is_array($v['security'] ?? null) ? $v['security'] : [];
+
+                    if (array_key_exists('required_role', $dashboard) && !array_key_exists('access_roles', $security)) {
+                        $role = $dashboard['required_role'];
+                        if ($role === null || $role === '') {
+                            $security['access_roles'] = [];
+                        } elseif (is_string($role)) {
+                            $security['access_roles'] = [$role];
+                        }
+                    }
+
+                    $v['security'] = $security;
+
+                    return $v;
+                })
+            ->end()
             ->children()
                 ->scalarNode('project')
                     ->info('Optional project identifier to differentiate menus when multiple apps share the same DB')
