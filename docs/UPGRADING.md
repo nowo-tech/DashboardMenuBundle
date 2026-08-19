@@ -74,6 +74,14 @@ This document describes breaking changes and upgrade notes between versions. Sec
 
 ## Unreleased
 
+## From 2.1.4 to 2.1.5
+
+Review Flex recipe `security_nowo_dashboard_menu.yaml` access rules after install/update.
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
+
 ## From 2.1.3 to 2.1.4
 
 No breaking changes. **No application upgrade steps.**

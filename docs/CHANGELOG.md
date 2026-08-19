@@ -77,6 +77,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.5] - 2026-08-19
+
+### Security
+
+- **Flex recipe:** `security.access_control` for dashboard menu routes (REQ-SEC-004).
+
 ## [2.1.4] - 2026-08-19
 
 ### Security
