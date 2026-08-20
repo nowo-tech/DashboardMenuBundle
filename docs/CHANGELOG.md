@@ -77,6 +77,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.7] - 2026-08-20
+
+### Security
+
+- **Flex recipe:** `when@prod` keeps `ROLE_ADMIN` / `allow_unauthenticated: false`; document **must-wire** `PermissionKeyAwareMenuPermissionChecker` for sensitive menu items. REQ-SEC-004 **Pass (good)**.
+
 ## [2.1.6] - 2026-08-19
 
 ### Security

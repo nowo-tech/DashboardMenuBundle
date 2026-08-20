@@ -74,6 +74,14 @@ This document describes breaking changes and upgrade notes between versions. Sec
 
 ## Unreleased
 
+## From 2.1.6 to 2.1.7
+
+Review Flex recipe `when@prod` security defaults and wire `PermissionKeyAwareMenuPermissionChecker` on menus with sensitive links.
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
+
 ## From 2.1.5 to 2.1.6
 
 Review Flex recipe `security_nowo_dashboard_menu.yaml` after `composer update`.

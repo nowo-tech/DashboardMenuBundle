@@ -8,10 +8,11 @@ nowo_dashboard_menu:
         access_roles: [ROLE_ADMIN]
         # access_checker: App\Security\DashboardMenuAccessChecker
         allow_unauthenticated: false
-    # Host firewall (recommended in production):
-    # security:
+    # Host firewall (Flex also ships security_nowo_dashboard_menu.yaml):
     #     access_control:
     #         - { path: ^/admin/menus, roles: ROLE_ADMIN }
+    #         - { path: ^/api/menu, roles: ROLE_ADMIN }
+
     # Doctrine DBAL connection and table prefix for menu entities.
     # doctrine:
     #     connection: default
@@ -22,11 +23,7 @@ nowo_dashboard_menu:
 
     # Locales for menu item labels (i18n). If set, request locale is used only when in this list.
     # locales: []
-    # locales: ['en', 'es', 'fr']
-
-    # Fallback locale when request locale is not in locales. If null, first of locales is used.
     # default_locale: null
-    # default_locale: 'en'
 
     # Map full icon library names to short prefixes when rendering the menu (e.g. for Symfony UX Icons).
     # icon_library_prefix_map:
@@ -37,11 +34,14 @@ nowo_dashboard_menu:
     #     ttl: 60
     #     pool: cache.app
 
-    # Ordered list of permission checker service IDs (FQCN). Dropdown shows the id unless the tag sets label=.
+    # MUST for production menus with sensitive links: do not leave the default
+    # AllowAllMenuPermissionChecker on those menus. Prefer PermissionKeyAware
+    # (or your own MenuPermissionCheckerInterface) and set permission keys on items.
     # permission_checker_choices:
+    #     - Nowo\DashboardMenuBundle\Service\PermissionKeyAwareMenuPermissionChecker
     #     - Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker
     #     - App\Service\Your\OperatorMenuPermissionChecker
-    #
+
     # Link resolvers for item type "service" (same: list of service ids).
     # menu_link_resolver_choices:
     #     - App\Service\YourMenuLinkResolver
@@ -52,87 +52,38 @@ nowo_dashboard_menu:
 
     dashboard:
         enabled: false
-        # Layout that dashboard views extend. Must define block "content". Default: @NowoDashboardMenuBundle/dashboard/layout.html.twig
+        # Layout that dashboard views extend. Must define block "content".
         # layout_template: '@NowoDashboardMenuBundle/dashboard/layout.html.twig'
-        # layout_template: 'base.html.twig'   # e.g. use your app base
 
-        # URL prefix is set in config/routes_nowo_dashboard_menu.yaml (import it from config/routes.yaml).
-        # Deprecated (kept for backward compatibility):
-        # path_prefix: '/admin/menus'
-
-        # Patterns to hide routes from the "Route" selector when editing menu items.
-        # Examples of excluded route names:
-        # - `_profiler`, `_wdt`, `_error` (matches `^_`)
-        # - `web_profiler_main`, `web_profiler_index` (matches `^web_profiler`)
-        # Example of a kept route name:
-        # - `app_home` (does not match the patterns)
-        # route_name_exclude_patterns: []
-        # route_name_exclude_patterns: ['^_', '^web_profiler']  # raw snippets (delimiters optional)
-        # route_name_exclude_patterns: ['#^_#', '/^web_profiler/']  # PCRE with delimiters
-        route_name_exclude_patterns: 
+        route_name_exclude_patterns:
             - '^_'
             - '^web_profiler'
 
-        # Pagination for the menus list in the dashboard.
         pagination:
             enabled: true
             per_page: 20
 
-        # Modal sizes: normal (default), lg, or xl (Bootstrap 5). Affects new/edit menu, copy menu, add/edit item, delete confirm.
+        # Modal sizes: normal (default), lg, or xl (Bootstrap 5).
         # modals:
         #     menu_form: normal
         #     copy: normal
         #     item_form: lg
         #     delete: normal
 
-        # Optional URL of icon-selector script asset (Stimulus/UX).
         # icon_selector_script_url: null
-        # icon_selector_script_url: 'bundles/nowoiconselector/icon-selector.js'
-
-        # Optional URL of a script that loads Stimulus + Live and exposes window.Stimulus.
         # stimulus_script_url: null
-        # stimulus_script_url: 'bundles/nowodashboardmenu/js/stimulus-live.js'
-
-        # Maximum JSON import file size in bytes (default 2 MiB).
         # import_max_bytes: 2097152
-
-        # Optional rate-limit for import/export actions.
-        # import_export_rate_limit:
-        #     enabled: true
-        #     limit: 10
-        #     interval: 60
         # import_export_rate_limit: false
-
-        # Selector options for "permission key" in item form. Empty => free text input.
         # permission_key_choices: []
-        # permission_key_choices: ['authenticated', 'admin', 'path:/']
 
         id_options:
             - 'main-menu-navigation'
-        # id_options: []
 
-        # CSS size used to render menu item icons (SVG width/height and legacy icon font-size).
-        # Example: '1em', '16px', '1.2em'.
         # icon_size: '1em'
-
-        # Wrap non-section item label in an additional <span> in frontend render.
         item_span_active: false
 
-        # CSS class options: choices shown as dropdowns when editing a menu. Override to customize.
-        # css_class_options:
-        #     menu: ['nav flex-column', 'nav flex-row', 'dropdown-menu dropdown-menu-end', 'nav flex-wrap gap-1']
-        #     item: ['nav-item', 'dropdown-item', '']
-        #     link: ['nav-link', 'dropdown-item', 'nav-link link-secondary']
-        #     children: ['nav flex-column ms-2', 'nav flex-column', 'dropdown-menu']
-        #     section_children: ['nav flex-column list-unstyled ps-0', 'nav flex-column ms-2', 'nav flex-column', ''] # <ul> under itemType=section
-        #     section_child_item: ['nav-item ms-0', 'nav-item', ''] # <li> direct child of section
-        #     section_child_link: ['nav-link py-0 d-flex align-items-center menu-title text-truncate ps-0', 'nav-link d-flex align-items-center ps-0', 'nav-link', ''] # <a> direct child of section
-        #     section_label: ['menu-section-label', '']
-        #     section: ['menu-section', 'navigation-header', ''] # <li> class when itemType=section
-        #     divider: ['menu-divider', ''] # <li> class when itemType=divider
-        #     span: ['ms-2 d-flex align-items-center flex-nowrap'] # wrapper <span> label for non-section items
-        #     current: ['active', '']
-        #     branch_expanded: ['active-branch', 'active-branch-has-children', '']
-        #     has_children: ['dropdown', 'has-children', '']
-        #     expanded: ['expanded', '']
-        #     collapsed: ['collapsed', '']
+when@prod:
+    nowo_dashboard_menu:
+        security:
+            allow_unauthenticated: false
+            access_roles: [ROLE_ADMIN]

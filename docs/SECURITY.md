@@ -8,7 +8,7 @@ For production or sensitive setups, configure:
 
 - **Access control (REQ-UI-002):** The **admin dashboard gate** already uses `nowo_dashboard_menu.security.access_roles` (default `[ROLE_ADMIN]`) so CRUD requires an authorized user. Optionally provide `security.access_checker` (service implementing `DashboardMenuAccessCheckerInterface`). Also lock `dashboard.path_prefix` in the host `security.yaml` with `access_control`. Keep `security.allow_unauthenticated: false` in production (demos may set `true`).
 
-- **Menu item visibility (residual):** `AllowAllMenuPermissionChecker` is the default **menu-item** permission checker (what each user sees in a rendered menu tree). It does **not** weaken the admin gate above. In production, replace it with a real `MenuPermissionCheckerInterface` implementation (e.g. `PermissionKeyAwareMenuPermissionChecker` or your own) for menus that expose sensitive links.
+- **Menu item visibility (host must wire):** `AllowAllMenuPermissionChecker` is the default **menu-item** permission checker (what each user sees in a rendered menu tree). It does **not** weaken the admin gate above. **In production**, assign `PermissionKeyAwareMenuPermissionChecker` (or your own `MenuPermissionCheckerInterface`) on any menu that exposes sensitive links, and set permission keys on items. Flex recipe documents this requirement and keeps `security.access_roles: [ROLE_ADMIN]` under `when@prod`.
 
 - **Legacy:** `dashboard.required_role: ROLE_X` still maps to `security.access_roles: [ROLE_X]` but is deprecated.
 
@@ -17,6 +17,15 @@ For production or sensitive setups, configure:
 - **Import size:** `import_max_bytes` (default 2 MiB) caps the size of JSON import uploads to reduce DoS risk.
 
 - **Logging:** Operational warnings (e.g. rate-limit exceeded) use `Psr\Log\LoggerInterface` with structured context (`bundle`, `action`). Do not log tokens, passwords, or session identifiers.
+
+## AI security audit (REQ-SEC-004)
+
+| Field | Value |
+| ----- | ----- |
+| Date | 2026-08-20 (re-audit; prior 2026-07-28) |
+| Grade | **Pass (good)** — overall **Low** |
+| Method | Static review of access_roles defaults, Flex access_control, item-checker residual documented as host-owned |
+| Open residuals | Host must not leave AllowAll on menus with sensitive links |
 
 ## Release security checklist (12.4.1)
 
