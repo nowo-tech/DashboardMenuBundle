@@ -87,3 +87,5 @@ when@prod:
         security:
             allow_unauthenticated: false
             access_roles: [ROLE_ADMIN]
+        # Item visibility is still AllowAll unless you set a checker on each menu
+        # in the dashboard. See docs/UPGRADING.md (2.1.8).

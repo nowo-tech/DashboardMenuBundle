@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.1.8] - 2026-08-20](#218-2026-08-20)
+- [[2.1.7] - 2026-08-20](#217-2026-08-20)
 - [[2.1.4] - 2026-08-19](#214-2026-08-19)
 - [[2.1.2] - 2026-08-18](#212-2026-08-18)
 - [[2.1.1] - 2026-08-10](#211-2026-08-10)
@@ -76,6 +78,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.1.8] - 2026-08-20
+
+### Documentation
+
+- **UPGRADING.md:** `AllowAllMenuPermissionChecker` stays the item-level default (changing it would be breaking). Production hosts must assign `PermissionKeyAwareMenuPermissionChecker` (or a custom checker) **per menu** in the dashboard; the Flex recipe cannot switch stored menus.
 
 ## [2.1.7] - 2026-08-20
 

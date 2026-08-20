@@ -5,6 +5,10 @@ This document describes breaking changes and upgrade notes between versions. Sec
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [From 2.1.7 to 2.1.8](#from-217-to-218)
+- [From 2.1.6 to 2.1.7](#from-216-to-217)
+- [From 2.1.5 to 2.1.6](#from-215-to-216)
+- [From 2.1.4 to 2.1.5](#from-214-to-215)
 - [From 2.1.3 to 2.1.4](#from-213-to-214)
 - [From 2.1.1 to 2.1.2](#from-211-to-212)
 - [From 2.1.0 to 2.1.1](#from-210-to-211)
@@ -73,6 +77,31 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## From 2.1.7 to 2.1.8
+
+**Do not change the PHP default checker.** `AllowAllMenuPermissionChecker` remains the fallback for menu **items** that have no checker stored (changing that would hide or break existing menus). The admin HTTP gate (`ROLE_ADMIN` / `allow_unauthenticated: false` under Flex `when@prod`) is separate and already strict.
+
+**You must wire a checker per menu in the dashboard** for any menu that exposes sensitive links:
+
+1. Open the dashboard menu editor.
+2. Set **Permission checker** to `PermissionKeyAwareMenuPermissionChecker` (or your own `MenuPermissionCheckerInterface`).
+3. Set permission keys on sensitive items.
+
+`PermissionKeyAwareMenuPermissionChecker` is a **base example**: items **without** keys stay visible; items **with** keys are **always hidden** until you replace it with a checker that calls `isGranted()`. For real RBAC, copy the demo checker in `demo/symfony8`.
+
+Optional YAML only filters the dropdown, it does **not** switch existing menus:
+
+```yaml
+nowo_dashboard_menu:
+    permission_checker_choices:
+        - Nowo\DashboardMenuBundle\Service\PermissionKeyAwareMenuPermissionChecker
+        - Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker
+```
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
 
 ## From 2.1.6 to 2.1.7
 
