@@ -289,7 +289,7 @@ final class DashboardMenuDataCollectorTest extends TestCase
         $collector = new DashboardMenuDataCollector(
             null,
             null,
-            ['project'   => 'test'],
+            ['project' => 'test'],
             ['allow_all' => 'Allow all'],
             'default',
             'app_',
