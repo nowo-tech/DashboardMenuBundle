@@ -4,6 +4,8 @@ This document describes breaking changes and upgrade notes between versions. Sec
 
 ## Table of contents
 
+
+- [From 2.1.8 to 2.1.9](#from-218-to-219)
 - [Unreleased](#unreleased)
 - [From 2.1.7 to 2.1.8](#from-217-to-218)
 - [From 2.1.6 to 2.1.7](#from-216-to-217)
@@ -75,6 +77,22 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [From 0.1.x to 0.3.0](#from-01x-to-030)
 - [From 0.0.1 to 0.1.0](#from-001-to-010)
 - [0.0.1 (first release)](#001-first-release)
+
+## From 2.1.8 to 2.1.9
+
+No breaking changes. **No application upgrade steps.**
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
+
+## From 2.1.8 to 2.1.9
+
+No breaking changes. **No application upgrade steps.**
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
 
 ## Unreleased
 
