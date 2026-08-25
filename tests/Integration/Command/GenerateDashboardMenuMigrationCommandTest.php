@@ -108,7 +108,7 @@ final class GenerateDashboardMenuMigrationCommandTest extends KernelTestCase
         try {
             // Ensure --path is relative so GenerateDashboardMenuMigrationCommand hits
             // the "!isAbsolutePath($path)" branch, but still write into temp (not into the repo).
-            chdir($tmpBaseDir);
+            chdir($tmpBaseDir); // @phpstan-ignore frankenphp.worker.noChdir (PHPUnit process, not a worker)
             $status = $tester->execute([
                 '--path'      => $relativeDirName,
                 '--namespace' => 'DoctrineMigrations',
@@ -132,7 +132,7 @@ final class GenerateDashboardMenuMigrationCommandTest extends KernelTestCase
                 $filesystem->remove($targetDir);
             }
             if ($oldCwd !== false) {
-                chdir($oldCwd);
+                chdir($oldCwd); // @phpstan-ignore frankenphp.worker.noChdir (restore PHPUnit cwd)
             }
         }
     }

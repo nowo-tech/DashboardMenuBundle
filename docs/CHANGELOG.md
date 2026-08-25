@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.1.10] - 2026-08-25](#2110-2026-08-25)
+- [[2.1.9] - 2026-08-24](#219-2026-08-24)
 - [[2.1.8] - 2026-08-20](#218-2026-08-20)
 - [[2.1.7] - 2026-08-20](#217-2026-08-20)
 - [[2.1.4] - 2026-08-19](#214-2026-08-19)
@@ -79,6 +81,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [2.1.10] - 2026-08-25
+
+### Fixed
+
+- **`SearchQueryType`:** tag the dashboard list search form as `form.type` so FormKit `FormOptionsMerger` is injected. Without the tag, Symfony instantiates the type without the merger and `/admin/menus/` returns HTTP 500. Hosts that registered this class themselves can drop the override.
+- **PHPStan:** place `getAppRoutes()` PHPDoc on the correct method; ignore `chdir()` in the migration command PHPUnit test (not a FrankenPHP worker).
+- **Tests:** TestKernel no-ops Symfony Doctrine schema listeners so `SchemaTool` works with ORM 3.6.8 + DBAL 4.4 (`Schema::edit()` is DBAL 4.5-dev).
+
+### Changed
+
+- **QA:** `.dockerignore` excludes demo MySQL data and caches from the PHP image build context.
+
+### Notes
+
+- **No API or configuration changes** for integrators unless noted above.
+
+[2.1.10]: https://github.com/nowo-tech/DashboardMenuBundle/releases/tag/v2.1.10
 
 ## [2.1.9] - 2026-08-24
 
@@ -1009,7 +1029,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.2...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.10...HEAD
 [2.1.1]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.0.1...v2.1.0
 [2.0.1]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.0.0...v2.0.1

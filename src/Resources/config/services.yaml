@@ -62,6 +62,11 @@ services:
       $translator: '@translator'
     tags: ['form.type']
 
+  Nowo\DashboardMenuBundle\Form\SearchQueryType:
+    arguments:
+      $translator: '@translator'
+    tags: ['form.type']
+
   Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker:
     tags:
       - { name: nowo_dashboard_menu.permission_checker, label: 'form.menu_type.permission_checker.allow_all' }

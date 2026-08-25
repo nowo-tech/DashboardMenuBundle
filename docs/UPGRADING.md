@@ -5,8 +5,8 @@ This document describes breaking changes and upgrade notes between versions. Sec
 ## Table of contents
 
 
+- [From 2.1.9 to 2.1.10](#from-219-to-2110)
 - [From 2.1.8 to 2.1.9](#from-218-to-219)
-- [Unreleased](#unreleased)
 - [From 2.1.7 to 2.1.8](#from-217-to-218)
 - [From 2.1.6 to 2.1.7](#from-216-to-217)
 - [From 2.1.5 to 2.1.6](#from-215-to-216)
@@ -78,6 +78,16 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [From 0.0.1 to 0.1.0](#from-001-to-010)
 - [0.0.1 (first release)](#001-first-release)
 
+## From 2.1.9 to 2.1.10
+
+No breaking changes. `SearchQueryType` is now tagged `form.type` so FormKit injects `FormOptionsMerger` (dashboard `/admin/menus/` search no longer 500s when the host does not register the type).
+
+Hosts that added a host `form.type` service for `Nowo\DashboardMenuBundle\Form\SearchQueryType` can remove that override after upgrading.
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
+
 ## From 2.1.8 to 2.1.9
 
 No breaking changes. **No application upgrade steps.**
@@ -85,16 +95,6 @@ No breaking changes. **No application upgrade steps.**
 ```bash
 composer update nowo-tech/dashboard-menu-bundle
 ```
-
-## From 2.1.8 to 2.1.9
-
-No breaking changes. **No application upgrade steps.**
-
-```bash
-composer update nowo-tech/dashboard-menu-bundle
-```
-
-## Unreleased
 
 ## From 2.1.7 to 2.1.8
 

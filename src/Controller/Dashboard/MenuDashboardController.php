@@ -1328,7 +1328,7 @@ final class MenuDashboardController extends AbstractController
     }
 
     /**
-     * @return array<string, array{label: string, params: list<string>}> Map of route name => { label, params }
+     * @return FormInterface<mixed>
      */
     private function createActionForm(string $action, string $csrfTokenId): FormInterface
     {
@@ -1338,6 +1338,9 @@ final class MenuDashboardController extends AbstractController
         ]);
     }
 
+    /**
+     * @param FormInterface<mixed> $form
+     */
     private function assertSubmittedValidActionForm(FormInterface $form): void
     {
         if (!$form->isSubmitted() || !$form->isValid()) {
@@ -1345,6 +1348,9 @@ final class MenuDashboardController extends AbstractController
         }
     }
 
+    /**
+     * @return array<string, array{label: string, params: list<string>}> Map of route name => { label, params }
+     */
     private function getAppRoutes(): array
     {
         $routes     = [];

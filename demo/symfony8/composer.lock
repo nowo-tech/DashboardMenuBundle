@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "afd9b0ac472832affa721634b746f647",
+    "content-hash": "20f7ec04aadffcc5e70ec1ab9db9c3d8",
     "packages": [
         {
             "name": "doctrine/collections",
@@ -1122,7 +1122,7 @@
             "dist": {
                 "type": "path",
                 "url": "/var/dashboard-menu-bundle",
-                "reference": "a27ff122313d401a265fd901f805d298a2f4b813"
+                "reference": "5638c50c56e244dd904b34317959c7bb7eab40e2"
             },
             "require": {
                 "doctrine/doctrine-bundle": "^2.8 || ^3.0",

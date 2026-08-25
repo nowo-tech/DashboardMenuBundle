@@ -6,6 +6,7 @@ namespace Nowo\DashboardMenuBundle\Tests\DependencyInjection;
 
 use Nowo\DashboardMenuBundle\DependencyInjection\Configuration;
 use Nowo\DashboardMenuBundle\DependencyInjection\DashboardMenuExtension;
+use Nowo\DashboardMenuBundle\Form\SearchQueryType;
 use Nowo\DashboardMenuBundle\Twig\MenuExtension;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -118,6 +119,17 @@ final class DashboardMenuExtensionTest extends TestCase
         self::assertSame('ROLE_ADMIN', $container->getParameter(Configuration::ALIAS . '.dashboard.required_role'));
         self::assertFalse($container->hasDefinition(\Nowo\DashboardMenuBundle\EventSubscriber\DashboardAccessSubscriber::class));
         self::assertTrue($container->hasAlias(\Nowo\DashboardMenuBundle\Security\DashboardMenuAccessCheckerInterface::class));
+    }
+
+    public function testLoadTagsSearchQueryTypeAsFormType(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'prod');
+
+        (new DashboardMenuExtension())->load([], $container);
+
+        self::assertTrue($container->hasDefinition(SearchQueryType::class));
+        self::assertArrayHasKey('form.type', $container->getDefinition(SearchQueryType::class)->getTags());
     }
 
     public function testLoadMapsLegacyRequiredRoleToAccessRoles(): void
