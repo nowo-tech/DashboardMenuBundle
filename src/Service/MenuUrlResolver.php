@@ -16,10 +16,12 @@ use Symfony\Contracts\Service\ResetInterface;
 use function array_key_exists;
 use function in_array;
 use function is_array;
+use function is_string;
 
 /**
  * Resolves the href for a menu item (route, external URL, or itemType "service" via MenuLinkResolverInterface).
  * When the app uses locale in routes, injects the current request locale so links keep the same language.
+ * Missing path params are taken from the main (browser) request so controller forwards still build valid links.
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
@@ -84,17 +86,18 @@ final class MenuUrlResolver implements ResetInterface
         }
 
         $params           = $item->getRouteParams() ?? [];
-        $request          = $this->requestStack->getCurrentRequest();
+        $request          = $this->resolveMenuRequest();
         $routeNeedsLocale = false;
 
-        // Complete missing path variables from current route params so links can reuse e.g. id/locale from the current URL
+        // Complete missing path variables from the browser URL (main request) so links reuse e.g. partner/id/locale.
+        // Prefer main over current: Symfony/controller forwards replace attributes and drop `_route_params`.
         try {
             $route = $this->router->getRouteCollection()->get($routeName);
             if ($route instanceof \Symfony\Component\Routing\Route && $request instanceof Request) {
                 $compiled         = $route->compile();
                 $pathVars         = $compiled->getPathVariables();
                 $routeNeedsLocale = in_array('_locale', $pathVars, true);
-                $currentParams    = (array) $request->attributes->get('_route_params', []);
+                $currentParams    = $this->collectRouteParams($request);
                 foreach ($pathVars as $var) {
                     if (!array_key_exists($var, $params) && array_key_exists($var, $currentParams)) {
                         $params[$var] = $currentParams[$var];
@@ -120,6 +123,40 @@ final class MenuUrlResolver implements ResetInterface
         }
     }
 
+    /**
+     * Request that reflects the URL the user opened (main), not a forward/sub-request.
+     */
+    private function resolveMenuRequest(): ?Request
+    {
+        return $this->requestStack->getMainRequest() ?? $this->requestStack->getCurrentRequest();
+    }
+
+    /**
+     * Route params for filling menu links: main `_route_params`, then current, then loose attributes
+     * (forwards often pass path vars as attributes without rebuilding `_route_params`).
+     *
+     * @return array<string, mixed>
+     */
+    private function collectRouteParams(Request $menuRequest): array
+    {
+        $params = (array) $menuRequest->attributes->get('_route_params', []);
+
+        $current = $this->requestStack->getCurrentRequest();
+        if ($current instanceof Request && $current !== $menuRequest) {
+            $params = array_merge($params, (array) $current->attributes->get('_route_params', []));
+            foreach ($current->attributes->all() as $key => $value) {
+                if (!is_string($key) || $key === '' || str_starts_with($key, '_')) {
+                    continue;
+                }
+                if (!array_key_exists($key, $params)) {
+                    $params[$key] = $value;
+                }
+            }
+        }
+
+        return $params;
+    }
+
     private function getHrefFromServiceResolver(MenuItem $item, int $referenceType): string
     {
         $rawId = $item->getLinkResolver();
@@ -142,7 +179,7 @@ final class MenuUrlResolver implements ResetInterface
             return '#';
         }
 
-        $request = $this->requestStack->getCurrentRequest();
+        $request = $this->resolveMenuRequest();
         $ctx     = $request;
         try {
             $resolved = $resolver->resolveHref($item, $request, $ctx);
@@ -167,7 +204,7 @@ final class MenuUrlResolver implements ResetInterface
     private function normalizeHrefReferenceType(string $href, int $referenceType): string
     {
         if ($referenceType === UrlGeneratorInterface::ABSOLUTE_URL && str_starts_with($href, '/')) {
-            $request = $this->requestStack->getCurrentRequest();
+            $request = $this->resolveMenuRequest();
             if ($request instanceof Request) {
                 return $request->getSchemeAndHttpHost() . $request->getBaseUrl() . $href;
             }

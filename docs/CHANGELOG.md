@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.1.11] - 2026-09-17](#2111-2026-09-17)
 - [[2.1.10] - 2026-08-25](#2110-2026-08-25)
 - [[2.1.9] - 2026-08-24](#219-2026-08-24)
 - [[2.1.8] - 2026-08-20](#218-2026-08-20)
@@ -81,13 +82,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [2.1.11] - 2026-09-17
+
 ### Fixed
 
+- **Menu links during controller forwards:** `MenuUrlResolver` and `MenuExtension` use the **main** (browser) request for `_route_params` / permission context instead of the current sub-request. Forwards that replace attributes and drop `_route_params` no longer produce `href="#"` and broken sidebars. Loose path attributes on the sub-request are still used as a fallback.
 - **Doctrine ORM 3.7:** use `\SortDirection` in `#[ORM\OrderBy]` and QueryBuilder instead of `"ASC"` strings (`Menu::items`, `MenuItem::children`, repositories). Removes the deprecation from doctrine/orm (`ClassMetadata` / issue 11313).
 
 ### Changed
 
 - **Composer:** `doctrine/orm` is now **`^3.7`** (drops ORM 2.x and 3.0–3.6). Required to pass `SortDirection` into mapping and `QueryBuilder::orderBy()`.
+
+### Notes
+
+- Hosts on Doctrine ORM below 3.7 must upgrade ORM together with this bundle (see [UPGRADING.md](UPGRADING.md)).
+
+[2.1.11]: https://github.com/nowo-tech/DashboardMenuBundle/releases/tag/v2.1.11
 
 ## [2.1.10] - 2026-08-25
 
@@ -1036,7 +1047,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.10...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.11...HEAD
+[2.1.11]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.10...v2.1.11
 [2.1.1]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.0.1...v2.1.0
 [2.0.1]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.0.0...v2.0.1

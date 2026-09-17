@@ -230,6 +230,102 @@ final class MenuUrlResolverTest extends TestCase
         self::assertArrayNotHasKey('_locale', $capturedParams);
     }
 
+    public function testGetHrefCompletesMissingPathParamsFromMainRequestDuringForward(): void
+    {
+        $item = new MenuItem();
+        $item->setLinkType(MenuItem::LINK_TYPE_ROUTE);
+        $item->setRouteName('app_partner_home');
+        $item->setRouteParams([]);
+
+        $route           = new \Symfony\Component\Routing\Route('/back-office/{partnerMachineName}/home');
+        $routeCollection = new RouteCollection();
+        $routeCollection->add('app_partner_home', $route);
+
+        $capturedParams = null;
+        $urlGenerator   = $this->createMock(UrlGeneratorInterface::class);
+        $urlGenerator
+            ->expects(self::once())
+            ->method('generate')
+            ->willReturnCallback(static function (string $name, array $params, int $referenceType = 0) use (&$capturedParams): string {
+                $capturedParams = $params;
+
+                return '/back-office/kalibo_correduria/home';
+            });
+
+        $main = Request::create('/back-office/kalibo_correduria/management/quoter/custom/104/holder-list/variable/5036/view');
+        $main->attributes->set('_route', 'app.holder_list.variable.view');
+        $main->attributes->set('_route_params', [
+            'partnerMachineName' => 'kalibo_correduria',
+            'quoterId'           => 104,
+            'variableId'         => 5036,
+        ]);
+
+        // Simulate SafeForwardTrait / Controller::forward: sub-request has path attrs but no `_route_params`.
+        $sub = $main->duplicate(null, null, [
+            'quoterId'           => 104,
+            'variableId'         => 5036,
+            'partnerMachineName' => 'kalibo_correduria',
+            '_controller'        => 'App\\Controller\\VariableController::view',
+        ]);
+
+        $requestStack = new RequestStack();
+        $requestStack->push($main);
+        $requestStack->push($sub);
+
+        $router = $this->createStub(RouterInterface::class);
+        $router->method('getRouteCollection')->willReturn($routeCollection);
+
+        $resolver = new MenuUrlResolver($urlGenerator, $requestStack, $router, $this->createEmptyTestContainer());
+        $href     = $resolver->getHref($item);
+
+        self::assertSame('/back-office/kalibo_correduria/home', $href);
+        self::assertNotNull($capturedParams);
+        self::assertSame('kalibo_correduria', $capturedParams['partnerMachineName']);
+    }
+
+    public function testGetHrefCompletesMissingPathParamsFromSubRequestAttributesWhenMainHasNone(): void
+    {
+        $item = new MenuItem();
+        $item->setLinkType(MenuItem::LINK_TYPE_ROUTE);
+        $item->setRouteName('app_partner_home');
+        $item->setRouteParams([]);
+
+        $route           = new \Symfony\Component\Routing\Route('/back-office/{partnerMachineName}/home');
+        $routeCollection = new RouteCollection();
+        $routeCollection->add('app_partner_home', $route);
+
+        $capturedParams = null;
+        $urlGenerator   = $this->createMock(UrlGeneratorInterface::class);
+        $urlGenerator
+            ->expects(self::once())
+            ->method('generate')
+            ->willReturnCallback(static function (string $name, array $params, int $referenceType = 0) use (&$capturedParams): string {
+                $capturedParams = $params;
+
+                return '/back-office/acme/home';
+            });
+
+        $main = Request::create('/internal');
+        $sub  = $main->duplicate(null, null, [
+            'partnerMachineName' => 'acme',
+            '_controller'        => 'App\\Controller::action',
+        ]);
+
+        $requestStack = new RequestStack();
+        $requestStack->push($main);
+        $requestStack->push($sub);
+
+        $router = $this->createStub(RouterInterface::class);
+        $router->method('getRouteCollection')->willReturn($routeCollection);
+
+        $resolver = new MenuUrlResolver($urlGenerator, $requestStack, $router, $this->createEmptyTestContainer());
+        $href     = $resolver->getHref($item);
+
+        self::assertSame('/back-office/acme/home', $href);
+        self::assertNotNull($capturedParams);
+        self::assertSame('acme', $capturedParams['partnerMachineName']);
+    }
+
     public function testGetHrefServiceReturnsHashWhenResolverReturnsChildList(): void
     {
         $resolver = new class implements MenuLinkResolverInterface {

@@ -184,7 +184,7 @@ In the API, send the same list as the `_context_sets` query parameter (JSON-enco
 
 Query parameters: `_locale` overrides the request locale; `_context_sets` (JSON array of context objects) resolves which menu variant to use, same as in Twig.
 
-**Link URLs:** Menu hrefs are built from the item’s route name and params. If a route needs path parameters (e.g. `id`, `slug`) that are not set on the item, the bundle fills them from the current request’s route params when available, so links keep the same context (e.g. same entity id). On URL generation failure, an error is added to the flash bag.
+**Link URLs:** Menu hrefs are built from the item’s route name and params. If a route needs path parameters (e.g. `id`, `slug`, `partnerMachineName`) that are not set on the item, the bundle fills them from the **main** (browser) request’s route params when available, so links keep the same context. During a controller forward/sub-request (which often drops `_route_params`), the main request is preferred; loose attributes on the current sub-request are used as a fallback. On URL generation failure, an error is added to the flash bag.
 
 ## Dashboard export and import
 

@@ -68,6 +68,7 @@ As an integrator, I use Twig functions or the JSON API so menus work in server-r
 1. **Given** `nowo_dashboard_menu.api.enabled=true`, **When** `GET {path_prefix}/{code}` is requested, **Then** response is a JSON array of nodes with `label`, `href`, `routeName`, `icon`, `itemType`, `children`.
 2. **Given** Twig extension registered, **When** templates call `dashboard_menu_href(item)`, **Then** `MenuUrlResolver` produces internal route URLs or external links.
 3. **Given** `dashboard_menu_config(code)`, **When** called, **Then** merged render config (CSS classes, depth limit, icons) is returned for `menu.html.twig`.
+4. **Given** a controller forward/sub-request that drops `_route_params`, **When** `dashboard_menu_href` / `dashboard_menu_tree` run, **Then** missing path params and permission context are taken from the **main** (browser) request (with loose sub-request attributes as fallback), so sidebar links stay valid.
 
 ---
 
@@ -167,11 +168,11 @@ As a bundle maintainer, I sync missing translation keys across locale files.
 
 ### Persistence & entities
 
-- **FR-ENTITY-001**: `Menu` and `MenuItem` entities MUST persist menu metadata (code, context JSON, CSS classes, permission checker id, collapsible options) and item tree fields (parent, position, route/url, translations, itemType, icon, permission key).
+- **FR-ENTITY-001**: `Menu` and `MenuItem` entities MUST persist menu metadata (code, context JSON, CSS classes, permission checker id, collapsible options) and item tree fields (parent, position, route/url, translations, itemType, icon, permission key). Collection `OrderBy` MUST use `\SortDirection` (Doctrine ORM 3.7+), not `"ASC"`/`"DESC"` strings.
 - **FR-ENTITY-002**: `TranslatableInterface` MUST define contract for JSON translation storage on entities.
 - **FR-ENTITY-003**: `TablePrefixSubscriber` MUST apply configured table prefix to menu entity metadata.
 - **FR-ENTITY-004**: `ParentRelationCycleDetector` MUST detect parent relation cycles before persist.
-- **FR-REPO-001**: `MenuRepository` and `MenuItemRepository` MUST provide queries for code+context resolution and ordered item fetch.
+- **FR-REPO-001**: `MenuRepository` and `MenuItemRepository` MUST provide queries for code+context resolution and ordered item fetch. QueryBuilder `orderBy` / `addOrderBy` MUST pass `\SortDirection` instances (Doctrine ORM 3.7+).
 
 ### Menu resolution
 
@@ -179,7 +180,7 @@ As a bundle maintainer, I sync missing translation keys across locale files.
 - **FR-MENU-002**: `MenuConfigResolver` MUST merge YAML defaults with per-menu DB config for rendering.
 - **FR-MENU-003**: `MenuCodeResolverInterface` / `DefaultMenuCodeResolver` MUST allow request-based menu code override (e.g. query/header) before tree load.
 - **FR-MENU-004**: `MenuLocaleResolver` MUST enforce configured locale whitelist and fallback.
-- **FR-MENU-005**: `MenuUrlResolver` MUST generate hrefs for route names, parameters, and external URLs.
+- **FR-MENU-005**: `MenuUrlResolver` MUST generate hrefs for route names, parameters, and external URLs. Missing path variables MUST be completed from the **main** request’s `_route_params` (preferring main over current so controller forwards that drop `_route_params` still work); loose non-`_` attributes on the current sub-request MAY fill remaining gaps.
 - **FR-MENU-006**: `MenuIconNameResolver` MUST map icon library names via `icon_library_prefix_map` (e.g. `bootstrap-icons:house` → `bi:house`).
 - **FR-MENU-007**: `CurrentRouteTreeDecorator` MUST mark active branch/current item CSS classes on tree nodes for Twig rendering.
 
@@ -216,7 +217,7 @@ As a bundle maintainer, I sync missing translation keys across locale files.
 
 ### Twig consumer API
 
-- **FR-TWIG-002**: `MenuExtension` MUST expose functions `dashboard_menu_tree`, `dashboard_menu_href`, `dashboard_menu_config`, globals for dashboard layout and UX autocomplete availability.
+- **FR-TWIG-002**: `MenuExtension` MUST expose functions `dashboard_menu_tree`, `dashboard_menu_href`, `dashboard_menu_config`, globals for dashboard layout and UX autocomplete availability. Tree/config helpers MUST resolve the request via `getMainRequest()` (fallback `getCurrentRequest()`) so permission context and menu-code resolution survive controller forwards.
 - **FR-TWIG-003**: `menu.html.twig` MUST render tree with configurable CSS classes, depth limit, icons (UX Icons), collapsible sections, and optional label span wrapper.
 
 ### Web Profiler (dev)
@@ -264,6 +265,7 @@ As a bundle maintainer, I sync missing translation keys across locale files.
 
 ## Assumptions
 
+- Hosts use **Doctrine ORM ^3.7** (required for `\SortDirection` in mapping and QueryBuilder).
 - Integrators run Doctrine migrations (or bundle generate-migration command) before using menus.
 - Menu definitions live in the database; YAML configures global defaults and dashboard/API toggles only.
 - Symfony UX Icons (optional) renders icons when `use_ux_icons` enabled on menu config.

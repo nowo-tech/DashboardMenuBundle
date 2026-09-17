@@ -110,7 +110,7 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
      */
     public function getMenuConfig(string $menuCode, ?array $contextSets = null): array
     {
-        $request = $this->requestStack->getCurrentRequest();
+        $request = $this->resolveMenuRequest();
         $code    = $request instanceof Request ? $this->menuCodeResolver->resolveMenuCode($request, $menuCode) : $menuCode;
         $config  = $this->configResolver->getConfig($code, $contextSets);
 
@@ -144,7 +144,9 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
      */
     public function getMenuTree(string $menuCode, mixed $permissionContext = null, ?array $contextSets = null): array
     {
-        $request = $this->requestStack->getCurrentRequest();
+        // Prefer the main (browser) request: forwards/sub-requests drop `_route` / `_route_params`,
+        // which breaks href generation and permission checkers that read route params from the context.
+        $request = $this->resolveMenuRequest();
         $context = $permissionContext;
         if ($context === null && $request instanceof Request) {
             $context = $request;
@@ -176,5 +178,13 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
         }
 
         return $this->currentRouteTreeDecorator->decorate($tree, $request);
+    }
+
+    /**
+     * Request that reflects the URL the user opened (main), not a forward/sub-request.
+     */
+    private function resolveMenuRequest(): ?Request
+    {
+        return $this->requestStack->getMainRequest() ?? $this->requestStack->getCurrentRequest();
     }
 }

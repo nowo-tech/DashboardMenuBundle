@@ -63,11 +63,11 @@ This file proves that **every production source artifact** under `src/` is refer
 
 | Source file | Spec section | Requirement IDs |
 | --- | --- | --- |
-| `Entity/Menu.php` | Menu aggregate root | FR-ENTITY-001 |
-| `Entity/MenuItem.php` | Tree item, translations JSON | FR-ENTITY-001 |
+| `Entity/Menu.php` | Menu aggregate root (`OrderBy` + `SortDirection`) | FR-ENTITY-001 |
+| `Entity/MenuItem.php` | Tree item, translations JSON (`OrderBy` + `SortDirection`) | FR-ENTITY-001 |
 | `Entity/TranslatableInterface.php` | Translatable label contract | FR-ENTITY-002 |
-| `Repository/MenuRepository.php` | Menu persistence queries | FR-REPO-001 |
-| `Repository/MenuItemRepository.php` | Item persistence queries | FR-REPO-001 |
+| `Repository/MenuRepository.php` | Menu persistence queries (`SortDirection`) | FR-REPO-001 |
+| `Repository/MenuItemRepository.php` | Item persistence queries (`SortDirection`) | FR-REPO-001 |
 | `EventSubscriber/TablePrefixSubscriber.php` | Configurable table prefix | FR-ENTITY-003 |
 
 ## Event subscribers
@@ -106,7 +106,7 @@ This file proves that **every production source artifact** under `src/` is refer
 | `Service/MenuCodeResolverInterface.php` | Menu code resolution contract | FR-MENU-003 |
 | `Service/DefaultMenuCodeResolver.php` | Default code resolver | FR-MENU-003 |
 | `Service/MenuLocaleResolver.php` | Locale whitelist & fallback | FR-MENU-004 |
-| `Service/MenuUrlResolver.php` | Route/URL href generation | FR-MENU-005 |
+| `Service/MenuUrlResolver.php` | Route/URL href generation (main-request params) | FR-MENU-005 |
 | `Service/MenuIconNameResolver.php` | Icon library prefix map | FR-MENU-006 |
 | `Service/CurrentRouteTreeDecorator.php` | Active branch CSS state | FR-MENU-007 |
 
@@ -126,7 +126,7 @@ This file proves that **every production source artifact** under `src/` is refer
 
 | Source file | Spec section | Requirement IDs |
 | --- | --- | --- |
-| `Twig/MenuExtension.php` | Twig functions & globals | FR-TWIG-002 |
+| `Twig/MenuExtension.php` | Twig functions & globals (main request) | FR-TWIG-002 |
 
 ## Util
 

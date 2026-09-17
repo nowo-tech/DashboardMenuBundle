@@ -5,7 +5,7 @@ This document describes breaking changes and upgrade notes between versions. Sec
 ## Table of contents
 
 
-- [From 2.1.10 to Unreleased](#from-2110-to-unreleased)
+- [From 2.1.10 to 2.1.11](#from-2110-to-2111)
 - [From 2.1.9 to 2.1.10](#from-219-to-2110)
 - [From 2.1.8 to 2.1.9](#from-218-to-219)
 - [From 2.1.7 to 2.1.8](#from-217-to-218)
@@ -79,7 +79,7 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [From 0.0.1 to 0.1.0](#from-001-to-010)
 - [0.0.1 (first release)](#001-first-release)
 
-## From 2.1.10 to Unreleased
+## From 2.1.10 to 2.1.11
 
 Requires **Doctrine ORM 3.7+**. Mapping `OrderBy` and QueryBuilder sort directions now use `\SortDirection` (PHP 8.6 enum, polyfilled by `symfony/polyfill-php86` via ORM 3.7) instead of `"ASC"` / `"DESC"` strings.
 
@@ -88,6 +88,8 @@ Hosts on ORM 2.x or 3.0–3.6 must upgrade Doctrine first:
 ```bash
 composer update doctrine/orm nowo-tech/dashboard-menu-bundle
 ```
+
+**No application code changes** are required for the controller-forward href fix (`MenuUrlResolver` / `MenuExtension` prefer the main request). Upgrade the bundle and clear cache if you see stale Twig/DI.
 
 ## From 2.1.9 to 2.1.10
 
