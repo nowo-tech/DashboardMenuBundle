@@ -11,6 +11,7 @@ use InvalidArgumentException;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Util\ParentRelationCycleDetector;
+use SortDirection;
 
 use function array_is_list;
 use function array_keys;
@@ -52,8 +53,8 @@ class MenuItemRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('i')
             ->where('i.menu = :menu')
             ->setParameter('menu', $menu)
-            ->orderBy('i.parent', 'ASC')
-            ->addOrderBy('i.position', 'ASC');
+            ->orderBy('i.parent', SortDirection::Ascending)
+            ->addOrderBy('i.position', SortDirection::Ascending);
 
         $result = $qb->getQuery()->getResult();
         assert(is_array($result) && array_is_list($result));
@@ -77,9 +78,9 @@ class MenuItemRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('i')
             ->where('i.menu = :menu')
             ->setParameter('menu', $menu)
-            ->orderBy('i.parent', 'ASC')
-            ->addOrderBy('i.position', 'ASC')
-            ->addOrderBy('i.id', 'ASC');
+            ->orderBy('i.parent', SortDirection::Ascending)
+            ->addOrderBy('i.position', SortDirection::Ascending)
+            ->addOrderBy('i.id', SortDirection::Ascending);
 
         $result = $qb->getQuery()->getResult();
         assert(is_array($result) && array_is_list($result));
@@ -104,10 +105,10 @@ class MenuItemRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('i')
             ->where('i.menu IN (:menus)')
             ->setParameter('menus', $menus)
-            ->orderBy('i.menu', 'ASC')
-            ->addOrderBy('i.parent', 'ASC')
-            ->addOrderBy('i.position', 'ASC')
-            ->addOrderBy('i.id', 'ASC');
+            ->orderBy('i.menu', SortDirection::Ascending)
+            ->addOrderBy('i.parent', SortDirection::Ascending)
+            ->addOrderBy('i.position', SortDirection::Ascending)
+            ->addOrderBy('i.id', SortDirection::Ascending);
 
         $result = $qb->getQuery()->getResult();
         assert(is_array($result) && array_is_list($result));
@@ -145,8 +146,8 @@ class MenuItemRepository extends ServiceEntityRepository
             $qb->andWhere('i.parent = :parent')
                 ->setParameter('parent', $parent);
         }
-        $qb->orderBy('i.position', 'ASC');
-        $qb->addOrderBy('i.id', 'ASC');
+        $qb->orderBy('i.position', SortDirection::Ascending);
+        $qb->addOrderBy('i.id', SortDirection::Ascending);
         $result = $qb->getQuery()->getResult();
         assert(is_array($result) && array_is_list($result));
 
@@ -278,8 +279,8 @@ class MenuItemRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('i')
             ->where('i.menu = :menu')
             ->setParameter('menu', $menu)
-            ->orderBy('i.parent', 'ASC')
-            ->addOrderBy('i.position', 'ASC');
+            ->orderBy('i.parent', SortDirection::Ascending)
+            ->addOrderBy('i.position', SortDirection::Ascending);
         if ($excludeIds !== []) {
             $qb->andWhere('i.id NOT IN (:exclude)')
                 ->setParameter('exclude', $excludeIds);

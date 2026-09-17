@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
+use SortDirection;
 
 use function in_array;
 use function trim;
@@ -54,7 +55,7 @@ class MenuItem implements TranslatableInterface
      * @var Collection<int, MenuItem>
      */
     #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'parent', cascade: ['persist', 'remove'], orphanRemoval: true)]
-    #[ORM\OrderBy(['position' => 'ASC'])]
+    #[ORM\OrderBy(['position' => SortDirection::Ascending])]
     private Collection $children;
 
     /**

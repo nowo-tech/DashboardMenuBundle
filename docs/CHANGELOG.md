@@ -81,6 +81,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Doctrine ORM 3.7:** use `\SortDirection` in `#[ORM\OrderBy]` and QueryBuilder instead of `"ASC"` strings (`Menu::items`, `MenuItem::children`, repositories). Removes the deprecation from doctrine/orm (`ClassMetadata` / issue 11313).
+
+### Changed
+
+- **Composer:** `doctrine/orm` is now **`^3.7`** (drops ORM 2.x and 3.0–3.6). Required to pass `SortDirection` into mapping and `QueryBuilder::orderBy()`.
 
 ## [2.1.10] - 2026-08-25
 

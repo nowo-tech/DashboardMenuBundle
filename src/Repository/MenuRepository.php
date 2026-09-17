@@ -10,6 +10,7 @@ use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
+use SortDirection;
 use Symfony\Contracts\Service\ResetInterface;
 
 use function array_key_exists;
@@ -186,7 +187,7 @@ class MenuRepository extends ServiceEntityRepository implements ResetInterface
     public function createSearchQueryBuilder(string $search = ''): QueryBuilder
     {
         $qb = $this->createQueryBuilder('m')
-            ->orderBy('m.code', 'ASC');
+            ->orderBy('m.code', SortDirection::Ascending);
         if ($search !== '') {
             $term = '%' . addcslashes($search, '%_') . '%';
             $qb->andWhere('m.code LIKE :term OR m.name LIKE :term')
