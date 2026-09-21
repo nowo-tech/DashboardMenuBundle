@@ -150,8 +150,8 @@ final class AutoTagPermissionCheckersPassTest extends TestCase
     public function testProcessSkipsDeprecatedDefinitionsWithoutAutoloadingTheClass(): void
     {
         $container = new ContainerBuilder();
-        $class = 'Nowo\\DashboardMenuBundle\\Tests\\DependencyInjection\\Compiler\\DeprecatedShouldNotAutoload';
-        $autoload = static function (string $loaded) use ($class): void {
+        $class     = 'Nowo\\DashboardMenuBundle\\Tests\\DependencyInjection\\Compiler\\DeprecatedShouldNotAutoload';
+        $autoload  = static function (string $loaded) use ($class): void {
             if ($loaded === $class) {
                 throw new RuntimeException('deprecated class was autoloaded');
             }
