@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.1.12] - 2026-09-21](#2112-2026-09-21)
 - [[2.1.11] - 2026-09-17](#2111-2026-09-17)
 - [[2.1.10] - 2026-08-25](#2110-2026-08-25)
 - [[2.1.9] - 2026-08-24](#219-2026-08-24)
@@ -82,6 +83,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [2.1.12] - 2026-09-21
+
+### Fixed
+
+- **Auto-tag compiler passes:** `AutoTagPermissionCheckersPass` and `AutoTagMenuLinkResolversPass` skip **deprecated** service definitions (same as abstract and synthetic) without autoloading the class. A retired checker or link resolver marked `setDeprecated()` no longer enters the dashboard dropdown or the tagged locator.
+
+### Notes
+
+- **No API or configuration changes.** Explicit tags on a non-deprecated service still work. Clear the Symfony cache after upgrade so the container is rebuilt.
+
+[2.1.12]: https://github.com/nowo-tech/DashboardMenuBundle/releases/tag/v2.1.12
 
 ## [2.1.11] - 2026-09-17
 
@@ -1047,7 +1060,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.11...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.12...HEAD
+[2.1.12]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.11...v2.1.12
 [2.1.11]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.10...v2.1.11
 [2.1.1]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.0.1...v2.1.0

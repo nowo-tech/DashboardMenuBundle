@@ -349,7 +349,7 @@ Notes:
 - Unknown tokens are denied by default in the demo implementation.
 - For production logic, create your own checker and resolve tokens with your authorization system.
 
-**Auto-registration:** Any service whose class implements `MenuPermissionCheckerInterface` is automatically included in the dashboard "Permission checker" dropdown; you do not need to add the tag in `services.yaml`. The label in the dropdown can be set in either of these ways (optional):
+**Auto-registration:** Any service whose class implements `MenuPermissionCheckerInterface` is automatically included in the dashboard "Permission checker" dropdown; you do not need to add the tag in `services.yaml`. Deprecated definitions (`setDeprecated()` / `#[Deprecated]`) are skipped and the class is not loaded, so a retired checker does not appear in the dropdown. The same skip applies to auto-tagged `MenuLinkResolverInterface` services. The label in the dropdown can be set in either of these ways (optional):
 
 - **Class constant:** `public const string DASHBOARD_LABEL = 'Your label';`
 - **Attribute:** `#[PermissionCheckerLabel('Your label')]` on the class (use `Nowo\DashboardMenuBundle\Attribute\PermissionCheckerLabel`)

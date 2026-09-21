@@ -5,6 +5,7 @@ This document describes breaking changes and upgrade notes between versions. Sec
 ## Table of contents
 
 
+- [From 2.1.11 to 2.1.12](#from-2111-to-2112)
 - [From 2.1.10 to 2.1.11](#from-2110-to-2111)
 - [From 2.1.9 to 2.1.10](#from-219-to-2110)
 - [From 2.1.8 to 2.1.9](#from-218-to-219)
@@ -78,6 +79,17 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [From 0.1.x to 0.3.0](#from-01x-to-030)
 - [From 0.0.1 to 0.1.0](#from-001-to-010)
 - [0.0.1 (first release)](#001-first-release)
+
+## From 2.1.11 to 2.1.12
+
+No breaking changes. Auto-tagging of `MenuPermissionCheckerInterface` and `MenuLinkResolverInterface` now skips **deprecated** service definitions, without loading the class. A checker or resolver you marked deprecated disappears from the dashboard dropdown and from the tagged locator. Services you still tag yourself, and that are not deprecated, are unchanged.
+
+Clear the cache after upgrade:
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+php bin/console cache:clear
+```
 
 ## From 2.1.10 to 2.1.11
 

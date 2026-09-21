@@ -163,7 +163,7 @@ As a bundle maintainer, I sync missing translation keys across locale files.
 - **FR-CFG-001**: `Configuration` MUST define `nowo_dashboard_menu` tree: `project`, `doctrine` (connection, table_prefix), `cache` (ttl, pool), `icon_library_prefix_map`, `locales`, `default_locale`, `permission_checker_choices`, `menu_link_resolver_choices`, `api`, `dashboard` (enabled, layout, pagination, modals, CSS class options, import limits, rate limit, permission keys, etc.).
 - **FR-CFG-002**: `DashboardMenuExtension` MUST load service YAML, set `%nowo_dashboard_menu.*%` parameters, register `MenuConfigResolver`, alias `MenuCodeResolverInterface`, optionally register `DashboardAccessSubscriber` and DBAL middleware, and prepend LiveComponent defaults when UX bundle exists.
 - **FR-TWIG-001**: `TwigPathsPass` MUST prepend app override path `templates/bundles/NowoDashboardMenuBundle/` when present, then `addPath()` bundle views so integrator overrides win.
-- **FR-PLUG-001**: Compiler passes MUST auto-tag permission checkers and link resolvers, merge YAML `*_choices` ordering, and build locators consumed by `MenuTreeLoader`.
+- **FR-PLUG-001**: Compiler passes MUST auto-tag permission checkers and link resolvers, merge YAML `*_choices` ordering, and build locators consumed by `MenuTreeLoader`. Auto-tag MUST skip abstract, synthetic, and **deprecated** definitions without loading the class.
 - **FR-ATTR-001**: `PermissionCheckerLabel` and `MenuLinkResolverLabel` MUST supply human-readable dashboard dropdown labels for tagged services.
 
 ### Persistence & entities
