@@ -71,7 +71,7 @@ final class AutoTagPermissionCheckersPass implements CompilerPassInterface
 
     private function shouldSkip(Definition $definition, string $id): bool
     {
-        if ($definition->isAbstract() || $definition->isSynthetic()) {
+        if ($definition->isAbstract() || $definition->isSynthetic() || $definition->isDeprecated()) {
             return true;
         }
 

@@ -147,6 +147,31 @@ final class AutoTagPermissionCheckersPassTest extends TestCase
         );
     }
 
+    public function testProcessSkipsDeprecatedDefinitionsWithoutAutoloadingTheClass(): void
+    {
+        $container = new ContainerBuilder();
+        $class = 'Nowo\\DashboardMenuBundle\\Tests\\DependencyInjection\\Compiler\\DeprecatedShouldNotAutoload';
+        $autoload = static function (string $loaded) use ($class): void {
+            if ($loaded === $class) {
+                throw new RuntimeException('deprecated class was autoloaded');
+            }
+        };
+        spl_autoload_register($autoload, true, true);
+
+        try {
+            $container->register('legacy.publisher', $class)
+                ->setDeprecated('acme/legacy', '1.0', 'The "%service_id%" service is deprecated.');
+
+            $this->processAutoTag($container);
+
+            self::assertFalse(
+                $container->getDefinition('legacy.publisher')->hasTag('nowo_dashboard_menu.permission_checker'),
+            );
+        } finally {
+            spl_autoload_unregister($autoload);
+        }
+    }
+
     public function testProcessSkipsInstanceofAndAbstractAndSyntheticDefinitions(): void
     {
         $container = new ContainerBuilder();
