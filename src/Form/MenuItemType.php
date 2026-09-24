@@ -17,6 +17,8 @@ use function in_array;
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
+ *
+ * @extends AbstractType<MenuItem>
  */
 final class MenuItemType extends AbstractType
 {

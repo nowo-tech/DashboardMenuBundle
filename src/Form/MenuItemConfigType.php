@@ -40,6 +40,8 @@ use const SORT_NATURAL;
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
+ *
+ * @extends AbstractType<MenuItem>
  */
 #[FormKitConfig('dashboard_menu')]
 final class MenuItemConfigType extends AbstractType
@@ -71,7 +73,7 @@ final class MenuItemConfigType extends AbstractType
         $formData = $this->resolveMenuItemFormData($builder, $options);
         $itemType = MenuItem::ITEM_TYPE_LINK;
         if ($formData instanceof MenuItem) {
-            $itemType = $formData->getItemType() ?? MenuItem::ITEM_TYPE_LINK;
+            $itemType = $formData->getItemType();
         }
         $hasChildren = $formData instanceof MenuItem && !$formData->getChildren()->isEmpty();
 
@@ -279,6 +281,7 @@ final class MenuItemConfigType extends AbstractType
      * Model for this compound type: with inherit_data the child builder often has no data during
      * buildForm(); MenuItemType sets menu_item, and unit tests may set data on the builder directly.
      *
+     * @param FormBuilderInterface<MenuItem|null> $builder
      * @param array<string, mixed> $options
      */
     private function resolveMenuItemFormData(FormBuilderInterface $builder, array $options): mixed

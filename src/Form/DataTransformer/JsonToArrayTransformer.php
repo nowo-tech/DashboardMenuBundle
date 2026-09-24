@@ -18,6 +18,8 @@ use const JSON_UNESCAPED_SLASHES;
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
+ *
+ * @implements DataTransformerInterface<mixed, mixed>
  */
 final class JsonToArrayTransformer implements DataTransformerInterface
 {
@@ -33,6 +35,9 @@ final class JsonToArrayTransformer implements DataTransformerInterface
         return json_encode($value, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
     }
 
+    /**
+     * @return array<mixed>|null
+     */
     public function reverseTransform(mixed $value): ?array
     {
         if ($value === null || $value === '') {

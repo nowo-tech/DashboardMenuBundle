@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.1.13] - 2026-09-24](#2113-2026-09-24)
 - [[2.1.12] - 2026-09-21](#2112-2026-09-21)
 - [[2.1.11] - 2026-09-17](#2111-2026-09-17)
 - [[2.1.10] - 2026-08-25](#2110-2026-08-25)
@@ -83,6 +84,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [2.1.13] - 2026-09-24
+
+### Added
+
+- **`DashboardMenuWorkerStateSubscriber`:** at the start of every main request, clears `MenuRepository`, `MenuTreeCacheInvalidator`, and `MenuUrlResolver` memos (and optional dev `DashboardMenuDataCollector` / `MenuQueryCounter`), and resets the menu entity manager when a previous request closed it. Bundle-owned state stays correct in FrankenPHP worker mode even with `reset_kernel: false` / without `services_resetter`. Cache versions are read once per request from the shared PSR-6 pool, so bumps from other workers are seen on the next request.
+- **Docs:** [`docs/FRANKENPHP-WORKER-AUDIT.md`](FRANKENPHP-WORKER-AUDIT.md) — full worker-mode audit (scenarios A/B) and remediation notes.
+
+### Fixed
+
+- **`MenuUrlResolver`:** the href memo is keyed by the current `Request` object (`WeakMap`), so hrefs computed from one request's locale, route params, host or service resolver can no longer leak into the next request when no reset runs. Items without id (dynamic links) and calls without a request are no longer memoized (removes the `spl_object_id()` collision risk).
+- **QA:** fixed PHPStan findings (0 errors at level 8); `src/Form` is analysed again (no longer excluded).
+
+### Notes
+
+- Hosts that disable Symfony's service resetter under worker mode must still clear the **Doctrine identity map** between requests (application responsibility). Use a **shared** cache pool (e.g. Redis) across workers so tree-cache version bumps propagate.
+
+[2.1.13]: https://github.com/nowo-tech/DashboardMenuBundle/releases/tag/v2.1.13
 
 ## [2.1.12] - 2026-09-21
 
@@ -1060,7 +1079,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.12...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.13...HEAD
+[2.1.13]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.12...v2.1.13
 [2.1.12]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.11...v2.1.12
 [2.1.11]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.10...v2.1.11
 [2.1.1]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.0...v2.1.1

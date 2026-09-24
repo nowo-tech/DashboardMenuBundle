@@ -16,15 +16,20 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function array_key_exists;
+use function constant;
 use function is_array;
+use function is_subclass_of;
 
 /**
  * Form type for editing MenuItem identity fields that are tied to "icon identity":
  * itemType + position + icon.
+ *
+ * @extends AbstractType<MenuItem>
  */
 #[FormKitConfig('dashboard_menu')]
 final class MenuItemIconType extends AbstractType
@@ -108,10 +113,11 @@ final class MenuItemIconType extends AbstractType
                 ? $this->translator->trans($id, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN)
                 : $id;
 
-            if (class_exists('Nowo\\IconSelectorBundle\\Form\\IconSelectorType')) {
-                $this->addWithDefaults($builder, 'icon', \Nowo\IconSelectorBundle\Form\IconSelectorType::class, [
+            $iconSelectorType = 'Nowo\\IconSelectorBundle\\Form\\IconSelectorType';
+            if (is_subclass_of($iconSelectorType, FormTypeInterface::class)) {
+                $this->addWithDefaults($builder, 'icon', $iconSelectorType, [
                     'required'           => false,
-                    'mode'               => \Nowo\IconSelectorBundle\Form\IconSelectorType::MODE_TOM_SELECT,
+                    'mode'               => constant($iconSelectorType . '::MODE_TOM_SELECT'),
                     'label'              => 'form.menu_item_type.icon.label',
                     'translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
                     'attr'               => ['placeholder' => $t('form.menu_item_type.icon.placeholder')],

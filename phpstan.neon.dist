@@ -5,8 +5,6 @@ parameters:
         - tests
     excludePaths:
         - demo/*
-        # Form types reference Symfony Form/Validator; analyse when bundle is used in an app
-        - src/Form/*
     bootstrapFiles:
         - vendor/autoload.php
     reportUnmatchedIgnoredErrors: false

@@ -75,6 +75,7 @@ This file proves that **every production source artifact** under `src/` is refer
 | Source file | Spec section | Requirement IDs |
 | --- | --- | --- |
 | `EventSubscriber/DashboardAccessSubscriber.php` | Dashboard role gate | FR-SEC-001 |
+| `EventSubscriber/DashboardMenuWorkerStateSubscriber.php` | Per-main-request memo reset (FrankenPHP B) | FR-WORKER-001 |
 
 ## Forms
 
@@ -106,7 +107,7 @@ This file proves that **every production source artifact** under `src/` is refer
 | `Service/MenuCodeResolverInterface.php` | Menu code resolution contract | FR-MENU-003 |
 | `Service/DefaultMenuCodeResolver.php` | Default code resolver | FR-MENU-003 |
 | `Service/MenuLocaleResolver.php` | Locale whitelist & fallback | FR-MENU-004 |
-| `Service/MenuUrlResolver.php` | Route/URL href generation (main-request params) | FR-MENU-005 |
+| `Service/MenuUrlResolver.php` | Route/URL href generation (main-request params, WeakMap memo) | FR-MENU-005 |
 | `Service/MenuIconNameResolver.php` | Icon library prefix map | FR-MENU-006 |
 | `Service/CurrentRouteTreeDecorator.php` | Active branch CSS state | FR-MENU-007 |
 

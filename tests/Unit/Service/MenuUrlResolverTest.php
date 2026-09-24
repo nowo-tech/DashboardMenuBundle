@@ -8,6 +8,7 @@ use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Service\MenuLinkResolverInterface;
 use Nowo\DashboardMenuBundle\Service\MenuUrlResolver;
 use PHPUnit\Framework\TestCase;
+use ReflectionProperty;
 use RuntimeException;
 use stdClass;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -626,31 +627,30 @@ final class MenuUrlResolverTest extends TestCase
         self::assertSame('#', $menuUrlResolver->getHref($item));
     }
 
-    public function testGetHrefMemoizesResultPerItemAndReferenceType(): void
+    public function testGetHrefMemoizesResultPerItemAndReferenceTypeWithinARequest(): void
     {
-        $item = new MenuItem();
-        $item->setLinkType(MenuItem::LINK_TYPE_ROUTE);
-        $item->setRouteName('app_home');
+        $item = $this->createPersistedRouteItem(7, 'app_home');
 
         $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
         $urlGenerator
-            ->expects(self::once())
+            ->expects(self::exactly(2))
             ->method('generate')
-            ->with('app_home', [], UrlGeneratorInterface::ABSOLUTE_PATH)
-            ->willReturn('/home');
+            ->willReturnCallback(static fn (string $route, array $params, int $type): string => $type === UrlGeneratorInterface::ABSOLUTE_URL ? 'https://example.test/home' : '/home');
 
-        $resolver = $this->createResolver($urlGenerator, new RequestStack());
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create('/'));
+        $resolver = $this->createResolver($urlGenerator, $requestStack);
 
         self::assertSame('/home', $resolver->getHref($item));
         self::assertSame('/home', $resolver->getHref($item));
         self::assertSame('/home', $resolver->getHref($item, UrlGeneratorInterface::ABSOLUTE_PATH));
+        self::assertSame('https://example.test/home', $resolver->getHref($item, UrlGeneratorInterface::ABSOLUTE_URL));
+        self::assertSame('https://example.test/home', $resolver->getHref($item, UrlGeneratorInterface::ABSOLUTE_URL));
     }
 
     public function testResetClearsHrefMemoForFrankenPhpWorkerMode(): void
     {
-        $item = new MenuItem();
-        $item->setLinkType(MenuItem::LINK_TYPE_ROUTE);
-        $item->setRouteName('app_home');
+        $item = $this->createPersistedRouteItem(7, 'app_home');
 
         $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
         $urlGenerator
@@ -659,11 +659,63 @@ final class MenuUrlResolverTest extends TestCase
             ->with('app_home', [], UrlGeneratorInterface::ABSOLUTE_PATH)
             ->willReturnOnConsecutiveCalls('/first', '/second');
 
-        $resolver = $this->createResolver($urlGenerator, new RequestStack());
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create('/'));
+        $resolver = $this->createResolver($urlGenerator, $requestStack);
 
         self::assertSame('/first', $resolver->getHref($item));
         $resolver->reset();
         self::assertSame('/second', $resolver->getHref($item));
+    }
+
+    public function testHrefMemoDoesNotLeakRequestParamsOrLocaleIntoTheNextRequestWithoutReset(): void
+    {
+        $item = $this->createPersistedRouteItem(7, 'partner_show');
+
+        $urlGenerator = $this->createStub(UrlGeneratorInterface::class);
+        $urlGenerator->method('generate')->willReturnCallback(
+            static fn (string $route, array $params): string => '/' . $params['_locale'] . '/partner/' . $params['id'],
+        );
+
+        $routeCollection = new RouteCollection();
+        $routeCollection->add('partner_show', new \Symfony\Component\Routing\Route('/{_locale}/partner/{id}'));
+        $router = $this->createStub(RouterInterface::class);
+        $router->method('getRouteCollection')->willReturn($routeCollection);
+
+        $requestStack = new RequestStack();
+        $resolver     = new MenuUrlResolver($urlGenerator, $requestStack, $router, $this->createEmptyTestContainer());
+
+        $requestStack->push($this->createPartnerRequest('es', '1'));
+        self::assertSame('/es/partner/1', $resolver->getHref($item), 'Request 1: user of partner 1, Spanish.');
+        $requestStack->pop();
+
+        $requestStack->push($this->createPartnerRequest('en', '2'));
+        self::assertSame('/en/partner/2', $resolver->getHref($item), 'Request 2: another user, no reset() in between.');
+        $requestStack->pop();
+    }
+
+    public function testItemsWithoutIdAndCallsWithoutRequestAreNeverMemoized(): void
+    {
+        $persisted = $this->createPersistedRouteItem(7, 'app_home');
+        $dynamic   = new MenuItem();
+        $dynamic->setLinkType(MenuItem::LINK_TYPE_ROUTE);
+        $dynamic->setRouteName('app_home');
+
+        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $urlGenerator
+            ->expects(self::exactly(4))
+            ->method('generate')
+            ->willReturnOnConsecutiveCalls('/a', '/b', '/c', '/d');
+
+        $requestStack = new RequestStack();
+        $resolver     = $this->createResolver($urlGenerator, $requestStack);
+
+        self::assertSame('/a', $resolver->getHref($persisted));
+        self::assertSame('/b', $resolver->getHref($persisted), 'No request (CLI): not memoized.');
+
+        $requestStack->push(Request::create('/'));
+        self::assertSame('/c', $resolver->getHref($dynamic));
+        self::assertSame('/d', $resolver->getHref($dynamic), 'Dynamic items have no id: not memoized.');
     }
 
     public function testGetHrefUsesRuntimeHrefWhenSet(): void
@@ -674,6 +726,25 @@ final class MenuUrlResolverTest extends TestCase
         $resolver = $this->createResolver($this->createStub(UrlGeneratorInterface::class), new RequestStack());
 
         self::assertSame('/runtime/href', $resolver->getHref($item));
+    }
+
+    private function createPersistedRouteItem(int $id, string $routeName): MenuItem
+    {
+        $item = new MenuItem();
+        $item->setLinkType(MenuItem::LINK_TYPE_ROUTE);
+        $item->setRouteName($routeName);
+        (new ReflectionProperty(MenuItem::class, 'id'))->setValue($item, $id);
+
+        return $item;
+    }
+
+    private function createPartnerRequest(string $locale, string $partnerId): Request
+    {
+        $request = Request::create('/' . $locale . '/partner/' . $partnerId);
+        $request->setLocale($locale);
+        $request->attributes->set('_route_params', ['_locale' => $locale, 'id' => $partnerId]);
+
+        return $request;
     }
 
     private function createResolver(UrlGeneratorInterface $urlGenerator, RequestStack $requestStack): MenuUrlResolver

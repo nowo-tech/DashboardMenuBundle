@@ -146,6 +146,12 @@ services:
       $itemFormLiveComponentEnabled: '%nowo_dashboard_menu.dashboard.item_form_live_component_enabled%'
     public: true
 
+  Nowo\DashboardMenuBundle\EventSubscriber\DashboardMenuWorkerStateSubscriber:
+    arguments:
+      $managerRegistry: '@?doctrine'
+      $dataCollector: '@?Nowo\DashboardMenuBundle\DataCollector\DashboardMenuDataCollector'
+      $menuQueryCounter: '@?Nowo\DashboardMenuBundle\DataCollector\MenuQueryCounter'
+
   Nowo\DashboardMenuBundle\EventSubscriber\TablePrefixSubscriber:
     arguments:
       $tablePrefix: '%nowo_dashboard_menu.table_prefix%'

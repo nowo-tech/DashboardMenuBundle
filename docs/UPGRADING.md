@@ -5,6 +5,7 @@ This document describes breaking changes and upgrade notes between versions. Sec
 ## Table of contents
 
 
+- [From 2.1.12 to 2.1.13](#from-2112-to-2113)
 - [From 2.1.11 to 2.1.12](#from-2111-to-2112)
 - [From 2.1.10 to 2.1.11](#from-2110-to-2111)
 - [From 2.1.9 to 2.1.10](#from-219-to-2110)
@@ -79,6 +80,28 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [From 0.1.x to 0.3.0](#from-01x-to-030)
 - [From 0.0.1 to 0.1.0](#from-001-to-010)
 - [0.0.1 (first release)](#001-first-release)
+
+## From 2.1.12 to 2.1.13
+
+No breaking API changes. FrankenPHP worker mode with **`reset_kernel: false`** (no `services_resetter`) is supported for **bundle-owned** state:
+
+- `DashboardMenuWorkerStateSubscriber` clears menu / cache-version / href memos (and optional dev collectors) on every main request.
+- A **closed** menu EntityManager is reset by name for the next request.
+- `MenuUrlResolver` memos hrefs per `Request` (`WeakMap`); items without id are not memoized.
+
+**Host responsibilities** when the resetter is off:
+
+1. Clear the Doctrine **identity map** between requests (the bundle does not clear an open manager).
+2. Use a **shared** PSR-6 pool for `nowo_dashboard_menu.cache.pool` across workers (e.g. Redis; APCu/array are per process).
+
+Custom checkers, link resolvers, current matchers, and menu-code resolvers must stay stateless or implement `ResetInterface`.
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+php bin/console cache:clear
+```
+
+Details: [FRANKENPHP-WORKER-AUDIT.md](FRANKENPHP-WORKER-AUDIT.md).
 
 ## From 2.1.11 to 2.1.12
 

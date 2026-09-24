@@ -19,6 +19,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
+ *
+ * @extends AbstractType<array<string, mixed>>
  */
 #[FormKitConfig('dashboard_menu')]
 final class CopyMenuType extends AbstractType

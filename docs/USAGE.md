@@ -285,7 +285,7 @@ final class AdministrationMenuCurrentMatcher extends AbstractRoutePrefixMenuCurr
 
 `MenuRepository::findOneByCodeAndContext` memoizes each `(code, context)` result for the current HTTP request (including misses). That avoids repeated `SELECT … FROM dashboard_menu WHERE code = ? AND attributes_key = ?` when Twig calls `dashboard_menu_config()` several times or a host setup detector checks the same codes.
 
-The repository implements Symfony `ResetInterface` (`kernel.reset`) so FrankenPHP worker mode clears the memo between requests. Doctrine listeners also clear it after menu/item writes in the same request.
+The repository implements Symfony `ResetInterface` (`kernel.reset`). Independently of the resetter, `DashboardMenuWorkerStateSubscriber` clears the menu-lookup and tree-cache-version memos (and the href memo) at the start of every **main** request, so FrankenPHP worker mode with `reset_kernel: false` does not keep them across requests. Doctrine listeners also clear the menu memo after menu/item writes in the same request. See [FRANKENPHP-WORKER-AUDIT.md](FRANKENPHP-WORKER-AUDIT.md).
 
 Tree loading (`findMenuAndItemsRaw` / `MenuTreeLoader` cache pool) is separate; this memo only covers entity lookups by code+context.
 

@@ -159,6 +159,7 @@ As a bundle maintainer, I sync missing translation keys across locale files.
 ### Bundle & DI
 
 - **FR-BUNDLE-001**: `NowoDashboardMenuBundle` MUST register compiler passes (`AutoTagPermissionCheckersPass`, `AutoTagMenuLinkResolversPass`, `TwigPathsPass`, `PermissionCheckerPass`, `MenuLinkResolverPass`), expose `TRANSLATION_DOMAIN`, and return `DashboardMenuExtension` as container extension (alias `nowo_dashboard_menu`).
+- **FR-WORKER-001**: `DashboardMenuWorkerStateSubscriber` MUST reset `MenuRepository`, `MenuTreeCacheInvalidator`, and `MenuUrlResolver` (plus optional dev `DashboardMenuDataCollector` / `MenuQueryCounter`) at the start of every **main** request, and MUST reset a closed menu `EntityManager` by name, so FrankenPHP worker mode with `reset_kernel: false` (no `services_resetter`) does not leak request-scoped memos or leave a closed EM for the next request.
 - **FR-DI-001**: `services.yaml` MUST wire autowired services; `services_dev.yaml` adds profiler/collector wiring in dev; `services_live_component.yaml` loads when UX LiveComponent is present.
 - **FR-CFG-001**: `Configuration` MUST define `nowo_dashboard_menu` tree: `project`, `doctrine` (connection, table_prefix), `cache` (ttl, pool), `icon_library_prefix_map`, `locales`, `default_locale`, `permission_checker_choices`, `menu_link_resolver_choices`, `api`, `dashboard` (enabled, layout, pagination, modals, CSS class options, import limits, rate limit, permission keys, etc.).
 - **FR-CFG-002**: `DashboardMenuExtension` MUST load service YAML, set `%nowo_dashboard_menu.*%` parameters, register `MenuConfigResolver`, alias `MenuCodeResolverInterface`, optionally register `DashboardAccessSubscriber` and DBAL middleware, and prepend LiveComponent defaults when UX bundle exists.
@@ -180,7 +181,7 @@ As a bundle maintainer, I sync missing translation keys across locale files.
 - **FR-MENU-002**: `MenuConfigResolver` MUST merge YAML defaults with per-menu DB config for rendering.
 - **FR-MENU-003**: `MenuCodeResolverInterface` / `DefaultMenuCodeResolver` MUST allow request-based menu code override (e.g. query/header) before tree load.
 - **FR-MENU-004**: `MenuLocaleResolver` MUST enforce configured locale whitelist and fallback.
-- **FR-MENU-005**: `MenuUrlResolver` MUST generate hrefs for route names, parameters, and external URLs. Missing path variables MUST be completed from the **main** request’s `_route_params` (preferring main over current so controller forwards that drop `_route_params` still work); loose non-`_` attributes on the current sub-request MAY fill remaining gaps.
+- **FR-MENU-005**: `MenuUrlResolver` MUST generate hrefs for route names, parameters, and external URLs. Missing path variables MUST be completed from the **main** request’s `_route_params` (preferring main over current so controller forwards that drop `_route_params` still work); loose non-`_` attributes on the current sub-request MAY fill remaining gaps. The href memo MUST be scoped to the current `Request` object (e.g. `WeakMap`) and MUST NOT memoize items without id; `reset()` MUST clear it.
 - **FR-MENU-006**: `MenuIconNameResolver` MUST map icon library names via `icon_library_prefix_map` (e.g. `bootstrap-icons:house` → `bi:house`).
 - **FR-MENU-007**: `CurrentRouteTreeDecorator` MUST mark active branch/current item CSS classes on tree nodes for Twig rendering.
 
@@ -266,6 +267,7 @@ As a bundle maintainer, I sync missing translation keys across locale files.
 ## Assumptions
 
 - Hosts use **Doctrine ORM ^3.7** (required for `\SortDirection` in mapping and QueryBuilder).
+- FrankenPHP worker mode with `reset_kernel: false` is supported for **bundle-owned** state via `DashboardMenuWorkerStateSubscriber` (see [`docs/FRANKENPHP-WORKER-AUDIT.md`](../../docs/FRANKENPHP-WORKER-AUDIT.md)); hosts still clear the Doctrine identity map between requests when they disable the resetter.
 - Integrators run Doctrine migrations (or bundle generate-migration command) before using menus.
 - Menu definitions live in the database; YAML configures global defaults and dashboard/API toggles only.
 - Symfony UX Icons (optional) renders icons when `use_ux_icons` enabled on menu config.

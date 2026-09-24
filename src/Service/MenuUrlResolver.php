@@ -12,11 +12,11 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Service\ResetInterface;
+use WeakMap;
 
 use function array_key_exists;
 use function in_array;
 use function is_array;
-use function is_string;
 
 /**
  * Resolves the href for a menu item (route, external URL, or itemType "service" via MenuLinkResolverInterface).
@@ -28,8 +28,14 @@ use function is_string;
  */
 final class MenuUrlResolver implements ResetInterface
 {
-    /** @var array<string, string> */
-    private array $hrefMemo = [];
+    /**
+     * Hrefs depend on the main and current requests, so they are memoized per current request
+     * object: the memo never outlives that request even when no `kernel.reset` runs between
+     * requests. Items without id (dynamic links) and calls without a request are never memoized.
+     *
+     * @var WeakMap<Request, array<string, string>>
+     */
+    private WeakMap $hrefMemo;
 
     /**
      * @param array<string, string> $menuLinkResolverChoices resolved id => label (after compiler pass)
@@ -41,24 +47,30 @@ final class MenuUrlResolver implements ResetInterface
         private readonly ContainerInterface $container,
         private readonly array $menuLinkResolverChoices = [],
     ) {
+        $this->hrefMemo = new WeakMap();
     }
 
     public function getHref(MenuItem $item, int $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH): string
     {
-        $cacheKey = $this->hrefCacheKey($item, $referenceType);
-        if (array_key_exists($cacheKey, $this->hrefMemo)) {
-            return $this->hrefMemo[$cacheKey];
+        $id      = $item->getId();
+        $request = $this->requestStack->getCurrentRequest();
+        if ($id === null || !$request instanceof Request) {
+            return $this->resolveHref($item, $referenceType);
         }
 
-        $href                      = $this->resolveHref($item, $referenceType);
-        $this->hrefMemo[$cacheKey] = $href;
+        $cacheKey = $id . ':' . $referenceType;
+        $memo     = $this->hrefMemo[$request] ?? [];
+        if (!array_key_exists($cacheKey, $memo)) {
+            $memo[$cacheKey]          = $this->resolveHref($item, $referenceType);
+            $this->hrefMemo[$request] = $memo;
+        }
 
-        return $href;
+        return $memo[$cacheKey];
     }
 
     public function reset(): void
     {
-        $this->hrefMemo = [];
+        $this->hrefMemo = new WeakMap();
     }
 
     private function resolveHref(MenuItem $item, int $referenceType): string
@@ -145,7 +157,7 @@ final class MenuUrlResolver implements ResetInterface
         if ($current instanceof Request && $current !== $menuRequest) {
             $params = array_merge($params, (array) $current->attributes->get('_route_params', []));
             foreach ($current->attributes->all() as $key => $value) {
-                if (!is_string($key) || $key === '' || str_starts_with($key, '_')) {
+                if ($key === '' || str_starts_with($key, '_')) {
                     continue;
                 }
                 if (!array_key_exists($key, $params)) {
@@ -237,12 +249,5 @@ final class MenuUrlResolver implements ResetInterface
         $session  = $request->getSession();
         $flashBag = $session->getFlashBag();
         $flashBag->add('error', 'Menu URL: ' . $e->getMessage());
-    }
-
-    private function hrefCacheKey(MenuItem $item, int $referenceType): string
-    {
-        $id = $item->getId();
-
-        return ($id !== null ? (string) $id : 'o' . spl_object_id($item)) . ':' . $referenceType;
     }
 }

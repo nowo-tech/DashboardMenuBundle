@@ -19,14 +19,14 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
-use function is_string;
-
 /**
  * Form type for menu item labels: label + per-locale translations.
  * Shown in the dashboard with a pencil icon (edit / identity).
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
+ *
+ * @extends AbstractType<MenuItem|null>
  */
 #[FormKitConfig('dashboard_menu')]
 final class MenuItemBasicType extends AbstractType
@@ -53,9 +53,9 @@ final class MenuItemBasicType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        /** @var list<string> $availableLocales */
         $includeTranslations = $options['include_translations'] ?? true;
-        $availableLocales    = $includeTranslations ? $options['available_locales'] : [];
+        /** @var list<string> $availableLocales */
+        $availableLocales = $includeTranslations ? $options['available_locales'] : [];
 
         $this->addWithDefaults($builder, 'label', TextType::class, [
             'required' => false,
@@ -194,7 +194,7 @@ final class MenuItemBasicType extends AbstractType
         $translations      = $item->getTranslations() ?? [];
         $hasAnyTranslation = false;
         foreach ($translations as $v) {
-            if (is_string($v) && trim($v) !== '') {
+            if (trim($v) !== '') {
                 $hasAnyTranslation = true;
                 break;
             }

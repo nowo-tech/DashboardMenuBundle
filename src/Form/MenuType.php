@@ -16,6 +16,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
+ *
+ * @extends AbstractType<Menu>
  */
 final class MenuType extends AbstractType
 {

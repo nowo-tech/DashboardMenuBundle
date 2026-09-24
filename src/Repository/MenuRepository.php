@@ -20,8 +20,9 @@ use function count;
  * @extends ServiceEntityRepository<Menu>
  *
  * {@see findOneByCodeAndContext} is memoized for the request lifetime (Doctrine does not
- * dedupe identical {@see findOneBy} lookups). Implements {@see ResetInterface} so
- * FrankenPHP / long-lived workers clear the memo between requests.
+ * dedupe identical {@see findOneBy} lookups). The memo is cleared at the start of every main
+ * request by {@see \Nowo\DashboardMenuBundle\EventSubscriber\DashboardMenuWorkerStateSubscriber}
+ * and by `kernel.reset`, so long-lived workers never keep it across requests.
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech

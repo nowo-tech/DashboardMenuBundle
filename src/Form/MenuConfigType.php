@@ -27,6 +27,8 @@ use const SORT_NATURAL;
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
+ *
+ * @extends AbstractType<Menu>
  */
 #[FormKitConfig('dashboard_menu')]
 final class MenuConfigType extends AbstractType
@@ -36,6 +38,7 @@ final class MenuConfigType extends AbstractType
     /**
      * @param array<string, string> $permissionCheckerChoices
      * @param array<string, list<string>> $cssClassOptions
+     * @param array<string> $ulIdOptions
      */
     public function __construct(
         private readonly array $permissionCheckerChoices = [],
@@ -156,6 +159,9 @@ final class MenuConfigType extends AbstractType
         $this->addCssClassField($builder, 'classCollapsed', 'collapsed', 'form.menu_type.class_collapsed.label', 'form.menu_type.class_collapsed.placeholder');
     }
 
+    /**
+     * @param FormBuilderInterface<Menu|null> $builder
+     */
     private function addCssClassField(
         FormBuilderInterface $builder,
         string $fieldName,
@@ -211,6 +217,9 @@ final class MenuConfigType extends AbstractType
         }
     }
 
+    /**
+     * @param FormBuilderInterface<Menu|null> $builder
+     */
     private function addUlIdField(FormBuilderInterface $builder): void
     {
         $options = $this->ulIdOptions;
@@ -261,6 +270,7 @@ final class MenuConfigType extends AbstractType
     /**
      * FormKit moves root {@code placeholder} into {@code attr}; ChoiceType needs the root option.
      *
+     * @param FormBuilderInterface<Menu|null> $builder
      * @param array<string, mixed> $options
      */
     private function addChoiceWithKit(FormBuilderInterface $builder, string $name, array $options): void

@@ -211,6 +211,7 @@ final class MenuDashboardController extends AbstractController
     public function newMenu(Request $request): Response
     {
         $menu = new Menu();
+        /** @var FormInterface<Menu|null> $form */
         $form = $this->createForm(MenuType::class, $menu, [
             'action'  => $this->generateUrl(DashboardRoutes::ROUTE_MENU_NEW),
             'section' => 'basic',
@@ -893,8 +894,10 @@ final class MenuDashboardController extends AbstractController
 
                         return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_INDEX, []);
                     }
-                    $strategy = is_string($data['strategy'] ?? '') ? $data['strategy'] : MenuImporter::STRATEGY_SKIP_EXISTING;
-                    $result   = $this->menuImporter->import($decoded, $strategy);
+                    $strategy = ($data['strategy'] ?? null) === MenuImporter::STRATEGY_REPLACE
+                        ? MenuImporter::STRATEGY_REPLACE
+                        : MenuImporter::STRATEGY_SKIP_EXISTING;
+                    $result = $this->menuImporter->import($decoded, $strategy);
                     foreach ($result['errors'] as $err) {
                         $this->addFlash('error', $err);
                     }

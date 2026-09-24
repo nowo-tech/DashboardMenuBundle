@@ -69,7 +69,7 @@ final class MenuItemIconTypeTest extends TestCase
     {
         if (!class_exists('Nowo\\IconSelectorBundle\\Form\\IconSelectorType')) {
             // Minimal stub for this test environment.
-            eval('namespace Nowo\\IconSelectorBundle\\Form; class IconSelectorType { public const MODE_TOM_SELECT = "tom_select"; }');
+            eval('namespace Nowo\\IconSelectorBundle\\Form; class IconSelectorType extends \\Symfony\\Component\\Form\\AbstractType { public const MODE_TOM_SELECT = "tom_select"; }');
         }
 
         $item = new MenuItem();
