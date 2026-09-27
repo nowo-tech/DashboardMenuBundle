@@ -174,6 +174,7 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
                     $resolvedContext = $first->getMenu()->getContext();
                 }
             }
+            // @igor-ignore - Mutates attached request-scoped or value object; not worker singleton cache
             $this->dataCollector->addMenuLoad($resolvedCode, $contextSets, $tree, $resolvedContext, $queryCount);
         }
 

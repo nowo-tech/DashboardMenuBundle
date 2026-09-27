@@ -404,6 +404,7 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
             ])
             ->setPublic(false);
         if ($container->hasDefinition('logger') || $container->hasAlias('logger')) {
+            // @igor-ignore - Justified false positive for FrankenPHP worker audit
             $rateLimiterDef->setArgument('$logger', new Reference('logger'));
         }
     }

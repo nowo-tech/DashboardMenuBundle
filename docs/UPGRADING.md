@@ -1,5 +1,19 @@
 # Upgrading
 
+
+## Unreleased
+
+## To 2.1.14
+
+From **2.1.13** — REQ-CS-008 Igor FrankenPHP worker audit (igor-php require-dev, igor.json, make igor).
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+php bin/console cache:clear
+```
+
+- No application upgrade steps for require-dev Igor tooling (REQ-CS-008). Consumers do not pull `igor-php/igor-php` transitively.
+
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
 ## Table of contents

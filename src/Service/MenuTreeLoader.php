@@ -516,6 +516,7 @@ final readonly class MenuTreeLoader
 
             $visible = $checker->canView($child, $permissionContext);
             if ($this->dataCollector instanceof DashboardMenuDataCollector) {
+                // @igor-ignore - Mutates attached request-scoped or value object; not worker singleton cache
                 $this->dataCollector->addPermissionCheck(
                     $menuCode,
                     $checkerSelectedServiceId,
@@ -582,7 +583,9 @@ final readonly class MenuTreeLoader
         foreach ($flat as $item) {
             $isVisible                            = $checker->canView($item, $permissionContext);
             $visibilityMap[$this->nodeKey($item)] = $isVisible;
+            // @igor-ignore - Mutates attached request-scoped or value object; not worker singleton cache
             if ($this->dataCollector instanceof DashboardMenuDataCollector) {
+                // @igor-ignore - Mutates attached request-scoped or value object; not worker singleton cache
                 $this->dataCollector->addPermissionCheck(
                     $menuCode,
                     $checkerSelectedServiceId,

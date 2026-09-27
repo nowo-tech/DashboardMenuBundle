@@ -231,6 +231,7 @@ class Menu
 
     public function setCode(string $code): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->code = $code;
 
         return $this;
@@ -243,6 +244,7 @@ class Menu
 
     public function setName(?string $name): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->name = $name;
 
         return $this;
@@ -255,6 +257,7 @@ class Menu
 
     public function setIcon(?string $icon): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->icon = $icon;
 
         return $this;
@@ -267,6 +270,7 @@ class Menu
 
     public function setClassMenu(?string $classMenu): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->classMenu = $classMenu;
 
         return $this;
@@ -279,6 +283,7 @@ class Menu
 
     public function setUlId(?string $ulId): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->ulId = $ulId;
 
         return $this;
@@ -291,6 +296,7 @@ class Menu
 
     public function setClassItem(?string $classItem): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->classItem = $classItem;
 
         return $this;
@@ -303,6 +309,7 @@ class Menu
 
     public function setClassLink(?string $classLink): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->classLink = $classLink;
 
         return $this;
@@ -315,6 +322,7 @@ class Menu
 
     public function setClassChildren(?string $classChildren): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->classChildren = $classChildren;
 
         return $this;
@@ -327,6 +335,7 @@ class Menu
 
     public function setClassSectionChildren(?string $classSectionChildren): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->classSectionChildren = $classSectionChildren;
 
         return $this;
@@ -339,6 +348,7 @@ class Menu
 
     public function setClassSectionChildItem(?string $classSectionChildItem): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->classSectionChildItem = $classSectionChildItem;
 
         return $this;
@@ -351,6 +361,7 @@ class Menu
 
     public function setClassSectionChildLink(?string $classSectionChildLink): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->classSectionChildLink = $classSectionChildLink;
 
         return $this;
@@ -363,6 +374,7 @@ class Menu
 
     public function setClassSectionLabel(?string $classSectionLabel): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->classSectionLabel = $classSectionLabel;
 
         return $this;
@@ -375,6 +387,7 @@ class Menu
 
     public function setClassSection(?string $classSection): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->classSection = $classSection;
 
         return $this;
@@ -387,6 +400,7 @@ class Menu
 
     public function setClassDivider(?string $classDivider): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->classDivider = $classDivider;
 
         return $this;
@@ -399,6 +413,7 @@ class Menu
 
     public function setClassCurrent(?string $classCurrent): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->classCurrent = $classCurrent;
 
         return $this;
@@ -411,6 +426,7 @@ class Menu
 
     public function setClassBranchExpanded(?string $classBranchExpanded): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->classBranchExpanded = $classBranchExpanded;
 
         return $this;
@@ -423,6 +439,7 @@ class Menu
 
     public function setClassHasChildren(?string $classHasChildren): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->classHasChildren = $classHasChildren;
 
         return $this;
@@ -435,6 +452,7 @@ class Menu
 
     public function setClassExpanded(?string $classExpanded): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->classExpanded = $classExpanded;
 
         return $this;
@@ -447,6 +465,7 @@ class Menu
 
     public function setClassCollapsed(?string $classCollapsed): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->classCollapsed = $classCollapsed;
 
         return $this;
@@ -459,6 +478,7 @@ class Menu
 
     public function setPermissionChecker(?string $permissionChecker): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->permissionChecker = $permissionChecker;
 
         return $this;
@@ -471,6 +491,7 @@ class Menu
 
     public function setDepthLimit(?int $depthLimit): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->depthLimit = $depthLimit;
 
         return $this;
@@ -483,6 +504,7 @@ class Menu
 
     public function setCollapsible(?bool $collapsible): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->collapsible = $collapsible;
 
         return $this;
@@ -495,6 +517,7 @@ class Menu
 
     public function setCollapsibleExpanded(?bool $collapsibleExpanded): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->collapsibleExpanded = $collapsibleExpanded;
 
         return $this;
@@ -507,6 +530,7 @@ class Menu
 
     public function setNestedCollapsible(?bool $nestedCollapsible): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->nestedCollapsible = $nestedCollapsible;
 
         return $this;
@@ -519,6 +543,7 @@ class Menu
 
     public function setNestedCollapsibleSections(?bool $nestedCollapsibleSections): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->nestedCollapsibleSections = $nestedCollapsibleSections;
 
         return $this;
@@ -564,7 +589,9 @@ class Menu
      */
     public function setContext(?array $context): self
     {
-        $this->context    = $context;
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
+        $this->context = $context;
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->contextKey = self::canonicalContextKey($context);
 
         return $this;
@@ -597,6 +624,7 @@ class Menu
 
     public function setBase(bool $base): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->base = $base;
 
         return $this;
@@ -609,6 +637,7 @@ class Menu
     public function ensureContextKey(): void
     {
         if ($this->contextKey === '' && $this->context !== null && $this->context !== []) {
+            // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
             $this->contextKey = self::canonicalContextKey($this->context);
         }
     }

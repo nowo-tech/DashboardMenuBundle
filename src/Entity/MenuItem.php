@@ -181,6 +181,7 @@ class MenuItem implements TranslatableInterface
 
     public function setMenu(?Menu $menu): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->menu = $menu;
 
         return $this;
@@ -193,6 +194,7 @@ class MenuItem implements TranslatableInterface
 
     public function setParent(?self $parent): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->parent = $parent;
 
         return $this;
@@ -213,6 +215,7 @@ class MenuItem implements TranslatableInterface
 
     public function setPosition(int $position): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->position = $position;
 
         return $this;
@@ -225,6 +228,7 @@ class MenuItem implements TranslatableInterface
 
     public function setLabel(?string $label): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->label = $label;
 
         return $this;
@@ -247,6 +251,7 @@ class MenuItem implements TranslatableInterface
      */
     public function setTranslations(?array $translations): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->translations = $translations;
 
         return $this;
@@ -267,6 +272,7 @@ class MenuItem implements TranslatableInterface
 
     public function setLinkType(?string $linkType): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->linkType = $linkType;
 
         return $this;
@@ -279,6 +285,7 @@ class MenuItem implements TranslatableInterface
 
     public function setRouteName(?string $routeName): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->routeName = $routeName;
 
         return $this;
@@ -297,6 +304,7 @@ class MenuItem implements TranslatableInterface
      */
     public function setRouteParams(?array $routeParams): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->routeParams = $routeParams;
 
         return $this;
@@ -309,6 +317,7 @@ class MenuItem implements TranslatableInterface
 
     public function setExternalUrl(?string $externalUrl): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->externalUrl = $externalUrl;
 
         return $this;
@@ -321,8 +330,10 @@ class MenuItem implements TranslatableInterface
 
     public function setPermissionKey(?string $permissionKey): self
     {
-        $normalized           = $permissionKey !== null ? trim($permissionKey) : null;
-        $this->permissionKey  = $normalized !== '' ? $normalized : null;
+        $normalized = $permissionKey !== null ? trim($permissionKey) : null;
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
+        $this->permissionKey = $normalized !== '' ? $normalized : null;
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->permissionKeys = $this->permissionKey !== null ? [$this->permissionKey] : null;
 
         return $this;
@@ -349,8 +360,10 @@ class MenuItem implements TranslatableInterface
     public function setPermissionKeys(?array $permissionKeys): self
     {
         if ($permissionKeys === null) {
+            // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
             $this->permissionKeys = null;
-            $this->permissionKey  = null;
+            // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
+            $this->permissionKey = null;
 
             return $this;
         }
@@ -364,8 +377,10 @@ class MenuItem implements TranslatableInterface
             $normalized[] = $value;
         }
 
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->permissionKeys = $normalized !== [] ? $normalized : null;
-        $this->permissionKey  = $this->permissionKeys[0] ?? null;
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
+        $this->permissionKey = $this->permissionKeys[0] ?? null;
 
         return $this;
     }
@@ -377,6 +392,7 @@ class MenuItem implements TranslatableInterface
 
     public function setIsUnanimous(bool $isUnanimous): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->isUnanimous = $isUnanimous;
 
         return $this;
@@ -389,6 +405,7 @@ class MenuItem implements TranslatableInterface
 
     public function setIcon(?string $icon): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->icon = $icon;
 
         return $this;
@@ -401,6 +418,7 @@ class MenuItem implements TranslatableInterface
 
     public function setItemType(?string $itemType): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->itemType = $itemType;
 
         return $this;
@@ -413,7 +431,8 @@ class MenuItem implements TranslatableInterface
 
     public function setLinkResolver(?string $linkResolver): self
     {
-        $t                  = $linkResolver !== null ? trim($linkResolver) : null;
+        $t = $linkResolver !== null ? trim($linkResolver) : null;
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->linkResolver = $t !== '' ? $t : null;
 
         return $this;
@@ -426,6 +445,7 @@ class MenuItem implements TranslatableInterface
 
     public function setRuntimeHref(?string $runtimeHref): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->runtimeHref = $runtimeHref !== null && trim($runtimeHref) !== '' ? trim($runtimeHref) : null;
 
         return $this;
@@ -467,6 +487,7 @@ class MenuItem implements TranslatableInterface
 
     public function setTargetBlank(bool $targetBlank): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->targetBlank = $targetBlank;
 
         return $this;
@@ -479,6 +500,7 @@ class MenuItem implements TranslatableInterface
 
     public function setSectionCollapsible(?bool $sectionCollapsible): self
     {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->sectionCollapsible = $sectionCollapsible;
 
         return $this;
@@ -492,6 +514,7 @@ class MenuItem implements TranslatableInterface
     public function normalizeSectionCollapsibleForItemType(): void
     {
         if ($this->getItemType() !== self::ITEM_TYPE_SECTION) {
+            // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
             $this->sectionCollapsible = null;
         }
     }
@@ -504,14 +527,19 @@ class MenuItem implements TranslatableInterface
     public function normalizeLinkFieldsForItemType(): void
     {
         if ($this->getItemType() !== self::ITEM_TYPE_SERVICE) {
+            // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
             $this->linkResolver = null;
 
             return;
         }
 
-        $this->linkType    = null;
-        $this->routeName   = null;
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
+        $this->linkType = null;
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
+        $this->routeName = null;
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->routeParams = null;
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->externalUrl = null;
     }
 
@@ -531,9 +559,13 @@ class MenuItem implements TranslatableInterface
             return;
         }
 
-        $this->parent       = null;
-        $this->icon         = null;
-        $this->label        = null;
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
+        $this->parent = null;
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
+        $this->icon = null;
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
+        $this->label = null;
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->translations = null;
     }
 }

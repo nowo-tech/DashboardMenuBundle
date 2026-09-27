@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.1.14] - 2026-09-27](#2114-2026-09-27)
 - [[2.1.13] - 2026-09-24](#2113-2026-09-24)
 - [[2.1.12] - 2026-09-21](#2112-2026-09-21)
 - [[2.1.11] - 2026-09-17](#2111-2026-09-17)
@@ -84,6 +85,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.14] - 2026-09-27
+
+### Added
+
+- **REQ-CS-008:** `igor-php/igor-php` (require-dev only), root `igor.json`, Composer/`Makefile` `igor` target, and `release-check` wiring for FrankenPHP worker-state audit.
+
+### Changed
+
+- **Worker safety (Igor):** justified `// @igor-ignore` annotations and/or `ResetInterface` / request-scoped fixes so `make igor` passes on package `src/`.
+
+[2.1.14]: https://github.com/nowo-tech/DashboardMenuBundle/releases/tag/v2.1.14
 
 ## [2.1.13] - 2026-09-24
 

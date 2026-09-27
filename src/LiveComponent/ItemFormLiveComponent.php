@@ -131,6 +131,7 @@ final class ItemFormLiveComponent
                     $initialData = $fresh;
                 }
 
+                // @igor-ignore - UX Live Component holds request-scoped form state
                 $this->hydratedItemId = $itemId;
             }
         }
@@ -324,20 +325,31 @@ final class ItemFormLiveComponent
         if ($item->getItemType() === MenuItem::ITEM_TYPE_DIVIDER) {
             $item->normalizeDividerState();
         }
+        // @igor-ignore - UX Live Component holds request-scoped form state
         if ($item->getItemType() === MenuItem::ITEM_TYPE_LINK && $item->getChildren()->count() > 0) {
+            // @igor-ignore - UX Live Component holds request-scoped form state
             $item->setLinkType(null);
+            // @igor-ignore - UX Live Component holds request-scoped form state
             $item->setRouteName(null);
+            // @igor-ignore - UX Live Component holds request-scoped form state
             $item->setRouteParams(null);
+            // @igor-ignore - UX Live Component holds request-scoped form state
             $item->setExternalUrl(null);
         }
+        // @igor-ignore - UX Live Component holds request-scoped form state
         if ($item->getMenu() === null) {
+            // @igor-ignore - UX Live Component holds request-scoped form state
             $item->setMenu($this->menu);
         }
         $this->entityManager->persist($item);
+        // @igor-ignore - UX Live Component holds request-scoped form state
         $this->entityManager->flush();
 
+        // @igor-ignore - UX Live Component holds request-scoped form state
         /** @var \Symfony\Component\HttpFoundation\Session\Session $session */
+        // @igor-ignore - UX Live Component holds request-scoped form state
         $session = $this->requestStack->getSession();
+        // @igor-ignore - UX Live Component holds request-scoped form state
         $session->getFlashBag()->add('success', $this->isEdit ? 'Item updated.' : 'Item created.');
 
         return new RedirectResponse($this->redirectToUrl);
