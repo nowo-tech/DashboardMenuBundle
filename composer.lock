@@ -937,16 +937,16 @@
         },
         {
             "name": "nowo-tech/form-kit-bundle",
-            "version": "v2.5.2",
+            "version": "v2.5.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nowo-tech/FormKitBundle.git",
-                "reference": "74347a3711ee510019b6fcc0651a5ff2b3101ee5"
+                "reference": "6403b7c90375cffed620efcefc86292bf89bc578"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nowo-tech/FormKitBundle/zipball/74347a3711ee510019b6fcc0651a5ff2b3101ee5",
-                "reference": "74347a3711ee510019b6fcc0651a5ff2b3101ee5",
+                "url": "https://api.github.com/repos/nowo-tech/FormKitBundle/zipball/6403b7c90375cffed620efcefc86292bf89bc578",
+                "reference": "6403b7c90375cffed620efcefc86292bf89bc578",
                 "shasum": ""
             },
             "require": {
@@ -1039,7 +1039,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-08-25T08:02:55+00:00"
+            "time": "2026-09-24T15:45:24+00:00"
         },
         {
             "name": "nowo-tech/ui-kit-bundle",
@@ -5987,16 +5987,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v3.29.0",
+            "version": "v3.30.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "45a3c6e9224c3377a39c7b150bb29d5d97d2c75d"
+                "reference": "8c737079b726af72ff8ef3c595be9f6a810ea1ef"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/45a3c6e9224c3377a39c7b150bb29d5d97d2c75d",
-                "reference": "45a3c6e9224c3377a39c7b150bb29d5d97d2c75d",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/8c737079b726af72ff8ef3c595be9f6a810ea1ef",
+                "reference": "8c737079b726af72ff8ef3c595be9f6a810ea1ef",
                 "shasum": ""
             },
             "require": {
@@ -6051,7 +6051,7 @@
             ],
             "support": {
                 "issues": "https://github.com/twigphp/Twig/issues",
-                "source": "https://github.com/twigphp/Twig/tree/v3.29.0"
+                "source": "https://github.com/twigphp/Twig/tree/v3.30.0"
             },
             "funding": [
                 {
@@ -6063,7 +6063,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-09-18T09:10:14+00:00"
+            "time": "2026-09-25T13:20:01+00:00"
         }
     ],
     "packages-dev": [
