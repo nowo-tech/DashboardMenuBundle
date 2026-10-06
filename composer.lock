@@ -1044,16 +1044,16 @@
         },
         {
             "name": "nowo-tech/ui-kit-bundle",
-            "version": "v1.8.4",
+            "version": "v1.8.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nowo-tech/UiKitBundle.git",
-                "reference": "8e107639f8dca2657e6f9df0d45f58e39acc8175"
+                "reference": "20dc8d9c2aa14553d041904248495faaf2520d1b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nowo-tech/UiKitBundle/zipball/8e107639f8dca2657e6f9df0d45f58e39acc8175",
-                "reference": "8e107639f8dca2657e6f9df0d45f58e39acc8175",
+                "url": "https://api.github.com/repos/nowo-tech/UiKitBundle/zipball/20dc8d9c2aa14553d041904248495faaf2520d1b",
+                "reference": "20dc8d9c2aa14553d041904248495faaf2520d1b",
                 "shasum": ""
             },
             "require": {
@@ -1071,6 +1071,7 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.0",
+                "igor-php/igor-php": "^0.9.7",
                 "nowo-tech/phpstan-frankenphp": "^1.0",
                 "phpstan/extension-installer": "^1.0",
                 "phpstan/phpstan": "^2.0",
@@ -1124,7 +1125,7 @@
                 "issues": "https://github.com/nowo-tech/UiKitBundle/issues",
                 "source": "https://github.com/nowo-tech/UiKitBundle"
             },
-            "time": "2026-09-25T06:17:28+00:00"
+            "time": "2026-09-27T16:37:04+00:00"
         },
         {
             "name": "psr/cache",
