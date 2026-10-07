@@ -3,6 +3,21 @@
 
 ## Unreleased
 
+## To 2.2.0
+
+From **2.1.14** — CSP-safe JSON config island replaces inline `window.__nowoDashboardMenuConfig` scripts.
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+php bin/console assets:install --symlink
+php bin/console cache:clear
+```
+
+- Dashboard pages now render `<script type="application/json" id="nowo-dashboard-menu-config">{...}</script>`; `dashboard.js` reads it (fallback: legacy `window.__nowoDashboardMenuConfig`, removed in 2.3.0).
+- If you override `dashboard/*.html.twig` templates that set `window.__nowoDashboardMenuConfig`, move that data into a top-level `{% set nowo_dashboard_menu_page_config = { ... } %}` (outside blocks); it is merged into the island by `base.html.twig`. Overriding block `nowo_dashboard_menu_config_island` is also supported.
+- Re-publish/update assets so the new `dashboard.js` is served. A strict `script-src` CSP can now allow the island without `'unsafe-inline'` for config (the `window.dashboardMenuI18n` inline script in `layout.html.twig` is unchanged).
+- You can remove any host subscriber that rewrites the dashboard-menu inline config script.
+
 ## To 2.1.14
 
 From **2.1.13** — REQ-CS-008 Igor FrankenPHP worker audit (igor-php require-dev, igor.json, make igor).
@@ -19,6 +34,7 @@ This document describes breaking changes and upgrade notes between versions. Sec
 ## Table of contents
 
 
+- [To 2.2.0](#to-220)
 - [From 2.1.12 to 2.1.13](#from-2112-to-2113)
 - [From 2.1.11 to 2.1.12](#from-2111-to-2112)
 - [From 2.1.10 to 2.1.11](#from-2110-to-2111)

@@ -3,6 +3,13 @@
 {% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
 {% import '@NowoDashboardMenuBundle/dashboard/_icons.html.twig' as icons %}
 
+{# Merged into the single #nowo-dashboard-menu-config JSON island by base.html.twig. #}
+{% set nowo_dashboard_menu_page_config = {
+    baseUrl: path(dashboard_show_route|default(dashboard_routes.show|default('nowo_dashboard_menu_dashboard_show')), { id: menu.id }),
+    menuId: menu.id,
+    debug: app.debug ? true : false
+} %}
+
 {% block dashboard_title %}{{ 'dashboard.menu'|trans({}, 'NowoDashboardMenuBundle') }}: {{ menu.code }} — {{ 'dashboard.sortable_page_heading'|trans({}, 'NowoDashboardMenuBundle') }}{% endblock %}
 
 {% block body %}
@@ -62,11 +69,4 @@
         </div>
     {% endif %}
 
-    <script>
-    window.__nowoDashboardMenuConfig = Object.assign(window.__nowoDashboardMenuConfig || {}, {
-        baseUrl: {{ path(dashboard_show_route|default(dashboard_routes.show|default('nowo_dashboard_menu_dashboard_show')), { id: menu.id }) |json_encode|raw }},
-        menuId: {{ menu.id }},
-        debug: {{ app.debug ? 'true' : 'false' }}
-    });
-    </script>
 {% endblock %}

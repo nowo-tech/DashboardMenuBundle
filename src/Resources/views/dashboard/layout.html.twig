@@ -75,9 +75,6 @@
         {% if icon_selector_script_url is defined and icon_selector_script_url %}
         window.dashboardMenuIconSelectorScriptUrl = {{ (icon_selector_script_url starts with 'http') ? icon_selector_script_url : asset(icon_selector_script_url) |json_encode|raw }};
         {% endif %}
-        window.__nowoDashboardMenuConfig = Object.assign(window.__nowoDashboardMenuConfig || {}, {
-            cssFramework: {{ _dm_fw|json_encode|raw }}
-        });
         window.dashboardMenuI18n = {
             loading: {{ 'dashboard.loading'|trans|json_encode|raw }},
             errorLoadingForm: {{ 'dashboard.error_loading_form'|trans|json_encode|raw }},

@@ -2,6 +2,11 @@
 {% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
 {% import '@NowoDashboardMenuBundle/dashboard/_icons.html.twig' as icons %}
 
+{# Merged into the single #nowo-dashboard-menu-config JSON island by base.html.twig. #}
+{% set nowo_dashboard_menu_page_config = {
+    dashboardBase: path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index'))
+} %}
+
 {% block dashboard_title %}{{ 'dashboard.menus'|trans({}, 'NowoDashboardMenuBundle') }}{% endblock %}
 
 {% block body %}
@@ -99,9 +104,4 @@
         </div>
     </div>
 
-    <script>
-    window.__nowoDashboardMenuConfig = Object.assign(window.__nowoDashboardMenuConfig || {}, {
-        dashboardBase: {{ path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index')) |json_encode|raw }}
-    });
-    </script>
 {% endblock %}

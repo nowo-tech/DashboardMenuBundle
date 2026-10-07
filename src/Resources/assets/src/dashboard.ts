@@ -1,9 +1,10 @@
 /**
  * Dashboard menu bundle: single entry for all dashboard view scripts.
- * Reads config from window.__nowoDashboardMenuConfig (set by Twig) and initializes modals, Stimulus connection, and form toggles.
+ * Reads config from the JSON island #nowo-dashboard-menu-config (CSP-safe; fallback: legacy window.__nowoDashboardMenuConfig) and initializes modals, Stimulus connection, and form toggles.
  */
 import Sortable from 'sortablejs';
 
+import { readDashboardMenuConfig } from './config';
 import { createBundleLogger } from './logger';
 
 declare const __DASHBOARD_MENU_BUILD_TIME__: string | undefined;
@@ -14,6 +15,7 @@ const log = createBundleLogger('dashboard-menu', {
 
 declare global {
   interface Window {
+    /** @deprecated Since 2.2.0 — use the #nowo-dashboard-menu-config JSON island. */
     __nowoDashboardMenuConfig?: NowoDashboardMenuConfig;
     __dmScriptLoaded?: boolean;
     /** Prevents duplicate event listeners if dashboard.js is executed more than once (e.g. two script tags). */
@@ -887,7 +889,10 @@ function initNowoModals(): void {
 }
 
 function run(): void {
-  const config = window.__nowoDashboardMenuConfig;
+  const config = readDashboardMenuConfig<NowoDashboardMenuConfig>(
+    typeof document !== 'undefined' ? document : undefined,
+    window.__nowoDashboardMenuConfig,
+  );
   if (!config) return;
   if (typeof document !== 'undefined' && !window.__dmTomSelectModalPatchBound) {
     window.__dmTomSelectModalPatchBound = true;

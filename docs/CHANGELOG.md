@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.2.0] - 2026-10-07](#220-2026-10-07)
 - [[2.1.14] - 2026-09-27](#2114-2026-09-27)
 - [[2.1.13] - 2026-09-24](#2113-2026-09-24)
 - [[2.1.12] - 2026-09-21](#2112-2026-09-21)
@@ -84,6 +85,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.2.0] - 2026-10-07
+
+### Added
+
+- **CSP-safe config island:** dashboard templates now emit a single `<script type="application/json" id="nowo-dashboard-menu-config">` JSON island (from `dashboard/base.html.twig`, block `nowo_dashboard_menu_config_island`) instead of inline `window.__nowoDashboardMenuConfig = Object.assign(...)` scripts. Page templates (`index`, `show`, `show_items_reorder`, `item_form`) provide their data through the top-level Twig variable `nowo_dashboard_menu_page_config`, merged with `cssFramework` into the island. JSON is encoded with `JSON_HEX_TAG|AMP|APOS|QUOT`.
+- `config.ts` (`readConfigIsland`, `readDashboardMenuConfig`) with Vitest tests (100% coverage) and a PHPUnit guard test (`CspSafeConfigIslandTest`).
+
+### Changed
+
+- `dashboard.js` / `dashboard.ts` read config from `#nowo-dashboard-menu-config`; island values win over the legacy global.
+- `cssFramework` is now also emitted when the host sets `layout_template` to its own layout (it is rendered from `base.html.twig`, not `layout.html.twig`).
+
+### Deprecated
+
+- Reading `window.__nowoDashboardMenuConfig` is kept as a fallback for one minor (removed in 2.3.0). Hosts that rewrote the inline script (e.g. `KitInlineConfigScriptSubscriber`) can drop that workaround for dashboard-menu.
+
+[2.2.0]: https://github.com/nowo-tech/DashboardMenuBundle/releases/tag/v2.2.0
 
 ## [2.1.14] - 2026-09-27
 

@@ -13,8 +13,8 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'text-summary', 'html'],
       reportsDirectory: './coverage-ts',
-      // logger.ts only so we can require 100%; dashboard.ts/stimulus-live.ts are integration-heavy.
-      include: ['src/Resources/assets/src/logger.ts'],
+      // logger.ts + config.ts only so we can require 100%; dashboard.ts/stimulus-live.ts are integration-heavy.
+      include: ['src/Resources/assets/src/logger.ts', 'src/Resources/assets/src/config.ts'],
       exclude: ['**/*.test.ts', '**/node_modules/**'],
       thresholds: {
         lines: 100,

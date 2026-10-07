@@ -19,8 +19,16 @@
     <link href="{{ asset('css/nowo-ui.css', 'nowo_ui_kit') }}" rel="stylesheet">
 {% endblock %}
 
+{#
+  CSP-safe JSON config island (REQ-CSP-001). Page templates set `nowo_dashboard_menu_page_config`
+  at template top level (outside blocks) so it is merged here into a single island.
+  dashboard.js reads #nowo-dashboard-menu-config (legacy inline global fallback lives in the JS only).
+#}
 {% block javascripts %}
     {{ parent() }}
+    {% block nowo_dashboard_menu_config_island %}
+        <script type="application/json" id="nowo-dashboard-menu-config">{{ ({ cssFramework: nowo_dashboard_menu_css_framework|default('bootstrap5') }|merge(nowo_dashboard_menu_page_config|default({})))|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT') b-or constant('JSON_UNESCAPED_SLASHES'))|raw }}</script>
+    {% endblock %}
     <script src="{{ asset('js/dashboard.js', 'nowo_dashboard_menu') }}" defer></script>
 {% endblock %}
 

@@ -1,6 +1,9 @@
 {% extends '@NowoDashboardMenuBundle/dashboard/base.html.twig' %}
 {% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
 
+{# Merged into the single #nowo-dashboard-menu-config JSON island by base.html.twig. #}
+{% set nowo_dashboard_menu_page_config = { appRoutes: app_routes } %}
+
 {% block dashboard_title %}{{ (is_edit ? 'dashboard.edit_item' : 'dashboard.new_item')|trans({}, 'NowoDashboardMenuBundle') }}{% endblock %}
 
 {% block body %}
@@ -124,9 +127,4 @@
         <button type="submit" class="{{ ui.btn('primary') }}">{{ (is_edit ? 'dashboard.update' : 'dashboard.create')|trans({}, 'NowoDashboardMenuBundle') }}</button>
     {{ form_end(form) }}
 
-    <script>
-    window.__nowoDashboardMenuConfig = Object.assign(window.__nowoDashboardMenuConfig || {}, {
-        appRoutes: {{ app_routes|json_encode|raw }}
-    });
-    </script>
 {% endblock %}
