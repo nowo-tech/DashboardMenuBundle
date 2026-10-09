@@ -18,6 +18,12 @@ For production or sensitive setups, configure:
 
 - **Logging:** Operational warnings (e.g. rate-limit exceeded) use `Psr\Log\LoggerInterface` with structured context (`bundle`, `action`). Do not log tokens, passwords, or session identifiers.
 
+## Content Security Policy (CSP)
+
+Every inline `<script>` / `<style>` rendered by the bundle templates carries `nonce="…"` taken from the request attribute **`csp_nonce`** when it is present (nothing is emitted otherwise). Your CSP listener should set it before rendering, e.g. `$request->attributes->set('csp_nonce', $nonce)`, and send the same value in `script-src 'nonce-…'` / `style-src 'nonce-…'`. External scripts (`src=…`) and JSON islands need no nonce, and templates use no inline event handlers (`onclick`, `onsubmit`, …). `tests/Unit/Templates/InlineBlocksDeclareNonceTest.php` enforces this.
+
+`dashboard.js` copies the nonce (from its own `<script>` tag or any nonce'd element) onto the icon-selector `<script>` it injects when a modal form reloads. The dashboard layout's `tailwind` option loads the Tailwind Play CDN, which injects `<style>` without a nonce; use a prebuilt stylesheet under a strict `style-src`.
+
 ## AI security audit (REQ-SEC-004)
 
 | Field | Value |

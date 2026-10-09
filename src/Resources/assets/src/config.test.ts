@@ -3,7 +3,7 @@
  */
 
 import { afterEach, describe, expect, it } from 'vitest';
-import { CONFIG_ISLAND_ID, readConfigIsland, readDashboardMenuConfig } from './config';
+import { CONFIG_ISLAND_ID, readConfigIsland, readDashboardMenuConfig, resolveCspNonce } from './config';
 
 function setIsland(content: string): void {
   const s = document.createElement('script');
@@ -69,5 +69,28 @@ describe('readDashboardMenuConfig', () => {
   it('uses the island alone when no legacy global is set', () => {
     setIsland('{"dashboardBase":"/dashboard"}');
     expect(readDashboardMenuConfig(document, undefined)).toEqual({ dashboardBase: '/dashboard' });
+  });
+});
+
+describe('resolveCspNonce', () => {
+  it('returns an empty string when nothing carries a nonce', () => {
+    expect(resolveCspNonce(document, null)).toBe('');
+    expect(resolveCspNonce(undefined)).toBe('');
+  });
+
+  it('prefers the current script nonce', () => {
+    const current = document.createElement('script');
+    current.nonce = 'from-current';
+    const other = document.createElement('style');
+    other.setAttribute('nonce', 'from-dom');
+    document.body.appendChild(other);
+    expect(resolveCspNonce(document, current)).toBe('from-current');
+  });
+
+  it('falls back to a nonce-bearing element in the document', () => {
+    const style = document.createElement('style');
+    style.setAttribute('nonce', 'from-dom');
+    document.body.appendChild(style);
+    expect(resolveCspNonce(document, null)).toBe('from-dom');
   });
 });

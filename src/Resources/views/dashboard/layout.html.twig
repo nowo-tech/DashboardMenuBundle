@@ -21,7 +21,8 @@
             <link href="{{ asset('css/nowo-ui.css', 'nowo_ui_kit') }}" rel="stylesheet">
         {% endblock %}
         {% block dashboard_head %}
-        <style>
+        {% set _csp_nonce = app.request is defined and app.request ? app.request.attributes.get('csp_nonce')|default('') : '' %}
+        <style{% if _csp_nonce %} nonce="{{ _csp_nonce }}"{% endif %}>
             {# Tom Select dropdown appended to body must stack above Bootstrap 5 modals (z-index 1055). #}
             body > .ts-dropdown { z-index: 1060; }
             {# UiKit .nowo-ui-modal { display:none } must not override Bootstrap .modal.show #}
@@ -71,7 +72,8 @@
         {% endblock %}
         {% block dashboard_scripts %}{% endblock %}
         {# dashboard.js is loaded from base.html.twig so host layouts that only parent() still get it. #}
-        <script>
+        {% set _csp_nonce = app.request is defined and app.request ? app.request.attributes.get('csp_nonce')|default('') : '' %}
+        <script{% if _csp_nonce %} nonce="{{ _csp_nonce }}"{% endif %}>
         {% if icon_selector_script_url is defined and icon_selector_script_url %}
         window.dashboardMenuIconSelectorScriptUrl = {{ (icon_selector_script_url starts with 'http') ? icon_selector_script_url : asset(icon_selector_script_url) |json_encode|raw }};
         {% endif %}

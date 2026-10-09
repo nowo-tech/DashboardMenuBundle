@@ -43,6 +43,8 @@
 {% endblock %}
 
 {% block panel %}
+    {#- Profiler pages pass csp_script_nonce; fall back to the host request attribute csp_nonce. -#}
+    {% set _csp_nonce = csp_script_nonce|default(app.request is defined and app.request ? app.request.attributes.get('csp_nonce')|default('') : '') %}
     {% set menus = collector.menus|default([]) %}
     {% set query_count = collector.menuQueryCount %}
     {% set cache = collector.cacheConfig %}
@@ -360,7 +362,7 @@
                             {% endfor %}
                         </tbody>
                     </table>
-                    <script>
+                    <script{% if _csp_nonce %} nonce="{{ _csp_nonce }}"{% endif %}>
                         (function () {
                             var table = document.getElementById('nowo-permission-checks-table');
                             if (!table) return;
@@ -400,7 +402,7 @@
             </div>
         </div>
     </div>
-    <script>
+    <script{% if _csp_nonce %} nonce="{{ _csp_nonce }}"{% endif %}>
         (function () {
             var tabsRoot = document.querySelector('.sf-tabs');
             if (!tabsRoot) return;

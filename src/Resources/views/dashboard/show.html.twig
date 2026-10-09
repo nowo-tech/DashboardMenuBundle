@@ -80,7 +80,8 @@
         <p class="{{ ui.empty() }}">{{ 'dashboard.no_items'|trans({}, 'NowoDashboardMenuBundle') }} <button type="button" class="{{ ui.btn('link') }} p-0 align-baseline btn-add-item" data-id="{{ menu.id }}" data-parent="" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-item-form')|raw }}>{{ 'dashboard.add_one'|trans({}, 'NowoDashboardMenuBundle') }}</button>.</p>
     {% else %}
         {% set currentLocale = app.request.locale|default('en') %}
-        <style>
+        {% set _csp_nonce = app.request is defined and app.request ? app.request.attributes.get('csp_nonce')|default('') : '' %}
+        <style{% if _csp_nonce %} nonce="{{ _csp_nonce }}"{% endif %}>
             .nowo-dashboard-menu-actions-col { width: 1%; white-space: nowrap; }
             .nowo-dashboard-menu-move-stack { display: inline-flex; flex-direction: column; gap: .25rem; }
             .nowo-dashboard-menu-actions { display: inline-flex; align-items: center; gap: .5rem; }

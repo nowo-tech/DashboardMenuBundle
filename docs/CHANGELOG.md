@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+
+- [[2.2.2] - 2026-10-09](#222---2026-10-09)
 - [[2.2.1] - 2026-10-09](#221-2026-10-09)
 - [[2.2.0] - 2026-10-07](#220-2026-10-07)
 - [[2.1.14] - 2026-09-27](#2114-2026-09-27)
@@ -86,6 +88,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.2.2] - 2026-10-09
+
+### Changed
+
+- CSP: inline `<script>` / `<style>` in `dashboard/layout.html.twig` (`dashboard_head`, i18n script), `dashboard/show.html.twig`, `dashboard/show_items_reorder.html.twig` and the profiler panel `Collector/dashboard_menu.html.twig` now carry `nonce="…"` (request attribute `csp_nonce`; the profiler panel prefers Symfony's `csp_script_nonce`). `dashboard.js` copies the nonce onto the icon-selector `<script>` it injects (new `resolveCspNonce()` helper in `config.ts`, with tests); its own `<script src>` tag in `base.html.twig` carries the nonce too. Added a template scan test (inline blocks must declare the nonce; no inline event handlers).
 
 ## [2.2.1] - 2026-10-09
 
@@ -1118,7 +1126,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.1...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.2...HEAD
+[2.2.2]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.1...v2.2.2
 [2.2.1]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.0...v2.2.1
 [2.1.13]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.12...v2.1.13
 [2.1.12]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.11...v2.1.12

@@ -36,3 +36,16 @@ export function readDashboardMenuConfig<T extends object>(
   if (island === null) return legacy;
   return { ...(legacy ?? {}), ...island } as T;
 }
+
+/**
+ * CSP nonce to copy onto `<script>` / `<style>` elements injected at runtime, so they load under
+ * `script-src 'nonce-…'` / `style-src-elem 'nonce-…'`. Prefers the executing script's nonce
+ * (`document.currentScript`, only available while the bundle evaluates), then any nonce'd element.
+ * Browsers hide the nonce attribute value, so the `nonce` property is read instead.
+ */
+export function resolveCspNonce(doc: Document | undefined, current?: Element | null): string {
+  const fromCurrent = (current as HTMLElement | null | undefined)?.nonce;
+  if (fromCurrent) return fromCurrent;
+  const el = doc?.querySelector<HTMLElement>('script[nonce], style[nonce]');
+  return el?.nonce || el?.getAttribute('nonce') || '';
+}

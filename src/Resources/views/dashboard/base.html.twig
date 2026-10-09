@@ -29,7 +29,9 @@
     {% block nowo_dashboard_menu_config_island %}
         <script type="application/json" id="nowo-dashboard-menu-config">{{ ({ cssFramework: nowo_dashboard_menu_css_framework|default('bootstrap5') }|merge(nowo_dashboard_menu_page_config|default({})))|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT') b-or constant('JSON_UNESCAPED_SLASHES'))|raw }}</script>
     {% endblock %}
-    <script src="{{ asset('js/dashboard.js', 'nowo_dashboard_menu') }}" defer></script>
+    {#- The nonce lets dashboard.js copy it onto scripts it injects (icon selector reload). -#}
+    {% set _csp_nonce = app.request is defined and app.request ? app.request.attributes.get('csp_nonce')|default('') : '' %}
+    <script src="{{ asset('js/dashboard.js', 'nowo_dashboard_menu') }}" defer{% if _csp_nonce %} nonce="{{ _csp_nonce }}"{% endif %}></script>
 {% endblock %}
 
 {% block nowo_dashboard_menu_content %}

@@ -220,6 +220,7 @@ As a bundle maintainer, I sync missing translation keys across locale files.
 
 - **FR-TWIG-002**: `MenuExtension` MUST expose functions `dashboard_menu_tree`, `dashboard_menu_href`, `dashboard_menu_config`, globals for dashboard layout and UX autocomplete availability. Tree/config helpers MUST resolve the request via `getMainRequest()` (fallback `getCurrentRequest()`) so permission context and menu-code resolution survive controller forwards.
 - **FR-TWIG-003**: `menu.html.twig` MUST render tree with configurable CSS classes, depth limit, icons (UX Icons), collapsible sections, and optional label span wrapper.
+- **FR-TWIG-004**: CSP — inline `<script>`/`<style>` in bundle templates MUST emit `nonce` from request attribute `csp_nonce` when set (profiler panel: `csp_script_nonce` first); no inline event handlers (enforced by `InlineBlocksDeclareNonceTest`). Runtime-injected `<script>` elements MUST copy the nonce (`resolveCspNonce()`).
 
 ### Web Profiler (dev)
 

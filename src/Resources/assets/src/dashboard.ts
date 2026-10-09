@@ -4,10 +4,13 @@
  */
 import Sortable from 'sortablejs';
 
-import { readDashboardMenuConfig } from './config';
+import { readDashboardMenuConfig, resolveCspNonce } from './config';
 import { createBundleLogger } from './logger';
 
 declare const __DASHBOARD_MENU_BUILD_TIME__: string | undefined;
+
+/** Captured while the bundle evaluates (document.currentScript is null afterwards). */
+const cspNonce = typeof document !== 'undefined' ? resolveCspNonce(document, document.currentScript) : '';
 
 const log = createBundleLogger('dashboard-menu', {
   buildTime: typeof __DASHBOARD_MENU_BUILD_TIME__ !== 'undefined' ? __DASHBOARD_MENU_BUILD_TIME__ : undefined,
@@ -214,6 +217,8 @@ function reinitIconSelectorInContainer(container: Element): void {
       (document.querySelector('script[src*="icon-selector"], script[src*="icon_selector"]') as HTMLScriptElement)?.src);
   if (!url) return;
   const script = document.createElement('script');
+  const nonce = cspNonce || resolveCspNonce(document);
+  if (nonce) script.nonce = nonce;
   script.src = `${url}${url.includes('?') ? '&' : '?'}_=${Date.now()}`;
   script.async = false;
   script.onload = () => {

@@ -53,7 +53,8 @@
                 <span class="small {{ ui.muted() }}">{{ 'dashboard.sortable_help'|trans({}, 'NowoDashboardMenuBundle') }}</span>
             </div>
             <div class="card-body">
-                <style>
+                {% set _csp_nonce = app.request is defined and app.request ? app.request.attributes.get('csp_nonce')|default('') : '' %}
+                <style{% if _csp_nonce %} nonce="{{ _csp_nonce }}"{% endif %}>
                     .nowo-menu-sortable-nested { /* min-height: 1.5rem; */ }
                 </style>
                 <div id="nowo-menu-sortable-root">
