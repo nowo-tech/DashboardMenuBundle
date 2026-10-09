@@ -1,6 +1,10 @@
 # Upgrading
 
 
+## To 2.2.3
+
+No action required. Hosts that overrode `dashboard/show.html.twig` or `dashboard/menu_form.html.twig` only to fix the untranslated Yes/No, the `Label (xx)` header or the English form title / submit can delete those overrides.
+
 ## To 2.2.2
 
 No action required. Inline blocks now emit `nonce` from the request attribute `csp_nonce` (see [Security — CSP](SECURITY.md#content-security-policy-csp)). If you overrode `dashboard/show.html.twig`, `dashboard/show_items_reorder.html.twig` or the layout `dashboard_head` block **only** to add the nonce, you can drop the override; otherwise add the nonce to the inline `<style>`/`<script>` in your copy (`{% set _csp_nonce = app.request ? app.request.attributes.get('csp_nonce')|default('') : '' %}` then `<style{% if _csp_nonce %} nonce="{{ _csp_nonce }}"{% endif %}>`).

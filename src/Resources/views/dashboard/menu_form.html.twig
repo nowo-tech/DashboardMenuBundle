@@ -1,7 +1,7 @@
 {% extends '@NowoDashboardMenuBundle/dashboard/base.html.twig' %}
 {% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
 
-{% block dashboard_title %}{{ (is_edit ? 'Edit menu' : 'New menu')|trans({}, 'NowoDashboardMenuBundle') }}{% endblock %}
+{% block dashboard_title %}{{ (is_edit ? 'dashboard.edit_menu' : 'dashboard.new_menu')|trans({}, 'NowoDashboardMenuBundle') }}{% endblock %}
 
 {% block body %}
     <p><a href="{{ path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index')) }}" class="{{ ui.btn('link') }}">{{ 'dashboard.menus_back'|trans({}, 'NowoDashboardMenuBundle') }}</a></p>
@@ -57,6 +57,6 @@
         {{ form_row(form.config.classCollapsed, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
         {% endif %}
         {{ form_rest(form) }}
-        <button type="submit" class="{{ ui.btn('primary') }}">{{ (is_edit ? 'Update' : 'Create')|trans({}, 'NowoDashboardMenuBundle') }}</button>
+        <button type="submit" class="{{ ui.btn('primary') }}">{{ (is_edit ? 'dashboard.update' : 'dashboard.create')|trans({}, 'NowoDashboardMenuBundle') }}</button>
     {{ form_end(form) }}
 {% endblock %}

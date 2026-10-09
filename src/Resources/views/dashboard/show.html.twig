@@ -15,7 +15,7 @@
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
         <div class="d-flex flex-wrap align-items-center gap-2">
             <a href="{{ path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index')) }}" class="{{ ui.btn('link') }}">{{ 'dashboard.menus_back'|trans({}, 'NowoDashboardMenuBundle') }}</a>
-            <h1 class="h3 d-inline">{% if menu.icon %}<span class="{{ ui.muted() }} me-1" title="{{ menu.icon }}">🔣</span>{% endif %}{{ menu.code }}{% if menu.name %} <span class="{{ ui.muted() }}">({{ menu.name }})</span>{% endif %}</h1>
+            <h1 class="h3 d-inline">{% include '@NowoDashboardMenuBundle/dashboard/_dashboard_item_icon.html.twig' with { item: menu } only %}{{ menu.code }}{% if menu.name %} <span class="{{ ui.muted() }}">({{ menu.name }})</span>{% endif %}</h1>
             {% if items|length > 0 %}
                 <a href="{{ path(dashboard_routes.show_items_reorder|default('nowo_dashboard_menu_dashboard_show_items_reorder'), { id: menu.id }) }}" class="{{ ui.btn('secondary', 'sm') }}">{{ 'dashboard.open_sortable_reorder'|trans({}, 'NowoDashboardMenuBundle') }}</a>
             {% endif %}
@@ -49,10 +49,10 @@
         <div class="alert alert-light border mb-2 py-2">
             {% if menu.permissionChecker %}<strong>{{ 'dashboard.permission_checker'|trans({}, 'NowoDashboardMenuBundle') }}:</strong> <code>{{ menu.permissionChecker }}</code>{% endif %}
             {% if menu.depthLimit is not null %} {% if menu.permissionChecker %}·{% endif %} <strong>{{ 'dashboard.depth_limit'|trans({}, 'NowoDashboardMenuBundle') }}:</strong> {{ menu.depthLimit }}{% endif %}
-            {% if menu.collapsible is not null %} · <strong>{{ 'dashboard.collapsible'|trans({}, 'NowoDashboardMenuBundle') }}:</strong> {{ menu.collapsible ? 'dashboard.yes'|trans : 'dashboard.no'|trans({}, 'NowoDashboardMenuBundle') }}{% endif %}
-            {% if menu.collapsibleExpanded is not null %} · <strong>{{ 'dashboard.collapsible_expanded'|trans({}, 'NowoDashboardMenuBundle') }}:</strong> {{ menu.collapsibleExpanded ? 'dashboard.yes'|trans : 'dashboard.no'|trans({}, 'NowoDashboardMenuBundle') }}{% endif %}
-            {% if menu.nestedCollapsible is not null %} · <strong>{{ 'dashboard.nested_collapsible'|trans({}, 'NowoDashboardMenuBundle') }}:</strong> {{ menu.nestedCollapsible ? 'dashboard.yes'|trans : 'dashboard.no'|trans({}, 'NowoDashboardMenuBundle') }}{% endif %}
-            {% if menu.nestedCollapsibleSections is not null %} · <strong>{{ 'form.menu_type.nested_collapsible_sections.label'|trans({}, 'NowoDashboardMenuBundle') }}:</strong> {{ menu.nestedCollapsibleSections ? 'dashboard.yes'|trans : 'dashboard.no'|trans({}, 'NowoDashboardMenuBundle') }}{% endif %}
+            {% if menu.collapsible is not null %} · <strong>{{ 'dashboard.collapsible'|trans({}, 'NowoDashboardMenuBundle') }}:</strong> {{ menu.collapsible ? 'dashboard.yes'|trans({}, 'NowoDashboardMenuBundle') : 'dashboard.no'|trans({}, 'NowoDashboardMenuBundle') }}{% endif %}
+            {% if menu.collapsibleExpanded is not null %} · <strong>{{ 'dashboard.collapsible_expanded'|trans({}, 'NowoDashboardMenuBundle') }}:</strong> {{ menu.collapsibleExpanded ? 'dashboard.yes'|trans({}, 'NowoDashboardMenuBundle') : 'dashboard.no'|trans({}, 'NowoDashboardMenuBundle') }}{% endif %}
+            {% if menu.nestedCollapsible is not null %} · <strong>{{ 'dashboard.nested_collapsible'|trans({}, 'NowoDashboardMenuBundle') }}:</strong> {{ menu.nestedCollapsible ? 'dashboard.yes'|trans({}, 'NowoDashboardMenuBundle') : 'dashboard.no'|trans({}, 'NowoDashboardMenuBundle') }}{% endif %}
+            {% if menu.nestedCollapsibleSections is not null %} · <strong>{{ 'form.menu_type.nested_collapsible_sections.label'|trans({}, 'NowoDashboardMenuBundle') }}:</strong> {{ menu.nestedCollapsibleSections ? 'dashboard.yes'|trans({}, 'NowoDashboardMenuBundle') : 'dashboard.no'|trans({}, 'NowoDashboardMenuBundle') }}{% endif %}
         </div>
     {% endif %}
     {% if menu.ulId or menu.classMenu or menu.classItem or menu.classLink or menu.classChildren or menu.classSectionChildren or menu.classSectionChildItem or menu.classSectionChildLink or menu.classSectionLabel or menu.classSection or menu.classDivider or menu.classCurrent or menu.classBranchExpanded or menu.classHasChildren or menu.classExpanded or menu.classCollapsed %}
@@ -95,7 +95,7 @@
                     <tr>
                         <th class="nowo-dashboard-menu-actions-col">{{ 'dashboard.actions'|trans({}, 'NowoDashboardMenuBundle') }}</th>
                         <th style="width: 1%; white-space: nowrap;">{{ 'dashboard.parent'|trans({}, 'NowoDashboardMenuBundle') }}</th>
-                        <th style="white-space: nowrap;">Label ({{ currentLocale }})</th>
+                        <th style="white-space: nowrap;">{{ 'form.menu_item_type.label_locale'|trans({'%locale%': currentLocale}, 'NowoDashboardMenuBundle') }}</th>
                         <th class="nowo-dashboard-menu-route" style="white-space: nowrap;">{{ 'dashboard.route_url'|trans({}, 'NowoDashboardMenuBundle') }}</th>
                         <th>{{ 'dashboard.item'|trans({}, 'NowoDashboardMenuBundle') }}</th>
                     </tr>

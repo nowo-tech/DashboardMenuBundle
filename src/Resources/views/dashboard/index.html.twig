@@ -29,7 +29,7 @@
             {% for menu in menus %}
                 <li class="{{ ui.list_item() }}">
                     <div>
-                        {% if menu.icon %}<span class="{{ ui.muted() }} me-1" title="{{ menu.icon }}">🔣</span>{% endif %}
+                        {% include '@NowoDashboardMenuBundle/dashboard/_dashboard_item_icon.html.twig' with { item: menu } only %}
                         <strong>{{ menu.code }}</strong>
                         {% set _itemsCount = menu_item_counts[menu.id]|default(0) %}
                         <span class="{{ ui.badge() }}" title="{{ _itemsCount }}">{{ _itemsCount }}</span>
@@ -83,7 +83,7 @@
                 <p class="small {{ ui.muted() }} mt-1">
                     {% set from = menus|length > 0 ? (pagination.current_page - 1) * pagination.per_page + 1 : 0 %}
                     {% set to = (pagination.current_page - 1) * pagination.per_page + menus|length %}
-                    {{ 'dashboard.showing_from_to_of_total'|trans({ '%from%': from, '%to%': to, '%total%': pagination.total }) }}
+                    {{ 'dashboard.showing_from_to_of_total'|trans({ '%from%': from, '%to%': to, '%total%': pagination.total }, 'NowoDashboardMenuBundle') }}
                 </p>
             </nav>
         {% endif %}

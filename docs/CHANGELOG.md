@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 - [[Unreleased]](#unreleased)
 
+- [[2.2.3] - 2026-10-09](#223---2026-10-09)
+
 - [[2.2.2] - 2026-10-09](#222---2026-10-09)
 - [[2.2.1] - 2026-10-09](#221-2026-10-09)
 - [[2.2.0] - 2026-10-07](#220-2026-10-07)
@@ -88,6 +90,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.2.3] - 2026-10-09
+
+### Fixed
+
+- Admin dashboard translations: `dashboard.yes` (menu properties on the show / reorder pages) and the listing pagination text (`dashboard.showing_from_to_of_total`) were translated outside the `NowoDashboardMenuBundle` domain and printed raw; the item table header was a hard-coded English `Label (xx)` (now `form.menu_item_type.label_locale`); the menu form title / submit used English strings as keys (`Edit menu`, `Update`…) instead of `dashboard.edit_menu` / `dashboard.update`…
+- The menu icon on the dashboard list, show and reorder pages renders like item icons (`ux_icon` for `lib:name`, data-icon fallback) instead of a bare 🔣.
+- Regression test `AdminTemplatesTranslationDomainTest`: bundle keys must use the bundle domain unless the template declares `trans_default_domain`.
 
 ## [2.2.2] - 2026-10-09
 
@@ -1126,7 +1136,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.2...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.3...HEAD
+[2.2.3]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.2...v2.2.3
 [2.2.2]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.1...v2.2.2
 [2.2.1]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.0...v2.2.1
 [2.1.13]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.12...v2.1.13
