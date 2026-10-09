@@ -3,6 +3,16 @@
 
 ## Unreleased
 
+## To 2.2.1
+
+From **2.2.0** — dependency updates only.
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
+
+No breaking changes. **No application upgrade steps.**
+
 ## To 2.2.0
 
 From **2.1.14** — CSP-safe JSON config island replaces inline `window.__nowoDashboardMenuConfig` scripts.
@@ -34,6 +44,7 @@ This document describes breaking changes and upgrade notes between versions. Sec
 ## Table of contents
 
 
+- [To 2.2.1](#to-221)
 - [To 2.2.0](#to-220)
 - [From 2.1.12 to 2.1.13](#from-2112-to-2113)
 - [From 2.1.11 to 2.1.12](#from-2111-to-2112)

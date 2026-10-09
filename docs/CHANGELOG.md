@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.2.1] - 2026-10-09](#221-2026-10-09)
 - [[2.2.0] - 2026-10-07](#220-2026-10-07)
 - [[2.1.14] - 2026-09-27](#2114-2026-09-27)
 - [[2.1.13] - 2026-09-24](#2113-2026-09-24)
@@ -85,6 +86,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.2.1] - 2026-10-09
+
+### Dependencies
+
+- Bundle lockfile: `doctrine/orm` 3.7.4, `doctrine/dbal` 4.5.0, `nowo-tech/form-kit-bundle` 2.6.0, `nowo-tech/ui-kit-bundle` 1.9.1, Symfony 7.4.20; dev `phpstan/phpstan` 2.3.1, `phpstan/phpstan-symfony` 2.1.0, `rector/rector` 2.7.0, `igor-php/igor-php` 0.10.1.
+- Demo (`demo/symfony8`): Symfony 8.1.8, `doctrine/orm` 3.7.4, `symfony/ux-twig-component` 3.5.1, `twig/twig` 3.30.0; regenerated `config/reference.php`.
 
 ## [2.2.0] - 2026-10-07
 
@@ -1110,7 +1118,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.13...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.1...HEAD
+[2.2.1]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.0...v2.2.1
 [2.1.13]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.12...v2.1.13
 [2.1.12]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.11...v2.1.12
 [2.1.11]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.1.10...v2.1.11
