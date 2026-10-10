@@ -10,6 +10,8 @@ use Psr\Container\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\Route;
+use Symfony\Component\Routing\Router;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Service\ResetInterface;
 use WeakMap;
@@ -17,6 +19,8 @@ use WeakMap;
 use function array_key_exists;
 use function in_array;
 use function is_array;
+use function is_file;
+use function is_string;
 
 /**
  * Resolves the href for a menu item (route, external URL, or itemType "service" via MenuLinkResolverInterface).
@@ -36,6 +40,14 @@ final class MenuUrlResolver implements ResetInterface
      * @var WeakMap<Request, array<string, string>>
      */
     private WeakMap $hrefMemo;
+
+    /**
+     * Compiled generator route table (name => [variables, defaults, requirements, tokens, ...]); false = unavailable.
+     * Cleared by {@see reset()} at the start of every main request.
+     *
+     * @var array<string, array<int, mixed>>|false|null
+     */
+    private array|false|null $compiledRoutes = null;
 
     /**
      * @param array<string, string> $menuLinkResolverChoices resolved id => label (after compiler pass)
@@ -70,7 +82,82 @@ final class MenuUrlResolver implements ResetInterface
 
     public function reset(): void
     {
-        $this->hrefMemo = new WeakMap();
+        $this->hrefMemo       = new WeakMap();
+        $this->compiledRoutes = null;
+    }
+
+    /**
+     * Path variables of a route, or null when the route is unknown.
+     *
+     * Reads the generator's compiled route table (`url_generating_routes.php`, opcache-friendly and kept fresh by
+     * the router's ConfigCache) instead of {@see RouterInterface::getRouteCollection()}, which reloads every routing
+     * resource (attribute scanning included) on first use: hundreds of ms per request under PHP-FPM.
+     * Falls back to the route collection only for routers without a compiled cache (e.g. tests, custom routers).
+     *
+     * @return list<string>|null
+     */
+    private function getRoutePathVariables(string $routeName): ?array
+    {
+        $compiledRoutes = $this->loadCompiledRoutes();
+        if ($compiledRoutes !== false) {
+            $tokens = $compiledRoutes[$routeName][3] ?? null;
+            if (!is_array($tokens)) {
+                return null;
+            }
+
+            $vars = [];
+            foreach ($tokens as $token) {
+                if (is_array($token) && ($token[0] ?? null) === 'variable' && isset($token[3]) && is_string($token[3])) {
+                    $vars[] = $token[3];
+                }
+            }
+
+            return $vars;
+        }
+
+        $route = $this->router->getRouteCollection()->get($routeName);
+        if (!$route instanceof Route) {
+            return null;
+        }
+
+        /** @var list<string> $pathVars */
+        $pathVars = array_values($route->compile()->getPathVariables());
+
+        return $pathVars;
+    }
+
+    /**
+     * @return array<string, array<int, mixed>>|false false when the router has no compiled generator cache
+     */
+    private function loadCompiledRoutes(): array|false
+    {
+        if ($this->compiledRoutes !== null) {
+            return $this->compiledRoutes;
+        }
+
+        $this->compiledRoutes = false;
+        if (!$this->router instanceof Router) {
+            return false;
+        }
+
+        $cacheDir = $this->router->getOption('cache_dir');
+        if (!is_string($cacheDir) || $cacheDir === '') {
+            return false;
+        }
+
+        // Builds (or refreshes in debug) the compiled generator cache file if needed.
+        $this->router->getGenerator();
+        $file = $cacheDir . '/url_generating_routes.php';
+        if (!is_file($file)) {
+            return false;
+        }
+
+        $routes = require $file;
+        if (is_array($routes)) {
+            $this->compiledRoutes = $routes;
+        }
+
+        return $this->compiledRoutes;
     }
 
     private function resolveHref(MenuItem $item, int $referenceType): string
@@ -104,10 +191,8 @@ final class MenuUrlResolver implements ResetInterface
         // Complete missing path variables from the browser URL (main request) so links reuse e.g. partner/id/locale.
         // Prefer main over current: Symfony/controller forwards replace attributes and drop `_route_params`.
         try {
-            $route = $this->router->getRouteCollection()->get($routeName);
-            if ($route instanceof \Symfony\Component\Routing\Route && $request instanceof Request) {
-                $compiled         = $route->compile();
-                $pathVars         = $compiled->getPathVariables();
+            $pathVars = $request instanceof Request ? $this->getRoutePathVariables($routeName) : null;
+            if ($pathVars !== null) {
                 $routeNeedsLocale = in_array('_locale', $pathVars, true);
                 $currentParams    = $this->collectRouteParams($request);
                 foreach ($pathVars as $var) {

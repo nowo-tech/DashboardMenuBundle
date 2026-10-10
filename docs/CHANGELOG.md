@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 - [[Unreleased]](#unreleased)
 
+- [[2.2.4] - 2026-10-10](#224---2026-10-10)
+
 - [[2.2.3] - 2026-10-09](#223---2026-10-09)
 
 - [[2.2.2] - 2026-10-09](#222---2026-10-09)
@@ -90,6 +92,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.2.4] - 2026-10-10
+
+### Performance
+
+- `MenuUrlResolver` no longer calls `RouterInterface::getRouteCollection()` to find the path variables of each menu route. It reads them from the generator's compiled table (`url_generating_routes.php`), so the routing resources (attribute scanning included) are not reloaded on every request: ~200–500 ms per page with the sidebar under PHP-FPM on an app with ~3k routes. Routers without a compiled cache keep the previous fallback.
+- `dashboard_menu_config()` reuses the menu rows already loaded by `dashboard_menu_tree()` (new `MenuTreeLoader::loadMenu()`), instead of an extra ORM query and entity hydration per request.
+- Raw menu rows are memoized on the main request attributes (worker-safe), so the tree and its config share one cache / DB read per request.
+
+### Fixed
+
+- Empty branches are pruned again, as documented in USAGE: sections and links whose database children are all hidden by the permission checker are removed. `had_children` was computed on a by-value copy (never set) and after permission filtering.
+- The raw menu query and hydration now include `class_section_label`, `class_section` and `class_divider` (tree cache key bumped to `nowo_dashboard_menu.tree.v2.`).
 
 ## [2.2.3] - 2026-10-09
 
@@ -1136,7 +1151,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.3...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.4...HEAD
+[2.2.4]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.3...v2.2.4
 [2.2.3]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.2...v2.2.3
 [2.2.2]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.1...v2.2.2
 [2.2.1]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.0...v2.2.1

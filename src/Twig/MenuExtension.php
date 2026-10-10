@@ -112,7 +112,10 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
     {
         $request = $this->resolveMenuRequest();
         $code    = $request instanceof Request ? $this->menuCodeResolver->resolveMenuCode($request, $menuCode) : $menuCode;
-        $config  = $this->configResolver->getConfig($code, $contextSets);
+        $locale  = $request instanceof Request ? $this->localeResolver->resolveLocale($request->getLocale()) : 'en';
+        // Reuse the raw rows already loaded (request memo / tree cache) by dashboard_menu_tree(): no extra ORM query.
+        $menu   = $this->menuTreeLoader->loadMenu($code, $locale, $contextSets);
+        $config = $this->configResolver->getConfig($code, $contextSets, $menu);
 
         return [
             'classes'              => $config['classes'],

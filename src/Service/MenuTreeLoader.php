@@ -27,14 +27,19 @@ use function serialize;
 use function unserialize;
 
 /**
- * Loads menu tree via a single SQL path (menu + items in 2 queries), optional filesystem cache, builds nested structure.
+ * Loads menu tree via a single SQL path (menu + items in 2 queries), optional PSR-6 cache and a per-request memo
+ * (stored on the main request, so it is safe in long-lived workers), builds nested structure.
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
  */
 final readonly class MenuTreeLoader
 {
-    private const CACHE_KEY_PREFIX = 'nowo_dashboard_menu.tree.';
+    /** v2: raw menu rows now include class_section_label, class_section and class_divider. */
+    private const CACHE_KEY_PREFIX = 'nowo_dashboard_menu.tree.v2.';
+
+    /** Main request attribute holding raw rows already loaded in this request (cleared with the request). */
+    private const REQUEST_MEMO_ATTRIBUTE = '_nowo_dashboard_menu_raw';
 
     public function __construct(
         private MenuRepository $menuRepository,
@@ -69,38 +74,9 @@ final readonly class MenuTreeLoader
     {
         $sets = $contextSets ?? [null, []];
 
-        $version  = $this->cacheInvalidator?->getVersionForMenuCode($menuCode) ?? 0;
-        $cacheKey = $this->cachePool instanceof CacheItemPoolInterface
-            ? self::CACHE_KEY_PREFIX . md5($menuCode . '.' . $locale . '.' . serialize($sets) . '.v' . $version)
-            : null;
-
-        if ($cacheKey !== null) {
-            $item = $this->cachePool->getItem($cacheKey);
-            if ($item->isHit()) {
-                $raw = unserialize($item->get(), ['allowed_classes' => false]);
-                if (is_array($raw) && isset($raw['menu'], $raw['items'])) {
-                    [$menu, $flat]                                  = $this->hydrateMenuAndItems($raw['menu'], $raw['items'], $locale);
-                    $config                                         = $this->configResolver->getConfig($menuCode, $sets, $menu);
-                    [$checker, $checkerServiceId, $checkerFallback] = $this->resolvePermissionChecker($config['permission_checker']);
-                    $tree                                           = $this->buildTree($flat, $checker, $permissionContext, $menuCode, $config['permission_checker'], $checkerServiceId, $checkerFallback);
-                    $tree                                           = $this->mergeDynamicServiceChildren($tree, $checker, $permissionContext, $menuCode, $config['permission_checker'], $checkerServiceId, $checkerFallback);
-                    $this->markNodesWithChildren($tree);
-
-                    return $this->pruneEmptySections($tree);
-                }
-            }
-        }
-
-        $raw = $this->menuRepository->findMenuAndItemsRaw($menuCode, $sets);
+        $raw = $this->loadRaw($menuCode, $locale, $sets);
         if ($raw === null) {
             return $this->loadTreeLegacy($menuCode, $locale, $permissionContext, $sets);
-        }
-
-        if ($cacheKey !== null) {
-            $cacheItem = $this->cachePool->getItem($cacheKey);
-            $cacheItem->set(serialize($raw));
-            $cacheItem->expiresAfter($this->cacheTtl);
-            $this->cachePool->save($cacheItem);
         }
 
         [$menu, $flat]                                  = $this->hydrateMenuAndItems($raw['menu'], $raw['items'], $locale);
@@ -108,9 +84,76 @@ final readonly class MenuTreeLoader
         [$checker, $checkerServiceId, $checkerFallback] = $this->resolvePermissionChecker($config['permission_checker']);
         $tree                                           = $this->buildTree($flat, $checker, $permissionContext, $menuCode, $config['permission_checker'], $checkerServiceId, $checkerFallback);
         $tree                                           = $this->mergeDynamicServiceChildren($tree, $checker, $permissionContext, $menuCode, $config['permission_checker'], $checkerServiceId, $checkerFallback);
-        $this->markNodesWithChildren($tree);
+        $this->markNodesWithChildren($tree, $this->collectParentIds($flat));
 
         return $this->pruneEmptySections($tree);
+    }
+
+    /**
+     * Returns the menu entity (hydrated from the same cached raw rows as {@see loadTree()}), so render config
+     * can be resolved without an extra ORM query. Falls back to the repository when the raw path is unavailable.
+     *
+     * @param list<array<string, bool|int|string>|null>|null $contextSets
+     */
+    public function loadMenu(string $menuCode, string $locale, ?array $contextSets = null): ?Menu
+    {
+        $sets = $contextSets ?? [null, []];
+        $raw  = $this->loadRaw($menuCode, $locale, $sets);
+        if ($raw === null) {
+            return $this->menuRepository->findForCodeWithContextSets($menuCode, $sets);
+        }
+
+        return $this->hydrateMenuFromRow($raw['menu']);
+    }
+
+    /**
+     * Raw menu + item rows: request memo (main request attribute, worker-safe) → PSR-6 pool → 2 SQL queries.
+     *
+     * @param list<array<string, bool|int|string>|null> $sets
+     *
+     * @return array{menu: array<string, mixed>, items: list<array<string, mixed>>}|null
+     */
+    private function loadRaw(string $menuCode, string $locale, array $sets): ?array
+    {
+        $version  = $this->cacheInvalidator?->getVersionForMenuCode($menuCode) ?? 0;
+        $cacheKey = self::CACHE_KEY_PREFIX . md5($menuCode . '.' . $locale . '.' . serialize($sets) . '.v' . $version);
+
+        $request = $this->requestStack?->getMainRequest() ?? $this->requestStack?->getCurrentRequest();
+        /** @var array<string, array{menu: array<string, mixed>, items: list<array<string, mixed>>}|false> $memo */
+        $memo = $request instanceof Request ? (array) $request->attributes->get(self::REQUEST_MEMO_ATTRIBUTE, []) : [];
+        if (array_key_exists($cacheKey, $memo)) {
+            return $memo[$cacheKey] === false ? null : $memo[$cacheKey];
+        }
+
+        $raw = null;
+        if ($this->cachePool instanceof CacheItemPoolInterface) {
+            $item = $this->cachePool->getItem($cacheKey);
+            if ($item->isHit()) {
+                $cached = unserialize($item->get(), ['allowed_classes' => false]);
+                if (is_array($cached) && isset($cached['menu'], $cached['items'])) {
+                    /** @var array{menu: array<string, mixed>, items: list<array<string, mixed>>} $cached */
+                    $raw = $cached;
+                }
+            }
+        }
+
+        if ($raw === null) {
+            $raw = $this->menuRepository->findMenuAndItemsRaw($menuCode, $sets);
+            if ($raw !== null && $this->cachePool instanceof CacheItemPoolInterface) {
+                $cacheItem = $this->cachePool->getItem($cacheKey);
+                $cacheItem->set(serialize($raw));
+                $cacheItem->expiresAfter($this->cacheTtl);
+                $this->cachePool->save($cacheItem);
+            }
+        }
+
+        if ($request instanceof Request) {
+            $memo[$cacheKey] = $raw ?? false;
+            // @igor-ignore - Request-scoped memo on the main request attributes; dropped with the request, never kept in the worker
+            $request->attributes->set(self::REQUEST_MEMO_ATTRIBUTE, $memo);
+        }
+
+        return $raw;
     }
 
     /**
@@ -131,7 +174,7 @@ final readonly class MenuTreeLoader
         [$checker, $checkerServiceId, $checkerFallback] = $this->resolvePermissionChecker($config['permission_checker']);
         $tree                                           = $this->buildTree($flat, $checker, $permissionContext, $menuCode, $config['permission_checker'], $checkerServiceId, $checkerFallback);
         $tree                                           = $this->mergeDynamicServiceChildren($tree, $checker, $permissionContext, $menuCode, $config['permission_checker'], $checkerServiceId, $checkerFallback);
-        $this->markNodesWithChildren($tree);
+        $this->markNodesWithChildren($tree, $this->collectParentIds($flat));
 
         return $this->pruneEmptySections($tree);
     }
@@ -172,6 +215,9 @@ final readonly class MenuTreeLoader
         $this->setMenuString($menu, 'classSectionChildren', $row['class_section_children'] ?? null);
         $this->setMenuString($menu, 'classSectionChildItem', $row['class_section_child_item'] ?? null);
         $this->setMenuString($menu, 'classSectionChildLink', $row['class_section_child_link'] ?? null);
+        $this->setMenuString($menu, 'classSectionLabel', $row['class_section_label'] ?? null);
+        $this->setMenuString($menu, 'classSection', $row['class_section'] ?? null);
+        $this->setMenuString($menu, 'classDivider', $row['class_divider'] ?? null);
         $this->setMenuString($menu, 'classCurrent', $row['class_current'] ?? null);
         $this->setMenuString($menu, 'classBranchExpanded', $row['class_branch_expanded'] ?? null);
         $this->setMenuString($menu, 'classHasChildren', $row['class_has_children'] ?? null);
@@ -282,16 +328,40 @@ final readonly class MenuTreeLoader
     }
 
     /**
-     * Mark each node with 'had_children' (whether it had any children in the built tree) to avoid DB access when pruning.
+     * Ids of items that have at least one child in the database (before permission filtering).
+     *
+     * @param list<MenuItem> $flat
+     *
+     * @return array<int, true>
+     */
+    private function collectParentIds(array $flat): array
+    {
+        $parentIds = [];
+        foreach ($flat as $item) {
+            $parentId = $item->getParent()?->getId();
+            if ($parentId !== null) {
+                $parentIds[$parentId] = true;
+            }
+        }
+
+        return $parentIds;
+    }
+
+    /**
+     * Mark each node with 'had_children': it had children in the database (before permission filtering)
+     * or still has (e.g. dynamic service) children, so {@see pruneEmptySections()} can drop branches emptied by permissions.
      *
      * @param list<array<string, mixed>> $nodes
+     * @param array<int, true> $parentIds
      */
-    private function markNodesWithChildren(array $nodes): void
+    private function markNodesWithChildren(array &$nodes, array $parentIds): void
     {
         foreach ($nodes as &$node) {
-            $this->markNodesWithChildren($node['children']);
-            $node['had_children'] = count($node['children']) > 0;
+            $this->markNodesWithChildren($node['children'], $parentIds);
+            $id                   = $node['item']->getId();
+            $node['had_children'] = count($node['children']) > 0 || ($id !== null && isset($parentIds[$id]));
         }
+        unset($node);
     }
 
     /**

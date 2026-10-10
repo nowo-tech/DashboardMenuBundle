@@ -25,6 +25,7 @@ use ReflectionMethod;
 use ReflectionProperty;
 use stdClass;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class MenuTreeLoaderTest extends TestCase
 {
@@ -1379,6 +1380,143 @@ class MenuTreeLoaderTest extends TestCase
 
         $tree = $loader->loadTree('sidebar', 'en');
         self::assertSame('Fresh', $tree[0]['item']->getLabel());
+    }
+
+    public function testLoadTreePrunesBranchesWhoseChildrenAreAllHiddenByPermissions(): void
+    {
+        $raw = [
+            'menu'  => ['id' => 1, 'code' => 'main', 'attributes_key' => '', 'permission_checker' => 'hide_secret'],
+            'items' => [
+                $this->rawItem(10, null, 0, 'Section with hidden children', 'section'),
+                $this->rawItem(11, 10, 0, 'Secret A'),
+                $this->rawItem(12, 10, 1, 'Secret B'),
+                $this->rawItem(20, null, 1, 'Link with hidden children'),
+                $this->rawItem(21, 20, 0, 'Secret C'),
+                $this->rawItem(30, null, 2, 'Standalone section', 'section'),
+                $this->rawItem(40, null, 3, 'Section with visible child', 'section'),
+                $this->rawItem(41, 40, 0, 'Visible'),
+                $this->rawItem(50, null, 4, 'Leaf link'),
+            ],
+        ];
+
+        $loader = $this->createRawLoader($raw, new class implements MenuPermissionCheckerInterface {
+            public function canView(MenuItem $item, mixed $context = null): bool
+            {
+                return !str_starts_with($item->getLabel(), 'Secret');
+            }
+        });
+
+        $labels = array_map(static fn (array $node): string => $node['item']->getLabel(), $loader->loadTree('main', 'en'));
+
+        self::assertSame(['Standalone section', 'Section with visible child', 'Leaf link'], $labels);
+    }
+
+    public function testLoadMenuReusesRawRowsLoadedByLoadTreeInTheSameRequest(): void
+    {
+        $raw = [
+            'menu' => [
+                'id'                  => 1,
+                'code'                => 'main',
+                'attributes_key'      => '',
+                'name'                => 'Main menu',
+                'class_section_label' => 'my-section-label',
+                'class_section'       => 'my-section',
+                'class_divider'       => 'my-divider',
+            ],
+            'items' => [$this->rawItem(10, null, 0, 'Root')],
+        ];
+
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->expects(self::once())->method('findMenuAndItemsRaw')->willReturn($raw);
+        $menuRepo->expects(self::never())->method('findForCodeWithContextSets');
+
+        $requestStack = new RequestStack();
+        $requestStack->push(new Request());
+
+        $container = $this->createStub(ContainerInterface::class);
+        $loader    = new MenuTreeLoader(
+            $menuRepo,
+            $this->createStub(MenuItemRepository::class),
+            new MenuConfigResolver(['project' => null], $menuRepo),
+            new MenuIconNameResolver([]),
+            $container,
+            new AllowAllMenuPermissionChecker(),
+            $container,
+            [],
+            $requestStack,
+        );
+
+        self::assertCount(1, $loader->loadTree('main', 'en'));
+        $menu = $loader->loadMenu('main', 'en');
+
+        self::assertInstanceOf(Menu::class, $menu);
+        self::assertSame('Main menu', $menu->getName());
+        self::assertSame('my-section-label', $menu->getClassSectionLabel());
+        self::assertSame('my-section', $menu->getClassSection());
+        self::assertSame('my-divider', $menu->getClassDivider());
+    }
+
+    public function testLoadMenuFallsBackToRepositoryWhenRawPathIsUnavailable(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('main');
+
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findMenuAndItemsRaw')->willReturn(null);
+        $menuRepo->expects(self::once())->method('findForCodeWithContextSets')->with('main', [null, []])->willReturn($menu);
+
+        $container = $this->createStub(ContainerInterface::class);
+        $loader    = new MenuTreeLoader(
+            $menuRepo,
+            $this->createStub(MenuItemRepository::class),
+            new MenuConfigResolver(['project' => null], $menuRepo),
+            new MenuIconNameResolver([]),
+            $container,
+            new AllowAllMenuPermissionChecker(),
+            $container,
+        );
+
+        self::assertSame($menu, $loader->loadMenu('main', 'en'));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function rawItem(int $id, ?int $parentId, int $position, string $label, string $itemType = 'link'): array
+    {
+        return [
+            'id'         => $id,
+            'menu_id'    => 1,
+            'parent_id'  => $parentId,
+            'position'   => $position,
+            'label'      => $label,
+            'link_type'  => $itemType === 'link' ? 'route' : null,
+            'route_name' => $itemType === 'link' ? 'app_home' : null,
+            'item_type'  => $itemType,
+        ];
+    }
+
+    /**
+     * @param array{menu: array<string, mixed>, items: list<array<string, mixed>>} $raw
+     */
+    private function createRawLoader(array $raw, MenuPermissionCheckerInterface $checker): MenuTreeLoader
+    {
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findMenuAndItemsRaw')->willReturn($raw);
+
+        $checkerLocator = $this->createStub(ContainerInterface::class);
+        $checkerLocator->method('has')->willReturnCallback(static fn (string $id): bool => $id === 'hide_secret');
+        $checkerLocator->method('get')->willReturn($checker);
+
+        return new MenuTreeLoader(
+            $menuRepo,
+            $this->createStub(MenuItemRepository::class),
+            new MenuConfigResolver(['project' => null], $menuRepo),
+            new MenuIconNameResolver([]),
+            $checkerLocator,
+            new AllowAllMenuPermissionChecker(),
+            $this->createStub(ContainerInterface::class),
+        );
     }
 
     private function setMenuItemId(MenuItem $item, ?int $id): void

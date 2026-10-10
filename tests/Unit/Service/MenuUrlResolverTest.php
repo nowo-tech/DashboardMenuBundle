@@ -16,7 +16,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\Loader\ClosureLoader;
+use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouteCollection;
+use Symfony\Component\Routing\Router;
 use Symfony\Component\Routing\RouterInterface;
 
 final class MenuUrlResolverTest extends TestCase
@@ -186,6 +189,50 @@ final class MenuUrlResolverTest extends TestCase
             }
         }
         self::assertTrue($found, 'Expected a flash message starting with "Menu URL:"');
+    }
+
+    public function testGetHrefReadsPathVariablesFromCompiledGeneratorCacheWithoutLoadingRouteCollection(): void
+    {
+        $cacheDir = sys_get_temp_dir() . '/nowo_dashboard_menu_router_' . bin2hex(random_bytes(4));
+        $routes   = new RouteCollection();
+        $routes->add('app_partner_list', new \Symfony\Component\Routing\Route('/{_locale}/partner/{partnerMachineName}/list'));
+        $routes->add('app_plain', new \Symfony\Component\Routing\Route('/plain'));
+
+        try {
+            // Warm the compiled generator cache (url_generating_routes.php) like cache:warmup does.
+            (new Router(new ClosureLoader(), static fn (): RouteCollection => $routes, ['cache_dir' => $cacheDir]))->getGenerator();
+
+            // A fresh router on the same cache dir must never reload its routing resources.
+            $router = new Router(new ClosureLoader(), static function (): never {
+                throw new RuntimeException('getRouteCollection() must not be called at runtime');
+            }, ['cache_dir' => $cacheDir]);
+
+            $request = Request::create('/es/partner/acme/dashboard');
+            $request->setLocale('es');
+            $request->attributes->set('_route_params', ['_locale' => 'es', 'partnerMachineName' => 'acme']);
+            $requestStack = new RequestStack();
+            $requestStack->push($request);
+            $router->setContext((new RequestContext())->fromRequest($request));
+
+            $resolver = new MenuUrlResolver($router, $requestStack, $router, $this->createEmptyTestContainer());
+
+            $item = new MenuItem();
+            $item->setLinkType(MenuItem::LINK_TYPE_ROUTE);
+            $item->setRouteName('app_partner_list');
+            self::assertSame('/es/partner/acme/list', $resolver->getHref($item));
+
+            $plain = new MenuItem();
+            $plain->setLinkType(MenuItem::LINK_TYPE_ROUTE);
+            $plain->setRouteName('app_plain');
+            self::assertSame('/plain', $resolver->getHref($plain));
+        } finally {
+            foreach (glob($cacheDir . '/*') ?: [] as $file) {
+                unlink($file);
+            }
+            if (is_dir($cacheDir)) {
+                rmdir($cacheDir);
+            }
+        }
     }
 
     public function testGetHrefCompletesMissingPathParamsFromCurrentRequest(): void

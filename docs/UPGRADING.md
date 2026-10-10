@@ -1,6 +1,13 @@
 # Upgrading
 
 
+## To 2.2.4
+
+No action required. Menu hrefs no longer load the whole route collection at runtime (big win under PHP-FPM).
+
+- Branches whose database children are all hidden by the permission checker are now pruned, as documented in [USAGE](USAGE.md). If you relied on an empty parent link or section still rendering, give it a standalone purpose (no children) or adjust your permission checker.
+- The tree cache key prefix changed (`nowo_dashboard_menu.tree.v2.`); old entries simply expire. With menu writes invalidating per menu code, a longer `cache.ttl` (e.g. 3600) on a shared pool (Redis) is safe.
+
 ## To 2.2.3
 
 No action required. Hosts that overrode `dashboard/show.html.twig` or `dashboard/menu_form.html.twig` only to fix the untranslated Yes/No, the `Label (xx)` header or the English form title / submit can delete those overrides.

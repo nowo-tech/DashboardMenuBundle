@@ -118,6 +118,7 @@ class MenuRepository extends ServiceEntityRepository implements ResetInterface
         $quotedMenu   = $this->quoteTableName($conn, $menuTable);
         $menuColumns  = 'id, code, attributes_key, name, icon, class_menu, ul_id, class_item, class_link,'
             . ' class_children, class_section_children, class_section_child_item, class_section_child_link,'
+            . ' class_section_label, class_section, class_divider,'
             . ' class_current, class_branch_expanded, class_has_children, class_expanded, class_collapsed,'
             . ' permission_checker, depth_limit, collapsible, collapsible_expanded,'
             . ' nested_collapsible, nested_collapsible_sections, attributes, base';
