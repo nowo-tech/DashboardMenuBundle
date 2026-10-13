@@ -16,12 +16,13 @@ final class DashboardMenuAccessCheckerTest extends TestCase
         self::assertTrue((new AllowAllDashboardMenuAccessChecker())->canAccess());
     }
 
-    public function testConfigurableEmptyRolesAlwaysGrants(): void
+    public function testConfigurableEmptyRolesDenies(): void
     {
+        // Regression: access_roles: [] used to grant everyone (fail-open).
         $auth = $this->createMock(AuthorizationCheckerInterface::class);
         $auth->expects(self::never())->method('isGranted');
 
-        self::assertTrue((new ConfigurableDashboardMenuAccessChecker($auth, []))->canAccess());
+        self::assertFalse((new ConfigurableDashboardMenuAccessChecker($auth, []))->canAccess());
     }
 
     public function testConfigurableGrantsWhenAnyRoleMatches(): void

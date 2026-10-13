@@ -402,7 +402,7 @@ final class Configuration implements ConfigurationInterface
                         ->arrayNode('access_roles')
                             ->scalarPrototype()->end()
                             ->defaultValue(['ROLE_ADMIN'])
-                            ->info('User must be granted at least one role. Empty list disables bundle-level role checks (firewall / custom checker only).')
+                            ->info('User must be granted at least one role. Empty list denies access (fail-closed) unless security.access_checker is set.')
                         ->end()
                         ->booleanNode('allow_unauthenticated')
                             ->defaultFalse()

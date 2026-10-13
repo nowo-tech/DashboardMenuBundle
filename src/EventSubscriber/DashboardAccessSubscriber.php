@@ -7,11 +7,13 @@ namespace Nowo\DashboardMenuBundle\EventSubscriber;
 use Nowo\DashboardMenuBundle\Security\DashboardMenuAccessCheckerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * Enforces DashboardMenuAccessCheckerInterface on dashboard admin routes (REQ-UI-002).
+ * When the dashboard is disabled, its routes answer 404 (they may still be imported by the host).
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
@@ -22,6 +24,7 @@ final readonly class DashboardAccessSubscriber implements EventSubscriberInterfa
 
     public function __construct(
         private DashboardMenuAccessCheckerInterface $accessChecker,
+        private bool $dashboardEnabled = true,
     ) {
     }
 
@@ -37,6 +40,10 @@ final readonly class DashboardAccessSubscriber implements EventSubscriberInterfa
         $route = $event->getRequest()->attributes->get('_route');
         if ($route === null || !str_starts_with((string) $route, self::DASHBOARD_ROUTE_PREFIX)) {
             return;
+        }
+
+        if (!$this->dashboardEnabled) {
+            throw new NotFoundHttpException('Dashboard Menu admin is disabled.');
         }
 
         if (!$this->accessChecker->canAccess()) {

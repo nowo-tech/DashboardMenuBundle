@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -103,5 +104,30 @@ final class DashboardAccessSubscriberTest extends TestCase
         $request    = Request::create('/');
         $request->attributes->set('_route', 'nowo_dashboard_menu_dashboard_index');
         $subscriber->onKernelController($this->createControllerEvent($request));
+    }
+
+    public function testReturnsNotFoundForDashboardRoutesWhenDashboardDisabled(): void
+    {
+        $checker = $this->createMock(DashboardMenuAccessCheckerInterface::class);
+        $checker->expects(self::never())->method('canAccess');
+
+        $subscriber = new DashboardAccessSubscriber($checker, false);
+        $request    = Request::create('/');
+        $request->attributes->set('_route', 'nowo_dashboard_menu_dashboard_index');
+
+        $this->expectException(NotFoundHttpException::class);
+        $subscriber->onKernelController($this->createControllerEvent($request));
+    }
+
+    public function testIgnoresNonDashboardRoutesWhenDashboardDisabled(): void
+    {
+        $checker = $this->createMock(DashboardMenuAccessCheckerInterface::class);
+        $checker->expects(self::never())->method('canAccess');
+
+        $subscriber = new DashboardAccessSubscriber($checker, false);
+        $request    = Request::create('/');
+        $request->attributes->set('_route', 'nowo_dashboard_menu_api');
+        $subscriber->onKernelController($this->createControllerEvent($request));
+        $this->addToAssertionCount(1);
     }
 }

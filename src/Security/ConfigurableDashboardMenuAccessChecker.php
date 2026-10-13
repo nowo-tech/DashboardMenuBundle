@@ -22,8 +22,9 @@ final readonly class ConfigurableDashboardMenuAccessChecker implements Dashboard
 
     public function canAccess(): bool
     {
+        // Empty access_roles = deny (fail-closed). Use a custom access_checker or allow_unauthenticated (demos) instead.
         if ($this->accessRoles === []) {
-            return true;
+            return false;
         }
 
         foreach ($this->accessRoles as $role) {
