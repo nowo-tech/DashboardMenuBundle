@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 // This file is auto-generated and is for apps only. Bundles SHOULD NOT rely on its content.
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
@@ -1369,8 +1367,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     permission_checker_choices?: list<scalar|Param|null>,
  *     menu_link_resolver_choices?: list<scalar|Param|null>,
  *     api?: array{
- *         enabled?: bool|Param, // Default: true
- *         path_prefix?: scalar|Param|null, // Default: "/api/menu"
+ *         enabled?: bool|Param, // Register the JSON API route nowo_dashboard_menu_api (requires importing the bundle routes.yaml). When false, the route is not registered. // Default: true
+ *         path_prefix?: scalar|Param|null, // Path prefix of the JSON API route: GET {path_prefix}/{code}. // Default: "/api/menu"
  *     },
  *     dashboard?: array{ // Admin dashboard to manage menus and items. Import routes with prefix (e.g. /admin/menus).
  *         enabled?: bool|Param, // Default: false
@@ -1396,12 +1394,14 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             actions_column?: "first"|"last"|Param, // Position of the actions column in the items table (show page): "first" (default) or "last". // Default: "first"
  *             row_action_display?: null|"icon"|"text"|"icon_text"|Param, // Row action content: null (default) = bundle SVG icons only; icon | text | icon_text render partials.row_action_inner (UiKit row_actions_display contract). // Default: null
  *             region_attribute?: scalar|Param|null, // Optional attribute name (e.g. data-testid) set on page regions: dashboard-menu-menus-table, dashboard-menu-items-table, dashboard-menu-sortable. // Default: null
+ *             header_action_variants?: array<string, "primary"|"secondary"|"ghost"|"danger"|"link"|Param>,
  *             form_themes?: list<scalar|Param|null>,
  *             classes?: array{ // CSS class map. Unset (null) = UiKit macro for css_framework; a string replaces the bundle class ("" drops it).
  *                 button_primary?: scalar|Param|null, // Default: null
  *                 button_secondary?: scalar|Param|null, // Default: null
  *                 button_danger?: scalar|Param|null, // Default: null
  *                 button_link?: scalar|Param|null, // Default: null
+ *                 button_ghost?: scalar|Param|null, // Default: null
  *                 button_small?: scalar|Param|null, // Default: null
  *                 page_header?: scalar|Param|null, // Default: null
  *                 toolbar?: scalar|Param|null, // Default: null
@@ -1466,6 +1466,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         permission_key_choices?: list<scalar|Param|null>,
  *         id_options?: list<scalar|Param|null>,
  *         icon_size?: scalar|Param|null, // CSS size used to render menu item icons (applied to SVG via width/height and to legacy icons via `font-size`). Example: `1em`, `16px`, `24px`. // Default: "1em"
+ *         autocomplete_bootstrap?: bool|Param, // When true (default), dashboard.js registers Symfony UX Autocomplete from esm.sh and injects the Tom Select CDN stylesheet if the host Stimulus app has not registered the controller. Set false when the host app ships UX Autocomplete and its own Tom Select styles (CSP without third-party origins). The script never re-registers a controller the host already registered. // Default: true
  *         item_span_active?: bool|Param, // When true, the item label (non-section items) is wrapped in an extra <span> element. This controls rendering of the wrapper in menu.html.twig. // Default: false
  *         css_class_options?: array{ // Lists of CSS classes shown as selectors in the dashboard when editing a menu. Override in app config to customize options.
  *             menu?: list<scalar|Param|null>,
@@ -1497,11 +1498,28 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     icon_set?: "bootstrap-icons"|"tabler-icons"|"ux_icon"|"svg_inline"|"none"|Param, // Icon rendering: bootstrap-icons|tabler-icons|ux_icon|svg_inline|none. // Default: "bootstrap-icons"
  *     row_actions_display?: "icon"|"text"|"icon_text"|Param, // Table/list row actions: icon (glyph only) | text (label only) | icon_text (both). // Default: "icon"
  *     panel_path_rewrites?: array<string, scalar|Param|null>,
+ *     release_check?: array{ // Optional GitHub release-version checker (footer dialog + JSON endpoint). Off by default.
+ *         enabled?: bool|Param, // Register the checker service + controller. Also import @NowoUiKitBundle/Resources/config/routes/release_check.yaml. // Default: false
+ *         github_repo?: scalar|Param|null, // Public GitHub repository "owner/name" whose releases are compared (e.g. nowo-tech/my-app). // Default: ""
+ *         current_version?: scalar|Param|null, // Installed version label, clean semver x.y.z with optional "v" (e.g. "%app.version%"). Non-semver values skip the check. // Default: ""
+ *         cache_ttl?: int|Param, // Seconds to cache the GitHub answer (cache.app). Default 12h. // Default: 43200
+ *         default_branch?: scalar|Param|null, // Branch used as compare target when the installed version is already the latest. // Default: "main"
+ *         user_agent?: scalar|Param|null, // User-Agent sent to api.github.com. // Default: "nowo-ui-kit-release-check"
+ *     },
  * }
  * @psalm-type NowoFormKitConfig = array{
  *     type_map?: array<string, scalar|Param|null>,
  *     default_profile?: scalar|Param|null, // Name of the profile to use when no profile is specified (key in profiles) // Default: "default"
  *     css_framework?: scalar|Param|null, // CSS framework for CssClassUtilities (column merge + class ordering): bootstrap, tailwind, foundation, none. // Default: "bootstrap"
+ *     stateless_csrf?: array{ // Give selected (usually anonymous/public) form types a stateless CSRF token id so rendering them does not start a session. Off by default.
+ *         enabled?: bool|Param, // Default: false
+ *         token_id?: scalar|Param|null, // csrf_token_id default applied to the listed form types. Must be listed in framework.csrf_protection.stateless_token_ids. // Default: "submit"
+ *         form_types?: list<scalar|Param|null>,
+ *         register_stateless_token_id?: bool|Param, // Prepend token_id to framework.csrf_protection.stateless_token_ids (enables framework CSRF protection if it was not configured). // Default: true
+ *     },
+ *     accessibility?: array{ // Accessibility helpers applied by kit form type extensions.
+ *         unlabelled_choice_aria_label?: bool|Param, // When true (default), non-expanded ChoiceType fields (and subtypes such as EntityType) rendered with label: false and no aria-label/aria-labelledby get aria-label from their translated help, else their placeholder. // Default: true
+ *     },
  *     profiles?: array<string, array{ // Default: []
  *         alias?: scalar|Param|null, // Alias for this profile (e.g. for reference in form types)
  *         translation_domain?: scalar|Param|null, // Default: "messages"
@@ -1668,6 +1686,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  * @psalm-type NowoIconSelectorConfig = array{
  *     icon_sets?: list<scalar|Param|null>,
  *     use_iconify_collection?: bool|Param, // When true, fetch the full icon list from api.iconify.design/collection for each icon_sets entry (requires symfony/http-client). When false, use the bundle static list. // Default: false
+ *     iconify_http_timeout?: float|Param, // HTTP timeout in seconds for each Iconify collection API request when use_iconify_collection is true. Keep below PHP max_execution_time / FrankenPHP write timeout. // Default: 15.0
  *     icons_api_path?: scalar|Param|null, // Path for the JSON API that returns available icons. Used by the frontend to fetch the list. // Default: "/api/icon-selector/icons"
  *     form_theme?: scalar|Param|null, // Base form layout so the icon selector theme matches your app (e.g. form_div_layout.html.twig, bootstrap_5_layout.html.twig). Must match twig.form_themes. // Default: "form_div_layout.html.twig"
  *     debug?: bool|Param, // When true, the frontend logs all debug/info/warn messages to the console. When false, only the initial "script loaded" message is shown. // Default: false
