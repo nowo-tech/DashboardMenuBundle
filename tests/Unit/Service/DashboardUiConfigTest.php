@@ -33,7 +33,9 @@ final class DashboardUiConfigTest extends TestCase
             'actions_column'           => 'first',
             'row_action_display'       => null,
             'region_attribute'         => null,
+            'header_action_variants'   => [],
         ], $ui->toArray());
+        self::assertSame('primary', $ui->headerActionVariant('edit_menu', 'primary'));
     }
 
     public function testConfiguredValues(): void
@@ -120,5 +122,51 @@ final class DashboardUiConfigTest extends TestCase
 
         $this->expectException(InvalidConfigurationException::class);
         $processor->processConfiguration(new Configuration(), [['dashboard' => ['ui' => ['classes' => ['typo_key' => 'x']]]]]);
+    }
+
+    public function testHeaderActionVariantsFilterUnknownActionsAndVariants(): void
+    {
+        $ui = new DashboardUiConfig(['header_action_variants' => [
+            'edit_menu'  => 'secondary',
+            'add_item'   => 'primary',
+            'export'     => 'ghost',
+            'copy'       => 'rainbow',
+            'not_action' => 'danger',
+            'import'     => '',
+            'new_menu'   => null,
+        ]]);
+
+        self::assertSame(['export' => 'ghost', 'edit_menu' => 'secondary', 'add_item' => 'primary'], $ui->toArray()['header_action_variants']);
+        self::assertSame('secondary', $ui->headerActionVariant('edit_menu', 'primary'));
+        self::assertSame('secondary', $ui->headerActionVariant('copy', 'secondary'));
+        self::assertSame([], (new DashboardUiConfig(['header_action_variants' => 'nope']))->toArray()['header_action_variants']);
+        self::assertContains('button_ghost', DashboardUiConfig::CLASS_KEYS);
+    }
+
+    public function testConfigurationTreeHeaderActionVariants(): void
+    {
+        $processor = new Processor();
+        $ui        = $processor->processConfiguration(new Configuration(), [[]])['dashboard']['ui'];
+        self::assertSame([], $ui['header_action_variants']);
+        self::assertNull($ui['classes']['button_ghost']);
+
+        $custom = $processor->processConfiguration(new Configuration(), [['dashboard' => ['ui' => [
+            'header_action_variants' => ['edit_menu' => 'ghost', 'add_item' => 'primary'],
+        ]]]])['dashboard']['ui'];
+        self::assertSame(['edit_menu' => 'ghost', 'add_item' => 'primary'], $custom['header_action_variants']);
+        self::assertSame('ghost', (new DashboardUiConfig($custom))->headerActionVariant('edit_menu', 'primary'));
+    }
+
+    public function testConfigurationTreeRejectsUnknownHeaderAction(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('Unknown dashboard.ui.header_action_variants key');
+        (new Processor())->processConfiguration(new Configuration(), [['dashboard' => ['ui' => ['header_action_variants' => ['edit_menuu' => 'ghost']]]]]);
+    }
+
+    public function testConfigurationTreeRejectsUnknownVariant(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        (new Processor())->processConfiguration(new Configuration(), [['dashboard' => ['ui' => ['header_action_variants' => ['edit_menu' => 'outline']]]]]);
     }
 }

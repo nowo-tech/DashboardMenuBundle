@@ -176,6 +176,8 @@ nowo_dashboard_menu:
             actions_column: last             # items table: first (default) | last
             row_action_display: text         # null (default: SVG icons) | icon | text | icon_text
             region_attribute: data-testid    # tags the menus / items / sortable regions (E2E)
+            header_action_variants:          # one primary CTA per header: repaint single actions
+                edit_menu: secondary
             form_themes: ['form/admin_theme.html.twig']
             classes:
                 button_primary: btn-primary
@@ -202,6 +204,7 @@ nowo_dashboard_menu:
 | `actions_column` | `first` | `last` moves the actions column of the items table (show page) to the end. |
 | `row_action_display` | `null` | `null` keeps the bundle SVG icons. `icon` / `text` / `icon_text` render `partials.row_action_inner` with a visually-hidden or visible label (same values as UiKit `row_actions_display`). |
 | `region_attribute` | `null` | Attribute set on the menus table (`dashboard-menu-menus-table`), the items table (`dashboard-menu-items-table`) and the sortable panel (`dashboard-menu-sortable`). |
+| `header_action_variants` | `{}` | *(2.4.1)* Button variant per page header action (block `dashboard_header_actions`): `primary` \| `secondary` \| `ghost` \| `danger` \| `link`. Keys: `export_all`, `import`, `new_menu` (index); `export`, `copy`, `edit_menu`, `edit_config`, `reindex_positions`, `check_parent_cycles`, `add_item` (show / reorder). A variant uses class-map key `button_<variant>` when set, else UiKit `ui.btn(variant)`. Unset actions keep the bundle variant (`primary` for New menu / Edit menu / Add item, `secondary` otherwise). Header links (reorder / table view) keep `button_small`. Unknown keys or variants fail at config load. |
 | `form_themes` | `[]` | Form themes applied to every dashboard form: search, reorder, modal bodies and the Live item form. |
 | `classes.*` | `null` | CSS class map (see below). `null` = UiKit macro result for `css_framework`; a string replaces the bundle class; `""` removes it. |
 | `partials.pagination` | bundle `_pagination.html.twig` | Menus list pagination. Receives `pagination` (`page`, `current_page`, `per_page`, `total`, `total_pages`), `item_count`, `route`, `route_params`, `query`, `nav_label`, `nav_trans_domain`, so `@NowoUiKitBundle/partials/_pagination.html.twig` works as is. |
@@ -213,7 +216,7 @@ nowo_dashboard_menu:
 
 | Area | Keys |
 |------|------|
-| Buttons | `button_primary` [`ui.btn('primary')`], `button_secondary` [`ui.btn('secondary')`], `button_danger` [`ui.btn('danger')`], `button_link` [`ui.btn('link')`, back link], `button_small` [`ui.btn('secondary', 'sm')`, reorder / table view links] |
+| Buttons | `button_primary` [`ui.btn('primary')`], `button_secondary` [`ui.btn('secondary')`], `button_danger` [`ui.btn('danger')`], `button_link` [`ui.btn('link')`, back link], `button_ghost` [`ui.btn('ghost')`, only via `header_action_variants`], `button_small` [`ui.btn('secondary', 'sm')`, reorder / table view links] |
 | Page | `page_header` (show / reorder header row), `toolbar` [`ui.toolbar()`], `search_form` [`ui.search_form()`], `search_input` [`ui.search_input()`], `info_panel` (menu properties), `inline_form` [`d-inline`], `empty` [`ui.empty()`], `empty_action` ("add one" button), `muted` [`ui.muted()`] |
 | Badges | `badge` [`ui.badge()`, item count], `badge_base`, `badge_type`, `badge_unanimous`, `badge_non_unanimous` |
 | Lists / tables | `list`, `list_item`, `table_wrap` [`ui.table_wrap()`], `table` [`ui.table()`], `table_header_row`, `table_row`, `row_actions` [`ui.row_actions()`], `row_action` [`ui.action('edit')`, …], `row_action_danger` [`ui.action('delete')`], `row_action_disabled` [`disabled`] |

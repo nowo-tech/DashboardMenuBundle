@@ -201,6 +201,51 @@ final class DashboardChromeHooksTest extends TestCase
         self::assertStringContainsString('<a href="/nowo_dashboard_menu_dashboard_index" class="nowo-ui-btn nowo-ui-btn--link btn btn-link">', $html);
     }
 
+    public function testHeaderActionVariantsRepaintSingleActions(): void
+    {
+        $ui                            = self::HOST_UI;
+        $ui['classes']['button_ghost'] = 'btn-ghost btn-quiet';
+        $ui['header_action_variants']  = ['edit_menu' => 'ghost', 'copy' => 'danger', 'new_menu' => 'secondary'];
+        $renderer                      = new DashboardTemplateRenderer($ui, [
+            'host/layout.html.twig'      => self::HOST_LAYOUT,
+            'host/_modal.html.twig'      => self::HOST_MODAL,
+            'host/_pagination.html.twig' => self::HOST_PAGINATION,
+            'host/form_theme.html.twig'  => self::HOST_FORM_THEME,
+        ]);
+        $layout = ['nowo_dashboard_layout_template' => 'host/layout.html.twig'];
+
+        foreach ([self::SHOW => $renderer->showContext(), self::REORDER => $renderer->reorderContext()] as $page => $context) {
+            $html = $renderer->render($page, $context + $layout);
+            self::assertStringContainsString('class="btn-ghost btn-quiet btn-edit-menu"', $html, $page);
+            self::assertStringContainsString('class="btn-danger btn-copy-menu"', $html, $page);
+            // untouched actions keep their bundle variant (class map button_primary / button_secondary)
+            self::assertStringContainsString('class="btn-primary btn-add-item"', $html, $page);
+            self::assertStringContainsString('class="btn-ghost btn-edit-menu btn-edit-menu-config"', $html, $page);
+            self::assertStringNotContainsString('class="btn-primary btn-edit-menu"', $html, $page);
+        }
+
+        $index = $renderer->render(self::INDEX, $renderer->indexContext() + $layout);
+        self::assertStringContainsString('class="btn-ghost" data-bs-toggle="modal" data-bs-target="#modal-menu-new"', $index);
+
+        // No class-map entry for the variant: UiKit ui.btn(variant) for the css_framework.
+        $default = new DashboardTemplateRenderer(['header_action_variants' => ['edit_menu' => 'ghost', 'add_item' => 'link', 'reindex_positions' => 'danger']]);
+        $html    = $default->render(self::SHOW, $default->showContext());
+        self::assertStringContainsString('class="nowo-ui-btn nowo-ui-btn--ghost btn btn-outline-secondary btn-edit-menu"', $html);
+        self::assertStringContainsString('class="nowo-ui-btn nowo-ui-btn--link btn btn-link btn-add-item"', $html);
+        self::assertStringContainsString('class="nowo-ui-btn nowo-ui-btn--danger btn btn-outline-danger" title="', $html);
+        self::assertStringContainsString('class="nowo-ui-btn nowo-ui-btn--secondary btn btn-outline-secondary btn-copy-menu"', $html);
+    }
+
+    public function testDefaultHeaderActionsKeepBundleVariants(): void
+    {
+        $renderer = new DashboardTemplateRenderer();
+        $html     = $renderer->render(self::SHOW, $renderer->showContext());
+
+        self::assertStringContainsString('class="nowo-ui-btn nowo-ui-btn--primary btn btn-primary btn-edit-menu"', $html);
+        self::assertStringContainsString('class="nowo-ui-btn nowo-ui-btn--primary btn btn-primary btn-add-item"', $html);
+        self::assertStringContainsString('class="nowo-ui-btn nowo-ui-btn--secondary btn btn-outline-secondary btn-copy-menu"', $html);
+    }
+
     public function testModalBodyPartialsWithHostClasses(): void
     {
         $renderer = $this->hostRenderer();

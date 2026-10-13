@@ -28,6 +28,7 @@ final readonly class DashboardUiConfig
         'button_secondary',
         'button_danger',
         'button_link',
+        'button_ghost',
         'button_small',
         'page_header',
         'toolbar',
@@ -89,6 +90,27 @@ final readonly class DashboardUiConfig
 
     public const ROW_ACTION_DISPLAYS = ['icon', 'text', 'icon_text'];
 
+    /**
+     * Page header actions (block dashboard_header_actions) whose button variant hosts may change through
+     * {@code header_action_variants} (2.4.1). Index: export_all, import, new_menu. Show / reorder: export, copy,
+     * edit_menu, edit_config, reindex_positions, check_parent_cycles, add_item.
+     */
+    public const HEADER_ACTIONS = [
+        'export_all',
+        'import',
+        'new_menu',
+        'export',
+        'copy',
+        'edit_menu',
+        'edit_config',
+        'reindex_positions',
+        'check_parent_cycles',
+        'add_item',
+    ];
+
+    /** Button variants: each maps to class-map key {@code button_<variant>} and UiKit {@code ui.btn(variant)}. */
+    public const BUTTON_VARIANTS = ['primary', 'secondary', 'ghost', 'danger', 'link'];
+
     /** @var array<string, string> */
     private array $classes;
 
@@ -112,6 +134,9 @@ final readonly class DashboardUiConfig
     private ?string $rowActionDisplay;
 
     private ?string $regionAttribute;
+
+    /** @var array<string, string> */
+    private array $headerActionVariants;
 
     /**
      * @param array<string, mixed> $config Normalized {@code dashboard.ui} config (unknown / null entries ignored)
@@ -137,6 +162,14 @@ final readonly class DashboardUiConfig
         $this->rowActionDisplay      = $this->choice($config['row_action_display'] ?? null, self::ROW_ACTION_DISPLAYS);
         $region                      = $config['region_attribute'] ?? null;
         $this->regionAttribute       = is_string($region) && $region !== '' ? $region : null;
+
+        $variants = [];
+        foreach ($this->stringMap($config['header_action_variants'] ?? [], self::HEADER_ACTIONS, false) as $action => $variant) {
+            if (in_array($variant, self::BUTTON_VARIANTS, true)) {
+                $variants[$action] = $variant;
+            }
+        }
+        $this->headerActionVariants = $variants;
     }
 
     /**
@@ -146,6 +179,14 @@ final readonly class DashboardUiConfig
     public function cssClass(string $key, string $default = ''): string
     {
         return $this->classes[$key] ?? $default;
+    }
+
+    /**
+     * Button variant configured for page header action {@code $action}, or {@code $default} (the bundle variant).
+     */
+    public function headerActionVariant(string $action, string $default): string
+    {
+        return $this->headerActionVariants[$action] ?? $default;
     }
 
     public function partial(string $name): string
@@ -171,7 +212,8 @@ final readonly class DashboardUiConfig
      *     index_view: string,
      *     actions_column: string,
      *     row_action_display: string|null,
-     *     region_attribute: string|null
+     *     region_attribute: string|null,
+     *     header_action_variants: array<string, string>
      * }
      */
     public function toArray(): array
@@ -187,6 +229,7 @@ final readonly class DashboardUiConfig
             'actions_column'           => $this->actionsColumn,
             'row_action_display'       => $this->rowActionDisplay,
             'region_attribute'         => $this->regionAttribute,
+            'header_action_variants'   => $this->headerActionVariants,
         ];
     }
 

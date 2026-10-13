@@ -11,7 +11,10 @@ use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
+use function array_diff;
 use function array_key_exists;
+use function array_keys;
+use function implode;
 use function is_array;
 use function is_string;
 
@@ -453,6 +456,16 @@ final class Configuration implements ConfigurationInterface
                 ->scalarNode('region_attribute')
                     ->info('Optional attribute name (e.g. data-testid) set on page regions: dashboard-menu-menus-table, dashboard-menu-items-table, dashboard-menu-sortable.')
                     ->defaultNull()
+                ->end()
+                ->arrayNode('header_action_variants')
+                    ->info('Per-action button variant for the page header actions (block dashboard_header_actions), e.g. { edit_menu: secondary }. Keys: ' . implode(', ', DashboardUiConfig::HEADER_ACTIONS) . '. Values: ' . implode('|', DashboardUiConfig::BUTTON_VARIANTS) . ' (class-map key button_<variant>, else UiKit ui.btn(variant)). Unset actions keep the bundle variant.')
+                    ->useAttributeAsKey('action')
+                    ->enumPrototype()->values(DashboardUiConfig::BUTTON_VARIANTS)->end()
+                    ->defaultValue([])
+                    ->validate()
+                        ->ifTrue(static fn (array $map): bool => array_diff(array_keys($map), DashboardUiConfig::HEADER_ACTIONS) !== [])
+                        ->thenInvalid('Unknown dashboard.ui.header_action_variants key in %s. Allowed keys: ' . implode(', ', DashboardUiConfig::HEADER_ACTIONS) . '.')
+                    ->end()
                 ->end()
                 ->arrayNode('form_themes')
                     ->info('Form themes applied to every dashboard form (pages, modal bodies, Live item form).')

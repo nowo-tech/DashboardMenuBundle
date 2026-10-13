@@ -168,7 +168,7 @@ Options for the admin dashboard (list, create, edit, copy menus and manage items
 | `pagination.per_page`        | `20`           | Menus per page. |
 | `position_step`              | `100`          | Gap used by the dashboard “Re-index positions” action: within each sibling group (same parent), positions become `step`, `2*step`, `3*step`, … in current sort order. |
 | `modals`                      | see below      | Modal sizes: `menu_form`, `copy`, `item_form`, `delete` (Bootstrap 5: `normal`, `lg`, `xl`). |
-| `ui`                          | see below      | *(2.3.0)* Admin chrome hooks: `include_ui_kit_css`, `header_actions_in_layout`, `index_view`, `actions_column`, `row_action_display`, `region_attribute`, `form_themes`, `classes.*`, `partials.*`, `templates.*`. All opt-in; defaults keep the bundle markup. Full reference and example in [USAGE — Customising the admin chrome](USAGE.md#customising-the-admin-chrome). |
+| `ui`                          | see below      | *(2.3.0)* Admin chrome hooks: `include_ui_kit_css`, `header_actions_in_layout`, `header_action_variants` *(2.4.1)*, `index_view`, `actions_column`, `row_action_display`, `region_attribute`, `form_themes`, `classes.*`, `partials.*`, `templates.*`. All opt-in; defaults keep the bundle markup. Full reference and example in [USAGE — Customising the admin chrome](USAGE.md#customising-the-admin-chrome). |
 | `css_class_options`           | (defaults)     | Arrays of CSS class choices shown as dropdowns when editing a menu (menu, item, link, children, span, section_label, current, branch_expanded, has_children, expanded, collapsed). `span` also drives the optional wrapper class for non-section items when `item_span_active` is enabled. |
 | `icon_selector_script_url`   | `null`         | Optional URL of the icon-selector script (e.g. with `nowo-tech/icon-selector-bundle`). When set, the item form can show an icon selector. |
 | `stimulus_script_url`        | *(see below)*  | URL of the Stimulus script for the Live Component form in the item modal (e.g. `bundles/nowodashboardmenu/js/stimulus-live.js`). The bundle needs `window.Stimulus` (or `$$stimulusApp$$` / `__stimulusApp__`) to connect controllers in the modal. Set to `null` only if your layout loads Stimulus and exposes it on `window` before the modal is opened. If you override the dashboard layout, include the script tag when this is set (same as the bundle layout). Dashboard autocomplete bootstrap in `dashboard.js` also relies on Stimulus availability to auto-register UX Autocomplete when needed. |
@@ -193,8 +193,11 @@ ui:
     actions_column: first       # first | last
     row_action_display: null    # null | icon | text | icon_text
     region_attribute: null      # e.g. data-testid
+    header_action_variants: {}  # action => primary|secondary|ghost|danger|link, e.g. { edit_menu: secondary }
+                                # actions: export_all, import, new_menu, export, copy, edit_menu, edit_config,
+                                # reindex_positions, check_parent_cycles, add_item
     form_themes: []
-    classes: {}                 # button_primary, button_secondary, button_danger, button_link, button_small, page_header,
+    classes: {}                 # button_primary, button_secondary, button_danger, button_link, button_ghost, button_small, page_header,
                                 # toolbar, search_form, search_input, info_panel, inline_form, empty, empty_action, muted,
                                 # badge, badge_base, badge_type, badge_unanimous, badge_non_unanimous, list, list_item,
                                 # table_wrap, table, table_header_row, table_row, row_actions, row_action, row_action_danger,

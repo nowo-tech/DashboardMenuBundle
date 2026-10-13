@@ -6,7 +6,7 @@
     blocks  dashboard_page_header, dashboard_header_actions, dashboard_search, dashboard_toolbar,
             dashboard_menus, dashboard_menus_list, dashboard_menus_table, dashboard_menu_row_actions,
             dashboard_empty_state, dashboard_pagination, dashboard_new_menu_modal
-    config  dashboard.ui.{classes, partials, index_view, header_actions_in_layout, row_action_display, region_attribute}
+    config  dashboard.ui.{classes, partials, index_view, header_actions_in_layout, header_action_variants, row_action_display, region_attribute}
     var     nowo_dashboard_menu_header_actions (header actions HTML, for the layout_template)
 #}
 
@@ -15,15 +15,16 @@
     dashboardBase: path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index'))
 } %}
 {% set _dm_ui = nowo_dashboard_menu_ui|default({}) %}
+{% set _dm_hv = _dm_ui.header_action_variants ?? {} %}
 {#- Rendered once here so the layout_template can place it (dashboard.ui.header_actions_in_layout). -#}
 {% set nowo_dashboard_menu_header_actions %}{{ block('dashboard_header_actions') }}{% endset %}
 
 {% block dashboard_title %}{{ 'dashboard.menus'|trans({}, 'NowoDashboardMenuBundle') }}{% endblock %}
 
 {% block dashboard_header_actions %}
-    <a href="{{ path(dashboard_routes.export_all|default('nowo_dashboard_menu_dashboard_export_all')) }}" class="{{ dashboard_menu_ui_class('button_secondary', ui.btn('secondary')) }}" target="_blank" rel="noopener noreferrer">{{ 'dashboard.export_all'|trans({}, 'NowoDashboardMenuBundle') }}</a>
-    <button type="button" class="{{ dashboard_menu_ui_class('button_secondary', ui.btn('secondary')) }} btn-import" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-import')|raw }} data-import-url="{{ path(dashboard_routes.import|default('nowo_dashboard_menu_dashboard_import')) }}">{{ 'dashboard.import'|trans({}, 'NowoDashboardMenuBundle') }}</button>
-    <button type="button" class="{{ dashboard_menu_ui_class('button_primary', ui.btn('primary')) }}" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-menu-new')|raw }}>{{ 'dashboard.new_menu'|trans({}, 'NowoDashboardMenuBundle') }}</button>
+    <a href="{{ path(dashboard_routes.export_all|default('nowo_dashboard_menu_dashboard_export_all')) }}" class="{{ dashboard_menu_ui_class('button_' ~ (_dm_hv.export_all ?? 'secondary'), ui.btn(_dm_hv.export_all ?? 'secondary')) }}" target="_blank" rel="noopener noreferrer">{{ 'dashboard.export_all'|trans({}, 'NowoDashboardMenuBundle') }}</a>
+    <button type="button" class="{{ dashboard_menu_ui_class('button_' ~ (_dm_hv.import ?? 'secondary'), ui.btn(_dm_hv.import ?? 'secondary')) }} btn-import" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-import')|raw }} data-import-url="{{ path(dashboard_routes.import|default('nowo_dashboard_menu_dashboard_import')) }}">{{ 'dashboard.import'|trans({}, 'NowoDashboardMenuBundle') }}</button>
+    <button type="button" class="{{ dashboard_menu_ui_class('button_' ~ (_dm_hv.new_menu ?? 'primary'), ui.btn(_dm_hv.new_menu ?? 'primary')) }}" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-menu-new')|raw }}>{{ 'dashboard.new_menu'|trans({}, 'NowoDashboardMenuBundle') }}</button>
 {% endblock %}
 
 {% block body %}

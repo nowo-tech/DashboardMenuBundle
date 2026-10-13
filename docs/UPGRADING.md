@@ -1,5 +1,23 @@
 # Upgrading
 
+## To 2.4.1
+
+From **2.4.0** — no breaking changes; default markup is unchanged.
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
+
+- Optional: hosts that string-replaced `nowo_dashboard_menu_header_actions` to repaint one header button (e.g. "Edit menu" from primary to ghost) can drop the `|replace` and configure it instead:
+
+```yaml
+nowo_dashboard_menu:
+    dashboard:
+        ui:
+            header_action_variants:
+                edit_menu: secondary   # or ghost (classes.button_ghost, else ui.btn('ghost'))
+```
+
 ## To 2.4.0
 
 From **2.3.2** — security: dashboard fails closed, safe external URL schemes.

@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 - [[Unreleased]](#unreleased)
 
+- [[2.4.1] - 2026-10-13](#241---2026-10-13)
 - [[2.4.0] - 2026-10-13](#240---2026-10-13)
 - [[2.3.2] - 2026-10-13](#232---2026-10-13)
 - [[2.3.1] - 2026-10-13](#231---2026-10-13)
@@ -96,6 +97,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.4.1] - 2026-10-13
+
+### Added
+
+- **`dashboard.ui.header_action_variants`** (map, default `{}`): per-action button variant for the page header actions (block `dashboard_header_actions`), so a host can paint e.g. "Edit menu" as a secondary / ghost button while "Add item" stays primary, without string-replacing the rendered HTML. Keys: `export_all`, `import`, `new_menu` (index) and `export`, `copy`, `edit_menu`, `edit_config`, `reindex_positions`, `check_parent_cycles`, `add_item` (show / reorder). Values: `primary` | `secondary` | `ghost` | `danger` | `link`; a variant resolves to class-map key `button_<variant>`, else UiKit `ui.btn(variant)`. Unknown keys / variants are rejected at config load. Exposed in the `nowo_dashboard_menu_ui` Twig global (`header_action_variants`).
+- **`dashboard.ui.classes.button_ghost`** class-map key (default `null` = `ui.btn('ghost')`), used by `header_action_variants` entries set to `ghost`.
+
+Default output is byte-identical: unset actions keep their bundle variant (`button_primary` for New menu / Edit menu / Add item, `button_secondary` for the rest).
 
 ## [2.4.0] - 2026-10-13
 
