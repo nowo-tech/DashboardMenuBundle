@@ -1,5 +1,15 @@
 # Upgrading
 
+## To 2.3.1
+
+From **2.3.0** — dependency refresh and repository maintenance.
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
+
+- No breaking changes. No application upgrade steps.
+
 ## To 2.3.0
 
 No action required: every new option is opt-in and the default dashboard markup is unchanged (only the item permission badges, "No permission keys" and "Pos" are now translated in non-English locales).
@@ -20,7 +30,6 @@ If you copied dashboard pages into `templates/bundles/NowoDashboardMenuBundle/` 
 If you keep page copies, re-diff them: the bundle templates were split into blocks (ids, `data-*` hooks, routes and form variables are unchanged). The `dashboard/_menu_dashboard_modals.html.twig` and index "new menu" modal now render through `dashboard/_modal.html.twig` (same markup).
 
 The legacy `window.__nowoDashboardMenuConfig` fallback in `dashboard.js` is kept in 2.x (its removal moves to 3.0).
-
 
 ## To 2.2.4
 
@@ -76,7 +85,6 @@ php bin/console cache:clear
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
 ## Table of contents
-
 
 - [To 2.2.1](#to-221)
 - [To 2.2.0](#to-220)

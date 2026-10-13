@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 - [[Unreleased]](#unreleased)
 
+- [[2.3.1] - 2026-10-13](#231---2026-10-13)
 - [[2.3.0] - 2026-10-13](#230---2026-10-13)
 
 - [[2.2.4] - 2026-10-10](#224---2026-10-10)
@@ -89,11 +90,22 @@ All notable changes to this project will be documented in this file.
 - [[0.1.0] - 2026-03-17](#010-2026-03-17)
 - [[0.0.1] - 2026-03-10](#001-2026-03-10)
 
-
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.3.1] - 2026-10-13
+
+### Changed
+
+- Repository: `.twig-cs-fixer.cache` is now git-ignored.
+
+### Dependencies
+
+- `nowo-tech/ui-kit-bundle` 1.9.1 → 1.11.0 (development lock; #84).
+- `nowo-tech/form-kit-bundle` 2.6.0 → 2.7.1 (development lock; #85).
+- `doctrine/orm` 3.7.4 → 3.7.5 (development lock; #86).
 
 ## [2.3.0] - 2026-10-13
 
