@@ -1,5 +1,17 @@
 # Upgrading
 
+## To 2.4.0
+
+From **2.3.2** — security: dashboard fails closed, safe external URL schemes.
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
+
+- **Behaviour change:** `security.access_roles: []` without a custom `access_checker` now denies everyone; to rely on the firewall only use e.g. `[IS_AUTHENTICATED_FULLY]`.
+- With `dashboard.enabled: false` the imported dashboard routes return 404.
+- Menu `externalUrl` values with schemes other than http/https/mailto/tel render as `#`, are dropped on import, and the form only accepts http/https.
+
 ## To 2.3.2
 
 From **2.3.1** — no breaking changes.
