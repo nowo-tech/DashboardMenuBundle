@@ -1372,6 +1372,11 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         enabled?: bool|Param, // Register the JSON API route nowo_dashboard_menu_api (requires importing the bundle routes.yaml). When false, the route is not registered. // Default: true
  *         path_prefix?: scalar|Param|null, // Path prefix of the JSON API route: GET {path_prefix}/{code}. // Default: "/api/menu"
  *     },
+ *     menu_collapse?: array{ // Bootstrap-free nested collapse (2.6.0): menu.html.twig marks the menu root with data-dashboard-menu-collapse* attributes for public/js/menu-collapse.js. Opt-in; the script must be included by the host. See docs/USAGE.md "Nested collapse without Bootstrap JS".
+ *         enabled?: bool|Param, // Emit the data-dashboard-menu-collapse* attributes on the rendered menu root (overridable per include with the menuCollapse variable). Default false: markup unchanged. // Default: false
+ *         mode?: "auto"|"always"|Param, // "auto" (default): the script stands down while Bootstrap Collapse JS is loaded (no double toggle) and only restores / remembers state. "always": the script takes the toggles over (drops their data-bs-toggle). // Default: "auto"
+ *         storage_key?: scalar|Param|null, // localStorage key holding { <menu code>: { <panel id>: open } }. Empty string disables persistence. // Default: "nowo.dashboardMenu.navCollapse"
+ *     },
  *     dashboard?: array{ // Admin dashboard to manage menus and items. Import routes with prefix (e.g. /admin/menus).
  *         enabled?: bool|Param, // Default: false
  *         layout_template?: scalar|Param|null, // Twig template that dashboard views extend (e.g. @App/base.html.twig). Must define block "nowo_dashboard_menu_content". If not set or template does not exist, the bundle layout is used. // Default: "@NowoDashboardMenuBundle/dashboard/layout.html.twig"

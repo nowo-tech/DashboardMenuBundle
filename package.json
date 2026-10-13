@@ -4,11 +4,12 @@
   "private": true,
   "packageManager": "pnpm@9.15.0",
   "scripts": {
-    "build": "VITE_ENTRY=dashboard vite build && VITE_ENTRY=stimulus-live vite build",
+    "build": "VITE_ENTRY=dashboard vite build && VITE_ENTRY=stimulus-live vite build && VITE_ENTRY=menu-collapse vite build",
     "dev": "VITE_ENTRY=dashboard vite build --watch",
     "watch": "VITE_ENTRY=dashboard vite build --watch",
     "build:dashboard": "VITE_ENTRY=dashboard vite build",
     "build:stimulus-live": "VITE_ENTRY=stimulus-live vite build",
+    "build:menu-collapse": "VITE_ENTRY=menu-collapse vite build",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest"

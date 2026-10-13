@@ -12,6 +12,7 @@
   - [permission_checker_choices](#permission_checker_choices)
   - [menu_link_resolver_choices](#menu_link_resolver_choices)
   - [api](#api)
+  - [menu_collapse](#menu_collapse)
   - [dashboard](#dashboard)
     - [css_class_options](#css_class_options)
 - [Per-menu options (database)](#per-menu-options-database)
@@ -30,6 +31,7 @@ Menus are **defined in the database** (dashboard at `/admin/menus` or fixtures):
 - **locales** / **default_locale**: Enabled locales for menu item labels and fallback.
 - **permission_checker_choices** (optional): List of service IDs (to order/filter) and/or map (service id → label) for the dashboard menu form dropdown; merged with tagged permission checkers.
 - **api**: Enable JSON API and path prefix.
+- **menu_collapse** (2.6.0, opt-in): nested collapse without Bootstrap JS (`js/menu-collapse.js`).
 - **dashboard**: Enable admin CRUD, path prefix, route exclude patterns, pagination, modals, CSS class options, icon selector script, configurable step for re-indexing item positions.
 
 ## Root options
@@ -180,6 +182,26 @@ nowo_dashboard_menu:
         enabled: true
         path_prefix: /internal/menus   # GET /internal/menus/sidebar
 ```
+
+### menu_collapse
+
+Since **2.6.0**. Makes the menu's Bootstrap collapse markup (`data-bs-toggle="collapse"`, `.collapse` / `.collapse.show`) work without Bootstrap's JavaScript, through the bundle script `public/js/menu-collapse.js`. Opt-in: with the defaults the menu markup is unchanged. See [USAGE.md — Nested collapse without Bootstrap JS](USAGE.md#nested-collapse-without-bootstrap-js).
+
+| Option        | Default                          | Description |
+|---------------|----------------------------------|-------------|
+| `enabled`     | `false`                          | `menu.html.twig` adds `data-dashboard-menu-collapse="<code>"` (+ `-mode`, `-storage-key`, `-branch-class`) to the menu root (the `.dashboard-menu-collapsible` wrapper when the menu is collapsible, else the root `<ul>`). Per include: `menuCollapse: true\|false`. |
+| `mode`        | `auto`                           | `auto`: while Bootstrap Collapse JS is loaded (`window.bootstrap.Collapse` or the jQuery plugin) the script does not toggle (Bootstrap does — no double toggle); it still restores / remembers the state and syncs ARIA. `always`: the script owns the toggles (removes their `data-bs-toggle`, so Bootstrap ignores them). Per include: `menuCollapseMode`. |
+| `storage_key` | `nowo.dashboardMenu.navCollapse` | `localStorage` key, value `{ "<menu code>": { "<panel id>": true\|false } }`. `""` disables persistence. Per include: `menuCollapseStorageKey`. |
+
+```yaml
+nowo_dashboard_menu:
+    menu_collapse:
+        enabled: true
+        mode: auto            # auto | always
+        storage_key: app.navCollapse
+```
+
+The Twig global `nowo_dashboard_menu_collapse` exposes the resolved values (`enabled`, `mode`, `storage_key`).
 
 ### dashboard
 
@@ -358,7 +380,7 @@ Then set the **icon** on each MenuItem in the dashboard (e.g. `bootstrap-icons:h
 
 ## Collapsible menus
 
-Set **collapsible** on the Menu entity (in the dashboard) to wrap the menu in a block with a toggle button and collapsible content. The template uses Bootstrap 5–compatible markup (`data-bs-toggle="collapse"`, `data-bs-target`, class `collapse` / `collapse show`). Ensure Bootstrap’s collapse JS is loaded.
+Set **collapsible** on the Menu entity (in the dashboard) to wrap the menu in a block with a toggle button and collapsible content. The template uses Bootstrap 5–compatible markup (`data-bs-toggle="collapse"`, `data-bs-target`, class `collapse` / `collapse show`). Load Bootstrap’s collapse JS, or (2.6.0) enable [`menu_collapse`](#menu_collapse) and include the bundle script `js/menu-collapse.js` instead.
 
 - **collapsible_expanded**: open by default (true) or collapsed (false).
 - **nested_collapsible**: when true, each item with children gets a toggle; children are inside a collapse. The branch stays open when the current route is in that branch.

@@ -74,6 +74,10 @@ final class MenuExtensionTest extends TestCase
         self::assertArrayHasKey('nowo_dashboard_ux_autocomplete_available', $globals);
         self::assertFalse($globals['nowo_dashboard_ux_autocomplete_available']);
         self::assertTrue($globals['nowo_dashboard_menu_autocomplete_bootstrap']);
+        self::assertSame(
+            ['enabled' => false, 'mode' => 'auto', 'storage_key' => 'nowo.dashboardMenu.navCollapse'],
+            $globals['nowo_dashboard_menu_collapse'],
+        );
     }
 
     public function testGetHrefDelegatesToUrlResolver(): void

@@ -5,6 +5,7 @@
 - [Twig](#twig)
 - [Overriding templates and translations](#overriding-templates-and-translations)
 - [Customising the admin chrome](#customising-the-admin-chrome)
+- [Nested collapse without Bootstrap JS](#nested-collapse-without-bootstrap-js)
 - [Items with children (parent, link vs section)](#items-with-children-parent-link-vs-section)
 - [Resolving by context (context sets)](#resolving-by-context-context-sets)
 - [JSON API](#json-api)
@@ -319,6 +320,59 @@ nowo_dashboard_menu:
 ```
 
 Two small host templates (layout bridge + modal shell) and config are enough: the bundle pages, partials and the Live item form keep coming from the vendor, so new fields and JS hooks arrive with `composer update`. The layout must still expose `stylesheets` / `javascripts` blocks (the bundle base calls `{{ parent() }}`). Spacing utilities the class map does not reach (table cell padding, section gaps) belong in the host CSS, e.g. `.admin .data-table td { … }`.
+
+## Nested collapse without Bootstrap JS
+
+Since **2.6.0**. Collapsible menus (`collapsible`, `nested_collapsible`) render Bootstrap 5 markup. Hosts that do not load Bootstrap's JavaScript can use the bundle script `js/menu-collapse.js` (≈1.6 kB gzip, no dependencies):
+
+1. **Enable the attributes** (or set them yourself on any ancestor of the menu, see below):
+
+   ```yaml
+   nowo_dashboard_menu:
+       menu_collapse:
+           enabled: true
+           storage_key: app.navCollapse   # optional; "" = do not remember
+   ```
+
+2. **Include the script once per page** (after `assets:install`). The partial prints an external `defer` script with the request `csp_nonce` when one is set — no inline code, no inline handlers:
+
+   ```twig
+   {{ include('@NowoDashboardMenuBundle/_menu_collapse_script.html.twig') }}
+   {# same as: <script src="{{ asset('js/menu-collapse.js', 'nowo_dashboard_menu') }}" defer></script> #}
+   ```
+
+   Bundler hosts (Vite / Webpack / AssetMapper) can import the module instead of the built file and connect roots themselves (e.g. from a Stimulus controller's `connect()`):
+
+   ```ts
+   import { initMenuCollapse } from '../vendor/nowo-tech/dashboard-menu-bundle/src/Resources/assets/src/menu-collapse';
+   initMenuCollapse(document);            // or new MenuCollapse(element, { storageKey: 'app.navCollapse' }).connect()
+   ```
+
+3. **Hide closed panels in CSS** if Bootstrap's CSS is not loaded: `.collapse:not(.show) { display: none; }` (or animate `grid-template-rows: 0fr → 1fr`; the root gets `is-nav-collapse-ready` two frames after the initial state is applied, so scope transitions to `[data-dashboard-menu-collapse].is-nav-collapse-ready`).
+
+**Behaviour**
+
+- One delegated `click` listener per root on `[data-bs-toggle="collapse"]` / `[data-dashboard-menu-collapse-toggle]` (`data-bs-target="#id"`, `href="#id"` or `aria-controls`). Nested roots are independent (a panel is toggled by its closest root only).
+- Keeps `aria-expanded` on every toggle of a panel in sync (adds `aria-controls` when missing); closed panels get `inert` and `aria-hidden="true"`; the panel's `<li>` gets `is-expanded` / `is-collapsed`.
+- Remembers the state per menu code in `localStorage` (`{ "<menu code>": { "<panel id>": bool } }`) and restores it on load; ancestors of the current item (`<li>` with the menu's `class_branch_expanded`, default `active-branch`) are always opened.
+- **Bootstrap JS present:** in `auto` mode (default) the script never toggles (Bootstrap does, so a click flips a panel once); it restores the state and listens to `show|shown|hidden.bs.collapse` to sync `inert` / ARIA and remember the state. In `always` mode it removes `data-bs-toggle` from its toggles so Bootstrap's data API ignores them.
+- Dispatches `dashboard-menu:collapse-toggle` (bubbles; `detail: { menuCode, id, open }`) on the panel after each toggle.
+- Connects on `DOMContentLoaded`, `turbo:load` and `turbo:frame-load` (idempotent); `window.NowoDashboardMenuCollapse.init(scope?)` connects markup added later.
+
+**Attributes** (on the menu root or any ancestor you mark yourself):
+
+| Attribute | Default | Meaning |
+|-----------|---------|---------|
+| `data-dashboard-menu-collapse` | — (required) | Marks the root; value = menu code (store namespace; empty = `menu`). |
+| `data-dashboard-menu-collapse-mode` | `auto` | `auto` \| `always` (see above). |
+| `data-dashboard-menu-collapse-storage-key` | `nowo.dashboardMenu.navCollapse` | `localStorage` key; empty = no persistence. |
+| `data-dashboard-menu-collapse-branch-class` | `active-branch` | `<li>` class of an ancestor of the current item (forced open). |
+
+Per include, `menuCollapse`, `menuCollapseMode` and `menuCollapseStorageKey` override the `menu_collapse` config:
+
+```twig
+{% include '@NowoDashboardMenuBundle/menu.html.twig' with { menuTree: tree, menuCode: 'sidebar', menuCollapse: true, menuCollapseStorageKey: 'app.navCollapse' } %}
+```
 
 ## Items with children (parent, link vs section)
 

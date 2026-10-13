@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.6.0] - 2026-10-13](#260---2026-10-13)
 - [[2.5.1] - 2026-10-13](#251---2026-10-13)
 - [[2.5.0] - 2026-10-13](#250---2026-10-13)
 - [[2.4.1] - 2026-10-13](#241---2026-10-13)
@@ -97,6 +98,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [[0.0.1] - 2026-03-10](#001---2026-03-10)
 
 ## [Unreleased]
+
+## [2.6.0] - 2026-10-13
+
+### Added
+
+- **Nested menu collapse without Bootstrap JS** (`js/menu-collapse.js`, opt-in; spec [`003-menu-collapse-without-bootstrap`](../specs/003-menu-collapse-without-bootstrap/spec.md)): a dependency-free script (≈1.6 kB gzip) that makes the menu's `data-bs-toggle="collapse"` markup work on hosts that do not load Bootstrap's JavaScript. One delegated click listener per `[data-dashboard-menu-collapse]` root (CSP-safe: external script, no inline handlers); `aria-expanded` / `aria-controls` kept in sync, closed panels `inert` + `aria-hidden`, `<li>` `is-expanded` / `is-collapsed`; open / closed state remembered per menu code in `localStorage`; ancestors of the current item always open; connects on `DOMContentLoaded` / `turbo:load` / `turbo:frame-load`; event `dashboard-menu:collapse-toggle`; `window.NowoDashboardMenuCollapse.init()`. ES module (`src/Resources/assets/src/menu-collapse.ts`) for bundler hosts.
+- **No double toggle next to Bootstrap JS:** mode `auto` (default) never toggles while `window.bootstrap.Collapse` / `jQuery.fn.collapse` is loaded and only mirrors `show|shown|hidden.bs.collapse` into ARIA / `inert` / storage; mode `always` takes the toggles over (removes their `data-bs-toggle`).
+- **Config `menu_collapse`**: `enabled` (default `false`), `mode` (`auto` | `always`), `storage_key` (default `nowo.dashboardMenu.navCollapse`, `""` = no persistence). Parameter `%nowo_dashboard_menu.menu_collapse%`, Twig global `nowo_dashboard_menu_collapse`.
+- `menu.html.twig`: when enabled, the menu root gets `data-dashboard-menu-collapse="<code>"`, `-mode`, `-storage-key`, `-branch-class` (from `class_branch_expanded`); include variables `menuCollapse`, `menuCollapseMode`, `menuCollapseStorageKey` override the config.
+- Partial `@NowoDashboardMenuBundle/_menu_collapse_script.html.twig` (external `defer` script with the request `csp_nonce`).
+- Vite entry `menu-collapse` (`pnpm run build` / `build:menu-collapse`); Vitest suite at 100% coverage.
+
+### Changed
+
+- `menu.html.twig` no longer calls `dashboard_menu_config()` when `menuConfig` is passed (Twig `|default()` evaluated its argument eagerly). Output unchanged.
+- Dev: Rector `LocallyCalledStaticMethodToNonStaticRector` applied to `TranslationKeyParityTest` (behaviour-neutral).
+
+### Dependencies
+
+- Development lock: `nowo-tech/form-kit-bundle` 2.12.0, `nowo-tech/ui-kit-bundle` 1.14.0, `doctrine/persistence` 4.2.1, `nowo-tech/phpstan-frankenphp` 1.3.0. Demo `config/reference.php` regenerated (`menu_collapse`).
+
+Default output is unchanged: without `menu_collapse.enabled` / `menuCollapse` no attribute is emitted and nothing has to be included.
 
 ## [2.5.1] - 2026-10-13
 

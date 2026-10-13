@@ -2,7 +2,7 @@
 
 ## Before releasing
 
-> Current release target: **2.1.13** (`v2.1.13`).
+> Current release target: **2.6.0** (`v2.6.0`).
 
 1. **Run full checks**
 
@@ -10,7 +10,7 @@
    make release-check
    ```
 
-   This runs: `composer-sync`, `cs-fix`, `cs-check`, `rector-dry`, `phpstan`, `coverage-check`, `test-ts`, and `release-check-demos` (the Symfony 8 demo is started, HTTP-verified, then stopped).
+   This runs: `composer-sync`, `cs-fix`, `cs-check`, `rector-dry`, `phpstan`, `igor`, `coverage-check`, `test-ts`, `release-check-demos` (the Symfony 8 demo is started, HTTP-verified, then stopped) and `assets` (rebuilds `js/dashboard.js`, `js/stimulus-live.js`, `js/menu-collapse.js`; commit them). Clear `.php-cs-fixer.cache` first if a previous run left a stale cache.
 
 2. **Update changelog and upgrading notes**
 
@@ -31,7 +31,7 @@
    Example for this cycle:
 
    ```bash
-   git tag -a v2.1.13 -m "Release 2.1.13"
+   git tag -a v2.6.0 -m "Release 2.6.0"
    ```
 
 3. **Push the tag**
@@ -43,7 +43,7 @@
    Example for this cycle:
 
    ```bash
-   git push origin v2.1.13
+   git push origin v2.6.0
    ```
 
 4. **GitHub Actions** (if `.github/workflows/release.yml` is configured) will create or update the GitHub Release for that tag, using the tag message and the corresponding section from `docs/CHANGELOG.md` as the release body.

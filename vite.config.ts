@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 
-const entry = process.env.VITE_ENTRY as 'dashboard' | 'stimulus-live' | undefined;
+const entry = process.env.VITE_ENTRY as 'dashboard' | 'stimulus-live' | 'menu-collapse' | undefined;
 
 const configs = {
   dashboard: {
@@ -41,6 +41,22 @@ const configs = {
       sourcemap: false,
     },
   },
+  'menu-collapse': {
+    build: {
+      outDir: 'src/Resources/public',
+      emptyOutDir: false,
+      rollupOptions: {
+        input: 'src/Resources/assets/src/menu-collapse-boot.ts',
+        output: {
+          format: 'iife' as const,
+          entryFileNames: 'js/menu-collapse.js',
+          assetFileNames: 'js/menu-collapse.[ext]',
+        },
+      },
+      minify: true,
+      sourcemap: false,
+    },
+  },
 };
 
 const effectiveEntry = entry && configs[entry] ? entry : 'dashboard';
@@ -50,6 +66,7 @@ const effectiveEntry = entry && configs[entry] ? entry : 'dashboard';
  * Single config file; which entry to build is controlled by VITE_ENTRY:
  * - VITE_ENTRY=dashboard → IIFE → src/Resources/public/js/dashboard.js
  * - VITE_ENTRY=stimulus-live → ESM → src/Resources/public/js/stimulus-live.js
- * Default (no VITE_ENTRY): dashboard. Run both with: pnpm run build
+ * - VITE_ENTRY=menu-collapse → IIFE → src/Resources/public/js/menu-collapse.js (Bootstrap-free nested collapse, 2.6.0)
+ * Default (no VITE_ENTRY): dashboard. Run all with: pnpm run build
  */
 export default defineConfig(configs[effectiveEntry]);

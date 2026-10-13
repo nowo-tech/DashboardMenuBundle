@@ -1,0 +1,6 @@
+{#- Bootstrap-free nested collapse (2.6.0): include once per page, e.g. in the layout <head>:
+    {{ include('@NowoDashboardMenuBundle/_menu_collapse_script.html.twig') }}
+    External deferred script (no inline code) with the request csp_nonce when the host sets one.
+    Requires assets:install (public/bundles/nowodashboardmenu/js/menu-collapse.js). -#}
+{%- set _csp_nonce = app.request is defined and app.request ? app.request.attributes.get('csp_nonce')|default('') : '' -%}
+<script src="{{ asset('js/menu-collapse.js', 'nowo_dashboard_menu') }}" defer{% if _csp_nonce %} nonce="{{ _csp_nonce }}"{% endif %}></script>

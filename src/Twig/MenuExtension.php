@@ -32,12 +32,16 @@ use Twig\TwigFunction;
  * Globals nowo_dashboard_menu_css_framework / nowo_dashboard_menu_icon_set: REQ-UI-001 CSS stack and icon set.
  * Global nowo_dashboard_menu_ui + dashboard_menu_ui_class(key, default): admin chrome hooks (dashboard.ui, 2.3.0).
  * Global nowo_dashboard_menu_autocomplete_bootstrap: dashboard.autocomplete_bootstrap (2.3.2).
+ * Global nowo_dashboard_menu_collapse: menu_collapse {enabled, mode, storage_key} for menu.html.twig (2.6.0).
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
  */
 final class MenuExtension extends AbstractExtension implements GlobalsInterface
 {
+    /**
+     * @param array{enabled?: bool, mode?: string, storage_key?: string} $menuCollapse menu_collapse config (2.6.0)
+     */
     public function __construct(
         private readonly MenuTreeLoader $menuTreeLoader,
         private readonly MenuUrlResolver $urlResolver,
@@ -59,6 +63,7 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
         private readonly string $iconSet = 'bootstrap-icons',
         private readonly DashboardUiConfig $dashboardUi = new DashboardUiConfig(),
         private readonly bool $autocompleteBootstrap = true,
+        private readonly array $menuCollapse = [],
     ) {
     }
 
@@ -71,6 +76,11 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
             'nowo_dashboard_menu_icon_set'               => $this->iconSet,
             'nowo_dashboard_menu_ui'                     => $this->dashboardUi->toArray(),
             'nowo_dashboard_menu_autocomplete_bootstrap' => $this->autocompleteBootstrap,
+            'nowo_dashboard_menu_collapse'               => [
+                'enabled'     => $this->menuCollapse['enabled'] ?? false,
+                'mode'        => $this->menuCollapse['mode'] ?? 'auto',
+                'storage_key' => $this->menuCollapse['storage_key'] ?? 'nowo.dashboardMenu.navCollapse',
+            ],
         ];
     }
 

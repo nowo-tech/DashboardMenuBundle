@@ -287,6 +287,11 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
             ])
             ->setPublic(false);
 
+        $container->setParameter(Configuration::ALIAS . '.menu_collapse', $config['menu_collapse'] ?? [
+            'enabled'     => false,
+            'mode'        => 'auto',
+            'storage_key' => 'nowo.dashboardMenu.navCollapse',
+        ]);
         $container->setParameter(Configuration::ALIAS . '.api.enabled', $config['api']['enabled']);
         $container->setParameter(Configuration::ALIAS . '.api.path_prefix', $config['api']['path_prefix']);
         $container->setParameter(Configuration::ALIAS . '.dashboard.enabled', $config['dashboard']['enabled'] ?? false);

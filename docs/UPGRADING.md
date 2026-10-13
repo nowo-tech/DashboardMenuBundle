@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.6.0](#to-260)
 - [To 2.5.1](#to-251)
 - [To 2.5.0](#to-250)
 - [To 2.4.1](#to-241)
@@ -102,6 +103,24 @@
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## To 2.6.0
+
+From **2.5.1** — nested menu collapse without Bootstrap JS (opt-in). No breaking changes; default markup is unchanged.
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+php bin/console assets:install   # publishes public/bundles/nowodashboardmenu/js/menu-collapse.js
+```
+
+Optional, for hosts that render collapsible menus without Bootstrap's JavaScript (or that polyfilled it themselves):
+
+1. Enable the root attributes: `nowo_dashboard_menu.menu_collapse: { enabled: true, storage_key: <your key> }` (or per include `menuCollapse: true`, or put `data-dashboard-menu-collapse="<code>"` on your own wrapper).
+2. Include the script once per page: `{{ include('@NowoDashboardMenuBundle/_menu_collapse_script.html.twig') }}` (or import `initMenuCollapse` from `src/Resources/assets/src/menu-collapse.ts` in your bundle).
+3. Without Bootstrap CSS, hide closed panels: `.collapse:not(.show) { display: none; }`; gate transitions on `.is-nav-collapse-ready`.
+4. Remove your own polyfill. A store written as `{ "<menu code>": { "<panel id>": bool } }` (e.g. Beacon's `beacon.navCollapse`) is read as is when you reuse its key.
+
+With Bootstrap JS loaded, keep `mode: auto` (Bootstrap toggles, the script only syncs ARIA / remembers state) or set `mode: always` to let the script own the toggles. See [USAGE.md — Nested collapse without Bootstrap JS](USAGE.md#nested-collapse-without-bootstrap-js).
 
 ## To 2.5.1
 

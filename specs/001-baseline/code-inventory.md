@@ -153,6 +153,7 @@ This file proves that **every production source artifact** under `src/` is refer
 | `Resources/assets/src/dashboard.ts` | Dashboard UX (modals, SortableJS) | FR-UI-001 |
 | `Resources/assets/src/logger.ts` | Namespaced debug logger | FR-UI-002 |
 | `Resources/assets/src/stimulus-live.ts` | Stimulus bootstrap for Live modal | FR-UI-003 |
+| `Resources/assets/src/menu-collapse.ts`, `menu-collapse-boot.ts` | Nested collapse without Bootstrap JS (`js/menu-collapse.js`) | [003](../003-menu-collapse-without-bootstrap/spec.md) |
 
 ## Built JavaScript (published)
 
@@ -202,6 +203,7 @@ This file proves that **every production source artifact** under `src/` is refer
 | Source file | Spec section | Requirement IDs |
 | --- | --- | --- |
 | `Resources/views/menu.html.twig` | Public menu tree renderer | FR-TWIG-003 |
+| `Resources/views/_menu_collapse_script.html.twig` | `js/menu-collapse.js` script tag (CSP nonce) | [003](../003-menu-collapse-without-bootstrap/spec.md) |
 
 ## Dashboard Twig views
 

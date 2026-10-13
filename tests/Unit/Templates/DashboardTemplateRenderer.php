@@ -75,8 +75,9 @@ final readonly class DashboardTemplateRenderer
     /**
      * @param array<string, mixed> $ui dashboard.ui config
      * @param array<string, string> $hostTemplates extra templates (name => source), e.g. a host modal shell
+     * @param array{enabled?: bool, mode?: string, storage_key?: string} $menuCollapse menu_collapse config (2.6.0)
      */
-    public function __construct(array $ui = [], array $hostTemplates = [], string $locale = 'en', ?string $viewsRoot = null)
+    public function __construct(array $ui = [], array $hostTemplates = [], string $locale = 'en', ?string $viewsRoot = null, array $menuCollapse = [])
     {
         $root = dirname(__DIR__, 3);
 
@@ -174,7 +175,7 @@ final readonly class DashboardTemplateRenderer
         $app->setDebug(false);
         $this->twig->addGlobal('app', $app);
 
-        $this->twig->addExtension($this->menuExtension(new DashboardUiConfig($ui)));
+        $this->twig->addExtension($this->menuExtension(new DashboardUiConfig($ui), $menuCollapse));
         $this->twig->addGlobal('nowo_ui_kit_css_framework', 'bootstrap5');
 
         $this->formFactory = Forms::createFormFactory();
@@ -301,7 +302,10 @@ final readonly class DashboardTemplateRenderer
         ];
     }
 
-    private function menuExtension(DashboardUiConfig $ui): MenuExtension
+    /**
+     * @param array{enabled?: bool, mode?: string, storage_key?: string} $menuCollapse
+     */
+    private function menuExtension(DashboardUiConfig $ui, array $menuCollapse = []): MenuExtension
     {
         $menuRepo  = (new ReflectionClass(MenuRepository::class))->newInstanceWithoutConstructor();
         $itemRepo  = (new ReflectionClass(MenuItemRepository::class))->newInstanceWithoutConstructor();
@@ -364,6 +368,8 @@ final readonly class DashboardTemplateRenderer
             'bootstrap5',
             'bootstrap-icons',
             $ui,
+            true,
+            $menuCollapse,
         );
     }
 }

@@ -70,6 +70,22 @@ final class DashboardMenuExtensionTest extends TestCase
         self::assertTrue($container->getParameter(Configuration::ALIAS . '.ux_autocomplete_available'));
     }
 
+    public function testCLoadExposesMenuCollapseParameter(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'prod');
+        $container->setParameter('kernel.bundles', []);
+
+        (new DashboardMenuExtension())->load([['menu_collapse' => ['enabled' => true, 'storage_key' => 'beacon.navCollapse']]], $container);
+
+        self::assertEquals(
+            ['enabled' => true, 'mode' => 'auto', 'storage_key' => 'beacon.navCollapse'],
+            $container->getParameter(Configuration::ALIAS . '.menu_collapse'),
+        );
+        $arguments = $container->getDefinition(MenuExtension::class)->getArguments();
+        self::assertSame('%' . Configuration::ALIAS . '.menu_collapse%', $arguments['$menuCollapse']);
+    }
+
     public function testCLoadExposesDashboardUiParameterAndService(): void
     {
         $container = new ContainerBuilder();

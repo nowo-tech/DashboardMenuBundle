@@ -13,8 +13,12 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'text-summary', 'html'],
       reportsDirectory: './coverage-ts',
-      // logger.ts + config.ts only so we can require 100%; dashboard.ts/stimulus-live.ts are integration-heavy.
-      include: ['src/Resources/assets/src/logger.ts', 'src/Resources/assets/src/config.ts'],
+      // Unit-testable modules at 100%; dashboard.ts / stimulus-live.ts / *-boot.ts entries are integration-heavy.
+      include: [
+        'src/Resources/assets/src/logger.ts',
+        'src/Resources/assets/src/config.ts',
+        'src/Resources/assets/src/menu-collapse.ts',
+      ],
       exclude: ['**/*.test.ts', '**/node_modules/**'],
       thresholds: {
         lines: 100,

@@ -130,6 +130,7 @@ services:
       $iconSet: '%nowo_dashboard_menu.dashboard.icon_set%'
       $dashboardUi: '@Nowo\DashboardMenuBundle\Service\DashboardUiConfig'
       $autocompleteBootstrap: '%nowo_dashboard_menu.dashboard.autocomplete_bootstrap%'
+      $menuCollapse: '%nowo_dashboard_menu.menu_collapse%'
     tags:
       - { name: twig.extension }
     public: false

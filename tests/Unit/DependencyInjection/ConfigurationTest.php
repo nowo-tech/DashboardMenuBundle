@@ -48,6 +48,7 @@ final class ConfigurationTest extends TestCase
         self::assertSame('bootstrap5', $config['dashboard']['css_framework']);
         self::assertSame('bootstrap-icons', $config['dashboard']['icon_set']);
         self::assertTrue($config['dashboard']['autocomplete_bootstrap']);
+        self::assertSame(['enabled' => false, 'mode' => 'auto', 'storage_key' => 'nowo.dashboardMenu.navCollapse'], $config['menu_collapse']);
         self::assertSame([], $config['permission_checker_choices']);
         self::assertSame([], $config['menu_link_resolver_choices']);
         self::assertSame(['ROLE_ADMIN'], $config['security']['access_roles']);
@@ -130,6 +131,31 @@ final class ConfigurationTest extends TestCase
         $processor->processConfiguration(new Configuration(), [
             ['dashboard' => ['modals' => ['menu_form' => 'invalid']]],
         ]);
+    }
+
+    public function testMenuCollapseCanBeConfigured(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            ['menu_collapse' => ['enabled' => true, 'mode' => 'always', 'storage_key' => 'beacon.navCollapse']],
+        ]);
+
+        self::assertSame(['enabled' => true, 'mode' => 'always', 'storage_key' => 'beacon.navCollapse'], $config['menu_collapse']);
+
+        $config = (new Processor())->processConfiguration(new Configuration(), [['menu_collapse' => ['storage_key' => '']]]);
+        self::assertSame('', $config['menu_collapse']['storage_key']);
+    }
+
+    public function testMenuCollapseRejectsUnknownMode(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        (new Processor())->processConfiguration(new Configuration(), [['menu_collapse' => ['mode' => 'bootstrap']]]);
+    }
+
+    public function testMenuCollapseRejectsNonStringStorageKey(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('menu_collapse.storage_key must be a string');
+        (new Processor())->processConfiguration(new Configuration(), [['menu_collapse' => ['storage_key' => null]]]);
     }
 
     public function testAutocompleteBootstrapCanBeDisabled(): void

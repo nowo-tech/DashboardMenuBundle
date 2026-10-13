@@ -42,8 +42,8 @@ final class TranslationKeyParityTest extends TestCase
     #[DataProvider('locales')]
     public function testLocaleHasSameKeysAndPlaceholdersAsEnglish(string $locale): void
     {
-        $en     = self::load('en');
-        $target = self::load($locale);
+        $en     = $this->load('en');
+        $target = $this->load($locale);
 
         $missing = array_diff(array_keys($en), array_keys($target));
         $extra   = array_diff(array_keys($target), array_keys($en));
@@ -66,7 +66,7 @@ final class TranslationKeyParityTest extends TestCase
     /**
      * @return array<string, string>
      */
-    private static function load(string $locale): array
+    private function load(string $locale): array
     {
         $catalog = Yaml::parseFile(dirname(__DIR__, 3) . self::DIR . '/NowoDashboardMenuBundle.' . $locale . '.yaml');
         self::assertTrue(is_array($catalog));

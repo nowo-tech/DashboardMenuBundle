@@ -34,6 +34,7 @@ This bundle is **FrankenPHP worker mode friendly**.
 - **FrankenPHP worker**: request-scoped memos + `DashboardMenuWorkerStateSubscriber` so worker mode with `reset_kernel: false` stays correct without depending on `services_resetter` (see [FRANKENPHP-WORKER-AUDIT.md](docs/FRANKENPHP-WORKER-AUDIT.md))
 - **CLI**: `nowo_dashboard_menu:generate-migration`, `nowo_dashboard_menu:translations:google-sync`
 - **Twig**: `dashboard_menu_tree(menuCode, permissionContext?, contextSets?)`, `dashboard_menu_href(item)`, `dashboard_menu_config(menuCode, contextSets?)`; include `@NowoDashboardMenuBundle/menu.html.twig`
+- **Collapse without Bootstrap JS** (2.6.0, opt-in): `menu_collapse.enabled` + the CSP-safe `js/menu-collapse.js` script make collapsible / nested menus toggle without Bootstrap's JavaScript (ARIA in sync, state remembered in `localStorage`, no double toggle when Bootstrap JS is present) — see [Nested collapse without Bootstrap JS](docs/USAGE.md#nested-collapse-without-bootstrap-js)
 - **JSON API**: `GET /api/menu/{code}` for SPA consumption (optional `_locale`, `_context_sets` query params)
 - **Dashboard**: CRUD at `/admin/menus` (list, create, edit, copy menu, manage items); export/import menus as JSON; optional **drag-and-drop tree reorder** (SortableJS) on a dedicated route; forms split into definition (pencil) and configuration (gear); dashboard search/action flows use Symfony Form Types + FormKit-friendly Twig rendering (`form_start` / `form_end`); redirect to referer after successful actions; import available in a modal
 - **Admin chrome hooks** (2.3.0): theme the dashboard with `dashboard.ui` config (CSS class map, modal shell / pagination / row-action partials, table view, header actions in your layout) and named blocks instead of copying pages — see [Customising the admin chrome](docs/USAGE.md#customising-the-admin-chrome)
@@ -80,6 +81,9 @@ nowo_dashboard_menu:
   api:
     enabled: true
     path_prefix: /api/menu
+  menu_collapse:          # 2.6.0, opt-in: collapse without Bootstrap JS
+    enabled: false
+    storage_key: nowo.dashboardMenu.navCollapse
 ```
 
 ## Usage
@@ -121,14 +125,15 @@ make -C demo/symfony8 install
 
 Run tests and QA with Docker: `make up && make install && make test` (or `make test-coverage`, `make qa`). Without Docker: `composer install && composer test`. Full details: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
-**Dashboard assets (TS → JS):** Built with **Vite** (as in [IconSelectorBundle](https://github.com/nowo-tech/IconSelectorBundle)). Sources under `src/Resources/assets/src/` (dashboard.ts, stimulus-live.ts, logger.ts). Output: `src/Resources/public/js/dashboard.js` (IIFE) and `js/stimulus-live.js` (ESM), installed by Symfony to `public/bundles/nowodashboardmenu/js/`.
+**Dashboard assets (TS → JS):** Built with **Vite** (as in [IconSelectorBundle](https://github.com/nowo-tech/IconSelectorBundle)). Sources under `src/Resources/assets/src/` (dashboard.ts, stimulus-live.ts, menu-collapse.ts, logger.ts). Output: `src/Resources/public/js/dashboard.js` (IIFE), `js/stimulus-live.js` (ESM) and `js/menu-collapse.js` (IIFE, 2.6.0), installed by Symfony to `public/bundles/nowodashboardmenu/js/`.
 
 ```bash
 pnpm install
-pnpm run build    # production build (dashboard.js + stimulus-live.js)
+pnpm run build    # production build (dashboard.js + stimulus-live.js + menu-collapse.js)
 pnpm run dev     # watch dashboard.js
 pnpm run build:dashboard    # only dashboard.js
 pnpm run build:stimulus-live  # only stimulus-live.js
+pnpm run build:menu-collapse  # only menu-collapse.js
 ```
 
 Then run `php bin/console assets:install` in the app so `public/bundles/nowodashboardmenu/js/` is updated.

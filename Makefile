@@ -14,7 +14,7 @@ help:
 	@echo "  build           Rebuild Docker image (no cache)"
 	@echo "  shell           Open shell in container"
 	@echo "  install         Install Composer dependencies"
-	@echo "  assets          Build frontend assets (Vite: dashboard.js + stimulus-live.js)"
+	@echo "  assets          Build frontend assets (Vite: dashboard.js + stimulus-live.js + menu-collapse.js)"
 	@echo "  test            Run PHPUnit tests"
 	@echo "  test-ts         Run TypeScript (Vitest) unit tests + print global TS coverage"
 	@echo "  test-coverage   Run PHPUnit tests with code coverage"
@@ -145,7 +145,7 @@ demo-smoke:
 assets: ensure-up
 	$(COMPOSE) exec -T -e CI=true $(SERVICE_PHP) sh -c "pnpm install --frozen-lockfile || pnpm install"
 	$(COMPOSE) exec -T $(SERVICE_PHP) pnpm run build
-	@echo "✅ Assets built: src/Resources/public/js/dashboard.js, js/stimulus-live.js"
+	@echo "✅ Assets built: src/Resources/public/js/dashboard.js, js/stimulus-live.js, js/menu-collapse.js"
 
 clean:
 	rm -rf vendor node_modules .phpunit.cache coverage coverage.xml .php-cs-fixer.cache coverage-php.txt coverage-output.txt
