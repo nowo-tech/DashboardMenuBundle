@@ -10,8 +10,10 @@
   - [icon_library_prefix_map](#icon_library_prefix_map)
   - [locales and default_locale](#locales-and-default_locale)
   - [permission_checker_choices](#permission_checker_choices)
+  - [menu_link_resolver_choices](#menu_link_resolver_choices)
   - [api](#api)
   - [dashboard](#dashboard)
+    - [css_class_options](#css_class_options)
 - [Per-menu options (database)](#per-menu-options-database)
 - [Example](#example)
 - [Symfony UX Icons and icon prefix map](#symfony-ux-icons-and-icon-prefix-map)
@@ -146,11 +148,38 @@ nowo_dashboard_menu:
 
 The bundle also provides `PermissionKeyAwareMenuPermissionChecker` (structure example: items with a permission key are hidden unless you extend or replace with your own logic).
 
+### menu_link_resolver_choices
+
+Services shown in the menu item form "Link resolver" dropdown (item type **Service**, runtime URL). Any service implementing `MenuLinkResolverInterface` is **automatically** tagged `nowo_dashboard_menu.menu_link_resolver` and listed. The label is, in order: the tag attribute `label`, the class constant `DASHBOARD_LABEL`, the attribute `#[MenuLinkResolverLabel('...')]`, or the service id.
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `menu_link_resolver_choices` | `[]` | Ordered list of resolver service ids. Listed (tagged) resolvers appear first in this order; the remaining tagged resolvers follow. Ids that are not tagged resolvers are ignored. With an empty list the dropdown is sorted by service id. Legacy `{order: [...]}` and map formats are normalized to this list (map keys are used). |
+
+```yaml
+nowo_dashboard_menu:
+    menu_link_resolver_choices:
+        - App\Menu\AccountLinksResolver
+        - App\Menu\HelpCenterResolver
+```
+
+When no resolver is registered, the item form shows a free-text field for the service id.
+
 ### api
+
+The JSON API route `nowo_dashboard_menu_api` is registered when you import `@NowoDashboardMenuBundle/Resources/config/routes.yaml` (route loader type `nowo_dashboard_menu_api`).
+
 | Option        | Default      | Description        |
 |---------------|--------------|--------------------|
-| `enabled`     | `true`       | Enable JSON API.   |
-| `path_prefix` | `/api/menu`  | Path prefix for the API route (`GET {path_prefix}/{code}`). |
+| `enabled`     | `true`       | Register the JSON API route. When `false` the route is not registered (requests 404 and `path('nowo_dashboard_menu_api')` is unavailable). |
+| `path_prefix` | `/api/menu`  | Path prefix for the API route: `GET {path_prefix}/{code}`. Leading/trailing slashes are normalized (`menus/` → `/menus/{code}`). |
+
+```yaml
+nowo_dashboard_menu:
+    api:
+        enabled: true
+        path_prefix: /internal/menus   # GET /internal/menus/sidebar
+```
 
 ### dashboard
 
@@ -169,7 +198,7 @@ Options for the admin dashboard (list, create, edit, copy menus and manage items
 | `position_step`              | `100`          | Gap used by the dashboard “Re-index positions” action: within each sibling group (same parent), positions become `step`, `2*step`, `3*step`, … in current sort order. |
 | `modals`                      | see below      | Modal sizes: `menu_form`, `copy`, `item_form`, `delete` (Bootstrap 5: `normal`, `lg`, `xl`). |
 | `ui`                          | see below      | *(2.3.0)* Admin chrome hooks: `include_ui_kit_css`, `header_actions_in_layout`, `header_action_variants` *(2.4.1)*, `index_view`, `actions_column`, `row_action_display`, `region_attribute`, `form_themes`, `classes.*`, `partials.*`, `templates.*`. All opt-in; defaults keep the bundle markup. Full reference and example in [USAGE — Customising the admin chrome](USAGE.md#customising-the-admin-chrome). |
-| `css_class_options`           | (defaults)     | Arrays of CSS class choices shown as dropdowns when editing a menu (menu, item, link, children, span, section_label, current, branch_expanded, has_children, expanded, collapsed). `span` also drives the optional wrapper class for non-section items when `item_span_active` is enabled. |
+| `css_class_options`           | (defaults)     | Arrays of CSS class choices shown as dropdowns when editing a menu. `section` / `divider` (and `span`) also provide rendering defaults. See [css_class_options](#css_class_options). |
 | `icon_selector_script_url`   | `null`         | Optional URL of the icon-selector script (e.g. with `nowo-tech/icon-selector-bundle`). When set, the item form can show an icon selector. |
 | `stimulus_script_url`        | *(see below)*  | URL of the Stimulus script for the Live Component form in the item modal (e.g. `bundles/nowodashboardmenu/js/stimulus-live.js`). The bundle needs `window.Stimulus` (or `$$stimulusApp$$` / `__stimulusApp__`) to connect controllers in the modal. Set to `null` only if your layout loads Stimulus and exposes it on `window` before the modal is opened. If you override the dashboard layout, include the script tag when this is set (same as the bundle layout). Dashboard autocomplete bootstrap in `dashboard.js` also relies on Stimulus availability to auto-register UX Autocomplete when needed. |
 | `permission_key_choices`     | `[]`           | Optional list of permission keys (strings) for the menu item form. The field is rendered as a multiselect (`permissionKeys`) with autocomplete. Keys can be translated with `form.menu_item_type.permission_keys.choice.{key}` (use `path__` for `path:/`). |
@@ -210,6 +239,42 @@ ui:
     templates:                  # index, show, show_items_reorder, menu_form_partial, item_form_partial,
                                 # copy_menu_partial, import_partial, modals (bundle templates by default)
 ```
+
+### css_class_options
+
+`dashboard.css_class_options.<key>` is a list of class strings offered as dropdown choices for the matching **Menu** CSS field in the dashboard (an empty string `''` in the list offers "no class"). The value saved on the menu entity is what renders; when the field is empty the fallback below applies. Only `section`, `divider` and `span` read a rendering default from these lists; for every other key the list is just the set of dropdown choices.
+
+| Key | Menu field | Applies to | When the menu field is empty |
+|-----|------------|------------|------------------------------|
+| `menu` | `classMenu` | Root `<ul>` | `dashboard-menu` |
+| `item` | `classItem` | Every `<li>` | No class |
+| `link` | `classLink` | Every `<a>` | No class |
+| `children` | `classChildren` | Nested `<ul>` | No class |
+| `section_children` | `classSectionChildren` | First-level `<ul>` under an item of type `section` (e.g. flat, no indent) | Same as `children` |
+| `section_child_item` | `classSectionChildItem` | `<li>` of links and dividers that are direct children of a section | Same as `item` |
+| `section_child_link` | `classSectionChildLink` | `<a>` of links that are direct children of a section | Same as `link` |
+| `section_label` | `classSectionLabel` | `<span>` label of section items | `menu-section-label` |
+| `section` | `classSection` | `<li>` of items of type `section` | **First non-empty entry of `css_class_options.section`** (default `menu-section`) |
+| `divider` | `classDivider` | `<li>` of items of type `divider` | **First non-empty entry of `css_class_options.divider`** (default `menu-divider`) |
+| `span` | — | Wrapper `<span>` of non-section labels when `item_span_active: true` | First non-empty entry of `css_class_options.span` |
+| `current` | `classCurrent` | `<a>` of the current route | `active` |
+| `branch_expanded` | `classBranchExpanded` | `<li>` whose branch contains the current route | `active-branch` |
+| `has_children` | `classHasChildren` | `<li>` with children | No class |
+| `expanded` / `collapsed` | `classExpanded` / `classCollapsed` | `<li>` whose children block is open / closed (collapsible menus) | No class |
+
+```yaml
+nowo_dashboard_menu:
+    dashboard:
+        css_class_options:
+            section: [navigation-header, menu-section, '']
+            divider: [dropdown-divider, menu-divider, '']
+            section_children: ['nav flex-column list-unstyled ps-0', 'nav flex-column ms-2', '']
+            section_child_item: ['nav-item ms-0', '']
+            section_child_link: ['nav-link d-flex align-items-center ps-0', '']
+            section_label: [navigation-header-text, '']
+```
+
+With the example above, menus that leave **Class section** / **Class divider** empty render sections with `navigation-header` and dividers with `dropdown-divider`.
 
 ## Security (dashboard admin access)
 

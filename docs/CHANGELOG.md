@@ -98,6 +98,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `api.enabled` and `api.path_prefix` were ignored (`routes.yaml` hard-coded `GET /api/menu/{code}`). The bundle `routes.yaml` now delegates to `MenuApiRouteLoader` (type `nowo_dashboard_menu_api`): no `nowo_dashboard_menu_api` route when `api.enabled: false`, otherwise `GET {api.path_prefix}/{code}` (default unchanged: `/api/menu/{code}`).
+- Translations: 24 locales (ar, ca, cs, da, el, fi, he, hu, id, ja, ko, nb, pl, pt_BR, ro, ru, sk, sv, th, tr, uk, vi, zh_CN, zh_TW) were missing 64 admin keys and shipped the remaining strings in English; every catalogue is now fully translated. A new key/placeholder parity test covers all locales.
+
+### Changed
+
+- Docs: `menu_link_resolver_choices`, the `api` route loader and every `dashboard.css_class_options` key (including `section_*`, `section` and `divider`, which also provide rendering defaults) are documented in `docs/CONFIGURATION.md`.
+- Dev: vitest and `@vitest/coverage-v8` upgraded to 4.1, happy-dom to 20 and vite to 8 (vitest 4 peer requirement).
+
 ## [2.4.1] - 2026-10-13
 
 ### Added
