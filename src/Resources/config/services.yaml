@@ -4,6 +4,12 @@ services:
     autoconfigure: true
     public: false
 
+  Nowo\DashboardMenuBundle\Routing\MenuApiRouteLoader:
+    arguments:
+      $enabled: '%nowo_dashboard_menu.api.enabled%'
+      $pathPrefix: '%nowo_dashboard_menu.api.path_prefix%'
+    tags: ['routing.loader']
+
   Nowo\DashboardMenuBundle\Repository\MenuRepository:
     public: true
     # ResetInterface: clear findOneByCodeAndContext memo between FrankenPHP worker requests.

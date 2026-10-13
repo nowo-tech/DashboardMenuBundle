@@ -15,7 +15,7 @@ use Symfony\Component\HttpKernel\Attribute\AsController;
 use function is_array;
 
 /**
- * JSON API for menu tree (SPA / React / Vue). Route: GET /api/menu/{code}.
+ * JSON API for menu tree (SPA / React / Vue). Route: GET {api.path_prefix}/{code} (default /api/menu/{code}), see MenuApiRouteLoader.
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
