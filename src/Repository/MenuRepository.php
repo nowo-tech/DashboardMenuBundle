@@ -140,9 +140,7 @@ class MenuRepository extends ServiceEntityRepository implements ResetInterface
                 }
             }
         }
-        if ($menuRow === null) {
-            $menuRow = $menuRows[0];
-        }
+        $menuRow ??= $menuRows[0];
 
         $menuId = $menuRow['id'] ?? null;
         if ($menuId === null) {

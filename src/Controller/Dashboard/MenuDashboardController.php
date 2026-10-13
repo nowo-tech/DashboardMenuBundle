@@ -19,6 +19,7 @@ use Nowo\DashboardMenuBundle\Form\SortableTreeType;
 use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
+use Nowo\DashboardMenuBundle\Service\DashboardUiConfig;
 use Nowo\DashboardMenuBundle\Service\ImportExportRateLimiter;
 use Nowo\DashboardMenuBundle\Service\MenuExporter;
 use Nowo\DashboardMenuBundle\Service\MenuImporter;
@@ -108,6 +109,7 @@ final class MenuDashboardController extends AbstractController
      * @param int $positionStep Gap for dashboard "re-index positions" action (e.g. 100 → 100, 200, 300 per sibling group)
      * @param ImportExportRateLimiter $importExportRateLimiter Rate limiter for import/export (no-op when disabled in config)
      * @param bool $itemFormLiveComponentEnabled Whether the item form modal uses the Live Component (true when symfony/ux-live-component is installed)
+     * @param DashboardUiConfig $dashboardUi Admin chrome hooks (dashboard.ui): page / partial template overrides
      */
     public function __construct(
         private readonly MenuRepository $menuRepository,
@@ -128,6 +130,7 @@ final class MenuDashboardController extends AbstractController
         private readonly int $positionStep,
         private readonly ImportExportRateLimiter $importExportRateLimiter,
         private readonly bool $itemFormLiveComponentEnabled = false,
+        private readonly DashboardUiConfig $dashboardUi = new DashboardUiConfig(),
     ) {
     }
 
@@ -190,7 +193,7 @@ final class MenuDashboardController extends AbstractController
             'section' => 'basic',
         ]);
 
-        return $this->render('@NowoDashboardMenuBundle/dashboard/index.html.twig', [
+        return $this->render($this->dashboardUi->template('index'), [
             'menus'                    => $menus,
             'menu_item_counts'         => $menuItemCounts,
             'search'                   => $search,
@@ -235,7 +238,7 @@ final class MenuDashboardController extends AbstractController
             }
         }
 
-        return $this->render('@NowoDashboardMenuBundle/dashboard/_menu_form_partial.html.twig', [
+        return $this->render($this->dashboardUi->template('menu_form_partial'), [
             'form'             => $form,
             'is_edit'          => false,
             'dashboard_routes' => $this->getDashboardRoutes(),
@@ -256,7 +259,7 @@ final class MenuDashboardController extends AbstractController
             'csrf_token_id' => 'reorder_tree_' . $id,
         ]);
 
-        return $this->render('@NowoDashboardMenuBundle/dashboard/show_items_reorder.html.twig', [
+        return $this->render($this->dashboardUi->template('show_items_reorder'), [
             'menu'                     => $menu,
             'items_tree'               => $itemsTree,
             'reorder_form'             => $reorderForm->createView(),
@@ -317,7 +320,7 @@ final class MenuDashboardController extends AbstractController
             $itemDeleteTokens[(int) $itemId] = (string) ($deleteFormView['_token']->vars['value'] ?? '');
         }
 
-        return $this->render('@NowoDashboardMenuBundle/dashboard/show.html.twig', [
+        return $this->render($this->dashboardUi->template('show'), [
             'menu'                     => $menu,
             'items'                    => $items,
             'reindex_positions_form'   => $reindexPositionsForm->createView(),
@@ -497,9 +500,7 @@ final class MenuDashboardController extends AbstractController
         foreach ($items as $item) {
             $parentId = $item->getParent()?->getId();
             $key      = $parentId !== null ? (string) $parentId : '__root';
-            if (!isset($byParent[$key])) {
-                $byParent[$key] = [];
-            }
+            $byParent[$key] ??= [];
             $byParent[$key][] = $item;
         }
 
@@ -568,9 +569,7 @@ final class MenuDashboardController extends AbstractController
         $byParent = [];
         foreach ($items as $item) {
             $pid = $item->getParent()?->getId() ?? -1;
-            if (!isset($byParent[$pid])) {
-                $byParent[$pid] = [];
-            }
+            $byParent[$pid] ??= [];
             $byParent[$pid][] = $item;
         }
         $prev = [];
@@ -597,9 +596,7 @@ final class MenuDashboardController extends AbstractController
         foreach ($items as $item) {
             $parentId = $item->getParent()?->getId();
             $key      = $parentId !== null ? (string) $parentId : '__root';
-            if (!isset($byParent[$key])) {
-                $byParent[$key] = [];
-            }
+            $byParent[$key] ??= [];
             $byParent[$key][] = $item;
         }
 
@@ -644,7 +641,7 @@ final class MenuDashboardController extends AbstractController
                 continue;
             }
             $parent      = $item->getParent();
-            $labels[$id] = $parent !== null ? $parent->getLabelForLocale($locale) : $this->translator->trans('dashboard.root', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN);
+            $labels[$id] = $parent?->getLabelForLocale($locale) ?? $this->translator->trans('dashboard.root', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN);
         }
 
         return $labels;
@@ -776,7 +773,7 @@ final class MenuDashboardController extends AbstractController
             }
         }
 
-        return $this->render('@NowoDashboardMenuBundle/dashboard/_menu_form_partial.html.twig', [
+        return $this->render($this->dashboardUi->template('menu_form_partial'), [
             'form'             => $form,
             'is_edit'          => true,
             'dashboard_routes' => $this->getDashboardRoutes(),
@@ -935,7 +932,7 @@ final class MenuDashboardController extends AbstractController
         ];
 
         return $usePartial
-            ? $this->render('@NowoDashboardMenuBundle/dashboard/_import_partial.html.twig', $vars)
+            ? $this->render($this->dashboardUi->template('import_partial'), $vars)
             : $this->render('@NowoDashboardMenuBundle/dashboard/import.html.twig', $vars);
     }
 
@@ -990,7 +987,7 @@ final class MenuDashboardController extends AbstractController
             }
         }
 
-        return $this->render('@NowoDashboardMenuBundle/dashboard/_copy_menu_partial.html.twig', [
+        return $this->render($this->dashboardUi->template('copy_menu_partial'), [
             'menu' => $menu,
             'form' => $form,
         ]);
@@ -1149,7 +1146,7 @@ final class MenuDashboardController extends AbstractController
             return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
         }
 
-        return $this->render('@NowoDashboardMenuBundle/dashboard/_item_form_partial.html.twig', [
+        return $this->render($this->dashboardUi->template('item_form_partial'), [
             'form'              => $form,
             'menu'              => $menu,
             'is_edit'           => false,
@@ -1292,7 +1289,7 @@ final class MenuDashboardController extends AbstractController
             return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
         }
 
-        return $this->render('@NowoDashboardMenuBundle/dashboard/_item_form_partial.html.twig', [
+        return $this->render($this->dashboardUi->template('item_form_partial'), [
             'form'              => $form,
             'menu'              => $menu,
             'is_edit'           => true,

@@ -59,6 +59,20 @@ nowo_dashboard_menu:
             copy: normal
             item_form: lg
             delete: normal
+        # Admin chrome hooks (2.3.0): theme the dashboard without copying pages. All opt-in; defaults keep the bundle markup.
+        # See docs/USAGE.md "Customising the admin chrome".
+        # ui:
+        #     include_ui_kit_css: false        # your layout already loads nowo-ui.css
+        #     header_actions_in_layout: true   # print nowo_dashboard_menu_header_actions in layout_template
+        #     index_view: table                # list | table
+        #     actions_column: last             # first | last
+        #     row_action_display: text         # null (SVG icons) | icon | text | icon_text
+        #     region_attribute: data-testid
+        #     classes:
+        #         button_primary: 'btn btn-dark'
+        #         table: 'table table-sm table-hover'
+        #     partials:
+        #         pagination: '@NowoUiKitBundle/partials/_pagination.html.twig'
         # Maximum JSON import size in bytes (default 2 MiB).
         import_max_bytes: 2097152
         # Step used by the dashboard “Re-index positions” action (sibling groups: step, 2*step, …).

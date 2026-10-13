@@ -84,6 +84,15 @@ dashboard:
   css_classes: CSS-klassen
   root: "— Root —"
   no_label: "(geen label)"
+  # 2.3.0 — admin chrome (index table view, item permission badges)
+  table_code: "Code"
+  table_name: "Naam"
+  table_items: "Items"
+  table_context: "Context"
+  no_permission_keys: "Geen rechtensleutels"
+  unanimous: "Unaniem"
+  non_unanimous: "Niet unaniem"
+  position_short: "Pos"
   unique_code_context_error: Er bestaat al een menu met deze code en context.
   base: Basis
   base_badge_title: "Basismenu: code kan na aanmaak niet worden gewijzigd."

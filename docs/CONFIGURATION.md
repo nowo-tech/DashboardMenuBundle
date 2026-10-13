@@ -160,7 +160,7 @@ Options for the admin dashboard (list, create, edit, copy menus and manage items
 |-------------------------------|----------------|-------------|
 | `enabled`                     | `false`        | Enable dashboard routes. Set to `true` in app config to use the admin UI. |
 | `layout_template`             | `@NowoDashboardMenuBundle/dashboard/layout.html.twig` | Twig template that dashboard views ultimately extend (via `dashboard/base.html.twig`). Must define block `nowo_dashboard_menu_content` (aliased as `nowo_ui_content` in the demo layout). Override to use your app layout (e.g. `base.html.twig`) so the dashboard matches your app shell. |
-| `css_framework`               | `bootstrap5`   | CSS framework for the built-in dashboard UI. Values: `bootstrap5` (alias `bootstrap`), `bootstrap4`, `tailwind`, `foundation`, `tabler`, `custom`, `none`. Default `bootstrap5` keeps demos working. Exposed as Twig global `nowo_dashboard_menu_css_framework` and the `cssFramework` key of the `#nowo-dashboard-menu-config` JSON island (legacy `window.__nowoDashboardMenuConfig` fallback until 2.3.0). When UiKit is installed and the host has not set `nowo_ui_kit.css_framework`, this value is also prepended as the UiKit default (REQ-UI-001-kit). |
+| `css_framework`               | `bootstrap5`   | CSS framework for the built-in dashboard UI. Values: `bootstrap5` (alias `bootstrap`), `bootstrap4`, `tailwind`, `foundation`, `tabler`, `custom`, `none`. Default `bootstrap5` keeps demos working. Exposed as Twig global `nowo_dashboard_menu_css_framework` and the `cssFramework` key of the `#nowo-dashboard-menu-config` JSON island (legacy `window.__nowoDashboardMenuConfig` fallback kept in 2.x; removal moved to 3.0). When UiKit is installed and the host has not set `nowo_ui_kit.css_framework`, this value is also prepended as the UiKit default (REQ-UI-001-kit). |
 | `icon_set`                    | `bootstrap-icons` | Icon library for built-in dashboard templates. Values: `bootstrap-icons`, `tabler-icons`, `ux_icon`, `svg_inline`, `none`. Exposed as Twig global `nowo_dashboard_menu_icon_set`. Likewise seeds `nowo_ui_kit.icon_set` when the host has not set it. |
 | `path_prefix`                 | *(deprecated)* | **Deprecated.** Set the dashboard URL prefix in your app routing when importing `routes_dashboard.yaml` (e.g. in `config/routes.yaml` or the recipe’s `config/routes_nowo_dashboard_menu.yaml`). |
 | `route_name_exclude_patterns`  | `[]`           | Regex patterns to hide route names from the route selector (e.g. `['^_', '^web_profiler']`). |
@@ -168,6 +168,7 @@ Options for the admin dashboard (list, create, edit, copy menus and manage items
 | `pagination.per_page`        | `20`           | Menus per page. |
 | `position_step`              | `100`          | Gap used by the dashboard “Re-index positions” action: within each sibling group (same parent), positions become `step`, `2*step`, `3*step`, … in current sort order. |
 | `modals`                      | see below      | Modal sizes: `menu_form`, `copy`, `item_form`, `delete` (Bootstrap 5: `normal`, `lg`, `xl`). |
+| `ui`                          | see below      | *(2.3.0)* Admin chrome hooks: `include_ui_kit_css`, `header_actions_in_layout`, `index_view`, `actions_column`, `row_action_display`, `region_attribute`, `form_themes`, `classes.*`, `partials.*`, `templates.*`. All opt-in; defaults keep the bundle markup. Full reference and example in [USAGE — Customising the admin chrome](USAGE.md#customising-the-admin-chrome). |
 | `css_class_options`           | (defaults)     | Arrays of CSS class choices shown as dropdowns when editing a menu (menu, item, link, children, span, section_label, current, branch_expanded, has_children, expanded, collapsed). `span` also drives the optional wrapper class for non-section items when `item_span_active` is enabled. |
 | `icon_selector_script_url`   | `null`         | Optional URL of the icon-selector script (e.g. with `nowo-tech/icon-selector-bundle`). When set, the item form can show an icon selector. |
 | `stimulus_script_url`        | *(see below)*  | URL of the Stimulus script for the Live Component form in the item modal (e.g. `bundles/nowodashboardmenu/js/stimulus-live.js`). The bundle needs `window.Stimulus` (or `$$stimulusApp$$` / `__stimulusApp__`) to connect controllers in the modal. Set to `null` only if your layout loads Stimulus and exposes it on `window` before the modal is opened. If you override the dashboard layout, include the script tag when this is set (same as the bundle layout). Dashboard autocomplete bootstrap in `dashboard.js` also relies on Stimulus availability to auto-register UX Autocomplete when needed. |
@@ -180,6 +181,31 @@ Options for the admin dashboard (list, create, edit, copy menus and manage items
 | `import_export_rate_limit`   | disabled      | Rate limit for import and export actions. When set, use `limit` (requests per window) and `interval` (seconds). E.g. `{ limit: 10, interval: 60 }` = 10 requests per minute per user/IP. Set to `false` or omit to disable. |
 
 **Modal defaults:** `menu_form: normal`, `copy: normal`, `item_form: lg`, `delete: normal`.
+
+**`ui` defaults:**
+
+```yaml
+ui:
+    include_ui_kit_css: true
+    header_actions_in_layout: false
+    index_view: list            # list | table
+    actions_column: first       # first | last
+    row_action_display: null    # null | icon | text | icon_text
+    region_attribute: null      # e.g. data-testid
+    form_themes: []
+    classes: {}                 # button_primary, button_secondary, button_danger, button_link, button_small, page_header,
+                                # toolbar, search_form, search_input, info_panel, inline_form, empty, empty_action, muted,
+                                # badge, badge_base, badge_type, badge_unanimous, badge_non_unanimous, list, list_item,
+                                # table_wrap, table, table_header_row, table_row, row_actions, row_action, row_action_danger,
+                                # row_action_disabled, sortable_panel, sortable_header, sortable_body, modal_loading,
+                                # modal_form, modal_content, modal_section, modal_message, modal_actions (null = UiKit default)
+    partials:
+        pagination: '@NowoDashboardMenuBundle/dashboard/_pagination.html.twig'
+        row_action_inner: '@NowoDashboardMenuBundle/dashboard/_row_action_inner.html.twig'
+        modal: '@NowoDashboardMenuBundle/dashboard/_modal.html.twig'
+    templates:                  # index, show, show_items_reorder, menu_form_partial, item_form_partial,
+                                # copy_menu_partial, import_partial, modals (bundle templates by default)
+```
 
 ## Security (dashboard admin access)
 

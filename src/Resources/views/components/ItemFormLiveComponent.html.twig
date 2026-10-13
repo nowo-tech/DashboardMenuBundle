@@ -1,6 +1,11 @@
 {% if nowo_dashboard_ux_autocomplete_available|default(false) %}
 {% form_theme form '@SymfonyUXAutocomplete/autocomplete_form_theme.html.twig' %}
 {% endif %}
+{#- Chrome: dashboard.ui.classes.{modal_form, modal_content, modal_section, modal_actions, button_primary, button_secondary}, dashboard.ui.form_themes. Keep the live#action hooks. -#}
+{% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
+{% set _dm_ui = nowo_dashboard_menu_ui|default({}) %}
+{% if _dm_ui.form_themes|default([]) is not empty %}{% form_theme form with _dm_ui.form_themes %}{% endif %}
+{% set _dm_section = _dm_ui.classes.modal_section ?? null %}
 {% set _section_focus = sectionFocus|default('') %}
 {% set _show_basic = form.basic is defined and (_section_focus == '' or _section_focus == 'basic' or _section_focus == 'identity') %}
 {% set _show_icon = form.icon is defined and (_section_focus == '' or _section_focus == 'icon' or _section_focus == 'identity') %}
@@ -31,7 +36,7 @@
         method: 'POST',
         action: this.actionUrl,
         attr: {
-            class: 'form form-vertical',
+            class: dashboard_menu_ui_class('modal_form', 'form form-vertical'),
             'data-model': 'on(change)|*',
             'data-action': 'live#action:prevent',
             'data-live-action-param': 'save',
@@ -40,13 +45,18 @@
         {% if _section_focus != '' %}
             <input type="hidden" name="_section" value="{{ _section_focus }}">
         {% endif %}
+        {% if _dm_ui.classes.modal_content is defined %}<div class="{{ _dm_ui.classes.modal_content }}">{% endif %}
         {% if _show_basic %}
         <div id="item_basic_section" class="mb-2">
             {% set formName = form.vars.name %}
+            {% if _dm_section is not null %}
+            <p class="{{ _dm_section }}">{{ 'form.menu_item_type.section_basic'|trans({}, 'NowoDashboardMenuBundle') }}</p>
+            {% else %}
             <h6 class="text-muted mb-2">
                 <i class="bi bi-pencil" aria-hidden="true"></i>
                 {{ 'form.menu_item_type.section_basic'|trans({}, 'NowoDashboardMenuBundle') }}
             </h6>
+            {% endif %}
             {% if this.getItemType() == 'divider' %}
                 <p class="form-text text-muted small mb-2">{{ 'form.menu_item_type.divider_label_hint'|trans({}, 'NowoDashboardMenuBundle') }}</p>
             {% endif %}
@@ -74,10 +84,14 @@
         {% if _show_icon %}
         <div id="item_icon_section" class="mb-2">
             {% set formName = form.vars.name %}
+            {% if _dm_section is not null %}
+            <p class="{{ _dm_section }}">{{ 'form.menu_item_type.section_icon'|trans({}, 'NowoDashboardMenuBundle') }}</p>
+            {% else %}
             <h6 class="text-muted mb-2">
                 <i class="bi bi-image" aria-hidden="true"></i>
                 {{ 'form.menu_item_type.section_icon'|trans({}, 'NowoDashboardMenuBundle') }}
             </h6>
+            {% endif %}
             <div class="row">
                 <div class="col-md-6">
                     {{ form_row(form.icon.itemType, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.icon.itemType' } }) }}
@@ -105,10 +119,14 @@
         <div id="item_config_section" class="mb-2">
             {% if _show_basic %}<hr class="my-3">{% endif %}
             {% set formName = form.vars.name %}
+            {% if _dm_section is not null %}
+            <p class="{{ _dm_section }}">{{ 'form.menu_item_type.section_config'|trans({}, 'NowoDashboardMenuBundle') }}</p>
+            {% else %}
             <h6 class="text-muted mb-2">
                 <i class="bi bi-gear" aria-hidden="true"></i>
                 {{ 'form.menu_item_type.section_config'|trans({}, 'NowoDashboardMenuBundle') }}
             </h6>
+            {% endif %}
             {% if form.config.parent is defined %}
                 {% if this.showParentField() %}
                     {{ form_row(form.config.parent) }}
@@ -189,13 +207,18 @@
         </div>
         {% endif %}
         {{ form_rest(form) }}
+        {% if _dm_ui.classes.modal_content is defined %}</div>{% endif %}
+        {% if _dm_ui.classes.modal_actions is defined %}<div class="{{ _dm_ui.classes.modal_actions }}">
+            <button type="button" class="{{ dashboard_menu_ui_class('button_secondary', ui.btn('secondary')) }}" {{ ui.modal_dismiss_attrs()|raw }}>{{ 'dashboard.cancel'|trans({}, 'NowoDashboardMenuBundle') }}</button>
+        {% endif %}
         <button
             type="submit"
-            class="btn btn-primary"
+            class="{{ dashboard_menu_ui_class('button_primary', 'btn btn-primary') }}"
             data-action="live#action:prevent"
             data-live-action-param="save"
         >
             {{ (isEdit ? 'dashboard.update' : 'dashboard.create')|trans({}, 'NowoDashboardMenuBundle') }}
         </button>
+        {% if _dm_ui.classes.modal_actions is defined %}</div>{% endif %}
     {{ form_end(form) }}
 </div>

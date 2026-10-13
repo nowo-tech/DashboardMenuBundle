@@ -18,7 +18,6 @@ use function array_map;
 use function array_unique;
 use function array_values;
 use function count;
-use function dirname;
 use function explode;
 use function file_get_contents;
 use function file_put_contents;
@@ -75,7 +74,7 @@ final class GoogleSyncTranslationsCommand extends Command
         $strict        = (bool) $input->getOption('strict');
         $targetLocales = $this->parseTargetLocales((string) $input->getOption('target-locales'));
 
-        $translationDir = dirname(__DIR__) . '/Resources/translations';
+        $translationDir = __DIR__ . '/../Resources/translations';
         $files          = glob($translationDir . '/NowoDashboardMenuBundle.*.yaml') ?: [];
         if ($files === []) {
             $io->error('No translation files found in bundle resources.');

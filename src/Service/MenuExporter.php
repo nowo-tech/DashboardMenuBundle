@@ -115,9 +115,7 @@ final readonly class MenuExporter
         foreach ($flatItems as $item) {
             $pid = $item->getParent()?->getId();
             $key = $pid !== null ? (string) $pid : '__root';
-            if (!isset($byParent[$key])) {
-                $byParent[$key] = [];
-            }
+            $byParent[$key] ??= [];
             $byParent[$key][] = $item;
         }
 

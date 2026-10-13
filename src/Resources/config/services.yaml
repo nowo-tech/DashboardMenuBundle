@@ -106,6 +106,11 @@ services:
       $currentMatchers: !tagged_iterator nowo_dashboard_menu.current_matcher
     public: false
 
+  # Admin chrome hooks (dashboard.ui): class map, partial paths, template overrides (2.3.0).
+  Nowo\DashboardMenuBundle\Service\DashboardUiConfig:
+    arguments:
+      $config: '%nowo_dashboard_menu.dashboard.ui%'
+
   Nowo\DashboardMenuBundle\Twig\MenuExtension:
     arguments:
       $dataCollector: null
@@ -117,6 +122,7 @@ services:
       $itemSpanClass: '%nowo_dashboard_menu.dashboard.item_span_class%'
       $cssFramework: '%nowo_dashboard_menu.dashboard.css_framework%'
       $iconSet: '%nowo_dashboard_menu.dashboard.icon_set%'
+      $dashboardUi: '@Nowo\DashboardMenuBundle\Service\DashboardUiConfig'
     tags:
       - { name: twig.extension }
     public: false
@@ -144,6 +150,7 @@ services:
       $positionStep: '%nowo_dashboard_menu.dashboard.position_step%'
       $importExportRateLimiter: '@Nowo\DashboardMenuBundle\Service\ImportExportRateLimiter'
       $itemFormLiveComponentEnabled: '%nowo_dashboard_menu.dashboard.item_form_live_component_enabled%'
+      $dashboardUi: '@Nowo\DashboardMenuBundle\Service\DashboardUiConfig'
     public: true
 
   Nowo\DashboardMenuBundle\EventSubscriber\DashboardMenuWorkerStateSubscriber:

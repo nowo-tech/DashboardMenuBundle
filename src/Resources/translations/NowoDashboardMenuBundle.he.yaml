@@ -59,6 +59,15 @@ dashboard:
   css_classes: CSS classes
   root: "— Root —"
   no_label: "(no label)"
+  # 2.3.0 — admin chrome (index table view, item permission badges)
+  table_code: "קוד"
+  table_name: "שם"
+  table_items: "פריטים"
+  table_context: "הקשר"
+  no_permission_keys: "אין מפתחות הרשאה"
+  unanimous: "פה אחד"
+  non_unanimous: "לא פה אחד"
+  position_short: "מיקום"
   unique_code_context_error: A menu with this code and context already exists.
   base: Base
   base_badge_title: "Base menu: code cannot be changed after creation."

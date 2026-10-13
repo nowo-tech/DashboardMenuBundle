@@ -59,6 +59,15 @@ dashboard:
   css_classes: CSS classes
   root: "— Root —"
   no_label: "(no label)"
+  # 2.3.0 — admin chrome (index table view, item permission badges)
+  table_code: "Код"
+  table_name: "Название"
+  table_items: "Элементы"
+  table_context: "Контекст"
+  no_permission_keys: "Нет ключей доступа"
+  unanimous: "Единогласно"
+  non_unanimous: "Не единогласно"
+  position_short: "Поз."
   unique_code_context_error: A menu with this code and context already exists.
   base: Base
   base_badge_title: "Base menu: code cannot be changed after creation."

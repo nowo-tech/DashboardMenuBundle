@@ -1,5 +1,26 @@
 # Upgrading
 
+## To 2.3.0
+
+No action required: every new option is opt-in and the default dashboard markup is unchanged (only the item permission badges, "No permission keys" and "Pos" are now translated in non-English locales).
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+php bin/console cache:clear
+```
+
+If you copied dashboard pages into `templates/bundles/NowoDashboardMenuBundle/` only to change the chrome, you can now delete them and use `nowo_dashboard_menu.dashboard.ui` instead (see [USAGE — Customising the admin chrome](USAGE.md#customising-the-admin-chrome)):
+
+- `dashboard/base.html.twig` copied to stop the second `nowo-ui.css` → `ui.include_ui_kit_css: false`.
+- Page header / CTAs moved into your layout → `ui.header_actions_in_layout: true` and print `nowo_dashboard_menu_header_actions` in the layout.
+- Button / table / badge / panel classes → `ui.classes.*`; list as a table → `ui.index_view: table`; actions column at the end → `ui.actions_column: last`; text row actions → `ui.row_action_display: text`.
+- Modal markup (`<dialog>`, footers) → `ui.partials.modal` + `ui.classes.modal_*`; pagination → `ui.partials.pagination`.
+- Anything else → `ui.templates.<page>` pointing to a template that extends the bundle page and overrides a block.
+
+If you keep page copies, re-diff them: the bundle templates were split into blocks (ids, `data-*` hooks, routes and form variables are unchanged). The `dashboard/_menu_dashboard_modals.html.twig` and index "new menu" modal now render through `dashboard/_modal.html.twig` (same markup).
+
+The legacy `window.__nowoDashboardMenuConfig` fallback in `dashboard.js` is kept in 2.x (its removal moves to 3.0).
+
 
 ## To 2.2.4
 

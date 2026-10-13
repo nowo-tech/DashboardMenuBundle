@@ -6,6 +6,8 @@ namespace Nowo\DashboardMenuBundle\DependencyInjection;
 
 use Nowo\DashboardMenuBundle\Enum\CssFramework;
 use Nowo\DashboardMenuBundle\Enum\IconSet;
+use Nowo\DashboardMenuBundle\Service\DashboardUiConfig;
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -240,6 +242,7 @@ final class Configuration implements ConfigurationInterface
                                 ->end()
                             ->end()
                         ->end()
+                        ->append($this->dashboardUiNode())
                         ->scalarNode('icon_selector_script_url')
                             ->info('Optional URL of the icon-selector Stimulus/script asset. When set, the dashboard layout sets window.dashboardMenuIconSelectorScriptUrl so the item form modal can init the icon selector. Use with nowo-tech/icon-selector-bundle and Symfony UX (Stimulus).')
                             ->defaultNull()
@@ -406,5 +409,97 @@ final class Configuration implements ConfigurationInterface
             ->end();
 
         return $treeBuilder;
+    }
+
+    /**
+     * {@code dashboard.ui}: admin chrome hooks (class map, partial paths, template overrides). All opt-in;
+     * defaults keep the bundle markup for the configured css_framework.
+     */
+    private function dashboardUiNode(): ArrayNodeDefinition
+    {
+        /** @var ArrayNodeDefinition $node */
+        $node = (new TreeBuilder('ui'))->getRootNode();
+        $node
+            ->info('Admin chrome hooks so hosts theme the dashboard with config + blocks instead of forking pages. See docs/USAGE.md "Customising the admin chrome".')
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->booleanNode('include_ui_kit_css')
+                    ->info('Append UiKit nowo-ui.css after the layout stylesheets (dashboard/base.html.twig). Set false when the host layout already loads it (re-appending reasserts UiKit :root tokens).')
+                    ->defaultTrue()
+                ->end()
+                ->booleanNode('header_actions_in_layout')
+                    ->info('When true, pages do not render their header (back link, title, primary actions) / toolbar in the body; the actions HTML is exposed as nowo_dashboard_menu_header_actions for the layout_template to place.')
+                    ->defaultFalse()
+                ->end()
+                ->enumNode('index_view')
+                    ->info('Menus list markup: "list" (default) or "table" (code / name / items / context / actions columns).')
+                    ->values(DashboardUiConfig::INDEX_VIEWS)
+                    ->defaultValue('list')
+                ->end()
+                ->enumNode('actions_column')
+                    ->info('Position of the actions column in the items table (show page): "first" (default) or "last".')
+                    ->values(DashboardUiConfig::ACTIONS_COLUMNS)
+                    ->defaultValue('first')
+                ->end()
+                ->enumNode('row_action_display')
+                    ->info('Row action content: null (default) = bundle SVG icons only; icon | text | icon_text render partials.row_action_inner (UiKit row_actions_display contract).')
+                    ->values([null, ...DashboardUiConfig::ROW_ACTION_DISPLAYS])
+                    ->defaultNull()
+                ->end()
+                ->scalarNode('region_attribute')
+                    ->info('Optional attribute name (e.g. data-testid) set on page regions: dashboard-menu-menus-table, dashboard-menu-items-table, dashboard-menu-sortable.')
+                    ->defaultNull()
+                ->end()
+                ->arrayNode('form_themes')
+                    ->info('Form themes applied to every dashboard form (pages, modal bodies, Live item form).')
+                    ->scalarPrototype()->end()
+                    ->defaultValue([])
+                ->end()
+                ->append($this->classesNode())
+                ->arrayNode('partials')
+                    ->info('Partial templates the pages include (same variables as the bundle partials; see docs/USAGE.md).')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->scalarNode('pagination')->defaultValue(DashboardUiConfig::DEFAULT_PARTIALS['pagination'])->end()
+                        ->scalarNode('row_action_inner')->defaultValue(DashboardUiConfig::DEFAULT_PARTIALS['row_action_inner'])->end()
+                        ->scalarNode('modal')->defaultValue(DashboardUiConfig::DEFAULT_PARTIALS['modal'])->end()
+                    ->end()
+                ->end()
+                ->append($this->templatesNode())
+            ->end();
+
+        return $node;
+    }
+
+    private function classesNode(): ArrayNodeDefinition
+    {
+        /** @var ArrayNodeDefinition $node */
+        $node = (new TreeBuilder('classes'))->getRootNode();
+        $node
+            ->info('CSS class map. Unset (null) = UiKit macro for css_framework; a string replaces the bundle class ("" drops it).')
+            ->addDefaultsIfNotSet();
+        $children = $node->children();
+        foreach (DashboardUiConfig::CLASS_KEYS as $key) {
+            $children->scalarNode($key)->defaultNull()->end();
+        }
+        $children->end();
+
+        return $node;
+    }
+
+    private function templatesNode(): ArrayNodeDefinition
+    {
+        /** @var ArrayNodeDefinition $node */
+        $node = (new TreeBuilder('templates'))->getRootNode();
+        $node
+            ->info('Page / partial templates rendered by the dashboard. Point to a host template that {% extends %} the bundle one and overrides blocks.')
+            ->addDefaultsIfNotSet();
+        $children = $node->children();
+        foreach (DashboardUiConfig::DEFAULT_TEMPLATES as $key => $default) {
+            $children->scalarNode($key)->defaultValue($default)->end();
+        }
+        $children->end();
+
+        return $node;
     }
 }

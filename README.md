@@ -36,6 +36,7 @@ This bundle is **FrankenPHP worker mode friendly**.
 - **Twig**: `dashboard_menu_tree(menuCode, permissionContext?, contextSets?)`, `dashboard_menu_href(item)`, `dashboard_menu_config(menuCode, contextSets?)`; include `@NowoDashboardMenuBundle/menu.html.twig`
 - **JSON API**: `GET /api/menu/{code}` for SPA consumption (optional `_locale`, `_context_sets` query params)
 - **Dashboard**: CRUD at `/admin/menus` (list, create, edit, copy menu, manage items); export/import menus as JSON; optional **drag-and-drop tree reorder** (SortableJS) on a dedicated route; forms split into definition (pencil) and configuration (gear); dashboard search/action flows use Symfony Form Types + FormKit-friendly Twig rendering (`form_start` / `form_end`); redirect to referer after successful actions; import available in a modal
+- **Admin chrome hooks** (2.3.0): theme the dashboard with `dashboard.ui` config (CSS class map, modal shell / pagination / row-action partials, table view, header actions in your layout) and named blocks instead of copying pages — see [Customising the admin chrome](docs/USAGE.md#customising-the-admin-chrome)
 - **Performance**: Two SQL queries per menu (menu + items), optional PSR-6 cache (configurable TTL); labels by locale from JSON; tree built in PHP
 - **Dev**: Web Profiler panel “Dashboard menus” (menus on page, query count, configuration tab: connection, cache, locales, icon map, permission checkers)
 

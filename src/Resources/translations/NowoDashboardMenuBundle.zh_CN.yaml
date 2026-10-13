@@ -59,6 +59,15 @@ dashboard:
   css_classes: CSS classes
   root: "— Root —"
   no_label: "(no label)"
+  # 2.3.0 — admin chrome (index table view, item permission badges)
+  table_code: "代码"
+  table_name: "名称"
+  table_items: "项目"
+  table_context: "上下文"
+  no_permission_keys: "无权限键"
+  unanimous: "全部满足"
+  non_unanimous: "任一满足"
+  position_short: "位置"
   unique_code_context_error: A menu with this code and context already exists.
   base: Base
   base_badge_title: "Base menu: code cannot be changed after creation."

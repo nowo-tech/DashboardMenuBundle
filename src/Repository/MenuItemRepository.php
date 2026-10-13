@@ -120,9 +120,7 @@ class MenuItemRepository extends ServiceEntityRepository
             if ($menuId === null) {
                 continue;
             }
-            if (!isset($grouped[$menuId])) {
-                $grouped[$menuId] = [];
-            }
+            $grouped[$menuId] ??= [];
             $grouped[$menuId][] = $item;
         }
 
@@ -217,9 +215,7 @@ class MenuItemRepository extends ServiceEntityRepository
                 continue;
             }
             $pid = (int) $pidRaw;
-            if (!isset($childrenByParent[$pid])) {
-                $childrenByParent[$pid] = [];
-            }
+            $childrenByParent[$pid] ??= [];
             $childrenByParent[$pid][] = $cid;
         }
 
@@ -339,9 +335,7 @@ class MenuItemRepository extends ServiceEntityRepository
         $byParent = [];
         foreach ($items as $item) {
             $pid = $item->getParent()?->getId() ?? -1;
-            if (!isset($byParent[$pid])) {
-                $byParent[$pid] = [];
-            }
+            $byParent[$pid] ??= [];
             $byParent[$pid][] = $item;
         }
 
@@ -437,9 +431,7 @@ class MenuItemRepository extends ServiceEntityRepository
 
             $parentOf[$id] = $parentId;
             $pkey          = $parentId === null ? '__root' : (string) $parentId;
-            if (!isset($byParentKey[$pkey])) {
-                $byParentKey[$pkey] = [];
-            }
+            $byParentKey[$pkey] ??= [];
             $byParentKey[$pkey][] = ['id' => $id, 'parent_id' => $parentId, 'position' => $position];
         }
 

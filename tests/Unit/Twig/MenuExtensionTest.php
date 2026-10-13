@@ -35,11 +35,26 @@ final class MenuExtensionTest extends TestCase
     {
         $extension = $this->createExtension();
         $functions = $extension->getFunctions();
-        self::assertCount(3, $functions);
+        self::assertCount(4, $functions);
         $names = array_map(static fn (\Twig\TwigFunction $f): string => $f->getName(), $functions);
         self::assertContains('dashboard_menu_tree', $names);
         self::assertContains('dashboard_menu_href', $names);
         self::assertContains('dashboard_menu_config', $names);
+        self::assertContains('dashboard_menu_ui_class', $names);
+    }
+
+    public function testUiClassFallsBackToDefaultWithoutDashboardUiConfig(): void
+    {
+        $extension = $this->createExtension();
+
+        self::assertSame('btn btn-primary', $extension->getUiClass('button_primary', 'btn btn-primary'));
+        self::assertSame('', $extension->getUiClass('button_primary'));
+        self::assertSame('ui-macro', $extension->getUiClass('table', new \Twig\Markup('ui-macro', 'UTF-8')));
+
+        $globals = $extension->getGlobals();
+        self::assertArrayHasKey('nowo_dashboard_menu_ui', $globals);
+        self::assertSame([], $globals['nowo_dashboard_menu_ui']['classes']);
+        self::assertTrue($globals['nowo_dashboard_menu_ui']['include_ui_kit_css']);
     }
 
     public function testGetFiltersReturnsDashboardMenuIconNameFilter(): void

@@ -57,9 +57,7 @@ final class PermissionCheckerPass implements CompilerPassInterface
                 }
             }
             foreach ($choices as $id => $label) {
-                if (!isset($ordered[$id])) {
-                    $ordered[$id] = $label;
-                }
+                $ordered[$id] ??= $label;
             }
             $choices = $ordered;
         } else {

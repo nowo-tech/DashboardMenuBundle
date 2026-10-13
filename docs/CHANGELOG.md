@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 - [[Unreleased]](#unreleased)
 
+- [[2.3.0] - 2026-10-13](#230---2026-10-13)
+
 - [[2.2.4] - 2026-10-10](#224---2026-10-10)
 
 - [[2.2.3] - 2026-10-09](#223---2026-10-09)
@@ -92,6 +94,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.3.0] - 2026-10-13
+
+### Added
+
+- **Admin chrome hooks** (`nowo_dashboard_menu.dashboard.ui`, spec [`002-admin-chrome-hooks`](../specs/002-admin-chrome-hooks/spec.md)): hosts can theme the dashboard with config and blocks instead of copying page templates into `templates/bundles/`. All opt-in; the default markup is unchanged.
+  - CSS class map `ui.classes.*` (37 keys: buttons, toolbar / search, tables and row actions, badges, menu properties panel, empty state, reorder panel, modal bodies). Unset keys keep the UiKit macro for `css_framework`. Twig function `dashboard_menu_ui_class(key, default)` and global `nowo_dashboard_menu_ui`.
+  - Partial paths: `ui.partials.pagination` (UiKit `_pagination` compatible variables), `ui.partials.row_action_inner` (UiKit `_action_inner` contract), `ui.partials.modal` (shell used with `{% embed %}` by every dashboard modal; new default `dashboard/_modal.html.twig`).
+  - Template map `ui.templates.*` (`index`, `show`, `show_items_reorder`, `menu_form_partial`, `item_form_partial`, `copy_menu_partial`, `import_partial`, `modals`): the controller renders the configured template, which can extend the bundle one and override blocks.
+  - Switches: `include_ui_kit_css` (skip the `nowo-ui.css` append in `base.html.twig`), `header_actions_in_layout` (pages expose `nowo_dashboard_menu_header_actions` to the layout instead of rendering header / toolbar), `index_view: table`, `actions_column: last`, `row_action_display` (`icon` / `text` / `icon_text`), `region_attribute` (e.g. `data-testid` on the menus table, items table and sortable panel), `form_themes`.
+  - Blocks in `index`, `show`, `show_items_reorder` and `_menu_dashboard_modals` (page header, header links / actions, search, toolbar, lists and tables, row actions, item cells, empty states, pagination, menu properties, sortable panel, each modal). New partials `_menu_properties.html.twig`, `_delete_confirm_body.html.twig`, `_pagination.html.twig`, `_row_action_inner.html.twig`; `_icons.html.twig` gains `by_name()`.
+  - Modal bodies (menu / item / copy / import partials and the Live item form) honour `modal_form`, `modal_content`, `modal_section` and `modal_actions`; with `modal_actions` set they render Cancel + Submit in that footer.
+- Translations (31 locales): `dashboard.table_code`, `table_name`, `table_items`, `table_context`, `no_permission_keys`, `unanimous`, `non_unanimous`, `position_short`.
+- Render tests with a real Twig environment (`DashboardChromeHooksTest`), config / value-object tests (`DashboardUiConfigTest`), translation presence test (`ChromeTranslationsTest`), compile check of every dashboard template.
+
+### Fixed
+
+- Show page: the "Unanimous" / "Non-unanimous" badges, "No permission keys" and the "Pos" prefix were hard-coded English; they are now translated (English output unchanged).
+
+### Changed
+
+- Rector 2.7 code-quality fixes applied to existing sources (`??=`, nullsafe operator, `__DIR__` path); `tests/Kernel/NoOpPostGenerateSchemaListener.php` is skipped by Rector (Doctrine calls its method).
+- The legacy `window.__nowoDashboardMenuConfig` fallback in `dashboard.js` stays for the 2.x line (removal announced for 2.3.0 moved to 3.0, to keep this release BC).
 
 ## [2.2.4] - 2026-10-10
 

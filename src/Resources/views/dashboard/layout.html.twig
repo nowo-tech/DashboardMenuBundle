@@ -57,6 +57,10 @@
     </header>
     {% endif %}
     <main class="{% if _dm_fw in ['bootstrap', 'bootstrap5', 'bootstrap4', 'tabler'] %}container-fluid py-4{% elseif _dm_fw == 'tailwind' %}mx-auto max-w-7xl px-4 py-6{% else %}nowo-ui-content{% endif %}" style="{% if _dm_fw in ['custom', 'none', 'foundation'] %}padding:1rem;{% endif %}">
+        {#- dashboard.ui.header_actions_in_layout: pages hand their header actions to the layout (2.3.0). -#}
+        {% if (nowo_dashboard_menu_ui.header_actions_in_layout ?? false) and (nowo_dashboard_menu_header_actions ?? '') is not empty %}
+            <div class="nowo-ui-page-header d-flex flex-wrap justify-content-end gap-2 mb-3">{{ nowo_dashboard_menu_header_actions }}</div>
+        {% endif %}
         {% block nowo_ui_content %}{% block nowo_dashboard_menu_content %}{% endblock %}{% endblock %}
     </main>
     {% block javascripts %}

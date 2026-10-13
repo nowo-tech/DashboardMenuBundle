@@ -59,6 +59,15 @@ dashboard:
   css_classes: CSS classes
   root: "— Root —"
   no_label: "(no label)"
+  # 2.3.0 — admin chrome (index table view, item permission badges)
+  table_code: "Koodi"
+  table_name: "Nimi"
+  table_items: "Kohteet"
+  table_context: "Konteksti"
+  no_permission_keys: "Ei käyttöoikeusavaimia"
+  unanimous: "Yksimielinen"
+  non_unanimous: "Ei yksimielinen"
+  position_short: "Sij."
   unique_code_context_error: A menu with this code and context already exists.
   base: Base
   base_badge_title: "Base menu: code cannot be changed after creation."

@@ -16,7 +16,10 @@
    layout CDN (Bootstrap/etc.) when parent() is rendered (Twig nested-block inheritance). #}
 {% block stylesheets %}
     {{ parent() }}
+    {#- dashboard.ui.include_ui_kit_css: false when the host layout already loads nowo-ui.css (re-appending it reasserts UiKit :root tokens). -#}
+    {% if (nowo_dashboard_menu_ui.include_ui_kit_css ?? true) %}
     <link href="{{ asset('css/nowo-ui.css', 'nowo_ui_kit') }}" rel="stylesheet">
+    {% endif %}
 {% endblock %}
 
 {#
@@ -56,6 +59,6 @@
     {% block body %}{% endblock %}
 
     {% block nowo_ui_modals %}
-        {% include '@NowoDashboardMenuBundle/dashboard/_menu_dashboard_modals.html.twig' %}
+        {% include nowo_dashboard_menu_ui.templates.modals ?? '@NowoDashboardMenuBundle/dashboard/_menu_dashboard_modals.html.twig' %}
     {% endblock %}
 {% endblock %}

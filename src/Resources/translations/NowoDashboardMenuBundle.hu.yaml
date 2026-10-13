@@ -59,6 +59,15 @@ dashboard:
   css_classes: CSS classes
   root: "— Root —"
   no_label: "(no label)"
+  # 2.3.0 — admin chrome (index table view, item permission badges)
+  table_code: "Kód"
+  table_name: "Név"
+  table_items: "Elemek"
+  table_context: "Környezet"
+  no_permission_keys: "Nincsenek jogosultsági kulcsok"
+  unanimous: "Egyhangú"
+  non_unanimous: "Nem egyhangú"
+  position_short: "Poz."
   unique_code_context_error: A menu with this code and context already exists.
   base: Base
   base_badge_title: "Base menu: code cannot be changed after creation."

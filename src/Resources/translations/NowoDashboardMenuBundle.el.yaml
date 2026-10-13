@@ -59,6 +59,15 @@ dashboard:
   css_classes: CSS classes
   root: "— Root —"
   no_label: "(no label)"
+  # 2.3.0 — admin chrome (index table view, item permission badges)
+  table_code: "Κωδικός"
+  table_name: "Όνομα"
+  table_items: "Στοιχεία"
+  table_context: "Πλαίσιο"
+  no_permission_keys: "Χωρίς κλειδιά δικαιωμάτων"
+  unanimous: "Ομόφωνο"
+  non_unanimous: "Μη ομόφωνο"
+  position_short: "Θέση"
   unique_code_context_error: A menu with this code and context already exists.
   base: Base
   base_badge_title: "Base menu: code cannot be changed after creation."

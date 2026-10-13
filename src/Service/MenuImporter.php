@@ -306,9 +306,7 @@ final readonly class MenuImporter
         foreach ($items as $item) {
             $pid = $item->getParent()?->getId();
             $key = $pid !== null ? (string) $pid : '__root';
-            if (!isset($byParent[$key])) {
-                $byParent[$key] = [];
-            }
+            $byParent[$key] ??= [];
             $byParent[$key][] = $item;
         }
 

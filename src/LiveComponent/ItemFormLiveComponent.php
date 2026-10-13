@@ -104,9 +104,7 @@ final class ItemFormLiveComponent
         // (e.g. translations JSON), and sometimes even `id`.
         // When editing an existing item, always re-fetch it from DB to avoid wiping translations on save.
         $itemId = $this->itemId;
-        if ($itemId === null) {
-            $itemId = $initialData->getId();
-        }
+        $itemId ??= $initialData->getId();
         // Parse itemId from actionUrl (route pattern: /{menuId}/item/{itemId}/edit)
         if ($itemId === null && $this->actionUrl !== '') {
             $matches = [];

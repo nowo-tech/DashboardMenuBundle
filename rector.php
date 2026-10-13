@@ -9,6 +9,8 @@ return RectorConfig::configure()
     ->withPaths([__DIR__ . '/src', __DIR__ . '/tests'])
     ->withSkip([
         __DIR__ . '/demo',
+        // Doctrine calls postGenerateSchema() and passes the replaced listener's constructor args.
+        __DIR__ . '/tests/Kernel/NoOpPostGenerateSchemaListener.php',
         RemoveUnusedPrivateClassConstantRector::class => [
             __DIR__ . '/tests/Unit/DependencyInjection/Compiler/AutoTagPermissionCheckersPassTest.php',
         ],

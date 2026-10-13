@@ -10,12 +10,14 @@ use Nowo\DashboardMenuBundle\DataCollector\MenuQueryCounter;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Service\CurrentRouteTreeDecorator;
+use Nowo\DashboardMenuBundle\Service\DashboardUiConfig;
 use Nowo\DashboardMenuBundle\Service\MenuCodeResolverInterface;
 use Nowo\DashboardMenuBundle\Service\MenuConfigResolver;
 use Nowo\DashboardMenuBundle\Service\MenuIconNameResolver;
 use Nowo\DashboardMenuBundle\Service\MenuLocaleResolver;
 use Nowo\DashboardMenuBundle\Service\MenuTreeLoader;
 use Nowo\DashboardMenuBundle\Service\MenuUrlResolver;
+use Stringable;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Extension\AbstractExtension;
@@ -28,6 +30,7 @@ use Twig\TwigFunction;
  * contextSets: ordered list of JSON key-value objects to try when resolving menu (code + context); use null/[] for no context.
  * Global nowo_dashboard_layout_template: layout template that dashboard views extend (from nowo_dashboard_menu.dashboard.layout_template).
  * Globals nowo_dashboard_menu_css_framework / nowo_dashboard_menu_icon_set: REQ-UI-001 CSS stack and icon set.
+ * Global nowo_dashboard_menu_ui + dashboard_menu_ui_class(key, default): admin chrome hooks (dashboard.ui, 2.3.0).
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
@@ -53,6 +56,7 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
         private readonly string $iconSize = '1em',
         private readonly string $cssFramework = 'bootstrap5',
         private readonly string $iconSet = 'bootstrap-icons',
+        private readonly DashboardUiConfig $dashboardUi = new DashboardUiConfig(),
     ) {
     }
 
@@ -63,6 +67,7 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
             'nowo_dashboard_ux_autocomplete_available' => $this->uxAutocompleteAvailable,
             'nowo_dashboard_menu_css_framework'        => $this->cssFramework,
             'nowo_dashboard_menu_icon_set'             => $this->iconSet,
+            'nowo_dashboard_menu_ui'                   => $this->dashboardUi->toArray(),
         ];
     }
 
@@ -75,7 +80,17 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('dashboard_menu_tree', $this->getMenuTree(...), ['is_safe' => ['html']]),
             new TwigFunction('dashboard_menu_href', $this->getHref(...)),
             new TwigFunction('dashboard_menu_config', $this->getMenuConfig(...)),
+            new TwigFunction('dashboard_menu_ui_class', $this->getUiClass(...)),
         ];
+    }
+
+    /**
+     * Admin chrome class hook ({@code dashboard.ui.classes.<key>}): the configured class, else {@code $default}
+     * (the bundle markup, usually a UiKit macro result for the current css_framework).
+     */
+    public function getUiClass(string $key, string|Stringable|null $default = null): string
+    {
+        return $this->dashboardUi->cssClass($key, (string) $default);
     }
 
     /**

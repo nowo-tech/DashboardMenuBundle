@@ -1,104 +1,98 @@
 {% trans_default_domain 'NowoDashboardMenuBundle' %}
 {% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
-{# Modal shells: Bootstrap markup for bootstrap*/tabler; semantic nowo-ui-modal for all frameworks (REQ-UI-001). #}
+{#
+  Shared modals for the dashboard pages (fetch-loaded forms + delete confirmations).
+  Shell: dashboard.ui.partials.modal (default _modal.html.twig: Bootstrap markup + semantic nowo-ui-modal, REQ-UI-001).
+  Keep the modal ids, the *-body ids and #form-delete-*confirm: dashboard.js targets them.
+  Override one modal: point dashboard.ui.templates.modals to a template that extends this one and redefines a dashboard_modal_* block.
+#}
+{% set _dm_modal = nowo_dashboard_menu_ui.partials.modal ?? '@NowoDashboardMenuBundle/dashboard/_modal.html.twig' %}
+{% set _dm_loading_class = dashboard_menu_ui_class('modal_loading', 'text-center py-4 ' ~ ui.muted()) %}
 
-{# Shared modals for menu show + items reorder pages (fetch-loaded forms). #}
-<div class="modal fade nowo-ui-modal" id="modal-menu-form" tabindex="-1" aria-labelledby="modal-menu-form-label" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable {{ modal_classes.menu_form|default('') }}">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modal-menu-form-label">{{ 'dashboard.edit_menu'|trans }}</h5>
-                <button type="button" class="btn-close" {{ ui.modal_dismiss_attrs()|raw }} aria-label="{{ 'dashboard.close'|trans }}"></button>
-            </div>
-            <div class="modal-body" id="modal-menu-form-body">
-                <div class="text-center py-4 {{ ui.muted() }}">{{ 'dashboard.loading'|trans }}</div>
-            </div>
-        </div>
-    </div>
-</div>
+{% block dashboard_modal_menu_form %}
+    {% embed _dm_modal with {
+        modal_id: 'modal-menu-form',
+        modal_label_id: 'modal-menu-form-label',
+        modal_title: 'dashboard.edit_menu'|trans,
+        modal_body_id: 'modal-menu-form-body',
+        modal_size_class: modal_classes.menu_form|default(''),
+        modal_kind: 'form',
+    } %}
+        {% block modal_body %}<div class="{{ _dm_loading_class }}">{{ 'dashboard.loading'|trans({}, 'NowoDashboardMenuBundle') }}</div>{% endblock %}
+    {% endembed %}
+{% endblock %}
 
-<div class="modal fade nowo-ui-modal" id="modal-menu-copy" tabindex="-1" aria-labelledby="modal-menu-copy-label" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable {{ modal_classes.copy|default('') }}">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modal-menu-copy-label">{{ 'dashboard.copy_menu'|trans }}</h5>
-                <button type="button" class="btn-close" {{ ui.modal_dismiss_attrs()|raw }} aria-label="{{ 'dashboard.close'|trans }}"></button>
-            </div>
-            <div class="modal-body" id="modal-menu-copy-body">
-                <div class="text-center py-4 {{ ui.muted() }}">{{ 'dashboard.loading'|trans }}</div>
-            </div>
-        </div>
-    </div>
-</div>
+{% block dashboard_modal_menu_copy %}
+    {% embed _dm_modal with {
+        modal_id: 'modal-menu-copy',
+        modal_label_id: 'modal-menu-copy-label',
+        modal_title: 'dashboard.copy_menu'|trans,
+        modal_body_id: 'modal-menu-copy-body',
+        modal_size_class: modal_classes.copy|default(''),
+        modal_kind: 'form',
+    } %}
+        {% block modal_body %}<div class="{{ _dm_loading_class }}">{{ 'dashboard.loading'|trans({}, 'NowoDashboardMenuBundle') }}</div>{% endblock %}
+    {% endembed %}
+{% endblock %}
 
-<div class="modal fade nowo-ui-modal" id="modal-item-form" tabindex="-1" aria-labelledby="modal-item-form-label" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable {{ modal_classes.item_form|default('modal-lg') }}">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modal-item-form-label">{{ 'dashboard.item'|trans }}</h5>
-                <button type="button" class="btn-close" {{ ui.modal_dismiss_attrs()|raw }} aria-label="{{ 'dashboard.close'|trans }}"></button>
-            </div>
-            <div class="modal-body" id="modal-item-form-body">
-                <div class="text-center py-4 {{ ui.muted() }}">{{ 'dashboard.loading'|trans }}</div>
-            </div>
-        </div>
-    </div>
-</div>
+{% block dashboard_modal_item_form %}
+    {% embed _dm_modal with {
+        modal_id: 'modal-item-form',
+        modal_label_id: 'modal-item-form-label',
+        modal_title: 'dashboard.item'|trans,
+        modal_body_id: 'modal-item-form-body',
+        modal_size_class: modal_classes.item_form|default('modal-lg'),
+        modal_kind: 'form',
+    } %}
+        {% block modal_body %}<div class="{{ _dm_loading_class }}">{{ 'dashboard.loading'|trans({}, 'NowoDashboardMenuBundle') }}</div>{% endblock %}
+    {% endembed %}
+{% endblock %}
 
-<div class="modal fade nowo-ui-modal" id="modal-import" tabindex="-1" aria-labelledby="modal-import-label" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable {{ modal_classes.import|default('') }}">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modal-import-label">{{ 'dashboard.import'|trans }}</h5>
-                <button type="button" class="btn-close" {{ ui.modal_dismiss_attrs()|raw }} aria-label="{{ 'dashboard.close'|trans }}"></button>
-            </div>
-            <div class="modal-body" id="modal-import-body">
-                <div class="text-center py-4 {{ ui.muted() }}">{{ 'dashboard.loading'|trans }}</div>
-            </div>
-        </div>
-    </div>
-</div>
+{% block dashboard_modal_import %}
+    {% embed _dm_modal with {
+        modal_id: 'modal-import',
+        modal_label_id: 'modal-import-label',
+        modal_title: 'dashboard.import'|trans,
+        modal_body_id: 'modal-import-body',
+        modal_size_class: modal_classes.import|default(''),
+        modal_kind: 'form',
+    } %}
+        {% block modal_body %}<div class="{{ _dm_loading_class }}">{{ 'dashboard.loading'|trans({}, 'NowoDashboardMenuBundle') }}</div>{% endblock %}
+    {% endembed %}
+{% endblock %}
 
-<div class="modal fade nowo-ui-modal" id="modal-delete-confirm" tabindex="-1" aria-labelledby="modal-delete-label" aria-hidden="true">
-    <div class="modal-dialog {{ modal_classes.delete|default('') }}">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modal-delete-label">{{ 'dashboard.confirm_delete'|trans }}</h5>
-                <button type="button" class="btn-close" {{ ui.modal_dismiss_attrs()|raw }} aria-label="{{ 'dashboard.close'|trans }}"></button>
-            </div>
-            <div class="modal-body">
-                <p id="modal-delete-message">{{ 'dashboard.delete_menu_message'|trans }}</p>
-                {% if delete_menu_modal_form is defined %}
-                    {{ form_start(delete_menu_modal_form, { attr: { id: 'form-delete-confirm' } }) }}
-                        <div class="{{ ui.row_actions() }}" style="justify-content:flex-end;">
-                            <button type="button" class="{{ ui.btn('secondary') }}" {{ ui.modal_dismiss_attrs()|raw }}>{{ 'dashboard.cancel'|trans }}</button>
-                            <button type="submit" class="{{ ui.btn('danger') }}">{{ 'dashboard.delete'|trans }}</button>
-                        </div>
-                    {{ form_end(delete_menu_modal_form) }}
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</div>
+{% block dashboard_modal_delete_menu %}
+    {% embed _dm_modal with {
+        modal_id: 'modal-delete-confirm',
+        modal_label_id: 'modal-delete-label',
+        modal_title: 'dashboard.confirm_delete'|trans,
+        modal_body_id: '',
+        modal_size_class: modal_classes.delete|default(''),
+        modal_scrollable: false,
+        modal_kind: 'confirm',
+        _dm_message_id: 'modal-delete-message',
+        _dm_message: 'dashboard.delete_menu_message'|trans,
+        _dm_form: delete_menu_modal_form ?? null,
+        _dm_form_id: 'form-delete-confirm',
+    } %}
+        {% block modal_body %}{% include '@NowoDashboardMenuBundle/dashboard/_delete_confirm_body.html.twig' %}{% endblock %}
+    {% endembed %}
+{% endblock %}
 
-<div class="modal fade nowo-ui-modal" id="modal-delete-item-confirm" tabindex="-1" aria-labelledby="modal-delete-item-label" aria-hidden="true">
-    <div class="modal-dialog {{ modal_classes.delete|default('') }}">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modal-delete-item-label">{{ 'dashboard.confirm_delete'|trans }}</h5>
-                <button type="button" class="btn-close" {{ ui.modal_dismiss_attrs()|raw }} aria-label="{{ 'dashboard.close'|trans }}"></button>
-            </div>
-            <div class="modal-body">
-                <p id="modal-delete-item-message">{{ 'dashboard.delete_item_message'|trans }}</p>
-                {% if delete_item_modal_form is defined %}
-                    {{ form_start(delete_item_modal_form, { attr: { id: 'form-delete-item-confirm' } }) }}
-                        <div class="{{ ui.row_actions() }}" style="justify-content:flex-end;">
-                            <button type="button" class="{{ ui.btn('secondary') }}" {{ ui.modal_dismiss_attrs()|raw }}>{{ 'dashboard.cancel'|trans }}</button>
-                            <button type="submit" class="{{ ui.btn('danger') }}">{{ 'dashboard.delete'|trans }}</button>
-                        </div>
-                    {{ form_end(delete_item_modal_form) }}
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</div>
+{% block dashboard_modal_delete_item %}
+    {% embed _dm_modal with {
+        modal_id: 'modal-delete-item-confirm',
+        modal_label_id: 'modal-delete-item-label',
+        modal_title: 'dashboard.confirm_delete'|trans,
+        modal_body_id: '',
+        modal_size_class: modal_classes.delete|default(''),
+        modal_scrollable: false,
+        modal_kind: 'confirm',
+        _dm_message_id: 'modal-delete-item-message',
+        _dm_message: 'dashboard.delete_item_message'|trans,
+        _dm_form: delete_item_modal_form ?? null,
+        _dm_form_id: 'form-delete-item-confirm',
+    } %}
+        {% block modal_body %}{% include '@NowoDashboardMenuBundle/dashboard/_delete_confirm_body.html.twig' %}{% endblock %}
+    {% endembed %}
+{% endblock %}

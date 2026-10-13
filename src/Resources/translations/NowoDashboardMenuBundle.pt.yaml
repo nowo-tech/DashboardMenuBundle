@@ -84,6 +84,15 @@ dashboard:
   css_classes: Classes CSS
   root: "— Raiz —"
   no_label: "(sem etiqueta)"
+  # 2.3.0 — admin chrome (index table view, item permission badges)
+  table_code: "Código"
+  table_name: "Nome"
+  table_items: "Itens"
+  table_context: "Contexto"
+  no_permission_keys: "Sem chaves de permissão"
+  unanimous: "Unânime"
+  non_unanimous: "Não unânime"
+  position_short: "Pos"
   unique_code_context_error: Já existe um menu com este código e contexto.
   base: Base
   base_badge_title: "Menu base: o código não pode ser alterado após a criação."

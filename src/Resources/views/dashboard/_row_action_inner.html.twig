@@ -1,0 +1,21 @@
+{#
+  Inner markup of one row / header action (dashboard.ui.partials.row_action_inner).
+  Same contract as UiKit partials/_action_inner.html.twig, so hosts may point the option there.
+
+  Variables:
+    display    null (bundle default: SVG icon only) | icon | text | icon_text
+    icon       bundle icon macro name (_icons.html.twig: items, edit, config, trash, copy, add, arrow_up, arrow_down)
+    icon_name  UiKit icon name (view, edit, config, delete, copy, create, prev, next) for host partials
+    label      translated label
+#}
+{% import '@NowoDashboardMenuBundle/dashboard/_icons.html.twig' as icons %}
+{% if display|default(null) is null %}
+    {{ icons.by_name(icon)|raw }}
+{% else %}
+    {% if display != 'text' %}{{ icons.by_name(icon)|raw }}{% endif %}
+    {% if display == 'icon' %}
+        <span class="visually-hidden">{{ label }}</span>
+    {% else %}
+        <span class="nowo-ui-action__label">{{ label }}</span>
+    {% endif %}
+{% endif %}

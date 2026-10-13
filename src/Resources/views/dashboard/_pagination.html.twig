@@ -1,0 +1,35 @@
+{#
+  Menus list pagination (dashboard.ui.partials.pagination).
+
+  Variables (also passed to host partials, e.g. '@NowoUiKitBundle/partials/_pagination.html.twig'):
+    pagination   {current_page, page, per_page, total, total_pages}
+    item_count   rows on the current page
+    route        index route name;  route_params  {}
+    query        preserved query params (q)
+    nav_label    aria-label translation key;  nav_trans_domain  its domain
+    trans_domain domain for previous / next / showing (bundle partial: NowoDashboardMenuBundle)
+#}
+{% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
+{% if pagination is not null and pagination.total_pages > 1 %}
+    <nav aria-label="{{ 'dashboard.pagination_menus'|trans({}, 'NowoDashboardMenuBundle') }}" class="mt-3">
+        <ul class="pagination pagination-sm flex-wrap">
+            {% set queryParams = query|default({}) %}
+            <li class="page-item{% if pagination.current_page <= 1 %} disabled{% endif %}">
+                <a class="page-link" href="{% if pagination.current_page > 1 %}{{ path(route, queryParams|merge({ page: pagination.current_page - 1 })) }}{% else %}#{% endif %}" aria-label="{{ 'dashboard.previous'|trans({}, 'NowoDashboardMenuBundle') }}">«</a>
+            </li>
+            {% for p in 1..pagination.total_pages %}
+                <li class="page-item{% if p == pagination.current_page %} active{% endif %}">
+                    <a class="page-link" href="{{ path(route, queryParams|merge({ page: p })) }}">{{ p }}</a>
+                </li>
+            {% endfor %}
+            <li class="page-item{% if pagination.current_page >= pagination.total_pages %} disabled{% endif %}">
+                <a class="page-link" href="{% if pagination.current_page < pagination.total_pages %}{{ path(route, queryParams|merge({ page: pagination.current_page + 1 })) }}{% else %}#{% endif %}" aria-label="{{ 'dashboard.next'|trans({}, 'NowoDashboardMenuBundle') }}">»</a>
+            </li>
+        </ul>
+        <p class="small {{ dashboard_menu_ui_class('muted', ui.muted()) }} mt-1">
+            {% set from = item_count > 0 ? (pagination.current_page - 1) * pagination.per_page + 1 : 0 %}
+            {% set to = (pagination.current_page - 1) * pagination.per_page + item_count %}
+            {{ 'dashboard.showing_from_to_of_total'|trans({ '%from%': from, '%to%': to, '%total%': pagination.total }, 'NowoDashboardMenuBundle') }}
+        </p>
+    </nav>
+{% endif %}

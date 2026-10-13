@@ -108,6 +108,7 @@ This file proves that **every production source artifact** under `src/` is refer
 | `Service/DefaultMenuCodeResolver.php` | Default code resolver | FR-MENU-003 |
 | `Service/MenuLocaleResolver.php` | Locale whitelist & fallback | FR-MENU-004 |
 | `Service/MenuUrlResolver.php` | Route/URL href generation (main-request params, WeakMap memo) | FR-MENU-005 |
+| `Service/DashboardUiConfig.php` | Admin chrome hooks (`dashboard.ui`: class map, partials, templates) | [002](../002-admin-chrome-hooks/spec.md) |
 | `Service/MenuIconNameResolver.php` | Icon library prefix map | FR-MENU-006 |
 | `Service/CurrentRouteTreeDecorator.php` | Active branch CSS state | FR-MENU-007 |
 

@@ -59,6 +59,15 @@ dashboard:
   css_classes: CSS classes
   root: "— Root —"
   no_label: "(no label)"
+  # 2.3.0 — admin chrome (index table view, item permission badges)
+  table_code: "코드"
+  table_name: "이름"
+  table_items: "항목"
+  table_context: "컨텍스트"
+  no_permission_keys: "권한 키 없음"
+  unanimous: "만장일치"
+  non_unanimous: "만장일치 아님"
+  position_short: "위치"
   unique_code_context_error: A menu with this code and context already exists.
   base: Base
   base_badge_title: "Base menu: code cannot be changed after creation."

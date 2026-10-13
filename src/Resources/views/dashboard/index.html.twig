@@ -1,107 +1,185 @@
 {% extends '@NowoDashboardMenuBundle/dashboard/base.html.twig' %}
 {% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
 {% import '@NowoDashboardMenuBundle/dashboard/_icons.html.twig' as icons %}
+{#
+  Chrome hooks (2.3.0, docs/USAGE.md "Customising the admin chrome"):
+    blocks  dashboard_page_header, dashboard_header_actions, dashboard_search, dashboard_toolbar,
+            dashboard_menus, dashboard_menus_list, dashboard_menus_table, dashboard_menu_row_actions,
+            dashboard_empty_state, dashboard_pagination, dashboard_new_menu_modal
+    config  dashboard.ui.{classes, partials, index_view, header_actions_in_layout, row_action_display, region_attribute}
+    var     nowo_dashboard_menu_header_actions (header actions HTML, for the layout_template)
+#}
 
 {# Merged into the single #nowo-dashboard-menu-config JSON island by base.html.twig. #}
 {% set nowo_dashboard_menu_page_config = {
     dashboardBase: path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index'))
 } %}
+{% set _dm_ui = nowo_dashboard_menu_ui|default({}) %}
+{#- Rendered once here so the layout_template can place it (dashboard.ui.header_actions_in_layout). -#}
+{% set nowo_dashboard_menu_header_actions %}{{ block('dashboard_header_actions') }}{% endset %}
 
 {% block dashboard_title %}{{ 'dashboard.menus'|trans({}, 'NowoDashboardMenuBundle') }}{% endblock %}
 
+{% block dashboard_header_actions %}
+    <a href="{{ path(dashboard_routes.export_all|default('nowo_dashboard_menu_dashboard_export_all')) }}" class="{{ dashboard_menu_ui_class('button_secondary', ui.btn('secondary')) }}" target="_blank" rel="noopener noreferrer">{{ 'dashboard.export_all'|trans({}, 'NowoDashboardMenuBundle') }}</a>
+    <button type="button" class="{{ dashboard_menu_ui_class('button_secondary', ui.btn('secondary')) }} btn-import" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-import')|raw }} data-import-url="{{ path(dashboard_routes.import|default('nowo_dashboard_menu_dashboard_import')) }}">{{ 'dashboard.import'|trans({}, 'NowoDashboardMenuBundle') }}</button>
+    <button type="button" class="{{ dashboard_menu_ui_class('button_primary', ui.btn('primary')) }}" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-menu-new')|raw }}>{{ 'dashboard.new_menu'|trans({}, 'NowoDashboardMenuBundle') }}</button>
+{% endblock %}
+
 {% block body %}
-    {{ form_start(search_form, { attr: { class: ui.search_form(), role: 'search' } }) }}
-        {{ form_widget(search_form.q, { attr: { class: ui.search_input() } }) }}
-        <button type="submit" class="{{ ui.btn('secondary') }}">{{ 'dashboard.filter'|trans({}, 'NowoDashboardMenuBundle') }}</button>
-        <a href="{{ path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index')) }}" class="{{ ui.btn('secondary') }}">{{ 'dashboard.clear_filters'|trans({}, 'NowoDashboardMenuBundle') }}</a>
-    {{ form_end(search_form) }}
+    {% block dashboard_page_header %}{% endblock %}
 
-    <div class="{{ ui.toolbar() }}">
-        <a href="{{ path(dashboard_routes.export_all|default('nowo_dashboard_menu_dashboard_export_all')) }}" class="{{ ui.btn('secondary') }}" target="_blank" rel="noopener noreferrer">{{ 'dashboard.export_all'|trans({}, 'NowoDashboardMenuBundle') }}</a>
-        <button type="button" class="{{ ui.btn('secondary') }} btn-import" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-import')|raw }} data-import-url="{{ path(dashboard_routes.import|default('nowo_dashboard_menu_dashboard_import')) }}">{{ 'dashboard.import'|trans({}, 'NowoDashboardMenuBundle') }}</button>
-        <button type="button" class="{{ ui.btn('primary') }}" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-menu-new')|raw }}>{{ 'dashboard.new_menu'|trans({}, 'NowoDashboardMenuBundle') }}</button>
-    </div>
+    {% block dashboard_search %}
+        {% if _dm_ui.form_themes|default([]) is not empty %}{% form_theme search_form with _dm_ui.form_themes %}{% endif %}
+        {{ form_start(search_form, { attr: { class: dashboard_menu_ui_class('search_form', ui.search_form()), role: 'search' } }) }}
+            {{ form_widget(search_form.q, { attr: { class: dashboard_menu_ui_class('search_input', ui.search_input()) } }) }}
+            <button type="submit" class="{{ dashboard_menu_ui_class('button_secondary', ui.btn('secondary')) }}">{{ 'dashboard.filter'|trans({}, 'NowoDashboardMenuBundle') }}</button>
+            <a href="{{ path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index')) }}" class="{{ dashboard_menu_ui_class('button_secondary', ui.btn('secondary')) }}">{{ 'dashboard.clear_filters'|trans({}, 'NowoDashboardMenuBundle') }}</a>
+        {{ form_end(search_form) }}
+    {% endblock %}
 
-    {% if menus|length == 0 %}
-        <p class="{{ ui.empty() }}">{{ 'dashboard.no_menus_yet'|trans({}, 'NowoDashboardMenuBundle') }}</p>
-    {% else %}
-        <ul class="{{ ui.list() }}">
-            {% for menu in menus %}
-                <li class="{{ ui.list_item() }}">
-                    <div>
-                        {% include '@NowoDashboardMenuBundle/dashboard/_dashboard_item_icon.html.twig' with { item: menu } only %}
-                        <strong>{{ menu.code }}</strong>
-                        {% set _itemsCount = menu_item_counts[menu.id]|default(0) %}
-                        <span class="{{ ui.badge() }}" title="{{ _itemsCount }}">{{ _itemsCount }}</span>
-                        {% if menu.base %}<span class="badge bg-secondary ms-1" title="{{ 'dashboard.base_badge_title'|trans({}, 'NowoDashboardMenuBundle') }}">{{ 'dashboard.base'|trans({}, 'NowoDashboardMenuBundle') }}</span>{% endif %}
-                        {% if menu.name %}<span class="{{ ui.muted() }}"> — {{ menu.name }}</span>{% endif %}
-                        {% if menu.context is defined and menu.context is iterable and menu.context is not empty %}
-                            <br><span class="small {{ ui.muted() }}">{{ 'dashboard.context'|trans({}, 'NowoDashboardMenuBundle') }}: {{ menu.context|keys|join(', ') }}</span>
-                        {% endif %}
-                    </div>
-                    <div class="{{ ui.row_actions() }}">
-                        <a href="{{ path(dashboard_show_route|default(dashboard_routes.show|default('nowo_dashboard_menu_dashboard_show')), { id: menu.id }) }}" class="{{ ui.action('view') }}" title="{{ 'dashboard.edit_items'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.edit_items'|trans({}, 'NowoDashboardMenuBundle') }}">
-                            {{ icons.items()|raw }}
-                        </a>
-                        <button type="button" class="{{ ui.action('edit') }} btn-copy-menu" data-id="{{ menu.id }}" data-copy-url="{{ path(dashboard_routes.menu_copy|default('nowo_dashboard_menu_dashboard_menu_copy'), { id: menu.id }) }}" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-menu-copy')|raw }} title="{{ 'dashboard.copy'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.copy'|trans({}, 'NowoDashboardMenuBundle') }}">
-                            {{ icons.copy()|raw }}
-                        </button>
-                        <button type="button" class="{{ ui.action('edit') }} btn-edit-menu" data-id="{{ menu.id }}" data-section="basic" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-menu-form')|raw }} title="{{ 'dashboard.edit_identity'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.edit_identity'|trans({}, 'NowoDashboardMenuBundle') }}">
-                            {{ icons.edit()|raw }}
-                        </button>
-                        {% if not menu.base %}
-                            <button type="button" class="{{ ui.action('edit') }} btn-edit-menu btn-edit-menu-config" data-id="{{ menu.id }}" data-section="config" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-menu-form')|raw }} title="{{ 'dashboard.edit_config'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.edit_config'|trans({}, 'NowoDashboardMenuBundle') }}">
-                                {{ icons.config()|raw }}
-                            </button>
-                        {% endif %}
-                        {% if not menu.base %}
-                            <button type="button" class="{{ ui.action('delete') }} btn-delete-menu" data-id="{{ menu.id }}" data-name="{{ menu.code }}{% if menu.name %} — {{ menu.name }}{% endif %}" data-url="{{ path(dashboard_routes.menu_delete|default('nowo_dashboard_menu_dashboard_menu_delete'), { id: menu.id }) }}" data-token="{{ csrf_token('delete_menu_' ~ menu.id) }}" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-delete-confirm')|raw }} title="{{ 'dashboard.delete'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.delete'|trans({}, 'NowoDashboardMenuBundle') }}">
-                                {{ icons.trash()|raw }}
-                            </button>
-                        {% endif %}
-                    </div>
-                </li>
-            {% endfor %}
-        </ul>
-        {% if pagination is not null and pagination.total_pages > 1 %}
-            <nav aria-label="{{ 'dashboard.pagination_menus'|trans({}, 'NowoDashboardMenuBundle') }}" class="mt-3">
-                <ul class="pagination pagination-sm flex-wrap">
-                    {% set indexRoute = dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index') %}
-                    {% set queryParams = search is not empty ? { q: search } : {} %}
-                    <li class="page-item{% if pagination.current_page <= 1 %} disabled{% endif %}">
-                        <a class="page-link" href="{% if pagination.current_page > 1 %}{{ path(indexRoute, queryParams|merge({ page: pagination.current_page - 1 })) }}{% else %}#{% endif %}" aria-label="{{ 'dashboard.previous'|trans({}, 'NowoDashboardMenuBundle') }}">«</a>
-                    </li>
-                    {% for p in 1..pagination.total_pages %}
-                        <li class="page-item{% if p == pagination.current_page %} active{% endif %}">
-                            <a class="page-link" href="{{ path(indexRoute, queryParams|merge({ page: p })) }}">{{ p }}</a>
-                        </li>
-                    {% endfor %}
-                    <li class="page-item{% if pagination.current_page >= pagination.total_pages %} disabled{% endif %}">
-                        <a class="page-link" href="{% if pagination.current_page < pagination.total_pages %}{{ path(indexRoute, queryParams|merge({ page: pagination.current_page + 1 })) }}{% else %}#{% endif %}" aria-label="{{ 'dashboard.next'|trans({}, 'NowoDashboardMenuBundle') }}">»</a>
-                    </li>
-                </ul>
-                <p class="small {{ ui.muted() }} mt-1">
-                    {% set from = menus|length > 0 ? (pagination.current_page - 1) * pagination.per_page + 1 : 0 %}
-                    {% set to = (pagination.current_page - 1) * pagination.per_page + menus|length %}
-                    {{ 'dashboard.showing_from_to_of_total'|trans({ '%from%': from, '%to%': to, '%total%': pagination.total }, 'NowoDashboardMenuBundle') }}
-                </p>
-            </nav>
-        {% endif %}
-    {% endif %}
-
-    {# Modal: New menu (inline form) #}
-    <div class="modal fade nowo-ui-modal" id="modal-menu-new" tabindex="-1" aria-labelledby="modal-menu-new-label" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable {{ modal_classes.menu_form|default('') }}">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modal-menu-new-label">{{ 'dashboard.new_menu'|trans({}, 'NowoDashboardMenuBundle') }}</h5>
-                    <button type="button" class="btn-close" {{ ui.modal_dismiss_attrs()|raw }} aria-label="{{ 'dashboard.close'|trans({}, 'NowoDashboardMenuBundle') }}"></button>
-                </div>
-                <div class="modal-body">
-                    {{ include('@NowoDashboardMenuBundle/dashboard/_menu_form_partial.html.twig', { form: new_menu_form, is_edit: false }) }}
-                </div>
+    {% block dashboard_toolbar %}
+        {% if not (_dm_ui.header_actions_in_layout ?? false) %}
+            <div class="{{ dashboard_menu_ui_class('toolbar', ui.toolbar()) }}">
+                {{ nowo_dashboard_menu_header_actions }}
             </div>
-        </div>
-    </div>
+        {% endif %}
+    {% endblock %}
 
+    {% block dashboard_menus %}
+        {% if (_dm_ui.index_view ?? 'list') == 'table' %}
+            {{ block('dashboard_menus_table') }}
+        {% elseif menus|length == 0 %}
+            {{ block('dashboard_empty_state') }}
+        {% else %}
+            {{ block('dashboard_menus_list') }}
+            {{ block('dashboard_pagination') }}
+        {% endif %}
+    {% endblock %}
+
+    {% block dashboard_new_menu_modal %}
+        {% embed _dm_ui.partials.modal ?? '@NowoDashboardMenuBundle/dashboard/_modal.html.twig' with {
+            modal_id: 'modal-menu-new',
+            modal_label_id: 'modal-menu-new-label',
+            modal_title: 'dashboard.new_menu'|trans({}, 'NowoDashboardMenuBundle'),
+            modal_body_id: '',
+            modal_size_class: modal_classes.menu_form|default(''),
+            modal_kind: 'form',
+        } %}
+            {% block modal_body %}
+                {{ include(nowo_dashboard_menu_ui.templates.menu_form_partial ?? '@NowoDashboardMenuBundle/dashboard/_menu_form_partial.html.twig', { form: new_menu_form, is_edit: false }) }}
+            {% endblock %}
+        {% endembed %}
+    {% endblock %}
+
+{% endblock %}
+
+{% block dashboard_empty_state %}
+    <p class="{{ dashboard_menu_ui_class('empty', ui.empty()) }}">{{ 'dashboard.no_menus_yet'|trans({}, 'NowoDashboardMenuBundle') }}</p>
+{% endblock %}
+
+{% block dashboard_pagination %}
+    {% if pagination is not null %}
+        {% include _dm_ui.partials.pagination ?? '@NowoDashboardMenuBundle/dashboard/_pagination.html.twig' with {
+            pagination: pagination|merge({ page: pagination.current_page }),
+            item_count: menus|length,
+            route: dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index'),
+            route_params: {},
+            query: search is not empty ? { q: search } : {},
+            nav_label: 'dashboard.pagination_menus',
+            nav_trans_domain: 'NowoDashboardMenuBundle',
+        } %}
+    {% endif %}
+{% endblock %}
+
+{% block dashboard_menus_list %}
+    <ul class="{{ dashboard_menu_ui_class('list', ui.list()) }}">
+        {% for menu in menus %}
+            <li class="{{ dashboard_menu_ui_class('list_item', ui.list_item()) }}">
+                <div>
+                    {% include '@NowoDashboardMenuBundle/dashboard/_dashboard_item_icon.html.twig' with { item: menu } only %}
+                    <strong>{{ menu.code }}</strong>
+                    {% set _itemsCount = menu_item_counts[menu.id]|default(0) %}
+                    <span class="{{ dashboard_menu_ui_class('badge', ui.badge()) }}" title="{{ _itemsCount }}">{{ _itemsCount }}</span>
+                    {% if menu.base %}<span class="{{ dashboard_menu_ui_class('badge_base', 'badge bg-secondary ms-1') }}" title="{{ 'dashboard.base_badge_title'|trans({}, 'NowoDashboardMenuBundle') }}">{{ 'dashboard.base'|trans({}, 'NowoDashboardMenuBundle') }}</span>{% endif %}
+                    {% if menu.name %}<span class="{{ dashboard_menu_ui_class('muted', ui.muted()) }}"> — {{ menu.name }}</span>{% endif %}
+                    {% if menu.context is defined and menu.context is iterable and menu.context is not empty %}
+                        <br><span class="small {{ dashboard_menu_ui_class('muted', ui.muted()) }}">{{ 'dashboard.context'|trans({}, 'NowoDashboardMenuBundle') }}: {{ menu.context|keys|join(', ') }}</span>
+                    {% endif %}
+                </div>
+                <div class="{{ dashboard_menu_ui_class('row_actions', ui.row_actions()) }}">
+                    {{ block('dashboard_menu_row_actions') }}
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+
+{% block dashboard_menus_table %}
+    <div class="{{ dashboard_menu_ui_class('table_wrap', ui.table_wrap()) }}"{% if _dm_ui.region_attribute ?? null %} {{ _dm_ui.region_attribute }}="dashboard-menu-menus-table"{% endif %}>
+        <table class="{{ dashboard_menu_ui_class('table', ui.table()) }}">
+            <thead>
+                <tr class="{{ dashboard_menu_ui_class('table_header_row', '') }}">
+                    <th>{{ 'dashboard.table_code'|trans({}, 'NowoDashboardMenuBundle') }}</th>
+                    <th>{{ 'dashboard.table_name'|trans({}, 'NowoDashboardMenuBundle') }}</th>
+                    <th>{{ 'dashboard.table_items'|trans({}, 'NowoDashboardMenuBundle') }}</th>
+                    <th>{{ 'dashboard.table_context'|trans({}, 'NowoDashboardMenuBundle') }}</th>
+                    <th class="nowo-dashboard-menu-actions-col text-end">{{ 'dashboard.actions'|trans({}, 'NowoDashboardMenuBundle') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for menu in menus %}
+                    {% set _itemsCount = menu_item_counts[menu.id]|default(0) %}
+                    <tr class="{{ dashboard_menu_ui_class('table_row', '') }}">
+                        <td>
+                            {% include '@NowoDashboardMenuBundle/dashboard/_dashboard_item_icon.html.twig' with { item: menu } only %}
+                            <a href="{{ path(dashboard_show_route|default(dashboard_routes.show|default('nowo_dashboard_menu_dashboard_show')), { id: menu.id }) }}"><code>{{ menu.code }}</code></a>
+                            {% if menu.base %}<span class="{{ dashboard_menu_ui_class('badge_base', 'badge bg-secondary ms-1') }}" title="{{ 'dashboard.base_badge_title'|trans({}, 'NowoDashboardMenuBundle') }}">{{ 'dashboard.base'|trans({}, 'NowoDashboardMenuBundle') }}</span>{% endif %}
+                        </td>
+                        <td>{{ menu.name|default('—') }}</td>
+                        <td><span class="{{ dashboard_menu_ui_class('badge', ui.badge()) }}">{{ _itemsCount }}</span></td>
+                        <td class="small {{ dashboard_menu_ui_class('muted', ui.muted()) }}">{{ menu.context is defined and menu.context is iterable and menu.context is not empty ? menu.context|keys|join(', ') : '—' }}</td>
+                        <td class="nowo-dashboard-menu-actions-col text-end">
+                            <div class="{{ dashboard_menu_ui_class('row_actions', ui.row_actions()) }}">
+                                {{ block('dashboard_menu_row_actions') }}
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5">{{ block('dashboard_empty_state') }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {{ block('dashboard_pagination') }}
+    </div>
+{% endblock %}
+
+{#- Row actions of one menu (`menu` in context). Keep the btn-* classes and data-* attributes (dashboard.js hooks). -#}
+{% block dashboard_menu_row_actions %}
+    {% set _dm_display = _dm_ui.row_action_display ?? null %}
+    {% set _dm_inner = _dm_ui.partials.row_action_inner ?? '@NowoDashboardMenuBundle/dashboard/_row_action_inner.html.twig' %}
+    {% set _label = 'dashboard.edit_items'|trans({}, 'NowoDashboardMenuBundle') %}
+    <a href="{{ path(dashboard_show_route|default(dashboard_routes.show|default('nowo_dashboard_menu_dashboard_show')), { id: menu.id }) }}" class="{{ dashboard_menu_ui_class('row_action', ui.action('view')) }}" title="{{ _label }}" aria-label="{{ _label }}">
+        {% include _dm_inner with { display: _dm_display, icon: 'items', icon_name: 'view', label: _label } only %}
+    </a>
+    {% set _label = 'dashboard.copy'|trans({}, 'NowoDashboardMenuBundle') %}
+    <button type="button" class="{{ dashboard_menu_ui_class('row_action', ui.action('edit')) }} btn-copy-menu" data-id="{{ menu.id }}" data-copy-url="{{ path(dashboard_routes.menu_copy|default('nowo_dashboard_menu_dashboard_menu_copy'), { id: menu.id }) }}" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-menu-copy')|raw }} title="{{ _label }}" aria-label="{{ _label }}">
+        {% include _dm_inner with { display: _dm_display, icon: 'copy', icon_name: 'copy', label: _label } only %}
+    </button>
+    {% set _label = 'dashboard.edit_identity'|trans({}, 'NowoDashboardMenuBundle') %}
+    <button type="button" class="{{ dashboard_menu_ui_class('row_action', ui.action('edit')) }} btn-edit-menu" data-id="{{ menu.id }}" data-section="basic" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-menu-form')|raw }} title="{{ _label }}" aria-label="{{ _label }}">
+        {% include _dm_inner with { display: _dm_display, icon: 'edit', icon_name: 'edit', label: _label } only %}
+    </button>
+    {% if not menu.base %}
+        {% set _label = 'dashboard.edit_config'|trans({}, 'NowoDashboardMenuBundle') %}
+        <button type="button" class="{{ dashboard_menu_ui_class('row_action', ui.action('edit')) }} btn-edit-menu btn-edit-menu-config" data-id="{{ menu.id }}" data-section="config" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-menu-form')|raw }} title="{{ _label }}" aria-label="{{ _label }}">
+            {% include _dm_inner with { display: _dm_display, icon: 'config', icon_name: 'config', label: _label } only %}
+        </button>
+        {% set _label = 'dashboard.delete'|trans({}, 'NowoDashboardMenuBundle') %}
+        <button type="button" class="{{ dashboard_menu_ui_class('row_action_danger', ui.action('delete')) }} btn-delete-menu" data-id="{{ menu.id }}" data-name="{{ menu.code }}{% if menu.name %} — {{ menu.name }}{% endif %}" data-url="{{ path(dashboard_routes.menu_delete|default('nowo_dashboard_menu_dashboard_menu_delete'), { id: menu.id }) }}" data-token="{{ (menu_delete_tokens|default({}))[menu.id]|default(csrf_token('delete_menu_' ~ menu.id)) }}" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-delete-confirm')|raw }} title="{{ _label }}" aria-label="{{ _label }}">
+            {% include _dm_inner with { display: _dm_display, icon: 'trash', icon_name: 'delete', label: _label } only %}
+        </button>
+    {% endif %}
 {% endblock %}

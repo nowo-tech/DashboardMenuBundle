@@ -49,3 +49,18 @@
 {% macro arrow_down(size) %}
 <svg xmlns="http://www.w3.org/2000/svg" width="{{ size|default(16) }}" height="{{ size|default(16) }}" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 12.5a.5.5 0 0 1-.354-.146l-4-4a.5.5 0 1 1 .708-.708L8 11.293l3.646-3.647a.5.5 0 0 1 .708.708l-4 4A.5.5 0 0 1 8 12.5z"/></svg>
 {% endmacro %}
+
+{# Dispatch by name (used by _row_action_inner.html.twig). Unknown names render nothing. #}
+{% macro by_name(name, size) -%}
+{%- if name == 'items' -%}{{ _self.items(size) }}
+{%- elseif name == 'edit' -%}{{ _self.edit(size) }}
+{%- elseif name == 'config' -%}{{ _self.config(size) }}
+{%- elseif name == 'trash' -%}{{ _self.trash(size) }}
+{%- elseif name == 'copy' -%}{{ _self.copy(size) }}
+{%- elseif name == 'export_json' -%}{{ _self.export_json(size) }}
+{%- elseif name == 'filter' -%}{{ _self.filter(size) }}
+{%- elseif name == 'add' -%}{{ _self.add(size) }}
+{%- elseif name == 'arrow_up' -%}{{ _self.arrow_up(size) }}
+{%- elseif name == 'arrow_down' -%}{{ _self.arrow_down(size) }}
+{%- endif -%}
+{%- endmacro %}

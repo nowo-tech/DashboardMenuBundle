@@ -1,0 +1,26 @@
+{#
+  Modal shell used by every dashboard modal through {% embed %} (dashboard.ui.partials.modal).
+  A host shell must keep: the element id (modal_id), aria-labelledby → modal_label_id, an element with
+  id modal_body_id around the body when it is set (fetch targets), the dismiss attributes, and block modal_body.
+
+  Variables:
+    modal_id, modal_label_id, modal_title
+    modal_body_id     (optional) id of the body element (fetch-loaded forms)
+    modal_size_class  (optional) extra dialog class (modal-lg, modal-xl…)
+    modal_scrollable  (default true)
+    modal_kind        'form' | 'confirm' (hint for host shells, e.g. a wider dialog for forms)
+#}
+{% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
+<div class="modal fade nowo-ui-modal" id="{{ modal_id }}" tabindex="-1" aria-labelledby="{{ modal_label_id }}" aria-hidden="true">
+    <div class="modal-dialog{% if modal_scrollable ?? true %} modal-dialog-scrollable{% endif %} {{ modal_size_class|default('') }}">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="{{ modal_label_id }}">{{ modal_title }}</h5>
+                <button type="button" class="btn-close" {{ ui.modal_dismiss_attrs()|raw }} aria-label="{{ 'dashboard.close'|trans({}, 'NowoDashboardMenuBundle') }}"></button>
+            </div>
+            <div class="modal-body"{% if modal_body_id|default('') %} id="{{ modal_body_id }}"{% endif %}>
+                {% block modal_body %}{% endblock %}
+            </div>
+        </div>
+    </div>
+</div>

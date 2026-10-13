@@ -327,6 +327,7 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
             'item_form' => 'lg',
             'delete'    => 'normal',
         ]);
+        $container->setParameter(Configuration::ALIAS . '.dashboard.ui', $config['dashboard']['ui'] ?? []);
         $container->setParameter(Configuration::ALIAS . '.dashboard.icon_selector_script_url', $config['dashboard']['icon_selector_script_url'] ?? null);
         $dashboardConfig = $config['dashboard'] ?? [];
         $stimulusUrl     = $dashboardConfig['stimulus_script_url'] ?? null;

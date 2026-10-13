@@ -49,10 +49,8 @@ final class NowoDashboardMenuBundle extends Bundle
 
     public function getContainerExtension(): ExtensionInterface
     {
-        if ($this->extension === null) {
-            // @igor-ignore - Symfony bundle extension lazy-init at boot; not request state
-            $this->extension = new DashboardMenuExtension();
-        }
+        // @igor-ignore - Symfony bundle extension lazy-init at boot; not request state
+        $this->extension ??= new DashboardMenuExtension();
 
         /** @var ExtensionInterface $extension */
         $extension = $this->extension;

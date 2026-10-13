@@ -1389,6 +1389,70 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             item_form?: scalar|Param|null, // Add/edit item modal. // Default: "lg"
  *             delete?: scalar|Param|null, // Delete confirmation modals. // Default: "normal"
  *         },
+ *         ui?: array{ // Admin chrome hooks so hosts theme the dashboard with config + blocks instead of forking pages. See docs/USAGE.md "Customising the admin chrome".
+ *             include_ui_kit_css?: bool|Param, // Append UiKit nowo-ui.css after the layout stylesheets (dashboard/base.html.twig). Set false when the host layout already loads it (re-appending reasserts UiKit :root tokens). // Default: true
+ *             header_actions_in_layout?: bool|Param, // When true, pages do not render their header (back link, title, primary actions) / toolbar in the body; the actions HTML is exposed as nowo_dashboard_menu_header_actions for the layout_template to place. // Default: false
+ *             index_view?: "list"|"table"|Param, // Menus list markup: "list" (default) or "table" (code / name / items / context / actions columns). // Default: "list"
+ *             actions_column?: "first"|"last"|Param, // Position of the actions column in the items table (show page): "first" (default) or "last". // Default: "first"
+ *             row_action_display?: null|"icon"|"text"|"icon_text"|Param, // Row action content: null (default) = bundle SVG icons only; icon | text | icon_text render partials.row_action_inner (UiKit row_actions_display contract). // Default: null
+ *             region_attribute?: scalar|Param|null, // Optional attribute name (e.g. data-testid) set on page regions: dashboard-menu-menus-table, dashboard-menu-items-table, dashboard-menu-sortable. // Default: null
+ *             form_themes?: list<scalar|Param|null>,
+ *             classes?: array{ // CSS class map. Unset (null) = UiKit macro for css_framework; a string replaces the bundle class ("" drops it).
+ *                 button_primary?: scalar|Param|null, // Default: null
+ *                 button_secondary?: scalar|Param|null, // Default: null
+ *                 button_danger?: scalar|Param|null, // Default: null
+ *                 button_link?: scalar|Param|null, // Default: null
+ *                 button_small?: scalar|Param|null, // Default: null
+ *                 page_header?: scalar|Param|null, // Default: null
+ *                 toolbar?: scalar|Param|null, // Default: null
+ *                 search_form?: scalar|Param|null, // Default: null
+ *                 search_input?: scalar|Param|null, // Default: null
+ *                 info_panel?: scalar|Param|null, // Default: null
+ *                 inline_form?: scalar|Param|null, // Default: null
+ *                 empty?: scalar|Param|null, // Default: null
+ *                 empty_action?: scalar|Param|null, // Default: null
+ *                 muted?: scalar|Param|null, // Default: null
+ *                 badge?: scalar|Param|null, // Default: null
+ *                 badge_base?: scalar|Param|null, // Default: null
+ *                 badge_type?: scalar|Param|null, // Default: null
+ *                 badge_unanimous?: scalar|Param|null, // Default: null
+ *                 badge_non_unanimous?: scalar|Param|null, // Default: null
+ *                 list?: scalar|Param|null, // Default: null
+ *                 list_item?: scalar|Param|null, // Default: null
+ *                 table_wrap?: scalar|Param|null, // Default: null
+ *                 table?: scalar|Param|null, // Default: null
+ *                 table_header_row?: scalar|Param|null, // Default: null
+ *                 table_row?: scalar|Param|null, // Default: null
+ *                 row_actions?: scalar|Param|null, // Default: null
+ *                 row_action?: scalar|Param|null, // Default: null
+ *                 row_action_danger?: scalar|Param|null, // Default: null
+ *                 row_action_disabled?: scalar|Param|null, // Default: null
+ *                 sortable_panel?: scalar|Param|null, // Default: null
+ *                 sortable_header?: scalar|Param|null, // Default: null
+ *                 sortable_body?: scalar|Param|null, // Default: null
+ *                 modal_loading?: scalar|Param|null, // Default: null
+ *                 modal_form?: scalar|Param|null, // Default: null
+ *                 modal_content?: scalar|Param|null, // Default: null
+ *                 modal_section?: scalar|Param|null, // Default: null
+ *                 modal_message?: scalar|Param|null, // Default: null
+ *                 modal_actions?: scalar|Param|null, // Default: null
+ *             },
+ *             partials?: array{ // Partial templates the pages include (same variables as the bundle partials; see docs/USAGE.md).
+ *                 pagination?: scalar|Param|null, // Default: "@NowoDashboardMenuBundle/dashboard/_pagination.html.twig"
+ *                 row_action_inner?: scalar|Param|null, // Default: "@NowoDashboardMenuBundle/dashboard/_row_action_inner.html.twig"
+ *                 modal?: scalar|Param|null, // Default: "@NowoDashboardMenuBundle/dashboard/_modal.html.twig"
+ *             },
+ *             templates?: array{ // Page / partial templates rendered by the dashboard. Point to a host template that {% extends %} the bundle one and overrides blocks.
+ *                 index?: scalar|Param|null, // Default: "@NowoDashboardMenuBundle/dashboard/index.html.twig"
+ *                 show?: scalar|Param|null, // Default: "@NowoDashboardMenuBundle/dashboard/show.html.twig"
+ *                 show_items_reorder?: scalar|Param|null, // Default: "@NowoDashboardMenuBundle/dashboard/show_items_reorder.html.twig"
+ *                 menu_form_partial?: scalar|Param|null, // Default: "@NowoDashboardMenuBundle/dashboard/_menu_form_partial.html.twig"
+ *                 item_form_partial?: scalar|Param|null, // Default: "@NowoDashboardMenuBundle/dashboard/_item_form_partial.html.twig"
+ *                 copy_menu_partial?: scalar|Param|null, // Default: "@NowoDashboardMenuBundle/dashboard/_copy_menu_partial.html.twig"
+ *                 import_partial?: scalar|Param|null, // Default: "@NowoDashboardMenuBundle/dashboard/_import_partial.html.twig"
+ *                 modals?: scalar|Param|null, // Default: "@NowoDashboardMenuBundle/dashboard/_menu_dashboard_modals.html.twig"
+ *             },
+ *         },
  *         icon_selector_script_url?: scalar|Param|null, // Optional URL of the icon-selector Stimulus/script asset. When set, the dashboard layout sets window.dashboardMenuIconSelectorScriptUrl so the item form modal can init the icon selector. Use with nowo-tech/icon-selector-bundle and Symfony UX (Stimulus). // Default: null
  *         stimulus_script_url?: scalar|Param|null, // Optional URL of a script that loads Stimulus and the Live controller and sets window.Stimulus. When set, the dashboard layout includes this script so the item form Live Component works in the modal. Use the bundle default (null = use bundled script), or your app entry (e.g. Vite) that exposes window.Stimulus. // Default: null
  *         import_max_bytes?: int|Param, // Maximum size in bytes for JSON import file uploads. Default 2 MiB. Prevents DoS from very large uploads. // Default: 2097152

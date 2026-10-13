@@ -70,6 +70,23 @@ final class DashboardMenuExtensionTest extends TestCase
         self::assertTrue($container->getParameter(Configuration::ALIAS . '.ux_autocomplete_available'));
     }
 
+    public function testCLoadExposesDashboardUiParameterAndService(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'prod');
+        $container->setParameter('kernel.bundles', []);
+
+        (new DashboardMenuExtension())->load([[
+            'dashboard' => ['ui' => ['index_view' => 'table', 'classes' => ['table' => 'data-table']]],
+        ]], $container);
+
+        $ui = $container->getParameter(Configuration::ALIAS . '.dashboard.ui');
+        self::assertIsArray($ui);
+        self::assertSame('table', $ui['index_view']);
+        self::assertSame('data-table', $ui['classes']['table']);
+        self::assertTrue($container->hasDefinition(\Nowo\DashboardMenuBundle\Service\DashboardUiConfig::class));
+    }
+
     /**
      * @runInSeparateProcess
      */
