@@ -1,4 +1,5 @@
 # Dev-only: DataCollector for dashboard menus (toolbar + profiler panel). Not loaded in prod.
+# The collector is removed by DataCollectorProfilerPass when the profiler service is unavailable.
 services:
   Nowo\DashboardMenuBundle\DataCollector\DashboardMenuDataCollector:
     arguments:

@@ -100,6 +100,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - `api.path_prefix` is validated as a string at config load: `~`/non-string values used to pass the config tree and crash `MenuApiRouteLoader` (typed `string`) when the routes were loaded.
+- The container no longer fails to compile in `dev` when the profiler is disabled (`framework.profiler.enabled: false`, or no profiler configured): `DashboardMenuDataCollector` required the `profiler` service unconditionally. A compiler pass (`DataCollectorProfilerPass`) now removes the collector when `profiler` is unavailable and the Twig extension takes it as an optional dependency; with the profiler enabled the toolbar/panel collector is registered as before.
 
 ## [2.5.0] - 2026-10-13
 

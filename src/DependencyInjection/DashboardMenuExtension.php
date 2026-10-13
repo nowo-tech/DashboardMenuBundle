@@ -28,6 +28,7 @@ use Symfony\Component\Asset\Package;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
@@ -239,7 +240,8 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
         if ($container->getParameter('kernel.environment') === 'dev') {
             $loader->load('services_dev.yaml');
             $menuExtensionDef = $container->getDefinition(MenuExtension::class);
-            $menuExtensionDef->setArgument('$dataCollector', new Reference(DashboardMenuDataCollector::class));
+            // Optional: DataCollectorProfilerPass removes the collector when the profiler is disabled.
+            $menuExtensionDef->setArgument('$dataCollector', new Reference(DashboardMenuDataCollector::class, ContainerInterface::NULL_ON_INVALID_REFERENCE));
             $menuExtensionDef->setArgument('$menuQueryCounter', new Reference(MenuQueryCounter::class));
             $menuExtensionDef->setArgument('$connection', new Reference('doctrine.dbal.' . $connectionName . '_connection'));
             // Register query-count middleware when DBAL exposes Middleware (3.3+); DBAL 4 has no SQLLogger.
