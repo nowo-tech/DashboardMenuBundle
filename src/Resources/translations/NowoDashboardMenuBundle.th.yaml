@@ -2,220 +2,292 @@
 
 # Dashboard UI
 dashboard:
-  title: Menu dashboard
-  title_suffix: Dashboard Menu
-  menus: Menus
-  menu: Menu
-  menus_back: "← Menus"
-  new_menu: New menu
-  edit_menu: Edit menu
-  edit_item: Edit item
-  edit_items: Edit items
-  copy: Copy
-  copy_menu: Copy menu
-  copy_menu_help: "Copy menu and all its items. You can change the code and name for the new menu."
-  delete: Delete
-  cancel: Cancel
-  close: Close
-  confirm_delete: Confirm delete
-  delete_menu_confirm: 'Delete menu "%name%" and all its items?'
-  delete_menu_message: Delete this menu and all its items?
-  delete_item_confirm: 'Delete "%name%" and its children?'
-  delete_item_message: Delete this item and its children?
-  add_item: Add item
-  new_item: New item
-  add_one: Add one
-  add_child: Add child
-  search: Search
-  search_placeholder: "Search by code or name…"
-  clear: Clear
-  filter: Filter
-  clear_filters: Clear filters
-  no_menus_yet: "No menus yet. Create one to get started."
-  no_items: No items.
-  context: Context
-  parent: Parent
-  route_url: "Route / URL"
-  item: Item
-  actions: Actions
-  first: First
-  last: Last
-  move_up: Move up
-  move_down: Move down
-  edit: Edit
-  create: Create
-  update: Update
-  loading: "Loading…"
-  error_loading_form: Error loading form.
-  previous: Previous
-  next: Next
-  pagination_menus: Menus pagination
-  showing_from_to_of_total: "Showing %from%-%to% of %total%"
-  depth_limit: Depth limit
-  permission_checker: Permission checker
-  collapsible: Collapsible
-  collapsible_expanded: Collapsible expanded
-  nested_collapsible: Nested collapsible
-  css_classes: CSS classes
-  root: "— Root —"
-  no_label: "(no label)"
+  title: 'แดชบอร์ดเมนู'
+  title_suffix: 'แดชบอร์ดเมนู'
+  menus: 'เมนู'
+  menu: 'เมนู'
+  menus_back: '← รายการเมนู'
+  new_menu: 'เมนูใหม่'
+  edit_menu: 'แก้ไขเมนู'
+  edit_item: 'แก้ไขรายการ'
+  edit_items: 'แก้ไขรายการ'
+  edit_identity: 'แก้ไข (ไอคอน, ป้ายกำกับ, ประเภท)'
+  edit_labels: 'แก้ไขป้ายกำกับและคำแปล'
+  edit_type_position_icon: 'แก้ไขประเภท ตำแหน่ง และไอคอน'
+  edit_config: 'แก้ไขการกำหนดค่า (รายการแม่, ลิงก์, สิทธิ์)'
+  copy: 'คัดลอก'
+  copy_menu: 'คัดลอกเมนู'
+  copy_menu_help: 'คัดลอกเมนูและรายการทั้งหมดในเมนู คุณสามารถเปลี่ยนรหัสและชื่อของเมนูใหม่ได้'
+  delete: 'ลบ'
+  cancel: 'ยกเลิก'
+  close: 'ปิด'
+  confirm_delete: 'ยืนยันการลบ'
+  delete_menu_confirm: 'ลบเมนู “%name%” และรายการทั้งหมดในเมนูใช่หรือไม่?'
+  delete_menu_message: 'ลบเมนูนี้และรายการทั้งหมดในเมนูใช่หรือไม่?'
+  delete_item_confirm: 'ลบ “%name%” และรายการลูกใช่หรือไม่?'
+  delete_item_message: 'ลบรายการนี้และรายการลูกใช่หรือไม่?'
+  add_item: 'เพิ่มรายการ'
+  new_item: 'รายการใหม่'
+  add_one: 'เพิ่มใหม่'
+  add_child: 'เพิ่มรายการลูก'
+  add_child_disabled: 'รายการประเภทส่วนและเส้นแบ่งไม่สามารถมีรายการลูกได้'
+  search: 'ค้นหา'
+  search_placeholder: 'ค้นหาตามรหัสหรือชื่อ…'
+  clear: 'ล้าง'
+  filter: 'กรอง'
+  clear_filters: 'ล้างตัวกรอง'
+  no_menus_yet: 'ยังไม่มีเมนู สร้างเมนูเพื่อเริ่มต้นใช้งาน'
+  no_items: 'ไม่มีรายการ'
+  context: 'บริบท'
+  parent: 'รายการแม่'
+  route_url: 'เส้นทาง / URL'
+  item: 'รายการ'
+  actions: 'การดำเนินการ'
+  first: 'แรกสุด'
+  last: 'สุดท้าย'
+  move_up: 'เลื่อนขึ้น'
+  move_down: 'เลื่อนลง'
+  reindex_positions: 'จัดลำดับตำแหน่งใหม่ (ช่วง %step%)'
+  reindex_positions_title: 'กำหนดตำแหน่งใหม่โดยเพิ่มทีละ %step% ภายในแต่ละกลุ่มรายการแม่ (คงลำดับเดิมไว้)'
+  reindex_positions_done: 'จัดลำดับตำแหน่งใหม่ด้วยช่วง %step% แล้ว'
+  reindex_positions_unchanged: 'ไม่จำเป็นต้องเปลี่ยนตำแหน่งใดๆ'
+  check_parent_cycles: 'ตรวจสอบการวนซ้ำของรายการแม่'
+  check_parent_cycles_title: 'ตรวจสอบว่าลำดับชั้นของรายการแม่ไม่มีการวนซ้ำไม่สิ้นสุด (ภายในเมนูเดียวกัน)'
+  check_parent_cycles_ok: 'ไม่พบการอ้างอิงรายการแม่แบบวนซ้ำ'
+  check_parent_cycles_loop: 'ตรวจพบลำดับชั้นรายการแม่ที่วนซ้ำ: %chain%'
+  sortable_page_heading: 'จัดลำดับด้วยการลาก'
+  open_sortable_reorder: 'จัดลำดับใหม่ (ลาก)'
+  back_to_items_table: 'มุมมองตาราง'
+  sortable_title: 'ลากเพื่อจัดลำดับใหม่'
+  sortable_help: 'ลากรายการที่จุดจับเพื่อจัดลำดับใหม่ ซ้อนไว้ใต้รายการแม่ หรือย้ายไปยังระดับอื่น จากนั้นกดนำไปใช้เพื่อบันทึก'
+  sortable_apply: 'นำลำดับโครงสร้างไปใช้'
+  sortable_drag_handle: 'ลากเพื่อจัดลำดับใหม่'
+  reorder_tree_done: 'อัปเดตโครงสร้างเมนูแล้ว'
+  reorder_tree_invalid_json: 'ข้อมูลโครงสร้างไม่ถูกต้อง (JSON)'
+  reorder_tree_invalid_payload: 'ข้อมูลโครงสร้างที่ส่งมาไม่ถูกต้อง'
+  reorder_tree_invalid_layout: 'ไม่สามารถนำโครงสร้างไปใช้ได้ (มีการวนซ้ำ เกินขีดจำกัดความลึก หรือมีรายการขาดหาย)'
+  reorder_tree_section_not_root: 'ส่วนต้องอยู่ที่ระดับรากเท่านั้น ย้ายส่วนออกจากรายการที่ซ้อนกันแล้วนำไปใช้อีกครั้ง'
+  edit: 'แก้ไข'
+  create: 'สร้าง'
+  update: 'อัปเดต'
+  loading: 'กำลังโหลด…'
+  error_loading_form: 'เกิดข้อผิดพลาดในการโหลดแบบฟอร์ม'
+  previous: 'ก่อนหน้า'
+  next: 'ถัดไป'
+  pagination_menus: 'การแบ่งหน้าเมนู'
+  showing_from_to_of_total: 'แสดง %from%-%to% จาก %total%'
+  depth_limit: 'ขีดจำกัดความลึก'
+  permission_checker: 'ตัวตรวจสอบสิทธิ์'
+  collapsible: 'ยุบได้'
+  collapsible_expanded: 'ยุบได้ (ขยายอยู่)'
+  nested_collapsible: 'ยุบได้แบบซ้อน'
+  css_classes: 'คลาส CSS'
+  root: '— ราก —'
+  no_label: '(ไม่มีป้ายกำกับ)'
   # 2.3.0 — admin chrome (index table view, item permission badges)
-  table_code: "รหัส"
-  table_name: "ชื่อ"
-  table_items: "รายการ"
-  table_context: "บริบท"
-  no_permission_keys: "ไม่มีคีย์สิทธิ์"
-  unanimous: "เอกฉันท์"
-  non_unanimous: "ไม่เอกฉันท์"
-  position_short: "ตำแหน่ง"
-  unique_code_context_error: A menu with this code and context already exists.
-  base: Base
-  base_badge_title: "Base menu: code cannot be changed after creation."
-  toggle: Toggle
-  yes: Yes
-  no: No
-  export: Export
-  export_all: Export all menus
-  import: Import
-  import_help: "Upload a JSON file exported from this dashboard (one menu or all menus). Choose whether to skip menus that already exist (same code + context) or replace their items."
-  import_json_invalid: Invalid JSON file.
-  import_json_error: "Invalid JSON: %message%"
-  import_file_too_large: "File is too large. Maximum size is %max% MiB."
-  import_done: "Import complete: %created% created, %updated% updated, %skipped% skipped."
-  import_format_invalid_root_array: 'Invalid format: a root JSON array must contain only objects with "menu" and "items". You can also use {"menus": [...]} or {"menu": {...}, "items": [...]}.'
-  import_format_expected: 'Invalid format: expected "menu" + "items", or "menus", or a root array of menu blocks.'
+  table_code: 'รหัส'
+  table_name: 'ชื่อ'
+  table_items: 'รายการ'
+  table_context: 'บริบท'
+  no_permission_keys: 'ไม่มีคีย์สิทธิ์'
+  unanimous: 'ต้องผ่านทั้งหมด'
+  non_unanimous: 'ผ่านอย่างใดอย่างหนึ่ง'
+  position_short: 'ตำแหน่ง'
+  unique_code_context_error: 'มีเมนูที่ใช้รหัสและบริบทนี้อยู่แล้ว'
+  base: 'พื้นฐาน'
+  base_badge_title: 'เมนูพื้นฐาน: ไม่สามารถเปลี่ยนรหัสได้หลังจากสร้างแล้ว'
+  toggle: 'สลับ'
+  yes: 'ใช่'
+  no: 'ไม่ใช่'
+  export: 'ส่งออก'
+  export_all: 'ส่งออกเมนูทั้งหมด'
+  import: 'นำเข้า'
+  import_help: 'อัปโหลดไฟล์ JSON ที่ส่งออกจากแดชบอร์ดนี้ รูปแบบที่รองรับ: เมนูเดียว {"menu": {...}, "items": [...]}, หลายเมนู {"menus": [{...}, ...]} หรือรายการเดียวกันในรูปแบบอาร์เรย์ JSON ระดับราก [{"menu": {...}, "items": [...]}, ...] เลือกว่าจะข้ามเมนูที่มีอยู่แล้ว (รหัส + บริบทเดียวกัน) หรือแทนที่รายการของเมนูนั้น'
+  import_format_invalid_root_array: 'รูปแบบไม่ถูกต้อง: อาร์เรย์ JSON ระดับรากต้องมีเฉพาะออบเจ็กต์ที่มี "menu" และ "items" เท่านั้น คุณยังสามารถใช้ {"menus": [...]} หรือ {"menu": {...}, "items": [...]} ได้'
+  import_format_expected: 'รูปแบบไม่ถูกต้อง: ต้องเป็น "menu" + "items" หรือ "menus" หรืออาร์เรย์ระดับรากของบล็อกเมนู'
+  import_json_invalid: 'ไฟล์ JSON ไม่ถูกต้อง'
+  import_json_error: 'JSON ไม่ถูกต้อง: %message%'
+  import_file_too_large: 'ไฟล์มีขนาดใหญ่เกินไป ขนาดสูงสุดคือ %max% MiB'
+  import_done: 'นำเข้าเสร็จสิ้น: สร้าง %created% รายการ, อัปเดต %updated% รายการ, ข้าม %skipped% รายการ'
 
 # Form: MenuType
 form:
   menu_type:
     code:
-      label: Code
-      help: "Unique identifier (letters, numbers, _ -). For base menus, code cannot be changed after creation."
-      placeholder: "e.g. sidebar"
+      label: 'รหัส'
+      help: 'ตัวระบุที่ไม่ซ้ำกัน (ตัวอักษร ตัวเลข _ -) สำหรับเมนูพื้นฐาน ไม่สามารถเปลี่ยนรหัสได้หลังจากสร้างแล้ว'
+      placeholder: 'เช่น sidebar'
     base:
-      label: "Base menu"
-      help: "When checked, this menu's code cannot be changed after creation."
+      label: 'เมนูพื้นฐาน'
+      help: 'เมื่อเลือกไว้ จะไม่สามารถเปลี่ยนรหัสของเมนูนี้ได้หลังจากสร้างแล้ว'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar"
+      label: 'ชื่อ'
+      placeholder: 'เช่น แถบด้านข้าง'
     context:
-      label: Context
-      help: "Optional JSON key-value pairs to identify this menu variant. When resolving by code, the first matching menu in the ordered context sets is used; empty = fallback for that code."
+      label: 'บริบท'
+      help: 'คู่คีย์-ค่าแบบ JSON (ไม่บังคับ) เพื่อระบุรูปแบบย่อยของเมนูนี้ เมื่อค้นหาด้วยรหัส ระบบจะใช้เมนูแรกที่ตรงกันตามลำดับชุดบริบท; ว่างไว้ = ค่าสำรองสำหรับรหัสนั้น'
       placeholder: '{"partnerId": 1, "operatorId": 1}'
     icon:
-      label: Icon
-      help: "Optional icon identifier (e.g. Symfony UX Icons: heroicons:home, bootstrap:house)."
-      placeholder: "e.g. heroicons:bars-3, bootstrap:list"
+      label: 'ไอคอน'
+      help: 'ตัวระบุไอคอน (ไม่บังคับ) (เช่น Symfony UX Icons: heroicons:home, bootstrap:house)'
+      placeholder: 'เช่น heroicons:bars-3, bootstrap:list'
     permission_checker:
-      label: Permission checker
-      placeholder: "— Allow all —"
-      allow_all: "— Allow all —"
-      help: "Service implementing MenuPermissionCheckerInterface (empty = allow all)."
+      label: 'ตัวตรวจสอบสิทธิ์'
+      placeholder: '— อนุญาตทั้งหมด —'
+      allow_all: '— อนุญาตทั้งหมด —'
+      permission_key_aware: '— ตามคีย์สิทธิ์ (โครงสร้าง) —'
+      help: 'เซอร์วิสที่อิมพลีเมนต์ MenuPermissionCheckerInterface (ว่างไว้ = อนุญาตทั้งหมด)'
     depth_limit:
-      label: Depth limit
-      placeholder: "empty = unlimited"
-      help: "Max depth to render (1 = root only, 2 = root + one level; empty = unlimited)."
+      label: 'ขีดจำกัดความลึก'
+      placeholder: 'ว่างไว้ = ไม่จำกัด'
+      help: 'ความลึกสูงสุดที่จะแสดงผล (1 = เฉพาะราก, 2 = ราก + หนึ่งระดับ; ว่างไว้ = ไม่จำกัด)'
     collapsible:
-      label: "Collapsible (wrap menu in toggle block)"
+      label: 'ยุบได้ (ครอบเมนูไว้ในบล็อกสลับ)'
     collapsible_expanded:
-      label: "Collapsible expanded (open by default)"
+      label: 'ยุบได้ (เปิดไว้เป็นค่าเริ่มต้น)'
     nested_collapsible:
-      label: "Nested collapsible (items with children have toggle)"
+      label: 'ยุบได้แบบซ้อน (รายการที่มีรายการลูกจะมีปุ่มสลับ)'
+    nested_collapsible_sections:
+      label: 'ส่วนที่ยุบได้'
+      help: 'ต้องเปิดใช้ยุบได้แบบซ้อน เมื่อเปิดใช้ แถวของส่วนจะแสดงลูกศรทางด้านขวาและสามารถยุบลิงก์ได้ เมื่อปิดใช้ รายการลูกของส่วนจะขยายอยู่เสมอ (ไม่มีลูกศร)'
     class_menu:
-      label: "Class menu (root <ul>)"
-      placeholder: "e.g. nav flex-column"
+      label: 'คลาสเมนู (<ul> ระดับราก)'
+      placeholder: 'เช่น nav flex-column'
+    ul_id:
+      label: 'ID ของ ul (<ul> ระดับราก)'
+      placeholder: 'เช่น main-menu-navigation'
     class_item:
-      label: "Class item (<li>)"
-      placeholder: "e.g. nav-item"
+      label: 'คลาสรายการ (<li>)'
+      placeholder: 'เช่น nav-item'
     class_link:
-      label: "Class link (<a>)"
-      placeholder: "e.g. nav-link"
+      label: 'คลาสลิงก์ (<a>)'
+      placeholder: 'เช่น nav-link'
     class_children:
-      label: "Class children (nested <ul>)"
-      placeholder: "e.g. nav flex-column ms-2"
+      label: 'คลาสรายการลูก (<ul> ที่ซ้อน)'
+      placeholder: 'เช่น nav flex-column ms-2'
+    class_section_children:
+      label: 'คลาสรายการลูกของส่วน (<ul> ใต้ itemType "section")'
+      placeholder: 'เช่น nav flex-column list-unstyled ps-0 (แบบแบน; ว่างไว้ = เหมือนรายการลูก)'
+      help: 'เมื่อตั้งค่าไว้ รายการระดับแรกใต้แต่ละส่วนจะใช้คลาสเหล่านี้แทน “คลาสรายการลูก” เพื่อให้ลิงก์จัดแนวตรงกับหัวข้อของส่วน (ไม่เยื้อง) เว้นว่างไว้เพื่อใช้คลาสรายการลูกแบบซ้อนต่อไป'
+    class_section_child_item:
+      label: 'คลาส <li> สำหรับรายการลูกโดยตรงของ itemType "section"'
+      placeholder: 'เช่น nav-item ms-0 (ว่างไว้ = เหมือนคลาสรายการ)'
+      help: 'เมื่อตั้งค่าไว้ ลิงก์และเส้นแบ่งที่เป็นรายการลูกโดยตรงของส่วนจะใช้ค่านี้เป็นคลาสของ <li> แทน “คลาสรายการ” ใช้สำหรับปรับ margin/padding ในรายการแบบแบนของส่วน'
+    class_section_child_link:
+      label: 'คลาส <a> สำหรับรายการลูกโดยตรงของ itemType "section"'
+      placeholder: 'เช่น d-flex align-items-center ps-0 (ว่างไว้ = เหมือนคลาสลิงก์)'
+      help: 'เมื่อตั้งค่าไว้ ลิงก์ที่เป็นรายการลูกโดยตรงของส่วนจะใช้ค่านี้เป็นคลาสของ <a> แทน “คลาสลิงก์” ใช้คู่กับ <li> ของรายการลูกในส่วนเพื่อการจัดแนว'
+    class_section_label:
+      label: 'คลาสป้ายกำกับส่วน (itemType "section")'
+      placeholder: 'เช่น navigation-header'
     class_section:
-      label: "Class section (<li> when itemType \"section\")"
-      placeholder: "e.g. menu-section"
+      label: 'คลาสส่วน (<li> เมื่อ itemType "section")'
+      placeholder: 'เช่น menu-section'
     class_divider:
-      label: "Class divider (<li> when itemType \"divider\")"
-      placeholder: "e.g. menu-divider"
+      label: 'คลาสเส้นแบ่ง (<li> เมื่อ itemType "divider")'
+      placeholder: 'เช่น menu-divider'
     class_current:
-      label: "Class current (link matching current route)"
-      placeholder: "e.g. active"
+      label: 'คลาสปัจจุบัน (ลิงก์ที่ตรงกับเส้นทางปัจจุบัน)'
+      placeholder: 'เช่น active'
     class_branch_expanded:
-      label: "Class branch expanded (<li> when route in branch)"
-      placeholder: "e.g. active-branch"
+      label: 'คลาสกิ่งที่ขยาย (<li> เมื่อเส้นทางอยู่ในกิ่ง)'
+      placeholder: 'เช่น active-branch'
     class_has_children:
-      label: "Class has children (<li> when item has children)"
-      placeholder: "e.g. has-children"
+      label: 'คลาสมีรายการลูก (<li> เมื่อรายการมีรายการลูก)'
+      placeholder: 'เช่น has-children'
     class_expanded:
-      label: "Class expanded (<li> when children block is open)"
-      placeholder: "e.g. is-expanded"
+      label: 'คลาสขยาย (<li> เมื่อบล็อกรายการลูกเปิดอยู่)'
+      placeholder: 'เช่น is-expanded'
     class_collapsed:
-      label: "Class collapsed (<li> when children block is closed)"
-      placeholder: "e.g. is-collapsed"
-    empty_choice: "— Empty —"
-    css_section_heading: "CSS classes for rendering (override config when set)."
+      label: 'คลาสยุบ (<li> เมื่อบล็อกรายการลูกปิดอยู่)'
+      placeholder: 'เช่น is-collapsed'
+    empty_choice: '— ว่าง —'
+    css_section_heading: 'คลาส CSS สำหรับการแสดงผล (แทนที่การกำหนดค่าเมื่อตั้งค่าไว้)'
+    section_definition: 'คำจำกัดความ (รหัส, พื้นฐาน, ชื่อ, บริบท, ไอคอน)'
+    section_config: 'การกำหนดค่า (สิทธิ์, ความลึก, การยุบ, CSS)'
 
   menu_item_type:
+    section_basic: 'ข้อมูลระบุ (ป้ายกำกับ)'
+    section_icon: 'ข้อมูลระบุ (ประเภท, ตำแหน่ง, ไอคอน)'
+    section_config: 'การกำหนดค่า (ลิงก์, สิทธิ์)'
+    label_required: 'ต้องระบุป้ายกำกับสำหรับลิงก์และส่วน'
     label:
-      label: Label
-    label_locale: "Label (%locale%)"
+      label: 'ป้ายกำกับ'
+    label_locale: 'ป้ายกำกับ (%locale%)'
+    divider_label_hint: 'ชื่อของเส้นแบ่งนี้ (ไม่บังคับ แต่แนะนำเพื่อการเข้าถึงและรายการในแดชบอร์ด) เว้นว่างไว้หากต้องการเพียงตัวคั่นทางสายตา'
     type:
-      label: Type
-      link: Link
-      section: Section
-      divider: Divider
+      label: 'ประเภท'
+      link: 'ลิงก์'
+      section: 'ส่วน'
+      divider: 'เส้นแบ่ง'
+      service: 'เซอร์วิส (URL ขณะรันไทม์)'
+    link_resolver:
+      label: 'ตัวแก้ไขลิงก์ (resolver)'
+      placeholder: '— เลือก resolver —'
+      help: 'เลือกเซอร์วิสที่อิมพลีเมนต์ MenuLinkResolverInterface ซึ่งอาจคืนค่าเป็น URL เดียวหรือรายการแถวลิงก์ลูก (ป้ายกำกับ, href, ตำแหน่ง) ในกรณีหลัง href ของรายการแม่จะเป็น "#"'
+      service_id_placeholder: 'เช่น App\Menu\MyLinkResolver'
+      help_free_text: 'ป้อน ID ของเซอร์วิส (ชื่อคลาสหรือ ID ในคอนเทนเนอร์) ที่อิมพลีเมนต์ MenuLinkResolverInterface'
+      required: 'ต้องระบุ resolver ลิงก์สำหรับรายการประเภท “เซอร์วิส”'
+      route_params_hint: 'JSON (ไม่บังคับ) ที่ส่งให้ resolver (เช่น พารามิเตอร์ลักษณะเดียวกับเส้นทาง)'
     position:
-      label: Position
+      label: 'ตำแหน่ง'
     link_type:
-      label: Link type
-      route: Route
-      external_url: External URL
+      label: 'ประเภทลิงก์'
+      route: 'เส้นทาง'
+      external_url: 'URL ภายนอก'
     route_name:
-      label: Route name
-      placeholder: "— Select route —"
+      label: 'ชื่อเส้นทาง'
+      placeholder: '— เลือกเส้นทาง —'
     route_params:
-      label: "Route params (JSON)"
-      placeholder: "{}"
+      label: 'พารามิเตอร์เส้นทาง (JSON)'
+      placeholder: '{}'
     external_url:
-      label: External URL
-      placeholder: "https://..."
+      label: 'URL ภายนอก'
+      placeholder: 'https://...'
     target_blank:
-      label: Open in new tab
+      label: 'เปิดในแท็บใหม่'
     permission_keys:
-      label: Permission keys
-      placeholder: "— Allow all —"
-      help_csv: "Comma-separated keys (used when no configured choices are available)."
+      label: 'คีย์สิทธิ์'
+      placeholder: '— อนุญาตทั้งหมด —'
+      help_csv: 'คีย์คั่นด้วยเครื่องหมายจุลภาค (ใช้เมื่อไม่มีตัวเลือกที่กำหนดค่าไว้)'
       choice:
-        authenticated: "Authenticated only"
-        admin: "Admin only"
-        path__: "Path: / (home only)"
+        authenticated: 'เฉพาะผู้ที่เข้าสู่ระบบ'
+        admin: 'เฉพาะผู้ดูแลระบบ'
+        path__: 'พาธ: / (เฉพาะหน้าแรก)'
     is_unanimous:
-      label: Require all selected keys
-      help: "Enabled: all keys must pass (AND). Disabled: any key may pass (OR)."
+      label: 'ต้องผ่านทุกคีย์ที่เลือก'
+      help: 'เปิดใช้: ทุกคีย์ต้องผ่าน (AND) ปิดใช้: ผ่านคีย์ใดก็ได้ (OR)'
     icon:
-      label: Icon
-      placeholder: "heroicons:home"
+      label: 'ไอคอน'
+      placeholder: 'heroicons:home'
     parent:
-      label: Parent
-      placeholder: "— Root (no parent) —"
+      label: 'รายการแม่'
+      placeholder: '— ราก (ไม่มีรายการแม่) —'
+      help_inheritance: 'รายการแม่อยู่เหนือรายการนี้ในโครงสร้าง คีย์สิทธิ์ในแถวนี้มีผลกับรายการนี้ MenuPermissionChecker ของคุณจะเป็นผู้กำหนดวิธีรวมกฎของรายการแม่และรายการลูก ส่วนและลิงก์ที่ขยายได้จะแสดงผลก็ต่อเมื่อมีรายการลูกแสดงอย่างน้อยหนึ่งรายการ'
+      circular_violation: 'ไม่อนุญาตให้มีลำดับชั้นรายการแม่แบบวนซ้ำ'
+      section_must_be_root: 'รายการประเภทส่วนต้องอยู่ที่ระดับรากเท่านั้น (ไม่มีรายการแม่)'
+    section_collapsible:
+      label: 'รายการลูกของส่วนยุบได้'
+      inherit: 'ใช้ค่าเริ่มต้นของเมนู'
+      yes: 'ใช่ (ยุบได้พร้อมลูกศร)'
+      no: 'ไม่ใช่ (ขยายอยู่เสมอ)'
+      help: 'แทนที่ตัวเลือกเมนู “ส่วนที่ยุบได้” สำหรับส่วนนี้เท่านั้น “ใช้ค่าเริ่มต้นของเมนู” จะเป็นไปตามการกำหนดค่าของเมนู'
 
   import_menu_type:
     file:
-      label: JSON file
-      required: Please choose a file.
-      mime_message: File must be JSON.
+      label: 'ไฟล์ JSON'
+      required: 'โปรดเลือกไฟล์'
+      mime_message: 'ไฟล์ต้องเป็น JSON'
     strategy:
-      label: When a menu with the same code and context already exists
-      skip_existing: Skip (do not import)
-      replace: Replace (delete existing items and import)
+      label: 'เมื่อมีเมนูที่ใช้รหัสและบริบทเดียวกันอยู่แล้ว'
+      skip_existing: 'ข้าม (ไม่นำเข้า)'
+      replace: 'แทนที่ (ลบรายการที่มีอยู่แล้วนำเข้า)'
 
   copy_menu_type:
     code:
-      label: Code
-      placeholder: "e.g. sidebar_copy"
-      regex_message: "Code must contain only letters, numbers, underscore and hyphen."
+      label: 'รหัส'
+      placeholder: 'เช่น sidebar_copy'
+      regex_message: 'รหัสต้องประกอบด้วยตัวอักษร ตัวเลข ขีดล่าง และยัติภังค์เท่านั้น'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar (copy)"
+      label: 'ชื่อ'
+      placeholder: 'เช่น แถบด้านข้าง (สำเนา)'

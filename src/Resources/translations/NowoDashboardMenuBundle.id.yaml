@@ -2,220 +2,292 @@
 
 # Dashboard UI
 dashboard:
-  title: Menu dashboard
-  title_suffix: Dashboard Menu
-  menus: Menus
-  menu: Menu
-  menus_back: "← Menus"
-  new_menu: New menu
-  edit_menu: Edit menu
-  edit_item: Edit item
-  edit_items: Edit items
-  copy: Copy
-  copy_menu: Copy menu
-  copy_menu_help: "Copy menu and all its items. You can change the code and name for the new menu."
-  delete: Delete
-  cancel: Cancel
-  close: Close
-  confirm_delete: Confirm delete
-  delete_menu_confirm: 'Delete menu "%name%" and all its items?'
-  delete_menu_message: Delete this menu and all its items?
-  delete_item_confirm: 'Delete "%name%" and its children?'
-  delete_item_message: Delete this item and its children?
-  add_item: Add item
-  new_item: New item
-  add_one: Add one
-  add_child: Add child
-  search: Search
-  search_placeholder: "Search by code or name…"
-  clear: Clear
-  filter: Filter
-  clear_filters: Clear filters
-  no_menus_yet: "No menus yet. Create one to get started."
-  no_items: No items.
-  context: Context
-  parent: Parent
-  route_url: "Route / URL"
-  item: Item
-  actions: Actions
-  first: First
-  last: Last
-  move_up: Move up
-  move_down: Move down
-  edit: Edit
-  create: Create
-  update: Update
-  loading: "Loading…"
-  error_loading_form: Error loading form.
-  previous: Previous
-  next: Next
-  pagination_menus: Menus pagination
-  showing_from_to_of_total: "Showing %from%-%to% of %total%"
-  depth_limit: Depth limit
-  permission_checker: Permission checker
-  collapsible: Collapsible
-  collapsible_expanded: Collapsible expanded
-  nested_collapsible: Nested collapsible
-  css_classes: CSS classes
-  root: "— Root —"
-  no_label: "(no label)"
+  title: 'Dasbor menu'
+  title_suffix: 'Menu Dasbor'
+  menus: 'Menu'
+  menu: 'Menu'
+  menus_back: '← Daftar menu'
+  new_menu: 'Menu baru'
+  edit_menu: 'Edit menu'
+  edit_item: 'Edit item'
+  edit_items: 'Edit item-item'
+  edit_identity: 'Edit (ikon, label, jenis)'
+  edit_labels: 'Edit label dan terjemahan'
+  edit_type_position_icon: 'Edit jenis, posisi, dan ikon'
+  edit_config: 'Edit konfigurasi (induk, tautan, izin)'
+  copy: 'Salin'
+  copy_menu: 'Salin menu'
+  copy_menu_help: 'Salin menu beserta semua itemnya. Anda dapat mengubah kode dan nama untuk menu baru.'
+  delete: 'Hapus'
+  cancel: 'Batal'
+  close: 'Tutup'
+  confirm_delete: 'Konfirmasi penghapusan'
+  delete_menu_confirm: 'Hapus menu "%name%" beserta semua itemnya?'
+  delete_menu_message: 'Hapus menu ini beserta semua itemnya?'
+  delete_item_confirm: 'Hapus "%name%" beserta turunannya?'
+  delete_item_message: 'Hapus item ini beserta turunannya?'
+  add_item: 'Tambah item'
+  new_item: 'Item baru'
+  add_one: 'Tambahkan satu'
+  add_child: 'Tambah turunan'
+  add_child_disabled: 'Item bagian dan pemisah tidak dapat memiliki turunan'
+  search: 'Cari'
+  search_placeholder: 'Cari berdasarkan kode atau nama…'
+  clear: 'Bersihkan'
+  filter: 'Saring'
+  clear_filters: 'Hapus filter'
+  no_menus_yet: 'Belum ada menu. Buat satu untuk memulai.'
+  no_items: 'Tidak ada item.'
+  context: 'Konteks'
+  parent: 'Induk'
+  route_url: 'Rute / URL'
+  item: 'Item'
+  actions: 'Tindakan'
+  first: 'Pertama'
+  last: 'Terakhir'
+  move_up: 'Pindah ke atas'
+  move_down: 'Pindah ke bawah'
+  reindex_positions: 'Indeks ulang posisi (langkah %step%)'
+  reindex_positions_title: 'Tetapkan ulang posisi dengan kelipatan %step% di dalam setiap grup induk (urutan dipertahankan).'
+  reindex_positions_done: 'Posisi diindeks ulang dengan langkah %step%.'
+  reindex_positions_unchanged: 'Tidak diperlukan perubahan posisi.'
+  check_parent_cycles: 'Periksa siklus induk'
+  check_parent_cycles_title: 'Pastikan rantai induk tidak memiliki perulangan tak terbatas (menu yang sama).'
+  check_parent_cycles_ok: 'Tidak ditemukan referensi induk melingkar.'
+  check_parent_cycles_loop: 'Rantai induk melingkar terdeteksi: %chain%'
+  sortable_page_heading: 'Urutkan dengan seret'
+  open_sortable_reorder: 'Urutkan ulang (seret)'
+  back_to_items_table: 'Tampilan tabel'
+  sortable_title: 'Seret untuk mengurutkan ulang'
+  sortable_help: 'Seret item melalui pegangannya untuk mengurutkan ulang, menempatkannya di bawah induk, atau memindahkannya ke tingkat lain. Lalu terapkan untuk menyimpan.'
+  sortable_apply: 'Terapkan urutan pohon'
+  sortable_drag_handle: 'Seret untuk mengurutkan ulang'
+  reorder_tree_done: 'Pohon menu diperbarui.'
+  reorder_tree_invalid_json: 'Data pohon tidak valid (JSON).'
+  reorder_tree_invalid_payload: 'Muatan pohon tidak valid.'
+  reorder_tree_invalid_layout: 'Tidak dapat menerapkan pohon (siklus, batas kedalaman, atau item yang hilang).'
+  reorder_tree_section_not_root: 'Bagian harus tetap berada di tingkat akar. Keluarkan bagian dari daftar bertingkat lalu terapkan lagi.'
+  edit: 'Edit'
+  create: 'Buat'
+  update: 'Perbarui'
+  loading: 'Memuat…'
+  error_loading_form: 'Gagal memuat formulir.'
+  previous: 'Sebelumnya'
+  next: 'Berikutnya'
+  pagination_menus: 'Paginasi menu'
+  showing_from_to_of_total: 'Menampilkan %from%-%to% dari %total%'
+  depth_limit: 'Batas kedalaman'
+  permission_checker: 'Pemeriksa izin'
+  collapsible: 'Dapat diciutkan'
+  collapsible_expanded: 'Dapat diciutkan (terbuka)'
+  nested_collapsible: 'Ciutkan bertingkat'
+  css_classes: 'Kelas CSS'
+  root: '— Akar —'
+  no_label: '(tanpa label)'
   # 2.3.0 — admin chrome (index table view, item permission badges)
-  table_code: "Kode"
-  table_name: "Nama"
-  table_items: "Item"
-  table_context: "Konteks"
-  no_permission_keys: "Tidak ada kunci izin"
-  unanimous: "Bulat"
-  non_unanimous: "Tidak bulat"
-  position_short: "Pos"
-  unique_code_context_error: A menu with this code and context already exists.
-  base: Base
-  base_badge_title: "Base menu: code cannot be changed after creation."
-  toggle: Toggle
-  yes: Yes
-  no: No
-  export: Export
-  export_all: Export all menus
-  import: Import
-  import_help: "Upload a JSON file exported from this dashboard (one menu or all menus). Choose whether to skip menus that already exist (same code + context) or replace their items."
-  import_json_invalid: Invalid JSON file.
-  import_json_error: "Invalid JSON: %message%"
-  import_file_too_large: "File is too large. Maximum size is %max% MiB."
-  import_done: "Import complete: %created% created, %updated% updated, %skipped% skipped."
-  import_format_invalid_root_array: 'Invalid format: a root JSON array must contain only objects with "menu" and "items". You can also use {"menus": [...]} or {"menu": {...}, "items": [...]}.'
-  import_format_expected: 'Invalid format: expected "menu" + "items", or "menus", or a root array of menu blocks.'
+  table_code: 'Kode'
+  table_name: 'Nama'
+  table_items: 'Item'
+  table_context: 'Konteks'
+  no_permission_keys: 'Tidak ada kunci izin'
+  unanimous: 'Bulat'
+  non_unanimous: 'Tidak bulat'
+  position_short: 'Pos.'
+  unique_code_context_error: 'Menu dengan kode dan konteks ini sudah ada.'
+  base: 'Dasar'
+  base_badge_title: 'Menu dasar: kode tidak dapat diubah setelah dibuat.'
+  toggle: 'Alihkan'
+  yes: 'Ya'
+  no: 'Tidak'
+  export: 'Ekspor'
+  export_all: 'Ekspor semua menu'
+  import: 'Impor'
+  import_help: 'Unggah file JSON yang diekspor dari dasbor ini. Bentuk yang diterima: satu menu {"menu": {...}, "items": [...]}, beberapa menu {"menus": [{...}, ...]}, atau daftar yang sama sebagai array JSON akar [{"menu": {...}, "items": [...]}, ...]. Pilih apakah akan melewati menu yang sudah ada (kode + konteks yang sama) atau mengganti item-itemnya.'
+  import_format_invalid_root_array: 'Format tidak valid: array JSON akar hanya boleh berisi objek dengan "menu" dan "items". Anda juga dapat menggunakan {"menus": [...]} atau {"menu": {...}, "items": [...]}.'
+  import_format_expected: 'Format tidak valid: diharapkan "menu" + "items", atau "menus", atau array akar berisi blok menu.'
+  import_json_invalid: 'File JSON tidak valid.'
+  import_json_error: 'JSON tidak valid: %message%'
+  import_file_too_large: 'File terlalu besar. Ukuran maksimum adalah %max% MiB.'
+  import_done: 'Impor selesai: %created% dibuat, %updated% diperbarui, %skipped% dilewati.'
 
 # Form: MenuType
 form:
   menu_type:
     code:
-      label: Code
-      help: "Unique identifier (letters, numbers, _ -). For base menus, code cannot be changed after creation."
-      placeholder: "e.g. sidebar"
+      label: 'Kode'
+      help: 'Pengenal unik (huruf, angka, _ -). Untuk menu dasar, kode tidak dapat diubah setelah dibuat.'
+      placeholder: 'mis. sidebar'
     base:
-      label: "Base menu"
-      help: "When checked, this menu's code cannot be changed after creation."
+      label: 'Menu dasar'
+      help: 'Jika dicentang, kode menu ini tidak dapat diubah setelah dibuat.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar"
+      label: 'Nama'
+      placeholder: 'mis. Bilah samping'
     context:
-      label: Context
-      help: "Optional JSON key-value pairs to identify this menu variant. When resolving by code, the first matching menu in the ordered context sets is used; empty = fallback for that code."
+      label: 'Konteks'
+      help: 'Pasangan kunci-nilai JSON opsional untuk mengidentifikasi varian menu ini. Saat menyelesaikan berdasarkan kode, menu pertama yang cocok dalam urutan set konteks akan digunakan; kosong = cadangan untuk kode tersebut.'
       placeholder: '{"partnerId": 1, "operatorId": 1}'
     icon:
-      label: Icon
-      help: "Optional icon identifier (e.g. Symfony UX Icons: heroicons:home, bootstrap:house)."
-      placeholder: "e.g. heroicons:bars-3, bootstrap:list"
+      label: 'Ikon'
+      help: 'Pengenal ikon opsional (mis. Symfony UX Icons: heroicons:home, bootstrap:house).'
+      placeholder: 'mis. heroicons:bars-3, bootstrap:list'
     permission_checker:
-      label: Permission checker
-      placeholder: "— Allow all —"
-      allow_all: "— Allow all —"
-      help: "Service implementing MenuPermissionCheckerInterface (empty = allow all)."
+      label: 'Pemeriksa izin'
+      placeholder: '— Izinkan semua —'
+      allow_all: '— Izinkan semua —'
+      permission_key_aware: '— Berdasarkan kunci izin (struktur) —'
+      help: 'Layanan yang mengimplementasikan MenuPermissionCheckerInterface (kosong = izinkan semua).'
     depth_limit:
-      label: Depth limit
-      placeholder: "empty = unlimited"
-      help: "Max depth to render (1 = root only, 2 = root + one level; empty = unlimited)."
+      label: 'Batas kedalaman'
+      placeholder: 'kosong = tanpa batas'
+      help: 'Kedalaman maksimum yang dirender (1 = hanya akar, 2 = akar + satu tingkat; kosong = tanpa batas).'
     collapsible:
-      label: "Collapsible (wrap menu in toggle block)"
+      label: 'Dapat diciutkan (bungkus menu dalam blok buka/tutup)'
     collapsible_expanded:
-      label: "Collapsible expanded (open by default)"
+      label: 'Dapat diciutkan, terbuka (terbuka secara default)'
     nested_collapsible:
-      label: "Nested collapsible (items with children have toggle)"
+      label: 'Ciutkan bertingkat (item yang memiliki turunan punya tombol buka/tutup)'
+    nested_collapsible_sections:
+      label: 'Bagian dapat diciutkan'
+      help: 'Memerlukan ciutkan bertingkat. Jika diaktifkan, baris bagian menampilkan panah di sebelah kanan dan tautannya dapat dilipat. Jika dinonaktifkan, turunan bagian selalu terbuka (tanpa panah).'
     class_menu:
-      label: "Class menu (root <ul>)"
-      placeholder: "e.g. nav flex-column"
+      label: 'Kelas menu (<ul> akar)'
+      placeholder: 'mis. nav flex-column'
+    ul_id:
+      label: 'Id ul (<ul> akar)'
+      placeholder: 'mis. main-menu-navigation'
     class_item:
-      label: "Class item (<li>)"
-      placeholder: "e.g. nav-item"
+      label: 'Kelas item (<li>)'
+      placeholder: 'mis. nav-item'
     class_link:
-      label: "Class link (<a>)"
-      placeholder: "e.g. nav-link"
+      label: 'Kelas tautan (<a>)'
+      placeholder: 'mis. nav-link'
     class_children:
-      label: "Class children (nested <ul>)"
-      placeholder: "e.g. nav flex-column ms-2"
+      label: 'Kelas turunan (<ul> bertingkat)'
+      placeholder: 'mis. nav flex-column ms-2'
+    class_section_children:
+      label: 'Kelas turunan bagian (<ul> di bawah itemType "section")'
+      placeholder: 'mis. nav flex-column list-unstyled ps-0 (datar; kosong = sama dengan turunan)'
+      help: 'Jika diisi, daftar tingkat pertama di bawah setiap bagian menggunakan kelas ini alih-alih “Kelas turunan”, sehingga tautan dapat sejajar dengan judul bagian (tanpa indentasi). Biarkan kosong untuk tetap menggunakan kelas turunan bertingkat.'
+    class_section_child_item:
+      label: 'Kelas <li> untuk turunan langsung itemType "section"'
+      placeholder: 'mis. nav-item ms-0 (kosong = sama dengan Kelas item)'
+      help: 'Jika diisi, tautan dan pemisah yang merupakan turunan langsung dari sebuah bagian menggunakan nilai ini untuk kelas <li> alih-alih “Kelas item”. Gunakan untuk penyesuaian margin/padding di bawah daftar bagian datar.'
+    class_section_child_link:
+      label: 'Kelas <a> untuk turunan langsung itemType "section"'
+      placeholder: 'mis. d-flex align-items-center ps-0 (kosong = sama dengan Kelas tautan)'
+      help: 'Jika diisi, tautan yang merupakan turunan langsung dari sebuah bagian menggunakan nilai ini untuk kelas <a> alih-alih “Kelas tautan”. Dipasangkan dengan <li> turunan bagian untuk perataan.'
+    class_section_label:
+      label: 'Kelas label bagian (itemType "section")'
+      placeholder: 'mis. navigation-header'
     class_section:
-      label: "Class section (<li> when itemType \"section\")"
-      placeholder: "e.g. menu-section"
+      label: 'Kelas bagian (<li> jika itemType "section")'
+      placeholder: 'mis. menu-section'
     class_divider:
-      label: "Class divider (<li> when itemType \"divider\")"
-      placeholder: "e.g. menu-divider"
+      label: 'Kelas pemisah (<li> jika itemType "divider")'
+      placeholder: 'mis. menu-divider'
     class_current:
-      label: "Class current (link matching current route)"
-      placeholder: "e.g. active"
+      label: 'Kelas aktif (tautan yang cocok dengan rute saat ini)'
+      placeholder: 'mis. active'
     class_branch_expanded:
-      label: "Class branch expanded (<li> when route in branch)"
-      placeholder: "e.g. active-branch"
+      label: 'Kelas cabang terbuka (<li> jika rute berada di cabang)'
+      placeholder: 'mis. active-branch'
     class_has_children:
-      label: "Class has children (<li> when item has children)"
-      placeholder: "e.g. has-children"
+      label: 'Kelas memiliki turunan (<li> jika item memiliki turunan)'
+      placeholder: 'mis. has-children'
     class_expanded:
-      label: "Class expanded (<li> when children block is open)"
-      placeholder: "e.g. is-expanded"
+      label: 'Kelas terbuka (<li> jika blok turunan terbuka)'
+      placeholder: 'mis. is-expanded'
     class_collapsed:
-      label: "Class collapsed (<li> when children block is closed)"
-      placeholder: "e.g. is-collapsed"
-    empty_choice: "— Empty —"
-    css_section_heading: "CSS classes for rendering (override config when set)."
+      label: 'Kelas tertutup (<li> jika blok turunan tertutup)'
+      placeholder: 'mis. is-collapsed'
+    empty_choice: '— Kosong —'
+    css_section_heading: 'Kelas CSS untuk rendering (menimpa konfigurasi jika diisi).'
+    section_definition: 'Definisi (kode, dasar, nama, konteks, ikon)'
+    section_config: 'Konfigurasi (izin, kedalaman, dapat diciutkan, CSS)'
 
   menu_item_type:
+    section_basic: 'Identitas (label)'
+    section_icon: 'Identitas (jenis, posisi, ikon)'
+    section_config: 'Konfigurasi (tautan, izin)'
+    label_required: 'Label wajib diisi untuk Tautan dan Bagian.'
     label:
-      label: Label
-    label_locale: "Label (%locale%)"
+      label: 'Label'
+    label_locale: 'Label (%locale%)'
+    divider_label_hint: 'Nama opsional untuk pemisah ini (disarankan untuk aksesibilitas dan daftar di dasbor). Biarkan kosong jika Anda hanya memerlukan pemisah visual.'
     type:
-      label: Type
-      link: Link
-      section: Section
-      divider: Divider
+      label: 'Jenis'
+      link: 'Tautan'
+      section: 'Bagian'
+      divider: 'Pemisah'
+      service: 'Layanan (URL saat runtime)'
+    link_resolver:
+      label: 'Penyelesai tautan'
+      placeholder: '— Pilih penyelesai —'
+      help: 'Pilih layanan yang mengimplementasikan MenuLinkResolverInterface. Layanan ini dapat mengembalikan satu URL atau daftar baris tautan turunan (label, href, posisi); href induk kemudian menjadi "#".'
+      service_id_placeholder: 'mis. App\Menu\MyLinkResolver'
+      help_free_text: 'Masukkan id layanan (nama kelas atau id kontainer) yang mengimplementasikan MenuLinkResolverInterface.'
+      required: 'Penyelesai tautan wajib diisi untuk jenis item “Layanan”.'
+      route_params_hint: 'JSON opsional yang diteruskan ke penyelesai (misalnya parameter mirip rute).'
     position:
-      label: Position
+      label: 'Posisi'
     link_type:
-      label: Link type
-      route: Route
-      external_url: External URL
+      label: 'Jenis tautan'
+      route: 'Rute'
+      external_url: 'URL eksternal'
     route_name:
-      label: Route name
-      placeholder: "— Select route —"
+      label: 'Nama rute'
+      placeholder: '— Pilih rute —'
     route_params:
-      label: "Route params (JSON)"
-      placeholder: "{}"
+      label: 'Parameter rute (JSON)'
+      placeholder: '{}'
     external_url:
-      label: External URL
-      placeholder: "https://..."
+      label: 'URL eksternal'
+      placeholder: 'https://...'
     target_blank:
-      label: Open in new tab
+      label: 'Buka di tab baru'
     permission_keys:
-      label: Permission keys
-      placeholder: "— Allow all —"
-      help_csv: "Comma-separated keys (used when no configured choices are available)."
+      label: 'Kunci izin'
+      placeholder: '— Izinkan semua —'
+      help_csv: 'Kunci dipisahkan koma (digunakan jika tidak ada pilihan yang dikonfigurasi).'
       choice:
-        authenticated: "Authenticated only"
-        admin: "Admin only"
-        path__: "Path: / (home only)"
+        authenticated: 'Hanya pengguna terautentikasi'
+        admin: 'Hanya admin'
+        path__: 'Jalur: / (hanya beranda)'
     is_unanimous:
-      label: Require all selected keys
-      help: "Enabled: all keys must pass (AND). Disabled: any key may pass (OR)."
+      label: 'Wajibkan semua kunci yang dipilih'
+      help: 'Aktif: semua kunci harus lolos (AND). Nonaktif: cukup satu kunci yang lolos (OR).'
     icon:
-      label: Icon
-      placeholder: "heroicons:home"
+      label: 'Ikon'
+      placeholder: 'heroicons:home'
     parent:
-      label: Parent
-      placeholder: "— Root (no parent) —"
+      label: 'Induk'
+      placeholder: '— Akar (tanpa induk) —'
+      help_inheritance: 'Item induk berada di atas item ini dalam pohon. Kunci izin pada baris ini berlaku untuk item ini; MenuPermissionChecker Anda menentukan bagaimana aturan induk/turunan digabungkan. Bagian dan tautan yang dapat dibuka hanya dirender jika setidaknya satu turunan ditampilkan.'
+      circular_violation: 'Hierarki induk melingkar tidak diizinkan.'
+      section_must_be_root: 'Item bagian harus tetap berada di tingkat akar (tanpa induk).'
+    section_collapsible:
+      label: 'Turunan bagian dapat diciutkan'
+      inherit: 'Gunakan default menu'
+      yes: 'Ya (dapat diciutkan dengan panah)'
+      no: 'Tidak (selalu terbuka)'
+      help: 'Menimpa opsi menu “Bagian dapat diciutkan” hanya untuk bagian ini. “Gunakan default menu” mengikuti konfigurasi menu.'
 
   import_menu_type:
     file:
-      label: JSON file
-      required: Please choose a file.
-      mime_message: File must be JSON.
+      label: 'File JSON'
+      required: 'Silakan pilih file.'
+      mime_message: 'File harus berformat JSON.'
     strategy:
-      label: When a menu with the same code and context already exists
-      skip_existing: Skip (do not import)
-      replace: Replace (delete existing items and import)
+      label: 'Jika menu dengan kode dan konteks yang sama sudah ada'
+      skip_existing: 'Lewati (jangan impor)'
+      replace: 'Ganti (hapus item yang ada lalu impor)'
 
   copy_menu_type:
     code:
-      label: Code
-      placeholder: "e.g. sidebar_copy"
-      regex_message: "Code must contain only letters, numbers, underscore and hyphen."
+      label: 'Kode'
+      placeholder: 'mis. sidebar_copy'
+      regex_message: 'Kode hanya boleh berisi huruf, angka, garis bawah, dan tanda hubung.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar (copy)"
+      label: 'Nama'
+      placeholder: 'mis. Bilah samping (salinan)'

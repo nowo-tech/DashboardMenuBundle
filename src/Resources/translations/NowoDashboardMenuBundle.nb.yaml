@@ -2,220 +2,292 @@
 
 # Dashboard UI
 dashboard:
-  title: Menu dashboard
-  title_suffix: Dashboard Menu
-  menus: Menus
-  menu: Menu
-  menus_back: "← Menus"
-  new_menu: New menu
-  edit_menu: Edit menu
-  edit_item: Edit item
-  edit_items: Edit items
-  copy: Copy
-  copy_menu: Copy menu
-  copy_menu_help: "Copy menu and all its items. You can change the code and name for the new menu."
-  delete: Delete
-  cancel: Cancel
-  close: Close
-  confirm_delete: Confirm delete
-  delete_menu_confirm: 'Delete menu "%name%" and all its items?'
-  delete_menu_message: Delete this menu and all its items?
-  delete_item_confirm: 'Delete "%name%" and its children?'
-  delete_item_message: Delete this item and its children?
-  add_item: Add item
-  new_item: New item
-  add_one: Add one
-  add_child: Add child
-  search: Search
-  search_placeholder: "Search by code or name…"
-  clear: Clear
-  filter: Filter
-  clear_filters: Clear filters
-  no_menus_yet: "No menus yet. Create one to get started."
-  no_items: No items.
-  context: Context
-  parent: Parent
-  route_url: "Route / URL"
-  item: Item
-  actions: Actions
-  first: First
-  last: Last
-  move_up: Move up
-  move_down: Move down
-  edit: Edit
-  create: Create
-  update: Update
-  loading: "Loading…"
-  error_loading_form: Error loading form.
-  previous: Previous
-  next: Next
-  pagination_menus: Menus pagination
-  showing_from_to_of_total: "Showing %from%-%to% of %total%"
-  depth_limit: Depth limit
-  permission_checker: Permission checker
-  collapsible: Collapsible
-  collapsible_expanded: Collapsible expanded
-  nested_collapsible: Nested collapsible
-  css_classes: CSS classes
-  root: "— Root —"
-  no_label: "(no label)"
+  title: 'Menyoversikt'
+  title_suffix: 'Dashbordmeny'
+  menus: 'Menyer'
+  menu: 'Meny'
+  menus_back: '← Menyer'
+  new_menu: 'Ny meny'
+  edit_menu: 'Rediger meny'
+  edit_item: 'Rediger element'
+  edit_items: 'Rediger elementer'
+  edit_identity: 'Rediger (ikon, etikett, type)'
+  edit_labels: 'Rediger etikett og oversettelser'
+  edit_type_position_icon: 'Rediger type, posisjon og ikon'
+  edit_config: 'Rediger konfigurasjon (overordnet, lenke, tillatelser)'
+  copy: 'Kopier'
+  copy_menu: 'Kopier meny'
+  copy_menu_help: 'Kopier menyen og alle elementene i den. Du kan endre koden og navnet for den nye menyen.'
+  delete: 'Slett'
+  cancel: 'Avbryt'
+  close: 'Lukk'
+  confirm_delete: 'Bekreft sletting'
+  delete_menu_confirm: 'Vil du slette menyen «%name%» og alle elementene i den?'
+  delete_menu_message: 'Vil du slette denne menyen og alle elementene i den?'
+  delete_item_confirm: 'Vil du slette «%name%» og underelementene?'
+  delete_item_message: 'Vil du slette dette elementet og underelementene?'
+  add_item: 'Legg til element'
+  new_item: 'Nytt element'
+  add_one: 'Legg til en'
+  add_child: 'Legg til underelement'
+  add_child_disabled: 'Seksjons- og skilleelementer kan ikke ha underelementer'
+  search: 'Søk'
+  search_placeholder: 'Søk etter kode eller navn…'
+  clear: 'Tøm'
+  filter: 'Filtrer'
+  clear_filters: 'Fjern filtre'
+  no_menus_yet: 'Ingen menyer ennå. Opprett en for å komme i gang.'
+  no_items: 'Ingen elementer.'
+  context: 'Kontekst'
+  parent: 'Overordnet'
+  route_url: 'Rute / URL'
+  item: 'Element'
+  actions: 'Handlinger'
+  first: 'Første'
+  last: 'Siste'
+  move_up: 'Flytt opp'
+  move_down: 'Flytt ned'
+  reindex_positions: 'Indekser posisjoner på nytt (trinn %step%)'
+  reindex_positions_title: 'Tildel posisjoner på nytt i trinn på %step% innenfor hver overordnet gruppe (rekkefølgen bevares).'
+  reindex_positions_done: 'Posisjonene er indeksert på nytt med trinn %step%.'
+  reindex_positions_unchanged: 'Ingen posisjonsendringer var nødvendige.'
+  check_parent_cycles: 'Sjekk overordnede sykluser'
+  check_parent_cycles_title: 'Kontroller at kjeden av overordnede elementer ikke har uendelige løkker (samme meny).'
+  check_parent_cycles_ok: 'Fant ingen sirkulære overordnede referanser.'
+  check_parent_cycles_loop: 'Sirkulær overordnet kjede oppdaget: %chain%'
+  sortable_page_heading: 'Omorganiser med dra og slipp'
+  open_sortable_reorder: 'Endre rekkefølge (dra)'
+  back_to_items_table: 'Tabellvisning'
+  sortable_title: 'Dra for å endre rekkefølge'
+  sortable_help: 'Dra elementer i håndtaket for å endre rekkefølgen, plassere dem under et overordnet element eller flytte dem til et annet nivå. Bruk deretter endringene for å lagre.'
+  sortable_apply: 'Bruk trerekkefølge'
+  sortable_drag_handle: 'Dra for å endre rekkefølge'
+  reorder_tree_done: 'Menytreet er oppdatert.'
+  reorder_tree_invalid_json: 'Ugyldige tredata (JSON).'
+  reorder_tree_invalid_payload: 'Ugyldig trenyttelast.'
+  reorder_tree_invalid_layout: 'Kunne ikke bruke treet (syklus, dybdegrense eller manglende elementer).'
+  reorder_tree_section_not_root: 'Seksjoner må ligge på rotnivå. Flytt seksjonen ut av nestede lister og bruk på nytt.'
+  edit: 'Rediger'
+  create: 'Opprett'
+  update: 'Oppdater'
+  loading: 'Laster inn…'
+  error_loading_form: 'Feil ved innlasting av skjemaet.'
+  previous: 'Forrige'
+  next: 'Neste'
+  pagination_menus: 'Paginering av menyer'
+  showing_from_to_of_total: 'Viser %from%–%to% av %total%'
+  depth_limit: 'Dybdegrense'
+  permission_checker: 'Tillatelseskontroll'
+  collapsible: 'Sammenleggbar'
+  collapsible_expanded: 'Sammenleggbar utvidet'
+  nested_collapsible: 'Nestet sammenleggbar'
+  css_classes: 'CSS-klasser'
+  root: '— Rot —'
+  no_label: '(ingen etikett)'
   # 2.3.0 — admin chrome (index table view, item permission badges)
-  table_code: "Kode"
-  table_name: "Navn"
-  table_items: "Elementer"
-  table_context: "Kontekst"
-  no_permission_keys: "Ingen tilgangsnøkler"
-  unanimous: "Enstemmig"
-  non_unanimous: "Ikke enstemmig"
-  position_short: "Pos"
-  unique_code_context_error: A menu with this code and context already exists.
-  base: Base
-  base_badge_title: "Base menu: code cannot be changed after creation."
-  toggle: Toggle
-  yes: Yes
-  no: No
-  export: Export
-  export_all: Export all menus
-  import: Import
-  import_help: "Upload a JSON file exported from this dashboard (one menu or all menus). Choose whether to skip menus that already exist (same code + context) or replace their items."
-  import_json_invalid: Invalid JSON file.
-  import_json_error: "Invalid JSON: %message%"
-  import_file_too_large: "File is too large. Maximum size is %max% MiB."
-  import_done: "Import complete: %created% created, %updated% updated, %skipped% skipped."
-  import_format_invalid_root_array: 'Invalid format: a root JSON array must contain only objects with "menu" and "items". You can also use {"menus": [...]} or {"menu": {...}, "items": [...]}.'
-  import_format_expected: 'Invalid format: expected "menu" + "items", or "menus", or a root array of menu blocks.'
+  table_code: 'Kode'
+  table_name: 'Navn'
+  table_items: 'Elementer'
+  table_context: 'Kontekst'
+  no_permission_keys: 'Ingen tillatelsesnøkler'
+  unanimous: 'Enstemmig'
+  non_unanimous: 'Ikke enstemmig'
+  position_short: 'Pos.'
+  unique_code_context_error: 'Det finnes allerede en meny med denne koden og konteksten.'
+  base: 'Grunnmeny'
+  base_badge_title: 'Grunnmeny: koden kan ikke endres etter opprettelse.'
+  toggle: 'Veksle'
+  yes: 'Ja'
+  no: 'Nei'
+  export: 'Eksporter'
+  export_all: 'Eksporter alle menyer'
+  import: 'Importer'
+  import_help: 'Last opp en JSON-fil eksportert fra dette dashbordet. Godtatte formater: én meny {"menu": {...}, "items": [...]}, flere menyer {"menus": [{...}, ...]}, eller den samme listen som en JSON-rotmatrise [{"menu": {...}, "items": [...]}, ...]. Velg om menyer som allerede finnes (samme kode + kontekst) skal hoppes over, eller om elementene deres skal erstattes.'
+  import_format_invalid_root_array: 'Ugyldig format: en JSON-rotmatrise kan bare inneholde objekter med "menu" og "items". Du kan også bruke {"menus": [...]} eller {"menu": {...}, "items": [...]}.'
+  import_format_expected: 'Ugyldig format: forventet "menu" + "items", "menus" eller en rotmatrise med menyblokker.'
+  import_json_invalid: 'Ugyldig JSON-fil.'
+  import_json_error: 'Ugyldig JSON: %message%'
+  import_file_too_large: 'Filen er for stor. Maksimal størrelse er %max% MiB.'
+  import_done: 'Import fullført: %created% opprettet, %updated% oppdatert, %skipped% hoppet over.'
 
 # Form: MenuType
 form:
   menu_type:
     code:
-      label: Code
-      help: "Unique identifier (letters, numbers, _ -). For base menus, code cannot be changed after creation."
-      placeholder: "e.g. sidebar"
+      label: 'Kode'
+      help: 'Unik identifikator (bokstaver, tall, _ -). For grunnmenyer kan koden ikke endres etter opprettelse.'
+      placeholder: 'f.eks. sidebar'
     base:
-      label: "Base menu"
-      help: "When checked, this menu's code cannot be changed after creation."
+      label: 'Grunnmeny'
+      help: 'Når dette er avkrysset, kan ikke menyens kode endres etter opprettelse.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar"
+      label: 'Navn'
+      placeholder: 'f.eks. Sidepanel'
     context:
-      label: Context
-      help: "Optional JSON key-value pairs to identify this menu variant. When resolving by code, the first matching menu in the ordered context sets is used; empty = fallback for that code."
+      label: 'Kontekst'
+      help: 'Valgfrie JSON-nøkkel/verdi-par som identifiserer denne menyvarianten. Ved oppslag etter kode brukes den første samsvarende menyen i de ordnede kontekstsettene; tom = reserve for den koden.'
       placeholder: '{"partnerId": 1, "operatorId": 1}'
     icon:
-      label: Icon
-      help: "Optional icon identifier (e.g. Symfony UX Icons: heroicons:home, bootstrap:house)."
-      placeholder: "e.g. heroicons:bars-3, bootstrap:list"
+      label: 'Ikon'
+      help: 'Valgfri ikonidentifikator (f.eks. Symfony UX Icons: heroicons:home, bootstrap:house).'
+      placeholder: 'f.eks. heroicons:bars-3, bootstrap:list'
     permission_checker:
-      label: Permission checker
-      placeholder: "— Allow all —"
-      allow_all: "— Allow all —"
-      help: "Service implementing MenuPermissionCheckerInterface (empty = allow all)."
+      label: 'Tillatelseskontroll'
+      placeholder: '— Tillat alle —'
+      allow_all: '— Tillat alle —'
+      permission_key_aware: '— Etter tillatelsesnøkkel (struktur) —'
+      help: 'Tjeneste som implementerer MenuPermissionCheckerInterface (tom = tillat alle).'
     depth_limit:
-      label: Depth limit
-      placeholder: "empty = unlimited"
-      help: "Max depth to render (1 = root only, 2 = root + one level; empty = unlimited)."
+      label: 'Dybdegrense'
+      placeholder: 'tom = ubegrenset'
+      help: 'Maksimal dybde som gjengis (1 = bare rot, 2 = rot + ett nivå; tom = ubegrenset).'
     collapsible:
-      label: "Collapsible (wrap menu in toggle block)"
+      label: 'Sammenleggbar (pakk menyen inn i en vekslingsblokk)'
     collapsible_expanded:
-      label: "Collapsible expanded (open by default)"
+      label: 'Sammenleggbar utvidet (åpen som standard)'
     nested_collapsible:
-      label: "Nested collapsible (items with children have toggle)"
+      label: 'Nestet sammenleggbar (elementer med underelementer får en veksler)'
+    nested_collapsible_sections:
+      label: 'Sammenleggbare seksjoner'
+      help: 'Krever nestet sammenleggbar. Når aktivert, viser seksjonsrader en vinkelpil til høyre, og lenkene kan felles sammen. Når deaktivert, er underelementene i seksjonen alltid utvidet (ingen vinkelpil).'
     class_menu:
-      label: "Class menu (root <ul>)"
-      placeholder: "e.g. nav flex-column"
+      label: 'Menyklasse (rot-<ul>)'
+      placeholder: 'f.eks. nav flex-column'
+    ul_id:
+      label: 'Ul-id (rot-<ul>)'
+      placeholder: 'f.eks. main-menu-navigation'
     class_item:
-      label: "Class item (<li>)"
-      placeholder: "e.g. nav-item"
+      label: 'Elementklasse (<li>)'
+      placeholder: 'f.eks. nav-item'
     class_link:
-      label: "Class link (<a>)"
-      placeholder: "e.g. nav-link"
+      label: 'Lenkeklasse (<a>)'
+      placeholder: 'f.eks. nav-link'
     class_children:
-      label: "Class children (nested <ul>)"
-      placeholder: "e.g. nav flex-column ms-2"
+      label: 'Underelementklasse (nestet <ul>)'
+      placeholder: 'f.eks. nav flex-column ms-2'
+    class_section_children:
+      label: 'Klasse for seksjonens underelementer (<ul> under itemType "section")'
+      placeholder: 'f.eks. nav flex-column list-unstyled ps-0 (flat; tom = samme som underelementer)'
+      help: 'Når den er angitt, bruker listen på første nivå under hver seksjon disse klassene i stedet for «Underelementklasse», slik at lenkene kan justeres etter seksjonstittelen (uten innrykk). La stå tom for å fortsette å bruke klassen for nestede underelementer.'
+    class_section_child_item:
+      label: '<li>-klasse for direkte underelementer av itemType "section"'
+      placeholder: 'f.eks. nav-item ms-0 (tom = samme som Elementklasse)'
+      help: 'Når den er angitt, bruker lenker og skillelinjer som er direkte underelementer av en seksjon denne verdien som <li>-klasse i stedet for «Elementklasse». Bruk den til å justere marg/utfylling under flate seksjonslister.'
+    class_section_child_link:
+      label: '<a>-klasse for direkte underelementer av itemType "section"'
+      placeholder: 'f.eks. d-flex align-items-center ps-0 (tom = samme som Lenkeklasse)'
+      help: 'Når den er angitt, bruker lenker som er direkte underelementer av en seksjon denne verdien som <a>-klasse i stedet for «Lenkeklasse». Brukes sammen med seksjonens underelement-<li> for justering.'
+    class_section_label:
+      label: 'Klasse for seksjonsetikett (itemType "section")'
+      placeholder: 'f.eks. navigation-header'
     class_section:
-      label: "Class section (<li> when itemType \"section\")"
-      placeholder: "e.g. menu-section"
+      label: 'Seksjonsklasse (<li> når itemType er "section")'
+      placeholder: 'f.eks. menu-section'
     class_divider:
-      label: "Class divider (<li> when itemType \"divider\")"
-      placeholder: "e.g. menu-divider"
+      label: 'Skilleklasse (<li> når itemType er "divider")'
+      placeholder: 'f.eks. menu-divider'
     class_current:
-      label: "Class current (link matching current route)"
-      placeholder: "e.g. active"
+      label: 'Klasse for gjeldende (lenke som samsvarer med gjeldende rute)'
+      placeholder: 'f.eks. active'
     class_branch_expanded:
-      label: "Class branch expanded (<li> when route in branch)"
-      placeholder: "e.g. active-branch"
+      label: 'Klasse for utvidet gren (<li> når ruten er i grenen)'
+      placeholder: 'f.eks. active-branch'
     class_has_children:
-      label: "Class has children (<li> when item has children)"
-      placeholder: "e.g. has-children"
+      label: 'Klasse for har underelementer (<li> når elementet har underelementer)'
+      placeholder: 'f.eks. has-children'
     class_expanded:
-      label: "Class expanded (<li> when children block is open)"
-      placeholder: "e.g. is-expanded"
+      label: 'Klasse for utvidet (<li> når underelementblokken er åpen)'
+      placeholder: 'f.eks. is-expanded'
     class_collapsed:
-      label: "Class collapsed (<li> when children block is closed)"
-      placeholder: "e.g. is-collapsed"
-    empty_choice: "— Empty —"
-    css_section_heading: "CSS classes for rendering (override config when set)."
+      label: 'Klasse for sammenlagt (<li> når underelementblokken er lukket)'
+      placeholder: 'f.eks. is-collapsed'
+    empty_choice: '— Tom —'
+    css_section_heading: 'CSS-klasser for gjengivelse (overstyrer konfigurasjonen når de er angitt).'
+    section_definition: 'Definisjon (kode, grunnmeny, navn, kontekst, ikon)'
+    section_config: 'Konfigurasjon (tillatelser, dybde, sammenleggbar, CSS)'
 
   menu_item_type:
+    section_basic: 'Identitet (etiketter)'
+    section_icon: 'Identitet (type, posisjon, ikon)'
+    section_config: 'Konfigurasjon (lenke, tillatelse)'
+    label_required: 'Etikett er påkrevd for Lenke og Seksjon.'
     label:
-      label: Label
-    label_locale: "Label (%locale%)"
+      label: 'Etikett'
+    label_locale: 'Etikett (%locale%)'
+    divider_label_hint: 'Valgfritt navn for denne skillelinjen (anbefales for tilgjengelighet og dashbordlisten). La stå tomt hvis du bare trenger en visuell skillelinje.'
     type:
-      label: Type
-      link: Link
-      section: Section
-      divider: Divider
+      label: 'Type'
+      link: 'Lenke'
+      section: 'Seksjon'
+      divider: 'Skillelinje'
+      service: 'Tjeneste (URL ved kjøretid)'
+    link_resolver:
+      label: 'Lenkeresolver'
+      placeholder: '— Velg resolver —'
+      help: 'Velg en tjeneste som implementerer MenuLinkResolverInterface. Den kan returnere én URL eller en liste med underlenkerader (etikett, href, posisjon); den overordnede href-en blir da "#".'
+      service_id_placeholder: 'f.eks. App\Menu\MyLinkResolver'
+      help_free_text: 'Skriv inn tjeneste-id-en (klassenavn eller container-id) som implementerer MenuLinkResolverInterface.'
+      required: 'En lenkeresolver er påkrevd for elementtypen «Tjeneste».'
+      route_params_hint: 'Valgfri JSON som sendes til resolveren (for eksempel rutelignende parametere).'
     position:
-      label: Position
+      label: 'Posisjon'
     link_type:
-      label: Link type
-      route: Route
-      external_url: External URL
+      label: 'Lenketype'
+      route: 'Rute'
+      external_url: 'Ekstern URL'
     route_name:
-      label: Route name
-      placeholder: "— Select route —"
+      label: 'Rutenavn'
+      placeholder: '— Velg rute —'
     route_params:
-      label: "Route params (JSON)"
-      placeholder: "{}"
+      label: 'Ruteparametere (JSON)'
+      placeholder: '{}'
     external_url:
-      label: External URL
-      placeholder: "https://..."
+      label: 'Ekstern URL'
+      placeholder: 'https://...'
     target_blank:
-      label: Open in new tab
+      label: 'Åpne i ny fane'
     permission_keys:
-      label: Permission keys
-      placeholder: "— Allow all —"
-      help_csv: "Comma-separated keys (used when no configured choices are available)."
+      label: 'Tillatelsesnøkler'
+      placeholder: '— Tillat alle —'
+      help_csv: 'Kommaseparerte nøkler (brukes når ingen konfigurerte valg er tilgjengelige).'
       choice:
-        authenticated: "Authenticated only"
-        admin: "Admin only"
-        path__: "Path: / (home only)"
+        authenticated: 'Bare autentiserte'
+        admin: 'Bare administratorer'
+        path__: 'Sti: / (bare startsiden)'
     is_unanimous:
-      label: Require all selected keys
-      help: "Enabled: all keys must pass (AND). Disabled: any key may pass (OR)."
+      label: 'Krev alle valgte nøkler'
+      help: 'Aktivert: alle nøkler må godkjennes (AND). Deaktivert: det holder at én nøkkel godkjennes (OR).'
     icon:
-      label: Icon
-      placeholder: "heroicons:home"
+      label: 'Ikon'
+      placeholder: 'heroicons:home'
     parent:
-      label: Parent
-      placeholder: "— Root (no parent) —"
+      label: 'Overordnet'
+      placeholder: '— Rot (ingen overordnet) —'
+      help_inheritance: 'Overordnede elementer ligger over dette i treet. Tillatelsesnøkler på denne raden gjelder for dette elementet; din MenuPermissionChecker avgjør hvordan regler for overordnede og underordnede kombineres. Seksjoner og utvidbare lenker gjengis bare når minst ett underelement vises.'
+      circular_violation: 'Sirkulært overordnet hierarki er ikke tillatt.'
+      section_must_be_root: 'Seksjonselementer må ligge på rotnivå (ingen overordnet).'
+    section_collapsible:
+      label: 'Seksjonens underelementer sammenleggbare'
+      inherit: 'Bruk menyens standard'
+      yes: 'Ja (sammenleggbar med vinkelpil)'
+      no: 'Nei (alltid utvidet)'
+      help: 'Overstyrer menyalternativet «Sammenleggbare seksjoner» bare for denne seksjonen. «Bruk menyens standard» følger menykonfigurasjonen.'
 
   import_menu_type:
     file:
-      label: JSON file
-      required: Please choose a file.
-      mime_message: File must be JSON.
+      label: 'JSON-fil'
+      required: 'Velg en fil.'
+      mime_message: 'Filen må være JSON.'
     strategy:
-      label: When a menu with the same code and context already exists
-      skip_existing: Skip (do not import)
-      replace: Replace (delete existing items and import)
+      label: 'Når en meny med samme kode og kontekst allerede finnes'
+      skip_existing: 'Hopp over (ikke importer)'
+      replace: 'Erstatt (slett eksisterende elementer og importer)'
 
   copy_menu_type:
     code:
-      label: Code
-      placeholder: "e.g. sidebar_copy"
-      regex_message: "Code must contain only letters, numbers, underscore and hyphen."
+      label: 'Kode'
+      placeholder: 'f.eks. sidebar_copy'
+      regex_message: 'Koden kan bare inneholde bokstaver, tall, understrek og bindestrek.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar (copy)"
+      label: 'Navn'
+      placeholder: 'f.eks. Sidepanel (kopi)'

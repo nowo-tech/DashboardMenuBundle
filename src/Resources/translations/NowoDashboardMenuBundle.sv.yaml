@@ -2,220 +2,292 @@
 
 # Dashboard UI
 dashboard:
-  title: Menu dashboard
-  title_suffix: Dashboard Menu
-  menus: Menus
-  menu: Menu
-  menus_back: "← Menus"
-  new_menu: New menu
-  edit_menu: Edit menu
-  edit_item: Edit item
-  edit_items: Edit items
-  copy: Copy
-  copy_menu: Copy menu
-  copy_menu_help: "Copy menu and all its items. You can change the code and name for the new menu."
-  delete: Delete
-  cancel: Cancel
-  close: Close
-  confirm_delete: Confirm delete
-  delete_menu_confirm: 'Delete menu "%name%" and all its items?'
-  delete_menu_message: Delete this menu and all its items?
-  delete_item_confirm: 'Delete "%name%" and its children?'
-  delete_item_message: Delete this item and its children?
-  add_item: Add item
-  new_item: New item
-  add_one: Add one
-  add_child: Add child
-  search: Search
-  search_placeholder: "Search by code or name…"
-  clear: Clear
-  filter: Filter
-  clear_filters: Clear filters
-  no_menus_yet: "No menus yet. Create one to get started."
-  no_items: No items.
-  context: Context
-  parent: Parent
-  route_url: "Route / URL"
-  item: Item
-  actions: Actions
-  first: First
-  last: Last
-  move_up: Move up
-  move_down: Move down
-  edit: Edit
-  create: Create
-  update: Update
-  loading: "Loading…"
-  error_loading_form: Error loading form.
-  previous: Previous
-  next: Next
-  pagination_menus: Menus pagination
-  showing_from_to_of_total: "Showing %from%-%to% of %total%"
-  depth_limit: Depth limit
-  permission_checker: Permission checker
-  collapsible: Collapsible
-  collapsible_expanded: Collapsible expanded
-  nested_collapsible: Nested collapsible
-  css_classes: CSS classes
-  root: "— Root —"
-  no_label: "(no label)"
+  title: 'Menyhantering'
+  title_suffix: 'Menyhantering'
+  menus: 'Menyer'
+  menu: 'Meny'
+  menus_back: '← Menyer'
+  new_menu: 'Ny meny'
+  edit_menu: 'Redigera meny'
+  edit_item: 'Redigera objekt'
+  edit_items: 'Redigera objekt'
+  edit_identity: 'Redigera (ikon, etikett, typ)'
+  edit_labels: 'Redigera etikett och översättningar'
+  edit_type_position_icon: 'Redigera typ, position och ikon'
+  edit_config: 'Redigera konfiguration (överordnat objekt, länk, behörigheter)'
+  copy: 'Kopiera'
+  copy_menu: 'Kopiera meny'
+  copy_menu_help: 'Kopierar menyn och alla dess objekt. Du kan ändra kod och namn för den nya menyn.'
+  delete: 'Ta bort'
+  cancel: 'Avbryt'
+  close: 'Stäng'
+  confirm_delete: 'Bekräfta borttagning'
+  delete_menu_confirm: 'Ta bort menyn ”%name%” och alla dess objekt?'
+  delete_menu_message: 'Ta bort den här menyn och alla dess objekt?'
+  delete_item_confirm: 'Ta bort ”%name%” och dess underobjekt?'
+  delete_item_message: 'Ta bort det här objektet och dess underobjekt?'
+  add_item: 'Lägg till objekt'
+  new_item: 'Nytt objekt'
+  add_one: 'Lägg till'
+  add_child: 'Lägg till underobjekt'
+  add_child_disabled: 'Sektioner och avdelare kan inte ha underobjekt'
+  search: 'Sök'
+  search_placeholder: 'Sök på kod eller namn…'
+  clear: 'Rensa'
+  filter: 'Filtrera'
+  clear_filters: 'Rensa filter'
+  no_menus_yet: 'Inga menyer än. Skapa en för att komma igång.'
+  no_items: 'Inga objekt.'
+  context: 'Kontext'
+  parent: 'Överordnat objekt'
+  route_url: 'Rutt / URL'
+  item: 'Objekt'
+  actions: 'Åtgärder'
+  first: 'Första'
+  last: 'Sista'
+  move_up: 'Flytta upp'
+  move_down: 'Flytta ned'
+  reindex_positions: 'Indexera om positioner (steg %step%)'
+  reindex_positions_title: 'Tilldelar positioner på nytt i steg om %step% inom varje överordnad grupp (ordningen bevaras).'
+  reindex_positions_done: 'Positionerna har indexerats om med steg %step%.'
+  reindex_positions_unchanged: 'Inga positionsändringar behövdes.'
+  check_parent_cycles: 'Kontrollera cykler bland överordnade'
+  check_parent_cycles_title: 'Kontrollerar att kedjan av överordnade objekt saknar oändliga slingor (inom menyn).'
+  check_parent_cycles_ok: 'Inga cirkulära referenser till överordnade objekt hittades.'
+  check_parent_cycles_loop: 'Cirkulär kedja av överordnade objekt upptäcktes: %chain%'
+  sortable_page_heading: 'Sortera med dra och släpp'
+  open_sortable_reorder: 'Ändra ordning (dra)'
+  back_to_items_table: 'Tabellvy'
+  sortable_title: 'Dra för att ändra ordning'
+  sortable_help: 'Dra objekten i handtaget för att ändra ordning, placera dem under ett överordnat objekt eller flytta dem till en annan nivå. Spara sedan med Verkställ.'
+  sortable_apply: 'Verkställ trädordning'
+  sortable_drag_handle: 'Dra för att ändra ordning'
+  reorder_tree_done: 'Menyträdet har uppdaterats.'
+  reorder_tree_invalid_json: 'Ogiltiga träddata (JSON).'
+  reorder_tree_invalid_payload: 'Ogiltig trädinformation.'
+  reorder_tree_invalid_layout: 'Det gick inte att verkställa trädet (cykel, djupgräns eller saknade objekt).'
+  reorder_tree_section_not_root: 'Sektioner måste ligga kvar på rotnivån. Flytta ut sektionen ur de nästlade listorna och verkställ igen.'
+  edit: 'Redigera'
+  create: 'Skapa'
+  update: 'Uppdatera'
+  loading: 'Läser in…'
+  error_loading_form: 'Det gick inte att läsa in formuläret.'
+  previous: 'Föregående'
+  next: 'Nästa'
+  pagination_menus: 'Sidnumrering för menyer'
+  showing_from_to_of_total: 'Visar %from%-%to% av %total%'
+  depth_limit: 'Djupgräns'
+  permission_checker: 'Behörighetskontroll'
+  collapsible: 'Hopfällbar'
+  collapsible_expanded: 'Hopfällbar, utfälld'
+  nested_collapsible: 'Nästlat hopfällbar'
+  css_classes: 'CSS-klasser'
+  root: '— Rot —'
+  no_label: '(ingen etikett)'
   # 2.3.0 — admin chrome (index table view, item permission badges)
-  table_code: "Kod"
-  table_name: "Namn"
-  table_items: "Objekt"
-  table_context: "Kontext"
-  no_permission_keys: "Inga behörighetsnycklar"
-  unanimous: "Enhälligt"
-  non_unanimous: "Inte enhälligt"
-  position_short: "Pos"
-  unique_code_context_error: A menu with this code and context already exists.
-  base: Base
-  base_badge_title: "Base menu: code cannot be changed after creation."
-  toggle: Toggle
-  yes: Yes
-  no: No
-  export: Export
-  export_all: Export all menus
-  import: Import
-  import_help: "Upload a JSON file exported from this dashboard (one menu or all menus). Choose whether to skip menus that already exist (same code + context) or replace their items."
-  import_json_invalid: Invalid JSON file.
-  import_json_error: "Invalid JSON: %message%"
-  import_file_too_large: "File is too large. Maximum size is %max% MiB."
-  import_done: "Import complete: %created% created, %updated% updated, %skipped% skipped."
-  import_format_invalid_root_array: 'Invalid format: a root JSON array must contain only objects with "menu" and "items". You can also use {"menus": [...]} or {"menu": {...}, "items": [...]}.'
-  import_format_expected: 'Invalid format: expected "menu" + "items", or "menus", or a root array of menu blocks.'
+  table_code: 'Kod'
+  table_name: 'Namn'
+  table_items: 'Objekt'
+  table_context: 'Kontext'
+  no_permission_keys: 'Inga behörighetsnycklar'
+  unanimous: 'Enhälligt'
+  non_unanimous: 'Inte enhälligt'
+  position_short: 'Pos.'
+  unique_code_context_error: 'Det finns redan en meny med denna kod och kontext.'
+  base: 'Bas'
+  base_badge_title: 'Basmeny: koden kan inte ändras efter att menyn skapats.'
+  toggle: 'Växla'
+  yes: 'Ja'
+  no: 'Nej'
+  export: 'Exportera'
+  export_all: 'Exportera alla menyer'
+  import: 'Importera'
+  import_help: 'Ladda upp en JSON-fil som exporterats från den här panelen. Godkända format: en enskild meny {"menu": {...}, "items": [...]}, flera menyer {"menus": [{...}, ...]} eller samma lista som en JSON-array på rotnivå [{"menu": {...}, "items": [...]}, ...]. Välj om menyer som redan finns (samma kod + kontext) ska hoppas över eller om deras objekt ska ersättas.'
+  import_format_invalid_root_array: 'Ogiltigt format: en JSON-array på rotnivå får bara innehålla objekt med "menu" och "items". Du kan också använda {"menus": [...]} eller {"menu": {...}, "items": [...]}.'
+  import_format_expected: 'Ogiltigt format: förväntade "menu" + "items", eller "menus", eller en array på rotnivå med menyblock.'
+  import_json_invalid: 'Ogiltig JSON-fil.'
+  import_json_error: 'Ogiltig JSON: %message%'
+  import_file_too_large: 'Filen är för stor. Maximal storlek är %max% MiB.'
+  import_done: 'Importen är klar: %created% skapade, %updated% uppdaterade, %skipped% överhoppade.'
 
 # Form: MenuType
 form:
   menu_type:
     code:
-      label: Code
-      help: "Unique identifier (letters, numbers, _ -). For base menus, code cannot be changed after creation."
-      placeholder: "e.g. sidebar"
+      label: 'Kod'
+      help: 'Unik identifierare (bokstäver, siffror, _ -). För basmenyer kan koden inte ändras efter att menyn skapats.'
+      placeholder: 't.ex. sidebar'
     base:
-      label: "Base menu"
-      help: "When checked, this menu's code cannot be changed after creation."
+      label: 'Basmeny'
+      help: 'Om markerad kan menyns kod inte ändras efter att den skapats.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar"
+      label: 'Namn'
+      placeholder: 't.ex. Sidofält'
     context:
-      label: Context
-      help: "Optional JSON key-value pairs to identify this menu variant. When resolving by code, the first matching menu in the ordered context sets is used; empty = fallback for that code."
+      label: 'Kontext'
+      help: 'Valfria nyckel-värde-par i JSON som identifierar denna menyvariant. Vid uppslag via kod används den första matchande menyn i de ordnade kontextuppsättningarna; tomt = reserv för den koden.'
       placeholder: '{"partnerId": 1, "operatorId": 1}'
     icon:
-      label: Icon
-      help: "Optional icon identifier (e.g. Symfony UX Icons: heroicons:home, bootstrap:house)."
-      placeholder: "e.g. heroicons:bars-3, bootstrap:list"
+      label: 'Ikon'
+      help: 'Valfri ikonidentifierare (t.ex. Symfony UX Icons: heroicons:home, bootstrap:house).'
+      placeholder: 't.ex. heroicons:bars-3, bootstrap:list'
     permission_checker:
-      label: Permission checker
-      placeholder: "— Allow all —"
-      allow_all: "— Allow all —"
-      help: "Service implementing MenuPermissionCheckerInterface (empty = allow all)."
+      label: 'Behörighetskontroll'
+      placeholder: '— Tillåt alla —'
+      allow_all: '— Tillåt alla —'
+      permission_key_aware: '— Efter behörighetsnyckel (struktur) —'
+      help: 'Tjänst som implementerar MenuPermissionCheckerInterface (tomt = tillåt alla).'
     depth_limit:
-      label: Depth limit
-      placeholder: "empty = unlimited"
-      help: "Max depth to render (1 = root only, 2 = root + one level; empty = unlimited)."
+      label: 'Djupgräns'
+      placeholder: 'tomt = obegränsat'
+      help: 'Maximalt djup som renderas (1 = endast rot, 2 = rot + en nivå; tomt = obegränsat).'
     collapsible:
-      label: "Collapsible (wrap menu in toggle block)"
+      label: 'Hopfällbar (omslut menyn i ett växlingsblock)'
     collapsible_expanded:
-      label: "Collapsible expanded (open by default)"
+      label: 'Hopfällbar, utfälld (öppen som standard)'
     nested_collapsible:
-      label: "Nested collapsible (items with children have toggle)"
+      label: 'Nästlat hopfällbar (objekt med underobjekt har en växlare)'
+    nested_collapsible_sections:
+      label: 'Hopfällbara sektioner'
+      help: 'Kräver nästlat hopfällbar. När aktiverat visar sektionsrader en vinkelpil till höger och deras länkar kan fällas ihop. När inaktiverat förblir sektionernas underobjekt alltid utfällda (ingen vinkelpil).'
     class_menu:
-      label: "Class menu (root <ul>)"
-      placeholder: "e.g. nav flex-column"
+      label: 'Menyklass (rot-<ul>)'
+      placeholder: 't.ex. nav flex-column'
+    ul_id:
+      label: 'Ul-id (rot-<ul>)'
+      placeholder: 't.ex. main-menu-navigation'
     class_item:
-      label: "Class item (<li>)"
-      placeholder: "e.g. nav-item"
+      label: 'Objektklass (<li>)'
+      placeholder: 't.ex. nav-item'
     class_link:
-      label: "Class link (<a>)"
-      placeholder: "e.g. nav-link"
+      label: 'Länkklass (<a>)'
+      placeholder: 't.ex. nav-link'
     class_children:
-      label: "Class children (nested <ul>)"
-      placeholder: "e.g. nav flex-column ms-2"
+      label: 'Klass för underobjekt (nästlad <ul>)'
+      placeholder: 't.ex. nav flex-column ms-2'
+    class_section_children:
+      label: 'Klass för sektionens underobjekt (<ul> under itemType "section")'
+      placeholder: 't.ex. nav flex-column list-unstyled ps-0 (platt; tomt = samma som underobjekt)'
+      help: 'Om angiven använder listan på första nivån under varje sektion dessa klasser i stället för ”Klass för underobjekt”, så att länkarna kan linjera med sektionsrubriken (utan indrag). Lämna tomt för att fortsätta använda klassen för nästlade underobjekt.'
+    class_section_child_item:
+      label: '<li>-klass för direkta underobjekt till itemType "section"'
+      placeholder: 't.ex. nav-item ms-0 (tomt = samma som Objektklass)'
+      help: 'Om angiven använder länkar och avdelare som är direkta underobjekt till en sektion detta som <li>-klass i stället för ”Objektklass”. Används för justering av marginal/utfyllnad i platta sektionslistor.'
+    class_section_child_link:
+      label: '<a>-klass för direkta underobjekt till itemType "section"'
+      placeholder: 't.ex. d-flex align-items-center ps-0 (tomt = samma som Länkklass)'
+      help: 'Om angiven använder länkar som är direkta underobjekt till en sektion detta som <a>-klass i stället för ”Länkklass”. Kombineras med sektionsunderobjektets <li> för linjering.'
+    class_section_label:
+      label: 'Klass för sektionsetikett (itemType "section")'
+      placeholder: 't.ex. navigation-header'
     class_section:
-      label: "Class section (<li> when itemType \"section\")"
-      placeholder: "e.g. menu-section"
+      label: 'Sektionsklass (<li> när itemType "section")'
+      placeholder: 't.ex. menu-section'
     class_divider:
-      label: "Class divider (<li> when itemType \"divider\")"
-      placeholder: "e.g. menu-divider"
+      label: 'Avdelarklass (<li> när itemType "divider")'
+      placeholder: 't.ex. menu-divider'
     class_current:
-      label: "Class current (link matching current route)"
-      placeholder: "e.g. active"
+      label: 'Klass för aktuell (länk som matchar aktuell rutt)'
+      placeholder: 't.ex. active'
     class_branch_expanded:
-      label: "Class branch expanded (<li> when route in branch)"
-      placeholder: "e.g. active-branch"
+      label: 'Klass för utfälld gren (<li> när rutten finns i grenen)'
+      placeholder: 't.ex. active-branch'
     class_has_children:
-      label: "Class has children (<li> when item has children)"
-      placeholder: "e.g. has-children"
+      label: 'Klass för har underobjekt (<li> när objektet har underobjekt)'
+      placeholder: 't.ex. has-children'
     class_expanded:
-      label: "Class expanded (<li> when children block is open)"
-      placeholder: "e.g. is-expanded"
+      label: 'Klass för utfälld (<li> när underobjektsblocket är öppet)'
+      placeholder: 't.ex. is-expanded'
     class_collapsed:
-      label: "Class collapsed (<li> when children block is closed)"
-      placeholder: "e.g. is-collapsed"
-    empty_choice: "— Empty —"
-    css_section_heading: "CSS classes for rendering (override config when set)."
+      label: 'Klass för hopfälld (<li> när underobjektsblocket är stängt)'
+      placeholder: 't.ex. is-collapsed'
+    empty_choice: '— Tomt —'
+    css_section_heading: 'CSS-klasser för rendering (åsidosätter konfigurationen när de anges).'
+    section_definition: 'Definition (kod, bas, namn, kontext, ikon)'
+    section_config: 'Konfiguration (behörigheter, djup, hopfällbar, CSS)'
 
   menu_item_type:
+    section_basic: 'Identitet (etiketter)'
+    section_icon: 'Identitet (typ, position, ikon)'
+    section_config: 'Konfiguration (länk, behörighet)'
+    label_required: 'Etikett krävs för Länk och Sektion.'
     label:
-      label: Label
-    label_locale: "Label (%locale%)"
+      label: 'Etikett'
+    label_locale: 'Etikett (%locale%)'
+    divider_label_hint: 'Valfritt namn på avdelaren (rekommenderas för tillgänglighet och listan i panelen). Lämna tomt om du bara behöver en visuell avgränsare.'
     type:
-      label: Type
-      link: Link
-      section: Section
-      divider: Divider
+      label: 'Typ'
+      link: 'Länk'
+      section: 'Sektion'
+      divider: 'Avdelare'
+      service: 'Tjänst (URL vid körning)'
+    link_resolver:
+      label: 'Länkresolver'
+      placeholder: '— Välj resolver —'
+      help: 'Välj en tjänst som implementerar MenuLinkResolverInterface. Den kan returnera en enskild URL eller en lista med underliggande länkrader (etikett, href, position); det överordnade objektets href blir då "#".'
+      service_id_placeholder: 't.ex. App\Menu\MyLinkResolver'
+      help_free_text: 'Ange tjänste-id (klassnamn eller container-id) som implementerar MenuLinkResolverInterface.'
+      required: 'En länkresolver krävs för objekttypen ”Tjänst”.'
+      route_params_hint: 'Valfri JSON som skickas till resolvern (till exempel ruttliknande parametrar).'
     position:
-      label: Position
+      label: 'Position'
     link_type:
-      label: Link type
-      route: Route
-      external_url: External URL
+      label: 'Länktyp'
+      route: 'Rutt'
+      external_url: 'Extern URL'
     route_name:
-      label: Route name
-      placeholder: "— Select route —"
+      label: 'Ruttnamn'
+      placeholder: '— Välj rutt —'
     route_params:
-      label: "Route params (JSON)"
-      placeholder: "{}"
+      label: 'Ruttparametrar (JSON)'
+      placeholder: '{}'
     external_url:
-      label: External URL
-      placeholder: "https://..."
+      label: 'Extern URL'
+      placeholder: 'https://...'
     target_blank:
-      label: Open in new tab
+      label: 'Öppna i ny flik'
     permission_keys:
-      label: Permission keys
-      placeholder: "— Allow all —"
-      help_csv: "Comma-separated keys (used when no configured choices are available)."
+      label: 'Behörighetsnycklar'
+      placeholder: '— Tillåt alla —'
+      help_csv: 'Kommaseparerade nycklar (används när inga konfigurerade val finns).'
       choice:
-        authenticated: "Authenticated only"
-        admin: "Admin only"
-        path__: "Path: / (home only)"
+        authenticated: 'Endast inloggade'
+        admin: 'Endast administratör'
+        path__: 'Sökväg: / (endast startsidan)'
     is_unanimous:
-      label: Require all selected keys
-      help: "Enabled: all keys must pass (AND). Disabled: any key may pass (OR)."
+      label: 'Kräv alla valda nycklar'
+      help: 'Aktiverad: alla nycklar måste godkännas (AND). Inaktiverad: det räcker att en nyckel godkänns (OR).'
     icon:
-      label: Icon
-      placeholder: "heroicons:home"
+      label: 'Ikon'
+      placeholder: 'heroicons:home'
     parent:
-      label: Parent
-      placeholder: "— Root (no parent) —"
+      label: 'Överordnat objekt'
+      placeholder: '— Rot (inget överordnat) —'
+      help_inheritance: 'Överordnade objekt ligger ovanför detta i trädet. Behörighetsnycklar på denna rad gäller detta objekt; din MenuPermissionChecker avgör hur regler för överordnade och underordnade objekt kombineras. Sektioner och utfällbara länkar renderas bara när minst ett underobjekt visas.'
+      circular_violation: 'Cirkulär hierarki av överordnade objekt är inte tillåten.'
+      section_must_be_root: 'Sektioner måste ligga kvar på rotnivån (inget överordnat objekt).'
+    section_collapsible:
+      label: 'Hopfällbara underobjekt i sektionen'
+      inherit: 'Använd menyns standard'
+      yes: 'Ja (hopfällbar med vinkelpil)'
+      no: 'Nej (alltid utfälld)'
+      help: 'Åsidosätter menyalternativet ”Hopfällbara sektioner” endast för denna sektion. ”Använd menyns standard” följer menyns konfiguration.'
 
   import_menu_type:
     file:
-      label: JSON file
-      required: Please choose a file.
-      mime_message: File must be JSON.
+      label: 'JSON-fil'
+      required: 'Välj en fil.'
+      mime_message: 'Filen måste vara i JSON-format.'
     strategy:
-      label: When a menu with the same code and context already exists
-      skip_existing: Skip (do not import)
-      replace: Replace (delete existing items and import)
+      label: 'När en meny med samma kod och kontext redan finns'
+      skip_existing: 'Hoppa över (importera inte)'
+      replace: 'Ersätt (ta bort befintliga objekt och importera)'
 
   copy_menu_type:
     code:
-      label: Code
-      placeholder: "e.g. sidebar_copy"
-      regex_message: "Code must contain only letters, numbers, underscore and hyphen."
+      label: 'Kod'
+      placeholder: 't.ex. sidebar_copy'
+      regex_message: 'Koden får endast innehålla bokstäver, siffror, understreck och bindestreck.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar (copy)"
+      label: 'Namn'
+      placeholder: 't.ex. Sidofält (kopia)'

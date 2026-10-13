@@ -2,220 +2,292 @@
 
 # Dashboard UI
 dashboard:
-  title: Menu dashboard
-  title_suffix: Dashboard Menu
-  menus: Menus
-  menu: Menu
-  menus_back: "← Menus"
-  new_menu: New menu
-  edit_menu: Edit menu
-  edit_item: Edit item
-  edit_items: Edit items
-  copy: Copy
-  copy_menu: Copy menu
-  copy_menu_help: "Copy menu and all its items. You can change the code and name for the new menu."
-  delete: Delete
-  cancel: Cancel
-  close: Close
-  confirm_delete: Confirm delete
-  delete_menu_confirm: 'Delete menu "%name%" and all its items?'
-  delete_menu_message: Delete this menu and all its items?
-  delete_item_confirm: 'Delete "%name%" and its children?'
-  delete_item_message: Delete this item and its children?
-  add_item: Add item
-  new_item: New item
-  add_one: Add one
-  add_child: Add child
-  search: Search
-  search_placeholder: "Search by code or name…"
-  clear: Clear
-  filter: Filter
-  clear_filters: Clear filters
-  no_menus_yet: "No menus yet. Create one to get started."
-  no_items: No items.
-  context: Context
-  parent: Parent
-  route_url: "Route / URL"
-  item: Item
-  actions: Actions
-  first: First
-  last: Last
-  move_up: Move up
-  move_down: Move down
-  edit: Edit
-  create: Create
-  update: Update
-  loading: "Loading…"
-  error_loading_form: Error loading form.
-  previous: Previous
-  next: Next
-  pagination_menus: Menus pagination
-  showing_from_to_of_total: "Showing %from%-%to% of %total%"
-  depth_limit: Depth limit
-  permission_checker: Permission checker
-  collapsible: Collapsible
-  collapsible_expanded: Collapsible expanded
-  nested_collapsible: Nested collapsible
-  css_classes: CSS classes
-  root: "— Root —"
-  no_label: "(no label)"
+  title: 'Πίνακας ελέγχου μενού'
+  title_suffix: 'Πίνακας ελέγχου μενού'
+  menus: 'Μενού'
+  menu: 'Μενού'
+  menus_back: '← Μενού'
+  new_menu: 'Νέο μενού'
+  edit_menu: 'Επεξεργασία μενού'
+  edit_item: 'Επεξεργασία στοιχείου'
+  edit_items: 'Επεξεργασία στοιχείων'
+  edit_identity: 'Επεξεργασία (εικονίδιο, ετικέτα, τύπος)'
+  edit_labels: 'Επεξεργασία ετικέτας και μεταφράσεων'
+  edit_type_position_icon: 'Επεξεργασία τύπου, θέσης και εικονιδίου'
+  edit_config: 'Επεξεργασία ρυθμίσεων (γονικό, σύνδεσμος, δικαιώματα)'
+  copy: 'Αντιγραφή'
+  copy_menu: 'Αντιγραφή μενού'
+  copy_menu_help: 'Αντιγραφή του μενού και όλων των στοιχείων του. Μπορείτε να αλλάξετε τον κωδικό και το όνομα του νέου μενού.'
+  delete: 'Διαγραφή'
+  cancel: 'Ακύρωση'
+  close: 'Κλείσιμο'
+  confirm_delete: 'Επιβεβαίωση διαγραφής'
+  delete_menu_confirm: 'Διαγραφή του μενού «%name%» και όλων των στοιχείων του;'
+  delete_menu_message: 'Διαγραφή αυτού του μενού και όλων των στοιχείων του;'
+  delete_item_confirm: 'Διαγραφή του «%name%» και των θυγατρικών του;'
+  delete_item_message: 'Διαγραφή αυτού του στοιχείου και των θυγατρικών του;'
+  add_item: 'Προσθήκη στοιχείου'
+  new_item: 'Νέο στοιχείο'
+  add_one: 'Προσθέστε ένα'
+  add_child: 'Προσθήκη θυγατρικού'
+  add_child_disabled: 'Τα στοιχεία ενότητας και διαχωριστικού δεν μπορούν να έχουν θυγατρικά'
+  search: 'Αναζήτηση'
+  search_placeholder: 'Αναζήτηση με κωδικό ή όνομα…'
+  clear: 'Καθαρισμός'
+  filter: 'Φίλτρο'
+  clear_filters: 'Καθαρισμός φίλτρων'
+  no_menus_yet: 'Δεν υπάρχουν ακόμη μενού. Δημιουργήστε ένα για να ξεκινήσετε.'
+  no_items: 'Δεν υπάρχουν στοιχεία.'
+  context: 'Πλαίσιο'
+  parent: 'Γονικό'
+  route_url: 'Διαδρομή / URL'
+  item: 'Στοιχείο'
+  actions: 'Ενέργειες'
+  first: 'Πρώτο'
+  last: 'Τελευταίο'
+  move_up: 'Μετακίνηση πάνω'
+  move_down: 'Μετακίνηση κάτω'
+  reindex_positions: 'Επαναρίθμηση θέσεων (βήμα %step%)'
+  reindex_positions_title: 'Επανεκχώρηση θέσεων με βήμα %step% εντός κάθε γονικής ομάδας (η σειρά διατηρείται).'
+  reindex_positions_done: 'Οι θέσεις επαναριθμήθηκαν με βήμα %step%.'
+  reindex_positions_unchanged: 'Δεν χρειάστηκαν αλλαγές θέσεων.'
+  check_parent_cycles: 'Έλεγχος κύκλων γονικών'
+  check_parent_cycles_title: 'Επαλήθευση ότι η αλυσίδα γονικών δεν έχει ατέρμονους βρόχους (ίδιο μενού).'
+  check_parent_cycles_ok: 'Δεν βρέθηκαν κυκλικές αναφορές γονικών.'
+  check_parent_cycles_loop: 'Εντοπίστηκε κυκλική αλυσίδα γονικών: %chain%'
+  sortable_page_heading: 'Αναδιάταξη με μεταφορά'
+  open_sortable_reorder: 'Αναδιάταξη (μεταφορά)'
+  back_to_items_table: 'Προβολή πίνακα'
+  sortable_title: 'Σύρετε για αναδιάταξη'
+  sortable_help: 'Σύρετε τα στοιχεία από τη λαβή για να τα αναδιατάξετε, να τα τοποθετήσετε κάτω από γονικό στοιχείο ή να τα μετακινήσετε σε άλλο επίπεδο. Στη συνέχεια, πατήστε εφαρμογή για αποθήκευση.'
+  sortable_apply: 'Εφαρμογή σειράς δέντρου'
+  sortable_drag_handle: 'Σύρετε για αναδιάταξη'
+  reorder_tree_done: 'Το δέντρο του μενού ενημερώθηκε.'
+  reorder_tree_invalid_json: 'Μη έγκυρα δεδομένα δέντρου (JSON).'
+  reorder_tree_invalid_payload: 'Μη έγκυρο φορτίο δεδομένων δέντρου.'
+  reorder_tree_invalid_layout: 'Δεν ήταν δυνατή η εφαρμογή του δέντρου (κύκλος, όριο βάθους ή στοιχεία που λείπουν).'
+  reorder_tree_section_not_root: 'Οι ενότητες πρέπει να παραμένουν στο ριζικό επίπεδο. Μετακινήστε την ενότητα έξω από τις ένθετες λίστες και εφαρμόστε ξανά.'
+  edit: 'Επεξεργασία'
+  create: 'Δημιουργία'
+  update: 'Ενημέρωση'
+  loading: 'Φόρτωση…'
+  error_loading_form: 'Σφάλμα κατά τη φόρτωση της φόρμας.'
+  previous: 'Προηγούμενο'
+  next: 'Επόμενο'
+  pagination_menus: 'Σελιδοποίηση μενού'
+  showing_from_to_of_total: 'Εμφάνιση %from%-%to% από %total%'
+  depth_limit: 'Όριο βάθους'
+  permission_checker: 'Έλεγχος δικαιωμάτων'
+  collapsible: 'Πτυσσόμενο'
+  collapsible_expanded: 'Πτυσσόμενο αναπτυγμένο'
+  nested_collapsible: 'Ένθετο πτυσσόμενο'
+  css_classes: 'Κλάσεις CSS'
+  root: '— Ρίζα —'
+  no_label: '(χωρίς ετικέτα)'
   # 2.3.0 — admin chrome (index table view, item permission badges)
-  table_code: "Κωδικός"
-  table_name: "Όνομα"
-  table_items: "Στοιχεία"
-  table_context: "Πλαίσιο"
-  no_permission_keys: "Χωρίς κλειδιά δικαιωμάτων"
-  unanimous: "Ομόφωνο"
-  non_unanimous: "Μη ομόφωνο"
-  position_short: "Θέση"
-  unique_code_context_error: A menu with this code and context already exists.
-  base: Base
-  base_badge_title: "Base menu: code cannot be changed after creation."
-  toggle: Toggle
-  yes: Yes
-  no: No
-  export: Export
-  export_all: Export all menus
-  import: Import
-  import_help: "Upload a JSON file exported from this dashboard (one menu or all menus). Choose whether to skip menus that already exist (same code + context) or replace their items."
-  import_json_invalid: Invalid JSON file.
-  import_json_error: "Invalid JSON: %message%"
-  import_file_too_large: "File is too large. Maximum size is %max% MiB."
-  import_done: "Import complete: %created% created, %updated% updated, %skipped% skipped."
-  import_format_invalid_root_array: 'Invalid format: a root JSON array must contain only objects with "menu" and "items". You can also use {"menus": [...]} or {"menu": {...}, "items": [...]}.'
-  import_format_expected: 'Invalid format: expected "menu" + "items", or "menus", or a root array of menu blocks.'
+  table_code: 'Κωδικός'
+  table_name: 'Όνομα'
+  table_items: 'Στοιχεία'
+  table_context: 'Πλαίσιο'
+  no_permission_keys: 'Χωρίς κλειδιά δικαιωμάτων'
+  unanimous: 'Ομόφωνο'
+  non_unanimous: 'Μη ομόφωνο'
+  position_short: 'Θέση'
+  unique_code_context_error: 'Υπάρχει ήδη μενού με αυτόν τον κωδικό και αυτό το πλαίσιο.'
+  base: 'Βασικό'
+  base_badge_title: 'Βασικό μενού: ο κωδικός δεν μπορεί να αλλάξει μετά τη δημιουργία.'
+  toggle: 'Εναλλαγή'
+  yes: 'Ναι'
+  no: 'Όχι'
+  export: 'Εξαγωγή'
+  export_all: 'Εξαγωγή όλων των μενού'
+  import: 'Εισαγωγή'
+  import_help: 'Μεταφορτώστε ένα αρχείο JSON που εξήχθη από αυτόν τον πίνακα ελέγχου. Αποδεκτές μορφές: ένα μεμονωμένο μενού {"menu": {...}, "items": [...]}, πολλά μενού {"menus": [{...}, ...]} ή η ίδια λίστα ως ριζικός πίνακας JSON [{"menu": {...}, "items": [...]}, ...]. Επιλέξτε αν θα παραλείπονται τα μενού που υπάρχουν ήδη (ίδιος κωδικός + πλαίσιο) ή αν θα αντικαθίστανται τα στοιχεία τους.'
+  import_format_invalid_root_array: 'Μη έγκυρη μορφή: ένας ριζικός πίνακας JSON πρέπει να περιέχει μόνο αντικείμενα με "menu" και "items". Μπορείτε επίσης να χρησιμοποιήσετε {"menus": [...]} ή {"menu": {...}, "items": [...]}.'
+  import_format_expected: 'Μη έγκυρη μορφή: αναμενόταν "menu" + "items", ή "menus", ή ριζικός πίνακας με μπλοκ μενού.'
+  import_json_invalid: 'Μη έγκυρο αρχείο JSON.'
+  import_json_error: 'Μη έγκυρο JSON: %message%'
+  import_file_too_large: 'Το αρχείο είναι πολύ μεγάλο. Το μέγιστο μέγεθος είναι %max% MiB.'
+  import_done: 'Η εισαγωγή ολοκληρώθηκε: %created% δημιουργήθηκαν, %updated% ενημερώθηκαν, %skipped% παραλείφθηκαν.'
 
 # Form: MenuType
 form:
   menu_type:
     code:
-      label: Code
-      help: "Unique identifier (letters, numbers, _ -). For base menus, code cannot be changed after creation."
-      placeholder: "e.g. sidebar"
+      label: 'Κωδικός'
+      help: 'Μοναδικό αναγνωριστικό (γράμματα, αριθμοί, _ -). Για τα βασικά μενού, ο κωδικός δεν μπορεί να αλλάξει μετά τη δημιουργία.'
+      placeholder: 'π.χ. sidebar'
     base:
-      label: "Base menu"
-      help: "When checked, this menu's code cannot be changed after creation."
+      label: 'Βασικό μενού'
+      help: 'Όταν είναι επιλεγμένο, ο κωδικός αυτού του μενού δεν μπορεί να αλλάξει μετά τη δημιουργία.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar"
+      label: 'Όνομα'
+      placeholder: 'π.χ. Πλευρική στήλη'
     context:
-      label: Context
-      help: "Optional JSON key-value pairs to identify this menu variant. When resolving by code, the first matching menu in the ordered context sets is used; empty = fallback for that code."
+      label: 'Πλαίσιο'
+      help: 'Προαιρετικά ζεύγη κλειδιού-τιμής JSON για την αναγνώριση αυτής της παραλλαγής μενού. Κατά την επίλυση με βάση τον κωδικό, χρησιμοποιείται το πρώτο μενού που ταιριάζει στα ταξινομημένα σύνολα πλαισίου· κενό = εναλλακτική επιλογή για αυτόν τον κωδικό.'
       placeholder: '{"partnerId": 1, "operatorId": 1}'
     icon:
-      label: Icon
-      help: "Optional icon identifier (e.g. Symfony UX Icons: heroicons:home, bootstrap:house)."
-      placeholder: "e.g. heroicons:bars-3, bootstrap:list"
+      label: 'Εικονίδιο'
+      help: 'Προαιρετικό αναγνωριστικό εικονιδίου (π.χ. Symfony UX Icons: heroicons:home, bootstrap:house).'
+      placeholder: 'π.χ. heroicons:bars-3, bootstrap:list'
     permission_checker:
-      label: Permission checker
-      placeholder: "— Allow all —"
-      allow_all: "— Allow all —"
-      help: "Service implementing MenuPermissionCheckerInterface (empty = allow all)."
+      label: 'Έλεγχος δικαιωμάτων'
+      placeholder: '— Να επιτρέπονται όλα —'
+      allow_all: '— Να επιτρέπονται όλα —'
+      permission_key_aware: '— Βάσει κλειδιού δικαιώματος (δομή) —'
+      help: 'Υπηρεσία που υλοποιεί το MenuPermissionCheckerInterface (κενό = να επιτρέπονται όλα).'
     depth_limit:
-      label: Depth limit
-      placeholder: "empty = unlimited"
-      help: "Max depth to render (1 = root only, 2 = root + one level; empty = unlimited)."
+      label: 'Όριο βάθους'
+      placeholder: 'κενό = απεριόριστο'
+      help: 'Μέγιστο βάθος απόδοσης (1 = μόνο ρίζα, 2 = ρίζα + ένα επίπεδο· κενό = απεριόριστο).'
     collapsible:
-      label: "Collapsible (wrap menu in toggle block)"
+      label: 'Πτυσσόμενο (περικλείει το μενού σε μπλοκ εναλλαγής)'
     collapsible_expanded:
-      label: "Collapsible expanded (open by default)"
+      label: 'Πτυσσόμενο αναπτυγμένο (ανοιχτό από προεπιλογή)'
     nested_collapsible:
-      label: "Nested collapsible (items with children have toggle)"
+      label: 'Ένθετο πτυσσόμενο (τα στοιχεία με θυγατρικά έχουν εναλλαγή)'
+    nested_collapsible_sections:
+      label: 'Πτυσσόμενες ενότητες'
+      help: 'Απαιτεί ένθετο πτυσσόμενο. Όταν είναι ενεργοποιημένο, οι γραμμές ενοτήτων εμφανίζουν ένα βέλος στα δεξιά και οι σύνδεσμοί τους μπορούν να συμπτυχθούν. Όταν είναι απενεργοποιημένο, τα θυγατρικά των ενοτήτων παραμένουν πάντα αναπτυγμένα (χωρίς βέλος).'
     class_menu:
-      label: "Class menu (root <ul>)"
-      placeholder: "e.g. nav flex-column"
+      label: 'Κλάση μενού (ριζικό <ul>)'
+      placeholder: 'π.χ. nav flex-column'
+    ul_id:
+      label: 'Id του ul (ριζικό <ul>)'
+      placeholder: 'π.χ. main-menu-navigation'
     class_item:
-      label: "Class item (<li>)"
-      placeholder: "e.g. nav-item"
+      label: 'Κλάση στοιχείου (<li>)'
+      placeholder: 'π.χ. nav-item'
     class_link:
-      label: "Class link (<a>)"
-      placeholder: "e.g. nav-link"
+      label: 'Κλάση συνδέσμου (<a>)'
+      placeholder: 'π.χ. nav-link'
     class_children:
-      label: "Class children (nested <ul>)"
-      placeholder: "e.g. nav flex-column ms-2"
+      label: 'Κλάση θυγατρικών (ένθετο <ul>)'
+      placeholder: 'π.χ. nav flex-column ms-2'
+    class_section_children:
+      label: 'Κλάση θυγατρικών ενότητας (<ul> κάτω από itemType "section")'
+      placeholder: 'π.χ. nav flex-column list-unstyled ps-0 (επίπεδο· κενό = ίδιο με τα θυγατρικά)'
+      help: 'Όταν οριστεί, η λίστα πρώτου επιπέδου κάτω από κάθε ενότητα χρησιμοποιεί αυτές τις κλάσεις αντί για την «Κλάση θυγατρικών», ώστε οι σύνδεσμοι να ευθυγραμμίζονται με τον τίτλο της ενότητας (χωρίς εσοχή). Αφήστε κενό για να συνεχίσει να χρησιμοποιείται η κλάση των ένθετων θυγατρικών.'
+    class_section_child_item:
+      label: 'Κλάση <li> για άμεσα θυγατρικά του itemType "section"'
+      placeholder: 'π.χ. nav-item ms-0 (κενό = ίδιο με την Κλάση στοιχείου)'
+      help: 'Όταν οριστεί, οι σύνδεσμοι και τα διαχωριστικά που είναι άμεσα θυγατρικά μιας ενότητας χρησιμοποιούν αυτήν την τιμή για την κλάση του <li> αντί για την «Κλάση στοιχείου». Χρησιμοποιήστε την για προσαρμογές περιθωρίου/εσωτερικού περιθωρίου σε επίπεδες λίστες ενοτήτων.'
+    class_section_child_link:
+      label: 'Κλάση <a> για άμεσα θυγατρικά του itemType "section"'
+      placeholder: 'π.χ. d-flex align-items-center ps-0 (κενό = ίδιο με την Κλάση συνδέσμου)'
+      help: 'Όταν οριστεί, οι σύνδεσμοι που είναι άμεσα θυγατρικά μιας ενότητας χρησιμοποιούν αυτήν την τιμή για την κλάση του <a> αντί για την «Κλάση συνδέσμου». Συνδυάζεται με το <li> θυγατρικού ενότητας για ευθυγράμμιση.'
+    class_section_label:
+      label: 'Κλάση ετικέτας ενότητας (itemType "section")'
+      placeholder: 'π.χ. navigation-header'
     class_section:
-      label: "Class section (<li> when itemType \"section\")"
-      placeholder: "e.g. menu-section"
+      label: 'Κλάση ενότητας (<li> όταν itemType "section")'
+      placeholder: 'π.χ. menu-section'
     class_divider:
-      label: "Class divider (<li> when itemType \"divider\")"
-      placeholder: "e.g. menu-divider"
+      label: 'Κλάση διαχωριστικού (<li> όταν itemType "divider")'
+      placeholder: 'π.χ. menu-divider'
     class_current:
-      label: "Class current (link matching current route)"
-      placeholder: "e.g. active"
+      label: 'Κλάση τρέχοντος (σύνδεσμος που αντιστοιχεί στην τρέχουσα διαδρομή)'
+      placeholder: 'π.χ. active'
     class_branch_expanded:
-      label: "Class branch expanded (<li> when route in branch)"
-      placeholder: "e.g. active-branch"
+      label: 'Κλάση αναπτυγμένου κλάδου (<li> όταν η διαδρομή είναι στον κλάδο)'
+      placeholder: 'π.χ. active-branch'
     class_has_children:
-      label: "Class has children (<li> when item has children)"
-      placeholder: "e.g. has-children"
+      label: 'Κλάση με θυγατρικά (<li> όταν το στοιχείο έχει θυγατρικά)'
+      placeholder: 'π.χ. has-children'
     class_expanded:
-      label: "Class expanded (<li> when children block is open)"
-      placeholder: "e.g. is-expanded"
+      label: 'Κλάση αναπτυγμένου (<li> όταν το μπλοκ θυγατρικών είναι ανοιχτό)'
+      placeholder: 'π.χ. is-expanded'
     class_collapsed:
-      label: "Class collapsed (<li> when children block is closed)"
-      placeholder: "e.g. is-collapsed"
-    empty_choice: "— Empty —"
-    css_section_heading: "CSS classes for rendering (override config when set)."
+      label: 'Κλάση συμπτυγμένου (<li> όταν το μπλοκ θυγατρικών είναι κλειστό)'
+      placeholder: 'π.χ. is-collapsed'
+    empty_choice: '— Κενό —'
+    css_section_heading: 'Κλάσεις CSS για την απόδοση (υπερισχύουν της διαμόρφωσης όταν ορίζονται).'
+    section_definition: 'Ορισμός (κωδικός, βασικό, όνομα, πλαίσιο, εικονίδιο)'
+    section_config: 'Ρυθμίσεις (δικαιώματα, βάθος, πτυσσόμενο, CSS)'
 
   menu_item_type:
+    section_basic: 'Ταυτότητα (ετικέτες)'
+    section_icon: 'Ταυτότητα (τύπος, θέση, εικονίδιο)'
+    section_config: 'Ρυθμίσεις (σύνδεσμος, δικαίωμα)'
+    label_required: 'Η ετικέτα είναι υποχρεωτική για Σύνδεσμο και Ενότητα.'
     label:
-      label: Label
-    label_locale: "Label (%locale%)"
+      label: 'Ετικέτα'
+    label_locale: 'Ετικέτα (%locale%)'
+    divider_label_hint: 'Προαιρετικό όνομα για αυτό το διαχωριστικό (συνιστάται για την προσβασιμότητα και τη λίστα του πίνακα ελέγχου). Αφήστε το κενό αν χρειάζεστε μόνο οπτικό διαχωριστικό.'
     type:
-      label: Type
-      link: Link
-      section: Section
-      divider: Divider
+      label: 'Τύπος'
+      link: 'Σύνδεσμος'
+      section: 'Ενότητα'
+      divider: 'Διαχωριστικό'
+      service: 'Υπηρεσία (URL κατά την εκτέλεση)'
+    link_resolver:
+      label: 'Επιλυτής συνδέσμων'
+      placeholder: '— Επιλέξτε επιλυτή —'
+      help: 'Επιλέξτε μια υπηρεσία που υλοποιεί το MenuLinkResolverInterface. Μπορεί να επιστρέψει ένα μεμονωμένο URL ή μια λίστα θυγατρικών γραμμών συνδέσμων (label, href, position)· το href του γονικού είναι τότε "#".'
+      service_id_placeholder: 'π.χ. App\Menu\MyLinkResolver'
+      help_free_text: 'Εισαγάγετε το id της υπηρεσίας (όνομα κλάσης ή id του container) που υλοποιεί το MenuLinkResolverInterface.'
+      required: 'Απαιτείται επιλυτής συνδέσμων για τον τύπο στοιχείου «Υπηρεσία».'
+      route_params_hint: 'Προαιρετικό JSON που μεταβιβάζεται στον επιλυτή (για παράδειγμα παράμετροι τύπου διαδρομής).'
     position:
-      label: Position
+      label: 'Θέση'
     link_type:
-      label: Link type
-      route: Route
-      external_url: External URL
+      label: 'Τύπος συνδέσμου'
+      route: 'Διαδρομή'
+      external_url: 'Εξωτερικό URL'
     route_name:
-      label: Route name
-      placeholder: "— Select route —"
+      label: 'Όνομα διαδρομής'
+      placeholder: '— Επιλέξτε διαδρομή —'
     route_params:
-      label: "Route params (JSON)"
-      placeholder: "{}"
+      label: 'Παράμετροι διαδρομής (JSON)'
+      placeholder: '{}'
     external_url:
-      label: External URL
-      placeholder: "https://..."
+      label: 'Εξωτερικό URL'
+      placeholder: 'https://...'
     target_blank:
-      label: Open in new tab
+      label: 'Άνοιγμα σε νέα καρτέλα'
     permission_keys:
-      label: Permission keys
-      placeholder: "— Allow all —"
-      help_csv: "Comma-separated keys (used when no configured choices are available)."
+      label: 'Κλειδιά δικαιωμάτων'
+      placeholder: '— Να επιτρέπονται όλα —'
+      help_csv: 'Κλειδιά διαχωρισμένα με κόμμα (χρησιμοποιούνται όταν δεν υπάρχουν διαθέσιμες ρυθμισμένες επιλογές).'
       choice:
-        authenticated: "Authenticated only"
-        admin: "Admin only"
-        path__: "Path: / (home only)"
+        authenticated: 'Μόνο συνδεδεμένοι χρήστες'
+        admin: 'Μόνο διαχειριστές'
+        path__: 'Διαδρομή: / (μόνο αρχική σελίδα)'
     is_unanimous:
-      label: Require all selected keys
-      help: "Enabled: all keys must pass (AND). Disabled: any key may pass (OR)."
+      label: 'Απαίτηση όλων των επιλεγμένων κλειδιών'
+      help: 'Ενεργοποιημένο: όλα τα κλειδιά πρέπει να ικανοποιούνται (AND). Απενεργοποιημένο: αρκεί οποιοδήποτε κλειδί (OR).'
     icon:
-      label: Icon
-      placeholder: "heroicons:home"
+      label: 'Εικονίδιο'
+      placeholder: 'heroicons:home'
     parent:
-      label: Parent
-      placeholder: "— Root (no parent) —"
+      label: 'Γονικό'
+      placeholder: '— Ρίζα (χωρίς γονικό) —'
+      help_inheritance: 'Τα γονικά στοιχεία βρίσκονται πάνω από αυτό στο δέντρο. Τα κλειδιά δικαιωμάτων αυτής της γραμμής ισχύουν για αυτό το στοιχείο· ο MenuPermissionChecker σας αποφασίζει πώς συνδυάζονται οι κανόνες γονικού/θυγατρικού. Οι ενότητες και οι αναπτυσσόμενοι σύνδεσμοι αποδίδονται μόνο όταν εμφανίζεται τουλάχιστον ένα θυγατρικό.'
+      circular_violation: 'Δεν επιτρέπεται κυκλική ιεραρχία γονικών.'
+      section_must_be_root: 'Τα στοιχεία ενότητας πρέπει να παραμένουν στο ριζικό επίπεδο (χωρίς γονικό).'
+    section_collapsible:
+      label: 'Πτυσσόμενα θυγατρικά ενότητας'
+      inherit: 'Χρήση προεπιλογής μενού'
+      yes: 'Ναι (πτυσσόμενο με βέλος)'
+      no: 'Όχι (πάντα αναπτυγμένο)'
+      help: 'Παρακάμπτει την επιλογή μενού «Πτυσσόμενες ενότητες» μόνο για αυτήν την ενότητα. Η «Χρήση προεπιλογής μενού» ακολουθεί τη διαμόρφωση του μενού.'
 
   import_menu_type:
     file:
-      label: JSON file
-      required: Please choose a file.
-      mime_message: File must be JSON.
+      label: 'Αρχείο JSON'
+      required: 'Επιλέξτε ένα αρχείο.'
+      mime_message: 'Το αρχείο πρέπει να είναι JSON.'
     strategy:
-      label: When a menu with the same code and context already exists
-      skip_existing: Skip (do not import)
-      replace: Replace (delete existing items and import)
+      label: 'Όταν υπάρχει ήδη μενού με τον ίδιο κωδικό και πλαίσιο'
+      skip_existing: 'Παράλειψη (χωρίς εισαγωγή)'
+      replace: 'Αντικατάσταση (διαγραφή υπαρχόντων στοιχείων και εισαγωγή)'
 
   copy_menu_type:
     code:
-      label: Code
-      placeholder: "e.g. sidebar_copy"
-      regex_message: "Code must contain only letters, numbers, underscore and hyphen."
+      label: 'Κωδικός'
+      placeholder: 'π.χ. sidebar_copy'
+      regex_message: 'Ο κωδικός πρέπει να περιέχει μόνο γράμματα, αριθμούς, κάτω παύλα και ενωτικό.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar (copy)"
+      label: 'Όνομα'
+      placeholder: 'π.χ. Πλευρική στήλη (αντίγραφο)'

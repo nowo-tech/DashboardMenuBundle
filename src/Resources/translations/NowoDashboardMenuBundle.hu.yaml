@@ -2,220 +2,292 @@
 
 # Dashboard UI
 dashboard:
-  title: Menu dashboard
-  title_suffix: Dashboard Menu
-  menus: Menus
-  menu: Menu
-  menus_back: "← Menus"
-  new_menu: New menu
-  edit_menu: Edit menu
-  edit_item: Edit item
-  edit_items: Edit items
-  copy: Copy
-  copy_menu: Copy menu
-  copy_menu_help: "Copy menu and all its items. You can change the code and name for the new menu."
-  delete: Delete
-  cancel: Cancel
-  close: Close
-  confirm_delete: Confirm delete
-  delete_menu_confirm: 'Delete menu "%name%" and all its items?'
-  delete_menu_message: Delete this menu and all its items?
-  delete_item_confirm: 'Delete "%name%" and its children?'
-  delete_item_message: Delete this item and its children?
-  add_item: Add item
-  new_item: New item
-  add_one: Add one
-  add_child: Add child
-  search: Search
-  search_placeholder: "Search by code or name…"
-  clear: Clear
-  filter: Filter
-  clear_filters: Clear filters
-  no_menus_yet: "No menus yet. Create one to get started."
-  no_items: No items.
-  context: Context
-  parent: Parent
-  route_url: "Route / URL"
-  item: Item
-  actions: Actions
-  first: First
-  last: Last
-  move_up: Move up
-  move_down: Move down
-  edit: Edit
-  create: Create
-  update: Update
-  loading: "Loading…"
-  error_loading_form: Error loading form.
-  previous: Previous
-  next: Next
-  pagination_menus: Menus pagination
-  showing_from_to_of_total: "Showing %from%-%to% of %total%"
-  depth_limit: Depth limit
-  permission_checker: Permission checker
-  collapsible: Collapsible
-  collapsible_expanded: Collapsible expanded
-  nested_collapsible: Nested collapsible
-  css_classes: CSS classes
-  root: "— Root —"
-  no_label: "(no label)"
+  title: 'Menükezelő'
+  title_suffix: 'Menükezelő'
+  menus: 'Menük'
+  menu: 'Menü'
+  menus_back: '← Menük'
+  new_menu: 'Új menü'
+  edit_menu: 'Menü szerkesztése'
+  edit_item: 'Elem szerkesztése'
+  edit_items: 'Elemek szerkesztése'
+  edit_identity: 'Szerkesztés (ikon, felirat, típus)'
+  edit_labels: 'Felirat és fordítások szerkesztése'
+  edit_type_position_icon: 'Típus, pozíció és ikon szerkesztése'
+  edit_config: 'Beállítások szerkesztése (szülő, hivatkozás, jogosultságok)'
+  copy: 'Másolás'
+  copy_menu: 'Menü másolása'
+  copy_menu_help: 'A menü és összes elemének másolása. Az új menü kódja és neve módosítható.'
+  delete: 'Törlés'
+  cancel: 'Mégse'
+  close: 'Bezárás'
+  confirm_delete: 'Törlés megerősítése'
+  delete_menu_confirm: 'Törli a(z) „%name%” menüt és annak összes elemét?'
+  delete_menu_message: 'Törli ezt a menüt és annak összes elemét?'
+  delete_item_confirm: 'Törli a(z) „%name%” elemet és a gyermekelemeit?'
+  delete_item_message: 'Törli ezt az elemet és a gyermekelemeit?'
+  add_item: 'Elem hozzáadása'
+  new_item: 'Új elem'
+  add_one: 'Hozzon létre egyet'
+  add_child: 'Gyermekelem hozzáadása'
+  add_child_disabled: 'A szakasz és elválasztó elemeknek nem lehetnek gyermekelemei'
+  search: 'Keresés'
+  search_placeholder: 'Keresés kód vagy név alapján…'
+  clear: 'Törlés'
+  filter: 'Szűrés'
+  clear_filters: 'Szűrők törlése'
+  no_menus_yet: 'Még nincsenek menük. Hozzon létre egyet a kezdéshez.'
+  no_items: 'Nincsenek elemek.'
+  context: 'Környezet'
+  parent: 'Szülő'
+  route_url: 'Útvonal / URL'
+  item: 'Elem'
+  actions: 'Műveletek'
+  first: 'Első'
+  last: 'Utolsó'
+  move_up: 'Mozgatás felfelé'
+  move_down: 'Mozgatás lefelé'
+  reindex_positions: 'Pozíciók újraszámozása (lépésköz: %step%)'
+  reindex_positions_title: 'A pozíciók újrakiosztása %step% lépésközzel minden szülőcsoporton belül (a sorrend megmarad).'
+  reindex_positions_done: 'A pozíciók újraszámozva %step% lépésközzel.'
+  reindex_positions_unchanged: 'Nem volt szükség pozícióváltoztatásra.'
+  check_parent_cycles: 'Szülőkörök ellenőrzése'
+  check_parent_cycles_title: 'Annak ellenőrzése, hogy a szülőláncban nincsenek végtelen hurkok (ugyanazon menüben).'
+  check_parent_cycles_ok: 'Nem található körkörös szülőhivatkozás.'
+  check_parent_cycles_loop: 'Körkörös szülőlánc észlelve: %chain%'
+  sortable_page_heading: 'Átrendezés húzással'
+  open_sortable_reorder: 'Átrendezés (húzás)'
+  back_to_items_table: 'Táblázatnézet'
+  sortable_title: 'Húzza az átrendezéshez'
+  sortable_help: 'Húzza az elemeket a fogantyúnál fogva az átrendezéshez, egy szülő alá helyezéshez vagy másik szintre mozgatáshoz. Ezután a mentéshez alkalmazza a módosításokat.'
+  sortable_apply: 'Fa sorrendjének alkalmazása'
+  sortable_drag_handle: 'Húzza az átrendezéshez'
+  reorder_tree_done: 'A menüfa frissítve.'
+  reorder_tree_invalid_json: 'Érvénytelen fa adatok (JSON).'
+  reorder_tree_invalid_payload: 'Érvénytelen fa adatcsomag.'
+  reorder_tree_invalid_layout: 'A fa nem alkalmazható (kör, mélységkorlát vagy hiányzó elemek).'
+  reorder_tree_section_not_root: 'A szakaszoknak gyökérszinten kell maradniuk. Helyezze ki a szakaszt a beágyazott listákból, majd alkalmazza újra.'
+  edit: 'Szerkesztés'
+  create: 'Létrehozás'
+  update: 'Frissítés'
+  loading: 'Betöltés…'
+  error_loading_form: 'Hiba az űrlap betöltésekor.'
+  previous: 'Előző'
+  next: 'Következő'
+  pagination_menus: 'Menük lapozása'
+  showing_from_to_of_total: '%from%–%to% megjelenítve, összesen: %total%'
+  depth_limit: 'Mélységkorlát'
+  permission_checker: 'Jogosultság-ellenőrző'
+  collapsible: 'Összecsukható'
+  collapsible_expanded: 'Összecsukható, kibontva'
+  nested_collapsible: 'Beágyazott összecsukható'
+  css_classes: 'CSS-osztályok'
+  root: '— Gyökér —'
+  no_label: '(nincs felirat)'
   # 2.3.0 — admin chrome (index table view, item permission badges)
-  table_code: "Kód"
-  table_name: "Név"
-  table_items: "Elemek"
-  table_context: "Környezet"
-  no_permission_keys: "Nincsenek jogosultsági kulcsok"
-  unanimous: "Egyhangú"
-  non_unanimous: "Nem egyhangú"
-  position_short: "Poz."
-  unique_code_context_error: A menu with this code and context already exists.
-  base: Base
-  base_badge_title: "Base menu: code cannot be changed after creation."
-  toggle: Toggle
-  yes: Yes
-  no: No
-  export: Export
-  export_all: Export all menus
-  import: Import
-  import_help: "Upload a JSON file exported from this dashboard (one menu or all menus). Choose whether to skip menus that already exist (same code + context) or replace their items."
-  import_json_invalid: Invalid JSON file.
-  import_json_error: "Invalid JSON: %message%"
-  import_file_too_large: "File is too large. Maximum size is %max% MiB."
-  import_done: "Import complete: %created% created, %updated% updated, %skipped% skipped."
-  import_format_invalid_root_array: 'Invalid format: a root JSON array must contain only objects with "menu" and "items". You can also use {"menus": [...]} or {"menu": {...}, "items": [...]}.'
-  import_format_expected: 'Invalid format: expected "menu" + "items", or "menus", or a root array of menu blocks.'
+  table_code: 'Kód'
+  table_name: 'Név'
+  table_items: 'Elemek'
+  table_context: 'Környezet'
+  no_permission_keys: 'Nincsenek jogosultságkulcsok'
+  unanimous: 'Egyhangú'
+  non_unanimous: 'Nem egyhangú'
+  position_short: 'Poz.'
+  unique_code_context_error: 'Már létezik menü ezzel a kóddal és környezettel.'
+  base: 'Alap'
+  base_badge_title: 'Alapmenü: a kód a létrehozás után nem módosítható.'
+  toggle: 'Váltás'
+  yes: 'Igen'
+  no: 'Nem'
+  export: 'Exportálás'
+  export_all: 'Összes menü exportálása'
+  import: 'Importálás'
+  import_help: 'Töltsön fel egy ebből a kezelőfelületből exportált JSON-fájlt. Elfogadott formátumok: egyetlen menü {"menu": {...}, "items": [...]}, több menü {"menus": [{...}, ...]}, vagy ugyanez a lista gyökérszintű JSON-tömbként [{"menu": {...}, "items": [...]}, ...]. Válassza ki, hogy a már létező menüket (azonos kód + környezet) kihagyja-e, vagy lecseréli-e az elemeiket.'
+  import_format_invalid_root_array: 'Érvénytelen formátum: a gyökérszintű JSON-tömb csak "menu" és "items" mezőket tartalmazó objektumokat tartalmazhat. Használható a {"menus": [...]} vagy a {"menu": {...}, "items": [...]} formátum is.'
+  import_format_expected: 'Érvénytelen formátum: "menu" + "items", "menus", vagy menüblokkok gyökérszintű tömbje szükséges.'
+  import_json_invalid: 'Érvénytelen JSON-fájl.'
+  import_json_error: 'Érvénytelen JSON: %message%'
+  import_file_too_large: 'A fájl túl nagy. A maximális méret %max% MiB.'
+  import_done: 'Az importálás befejeződött: %created% létrehozva, %updated% frissítve, %skipped% kihagyva.'
 
 # Form: MenuType
 form:
   menu_type:
     code:
-      label: Code
-      help: "Unique identifier (letters, numbers, _ -). For base menus, code cannot be changed after creation."
-      placeholder: "e.g. sidebar"
+      label: 'Kód'
+      help: 'Egyedi azonosító (betűk, számok, _ -). Alapmenük esetén a kód a létrehozás után nem módosítható.'
+      placeholder: 'pl. sidebar'
     base:
-      label: "Base menu"
-      help: "When checked, this menu's code cannot be changed after creation."
+      label: 'Alapmenü'
+      help: 'Ha be van jelölve, a menü kódja a létrehozás után nem módosítható.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar"
+      label: 'Név'
+      placeholder: 'pl. Oldalsáv'
     context:
-      label: Context
-      help: "Optional JSON key-value pairs to identify this menu variant. When resolving by code, the first matching menu in the ordered context sets is used; empty = fallback for that code."
+      label: 'Környezet'
+      help: 'Opcionális JSON kulcs-érték párok a menüváltozat azonosításához. Kód alapján történő feloldáskor a rendezett környezeti halmazok közül az első egyező menü kerül felhasználásra; üres = tartalék az adott kódhoz.'
       placeholder: '{"partnerId": 1, "operatorId": 1}'
     icon:
-      label: Icon
-      help: "Optional icon identifier (e.g. Symfony UX Icons: heroicons:home, bootstrap:house)."
-      placeholder: "e.g. heroicons:bars-3, bootstrap:list"
+      label: 'Ikon'
+      help: 'Opcionális ikonazonosító (pl. Symfony UX Icons: heroicons:home, bootstrap:house).'
+      placeholder: 'pl. heroicons:bars-3, bootstrap:list'
     permission_checker:
-      label: Permission checker
-      placeholder: "— Allow all —"
-      allow_all: "— Allow all —"
-      help: "Service implementing MenuPermissionCheckerInterface (empty = allow all)."
+      label: 'Jogosultság-ellenőrző'
+      placeholder: '— Minden engedélyezése —'
+      allow_all: '— Minden engedélyezése —'
+      permission_key_aware: '— Jogosultságkulcs alapján (struktúra) —'
+      help: 'A MenuPermissionCheckerInterface interfészt megvalósító szolgáltatás (üres = minden engedélyezése).'
     depth_limit:
-      label: Depth limit
-      placeholder: "empty = unlimited"
-      help: "Max depth to render (1 = root only, 2 = root + one level; empty = unlimited)."
+      label: 'Mélységkorlát'
+      placeholder: 'üres = korlátlan'
+      help: 'Megjelenítendő maximális mélység (1 = csak gyökér, 2 = gyökér + egy szint; üres = korlátlan).'
     collapsible:
-      label: "Collapsible (wrap menu in toggle block)"
+      label: 'Összecsukható (a menü lenyitható blokkba kerül)'
     collapsible_expanded:
-      label: "Collapsible expanded (open by default)"
+      label: 'Összecsukható, kibontva (alapértelmezetten nyitva)'
     nested_collapsible:
-      label: "Nested collapsible (items with children have toggle)"
+      label: 'Beágyazott összecsukható (a gyermekelemmel rendelkező elemek lenyithatók)'
+    nested_collapsible_sections:
+      label: 'Összecsukható szakaszok'
+      help: 'Beágyazott összecsukhatóságot igényel. Bekapcsolva a szakaszsorok jobb oldalán nyíl jelenik meg, és a hivatkozásaik összecsukhatók. Kikapcsolva a szakaszok gyermekelemei mindig kibontva maradnak (nyíl nélkül).'
     class_menu:
-      label: "Class menu (root <ul>)"
-      placeholder: "e.g. nav flex-column"
+      label: 'Menü osztálya (gyökér <ul>)'
+      placeholder: 'pl. nav flex-column'
+    ul_id:
+      label: 'Ul azonosító (gyökér <ul>)'
+      placeholder: 'pl. main-menu-navigation'
     class_item:
-      label: "Class item (<li>)"
-      placeholder: "e.g. nav-item"
+      label: 'Elem osztálya (<li>)'
+      placeholder: 'pl. nav-item'
     class_link:
-      label: "Class link (<a>)"
-      placeholder: "e.g. nav-link"
+      label: 'Hivatkozás osztálya (<a>)'
+      placeholder: 'pl. nav-link'
     class_children:
-      label: "Class children (nested <ul>)"
-      placeholder: "e.g. nav flex-column ms-2"
+      label: 'Gyermekelemek osztálya (beágyazott <ul>)'
+      placeholder: 'pl. nav flex-column ms-2'
+    class_section_children:
+      label: 'Szakasz gyermekelemeinek osztálya (<ul> az itemType "section" alatt)'
+      placeholder: 'pl. nav flex-column list-unstyled ps-0 (lapos; üres = ugyanaz, mint a gyermekelemeknél)'
+      help: 'Ha meg van adva, az egyes szakaszok alatti első szintű lista ezeket az osztályokat használja a „Gyermekelemek osztálya” helyett, így a hivatkozások a szakasz címéhez igazodhatnak (behúzás nélkül). Hagyja üresen, ha továbbra is a beágyazott gyermekelemek osztályát szeretné használni.'
+    class_section_child_item:
+      label: '<li> osztály az itemType "section" közvetlen gyermekelemeihez'
+      placeholder: 'pl. nav-item ms-0 (üres = ugyanaz, mint az Elem osztálya)'
+      help: 'Ha meg van adva, a szakasz közvetlen gyermekelemeiként szereplő hivatkozások és elválasztók ezt használják <li> osztályként az „Elem osztálya” helyett. Lapos szakaszlisták margó- és kitöltésfinomítására használható.'
+    class_section_child_link:
+      label: '<a> osztály az itemType "section" közvetlen gyermekelemeihez'
+      placeholder: 'pl. d-flex align-items-center ps-0 (üres = ugyanaz, mint a Hivatkozás osztálya)'
+      help: 'Ha meg van adva, a szakasz közvetlen gyermekelemeiként szereplő hivatkozások ezt használják <a> osztályként a „Hivatkozás osztálya” helyett. Az igazításhoz a szakasz gyermekelemének <li> osztályával együtt használható.'
+    class_section_label:
+      label: 'Szakaszfelirat osztálya (itemType "section")'
+      placeholder: 'pl. navigation-header'
     class_section:
-      label: "Class section (<li> when itemType \"section\")"
-      placeholder: "e.g. menu-section"
+      label: 'Szakasz osztálya (<li>, ha itemType "section")'
+      placeholder: 'pl. menu-section'
     class_divider:
-      label: "Class divider (<li> when itemType \"divider\")"
-      placeholder: "e.g. menu-divider"
+      label: 'Elválasztó osztálya (<li>, ha itemType "divider")'
+      placeholder: 'pl. menu-divider'
     class_current:
-      label: "Class current (link matching current route)"
-      placeholder: "e.g. active"
+      label: 'Aktuális elem osztálya (az aktuális útvonalnak megfelelő hivatkozás)'
+      placeholder: 'pl. active'
     class_branch_expanded:
-      label: "Class branch expanded (<li> when route in branch)"
-      placeholder: "e.g. active-branch"
+      label: 'Kibontott ág osztálya (<li>, ha az útvonal az ágban van)'
+      placeholder: 'pl. active-branch'
     class_has_children:
-      label: "Class has children (<li> when item has children)"
-      placeholder: "e.g. has-children"
+      label: 'Gyermekelemes osztály (<li>, ha az elemnek vannak gyermekelemei)'
+      placeholder: 'pl. has-children'
     class_expanded:
-      label: "Class expanded (<li> when children block is open)"
-      placeholder: "e.g. is-expanded"
+      label: 'Kibontott osztály (<li>, ha a gyermekblokk nyitva van)'
+      placeholder: 'pl. is-expanded'
     class_collapsed:
-      label: "Class collapsed (<li> when children block is closed)"
-      placeholder: "e.g. is-collapsed"
-    empty_choice: "— Empty —"
-    css_section_heading: "CSS classes for rendering (override config when set)."
+      label: 'Összecsukott osztály (<li>, ha a gyermekblokk zárva van)'
+      placeholder: 'pl. is-collapsed'
+    empty_choice: '— Üres —'
+    css_section_heading: 'CSS-osztályok a megjelenítéshez (megadás esetén felülírják a konfigurációt).'
+    section_definition: 'Meghatározás (kód, alap, név, környezet, ikon)'
+    section_config: 'Beállítások (jogosultságok, mélység, összecsukhatóság, CSS)'
 
   menu_item_type:
+    section_basic: 'Azonosítás (feliratok)'
+    section_icon: 'Azonosítás (típus, pozíció, ikon)'
+    section_config: 'Beállítások (hivatkozás, jogosultság)'
+    label_required: 'Hivatkozás és Szakasz esetén a felirat megadása kötelező.'
     label:
-      label: Label
-    label_locale: "Label (%locale%)"
+      label: 'Felirat'
+    label_locale: 'Felirat (%locale%)'
+    divider_label_hint: 'Opcionális név ehhez az elválasztóhoz (az akadálymentesség és a kezelőfelület listája miatt ajánlott). Hagyja üresen, ha csak vizuális elválasztóra van szükség.'
     type:
-      label: Type
-      link: Link
-      section: Section
-      divider: Divider
+      label: 'Típus'
+      link: 'Hivatkozás'
+      section: 'Szakasz'
+      divider: 'Elválasztó'
+      service: 'Szolgáltatás (futásidejű URL)'
+    link_resolver:
+      label: 'Hivatkozásfeloldó'
+      placeholder: '— Válasszon feloldót —'
+      help: 'Válasszon egy szolgáltatást, amely megvalósítja a MenuLinkResolverInterface interfészt. Visszaadhat egyetlen URL-t vagy gyermekhivatkozás-sorok listáját (label, href, position); ekkor a szülő href értéke "#".'
+      service_id_placeholder: 'pl. App\Menu\MyLinkResolver'
+      help_free_text: 'Adja meg a MenuLinkResolverInterface interfészt megvalósító szolgáltatás azonosítóját (osztálynév vagy konténerazonosító).'
+      required: 'A „Szolgáltatás” elemtípushoz hivatkozásfeloldó szükséges.'
+      route_params_hint: 'A feloldónak átadott opcionális JSON (például útvonalszerű paraméterek).'
     position:
-      label: Position
+      label: 'Pozíció'
     link_type:
-      label: Link type
-      route: Route
-      external_url: External URL
+      label: 'Hivatkozás típusa'
+      route: 'Útvonal'
+      external_url: 'Külső URL'
     route_name:
-      label: Route name
-      placeholder: "— Select route —"
+      label: 'Útvonal neve'
+      placeholder: '— Válasszon útvonalat —'
     route_params:
-      label: "Route params (JSON)"
-      placeholder: "{}"
+      label: 'Útvonal paraméterei (JSON)'
+      placeholder: '{}'
     external_url:
-      label: External URL
-      placeholder: "https://..."
+      label: 'Külső URL'
+      placeholder: 'https://...'
     target_blank:
-      label: Open in new tab
+      label: 'Megnyitás új lapon'
     permission_keys:
-      label: Permission keys
-      placeholder: "— Allow all —"
-      help_csv: "Comma-separated keys (used when no configured choices are available)."
+      label: 'Jogosultságkulcsok'
+      placeholder: '— Minden engedélyezése —'
+      help_csv: 'Vesszővel elválasztott kulcsok (akkor használatos, ha nincsenek beállított választási lehetőségek).'
       choice:
-        authenticated: "Authenticated only"
-        admin: "Admin only"
-        path__: "Path: / (home only)"
+        authenticated: 'Csak bejelentkezett felhasználók'
+        admin: 'Csak adminisztrátorok'
+        path__: 'Útvonal: / (csak kezdőlap)'
     is_unanimous:
-      label: Require all selected keys
-      help: "Enabled: all keys must pass (AND). Disabled: any key may pass (OR)."
+      label: 'Az összes kiválasztott kulcs megkövetelése'
+      help: 'Bekapcsolva: minden kulcsnak teljesülnie kell (AND). Kikapcsolva: bármelyik kulcs elegendő (OR).'
     icon:
-      label: Icon
-      placeholder: "heroicons:home"
+      label: 'Ikon'
+      placeholder: 'heroicons:home'
     parent:
-      label: Parent
-      placeholder: "— Root (no parent) —"
+      label: 'Szülő'
+      placeholder: '— Gyökér (nincs szülő) —'
+      help_inheritance: 'A szülőelemek a fában ezen elem felett helyezkednek el. Az ebben a sorban megadott jogosultságkulcsok erre az elemre vonatkoznak; a MenuPermissionChecker megvalósítása dönti el, hogyan kombinálódnak a szülő- és gyermekszabályok. A szakaszok és a kibontható hivatkozások csak akkor jelennek meg, ha legalább egy gyermekelem látható.'
+      circular_violation: 'Körkörös szülőhierarchia nem engedélyezett.'
+      section_must_be_root: 'A szakaszelemeknek gyökérszinten kell maradniuk (szülő nélkül).'
+    section_collapsible:
+      label: 'A szakasz gyermekelemei összecsukhatók'
+      inherit: 'A menü alapértelmezésének használata'
+      yes: 'Igen (összecsukható nyíllal)'
+      no: 'Nem (mindig kibontva)'
+      help: 'Csak ennél a szakasznál felülírja a menü „Összecsukható szakaszok” beállítását. „A menü alapértelmezésének használata” a menü konfigurációját követi.'
 
   import_menu_type:
     file:
-      label: JSON file
-      required: Please choose a file.
-      mime_message: File must be JSON.
+      label: 'JSON-fájl'
+      required: 'Kérjük, válasszon egy fájlt.'
+      mime_message: 'A fájlnak JSON formátumúnak kell lennie.'
     strategy:
-      label: When a menu with the same code and context already exists
-      skip_existing: Skip (do not import)
-      replace: Replace (delete existing items and import)
+      label: 'Ha már létezik menü azonos kóddal és környezettel'
+      skip_existing: 'Kihagyás (nincs importálás)'
+      replace: 'Csere (a meglévő elemek törlése és importálás)'
 
   copy_menu_type:
     code:
-      label: Code
-      placeholder: "e.g. sidebar_copy"
-      regex_message: "Code must contain only letters, numbers, underscore and hyphen."
+      label: 'Kód'
+      placeholder: 'pl. sidebar_copy'
+      regex_message: 'A kód csak betűket, számokat, aláhúzásjelet és kötőjelet tartalmazhat.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar (copy)"
+      label: 'Név'
+      placeholder: 'pl. Oldalsáv (másolat)'

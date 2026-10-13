@@ -2,220 +2,292 @@
 
 # Dashboard UI
 dashboard:
-  title: Menu dashboard
-  title_suffix: Dashboard Menu
-  menus: Menus
-  menu: Menu
-  menus_back: "← Menus"
-  new_menu: New menu
-  edit_menu: Edit menu
-  edit_item: Edit item
-  edit_items: Edit items
-  copy: Copy
-  copy_menu: Copy menu
-  copy_menu_help: "Copy menu and all its items. You can change the code and name for the new menu."
-  delete: Delete
-  cancel: Cancel
-  close: Close
-  confirm_delete: Confirm delete
-  delete_menu_confirm: 'Delete menu "%name%" and all its items?'
-  delete_menu_message: Delete this menu and all its items?
-  delete_item_confirm: 'Delete "%name%" and its children?'
-  delete_item_message: Delete this item and its children?
-  add_item: Add item
-  new_item: New item
-  add_one: Add one
-  add_child: Add child
-  search: Search
-  search_placeholder: "Search by code or name…"
-  clear: Clear
-  filter: Filter
-  clear_filters: Clear filters
-  no_menus_yet: "No menus yet. Create one to get started."
-  no_items: No items.
-  context: Context
-  parent: Parent
-  route_url: "Route / URL"
-  item: Item
-  actions: Actions
-  first: First
-  last: Last
-  move_up: Move up
-  move_down: Move down
-  edit: Edit
-  create: Create
-  update: Update
-  loading: "Loading…"
-  error_loading_form: Error loading form.
-  previous: Previous
-  next: Next
-  pagination_menus: Menus pagination
-  showing_from_to_of_total: "Showing %from%-%to% of %total%"
-  depth_limit: Depth limit
-  permission_checker: Permission checker
-  collapsible: Collapsible
-  collapsible_expanded: Collapsible expanded
-  nested_collapsible: Nested collapsible
-  css_classes: CSS classes
-  root: "— Root —"
-  no_label: "(no label)"
+  title: 'Панель меню'
+  title_suffix: 'Панель меню'
+  menus: 'Меню'
+  menu: 'Меню'
+  menus_back: '← К списку меню'
+  new_menu: 'Новое меню'
+  edit_menu: 'Редактировать меню'
+  edit_item: 'Редактировать пункт'
+  edit_items: 'Редактировать пункты'
+  edit_identity: 'Редактировать (иконка, подпись, тип)'
+  edit_labels: 'Редактировать подпись и переводы'
+  edit_type_position_icon: 'Редактировать тип, позицию и иконку'
+  edit_config: 'Редактировать настройки (родитель, ссылка, права)'
+  copy: 'Копировать'
+  copy_menu: 'Копировать меню'
+  copy_menu_help: 'Копирует меню вместе со всеми пунктами. Для нового меню можно изменить код и название.'
+  delete: 'Удалить'
+  cancel: 'Отмена'
+  close: 'Закрыть'
+  confirm_delete: 'Подтвердите удаление'
+  delete_menu_confirm: 'Удалить меню «%name%» и все его пункты?'
+  delete_menu_message: 'Удалить это меню и все его пункты?'
+  delete_item_confirm: 'Удалить «%name%» и его дочерние пункты?'
+  delete_item_message: 'Удалить этот пункт и его дочерние пункты?'
+  add_item: 'Добавить пункт'
+  new_item: 'Новый пункт'
+  add_one: 'Добавить'
+  add_child: 'Добавить дочерний'
+  add_child_disabled: 'Разделы и разделители не могут иметь дочерних пунктов'
+  search: 'Поиск'
+  search_placeholder: 'Поиск по коду или названию…'
+  clear: 'Очистить'
+  filter: 'Фильтр'
+  clear_filters: 'Сбросить фильтры'
+  no_menus_yet: 'Меню пока нет. Создайте первое, чтобы начать.'
+  no_items: 'Нет пунктов.'
+  context: 'Контекст'
+  parent: 'Родитель'
+  route_url: 'Маршрут / URL'
+  item: 'Пункт'
+  actions: 'Действия'
+  first: 'Первый'
+  last: 'Последний'
+  move_up: 'Переместить вверх'
+  move_down: 'Переместить вниз'
+  reindex_positions: 'Пересчитать позиции (шаг %step%)'
+  reindex_positions_title: 'Переназначает позиции с шагом %step% внутри каждой родительской группы (порядок сохраняется).'
+  reindex_positions_done: 'Позиции пересчитаны с шагом %step%.'
+  reindex_positions_unchanged: 'Изменение позиций не потребовалось.'
+  check_parent_cycles: 'Проверить циклы родителей'
+  check_parent_cycles_title: 'Проверяет, что цепочка родителей не содержит бесконечных циклов (в пределах одного меню).'
+  check_parent_cycles_ok: 'Циклических ссылок на родителей не найдено.'
+  check_parent_cycles_loop: 'Обнаружена циклическая цепочка родителей: %chain%'
+  sortable_page_heading: 'Сортировка перетаскиванием'
+  open_sortable_reorder: 'Изменить порядок (перетаскивание)'
+  back_to_items_table: 'Табличный вид'
+  sortable_title: 'Перетащите для изменения порядка'
+  sortable_help: 'Перетаскивайте пункты за маркер, чтобы изменить порядок, вложить их в родительский пункт или перенести на другой уровень. Затем нажмите «Применить», чтобы сохранить.'
+  sortable_apply: 'Применить порядок дерева'
+  sortable_drag_handle: 'Перетащите для изменения порядка'
+  reorder_tree_done: 'Дерево меню обновлено.'
+  reorder_tree_invalid_json: 'Некорректные данные дерева (JSON).'
+  reorder_tree_invalid_payload: 'Некорректное содержимое дерева.'
+  reorder_tree_invalid_layout: 'Не удалось применить дерево (цикл, превышение лимита глубины или отсутствующие пункты).'
+  reorder_tree_section_not_root: 'Разделы должны оставаться на корневом уровне. Выведите раздел из вложенных списков и примените снова.'
+  edit: 'Редактировать'
+  create: 'Создать'
+  update: 'Обновить'
+  loading: 'Загрузка…'
+  error_loading_form: 'Ошибка загрузки формы.'
+  previous: 'Назад'
+  next: 'Далее'
+  pagination_menus: 'Постраничная навигация по меню'
+  showing_from_to_of_total: 'Показано %from%-%to% из %total%'
+  depth_limit: 'Лимит глубины'
+  permission_checker: 'Проверка прав'
+  collapsible: 'Сворачиваемое'
+  collapsible_expanded: 'Сворачиваемое, развёрнуто'
+  nested_collapsible: 'Вложенное сворачивание'
+  css_classes: 'CSS-классы'
+  root: '— Корень —'
+  no_label: '(без подписи)'
   # 2.3.0 — admin chrome (index table view, item permission badges)
-  table_code: "Код"
-  table_name: "Название"
-  table_items: "Элементы"
-  table_context: "Контекст"
-  no_permission_keys: "Нет ключей доступа"
-  unanimous: "Единогласно"
-  non_unanimous: "Не единогласно"
-  position_short: "Поз."
-  unique_code_context_error: A menu with this code and context already exists.
-  base: Base
-  base_badge_title: "Base menu: code cannot be changed after creation."
-  toggle: Toggle
-  yes: Yes
-  no: No
-  export: Export
-  export_all: Export all menus
-  import: Import
-  import_help: "Upload a JSON file exported from this dashboard (one menu or all menus). Choose whether to skip menus that already exist (same code + context) or replace their items."
-  import_json_invalid: Invalid JSON file.
-  import_json_error: "Invalid JSON: %message%"
-  import_file_too_large: "File is too large. Maximum size is %max% MiB."
-  import_done: "Import complete: %created% created, %updated% updated, %skipped% skipped."
-  import_format_invalid_root_array: 'Invalid format: a root JSON array must contain only objects with "menu" and "items". You can also use {"menus": [...]} or {"menu": {...}, "items": [...]}.'
-  import_format_expected: 'Invalid format: expected "menu" + "items", or "menus", or a root array of menu blocks.'
+  table_code: 'Код'
+  table_name: 'Название'
+  table_items: 'Пункты'
+  table_context: 'Контекст'
+  no_permission_keys: 'Нет ключей прав'
+  unanimous: 'Все ключи'
+  non_unanimous: 'Любой ключ'
+  position_short: 'Поз.'
+  unique_code_context_error: 'Меню с таким кодом и контекстом уже существует.'
+  base: 'Базовое'
+  base_badge_title: 'Базовое меню: код нельзя изменить после создания.'
+  toggle: 'Переключить'
+  yes: 'Да'
+  no: 'Нет'
+  export: 'Экспорт'
+  export_all: 'Экспортировать все меню'
+  import: 'Импорт'
+  import_help: 'Загрузите JSON-файл, экспортированный из этой панели. Допустимые форматы: одно меню {"menu": {...}, "items": [...]}, несколько меню {"menus": [{...}, ...]} или тот же список в виде корневого JSON-массива [{"menu": {...}, "items": [...]}, ...]. Выберите, пропускать ли уже существующие меню (тот же код + контекст) или заменять их пункты.'
+  import_format_invalid_root_array: 'Неверный формат: корневой JSON-массив должен содержать только объекты с "menu" и "items". Также можно использовать {"menus": [...]} или {"menu": {...}, "items": [...]}.'
+  import_format_expected: 'Неверный формат: ожидается "menu" + "items", или "menus", или корневой массив блоков меню.'
+  import_json_invalid: 'Некорректный JSON-файл.'
+  import_json_error: 'Некорректный JSON: %message%'
+  import_file_too_large: 'Файл слишком большой. Максимальный размер — %max% МиБ.'
+  import_done: 'Импорт завершён: создано — %created%, обновлено — %updated%, пропущено — %skipped%.'
 
 # Form: MenuType
 form:
   menu_type:
     code:
-      label: Code
-      help: "Unique identifier (letters, numbers, _ -). For base menus, code cannot be changed after creation."
-      placeholder: "e.g. sidebar"
+      label: 'Код'
+      help: 'Уникальный идентификатор (буквы, цифры, _ -). Для базовых меню код нельзя изменить после создания.'
+      placeholder: 'напр. sidebar'
     base:
-      label: "Base menu"
-      help: "When checked, this menu's code cannot be changed after creation."
+      label: 'Базовое меню'
+      help: 'Если отмечено, код этого меню нельзя будет изменить после создания.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar"
+      label: 'Название'
+      placeholder: 'напр. Боковая панель'
     context:
-      label: Context
-      help: "Optional JSON key-value pairs to identify this menu variant. When resolving by code, the first matching menu in the ordered context sets is used; empty = fallback for that code."
+      label: 'Контекст'
+      help: 'Необязательные пары «ключ-значение» в формате JSON для идентификации этого варианта меню. При выборе по коду используется первое подходящее меню из упорядоченных наборов контекстов; пусто = вариант по умолчанию для этого кода.'
       placeholder: '{"partnerId": 1, "operatorId": 1}'
     icon:
-      label: Icon
-      help: "Optional icon identifier (e.g. Symfony UX Icons: heroicons:home, bootstrap:house)."
-      placeholder: "e.g. heroicons:bars-3, bootstrap:list"
+      label: 'Иконка'
+      help: 'Необязательный идентификатор иконки (напр. Symfony UX Icons: heroicons:home, bootstrap:house).'
+      placeholder: 'напр. heroicons:bars-3, bootstrap:list'
     permission_checker:
-      label: Permission checker
-      placeholder: "— Allow all —"
-      allow_all: "— Allow all —"
-      help: "Service implementing MenuPermissionCheckerInterface (empty = allow all)."
+      label: 'Проверка прав'
+      placeholder: '— Разрешить всё —'
+      allow_all: '— Разрешить всё —'
+      permission_key_aware: '— По ключу прав (структура) —'
+      help: 'Сервис, реализующий MenuPermissionCheckerInterface (пусто = разрешить всё).'
     depth_limit:
-      label: Depth limit
-      placeholder: "empty = unlimited"
-      help: "Max depth to render (1 = root only, 2 = root + one level; empty = unlimited)."
+      label: 'Лимит глубины'
+      placeholder: 'пусто = без ограничений'
+      help: 'Максимальная глубина вывода (1 = только корень, 2 = корень + один уровень; пусто = без ограничений).'
     collapsible:
-      label: "Collapsible (wrap menu in toggle block)"
+      label: 'Сворачиваемое (обернуть меню в переключаемый блок)'
     collapsible_expanded:
-      label: "Collapsible expanded (open by default)"
+      label: 'Сворачиваемое, развёрнуто (открыто по умолчанию)'
     nested_collapsible:
-      label: "Nested collapsible (items with children have toggle)"
+      label: 'Вложенное сворачивание (у пунктов с дочерними есть переключатель)'
+    nested_collapsible_sections:
+      label: 'Сворачиваемые разделы'
+      help: 'Требует включённого вложенного сворачивания. Если включено, строки разделов показывают стрелку справа, а их ссылки можно сворачивать. Если выключено, дочерние пункты раздела всегда развёрнуты (без стрелки).'
     class_menu:
-      label: "Class menu (root <ul>)"
-      placeholder: "e.g. nav flex-column"
+      label: 'Класс меню (корневой <ul>)'
+      placeholder: 'напр. nav flex-column'
+    ul_id:
+      label: 'Id ul (корневой <ul>)'
+      placeholder: 'напр. main-menu-navigation'
     class_item:
-      label: "Class item (<li>)"
-      placeholder: "e.g. nav-item"
+      label: 'Класс пункта (<li>)'
+      placeholder: 'напр. nav-item'
     class_link:
-      label: "Class link (<a>)"
-      placeholder: "e.g. nav-link"
+      label: 'Класс ссылки (<a>)'
+      placeholder: 'напр. nav-link'
     class_children:
-      label: "Class children (nested <ul>)"
-      placeholder: "e.g. nav flex-column ms-2"
+      label: 'Класс дочерних (вложенный <ul>)'
+      placeholder: 'напр. nav flex-column ms-2'
+    class_section_children:
+      label: 'Класс дочерних раздела (<ul> внутри itemType "section")'
+      placeholder: 'напр. nav flex-column list-unstyled ps-0 (плоский; пусто = как у дочерних)'
+      help: 'Если задано, список первого уровня внутри каждого раздела использует эти классы вместо «Класса дочерних», чтобы ссылки выравнивались по заголовку раздела (без отступа). Оставьте пустым, чтобы использовать класс вложенных дочерних.'
+    class_section_child_item:
+      label: 'Класс <li> для прямых дочерних itemType "section"'
+      placeholder: 'напр. nav-item ms-0 (пусто = как Класс пункта)'
+      help: 'Если задано, ссылки и разделители, являющиеся прямыми дочерними элементами раздела, используют этот класс для <li> вместо «Класса пункта». Применяйте для настройки отступов (margin/padding) в плоских списках разделов.'
+    class_section_child_link:
+      label: 'Класс <a> для прямых дочерних itemType "section"'
+      placeholder: 'напр. d-flex align-items-center ps-0 (пусто = как Класс ссылки)'
+      help: 'Если задано, ссылки, являющиеся прямыми дочерними элементами раздела, используют этот класс для <a> вместо «Класса ссылки». Используется вместе с классом <li> дочерних раздела для выравнивания.'
+    class_section_label:
+      label: 'Класс подписи раздела (itemType "section")'
+      placeholder: 'напр. navigation-header'
     class_section:
-      label: "Class section (<li> when itemType \"section\")"
-      placeholder: "e.g. menu-section"
+      label: 'Класс раздела (<li> при itemType "section")'
+      placeholder: 'напр. menu-section'
     class_divider:
-      label: "Class divider (<li> when itemType \"divider\")"
-      placeholder: "e.g. menu-divider"
+      label: 'Класс разделителя (<li> при itemType "divider")'
+      placeholder: 'напр. menu-divider'
     class_current:
-      label: "Class current (link matching current route)"
-      placeholder: "e.g. active"
+      label: 'Класс текущего (ссылка, соответствующая текущему маршруту)'
+      placeholder: 'напр. active'
     class_branch_expanded:
-      label: "Class branch expanded (<li> when route in branch)"
-      placeholder: "e.g. active-branch"
+      label: 'Класс развёрнутой ветви (<li>, если маршрут в ветви)'
+      placeholder: 'напр. active-branch'
     class_has_children:
-      label: "Class has children (<li> when item has children)"
-      placeholder: "e.g. has-children"
+      label: 'Класс «есть дочерние» (<li>, если у пункта есть дочерние)'
+      placeholder: 'напр. has-children'
     class_expanded:
-      label: "Class expanded (<li> when children block is open)"
-      placeholder: "e.g. is-expanded"
+      label: 'Класс развёрнутого (<li>, если блок дочерних открыт)'
+      placeholder: 'напр. is-expanded'
     class_collapsed:
-      label: "Class collapsed (<li> when children block is closed)"
-      placeholder: "e.g. is-collapsed"
-    empty_choice: "— Empty —"
-    css_section_heading: "CSS classes for rendering (override config when set)."
+      label: 'Класс свёрнутого (<li>, если блок дочерних закрыт)'
+      placeholder: 'напр. is-collapsed'
+    empty_choice: '— Пусто —'
+    css_section_heading: 'CSS-классы для вывода (переопределяют конфигурацию, если заданы).'
+    section_definition: 'Определение (код, базовое, название, контекст, иконка)'
+    section_config: 'Настройки (права, глубина, сворачивание, CSS)'
 
   menu_item_type:
+    section_basic: 'Идентификация (подписи)'
+    section_icon: 'Идентификация (тип, позиция, иконка)'
+    section_config: 'Настройки (ссылка, права)'
+    label_required: 'Подпись обязательна для ссылки и раздела.'
     label:
-      label: Label
-    label_locale: "Label (%locale%)"
+      label: 'Подпись'
+    label_locale: 'Подпись (%locale%)'
+    divider_label_hint: 'Необязательное название разделителя (рекомендуется для доступности и списка в панели). Оставьте пустым, если нужен только визуальный разделитель.'
     type:
-      label: Type
-      link: Link
-      section: Section
-      divider: Divider
+      label: 'Тип'
+      link: 'Ссылка'
+      section: 'Раздел'
+      divider: 'Разделитель'
+      service: 'Сервис (URL во время выполнения)'
+    link_resolver:
+      label: 'Резолвер ссылок'
+      placeholder: '— Выберите резолвер —'
+      help: 'Выберите сервис, реализующий MenuLinkResolverInterface. Он может вернуть один URL или список строк дочерних ссылок (подпись, href, позиция); в этом случае href родителя — "#".'
+      service_id_placeholder: 'напр. App\Menu\MyLinkResolver'
+      help_free_text: 'Введите id сервиса (имя класса или id в контейнере), реализующего MenuLinkResolverInterface.'
+      required: 'Для типа пункта «Сервис» требуется резолвер ссылок.'
+      route_params_hint: 'Необязательный JSON, передаваемый резолверу (например, параметры, аналогичные параметрам маршрута).'
     position:
-      label: Position
+      label: 'Позиция'
     link_type:
-      label: Link type
-      route: Route
-      external_url: External URL
+      label: 'Тип ссылки'
+      route: 'Маршрут'
+      external_url: 'Внешний URL'
     route_name:
-      label: Route name
-      placeholder: "— Select route —"
+      label: 'Имя маршрута'
+      placeholder: '— Выберите маршрут —'
     route_params:
-      label: "Route params (JSON)"
-      placeholder: "{}"
+      label: 'Параметры маршрута (JSON)'
+      placeholder: '{}'
     external_url:
-      label: External URL
-      placeholder: "https://..."
+      label: 'Внешний URL'
+      placeholder: 'https://...'
     target_blank:
-      label: Open in new tab
+      label: 'Открывать в новой вкладке'
     permission_keys:
-      label: Permission keys
-      placeholder: "— Allow all —"
-      help_csv: "Comma-separated keys (used when no configured choices are available)."
+      label: 'Ключи прав'
+      placeholder: '— Разрешить всё —'
+      help_csv: 'Ключи через запятую (используются, если нет настроенных вариантов).'
       choice:
-        authenticated: "Authenticated only"
-        admin: "Admin only"
-        path__: "Path: / (home only)"
+        authenticated: 'Только авторизованные'
+        admin: 'Только администратор'
+        path__: 'Путь: / (только главная)'
     is_unanimous:
-      label: Require all selected keys
-      help: "Enabled: all keys must pass (AND). Disabled: any key may pass (OR)."
+      label: 'Требовать все выбранные ключи'
+      help: 'Включено: должны выполняться все ключи (AND). Выключено: достаточно любого ключа (OR).'
     icon:
-      label: Icon
-      placeholder: "heroicons:home"
+      label: 'Иконка'
+      placeholder: 'heroicons:home'
     parent:
-      label: Parent
-      placeholder: "— Root (no parent) —"
+      label: 'Родитель'
+      placeholder: '— Корень (без родителя) —'
+      help_inheritance: 'Родительские пункты находятся в дереве выше этого. Ключи прав в этой строке применяются к данному пункту; как сочетаются правила родителя и дочерних пунктов, решает ваш MenuPermissionChecker. Разделы и раскрывающиеся ссылки выводятся, только если показан хотя бы один дочерний пункт.'
+      circular_violation: 'Циклическая иерархия родителей недопустима.'
+      section_must_be_root: 'Разделы должны оставаться на корневом уровне (без родителя).'
+    section_collapsible:
+      label: 'Сворачиваемые дочерние пункты раздела'
+      inherit: 'По умолчанию для меню'
+      yes: 'Да (сворачиваемые со стрелкой)'
+      no: 'Нет (всегда развёрнуты)'
+      help: 'Переопределяет параметр меню «Сворачиваемые разделы» только для этого раздела. «По умолчанию для меню» — следовать настройкам меню.'
 
   import_menu_type:
     file:
-      label: JSON file
-      required: Please choose a file.
-      mime_message: File must be JSON.
+      label: 'JSON-файл'
+      required: 'Выберите файл.'
+      mime_message: 'Файл должен быть в формате JSON.'
     strategy:
-      label: When a menu with the same code and context already exists
-      skip_existing: Skip (do not import)
-      replace: Replace (delete existing items and import)
+      label: 'Если меню с тем же кодом и контекстом уже существует'
+      skip_existing: 'Пропустить (не импортировать)'
+      replace: 'Заменить (удалить существующие пункты и импортировать)'
 
   copy_menu_type:
     code:
-      label: Code
-      placeholder: "e.g. sidebar_copy"
-      regex_message: "Code must contain only letters, numbers, underscore and hyphen."
+      label: 'Код'
+      placeholder: 'напр. sidebar_copy'
+      regex_message: 'Код может содержать только буквы, цифры, подчёркивание и дефис.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar (copy)"
+      label: 'Название'
+      placeholder: 'напр. Боковая панель (копия)'

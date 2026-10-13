@@ -2,220 +2,292 @@
 
 # Dashboard UI
 dashboard:
-  title: Menu dashboard
-  title_suffix: Dashboard Menu
-  menus: Menus
-  menu: Menu
-  menus_back: "← Menus"
-  new_menu: New menu
-  edit_menu: Edit menu
-  edit_item: Edit item
-  edit_items: Edit items
-  copy: Copy
-  copy_menu: Copy menu
-  copy_menu_help: "Copy menu and all its items. You can change the code and name for the new menu."
-  delete: Delete
-  cancel: Cancel
-  close: Close
-  confirm_delete: Confirm delete
-  delete_menu_confirm: 'Delete menu "%name%" and all its items?'
-  delete_menu_message: Delete this menu and all its items?
-  delete_item_confirm: 'Delete "%name%" and its children?'
-  delete_item_message: Delete this item and its children?
-  add_item: Add item
-  new_item: New item
-  add_one: Add one
-  add_child: Add child
-  search: Search
-  search_placeholder: "Search by code or name…"
-  clear: Clear
-  filter: Filtrar
-  clear_filters: Netejar filtres
-  no_menus_yet: "No menus yet. Create one to get started."
-  no_items: No items.
-  context: Context
-  parent: Parent
-  route_url: "Route / URL"
-  item: Item
-  actions: Actions
-  first: First
-  last: Last
-  move_up: Move up
-  move_down: Move down
-  edit: Edit
-  create: Create
-  update: Update
-  loading: "Loading…"
-  error_loading_form: Error loading form.
-  previous: Previous
-  next: Next
-  pagination_menus: Menus pagination
-  showing_from_to_of_total: "Showing %from%-%to% of %total%"
-  depth_limit: Depth limit
-  permission_checker: Permission checker
-  collapsible: Collapsible
-  collapsible_expanded: Collapsible expanded
-  nested_collapsible: Nested collapsible
-  css_classes: CSS classes
-  root: "— Root —"
-  no_label: "(no label)"
+  title: 'Tauler de menús'
+  title_suffix: 'Tauler de menús'
+  menus: 'Menús'
+  menu: 'Menú'
+  menus_back: '← Menús'
+  new_menu: 'Menú nou'
+  edit_menu: 'Edita el menú'
+  edit_item: 'Edita l''element'
+  edit_items: 'Edita els elements'
+  edit_identity: 'Edita (icona, etiqueta, tipus)'
+  edit_labels: 'Edita l''etiqueta i les traduccions'
+  edit_type_position_icon: 'Edita el tipus, la posició i la icona'
+  edit_config: 'Edita la configuració (pare, enllaç, permisos)'
+  copy: 'Copia'
+  copy_menu: 'Copia el menú'
+  copy_menu_help: 'Copia el menú i tots els seus elements. Pots canviar el codi i el nom del menú nou.'
+  delete: 'Elimina'
+  cancel: 'Cancel·la'
+  close: 'Tanca'
+  confirm_delete: 'Confirma l''eliminació'
+  delete_menu_confirm: 'Vols eliminar el menú «%name%» i tots els seus elements?'
+  delete_menu_message: 'Vols eliminar aquest menú i tots els seus elements?'
+  delete_item_confirm: 'Vols eliminar «%name%» i els seus fills?'
+  delete_item_message: 'Vols eliminar aquest element i els seus fills?'
+  add_item: 'Afegeix un element'
+  new_item: 'Element nou'
+  add_one: 'Afegeix-ne un'
+  add_child: 'Afegeix un fill'
+  add_child_disabled: 'Els elements de tipus secció i separador no poden tenir fills'
+  search: 'Cerca'
+  search_placeholder: 'Cerca per codi o nom…'
+  clear: 'Neteja'
+  filter: 'Filtra'
+  clear_filters: 'Neteja els filtres'
+  no_menus_yet: 'Encara no hi ha menús. Crea''n un per començar.'
+  no_items: 'No hi ha elements.'
+  context: 'Context'
+  parent: 'Pare'
+  route_url: 'Ruta / URL'
+  item: 'Element'
+  actions: 'Accions'
+  first: 'Primer'
+  last: 'Últim'
+  move_up: 'Mou amunt'
+  move_down: 'Mou avall'
+  reindex_positions: 'Reindexa les posicions (pas %step%)'
+  reindex_positions_title: 'Reassigna les posicions en passos de %step% dins de cada grup pare (es conserva l''ordre).'
+  reindex_positions_done: 'Posicions reindexades amb pas %step%.'
+  reindex_positions_unchanged: 'No calia canviar cap posició.'
+  check_parent_cycles: 'Comprova els cicles de pares'
+  check_parent_cycles_title: 'Verifica que la cadena de pares no tingui bucles infinits (mateix menú).'
+  check_parent_cycles_ok: 'No s''han trobat referències circulars de pares.'
+  check_parent_cycles_loop: 'S''ha detectat una cadena circular de pares: %chain%'
+  sortable_page_heading: 'Reordenació per arrossegament'
+  open_sortable_reorder: 'Reordena (arrossegant)'
+  back_to_items_table: 'Vista de taula'
+  sortable_title: 'Arrossega per reordenar'
+  sortable_help: 'Arrossega els elements per la nansa per reordenar-los, niar-los sota un pare o moure''ls a un altre nivell. Després aplica els canvis per desar-los.'
+  sortable_apply: 'Aplica l''ordre de l''arbre'
+  sortable_drag_handle: 'Arrossega per reordenar'
+  reorder_tree_done: 'S''ha actualitzat l''arbre del menú.'
+  reorder_tree_invalid_json: 'Dades de l''arbre no vàlides (JSON).'
+  reorder_tree_invalid_payload: 'Contingut de l''arbre no vàlid.'
+  reorder_tree_invalid_layout: 'No s''ha pogut aplicar l''arbre (cicle, límit de profunditat o elements que falten).'
+  reorder_tree_section_not_root: 'Les seccions han de romandre al nivell arrel. Treu la secció de les llistes niades i torna a aplicar.'
+  edit: 'Edita'
+  create: 'Crea'
+  update: 'Actualitza'
+  loading: 'S''està carregant…'
+  error_loading_form: 'Error en carregar el formulari.'
+  previous: 'Anterior'
+  next: 'Següent'
+  pagination_menus: 'Paginació de menús'
+  showing_from_to_of_total: 'Es mostren %from%-%to% de %total%'
+  depth_limit: 'Límit de profunditat'
+  permission_checker: 'Verificador de permisos'
+  collapsible: 'Plegable'
+  collapsible_expanded: 'Plegable desplegat'
+  nested_collapsible: 'Plegable niat'
+  css_classes: 'Classes CSS'
+  root: '— Arrel —'
+  no_label: '(sense etiqueta)'
   # 2.3.0 — admin chrome (index table view, item permission badges)
-  table_code: "Codi"
-  table_name: "Nom"
-  table_items: "Elements"
-  table_context: "Context"
-  no_permission_keys: "Sense claus de permís"
-  unanimous: "Unànime"
-  non_unanimous: "No unànime"
-  position_short: "Pos"
-  unique_code_context_error: A menu with this code and context already exists.
-  base: Base
-  base_badge_title: "Base menu: code cannot be changed after creation."
-  toggle: Toggle
-  yes: Yes
-  no: No
-  export: Export
-  export_all: Export all menus
-  import: Import
-  import_help: "Upload a JSON file exported from this dashboard (one menu or all menus). Choose whether to skip menus that already exist (same code + context) or replace their items."
-  import_json_invalid: Invalid JSON file.
-  import_json_error: "Invalid JSON: %message%"
-  import_file_too_large: "File is too large. Maximum size is %max% MiB."
-  import_done: "Import complete: %created% created, %updated% updated, %skipped% skipped."
-  import_format_invalid_root_array: 'Invalid format: a root JSON array must contain only objects with "menu" and "items". You can also use {"menus": [...]} or {"menu": {...}, "items": [...]}.'
-  import_format_expected: 'Invalid format: expected "menu" + "items", or "menus", or a root array of menu blocks.'
+  table_code: 'Codi'
+  table_name: 'Nom'
+  table_items: 'Elements'
+  table_context: 'Context'
+  no_permission_keys: 'Sense claus de permís'
+  unanimous: 'Unànime'
+  non_unanimous: 'No unànime'
+  position_short: 'Pos.'
+  unique_code_context_error: 'Ja existeix un menú amb aquest codi i context.'
+  base: 'Base'
+  base_badge_title: 'Menú base: el codi no es pot canviar després de crear-lo.'
+  toggle: 'Commuta'
+  yes: 'Sí'
+  no: 'No'
+  export: 'Exporta'
+  export_all: 'Exporta tots els menús'
+  import: 'Importa'
+  import_help: 'Puja un fitxer JSON exportat des d''aquest tauler. Formats acceptats: un sol menú {"menu": {...}, "items": [...]}, diversos menús {"menus": [{...}, ...]}, o la mateixa llista com a matriu JSON arrel [{"menu": {...}, "items": [...]}, ...]. Tria si vols ometre els menús que ja existeixen (mateix codi + context) o substituir-ne els elements.'
+  import_format_invalid_root_array: 'Format no vàlid: una matriu JSON arrel només pot contenir objectes amb "menu" i "items". També pots fer servir {"menus": [...]} o {"menu": {...}, "items": [...]}.'
+  import_format_expected: 'Format no vàlid: s''esperava "menu" + "items", o "menus", o una matriu arrel de blocs de menú.'
+  import_json_invalid: 'Fitxer JSON no vàlid.'
+  import_json_error: 'JSON no vàlid: %message%'
+  import_file_too_large: 'El fitxer és massa gran. La mida màxima és de %max% MiB.'
+  import_done: 'Importació completada: %created% creats, %updated% actualitzats, %skipped% omesos.'
 
 # Form: MenuType
 form:
   menu_type:
     code:
-      label: Code
-      help: "Unique identifier (letters, numbers, _ -). For base menus, code cannot be changed after creation."
-      placeholder: "e.g. sidebar"
+      label: 'Codi'
+      help: 'Identificador únic (lletres, números, _ -). En els menús base, el codi no es pot canviar després de crear-lo.'
+      placeholder: 'p. ex. sidebar'
     base:
-      label: "Base menu"
-      help: "When checked, this menu's code cannot be changed after creation."
+      label: 'Menú base'
+      help: 'Si està marcat, el codi d''aquest menú no es pot canviar després de crear-lo.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar"
+      label: 'Nom'
+      placeholder: 'p. ex. Barra lateral'
     context:
-      label: Context
-      help: "Optional JSON key-value pairs to identify this menu variant. When resolving by code, the first matching menu in the ordered context sets is used; empty = fallback for that code."
+      label: 'Context'
+      help: 'Parells clau-valor JSON opcionals per identificar aquesta variant del menú. En resoldre per codi, s''utilitza el primer menú coincident dels conjunts de context ordenats; buit = menú per defecte per a aquest codi.'
       placeholder: '{"partnerId": 1, "operatorId": 1}'
     icon:
-      label: Icon
-      help: "Optional icon identifier (e.g. Symfony UX Icons: heroicons:home, bootstrap:house)."
-      placeholder: "e.g. heroicons:bars-3, bootstrap:list"
+      label: 'Icona'
+      help: 'Identificador d''icona opcional (p. ex. Symfony UX Icons: heroicons:home, bootstrap:house).'
+      placeholder: 'p. ex. heroicons:bars-3, bootstrap:list'
     permission_checker:
-      label: Permission checker
-      placeholder: "— Allow all —"
-      allow_all: "— Allow all —"
-      help: "Service implementing MenuPermissionCheckerInterface (empty = allow all)."
+      label: 'Verificador de permisos'
+      placeholder: '— Permet-ho tot —'
+      allow_all: '— Permet-ho tot —'
+      permission_key_aware: '— Per clau de permís (estructura) —'
+      help: 'Servei que implementa MenuPermissionCheckerInterface (buit = permet-ho tot).'
     depth_limit:
-      label: Depth limit
-      placeholder: "empty = unlimited"
-      help: "Max depth to render (1 = root only, 2 = root + one level; empty = unlimited)."
+      label: 'Límit de profunditat'
+      placeholder: 'buit = il·limitat'
+      help: 'Profunditat màxima a renderitzar (1 = només arrel, 2 = arrel + un nivell; buit = il·limitat).'
     collapsible:
-      label: "Collapsible (wrap menu in toggle block)"
+      label: 'Plegable (embolcalla el menú en un bloc commutable)'
     collapsible_expanded:
-      label: "Collapsible expanded (open by default)"
+      label: 'Plegable desplegat (obert per defecte)'
     nested_collapsible:
-      label: "Nested collapsible (items with children have toggle)"
+      label: 'Plegable niat (els elements amb fills tenen commutador)'
+    nested_collapsible_sections:
+      label: 'Seccions plegables'
+      help: 'Requereix el plegable niat. Si està activat, les files de secció mostren una fletxa a la dreta i els seus enllaços es poden plegar. Si està desactivat, els fills de la secció es mantenen sempre desplegats (sense fletxa).'
     class_menu:
-      label: "Class menu (root <ul>)"
-      placeholder: "e.g. nav flex-column"
+      label: 'Classe del menú (<ul> arrel)'
+      placeholder: 'p. ex. nav flex-column'
+    ul_id:
+      label: 'Id de l''ul (<ul> arrel)'
+      placeholder: 'p. ex. main-menu-navigation'
     class_item:
-      label: "Class item (<li>)"
-      placeholder: "e.g. nav-item"
+      label: 'Classe de l''element (<li>)'
+      placeholder: 'p. ex. nav-item'
     class_link:
-      label: "Class link (<a>)"
-      placeholder: "e.g. nav-link"
+      label: 'Classe de l''enllaç (<a>)'
+      placeholder: 'p. ex. nav-link'
     class_children:
-      label: "Class children (nested <ul>)"
-      placeholder: "e.g. nav flex-column ms-2"
+      label: 'Classe dels fills (<ul> niat)'
+      placeholder: 'p. ex. nav flex-column ms-2'
+    class_section_children:
+      label: 'Classe dels fills de secció (<ul> sota itemType "section")'
+      placeholder: 'p. ex. nav flex-column list-unstyled ps-0 (pla; buit = igual que els fills)'
+      help: 'Si s''estableix, la llista de primer nivell sota cada secció utilitza aquestes classes en lloc de «Classe dels fills», de manera que els enllaços s''alineïn amb el títol de la secció (sense sagnat). Deixa-ho buit per continuar fent servir la classe dels fills niats.'
+    class_section_child_item:
+      label: 'Classe <li> per als fills directes d''itemType "section"'
+      placeholder: 'p. ex. nav-item ms-0 (buit = igual que la classe de l''element)'
+      help: 'Si s''estableix, els enllaços i separadors que són fills directes d''una secció utilitzen aquest valor com a classe del <li> en lloc de «Classe de l''element». Útil per ajustar marges/farciment sota llistes de secció planes.'
+    class_section_child_link:
+      label: 'Classe <a> per als fills directes d''itemType "section"'
+      placeholder: 'p. ex. d-flex align-items-center ps-0 (buit = igual que la classe de l''enllaç)'
+      help: 'Si s''estableix, els enllaços que són fills directes d''una secció utilitzen aquest valor com a classe de l''<a> en lloc de «Classe de l''enllaç». Es combina amb el <li> dels fills de secció per a l''alineació.'
+    class_section_label:
+      label: 'Classe de l''etiqueta de secció (itemType "section")'
+      placeholder: 'p. ex. navigation-header'
     class_section:
-      label: "Class section (<li> when itemType \"section\")"
-      placeholder: "e.g. menu-section"
+      label: 'Classe de secció (<li> quan itemType és "section")'
+      placeholder: 'p. ex. menu-section'
     class_divider:
-      label: "Class divider (<li> when itemType \"divider\")"
-      placeholder: "e.g. menu-divider"
+      label: 'Classe del separador (<li> quan itemType és "divider")'
+      placeholder: 'p. ex. menu-divider'
     class_current:
-      label: "Class current (link matching current route)"
-      placeholder: "e.g. active"
+      label: 'Classe actual (enllaç que coincideix amb la ruta actual)'
+      placeholder: 'p. ex. active'
     class_branch_expanded:
-      label: "Class branch expanded (<li> when route in branch)"
-      placeholder: "e.g. active-branch"
+      label: 'Classe de branca desplegada (<li> quan la ruta és dins la branca)'
+      placeholder: 'p. ex. active-branch'
     class_has_children:
-      label: "Class has children (<li> when item has children)"
-      placeholder: "e.g. has-children"
+      label: 'Classe amb fills (<li> quan l''element té fills)'
+      placeholder: 'p. ex. has-children'
     class_expanded:
-      label: "Class expanded (<li> when children block is open)"
-      placeholder: "e.g. is-expanded"
+      label: 'Classe desplegat (<li> quan el bloc de fills és obert)'
+      placeholder: 'p. ex. is-expanded'
     class_collapsed:
-      label: "Class collapsed (<li> when children block is closed)"
-      placeholder: "e.g. is-collapsed"
-    empty_choice: "— Empty —"
-    css_section_heading: "CSS classes for rendering (override config when set)."
+      label: 'Classe plegat (<li> quan el bloc de fills és tancat)'
+      placeholder: 'p. ex. is-collapsed'
+    empty_choice: '— Buit —'
+    css_section_heading: 'Classes CSS per a la renderització (substitueixen la configuració si s''estableixen).'
+    section_definition: 'Definició (codi, base, nom, context, icona)'
+    section_config: 'Configuració (permisos, profunditat, plegable, CSS)'
 
   menu_item_type:
+    section_basic: 'Identitat (etiquetes)'
+    section_icon: 'Identitat (tipus, posició, icona)'
+    section_config: 'Configuració (enllaç, permís)'
+    label_required: 'L''etiqueta és obligatòria per a Enllaç i Secció.'
     label:
-      label: Label
-    label_locale: "Label (%locale%)"
+      label: 'Etiqueta'
+    label_locale: 'Etiqueta (%locale%)'
+    divider_label_hint: 'Nom opcional per a aquest separador (recomanat per a l''accessibilitat i la llista del tauler). Deixa-ho buit si només necessites un separador visual.'
     type:
-      label: Type
-      link: Link
-      section: Section
-      divider: Divider
+      label: 'Tipus'
+      link: 'Enllaç'
+      section: 'Secció'
+      divider: 'Separador'
+      service: 'Servei (URL en temps d''execució)'
+    link_resolver:
+      label: 'Resolutor d''enllaços'
+      placeholder: '— Selecciona un resolutor —'
+      help: 'Tria un servei que implementi MenuLinkResolverInterface. Pot retornar una sola URL o una llista de files d''enllaços fills (etiqueta, href, posició); llavors el href del pare és "#".'
+      service_id_placeholder: 'p. ex. App\Menu\MyLinkResolver'
+      help_free_text: 'Introdueix l''id del servei (nom de classe o id del contenidor) que implementa MenuLinkResolverInterface.'
+      required: 'Cal un resolutor d''enllaços per al tipus d''element «Servei».'
+      route_params_hint: 'JSON opcional que es passa al resolutor (per exemple, paràmetres semblants als d''una ruta).'
     position:
-      label: Position
+      label: 'Posició'
     link_type:
-      label: Link type
-      route: Route
-      external_url: External URL
+      label: 'Tipus d''enllaç'
+      route: 'Ruta'
+      external_url: 'URL externa'
     route_name:
-      label: Route name
-      placeholder: "— Select route —"
+      label: 'Nom de la ruta'
+      placeholder: '— Selecciona una ruta —'
     route_params:
-      label: "Route params (JSON)"
-      placeholder: "{}"
+      label: 'Paràmetres de la ruta (JSON)'
+      placeholder: '{}'
     external_url:
-      label: External URL
-      placeholder: "https://..."
+      label: 'URL externa'
+      placeholder: 'https://...'
     target_blank:
-      label: Open in new tab
+      label: 'Obre en una pestanya nova'
     permission_keys:
-      label: Permission keys
-      placeholder: "— Allow all —"
-      help_csv: "Comma-separated keys (used when no configured choices are available)."
+      label: 'Claus de permís'
+      placeholder: '— Permet-ho tot —'
+      help_csv: 'Claus separades per comes (s''utilitzen quan no hi ha opcions configurades disponibles).'
       choice:
-        authenticated: "Authenticated only"
-        admin: "Admin only"
-        path__: "Path: / (home only)"
+        authenticated: 'Només autenticats'
+        admin: 'Només administradors'
+        path__: 'Ruta: / (només inici)'
     is_unanimous:
-      label: Require all selected keys
-      help: "Enabled: all keys must pass (AND). Disabled: any key may pass (OR)."
+      label: 'Requereix totes les claus seleccionades'
+      help: 'Activat: totes les claus han de complir-se (AND). Desactivat: n''hi ha prou que se''n compleixi una (OR).'
     icon:
-      label: Icon
-      placeholder: "heroicons:home"
+      label: 'Icona'
+      placeholder: 'heroicons:home'
     parent:
-      label: Parent
-      placeholder: "— Root (no parent) —"
+      label: 'Pare'
+      placeholder: '— Arrel (sense pare) —'
+      help_inheritance: 'Els elements pare se situen per sobre d''aquest a l''arbre. Les claus de permís d''aquesta fila s''apliquen a aquest element; el teu MenuPermissionChecker decideix com es combinen les regles de pare i fill. Les seccions i els enllaços desplegables només es mostren quan almenys un fill és visible.'
+      circular_violation: 'No es permet una jerarquia de pares circular.'
+      section_must_be_root: 'Els elements de secció han de romandre al nivell arrel (sense pare).'
+    section_collapsible:
+      label: 'Fills de la secció plegables'
+      inherit: 'Utilitza el valor per defecte del menú'
+      yes: 'Sí (plegable amb fletxa)'
+      no: 'No (sempre desplegat)'
+      help: 'Substitueix l''opció del menú «Seccions plegables» només per a aquesta secció. «Utilitza el valor per defecte del menú» segueix la configuració del menú.'
 
   import_menu_type:
     file:
-      label: JSON file
-      required: Please choose a file.
-      mime_message: File must be JSON.
+      label: 'Fitxer JSON'
+      required: 'Tria un fitxer.'
+      mime_message: 'El fitxer ha de ser JSON.'
     strategy:
-      label: When a menu with the same code and context already exists
-      skip_existing: Skip (do not import)
-      replace: Replace (delete existing items and import)
+      label: 'Quan ja existeix un menú amb el mateix codi i context'
+      skip_existing: 'Omet (no importis)'
+      replace: 'Substitueix (elimina els elements existents i importa)'
 
   copy_menu_type:
     code:
-      label: Code
-      placeholder: "e.g. sidebar_copy"
-      regex_message: "Code must contain only letters, numbers, underscore and hyphen."
+      label: 'Codi'
+      placeholder: 'p. ex. sidebar_copy'
+      regex_message: 'El codi només pot contenir lletres, números, guions baixos i guions.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar (copy)"
+      label: 'Nom'
+      placeholder: 'p. ex. Barra lateral (còpia)'

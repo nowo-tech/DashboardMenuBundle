@@ -2,220 +2,292 @@
 
 # Dashboard UI
 dashboard:
-  title: Menu dashboard
-  title_suffix: Dashboard Menu
-  menus: Menus
-  menu: Menu
-  menus_back: "← Menus"
-  new_menu: New menu
-  edit_menu: Edit menu
-  edit_item: Edit item
-  edit_items: Edit items
-  copy: Copy
-  copy_menu: Copy menu
-  copy_menu_help: "Copy menu and all its items. You can change the code and name for the new menu."
-  delete: Delete
-  cancel: Cancel
-  close: Close
-  confirm_delete: Confirm delete
-  delete_menu_confirm: 'Delete menu "%name%" and all its items?'
-  delete_menu_message: Delete this menu and all its items?
-  delete_item_confirm: 'Delete "%name%" and its children?'
-  delete_item_message: Delete this item and its children?
-  add_item: Add item
-  new_item: New item
-  add_one: Add one
-  add_child: Add child
-  search: Search
-  search_placeholder: "Search by code or name…"
-  clear: Clear
-  filter: Filtrar
-  clear_filters: Limpar filtros
-  no_menus_yet: "No menus yet. Create one to get started."
-  no_items: No items.
-  context: Context
-  parent: Parent
-  route_url: "Route / URL"
-  item: Item
-  actions: Actions
-  first: First
-  last: Last
-  move_up: Move up
-  move_down: Move down
-  edit: Edit
-  create: Create
-  update: Update
-  loading: "Loading…"
-  error_loading_form: Error loading form.
-  previous: Previous
-  next: Next
-  pagination_menus: Menus pagination
-  showing_from_to_of_total: "Showing %from%-%to% of %total%"
-  depth_limit: Depth limit
-  permission_checker: Permission checker
-  collapsible: Collapsible
-  collapsible_expanded: Collapsible expanded
-  nested_collapsible: Nested collapsible
-  css_classes: CSS classes
-  root: "— Root —"
-  no_label: "(no label)"
+  title: 'Painel de menus'
+  title_suffix: 'Painel de menus'
+  menus: 'Menus'
+  menu: 'Menu'
+  menus_back: '← Menus'
+  new_menu: 'Novo menu'
+  edit_menu: 'Editar menu'
+  edit_item: 'Editar item'
+  edit_items: 'Editar itens'
+  edit_identity: 'Editar (ícone, rótulo, tipo)'
+  edit_labels: 'Editar rótulo e traduções'
+  edit_type_position_icon: 'Editar tipo, posição e ícone'
+  edit_config: 'Editar configuração (pai, link, permissões)'
+  copy: 'Copiar'
+  copy_menu: 'Copiar menu'
+  copy_menu_help: 'Copia o menu e todos os seus itens. Você pode alterar o código e o nome do novo menu.'
+  delete: 'Excluir'
+  cancel: 'Cancelar'
+  close: 'Fechar'
+  confirm_delete: 'Confirmar exclusão'
+  delete_menu_confirm: 'Excluir o menu "%name%" e todos os seus itens?'
+  delete_menu_message: 'Excluir este menu e todos os seus itens?'
+  delete_item_confirm: 'Excluir "%name%" e seus filhos?'
+  delete_item_message: 'Excluir este item e seus filhos?'
+  add_item: 'Adicionar item'
+  new_item: 'Novo item'
+  add_one: 'Adicionar um'
+  add_child: 'Adicionar filho'
+  add_child_disabled: 'Itens do tipo seção e divisor não podem ter filhos'
+  search: 'Pesquisar'
+  search_placeholder: 'Pesquisar por código ou nome…'
+  clear: 'Limpar'
+  filter: 'Filtrar'
+  clear_filters: 'Limpar filtros'
+  no_menus_yet: 'Ainda não há menus. Crie um para começar.'
+  no_items: 'Nenhum item.'
+  context: 'Contexto'
+  parent: 'Pai'
+  route_url: 'Rota / URL'
+  item: 'Item'
+  actions: 'Ações'
+  first: 'Primeiro'
+  last: 'Último'
+  move_up: 'Mover para cima'
+  move_down: 'Mover para baixo'
+  reindex_positions: 'Reindexar posições (passo %step%)'
+  reindex_positions_title: 'Reatribui as posições em passos de %step% dentro de cada grupo pai (a ordem é mantida).'
+  reindex_positions_done: 'Posições reindexadas com passo %step%.'
+  reindex_positions_unchanged: 'Nenhuma alteração de posição foi necessária.'
+  check_parent_cycles: 'Verificar ciclos de pais'
+  check_parent_cycles_title: 'Verifica se a cadeia de pais não tem loops infinitos (mesmo menu).'
+  check_parent_cycles_ok: 'Nenhuma referência circular de pais foi encontrada.'
+  check_parent_cycles_loop: 'Cadeia circular de pais detectada: %chain%'
+  sortable_page_heading: 'Reordenar arrastando'
+  open_sortable_reorder: 'Reordenar (arrastar)'
+  back_to_items_table: 'Visualização em tabela'
+  sortable_title: 'Arraste para reordenar'
+  sortable_help: 'Arraste os itens pela alça para reordená-los, aninhá-los sob um pai ou movê-los para outro nível. Depois, aplique para salvar.'
+  sortable_apply: 'Aplicar ordem da árvore'
+  sortable_drag_handle: 'Arraste para reordenar'
+  reorder_tree_done: 'Árvore do menu atualizada.'
+  reorder_tree_invalid_json: 'Dados da árvore inválidos (JSON).'
+  reorder_tree_invalid_payload: 'Conteúdo da árvore inválido.'
+  reorder_tree_invalid_layout: 'Não foi possível aplicar a árvore (ciclo, limite de profundidade ou itens ausentes).'
+  reorder_tree_section_not_root: 'As seções devem permanecer no nível raiz. Retire a seção das listas aninhadas e aplique novamente.'
+  edit: 'Editar'
+  create: 'Criar'
+  update: 'Atualizar'
+  loading: 'Carregando…'
+  error_loading_form: 'Erro ao carregar o formulário.'
+  previous: 'Anterior'
+  next: 'Próximo'
+  pagination_menus: 'Paginação de menus'
+  showing_from_to_of_total: 'Exibindo %from%-%to% de %total%'
+  depth_limit: 'Limite de profundidade'
+  permission_checker: 'Verificador de permissões'
+  collapsible: 'Recolhível'
+  collapsible_expanded: 'Recolhível expandido'
+  nested_collapsible: 'Recolhível aninhado'
+  css_classes: 'Classes CSS'
+  root: '— Raiz —'
+  no_label: '(sem rótulo)'
   # 2.3.0 — admin chrome (index table view, item permission badges)
-  table_code: "Código"
-  table_name: "Nome"
-  table_items: "Itens"
-  table_context: "Contexto"
-  no_permission_keys: "Sem chaves de permissão"
-  unanimous: "Unânime"
-  non_unanimous: "Não unânime"
-  position_short: "Pos"
-  unique_code_context_error: A menu with this code and context already exists.
-  base: Base
-  base_badge_title: "Base menu: code cannot be changed after creation."
-  toggle: Toggle
-  yes: Yes
-  no: No
-  export: Export
-  export_all: Export all menus
-  import: Import
-  import_help: "Upload a JSON file exported from this dashboard (one menu or all menus). Choose whether to skip menus that already exist (same code + context) or replace their items."
-  import_json_invalid: Invalid JSON file.
-  import_json_error: "Invalid JSON: %message%"
-  import_file_too_large: "File is too large. Maximum size is %max% MiB."
-  import_done: "Import complete: %created% created, %updated% updated, %skipped% skipped."
-  import_format_invalid_root_array: 'Invalid format: a root JSON array must contain only objects with "menu" and "items". You can also use {"menus": [...]} or {"menu": {...}, "items": [...]}.'
-  import_format_expected: 'Invalid format: expected "menu" + "items", or "menus", or a root array of menu blocks.'
+  table_code: 'Código'
+  table_name: 'Nome'
+  table_items: 'Itens'
+  table_context: 'Contexto'
+  no_permission_keys: 'Sem chaves de permissão'
+  unanimous: 'Unânime'
+  non_unanimous: 'Não unânime'
+  position_short: 'Pos.'
+  unique_code_context_error: 'Já existe um menu com este código e contexto.'
+  base: 'Base'
+  base_badge_title: 'Menu base: o código não pode ser alterado após a criação.'
+  toggle: 'Alternar'
+  yes: 'Sim'
+  no: 'Não'
+  export: 'Exportar'
+  export_all: 'Exportar todos os menus'
+  import: 'Importar'
+  import_help: 'Envie um arquivo JSON exportado deste painel. Formatos aceitos: um único menu {"menu": {...}, "items": [...]}, vários menus {"menus": [{...}, ...]} ou a mesma lista como array JSON raiz [{"menu": {...}, "items": [...]}, ...]. Escolha se deseja ignorar os menus que já existem (mesmo código + contexto) ou substituir seus itens.'
+  import_format_invalid_root_array: 'Formato inválido: um array JSON raiz deve conter apenas objetos com "menu" e "items". Você também pode usar {"menus": [...]} ou {"menu": {...}, "items": [...]}.'
+  import_format_expected: 'Formato inválido: era esperado "menu" + "items", ou "menus", ou um array raiz de blocos de menu.'
+  import_json_invalid: 'Arquivo JSON inválido.'
+  import_json_error: 'JSON inválido: %message%'
+  import_file_too_large: 'O arquivo é muito grande. O tamanho máximo é %max% MiB.'
+  import_done: 'Importação concluída: %created% criados, %updated% atualizados, %skipped% ignorados.'
 
 # Form: MenuType
 form:
   menu_type:
     code:
-      label: Code
-      help: "Unique identifier (letters, numbers, _ -). For base menus, code cannot be changed after creation."
-      placeholder: "e.g. sidebar"
+      label: 'Código'
+      help: 'Identificador único (letras, números, _ -). Em menus base, o código não pode ser alterado após a criação.'
+      placeholder: 'ex.: sidebar'
     base:
-      label: "Base menu"
-      help: "When checked, this menu's code cannot be changed after creation."
+      label: 'Menu base'
+      help: 'Quando marcado, o código deste menu não poderá ser alterado após a criação.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar"
+      label: 'Nome'
+      placeholder: 'ex.: Barra lateral'
     context:
-      label: Context
-      help: "Optional JSON key-value pairs to identify this menu variant. When resolving by code, the first matching menu in the ordered context sets is used; empty = fallback for that code."
+      label: 'Contexto'
+      help: 'Pares chave-valor JSON opcionais para identificar esta variante do menu. Ao resolver por código, é usado o primeiro menu correspondente nos conjuntos de contexto ordenados; vazio = alternativa padrão para esse código.'
       placeholder: '{"partnerId": 1, "operatorId": 1}'
     icon:
-      label: Icon
-      help: "Optional icon identifier (e.g. Symfony UX Icons: heroicons:home, bootstrap:house)."
-      placeholder: "e.g. heroicons:bars-3, bootstrap:list"
+      label: 'Ícone'
+      help: 'Identificador de ícone opcional (ex.: Symfony UX Icons: heroicons:home, bootstrap:house).'
+      placeholder: 'ex.: heroicons:bars-3, bootstrap:list'
     permission_checker:
-      label: Permission checker
-      placeholder: "— Allow all —"
-      allow_all: "— Allow all —"
-      help: "Service implementing MenuPermissionCheckerInterface (empty = allow all)."
+      label: 'Verificador de permissões'
+      placeholder: '— Permitir tudo —'
+      allow_all: '— Permitir tudo —'
+      permission_key_aware: '— Por chave de permissão (estrutura) —'
+      help: 'Serviço que implementa MenuPermissionCheckerInterface (vazio = permitir tudo).'
     depth_limit:
-      label: Depth limit
-      placeholder: "empty = unlimited"
-      help: "Max depth to render (1 = root only, 2 = root + one level; empty = unlimited)."
+      label: 'Limite de profundidade'
+      placeholder: 'vazio = ilimitado'
+      help: 'Profundidade máxima a renderizar (1 = apenas raiz, 2 = raiz + um nível; vazio = ilimitado).'
     collapsible:
-      label: "Collapsible (wrap menu in toggle block)"
+      label: 'Recolhível (envolver o menu em um bloco alternável)'
     collapsible_expanded:
-      label: "Collapsible expanded (open by default)"
+      label: 'Recolhível expandido (aberto por padrão)'
     nested_collapsible:
-      label: "Nested collapsible (items with children have toggle)"
+      label: 'Recolhível aninhado (itens com filhos têm alternador)'
+    nested_collapsible_sections:
+      label: 'Seções recolhíveis'
+      help: 'Requer recolhível aninhado. Quando ativado, as linhas de seção exibem uma seta à direita e seus links podem ser recolhidos. Quando desativado, os filhos da seção ficam sempre expandidos (sem seta).'
     class_menu:
-      label: "Class menu (root <ul>)"
-      placeholder: "e.g. nav flex-column"
+      label: 'Classe do menu (<ul> raiz)'
+      placeholder: 'ex.: nav flex-column'
+    ul_id:
+      label: 'Id do ul (<ul> raiz)'
+      placeholder: 'ex.: main-menu-navigation'
     class_item:
-      label: "Class item (<li>)"
-      placeholder: "e.g. nav-item"
+      label: 'Classe do item (<li>)'
+      placeholder: 'ex.: nav-item'
     class_link:
-      label: "Class link (<a>)"
-      placeholder: "e.g. nav-link"
+      label: 'Classe do link (<a>)'
+      placeholder: 'ex.: nav-link'
     class_children:
-      label: "Class children (nested <ul>)"
-      placeholder: "e.g. nav flex-column ms-2"
+      label: 'Classe dos filhos (<ul> aninhado)'
+      placeholder: 'ex.: nav flex-column ms-2'
+    class_section_children:
+      label: 'Classe dos filhos de seção (<ul> sob itemType "section")'
+      placeholder: 'ex.: nav flex-column list-unstyled ps-0 (plano; vazio = igual aos filhos)'
+      help: 'Quando definida, a lista de primeiro nível sob cada seção usa estas classes em vez de “Classe dos filhos”, para que os links possam se alinhar com o título da seção (sem recuo). Deixe vazio para continuar usando a classe dos filhos aninhados.'
+    class_section_child_item:
+      label: 'Classe <li> para filhos diretos de itemType "section"'
+      placeholder: 'ex.: nav-item ms-0 (vazio = igual à Classe do item)'
+      help: 'Quando definida, os links e divisores que são filhos diretos de uma seção usam esta classe no <li> em vez de “Classe do item”. Use para ajustes de margem/preenchimento em listas de seção planas.'
+    class_section_child_link:
+      label: 'Classe <a> para filhos diretos de itemType "section"'
+      placeholder: 'ex.: d-flex align-items-center ps-0 (vazio = igual à Classe do link)'
+      help: 'Quando definida, os links que são filhos diretos de uma seção usam esta classe no <a> em vez de “Classe do link”. Combina com a classe <li> dos filhos da seção para o alinhamento.'
+    class_section_label:
+      label: 'Classe do rótulo da seção (itemType "section")'
+      placeholder: 'ex.: navigation-header'
     class_section:
-      label: "Class section (<li> when itemType \"section\")"
-      placeholder: "e.g. menu-section"
+      label: 'Classe da seção (<li> quando itemType "section")'
+      placeholder: 'ex.: menu-section'
     class_divider:
-      label: "Class divider (<li> when itemType \"divider\")"
-      placeholder: "e.g. menu-divider"
+      label: 'Classe do divisor (<li> quando itemType "divider")'
+      placeholder: 'ex.: menu-divider'
     class_current:
-      label: "Class current (link matching current route)"
-      placeholder: "e.g. active"
+      label: 'Classe atual (link que corresponde à rota atual)'
+      placeholder: 'ex.: active'
     class_branch_expanded:
-      label: "Class branch expanded (<li> when route in branch)"
-      placeholder: "e.g. active-branch"
+      label: 'Classe de ramo expandido (<li> quando a rota está no ramo)'
+      placeholder: 'ex.: active-branch'
     class_has_children:
-      label: "Class has children (<li> when item has children)"
-      placeholder: "e.g. has-children"
+      label: 'Classe com filhos (<li> quando o item tem filhos)'
+      placeholder: 'ex.: has-children'
     class_expanded:
-      label: "Class expanded (<li> when children block is open)"
-      placeholder: "e.g. is-expanded"
+      label: 'Classe expandido (<li> quando o bloco de filhos está aberto)'
+      placeholder: 'ex.: is-expanded'
     class_collapsed:
-      label: "Class collapsed (<li> when children block is closed)"
-      placeholder: "e.g. is-collapsed"
-    empty_choice: "— Empty —"
-    css_section_heading: "CSS classes for rendering (override config when set)."
+      label: 'Classe recolhido (<li> quando o bloco de filhos está fechado)'
+      placeholder: 'ex.: is-collapsed'
+    empty_choice: '— Vazio —'
+    css_section_heading: 'Classes CSS para renderização (substituem a configuração quando definidas).'
+    section_definition: 'Definição (código, base, nome, contexto, ícone)'
+    section_config: 'Configuração (permissões, profundidade, recolhível, CSS)'
 
   menu_item_type:
+    section_basic: 'Identidade (rótulos)'
+    section_icon: 'Identidade (tipo, posição, ícone)'
+    section_config: 'Configuração (link, permissão)'
+    label_required: 'O rótulo é obrigatório para Link e Seção.'
     label:
-      label: Label
-    label_locale: "Label (%locale%)"
+      label: 'Rótulo'
+    label_locale: 'Rótulo (%locale%)'
+    divider_label_hint: 'Nome opcional para este divisor (recomendado para acessibilidade e para a lista do painel). Deixe vazio se você precisa apenas de um separador visual.'
     type:
-      label: Type
-      link: Link
-      section: Section
-      divider: Divider
+      label: 'Tipo'
+      link: 'Link'
+      section: 'Seção'
+      divider: 'Divisor'
+      service: 'Serviço (URL em tempo de execução)'
+    link_resolver:
+      label: 'Resolvedor de links'
+      placeholder: '— Selecionar resolvedor —'
+      help: 'Escolha um serviço que implemente MenuLinkResolverInterface. Ele pode retornar uma única URL ou uma lista de linhas de links filhos (rótulo, href, posição); nesse caso, o href do pai é "#".'
+      service_id_placeholder: 'ex.: App\Menu\MyLinkResolver'
+      help_free_text: 'Informe o id do serviço (nome da classe ou id do contêiner) que implementa MenuLinkResolverInterface.'
+      required: 'Um resolvedor de links é obrigatório para o tipo de item “Serviço”.'
+      route_params_hint: 'JSON opcional repassado ao resolvedor (por exemplo, parâmetros semelhantes aos de rota).'
     position:
-      label: Position
+      label: 'Posição'
     link_type:
-      label: Link type
-      route: Route
-      external_url: External URL
+      label: 'Tipo de link'
+      route: 'Rota'
+      external_url: 'URL externa'
     route_name:
-      label: Route name
-      placeholder: "— Select route —"
+      label: 'Nome da rota'
+      placeholder: '— Selecionar rota —'
     route_params:
-      label: "Route params (JSON)"
-      placeholder: "{}"
+      label: 'Parâmetros da rota (JSON)'
+      placeholder: '{}'
     external_url:
-      label: External URL
-      placeholder: "https://..."
+      label: 'URL externa'
+      placeholder: 'https://...'
     target_blank:
-      label: Open in new tab
+      label: 'Abrir em nova aba'
     permission_keys:
-      label: Permission keys
-      placeholder: "— Allow all —"
-      help_csv: "Comma-separated keys (used when no configured choices are available)."
+      label: 'Chaves de permissão'
+      placeholder: '— Permitir tudo —'
+      help_csv: 'Chaves separadas por vírgula (usadas quando não há opções configuradas disponíveis).'
       choice:
-        authenticated: "Authenticated only"
-        admin: "Admin only"
-        path__: "Path: / (home only)"
+        authenticated: 'Somente autenticados'
+        admin: 'Somente administrador'
+        path__: 'Caminho: / (somente página inicial)'
     is_unanimous:
-      label: Require all selected keys
-      help: "Enabled: all keys must pass (AND). Disabled: any key may pass (OR)."
+      label: 'Exigir todas as chaves selecionadas'
+      help: 'Ativado: todas as chaves devem ser satisfeitas (AND). Desativado: basta qualquer chave (OR).'
     icon:
-      label: Icon
-      placeholder: "heroicons:home"
+      label: 'Ícone'
+      placeholder: 'heroicons:home'
     parent:
-      label: Parent
-      placeholder: "— Root (no parent) —"
+      label: 'Pai'
+      placeholder: '— Raiz (sem pai) —'
+      help_inheritance: 'Os itens pais ficam acima deste na árvore. As chaves de permissão desta linha se aplicam a este item; o seu MenuPermissionChecker decide como as regras de pai/filho se combinam. Seções e links expansíveis só são renderizados quando pelo menos um filho é exibido.'
+      circular_violation: 'Não é permitida uma hierarquia circular de pais.'
+      section_must_be_root: 'Itens de seção devem permanecer no nível raiz (sem pai).'
+    section_collapsible:
+      label: 'Filhos da seção recolhíveis'
+      inherit: 'Usar padrão do menu'
+      yes: 'Sim (recolhível com seta)'
+      no: 'Não (sempre expandido)'
+      help: 'Substitui a opção do menu “Seções recolhíveis” apenas para esta seção. “Usar padrão do menu” segue a configuração do menu.'
 
   import_menu_type:
     file:
-      label: JSON file
-      required: Please choose a file.
-      mime_message: File must be JSON.
+      label: 'Arquivo JSON'
+      required: 'Selecione um arquivo.'
+      mime_message: 'O arquivo deve ser JSON.'
     strategy:
-      label: When a menu with the same code and context already exists
-      skip_existing: Skip (do not import)
-      replace: Replace (delete existing items and import)
+      label: 'Quando já existir um menu com o mesmo código e contexto'
+      skip_existing: 'Ignorar (não importar)'
+      replace: 'Substituir (excluir os itens existentes e importar)'
 
   copy_menu_type:
     code:
-      label: Code
-      placeholder: "e.g. sidebar_copy"
-      regex_message: "Code must contain only letters, numbers, underscore and hyphen."
+      label: 'Código'
+      placeholder: 'ex.: sidebar_copy'
+      regex_message: 'O código deve conter apenas letras, números, sublinhado e hífen.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar (copy)"
+      label: 'Nome'
+      placeholder: 'ex.: Barra lateral (cópia)'

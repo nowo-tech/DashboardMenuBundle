@@ -2,220 +2,292 @@
 
 # Dashboard UI
 dashboard:
-  title: Menu dashboard
-  title_suffix: Dashboard Menu
-  menus: Menus
-  menu: Menu
-  menus_back: "← Menus"
-  new_menu: New menu
-  edit_menu: Edit menu
-  edit_item: Edit item
-  edit_items: Edit items
-  copy: Copy
-  copy_menu: Copy menu
-  copy_menu_help: "Copy menu and all its items. You can change the code and name for the new menu."
-  delete: Delete
-  cancel: Cancel
-  close: Close
-  confirm_delete: Confirm delete
-  delete_menu_confirm: 'Delete menu "%name%" and all its items?'
-  delete_menu_message: Delete this menu and all its items?
-  delete_item_confirm: 'Delete "%name%" and its children?'
-  delete_item_message: Delete this item and its children?
-  add_item: Add item
-  new_item: New item
-  add_one: Add one
-  add_child: Add child
-  search: Search
-  search_placeholder: "Search by code or name…"
-  clear: Clear
-  filter: Filter
-  clear_filters: Clear filters
-  no_menus_yet: "No menus yet. Create one to get started."
-  no_items: No items.
-  context: Context
-  parent: Parent
-  route_url: "Route / URL"
-  item: Item
-  actions: Actions
-  first: First
-  last: Last
-  move_up: Move up
-  move_down: Move down
-  edit: Edit
-  create: Create
-  update: Update
-  loading: "Loading…"
-  error_loading_form: Error loading form.
-  previous: Previous
-  next: Next
-  pagination_menus: Menus pagination
-  showing_from_to_of_total: "Showing %from%-%to% of %total%"
-  depth_limit: Depth limit
-  permission_checker: Permission checker
-  collapsible: Collapsible
-  collapsible_expanded: Collapsible expanded
-  nested_collapsible: Nested collapsible
-  css_classes: CSS classes
-  root: "— Root —"
-  no_label: "(no label)"
+  title: 'Panou meniuri'
+  title_suffix: 'Panou meniuri'
+  menus: 'Meniuri'
+  menu: 'Meniu'
+  menus_back: '← Meniuri'
+  new_menu: 'Meniu nou'
+  edit_menu: 'Editează meniul'
+  edit_item: 'Editează elementul'
+  edit_items: 'Editează elementele'
+  edit_identity: 'Editează (pictogramă, etichetă, tip)'
+  edit_labels: 'Editează eticheta și traducerile'
+  edit_type_position_icon: 'Editează tipul, poziția și pictograma'
+  edit_config: 'Editează configurația (părinte, link, permisiuni)'
+  copy: 'Copiază'
+  copy_menu: 'Copiază meniul'
+  copy_menu_help: 'Copiază meniul și toate elementele sale. Puteți schimba codul și numele noului meniu.'
+  delete: 'Șterge'
+  cancel: 'Anulează'
+  close: 'Închide'
+  confirm_delete: 'Confirmă ștergerea'
+  delete_menu_confirm: 'Ștergeți meniul „%name%” și toate elementele sale?'
+  delete_menu_message: 'Ștergeți acest meniu și toate elementele sale?'
+  delete_item_confirm: 'Ștergeți „%name%” și copiii săi?'
+  delete_item_message: 'Ștergeți acest element și copiii săi?'
+  add_item: 'Adaugă element'
+  new_item: 'Element nou'
+  add_one: 'Adaugă unul'
+  add_child: 'Adaugă copil'
+  add_child_disabled: 'Elementele de tip secțiune și separator nu pot avea copii'
+  search: 'Caută'
+  search_placeholder: 'Caută după cod sau nume…'
+  clear: 'Golește'
+  filter: 'Filtrează'
+  clear_filters: 'Șterge filtrele'
+  no_menus_yet: 'Încă nu există meniuri. Creați unul pentru a începe.'
+  no_items: 'Niciun element.'
+  context: 'Context'
+  parent: 'Părinte'
+  route_url: 'Rută / URL'
+  item: 'Element'
+  actions: 'Acțiuni'
+  first: 'Primul'
+  last: 'Ultimul'
+  move_up: 'Mută în sus'
+  move_down: 'Mută în jos'
+  reindex_positions: 'Reindexează pozițiile (pas %step%)'
+  reindex_positions_title: 'Reatribuie pozițiile în pași de %step% în cadrul fiecărui grup părinte (ordinea se păstrează).'
+  reindex_positions_done: 'Pozițiile au fost reindexate cu pasul %step%.'
+  reindex_positions_unchanged: 'Nu a fost necesară nicio modificare a pozițiilor.'
+  check_parent_cycles: 'Verifică ciclurile de părinți'
+  check_parent_cycles_title: 'Verifică dacă lanțul de părinți nu conține bucle infinite (același meniu).'
+  check_parent_cycles_ok: 'Nu au fost găsite referințe circulare între părinți.'
+  check_parent_cycles_loop: 'A fost detectat un lanț circular de părinți: %chain%'
+  sortable_page_heading: 'Reordonare prin glisare'
+  open_sortable_reorder: 'Reordonează (glisare)'
+  back_to_items_table: 'Vizualizare tabel'
+  sortable_title: 'Glisați pentru a reordona'
+  sortable_help: 'Glisați elementele de mâner pentru a le reordona, a le imbrica sub un părinte sau a le muta pe alt nivel. Apoi aplicați pentru a salva.'
+  sortable_apply: 'Aplică ordinea arborelui'
+  sortable_drag_handle: 'Glisați pentru a reordona'
+  reorder_tree_done: 'Arborele meniului a fost actualizat.'
+  reorder_tree_invalid_json: 'Date de arbore nevalide (JSON).'
+  reorder_tree_invalid_payload: 'Conținutul arborelui nu este valid.'
+  reorder_tree_invalid_layout: 'Arborele nu a putut fi aplicat (ciclu, limită de adâncime sau elemente lipsă).'
+  reorder_tree_section_not_root: 'Secțiunile trebuie să rămână la nivelul rădăcină. Scoateți secțiunea din listele imbricate și aplicați din nou.'
+  edit: 'Editează'
+  create: 'Creează'
+  update: 'Actualizează'
+  loading: 'Se încarcă…'
+  error_loading_form: 'Eroare la încărcarea formularului.'
+  previous: 'Anterior'
+  next: 'Următor'
+  pagination_menus: 'Paginare meniuri'
+  showing_from_to_of_total: 'Se afișează %from%-%to% din %total%'
+  depth_limit: 'Limită de adâncime'
+  permission_checker: 'Verificator de permisiuni'
+  collapsible: 'Restrângibil'
+  collapsible_expanded: 'Restrângibil extins'
+  nested_collapsible: 'Restrângibil imbricat'
+  css_classes: 'Clase CSS'
+  root: '— Rădăcină —'
+  no_label: '(fără etichetă)'
   # 2.3.0 — admin chrome (index table view, item permission badges)
-  table_code: "Cod"
-  table_name: "Nume"
-  table_items: "Elemente"
-  table_context: "Context"
-  no_permission_keys: "Fără chei de permisiune"
-  unanimous: "Unanim"
-  non_unanimous: "Neunanim"
-  position_short: "Poz."
-  unique_code_context_error: A menu with this code and context already exists.
-  base: Base
-  base_badge_title: "Base menu: code cannot be changed after creation."
-  toggle: Toggle
-  yes: Yes
-  no: No
-  export: Export
-  export_all: Export all menus
-  import: Import
-  import_help: "Upload a JSON file exported from this dashboard (one menu or all menus). Choose whether to skip menus that already exist (same code + context) or replace their items."
-  import_json_invalid: Invalid JSON file.
-  import_json_error: "Invalid JSON: %message%"
-  import_file_too_large: "File is too large. Maximum size is %max% MiB."
-  import_done: "Import complete: %created% created, %updated% updated, %skipped% skipped."
-  import_format_invalid_root_array: 'Invalid format: a root JSON array must contain only objects with "menu" and "items". You can also use {"menus": [...]} or {"menu": {...}, "items": [...]}.'
-  import_format_expected: 'Invalid format: expected "menu" + "items", or "menus", or a root array of menu blocks.'
+  table_code: 'Cod'
+  table_name: 'Nume'
+  table_items: 'Elemente'
+  table_context: 'Context'
+  no_permission_keys: 'Fără chei de permisiune'
+  unanimous: 'Unanim'
+  non_unanimous: 'Neunanim'
+  position_short: 'Poz.'
+  unique_code_context_error: 'Există deja un meniu cu acest cod și context.'
+  base: 'De bază'
+  base_badge_title: 'Meniu de bază: codul nu poate fi modificat după creare.'
+  toggle: 'Comută'
+  yes: 'Da'
+  no: 'Nu'
+  export: 'Exportă'
+  export_all: 'Exportă toate meniurile'
+  import: 'Importă'
+  import_help: 'Încărcați un fișier JSON exportat din acest panou. Formate acceptate: un singur meniu {"menu": {...}, "items": [...]}, mai multe meniuri {"menus": [{...}, ...]} sau aceeași listă ca array JSON rădăcină [{"menu": {...}, "items": [...]}, ...]. Alegeți dacă meniurile care există deja (același cod + context) sunt omise sau dacă elementele lor sunt înlocuite.'
+  import_format_invalid_root_array: 'Format nevalid: un array JSON rădăcină trebuie să conțină doar obiecte cu "menu" și "items". Puteți folosi și {"menus": [...]} sau {"menu": {...}, "items": [...]}.'
+  import_format_expected: 'Format nevalid: se aștepta "menu" + "items", sau "menus", sau un array rădăcină de blocuri de meniu.'
+  import_json_invalid: 'Fișier JSON nevalid.'
+  import_json_error: 'JSON nevalid: %message%'
+  import_file_too_large: 'Fișierul este prea mare. Dimensiunea maximă este de %max% MiB.'
+  import_done: 'Import finalizat: %created% create, %updated% actualizate, %skipped% omise.'
 
 # Form: MenuType
 form:
   menu_type:
     code:
-      label: Code
-      help: "Unique identifier (letters, numbers, _ -). For base menus, code cannot be changed after creation."
-      placeholder: "e.g. sidebar"
+      label: 'Cod'
+      help: 'Identificator unic (litere, cifre, _ -). Pentru meniurile de bază, codul nu poate fi modificat după creare.'
+      placeholder: 'ex. sidebar'
     base:
-      label: "Base menu"
-      help: "When checked, this menu's code cannot be changed after creation."
+      label: 'Meniu de bază'
+      help: 'Dacă este bifat, codul acestui meniu nu mai poate fi modificat după creare.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar"
+      label: 'Nume'
+      placeholder: 'ex. Bară laterală'
     context:
-      label: Context
-      help: "Optional JSON key-value pairs to identify this menu variant. When resolving by code, the first matching menu in the ordered context sets is used; empty = fallback for that code."
+      label: 'Context'
+      help: 'Perechi cheie-valoare JSON opționale pentru identificarea acestei variante de meniu. La rezolvarea după cod se folosește primul meniu corespunzător din seturile de context ordonate; gol = variantă implicită pentru acel cod.'
       placeholder: '{"partnerId": 1, "operatorId": 1}'
     icon:
-      label: Icon
-      help: "Optional icon identifier (e.g. Symfony UX Icons: heroicons:home, bootstrap:house)."
-      placeholder: "e.g. heroicons:bars-3, bootstrap:list"
+      label: 'Pictogramă'
+      help: 'Identificator opțional de pictogramă (ex. Symfony UX Icons: heroicons:home, bootstrap:house).'
+      placeholder: 'ex. heroicons:bars-3, bootstrap:list'
     permission_checker:
-      label: Permission checker
-      placeholder: "— Allow all —"
-      allow_all: "— Allow all —"
-      help: "Service implementing MenuPermissionCheckerInterface (empty = allow all)."
+      label: 'Verificator de permisiuni'
+      placeholder: '— Permite tot —'
+      allow_all: '— Permite tot —'
+      permission_key_aware: '— După cheia de permisiune (structură) —'
+      help: 'Serviciu care implementează MenuPermissionCheckerInterface (gol = permite tot).'
     depth_limit:
-      label: Depth limit
-      placeholder: "empty = unlimited"
-      help: "Max depth to render (1 = root only, 2 = root + one level; empty = unlimited)."
+      label: 'Limită de adâncime'
+      placeholder: 'gol = nelimitat'
+      help: 'Adâncimea maximă de randare (1 = doar rădăcina, 2 = rădăcina + un nivel; gol = nelimitat).'
     collapsible:
-      label: "Collapsible (wrap menu in toggle block)"
+      label: 'Restrângibil (încadrează meniul într-un bloc comutabil)'
     collapsible_expanded:
-      label: "Collapsible expanded (open by default)"
+      label: 'Restrângibil extins (deschis implicit)'
     nested_collapsible:
-      label: "Nested collapsible (items with children have toggle)"
+      label: 'Restrângibil imbricat (elementele cu copii au comutator)'
+    nested_collapsible_sections:
+      label: 'Secțiuni restrângibile'
+      help: 'Necesită „Restrângibil imbricat”. Când este activat, rândurile de secțiune afișează o săgeată în dreapta, iar linkurile lor pot fi restrânse. Când este dezactivat, copiii secțiunii rămân mereu extinși (fără săgeată).'
     class_menu:
-      label: "Class menu (root <ul>)"
-      placeholder: "e.g. nav flex-column"
+      label: 'Clasă meniu (<ul> rădăcină)'
+      placeholder: 'ex. nav flex-column'
+    ul_id:
+      label: 'Id ul (<ul> rădăcină)'
+      placeholder: 'ex. main-menu-navigation'
     class_item:
-      label: "Class item (<li>)"
-      placeholder: "e.g. nav-item"
+      label: 'Clasă element (<li>)'
+      placeholder: 'ex. nav-item'
     class_link:
-      label: "Class link (<a>)"
-      placeholder: "e.g. nav-link"
+      label: 'Clasă link (<a>)'
+      placeholder: 'ex. nav-link'
     class_children:
-      label: "Class children (nested <ul>)"
-      placeholder: "e.g. nav flex-column ms-2"
+      label: 'Clasă copii (<ul> imbricat)'
+      placeholder: 'ex. nav flex-column ms-2'
+    class_section_children:
+      label: 'Clasă copii secțiune (<ul> sub itemType "section")'
+      placeholder: 'ex. nav flex-column list-unstyled ps-0 (plat; gol = la fel ca la copii)'
+      help: 'Dacă este setată, lista de prim nivel de sub fiecare secțiune folosește aceste clase în loc de „Clasă copii”, astfel încât linkurile să se poată alinia cu titlul secțiunii (fără indentare). Lăsați gol pentru a folosi în continuare clasa copiilor imbricați.'
+    class_section_child_item:
+      label: 'Clasă <li> pentru copiii direcți ai itemType "section"'
+      placeholder: 'ex. nav-item ms-0 (gol = la fel ca Clasă element)'
+      help: 'Dacă este setată, linkurile și separatoarele care sunt copii direcți ai unei secțiuni folosesc această clasă pentru <li> în loc de „Clasă element”. Utilă pentru ajustări de margine/spațiere în listele de secțiune plate.'
+    class_section_child_link:
+      label: 'Clasă <a> pentru copiii direcți ai itemType "section"'
+      placeholder: 'ex. d-flex align-items-center ps-0 (gol = la fel ca Clasă link)'
+      help: 'Dacă este setată, linkurile care sunt copii direcți ai unei secțiuni folosesc această clasă pentru <a> în loc de „Clasă link”. Se folosește împreună cu clasa <li> a copiilor de secțiune pentru aliniere.'
+    class_section_label:
+      label: 'Clasă etichetă secțiune (itemType "section")'
+      placeholder: 'ex. navigation-header'
     class_section:
-      label: "Class section (<li> when itemType \"section\")"
-      placeholder: "e.g. menu-section"
+      label: 'Clasă secțiune (<li> când itemType "section")'
+      placeholder: 'ex. menu-section'
     class_divider:
-      label: "Class divider (<li> when itemType \"divider\")"
-      placeholder: "e.g. menu-divider"
+      label: 'Clasă separator (<li> când itemType "divider")'
+      placeholder: 'ex. menu-divider'
     class_current:
-      label: "Class current (link matching current route)"
-      placeholder: "e.g. active"
+      label: 'Clasă curent (link care corespunde rutei curente)'
+      placeholder: 'ex. active'
     class_branch_expanded:
-      label: "Class branch expanded (<li> when route in branch)"
-      placeholder: "e.g. active-branch"
+      label: 'Clasă ramură extinsă (<li> când ruta este în ramură)'
+      placeholder: 'ex. active-branch'
     class_has_children:
-      label: "Class has children (<li> when item has children)"
-      placeholder: "e.g. has-children"
+      label: 'Clasă are copii (<li> când elementul are copii)'
+      placeholder: 'ex. has-children'
     class_expanded:
-      label: "Class expanded (<li> when children block is open)"
-      placeholder: "e.g. is-expanded"
+      label: 'Clasă extins (<li> când blocul de copii este deschis)'
+      placeholder: 'ex. is-expanded'
     class_collapsed:
-      label: "Class collapsed (<li> when children block is closed)"
-      placeholder: "e.g. is-collapsed"
-    empty_choice: "— Empty —"
-    css_section_heading: "CSS classes for rendering (override config when set)."
+      label: 'Clasă restrâns (<li> când blocul de copii este închis)'
+      placeholder: 'ex. is-collapsed'
+    empty_choice: '— Gol —'
+    css_section_heading: 'Clase CSS pentru randare (suprascriu configurația când sunt setate).'
+    section_definition: 'Definiție (cod, de bază, nume, context, pictogramă)'
+    section_config: 'Configurație (permisiuni, adâncime, restrângibil, CSS)'
 
   menu_item_type:
+    section_basic: 'Identitate (etichete)'
+    section_icon: 'Identitate (tip, poziție, pictogramă)'
+    section_config: 'Configurație (link, permisiune)'
+    label_required: 'Eticheta este obligatorie pentru Link și Secțiune.'
     label:
-      label: Label
-    label_locale: "Label (%locale%)"
+      label: 'Etichetă'
+    label_locale: 'Etichetă (%locale%)'
+    divider_label_hint: 'Nume opțional pentru acest separator (recomandat pentru accesibilitate și pentru lista din panou). Lăsați gol dacă aveți nevoie doar de un separator vizual.'
     type:
-      label: Type
-      link: Link
-      section: Section
-      divider: Divider
+      label: 'Tip'
+      link: 'Link'
+      section: 'Secțiune'
+      divider: 'Separator'
+      service: 'Serviciu (URL la rulare)'
+    link_resolver:
+      label: 'Rezolvator de linkuri'
+      placeholder: '— Selectați rezolvatorul —'
+      help: 'Alegeți un serviciu care implementează MenuLinkResolverInterface. Acesta poate returna un singur URL sau o listă de rânduri de linkuri copil (etichetă, href, poziție); în acest caz, href-ul părintelui este "#".'
+      service_id_placeholder: 'ex. App\Menu\MyLinkResolver'
+      help_free_text: 'Introduceți id-ul serviciului (numele clasei sau id-ul din container) care implementează MenuLinkResolverInterface.'
+      required: 'Pentru tipul de element „Serviciu” este necesar un rezolvator de linkuri.'
+      route_params_hint: 'JSON opțional transmis rezolvatorului (de exemplu, parametri similari celor de rută).'
     position:
-      label: Position
+      label: 'Poziție'
     link_type:
-      label: Link type
-      route: Route
-      external_url: External URL
+      label: 'Tip de link'
+      route: 'Rută'
+      external_url: 'URL extern'
     route_name:
-      label: Route name
-      placeholder: "— Select route —"
+      label: 'Numele rutei'
+      placeholder: '— Selectați ruta —'
     route_params:
-      label: "Route params (JSON)"
-      placeholder: "{}"
+      label: 'Parametrii rutei (JSON)'
+      placeholder: '{}'
     external_url:
-      label: External URL
-      placeholder: "https://..."
+      label: 'URL extern'
+      placeholder: 'https://...'
     target_blank:
-      label: Open in new tab
+      label: 'Deschide într-o filă nouă'
     permission_keys:
-      label: Permission keys
-      placeholder: "— Allow all —"
-      help_csv: "Comma-separated keys (used when no configured choices are available)."
+      label: 'Chei de permisiune'
+      placeholder: '— Permite tot —'
+      help_csv: 'Chei separate prin virgulă (folosite când nu sunt disponibile opțiuni configurate).'
       choice:
-        authenticated: "Authenticated only"
-        admin: "Admin only"
-        path__: "Path: / (home only)"
+        authenticated: 'Doar autentificați'
+        admin: 'Doar administrator'
+        path__: 'Cale: / (doar pagina principală)'
     is_unanimous:
-      label: Require all selected keys
-      help: "Enabled: all keys must pass (AND). Disabled: any key may pass (OR)."
+      label: 'Solicită toate cheile selectate'
+      help: 'Activat: toate cheile trebuie să fie îndeplinite (AND). Dezactivat: este suficientă oricare cheie (OR).'
     icon:
-      label: Icon
-      placeholder: "heroicons:home"
+      label: 'Pictogramă'
+      placeholder: 'heroicons:home'
     parent:
-      label: Parent
-      placeholder: "— Root (no parent) —"
+      label: 'Părinte'
+      placeholder: '— Rădăcină (fără părinte) —'
+      help_inheritance: 'Elementele părinte se află deasupra acestuia în arbore. Cheile de permisiune din acest rând se aplică acestui element; MenuPermissionChecker-ul dvs. decide cum se combină regulile părinte/copil. Secțiunile și linkurile extensibile sunt randate doar când este afișat cel puțin un copil.'
+      circular_violation: 'Ierarhia circulară de părinți nu este permisă.'
+      section_must_be_root: 'Elementele de tip secțiune trebuie să rămână la nivelul rădăcină (fără părinte).'
+    section_collapsible:
+      label: 'Copiii secțiunii restrângibili'
+      inherit: 'Folosește setarea implicită a meniului'
+      yes: 'Da (restrângibil cu săgeată)'
+      no: 'Nu (mereu extins)'
+      help: 'Suprascrie opțiunea de meniu „Secțiuni restrângibile” doar pentru această secțiune. „Folosește setarea implicită a meniului” urmează configurația meniului.'
 
   import_menu_type:
     file:
-      label: JSON file
-      required: Please choose a file.
-      mime_message: File must be JSON.
+      label: 'Fișier JSON'
+      required: 'Vă rugăm să alegeți un fișier.'
+      mime_message: 'Fișierul trebuie să fie JSON.'
     strategy:
-      label: When a menu with the same code and context already exists
-      skip_existing: Skip (do not import)
-      replace: Replace (delete existing items and import)
+      label: 'Când există deja un meniu cu același cod și context'
+      skip_existing: 'Omite (nu importa)'
+      replace: 'Înlocuiește (șterge elementele existente și importă)'
 
   copy_menu_type:
     code:
-      label: Code
-      placeholder: "e.g. sidebar_copy"
-      regex_message: "Code must contain only letters, numbers, underscore and hyphen."
+      label: 'Cod'
+      placeholder: 'ex. sidebar_copy'
+      regex_message: 'Codul poate conține doar litere, cifre, liniuță jos și cratimă.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar (copy)"
+      label: 'Nume'
+      placeholder: 'ex. Bară laterală (copie)'

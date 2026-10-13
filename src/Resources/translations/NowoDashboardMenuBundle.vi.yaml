@@ -2,220 +2,292 @@
 
 # Dashboard UI
 dashboard:
-  title: Menu dashboard
-  title_suffix: Dashboard Menu
-  menus: Menus
-  menu: Menu
-  menus_back: "← Menus"
-  new_menu: New menu
-  edit_menu: Edit menu
-  edit_item: Edit item
-  edit_items: Edit items
-  copy: Copy
-  copy_menu: Copy menu
-  copy_menu_help: "Copy menu and all its items. You can change the code and name for the new menu."
-  delete: Delete
-  cancel: Cancel
-  close: Close
-  confirm_delete: Confirm delete
-  delete_menu_confirm: 'Delete menu "%name%" and all its items?'
-  delete_menu_message: Delete this menu and all its items?
-  delete_item_confirm: 'Delete "%name%" and its children?'
-  delete_item_message: Delete this item and its children?
-  add_item: Add item
-  new_item: New item
-  add_one: Add one
-  add_child: Add child
-  search: Search
-  search_placeholder: "Search by code or name…"
-  clear: Clear
-  filter: Filter
-  clear_filters: Clear filters
-  no_menus_yet: "No menus yet. Create one to get started."
-  no_items: No items.
-  context: Context
-  parent: Parent
-  route_url: "Route / URL"
-  item: Item
-  actions: Actions
-  first: First
-  last: Last
-  move_up: Move up
-  move_down: Move down
-  edit: Edit
-  create: Create
-  update: Update
-  loading: "Loading…"
-  error_loading_form: Error loading form.
-  previous: Previous
-  next: Next
-  pagination_menus: Menus pagination
-  showing_from_to_of_total: "Showing %from%-%to% of %total%"
-  depth_limit: Depth limit
-  permission_checker: Permission checker
-  collapsible: Collapsible
-  collapsible_expanded: Collapsible expanded
-  nested_collapsible: Nested collapsible
-  css_classes: CSS classes
-  root: "— Root —"
-  no_label: "(no label)"
+  title: 'Bảng điều khiển menu'
+  title_suffix: 'Bảng điều khiển menu'
+  menus: 'Danh sách menu'
+  menu: 'Menu'
+  menus_back: '← Danh sách menu'
+  new_menu: 'Menu mới'
+  edit_menu: 'Sửa menu'
+  edit_item: 'Sửa mục'
+  edit_items: 'Sửa các mục'
+  edit_identity: 'Sửa (biểu tượng, nhãn, loại)'
+  edit_labels: 'Sửa nhãn và bản dịch'
+  edit_type_position_icon: 'Sửa loại, vị trí và biểu tượng'
+  edit_config: 'Sửa cấu hình (mục cha, liên kết, quyền)'
+  copy: 'Sao chép'
+  copy_menu: 'Sao chép menu'
+  copy_menu_help: 'Sao chép menu cùng tất cả các mục của nó. Bạn có thể thay đổi mã và tên cho menu mới.'
+  delete: 'Xóa'
+  cancel: 'Hủy'
+  close: 'Đóng'
+  confirm_delete: 'Xác nhận xóa'
+  delete_menu_confirm: 'Xóa menu "%name%" và tất cả các mục của nó?'
+  delete_menu_message: 'Xóa menu này và tất cả các mục của nó?'
+  delete_item_confirm: 'Xóa "%name%" và các mục con của nó?'
+  delete_item_message: 'Xóa mục này và các mục con của nó?'
+  add_item: 'Thêm mục'
+  new_item: 'Mục mới'
+  add_one: 'Thêm một mục'
+  add_child: 'Thêm mục con'
+  add_child_disabled: 'Mục phân nhóm và mục phân cách không thể có mục con'
+  search: 'Tìm kiếm'
+  search_placeholder: 'Tìm theo mã hoặc tên…'
+  clear: 'Xóa'
+  filter: 'Lọc'
+  clear_filters: 'Xóa bộ lọc'
+  no_menus_yet: 'Chưa có menu nào. Hãy tạo một menu để bắt đầu.'
+  no_items: 'Không có mục nào.'
+  context: 'Ngữ cảnh'
+  parent: 'Mục cha'
+  route_url: 'Tuyến / URL'
+  item: 'Mục'
+  actions: 'Thao tác'
+  first: 'Đầu tiên'
+  last: 'Cuối cùng'
+  move_up: 'Di chuyển lên'
+  move_down: 'Di chuyển xuống'
+  reindex_positions: 'Đánh lại chỉ số vị trí (bước %step%)'
+  reindex_positions_title: 'Gán lại vị trí theo bước %step% trong mỗi nhóm mục cha (giữ nguyên thứ tự).'
+  reindex_positions_done: 'Đã đánh lại chỉ số vị trí với bước %step%.'
+  reindex_positions_unchanged: 'Không cần thay đổi vị trí nào.'
+  check_parent_cycles: 'Kiểm tra vòng lặp mục cha'
+  check_parent_cycles_title: 'Xác minh rằng chuỗi mục cha không có vòng lặp vô hạn (trong cùng menu).'
+  check_parent_cycles_ok: 'Không tìm thấy tham chiếu mục cha vòng tròn nào.'
+  check_parent_cycles_loop: 'Phát hiện chuỗi mục cha vòng tròn: %chain%'
+  sortable_page_heading: 'Sắp xếp bằng kéo thả'
+  open_sortable_reorder: 'Sắp xếp lại (kéo thả)'
+  back_to_items_table: 'Dạng bảng'
+  sortable_title: 'Kéo để sắp xếp lại'
+  sortable_help: 'Kéo các mục bằng tay nắm để sắp xếp lại, lồng vào dưới một mục cha hoặc chuyển sang cấp khác. Sau đó nhấn áp dụng để lưu.'
+  sortable_apply: 'Áp dụng thứ tự cây'
+  sortable_drag_handle: 'Kéo để sắp xếp lại'
+  reorder_tree_done: 'Đã cập nhật cây menu.'
+  reorder_tree_invalid_json: 'Dữ liệu cây không hợp lệ (JSON).'
+  reorder_tree_invalid_payload: 'Dữ liệu gửi lên của cây không hợp lệ.'
+  reorder_tree_invalid_layout: 'Không thể áp dụng cây (có vòng lặp, vượt giới hạn độ sâu hoặc thiếu mục).'
+  reorder_tree_section_not_root: 'Các mục phân nhóm phải nằm ở cấp gốc. Hãy chuyển mục phân nhóm ra khỏi danh sách lồng nhau và áp dụng lại.'
+  edit: 'Sửa'
+  create: 'Tạo'
+  update: 'Cập nhật'
+  loading: 'Đang tải…'
+  error_loading_form: 'Lỗi khi tải biểu mẫu.'
+  previous: 'Trước'
+  next: 'Tiếp'
+  pagination_menus: 'Phân trang menu'
+  showing_from_to_of_total: 'Hiển thị %from%-%to% trên tổng số %total%'
+  depth_limit: 'Giới hạn độ sâu'
+  permission_checker: 'Bộ kiểm tra quyền'
+  collapsible: 'Có thể thu gọn'
+  collapsible_expanded: 'Có thể thu gọn (mở sẵn)'
+  nested_collapsible: 'Thu gọn lồng nhau'
+  css_classes: 'Lớp CSS'
+  root: '— Gốc —'
+  no_label: '(không có nhãn)'
   # 2.3.0 — admin chrome (index table view, item permission badges)
-  table_code: "Mã"
-  table_name: "Tên"
-  table_items: "Mục"
-  table_context: "Ngữ cảnh"
-  no_permission_keys: "Không có khóa quyền"
-  unanimous: "Nhất trí"
-  non_unanimous: "Không nhất trí"
-  position_short: "Vị trí"
-  unique_code_context_error: A menu with this code and context already exists.
-  base: Base
-  base_badge_title: "Base menu: code cannot be changed after creation."
-  toggle: Toggle
-  yes: Yes
-  no: No
-  export: Export
-  export_all: Export all menus
-  import: Import
-  import_help: "Upload a JSON file exported from this dashboard (one menu or all menus). Choose whether to skip menus that already exist (same code + context) or replace their items."
-  import_json_invalid: Invalid JSON file.
-  import_json_error: "Invalid JSON: %message%"
-  import_file_too_large: "File is too large. Maximum size is %max% MiB."
-  import_done: "Import complete: %created% created, %updated% updated, %skipped% skipped."
-  import_format_invalid_root_array: 'Invalid format: a root JSON array must contain only objects with "menu" and "items". You can also use {"menus": [...]} or {"menu": {...}, "items": [...]}.'
-  import_format_expected: 'Invalid format: expected "menu" + "items", or "menus", or a root array of menu blocks.'
+  table_code: 'Mã'
+  table_name: 'Tên'
+  table_items: 'Mục'
+  table_context: 'Ngữ cảnh'
+  no_permission_keys: 'Không có khóa quyền'
+  unanimous: 'Tất cả phải đạt'
+  non_unanimous: 'Chỉ cần một'
+  position_short: 'Vị trí'
+  unique_code_context_error: 'Đã tồn tại menu có cùng mã và ngữ cảnh này.'
+  base: 'Cơ sở'
+  base_badge_title: 'Menu cơ sở: không thể thay đổi mã sau khi tạo.'
+  toggle: 'Bật/tắt'
+  yes: 'Có'
+  no: 'Không'
+  export: 'Xuất'
+  export_all: 'Xuất tất cả menu'
+  import: 'Nhập'
+  import_help: 'Tải lên tệp JSON được xuất từ bảng điều khiển này. Các định dạng được chấp nhận: một menu {"menu": {...}, "items": [...]}, nhiều menu {"menus": [{...}, ...]}, hoặc cùng danh sách đó dưới dạng mảng JSON gốc [{"menu": {...}, "items": [...]}, ...]. Chọn bỏ qua các menu đã tồn tại (cùng mã + ngữ cảnh) hoặc thay thế các mục của chúng.'
+  import_format_invalid_root_array: 'Định dạng không hợp lệ: mảng JSON gốc chỉ được chứa các đối tượng có "menu" và "items". Bạn cũng có thể dùng {"menus": [...]} hoặc {"menu": {...}, "items": [...]}.'
+  import_format_expected: 'Định dạng không hợp lệ: cần có "menu" + "items", hoặc "menus", hoặc một mảng gốc gồm các khối menu.'
+  import_json_invalid: 'Tệp JSON không hợp lệ.'
+  import_json_error: 'JSON không hợp lệ: %message%'
+  import_file_too_large: 'Tệp quá lớn. Kích thước tối đa là %max% MiB.'
+  import_done: 'Nhập hoàn tất: đã tạo %created%, đã cập nhật %updated%, đã bỏ qua %skipped%.'
 
 # Form: MenuType
 form:
   menu_type:
     code:
-      label: Code
-      help: "Unique identifier (letters, numbers, _ -). For base menus, code cannot be changed after creation."
-      placeholder: "e.g. sidebar"
+      label: 'Mã'
+      help: 'Định danh duy nhất (chữ cái, chữ số, _ -). Với menu cơ sở, không thể thay đổi mã sau khi tạo.'
+      placeholder: 'vd. sidebar'
     base:
-      label: "Base menu"
-      help: "When checked, this menu's code cannot be changed after creation."
+      label: 'Menu cơ sở'
+      help: 'Khi được chọn, mã của menu này không thể thay đổi sau khi tạo.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar"
+      label: 'Tên'
+      placeholder: 'vd. Thanh bên'
     context:
-      label: Context
-      help: "Optional JSON key-value pairs to identify this menu variant. When resolving by code, the first matching menu in the ordered context sets is used; empty = fallback for that code."
+      label: 'Ngữ cảnh'
+      help: 'Các cặp khóa-giá trị JSON tùy chọn để nhận diện biến thể menu này. Khi phân giải theo mã, menu khớp đầu tiên trong các tập ngữ cảnh đã sắp xếp sẽ được dùng; để trống = menu dự phòng cho mã đó.'
       placeholder: '{"partnerId": 1, "operatorId": 1}'
     icon:
-      label: Icon
-      help: "Optional icon identifier (e.g. Symfony UX Icons: heroicons:home, bootstrap:house)."
-      placeholder: "e.g. heroicons:bars-3, bootstrap:list"
+      label: 'Biểu tượng'
+      help: 'Định danh biểu tượng tùy chọn (vd. Symfony UX Icons: heroicons:home, bootstrap:house).'
+      placeholder: 'vd. heroicons:bars-3, bootstrap:list'
     permission_checker:
-      label: Permission checker
-      placeholder: "— Allow all —"
-      allow_all: "— Allow all —"
-      help: "Service implementing MenuPermissionCheckerInterface (empty = allow all)."
+      label: 'Bộ kiểm tra quyền'
+      placeholder: '— Cho phép tất cả —'
+      allow_all: '— Cho phép tất cả —'
+      permission_key_aware: '— Theo khóa quyền (cấu trúc) —'
+      help: 'Service triển khai MenuPermissionCheckerInterface (để trống = cho phép tất cả).'
     depth_limit:
-      label: Depth limit
-      placeholder: "empty = unlimited"
-      help: "Max depth to render (1 = root only, 2 = root + one level; empty = unlimited)."
+      label: 'Giới hạn độ sâu'
+      placeholder: 'để trống = không giới hạn'
+      help: 'Độ sâu tối đa để hiển thị (1 = chỉ cấp gốc, 2 = cấp gốc + một cấp; để trống = không giới hạn).'
     collapsible:
-      label: "Collapsible (wrap menu in toggle block)"
+      label: 'Có thể thu gọn (bọc menu trong khối bật/tắt)'
     collapsible_expanded:
-      label: "Collapsible expanded (open by default)"
+      label: 'Có thể thu gọn, mở sẵn (mở theo mặc định)'
     nested_collapsible:
-      label: "Nested collapsible (items with children have toggle)"
+      label: 'Thu gọn lồng nhau (mục có mục con có nút bật/tắt)'
+    nested_collapsible_sections:
+      label: 'Mục phân nhóm có thể thu gọn'
+      help: 'Yêu cầu bật thu gọn lồng nhau. Khi bật, các hàng phân nhóm hiển thị mũi tên ở bên phải và các liên kết của chúng có thể được thu gọn. Khi tắt, các mục con của phân nhóm luôn mở rộng (không có mũi tên).'
     class_menu:
-      label: "Class menu (root <ul>)"
-      placeholder: "e.g. nav flex-column"
+      label: 'Lớp menu (<ul> gốc)'
+      placeholder: 'vd. nav flex-column'
+    ul_id:
+      label: 'Id của ul (<ul> gốc)'
+      placeholder: 'vd. main-menu-navigation'
     class_item:
-      label: "Class item (<li>)"
-      placeholder: "e.g. nav-item"
+      label: 'Lớp mục (<li>)'
+      placeholder: 'vd. nav-item'
     class_link:
-      label: "Class link (<a>)"
-      placeholder: "e.g. nav-link"
+      label: 'Lớp liên kết (<a>)'
+      placeholder: 'vd. nav-link'
     class_children:
-      label: "Class children (nested <ul>)"
-      placeholder: "e.g. nav flex-column ms-2"
+      label: 'Lớp mục con (<ul> lồng nhau)'
+      placeholder: 'vd. nav flex-column ms-2'
+    class_section_children:
+      label: 'Lớp mục con của phân nhóm (<ul> dưới itemType "section")'
+      placeholder: 'vd. nav flex-column list-unstyled ps-0 (phẳng; để trống = giống lớp mục con)'
+      help: 'Khi được đặt, danh sách cấp đầu tiên dưới mỗi phân nhóm sẽ dùng các lớp này thay cho “Lớp mục con”, để các liên kết có thể căn thẳng với tiêu đề phân nhóm (không thụt lề). Để trống để tiếp tục dùng lớp mục con lồng nhau.'
+    class_section_child_item:
+      label: 'Lớp <li> cho mục con trực tiếp của itemType "section"'
+      placeholder: 'vd. nav-item ms-0 (để trống = giống Lớp mục)'
+      help: 'Khi được đặt, các liên kết và mục phân cách là con trực tiếp của một phân nhóm sẽ dùng giá trị này làm lớp <li> thay cho “Lớp mục”. Dùng để tinh chỉnh margin/padding trong danh sách phân nhóm phẳng.'
+    class_section_child_link:
+      label: 'Lớp <a> cho mục con trực tiếp của itemType "section"'
+      placeholder: 'vd. d-flex align-items-center ps-0 (để trống = giống Lớp liên kết)'
+      help: 'Khi được đặt, các liên kết là con trực tiếp của một phân nhóm sẽ dùng giá trị này làm lớp <a> thay cho “Lớp liên kết”. Kết hợp với lớp <li> của mục con phân nhóm để căn chỉnh.'
+    class_section_label:
+      label: 'Lớp nhãn phân nhóm (itemType "section")'
+      placeholder: 'vd. navigation-header'
     class_section:
-      label: "Class section (<li> when itemType \"section\")"
-      placeholder: "e.g. menu-section"
+      label: 'Lớp phân nhóm (<li> khi itemType "section")'
+      placeholder: 'vd. menu-section'
     class_divider:
-      label: "Class divider (<li> when itemType \"divider\")"
-      placeholder: "e.g. menu-divider"
+      label: 'Lớp phân cách (<li> khi itemType "divider")'
+      placeholder: 'vd. menu-divider'
     class_current:
-      label: "Class current (link matching current route)"
-      placeholder: "e.g. active"
+      label: 'Lớp hiện tại (liên kết khớp với tuyến hiện tại)'
+      placeholder: 'vd. active'
     class_branch_expanded:
-      label: "Class branch expanded (<li> when route in branch)"
-      placeholder: "e.g. active-branch"
+      label: 'Lớp nhánh mở rộng (<li> khi tuyến nằm trong nhánh)'
+      placeholder: 'vd. active-branch'
     class_has_children:
-      label: "Class has children (<li> when item has children)"
-      placeholder: "e.g. has-children"
+      label: 'Lớp có mục con (<li> khi mục có mục con)'
+      placeholder: 'vd. has-children'
     class_expanded:
-      label: "Class expanded (<li> when children block is open)"
-      placeholder: "e.g. is-expanded"
+      label: 'Lớp mở rộng (<li> khi khối mục con đang mở)'
+      placeholder: 'vd. is-expanded'
     class_collapsed:
-      label: "Class collapsed (<li> when children block is closed)"
-      placeholder: "e.g. is-collapsed"
-    empty_choice: "— Empty —"
-    css_section_heading: "CSS classes for rendering (override config when set)."
+      label: 'Lớp thu gọn (<li> khi khối mục con đang đóng)'
+      placeholder: 'vd. is-collapsed'
+    empty_choice: '— Trống —'
+    css_section_heading: 'Các lớp CSS dùng để hiển thị (ghi đè cấu hình khi được đặt).'
+    section_definition: 'Định nghĩa (mã, cơ sở, tên, ngữ cảnh, biểu tượng)'
+    section_config: 'Cấu hình (quyền, độ sâu, thu gọn, CSS)'
 
   menu_item_type:
+    section_basic: 'Nhận diện (nhãn)'
+    section_icon: 'Nhận diện (loại, vị trí, biểu tượng)'
+    section_config: 'Cấu hình (liên kết, quyền)'
+    label_required: 'Nhãn là bắt buộc đối với Liên kết và Phân nhóm.'
     label:
-      label: Label
-    label_locale: "Label (%locale%)"
+      label: 'Nhãn'
+    label_locale: 'Nhãn (%locale%)'
+    divider_label_hint: 'Tên tùy chọn cho mục phân cách này (nên đặt để hỗ trợ trợ năng và hiển thị trong danh sách của bảng điều khiển). Để trống nếu bạn chỉ cần một đường phân cách trực quan.'
     type:
-      label: Type
-      link: Link
-      section: Section
-      divider: Divider
+      label: 'Loại'
+      link: 'Liên kết'
+      section: 'Phân nhóm'
+      divider: 'Phân cách'
+      service: 'Service (URL lúc chạy)'
+    link_resolver:
+      label: 'Bộ phân giải liên kết'
+      placeholder: '— Chọn bộ phân giải —'
+      help: 'Chọn một service triển khai MenuLinkResolverInterface. Service có thể trả về một URL duy nhất hoặc danh sách các hàng liên kết con (label, href, position); khi đó href của mục cha là "#".'
+      service_id_placeholder: 'vd. App\Menu\MyLinkResolver'
+      help_free_text: 'Nhập id của service (tên lớp hoặc id trong container) triển khai MenuLinkResolverInterface.'
+      required: 'Cần có bộ phân giải liên kết cho loại mục “Service”.'
+      route_params_hint: 'JSON tùy chọn được truyền cho bộ phân giải (ví dụ các tham số kiểu tuyến).'
     position:
-      label: Position
+      label: 'Vị trí'
     link_type:
-      label: Link type
-      route: Route
-      external_url: External URL
+      label: 'Loại liên kết'
+      route: 'Tuyến'
+      external_url: 'URL bên ngoài'
     route_name:
-      label: Route name
-      placeholder: "— Select route —"
+      label: 'Tên tuyến'
+      placeholder: '— Chọn tuyến —'
     route_params:
-      label: "Route params (JSON)"
-      placeholder: "{}"
+      label: 'Tham số tuyến (JSON)'
+      placeholder: '{}'
     external_url:
-      label: External URL
-      placeholder: "https://..."
+      label: 'URL bên ngoài'
+      placeholder: 'https://...'
     target_blank:
-      label: Open in new tab
+      label: 'Mở trong tab mới'
     permission_keys:
-      label: Permission keys
-      placeholder: "— Allow all —"
-      help_csv: "Comma-separated keys (used when no configured choices are available)."
+      label: 'Khóa quyền'
+      placeholder: '— Cho phép tất cả —'
+      help_csv: 'Các khóa phân tách bằng dấu phẩy (dùng khi không có lựa chọn nào được cấu hình).'
       choice:
-        authenticated: "Authenticated only"
-        admin: "Admin only"
-        path__: "Path: / (home only)"
+        authenticated: 'Chỉ người dùng đã đăng nhập'
+        admin: 'Chỉ quản trị viên'
+        path__: 'Đường dẫn: / (chỉ trang chủ)'
     is_unanimous:
-      label: Require all selected keys
-      help: "Enabled: all keys must pass (AND). Disabled: any key may pass (OR)."
+      label: 'Yêu cầu tất cả các khóa đã chọn'
+      help: 'Bật: tất cả các khóa đều phải đạt (AND). Tắt: chỉ cần một khóa bất kỳ đạt (OR).'
     icon:
-      label: Icon
-      placeholder: "heroicons:home"
+      label: 'Biểu tượng'
+      placeholder: 'heroicons:home'
     parent:
-      label: Parent
-      placeholder: "— Root (no parent) —"
+      label: 'Mục cha'
+      placeholder: '— Gốc (không có mục cha) —'
+      help_inheritance: 'Các mục cha nằm phía trên mục này trong cây. Khóa quyền trên hàng này áp dụng cho mục này; MenuPermissionChecker của bạn quyết định cách kết hợp các quy tắc của mục cha/mục con. Phân nhóm và liên kết có thể mở rộng chỉ được hiển thị khi có ít nhất một mục con được hiển thị.'
+      circular_violation: 'Không cho phép phân cấp mục cha vòng tròn.'
+      section_must_be_root: 'Mục phân nhóm phải nằm ở cấp gốc (không có mục cha).'
+    section_collapsible:
+      label: 'Mục con của phân nhóm có thể thu gọn'
+      inherit: 'Dùng mặc định của menu'
+      yes: 'Có (thu gọn được, có mũi tên)'
+      no: 'Không (luôn mở rộng)'
+      help: 'Ghi đè tùy chọn menu “Mục phân nhóm có thể thu gọn” chỉ cho phân nhóm này. “Dùng mặc định của menu” sẽ theo cấu hình của menu.'
 
   import_menu_type:
     file:
-      label: JSON file
-      required: Please choose a file.
-      mime_message: File must be JSON.
+      label: 'Tệp JSON'
+      required: 'Vui lòng chọn một tệp.'
+      mime_message: 'Tệp phải có định dạng JSON.'
     strategy:
-      label: When a menu with the same code and context already exists
-      skip_existing: Skip (do not import)
-      replace: Replace (delete existing items and import)
+      label: 'Khi đã tồn tại menu có cùng mã và ngữ cảnh'
+      skip_existing: 'Bỏ qua (không nhập)'
+      replace: 'Thay thế (xóa các mục hiện có rồi nhập)'
 
   copy_menu_type:
     code:
-      label: Code
-      placeholder: "e.g. sidebar_copy"
-      regex_message: "Code must contain only letters, numbers, underscore and hyphen."
+      label: 'Mã'
+      placeholder: 'vd. sidebar_copy'
+      regex_message: 'Mã chỉ được chứa chữ cái, chữ số, dấu gạch dưới và dấu gạch ngang.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar (copy)"
+      label: 'Tên'
+      placeholder: 'vd. Thanh bên (bản sao)'

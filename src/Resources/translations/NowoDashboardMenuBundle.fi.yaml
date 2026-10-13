@@ -2,220 +2,292 @@
 
 # Dashboard UI
 dashboard:
-  title: Menu dashboard
-  title_suffix: Dashboard Menu
-  menus: Menus
-  menu: Menu
-  menus_back: "← Menus"
-  new_menu: New menu
-  edit_menu: Edit menu
-  edit_item: Edit item
-  edit_items: Edit items
-  copy: Copy
-  copy_menu: Copy menu
-  copy_menu_help: "Copy menu and all its items. You can change the code and name for the new menu."
-  delete: Delete
-  cancel: Cancel
-  close: Close
-  confirm_delete: Confirm delete
-  delete_menu_confirm: 'Delete menu "%name%" and all its items?'
-  delete_menu_message: Delete this menu and all its items?
-  delete_item_confirm: 'Delete "%name%" and its children?'
-  delete_item_message: Delete this item and its children?
-  add_item: Add item
-  new_item: New item
-  add_one: Add one
-  add_child: Add child
-  search: Search
-  search_placeholder: "Search by code or name…"
-  clear: Clear
-  filter: Filter
-  clear_filters: Clear filters
-  no_menus_yet: "No menus yet. Create one to get started."
-  no_items: No items.
-  context: Context
-  parent: Parent
-  route_url: "Route / URL"
-  item: Item
-  actions: Actions
-  first: First
-  last: Last
-  move_up: Move up
-  move_down: Move down
-  edit: Edit
-  create: Create
-  update: Update
-  loading: "Loading…"
-  error_loading_form: Error loading form.
-  previous: Previous
-  next: Next
-  pagination_menus: Menus pagination
-  showing_from_to_of_total: "Showing %from%-%to% of %total%"
-  depth_limit: Depth limit
-  permission_checker: Permission checker
-  collapsible: Collapsible
-  collapsible_expanded: Collapsible expanded
-  nested_collapsible: Nested collapsible
-  css_classes: CSS classes
-  root: "— Root —"
-  no_label: "(no label)"
+  title: 'Valikkojen hallinta'
+  title_suffix: 'Valikkojen hallinta'
+  menus: 'Valikot'
+  menu: 'Valikko'
+  menus_back: '← Valikot'
+  new_menu: 'Uusi valikko'
+  edit_menu: 'Muokkaa valikkoa'
+  edit_item: 'Muokkaa kohdetta'
+  edit_items: 'Muokkaa kohteita'
+  edit_identity: 'Muokkaa (kuvake, nimike, tyyppi)'
+  edit_labels: 'Muokkaa nimikettä ja käännöksiä'
+  edit_type_position_icon: 'Muokkaa tyyppiä, sijaintia ja kuvaketta'
+  edit_config: 'Muokkaa asetuksia (yläkohde, linkki, käyttöoikeudet)'
+  copy: 'Kopioi'
+  copy_menu: 'Kopioi valikko'
+  copy_menu_help: 'Kopioi valikko ja kaikki sen kohteet. Voit muuttaa uuden valikon koodia ja nimeä.'
+  delete: 'Poista'
+  cancel: 'Peruuta'
+  close: 'Sulje'
+  confirm_delete: 'Vahvista poisto'
+  delete_menu_confirm: 'Poistetaanko valikko ”%name%” ja kaikki sen kohteet?'
+  delete_menu_message: 'Poistetaanko tämä valikko ja kaikki sen kohteet?'
+  delete_item_confirm: 'Poistetaanko ”%name%” ja sen alakohteet?'
+  delete_item_message: 'Poistetaanko tämä kohde ja sen alakohteet?'
+  add_item: 'Lisää kohde'
+  new_item: 'Uusi kohde'
+  add_one: 'Lisää yksi'
+  add_child: 'Lisää alakohde'
+  add_child_disabled: 'Osio- ja erotinkohteilla ei voi olla alakohteita'
+  search: 'Hae'
+  search_placeholder: 'Hae koodilla tai nimellä…'
+  clear: 'Tyhjennä'
+  filter: 'Suodata'
+  clear_filters: 'Tyhjennä suodattimet'
+  no_menus_yet: 'Valikkoja ei ole vielä. Aloita luomalla valikko.'
+  no_items: 'Ei kohteita.'
+  context: 'Konteksti'
+  parent: 'Yläkohde'
+  route_url: 'Reitti / URL'
+  item: 'Kohde'
+  actions: 'Toiminnot'
+  first: 'Ensimmäinen'
+  last: 'Viimeinen'
+  move_up: 'Siirrä ylös'
+  move_down: 'Siirrä alas'
+  reindex_positions: 'Numeroi sijainnit uudelleen (väli %step%)'
+  reindex_positions_title: 'Määritä sijainnit uudelleen %step%:n välein kunkin yläkohderyhmän sisällä (järjestys säilyy).'
+  reindex_positions_done: 'Sijainnit numeroitiin uudelleen välillä %step%.'
+  reindex_positions_unchanged: 'Sijainteihin ei tarvittu muutoksia.'
+  check_parent_cycles: 'Tarkista yläkohdesilmukat'
+  check_parent_cycles_title: 'Varmista, ettei yläkohdeketjussa ole päättymättömiä silmukoita (sama valikko).'
+  check_parent_cycles_ok: 'Kehämäisiä yläkohdeviittauksia ei löytynyt.'
+  check_parent_cycles_loop: 'Havaittiin kehämäinen yläkohdeketju: %chain%'
+  sortable_page_heading: 'Järjestä vetämällä'
+  open_sortable_reorder: 'Järjestä (vedä)'
+  back_to_items_table: 'Taulukkonäkymä'
+  sortable_title: 'Järjestä vetämällä'
+  sortable_help: 'Vedä kohteita kahvasta järjestääksesi ne uudelleen, sijoittaaksesi ne yläkohteen alle tai siirtääksesi ne toiselle tasolle. Tallenna sitten valitsemalla Käytä.'
+  sortable_apply: 'Käytä puun järjestystä'
+  sortable_drag_handle: 'Järjestä vetämällä'
+  reorder_tree_done: 'Valikkopuu päivitettiin.'
+  reorder_tree_invalid_json: 'Virheelliset puun tiedot (JSON).'
+  reorder_tree_invalid_payload: 'Virheellinen puun tietosisältö.'
+  reorder_tree_invalid_layout: 'Puuta ei voitu käyttää (silmukka, syvyysraja tai puuttuvia kohteita).'
+  reorder_tree_section_not_root: 'Osioiden on pysyttävä juuritasolla. Siirrä osio pois sisäkkäisistä luetteloista ja käytä uudelleen.'
+  edit: 'Muokkaa'
+  create: 'Luo'
+  update: 'Päivitä'
+  loading: 'Ladataan…'
+  error_loading_form: 'Virhe lomakkeen latauksessa.'
+  previous: 'Edellinen'
+  next: 'Seuraava'
+  pagination_menus: 'Valikkojen sivutus'
+  showing_from_to_of_total: 'Näytetään %from%–%to% / %total%'
+  depth_limit: 'Syvyysraja'
+  permission_checker: 'Käyttöoikeuksien tarkistin'
+  collapsible: 'Kutistettava'
+  collapsible_expanded: 'Kutistettava, laajennettu'
+  nested_collapsible: 'Sisäkkäin kutistettava'
+  css_classes: 'CSS-luokat'
+  root: '— Juuri —'
+  no_label: '(ei nimikettä)'
   # 2.3.0 — admin chrome (index table view, item permission badges)
-  table_code: "Koodi"
-  table_name: "Nimi"
-  table_items: "Kohteet"
-  table_context: "Konteksti"
-  no_permission_keys: "Ei käyttöoikeusavaimia"
-  unanimous: "Yksimielinen"
-  non_unanimous: "Ei yksimielinen"
-  position_short: "Sij."
-  unique_code_context_error: A menu with this code and context already exists.
-  base: Base
-  base_badge_title: "Base menu: code cannot be changed after creation."
-  toggle: Toggle
-  yes: Yes
-  no: No
-  export: Export
-  export_all: Export all menus
-  import: Import
-  import_help: "Upload a JSON file exported from this dashboard (one menu or all menus). Choose whether to skip menus that already exist (same code + context) or replace their items."
-  import_json_invalid: Invalid JSON file.
-  import_json_error: "Invalid JSON: %message%"
-  import_file_too_large: "File is too large. Maximum size is %max% MiB."
-  import_done: "Import complete: %created% created, %updated% updated, %skipped% skipped."
-  import_format_invalid_root_array: 'Invalid format: a root JSON array must contain only objects with "menu" and "items". You can also use {"menus": [...]} or {"menu": {...}, "items": [...]}.'
-  import_format_expected: 'Invalid format: expected "menu" + "items", or "menus", or a root array of menu blocks.'
+  table_code: 'Koodi'
+  table_name: 'Nimi'
+  table_items: 'Kohteet'
+  table_context: 'Konteksti'
+  no_permission_keys: 'Ei käyttöoikeusavaimia'
+  unanimous: 'Yksimielinen'
+  non_unanimous: 'Ei yksimielinen'
+  position_short: 'Sij.'
+  unique_code_context_error: 'Valikko, jolla on tämä koodi ja konteksti, on jo olemassa.'
+  base: 'Perus'
+  base_badge_title: 'Perusvalikko: koodia ei voi muuttaa luomisen jälkeen.'
+  toggle: 'Vaihda'
+  yes: 'Kyllä'
+  no: 'Ei'
+  export: 'Vie'
+  export_all: 'Vie kaikki valikot'
+  import: 'Tuo'
+  import_help: 'Lataa tästä hallintanäkymästä viety JSON-tiedosto. Hyväksytyt muodot: yksittäinen valikko {"menu": {...}, "items": [...]}, useita valikoita {"menus": [{...}, ...]} tai sama luettelo JSON-juuritaulukkona [{"menu": {...}, "items": [...]}, ...]. Valitse, ohitetaanko jo olemassa olevat valikot (sama koodi + konteksti) vai korvataanko niiden kohteet.'
+  import_format_invalid_root_array: 'Virheellinen muoto: JSON-juuritaulukko saa sisältää vain objekteja, joissa on "menu" ja "items". Voit käyttää myös muotoa {"menus": [...]} tai {"menu": {...}, "items": [...]}.'
+  import_format_expected: 'Virheellinen muoto: odotettiin "menu" + "items", "menus" tai valikkolohkojen juuritaulukkoa.'
+  import_json_invalid: 'Virheellinen JSON-tiedosto.'
+  import_json_error: 'Virheellinen JSON: %message%'
+  import_file_too_large: 'Tiedosto on liian suuri. Enimmäiskoko on %max% MiB.'
+  import_done: 'Tuonti valmis: %created% luotu, %updated% päivitetty, %skipped% ohitettu.'
 
 # Form: MenuType
 form:
   menu_type:
     code:
-      label: Code
-      help: "Unique identifier (letters, numbers, _ -). For base menus, code cannot be changed after creation."
-      placeholder: "e.g. sidebar"
+      label: 'Koodi'
+      help: 'Yksilöllinen tunniste (kirjaimet, numerot, _ -). Perusvalikoiden koodia ei voi muuttaa luomisen jälkeen.'
+      placeholder: 'esim. sidebar'
     base:
-      label: "Base menu"
-      help: "When checked, this menu's code cannot be changed after creation."
+      label: 'Perusvalikko'
+      help: 'Kun valittu, tämän valikon koodia ei voi muuttaa luomisen jälkeen.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar"
+      label: 'Nimi'
+      placeholder: 'esim. Sivupalkki'
     context:
-      label: Context
-      help: "Optional JSON key-value pairs to identify this menu variant. When resolving by code, the first matching menu in the ordered context sets is used; empty = fallback for that code."
+      label: 'Konteksti'
+      help: 'Valinnaiset JSON-avain–arvo-parit tämän valikkoversion tunnistamiseen. Koodin perusteella haettaessa käytetään ensimmäistä täsmäävää valikkoa järjestetyistä kontekstijoukoista; tyhjä = kyseisen koodin oletusvaihtoehto.'
       placeholder: '{"partnerId": 1, "operatorId": 1}'
     icon:
-      label: Icon
-      help: "Optional icon identifier (e.g. Symfony UX Icons: heroicons:home, bootstrap:house)."
-      placeholder: "e.g. heroicons:bars-3, bootstrap:list"
+      label: 'Kuvake'
+      help: 'Valinnainen kuvakkeen tunniste (esim. Symfony UX Icons: heroicons:home, bootstrap:house).'
+      placeholder: 'esim. heroicons:bars-3, bootstrap:list'
     permission_checker:
-      label: Permission checker
-      placeholder: "— Allow all —"
-      allow_all: "— Allow all —"
-      help: "Service implementing MenuPermissionCheckerInterface (empty = allow all)."
+      label: 'Käyttöoikeuksien tarkistin'
+      placeholder: '— Salli kaikki —'
+      allow_all: '— Salli kaikki —'
+      permission_key_aware: '— Käyttöoikeusavaimen mukaan (rakenne) —'
+      help: 'Palvelu, joka toteuttaa rajapinnan MenuPermissionCheckerInterface (tyhjä = salli kaikki).'
     depth_limit:
-      label: Depth limit
-      placeholder: "empty = unlimited"
-      help: "Max depth to render (1 = root only, 2 = root + one level; empty = unlimited)."
+      label: 'Syvyysraja'
+      placeholder: 'tyhjä = rajoittamaton'
+      help: 'Näytettävä enimmäissyvyys (1 = vain juuri, 2 = juuri + yksi taso; tyhjä = rajoittamaton).'
     collapsible:
-      label: "Collapsible (wrap menu in toggle block)"
+      label: 'Kutistettava (valikko kääritään avattavaan lohkoon)'
     collapsible_expanded:
-      label: "Collapsible expanded (open by default)"
+      label: 'Kutistettava, laajennettu (oletuksena auki)'
     nested_collapsible:
-      label: "Nested collapsible (items with children have toggle)"
+      label: 'Sisäkkäin kutistettava (alakohteellisilla kohteilla on avaus/sulku)'
+    nested_collapsible_sections:
+      label: 'Kutistettavat osiot'
+      help: 'Edellyttää sisäkkäistä kutistusta. Kun käytössä, osiorivien oikealla puolella näkyy nuoli ja niiden linkit voi kutistaa. Kun pois käytöstä, osioiden alakohteet ovat aina laajennettuina (ei nuolta).'
     class_menu:
-      label: "Class menu (root <ul>)"
-      placeholder: "e.g. nav flex-column"
+      label: 'Valikon luokka (juuri-<ul>)'
+      placeholder: 'esim. nav flex-column'
+    ul_id:
+      label: 'Ul-elementin id (juuri-<ul>)'
+      placeholder: 'esim. main-menu-navigation'
     class_item:
-      label: "Class item (<li>)"
-      placeholder: "e.g. nav-item"
+      label: 'Kohteen luokka (<li>)'
+      placeholder: 'esim. nav-item'
     class_link:
-      label: "Class link (<a>)"
-      placeholder: "e.g. nav-link"
+      label: 'Linkin luokka (<a>)'
+      placeholder: 'esim. nav-link'
     class_children:
-      label: "Class children (nested <ul>)"
-      placeholder: "e.g. nav flex-column ms-2"
+      label: 'Alakohteiden luokka (sisäkkäinen <ul>)'
+      placeholder: 'esim. nav flex-column ms-2'
+    class_section_children:
+      label: 'Osion alakohteiden luokka (<ul> itemType "section" -kohteen alla)'
+      placeholder: 'esim. nav flex-column list-unstyled ps-0 (tasainen; tyhjä = sama kuin alakohteilla)'
+      help: 'Kun asetettu, kunkin osion alla oleva ensimmäisen tason luettelo käyttää näitä luokkia ”Alakohteiden luokan” sijaan, jotta linkit voivat tasautua osion otsikon kanssa (ei sisennystä). Jätä tyhjäksi, jos haluat käyttää edelleen sisäkkäisten alakohteiden luokkaa.'
+    class_section_child_item:
+      label: '<li>-luokka itemType "section" -kohteen suorille alakohteille'
+      placeholder: 'esim. nav-item ms-0 (tyhjä = sama kuin Kohteen luokka)'
+      help: 'Kun asetettu, osion suorina alakohteina olevat linkit ja erottimet käyttävät tätä <li>-luokkana ”Kohteen luokan” sijaan. Käytä marginaalien ja täytteiden hienosäätöön tasaisissa osioluetteloissa.'
+    class_section_child_link:
+      label: '<a>-luokka itemType "section" -kohteen suorille alakohteille'
+      placeholder: 'esim. d-flex align-items-center ps-0 (tyhjä = sama kuin Linkin luokka)'
+      help: 'Kun asetettu, osion suorina alakohteina olevat linkit käyttävät tätä <a>-luokkana ”Linkin luokan” sijaan. Toimii yhdessä osion alakohteen <li>-luokan kanssa tasausta varten.'
+    class_section_label:
+      label: 'Osion nimikkeen luokka (itemType "section")'
+      placeholder: 'esim. navigation-header'
     class_section:
-      label: "Class section (<li> when itemType \"section\")"
-      placeholder: "e.g. menu-section"
+      label: 'Osion luokka (<li>, kun itemType "section")'
+      placeholder: 'esim. menu-section'
     class_divider:
-      label: "Class divider (<li> when itemType \"divider\")"
-      placeholder: "e.g. menu-divider"
+      label: 'Erottimen luokka (<li>, kun itemType "divider")'
+      placeholder: 'esim. menu-divider'
     class_current:
-      label: "Class current (link matching current route)"
-      placeholder: "e.g. active"
+      label: 'Nykyisen luokka (nykyistä reittiä vastaava linkki)'
+      placeholder: 'esim. active'
     class_branch_expanded:
-      label: "Class branch expanded (<li> when route in branch)"
-      placeholder: "e.g. active-branch"
+      label: 'Laajennetun haaran luokka (<li>, kun reitti on haarassa)'
+      placeholder: 'esim. active-branch'
     class_has_children:
-      label: "Class has children (<li> when item has children)"
-      placeholder: "e.g. has-children"
+      label: 'Alakohteellisen luokka (<li>, kun kohteella on alakohteita)'
+      placeholder: 'esim. has-children'
     class_expanded:
-      label: "Class expanded (<li> when children block is open)"
-      placeholder: "e.g. is-expanded"
+      label: 'Laajennetun luokka (<li>, kun alakohdelohko on auki)'
+      placeholder: 'esim. is-expanded'
     class_collapsed:
-      label: "Class collapsed (<li> when children block is closed)"
-      placeholder: "e.g. is-collapsed"
-    empty_choice: "— Empty —"
-    css_section_heading: "CSS classes for rendering (override config when set)."
+      label: 'Kutistetun luokka (<li>, kun alakohdelohko on kiinni)'
+      placeholder: 'esim. is-collapsed'
+    empty_choice: '— Tyhjä —'
+    css_section_heading: 'Hahmonnuksen CSS-luokat (ohittavat asetukset, kun määritetty).'
+    section_definition: 'Määrittely (koodi, perus, nimi, konteksti, kuvake)'
+    section_config: 'Asetukset (käyttöoikeudet, syvyys, kutistettavuus, CSS)'
 
   menu_item_type:
+    section_basic: 'Tunnistetiedot (nimikkeet)'
+    section_icon: 'Tunnistetiedot (tyyppi, sijainti, kuvake)'
+    section_config: 'Asetukset (linkki, käyttöoikeus)'
+    label_required: 'Nimike on pakollinen linkille ja osiolle.'
     label:
-      label: Label
-    label_locale: "Label (%locale%)"
+      label: 'Nimike'
+    label_locale: 'Nimike (%locale%)'
+    divider_label_hint: 'Valinnainen nimi tälle erottimelle (suositellaan saavutettavuuden ja hallintanäkymän luettelon vuoksi). Jätä tyhjäksi, jos tarvitset vain visuaalisen erottimen.'
     type:
-      label: Type
-      link: Link
-      section: Section
-      divider: Divider
+      label: 'Tyyppi'
+      link: 'Linkki'
+      section: 'Osio'
+      divider: 'Erotin'
+      service: 'Palvelu (ajonaikainen URL)'
+    link_resolver:
+      label: 'Linkin selvittäjä'
+      placeholder: '— Valitse selvittäjä —'
+      help: 'Valitse palvelu, joka toteuttaa rajapinnan MenuLinkResolverInterface. Se voi palauttaa yksittäisen URL-osoitteen tai luettelon alalinkkirivejä (label, href, position); yläkohteen href on tällöin "#".'
+      service_id_placeholder: 'esim. App\Menu\MyLinkResolver'
+      help_free_text: 'Anna palvelun tunniste (luokan nimi tai containerin id), joka toteuttaa rajapinnan MenuLinkResolverInterface.'
+      required: 'Kohdetyyppi ”Palvelu” edellyttää linkin selvittäjää.'
+      route_params_hint: 'Valinnainen JSON, joka välitetään selvittäjälle (esimerkiksi reittiparametrien kaltaiset arvot).'
     position:
-      label: Position
+      label: 'Sijainti'
     link_type:
-      label: Link type
-      route: Route
-      external_url: External URL
+      label: 'Linkin tyyppi'
+      route: 'Reitti'
+      external_url: 'Ulkoinen URL'
     route_name:
-      label: Route name
-      placeholder: "— Select route —"
+      label: 'Reitin nimi'
+      placeholder: '— Valitse reitti —'
     route_params:
-      label: "Route params (JSON)"
-      placeholder: "{}"
+      label: 'Reitin parametrit (JSON)'
+      placeholder: '{}'
     external_url:
-      label: External URL
-      placeholder: "https://..."
+      label: 'Ulkoinen URL'
+      placeholder: 'https://...'
     target_blank:
-      label: Open in new tab
+      label: 'Avaa uudessa välilehdessä'
     permission_keys:
-      label: Permission keys
-      placeholder: "— Allow all —"
-      help_csv: "Comma-separated keys (used when no configured choices are available)."
+      label: 'Käyttöoikeusavaimet'
+      placeholder: '— Salli kaikki —'
+      help_csv: 'Pilkuilla erotetut avaimet (käytetään, kun määritettyjä vaihtoehtoja ei ole saatavilla).'
       choice:
-        authenticated: "Authenticated only"
-        admin: "Admin only"
-        path__: "Path: / (home only)"
+        authenticated: 'Vain kirjautuneet'
+        admin: 'Vain ylläpitäjät'
+        path__: 'Polku: / (vain etusivu)'
     is_unanimous:
-      label: Require all selected keys
-      help: "Enabled: all keys must pass (AND). Disabled: any key may pass (OR)."
+      label: 'Vaadi kaikki valitut avaimet'
+      help: 'Käytössä: kaikkien avainten on täytyttävä (AND). Pois käytöstä: mikä tahansa avain riittää (OR).'
     icon:
-      label: Icon
-      placeholder: "heroicons:home"
+      label: 'Kuvake'
+      placeholder: 'heroicons:home'
     parent:
-      label: Parent
-      placeholder: "— Root (no parent) —"
+      label: 'Yläkohde'
+      placeholder: '— Juuri (ei yläkohdetta) —'
+      help_inheritance: 'Yläkohteet sijaitsevat puussa tämän kohteen yläpuolella. Tämän rivin käyttöoikeusavaimet koskevat tätä kohdetta; MenuPermissionChecker-toteutuksesi päättää, miten ylä- ja alakohteiden säännöt yhdistetään. Osiot ja laajennettavat linkit näytetään vain, jos vähintään yksi alakohde näkyy.'
+      circular_violation: 'Kehämäinen yläkohdehierarkia ei ole sallittu.'
+      section_must_be_root: 'Osiokohteiden on pysyttävä juuritasolla (ei yläkohdetta).'
+    section_collapsible:
+      label: 'Osion alakohteet kutistettavissa'
+      inherit: 'Käytä valikon oletusta'
+      yes: 'Kyllä (kutistettava nuolella)'
+      no: 'Ei (aina laajennettu)'
+      help: 'Ohittaa valikon asetuksen ”Kutistettavat osiot” vain tämän osion osalta. ”Käytä valikon oletusta” noudattaa valikon asetuksia.'
 
   import_menu_type:
     file:
-      label: JSON file
-      required: Please choose a file.
-      mime_message: File must be JSON.
+      label: 'JSON-tiedosto'
+      required: 'Valitse tiedosto.'
+      mime_message: 'Tiedoston on oltava JSON-muotoinen.'
     strategy:
-      label: When a menu with the same code and context already exists
-      skip_existing: Skip (do not import)
-      replace: Replace (delete existing items and import)
+      label: 'Kun valikko, jolla on sama koodi ja konteksti, on jo olemassa'
+      skip_existing: 'Ohita (älä tuo)'
+      replace: 'Korvaa (poista nykyiset kohteet ja tuo)'
 
   copy_menu_type:
     code:
-      label: Code
-      placeholder: "e.g. sidebar_copy"
-      regex_message: "Code must contain only letters, numbers, underscore and hyphen."
+      label: 'Koodi'
+      placeholder: 'esim. sidebar_copy'
+      regex_message: 'Koodi saa sisältää vain kirjaimia, numeroita, alaviivoja ja yhdysmerkkejä.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar (copy)"
+      label: 'Nimi'
+      placeholder: 'esim. Sivupalkki (kopio)'

@@ -2,220 +2,292 @@
 
 # Dashboard UI
 dashboard:
-  title: Menu dashboard
-  title_suffix: Dashboard Menu
-  menus: Menus
-  menu: Menu
-  menus_back: "← Menus"
-  new_menu: New menu
-  edit_menu: Edit menu
-  edit_item: Edit item
-  edit_items: Edit items
-  copy: Copy
-  copy_menu: Copy menu
-  copy_menu_help: "Copy menu and all its items. You can change the code and name for the new menu."
-  delete: Delete
-  cancel: Cancel
-  close: Close
-  confirm_delete: Confirm delete
-  delete_menu_confirm: 'Delete menu "%name%" and all its items?'
-  delete_menu_message: Delete this menu and all its items?
-  delete_item_confirm: 'Delete "%name%" and its children?'
-  delete_item_message: Delete this item and its children?
-  add_item: Add item
-  new_item: New item
-  add_one: Add one
-  add_child: Add child
-  search: Search
-  search_placeholder: "Search by code or name…"
-  clear: Clear
-  filter: Filter
-  clear_filters: Clear filters
-  no_menus_yet: "No menus yet. Create one to get started."
-  no_items: No items.
-  context: Context
-  parent: Parent
-  route_url: "Route / URL"
-  item: Item
-  actions: Actions
-  first: First
-  last: Last
-  move_up: Move up
-  move_down: Move down
-  edit: Edit
-  create: Create
-  update: Update
-  loading: "Loading…"
-  error_loading_form: Error loading form.
-  previous: Previous
-  next: Next
-  pagination_menus: Menus pagination
-  showing_from_to_of_total: "Showing %from%-%to% of %total%"
-  depth_limit: Depth limit
-  permission_checker: Permission checker
-  collapsible: Collapsible
-  collapsible_expanded: Collapsible expanded
-  nested_collapsible: Nested collapsible
-  css_classes: CSS classes
-  root: "— Root —"
-  no_label: "(no label)"
+  title: 'メニューダッシュボード'
+  title_suffix: 'ダッシュボードメニュー'
+  menus: 'メニュー一覧'
+  menu: 'メニュー'
+  menus_back: '← メニュー一覧'
+  new_menu: '新規メニュー'
+  edit_menu: 'メニューを編集'
+  edit_item: '項目を編集'
+  edit_items: '項目を編集'
+  edit_identity: '編集（アイコン、ラベル、タイプ）'
+  edit_labels: 'ラベルと翻訳を編集'
+  edit_type_position_icon: 'タイプ、位置、アイコンを編集'
+  edit_config: '設定を編集（親、リンク、権限）'
+  copy: 'コピー'
+  copy_menu: 'メニューをコピー'
+  copy_menu_help: 'メニューとそのすべての項目をコピーします。新しいメニューのコードと名前は変更できます。'
+  delete: '削除'
+  cancel: 'キャンセル'
+  close: '閉じる'
+  confirm_delete: '削除の確認'
+  delete_menu_confirm: 'メニュー「%name%」とそのすべての項目を削除しますか？'
+  delete_menu_message: 'このメニューとそのすべての項目を削除しますか？'
+  delete_item_confirm: '「%name%」とその子項目を削除しますか？'
+  delete_item_message: 'この項目とその子項目を削除しますか？'
+  add_item: '項目を追加'
+  new_item: '新規項目'
+  add_one: '追加する'
+  add_child: '子項目を追加'
+  add_child_disabled: 'セクション項目と区切り線項目には子項目を追加できません'
+  search: '検索'
+  search_placeholder: 'コードまたは名前で検索…'
+  clear: 'クリア'
+  filter: '絞り込み'
+  clear_filters: 'フィルターをクリア'
+  no_menus_yet: 'メニューはまだありません。作成して始めましょう。'
+  no_items: '項目がありません。'
+  context: 'コンテキスト'
+  parent: '親'
+  route_url: 'ルート / URL'
+  item: '項目'
+  actions: '操作'
+  first: '最初'
+  last: '最後'
+  move_up: '上へ移動'
+  move_down: '下へ移動'
+  reindex_positions: '位置を再採番（間隔 %step%）'
+  reindex_positions_title: '各親グループ内で位置を %step% 刻みで再割り当てします（順序は維持されます）。'
+  reindex_positions_done: '位置を間隔 %step% で再採番しました。'
+  reindex_positions_unchanged: '位置の変更は必要ありませんでした。'
+  check_parent_cycles: '親の循環をチェック'
+  check_parent_cycles_title: '親のチェーンに無限ループがないことを確認します（同一メニュー内）。'
+  check_parent_cycles_ok: '循環する親参照は見つかりませんでした。'
+  check_parent_cycles_loop: '循環する親チェーンが検出されました: %chain%'
+  sortable_page_heading: 'ドラッグで並べ替え'
+  open_sortable_reorder: '並べ替え（ドラッグ）'
+  back_to_items_table: '表形式で表示'
+  sortable_title: 'ドラッグして並べ替え'
+  sortable_help: 'ハンドルで項目をドラッグして、並べ替えたり、親の下に入れ子にしたり、別の階層に移動したりできます。その後、適用して保存してください。'
+  sortable_apply: 'ツリーの順序を適用'
+  sortable_drag_handle: 'ドラッグして並べ替え'
+  reorder_tree_done: 'メニューツリーを更新しました。'
+  reorder_tree_invalid_json: 'ツリーデータ（JSON）が無効です。'
+  reorder_tree_invalid_payload: 'ツリーのペイロードが無効です。'
+  reorder_tree_invalid_layout: 'ツリーを適用できませんでした（循環、深さの上限、または項目の欠落）。'
+  reorder_tree_section_not_root: 'セクションはルート階層に置く必要があります。セクションを入れ子のリストから出して、もう一度適用してください。'
+  edit: '編集'
+  create: '作成'
+  update: '更新'
+  loading: '読み込み中…'
+  error_loading_form: 'フォームの読み込み中にエラーが発生しました。'
+  previous: '前へ'
+  next: '次へ'
+  pagination_menus: 'メニューのページ送り'
+  showing_from_to_of_total: '%total% 件中 %from%-%to% 件を表示'
+  depth_limit: '深さの上限'
+  permission_checker: '権限チェッカー'
+  collapsible: '折りたたみ可能'
+  collapsible_expanded: '折りたたみ可能（展開状態）'
+  nested_collapsible: '入れ子の折りたたみ'
+  css_classes: 'CSS クラス'
+  root: '— ルート —'
+  no_label: '（ラベルなし）'
   # 2.3.0 — admin chrome (index table view, item permission badges)
-  table_code: "コード"
-  table_name: "名前"
-  table_items: "項目"
-  table_context: "コンテキスト"
-  no_permission_keys: "権限キーなし"
-  unanimous: "全会一致"
-  non_unanimous: "全会一致でない"
-  position_short: "位置"
-  unique_code_context_error: A menu with this code and context already exists.
-  base: Base
-  base_badge_title: "Base menu: code cannot be changed after creation."
-  toggle: Toggle
-  yes: Yes
-  no: No
-  export: Export
-  export_all: Export all menus
-  import: Import
-  import_help: "Upload a JSON file exported from this dashboard (one menu or all menus). Choose whether to skip menus that already exist (same code + context) or replace their items."
-  import_json_invalid: Invalid JSON file.
-  import_json_error: "Invalid JSON: %message%"
-  import_file_too_large: "File is too large. Maximum size is %max% MiB."
-  import_done: "Import complete: %created% created, %updated% updated, %skipped% skipped."
-  import_format_invalid_root_array: 'Invalid format: a root JSON array must contain only objects with "menu" and "items". You can also use {"menus": [...]} or {"menu": {...}, "items": [...]}.'
-  import_format_expected: 'Invalid format: expected "menu" + "items", or "menus", or a root array of menu blocks.'
+  table_code: 'コード'
+  table_name: '名前'
+  table_items: '項目'
+  table_context: 'コンテキスト'
+  no_permission_keys: '権限キーなし'
+  unanimous: '全一致'
+  non_unanimous: '非全一致'
+  position_short: '位置'
+  unique_code_context_error: 'このコードとコンテキストのメニューは既に存在します。'
+  base: '基本'
+  base_badge_title: '基本メニュー: 作成後にコードを変更することはできません。'
+  toggle: '切り替え'
+  yes: 'はい'
+  no: 'いいえ'
+  export: 'エクスポート'
+  export_all: 'すべてのメニューをエクスポート'
+  import: 'インポート'
+  import_help: 'このダッシュボードからエクスポートした JSON ファイルをアップロードしてください。使用できる形式: 単一メニュー {"menu": {...}, "items": [...]}、複数メニュー {"menus": [{...}, ...]}、または同じリストをルートの JSON 配列にしたもの [{"menu": {...}, "items": [...]}, ...]。既存のメニュー（同じコード + コンテキスト）をスキップするか、その項目を置き換えるかを選択してください。'
+  import_format_invalid_root_array: '形式が無効です: ルートの JSON 配列には "menu" と "items" を持つオブジェクトのみを含める必要があります。{"menus": [...]} または {"menu": {...}, "items": [...]} も使用できます。'
+  import_format_expected: '形式が無効です: "menu" + "items"、"menus"、またはメニューブロックのルート配列が必要です。'
+  import_json_invalid: 'JSON ファイルが無効です。'
+  import_json_error: '無効な JSON: %message%'
+  import_file_too_large: 'ファイルが大きすぎます。最大サイズは %max% MiB です。'
+  import_done: 'インポート完了: 作成 %created% 件、更新 %updated% 件、スキップ %skipped% 件。'
 
 # Form: MenuType
 form:
   menu_type:
     code:
-      label: Code
-      help: "Unique identifier (letters, numbers, _ -). For base menus, code cannot be changed after creation."
-      placeholder: "e.g. sidebar"
+      label: 'コード'
+      help: '一意の識別子（英字、数字、_ -）。基本メニューの場合、作成後にコードを変更することはできません。'
+      placeholder: '例: sidebar'
     base:
-      label: "Base menu"
-      help: "When checked, this menu's code cannot be changed after creation."
+      label: '基本メニュー'
+      help: 'チェックすると、作成後にこのメニューのコードを変更できなくなります。'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar"
+      label: '名前'
+      placeholder: '例: サイドバー'
     context:
-      label: Context
-      help: "Optional JSON key-value pairs to identify this menu variant. When resolving by code, the first matching menu in the ordered context sets is used; empty = fallback for that code."
+      label: 'コンテキスト'
+      help: 'このメニューのバリアントを識別するための任意の JSON キーと値のペア。コードで解決する際は、順序付けられたコンテキストセットの中で最初に一致したメニューが使用されます。空 = そのコードのフォールバック。'
       placeholder: '{"partnerId": 1, "operatorId": 1}'
     icon:
-      label: Icon
-      help: "Optional icon identifier (e.g. Symfony UX Icons: heroicons:home, bootstrap:house)."
-      placeholder: "e.g. heroicons:bars-3, bootstrap:list"
+      label: 'アイコン'
+      help: '任意のアイコン識別子（例: Symfony UX Icons: heroicons:home, bootstrap:house）。'
+      placeholder: '例: heroicons:bars-3, bootstrap:list'
     permission_checker:
-      label: Permission checker
-      placeholder: "— Allow all —"
-      allow_all: "— Allow all —"
-      help: "Service implementing MenuPermissionCheckerInterface (empty = allow all)."
+      label: '権限チェッカー'
+      placeholder: '— すべて許可 —'
+      allow_all: '— すべて許可 —'
+      permission_key_aware: '— 権限キーによる（構造） —'
+      help: 'MenuPermissionCheckerInterface を実装したサービス（空 = すべて許可）。'
     depth_limit:
-      label: Depth limit
-      placeholder: "empty = unlimited"
-      help: "Max depth to render (1 = root only, 2 = root + one level; empty = unlimited)."
+      label: '深さの上限'
+      placeholder: '空 = 無制限'
+      help: '描画する最大の深さ（1 = ルートのみ、2 = ルート + 1 階層。空 = 無制限）。'
     collapsible:
-      label: "Collapsible (wrap menu in toggle block)"
+      label: '折りたたみ可能（メニューを開閉ブロックで囲む）'
     collapsible_expanded:
-      label: "Collapsible expanded (open by default)"
+      label: '折りたたみ可能・展開状態（既定で開く）'
     nested_collapsible:
-      label: "Nested collapsible (items with children have toggle)"
+      label: '入れ子の折りたたみ（子を持つ項目に開閉ボタンを表示）'
+    nested_collapsible_sections:
+      label: 'セクションを折りたたみ可能にする'
+      help: '入れ子の折りたたみが必要です。有効にすると、セクション行の右側にシェブロンが表示され、そのリンクを折りたたむことができます。無効にすると、セクションの子は常に展開されたままになります（シェブロンなし）。'
     class_menu:
-      label: "Class menu (root <ul>)"
-      placeholder: "e.g. nav flex-column"
+      label: 'メニューのクラス（ルートの <ul>）'
+      placeholder: '例: nav flex-column'
+    ul_id:
+      label: 'ul の ID（ルートの <ul>）'
+      placeholder: '例: main-menu-navigation'
     class_item:
-      label: "Class item (<li>)"
-      placeholder: "e.g. nav-item"
+      label: '項目のクラス（<li>）'
+      placeholder: '例: nav-item'
     class_link:
-      label: "Class link (<a>)"
-      placeholder: "e.g. nav-link"
+      label: 'リンクのクラス（<a>）'
+      placeholder: '例: nav-link'
     class_children:
-      label: "Class children (nested <ul>)"
-      placeholder: "e.g. nav flex-column ms-2"
+      label: '子のクラス（入れ子の <ul>）'
+      placeholder: '例: nav flex-column ms-2'
+    class_section_children:
+      label: 'セクションの子のクラス（itemType "section" 配下の <ul>）'
+      placeholder: '例: nav flex-column list-unstyled ps-0（フラット。空 = 子のクラスと同じ）'
+      help: '設定すると、各セクション直下の第 1 階層のリストに「子のクラス」の代わりにこれらのクラスが使用され、リンクをセクションタイトルに揃える（インデントなし）ことができます。空のままにすると、入れ子の子のクラスが引き続き使用されます。'
+    class_section_child_item:
+      label: 'itemType "section" の直接の子の <li> クラス'
+      placeholder: '例: nav-item ms-0（空 = 項目のクラスと同じ）'
+      help: '設定すると、セクションの直接の子であるリンクと区切り線の <li> クラスに「項目のクラス」の代わりにこの値が使用されます。フラットなセクションリスト内のマージン／パディング調整に使用します。'
+    class_section_child_link:
+      label: 'itemType "section" の直接の子の <a> クラス'
+      placeholder: '例: d-flex align-items-center ps-0（空 = リンクのクラスと同じ）'
+      help: '設定すると、セクションの直接の子であるリンクの <a> クラスに「リンクのクラス」の代わりにこの値が使用されます。位置揃えのため、セクションの子の <li> と組み合わせて使用します。'
+    class_section_label:
+      label: 'セクションラベルのクラス（itemType "section"）'
+      placeholder: '例: navigation-header'
     class_section:
-      label: "Class section (<li> when itemType \"section\")"
-      placeholder: "e.g. menu-section"
+      label: 'セクションのクラス（itemType "section" の場合の <li>）'
+      placeholder: '例: menu-section'
     class_divider:
-      label: "Class divider (<li> when itemType \"divider\")"
-      placeholder: "e.g. menu-divider"
+      label: '区切り線のクラス（itemType "divider" の場合の <li>）'
+      placeholder: '例: menu-divider'
     class_current:
-      label: "Class current (link matching current route)"
-      placeholder: "e.g. active"
+      label: '現在位置のクラス（現在のルートに一致するリンク）'
+      placeholder: '例: active'
     class_branch_expanded:
-      label: "Class branch expanded (<li> when route in branch)"
-      placeholder: "e.g. active-branch"
+      label: '展開ブランチのクラス（ルートがブランチ内にある場合の <li>）'
+      placeholder: '例: active-branch'
     class_has_children:
-      label: "Class has children (<li> when item has children)"
-      placeholder: "e.g. has-children"
+      label: '子あり時のクラス（項目に子がある場合の <li>）'
+      placeholder: '例: has-children'
     class_expanded:
-      label: "Class expanded (<li> when children block is open)"
-      placeholder: "e.g. is-expanded"
+      label: '展開時のクラス（子ブロックが開いている場合の <li>）'
+      placeholder: '例: is-expanded'
     class_collapsed:
-      label: "Class collapsed (<li> when children block is closed)"
-      placeholder: "e.g. is-collapsed"
-    empty_choice: "— Empty —"
-    css_section_heading: "CSS classes for rendering (override config when set)."
+      label: '折りたたみ時のクラス（子ブロックが閉じている場合の <li>）'
+      placeholder: '例: is-collapsed'
+    empty_choice: '— 空 —'
+    css_section_heading: '描画用の CSS クラス（設定した場合は構成を上書きします）。'
+    section_definition: '定義（コード、基本、名前、コンテキスト、アイコン）'
+    section_config: '設定（権限、深さ、折りたたみ、CSS）'
 
   menu_item_type:
+    section_basic: '基本情報（ラベル）'
+    section_icon: '基本情報（タイプ、位置、アイコン）'
+    section_config: '設定（リンク、権限）'
+    label_required: 'リンクとセクションにはラベルが必須です。'
     label:
-      label: Label
-    label_locale: "Label (%locale%)"
+      label: 'ラベル'
+    label_locale: 'ラベル（%locale%）'
+    divider_label_hint: 'この区切り線の任意の名前（アクセシビリティとダッシュボードの一覧のために推奨）。視覚的な区切りだけが必要な場合は空のままにしてください。'
     type:
-      label: Type
-      link: Link
-      section: Section
-      divider: Divider
+      label: 'タイプ'
+      link: 'リンク'
+      section: 'セクション'
+      divider: '区切り線'
+      service: 'サービス（実行時 URL）'
+    link_resolver:
+      label: 'リンクリゾルバー'
+      placeholder: '— リゾルバーを選択 —'
+      help: 'MenuLinkResolverInterface を実装したサービスを選択してください。単一の URL、または子リンク行（ラベル、href、位置）のリストを返すことができます。その場合、親の href は "#" になります。'
+      service_id_placeholder: '例: App\Menu\MyLinkResolver'
+      help_free_text: 'MenuLinkResolverInterface を実装したサービス ID（クラス名またはコンテナ ID）を入力してください。'
+      required: '項目タイプ「サービス」にはリンクリゾルバーが必要です。'
+      route_params_hint: 'リゾルバーに渡す任意の JSON（例: ルートのようなパラメーター）。'
     position:
-      label: Position
+      label: '位置'
     link_type:
-      label: Link type
-      route: Route
-      external_url: External URL
+      label: 'リンクの種類'
+      route: 'ルート'
+      external_url: '外部 URL'
     route_name:
-      label: Route name
-      placeholder: "— Select route —"
+      label: 'ルート名'
+      placeholder: '— ルートを選択 —'
     route_params:
-      label: "Route params (JSON)"
-      placeholder: "{}"
+      label: 'ルートパラメーター（JSON）'
+      placeholder: '{}'
     external_url:
-      label: External URL
-      placeholder: "https://..."
+      label: '外部 URL'
+      placeholder: 'https://...'
     target_blank:
-      label: Open in new tab
+      label: '新しいタブで開く'
     permission_keys:
-      label: Permission keys
-      placeholder: "— Allow all —"
-      help_csv: "Comma-separated keys (used when no configured choices are available)."
+      label: '権限キー'
+      placeholder: '— すべて許可 —'
+      help_csv: 'カンマ区切りのキー（設定済みの選択肢がない場合に使用）。'
       choice:
-        authenticated: "Authenticated only"
-        admin: "Admin only"
-        path__: "Path: / (home only)"
+        authenticated: '認証済みユーザーのみ'
+        admin: '管理者のみ'
+        path__: 'パス: /（ホームのみ）'
     is_unanimous:
-      label: Require all selected keys
-      help: "Enabled: all keys must pass (AND). Disabled: any key may pass (OR)."
+      label: '選択したすべてのキーを必須にする'
+      help: '有効: すべてのキーを満たす必要があります（AND）。無効: いずれかのキーを満たせば可（OR）。'
     icon:
-      label: Icon
-      placeholder: "heroicons:home"
+      label: 'アイコン'
+      placeholder: 'heroicons:home'
     parent:
-      label: Parent
-      placeholder: "— Root (no parent) —"
+      label: '親'
+      placeholder: '— ルート（親なし） —'
+      help_inheritance: '親項目はツリー内でこの項目の上位にあります。この行の権限キーはこの項目に適用されます。親と子のルールの組み合わせ方は MenuPermissionChecker が決定します。セクションと展開可能なリンクは、少なくとも 1 つの子が表示される場合にのみ描画されます。'
+      circular_violation: '循環する親階層は許可されていません。'
+      section_must_be_root: 'セクション項目はルート階層に置く必要があります（親なし）。'
+    section_collapsible:
+      label: 'セクションの子を折りたたみ可能にする'
+      inherit: 'メニューの既定値を使用'
+      yes: 'はい（シェブロン付きで折りたたみ可能）'
+      no: 'いいえ（常に展開）'
+      help: 'このセクションに限り、メニューのオプション「セクションを折りたたみ可能にする」を上書きします。「メニューの既定値を使用」はメニューの設定に従います。'
 
   import_menu_type:
     file:
-      label: JSON file
-      required: Please choose a file.
-      mime_message: File must be JSON.
+      label: 'JSON ファイル'
+      required: 'ファイルを選択してください。'
+      mime_message: 'ファイルは JSON である必要があります。'
     strategy:
-      label: When a menu with the same code and context already exists
-      skip_existing: Skip (do not import)
-      replace: Replace (delete existing items and import)
+      label: '同じコードとコンテキストのメニューが既に存在する場合'
+      skip_existing: 'スキップ（インポートしない）'
+      replace: '置き換え（既存の項目を削除してインポート）'
 
   copy_menu_type:
     code:
-      label: Code
-      placeholder: "e.g. sidebar_copy"
-      regex_message: "Code must contain only letters, numbers, underscore and hyphen."
+      label: 'コード'
+      placeholder: '例: sidebar_copy'
+      regex_message: 'コードには英字、数字、アンダースコア、ハイフンのみ使用できます。'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar (copy)"
+      label: '名前'
+      placeholder: '例: サイドバー（コピー）'

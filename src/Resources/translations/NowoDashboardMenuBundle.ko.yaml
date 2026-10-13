@@ -2,220 +2,292 @@
 
 # Dashboard UI
 dashboard:
-  title: Menu dashboard
-  title_suffix: Dashboard Menu
-  menus: Menus
-  menu: Menu
-  menus_back: "← Menus"
-  new_menu: New menu
-  edit_menu: Edit menu
-  edit_item: Edit item
-  edit_items: Edit items
-  copy: Copy
-  copy_menu: Copy menu
-  copy_menu_help: "Copy menu and all its items. You can change the code and name for the new menu."
-  delete: Delete
-  cancel: Cancel
-  close: Close
-  confirm_delete: Confirm delete
-  delete_menu_confirm: 'Delete menu "%name%" and all its items?'
-  delete_menu_message: Delete this menu and all its items?
-  delete_item_confirm: 'Delete "%name%" and its children?'
-  delete_item_message: Delete this item and its children?
-  add_item: Add item
-  new_item: New item
-  add_one: Add one
-  add_child: Add child
-  search: Search
-  search_placeholder: "Search by code or name…"
-  clear: Clear
-  filter: Filter
-  clear_filters: Clear filters
-  no_menus_yet: "No menus yet. Create one to get started."
-  no_items: No items.
-  context: Context
-  parent: Parent
-  route_url: "Route / URL"
-  item: Item
-  actions: Actions
-  first: First
-  last: Last
-  move_up: Move up
-  move_down: Move down
-  edit: Edit
-  create: Create
-  update: Update
-  loading: "Loading…"
-  error_loading_form: Error loading form.
-  previous: Previous
-  next: Next
-  pagination_menus: Menus pagination
-  showing_from_to_of_total: "Showing %from%-%to% of %total%"
-  depth_limit: Depth limit
-  permission_checker: Permission checker
-  collapsible: Collapsible
-  collapsible_expanded: Collapsible expanded
-  nested_collapsible: Nested collapsible
-  css_classes: CSS classes
-  root: "— Root —"
-  no_label: "(no label)"
+  title: '메뉴 대시보드'
+  title_suffix: '대시보드 메뉴'
+  menus: '메뉴 목록'
+  menu: '메뉴'
+  menus_back: '← 메뉴 목록'
+  new_menu: '새 메뉴'
+  edit_menu: '메뉴 편집'
+  edit_item: '항목 편집'
+  edit_items: '항목 편집'
+  edit_identity: '편집(아이콘, 레이블, 유형)'
+  edit_labels: '레이블 및 번역 편집'
+  edit_type_position_icon: '유형, 위치 및 아이콘 편집'
+  edit_config: '구성 편집(상위 항목, 링크, 권한)'
+  copy: '복사'
+  copy_menu: '메뉴 복사'
+  copy_menu_help: '메뉴와 모든 항목을 복사합니다. 새 메뉴의 코드와 이름을 변경할 수 있습니다.'
+  delete: '삭제'
+  cancel: '취소'
+  close: '닫기'
+  confirm_delete: '삭제 확인'
+  delete_menu_confirm: '메뉴 "%name%"과(와) 모든 항목을 삭제하시겠습니까?'
+  delete_menu_message: '이 메뉴와 모든 항목을 삭제하시겠습니까?'
+  delete_item_confirm: '"%name%"과(와) 하위 항목을 삭제하시겠습니까?'
+  delete_item_message: '이 항목과 하위 항목을 삭제하시겠습니까?'
+  add_item: '항목 추가'
+  new_item: '새 항목'
+  add_one: '추가하기'
+  add_child: '하위 항목 추가'
+  add_child_disabled: '섹션 및 구분선 항목에는 하위 항목을 추가할 수 없습니다'
+  search: '검색'
+  search_placeholder: '코드 또는 이름으로 검색…'
+  clear: '지우기'
+  filter: '필터'
+  clear_filters: '필터 지우기'
+  no_menus_yet: '아직 메뉴가 없습니다. 메뉴를 만들어 시작하세요.'
+  no_items: '항목이 없습니다.'
+  context: '컨텍스트'
+  parent: '상위 항목'
+  route_url: '라우트 / URL'
+  item: '항목'
+  actions: '작업'
+  first: '처음'
+  last: '마지막'
+  move_up: '위로 이동'
+  move_down: '아래로 이동'
+  reindex_positions: '위치 재색인(간격 %step%)'
+  reindex_positions_title: '각 상위 그룹 내에서 위치를 %step% 간격으로 다시 지정합니다(순서는 유지됨).'
+  reindex_positions_done: '위치가 %step% 간격으로 재색인되었습니다.'
+  reindex_positions_unchanged: '위치를 변경할 필요가 없었습니다.'
+  check_parent_cycles: '상위 항목 순환 검사'
+  check_parent_cycles_title: '상위 항목 체인에 무한 루프가 없는지 확인합니다(동일 메뉴 내).'
+  check_parent_cycles_ok: '순환 상위 참조가 발견되지 않았습니다.'
+  check_parent_cycles_loop: '순환 상위 체인이 감지되었습니다: %chain%'
+  sortable_page_heading: '드래그로 순서 변경'
+  open_sortable_reorder: '순서 변경(드래그)'
+  back_to_items_table: '표 보기'
+  sortable_title: '드래그하여 순서 변경'
+  sortable_help: '핸들을 잡고 항목을 드래그하여 순서를 바꾸거나, 상위 항목 아래에 중첩하거나, 다른 수준으로 이동하세요. 그런 다음 적용하여 저장하세요.'
+  sortable_apply: '트리 순서 적용'
+  sortable_drag_handle: '드래그하여 순서 변경'
+  reorder_tree_done: '메뉴 트리가 업데이트되었습니다.'
+  reorder_tree_invalid_json: '트리 데이터(JSON)가 잘못되었습니다.'
+  reorder_tree_invalid_payload: '트리 페이로드가 잘못되었습니다.'
+  reorder_tree_invalid_layout: '트리를 적용할 수 없습니다(순환, 깊이 제한 또는 누락된 항목).'
+  reorder_tree_section_not_root: '섹션은 루트 수준에 있어야 합니다. 섹션을 중첩 목록 밖으로 옮긴 후 다시 적용하세요.'
+  edit: '편집'
+  create: '만들기'
+  update: '업데이트'
+  loading: '불러오는 중…'
+  error_loading_form: '양식을 불러오는 중 오류가 발생했습니다.'
+  previous: '이전'
+  next: '다음'
+  pagination_menus: '메뉴 페이지 탐색'
+  showing_from_to_of_total: '전체 %total%개 중 %from%-%to% 표시'
+  depth_limit: '깊이 제한'
+  permission_checker: '권한 검사기'
+  collapsible: '접기 가능'
+  collapsible_expanded: '접기 가능(펼침)'
+  nested_collapsible: '중첩 접기'
+  css_classes: 'CSS 클래스'
+  root: '— 루트 —'
+  no_label: '(레이블 없음)'
   # 2.3.0 — admin chrome (index table view, item permission badges)
-  table_code: "코드"
-  table_name: "이름"
-  table_items: "항목"
-  table_context: "컨텍스트"
-  no_permission_keys: "권한 키 없음"
-  unanimous: "만장일치"
-  non_unanimous: "만장일치 아님"
-  position_short: "위치"
-  unique_code_context_error: A menu with this code and context already exists.
-  base: Base
-  base_badge_title: "Base menu: code cannot be changed after creation."
-  toggle: Toggle
-  yes: Yes
-  no: No
-  export: Export
-  export_all: Export all menus
-  import: Import
-  import_help: "Upload a JSON file exported from this dashboard (one menu or all menus). Choose whether to skip menus that already exist (same code + context) or replace their items."
-  import_json_invalid: Invalid JSON file.
-  import_json_error: "Invalid JSON: %message%"
-  import_file_too_large: "File is too large. Maximum size is %max% MiB."
-  import_done: "Import complete: %created% created, %updated% updated, %skipped% skipped."
-  import_format_invalid_root_array: 'Invalid format: a root JSON array must contain only objects with "menu" and "items". You can also use {"menus": [...]} or {"menu": {...}, "items": [...]}.'
-  import_format_expected: 'Invalid format: expected "menu" + "items", or "menus", or a root array of menu blocks.'
+  table_code: '코드'
+  table_name: '이름'
+  table_items: '항목'
+  table_context: '컨텍스트'
+  no_permission_keys: '권한 키 없음'
+  unanimous: '전원 일치'
+  non_unanimous: '전원 불일치'
+  position_short: '위치'
+  unique_code_context_error: '이 코드와 컨텍스트를 가진 메뉴가 이미 존재합니다.'
+  base: '기본'
+  base_badge_title: '기본 메뉴: 생성 후에는 코드를 변경할 수 없습니다.'
+  toggle: '전환'
+  yes: '예'
+  no: '아니요'
+  export: '내보내기'
+  export_all: '모든 메뉴 내보내기'
+  import: '가져오기'
+  import_help: '이 대시보드에서 내보낸 JSON 파일을 업로드하세요. 허용되는 형식: 단일 메뉴 {"menu": {...}, "items": [...]}, 여러 메뉴 {"menus": [{...}, ...]}, 또는 동일한 목록을 루트 JSON 배열로 [{"menu": {...}, "items": [...]}, ...]. 이미 존재하는 메뉴(같은 코드 + 컨텍스트)를 건너뛸지 아니면 해당 항목을 대체할지 선택하세요.'
+  import_format_invalid_root_array: '잘못된 형식: 루트 JSON 배열에는 "menu"와 "items"를 가진 객체만 포함되어야 합니다. {"menus": [...]} 또는 {"menu": {...}, "items": [...]}를 사용할 수도 있습니다.'
+  import_format_expected: '잘못된 형식: "menu" + "items", "menus" 또는 메뉴 블록의 루트 배열이 필요합니다.'
+  import_json_invalid: '잘못된 JSON 파일입니다.'
+  import_json_error: '잘못된 JSON: %message%'
+  import_file_too_large: '파일이 너무 큽니다. 최대 크기는 %max% MiB입니다.'
+  import_done: '가져오기 완료: %created%개 생성, %updated%개 업데이트, %skipped%개 건너뜀.'
 
 # Form: MenuType
 form:
   menu_type:
     code:
-      label: Code
-      help: "Unique identifier (letters, numbers, _ -). For base menus, code cannot be changed after creation."
-      placeholder: "e.g. sidebar"
+      label: '코드'
+      help: '고유 식별자(문자, 숫자, _ -). 기본 메뉴의 경우 생성 후에는 코드를 변경할 수 없습니다.'
+      placeholder: '예: sidebar'
     base:
-      label: "Base menu"
-      help: "When checked, this menu's code cannot be changed after creation."
+      label: '기본 메뉴'
+      help: '선택하면 생성 후 이 메뉴의 코드를 변경할 수 없습니다.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar"
+      label: '이름'
+      placeholder: '예: 사이드바'
     context:
-      label: Context
-      help: "Optional JSON key-value pairs to identify this menu variant. When resolving by code, the first matching menu in the ordered context sets is used; empty = fallback for that code."
+      label: '컨텍스트'
+      help: '이 메뉴 변형을 식별하기 위한 선택적 JSON 키-값 쌍입니다. 코드로 확인할 때 정렬된 컨텍스트 집합에서 처음 일치하는 메뉴가 사용됩니다. 비어 있음 = 해당 코드의 대체값.'
       placeholder: '{"partnerId": 1, "operatorId": 1}'
     icon:
-      label: Icon
-      help: "Optional icon identifier (e.g. Symfony UX Icons: heroicons:home, bootstrap:house)."
-      placeholder: "e.g. heroicons:bars-3, bootstrap:list"
+      label: '아이콘'
+      help: '선택적 아이콘 식별자(예: Symfony UX Icons: heroicons:home, bootstrap:house).'
+      placeholder: '예: heroicons:bars-3, bootstrap:list'
     permission_checker:
-      label: Permission checker
-      placeholder: "— Allow all —"
-      allow_all: "— Allow all —"
-      help: "Service implementing MenuPermissionCheckerInterface (empty = allow all)."
+      label: '권한 검사기'
+      placeholder: '— 모두 허용 —'
+      allow_all: '— 모두 허용 —'
+      permission_key_aware: '— 권한 키 기준(구조) —'
+      help: 'MenuPermissionCheckerInterface를 구현하는 서비스(비어 있음 = 모두 허용).'
     depth_limit:
-      label: Depth limit
-      placeholder: "empty = unlimited"
-      help: "Max depth to render (1 = root only, 2 = root + one level; empty = unlimited)."
+      label: '깊이 제한'
+      placeholder: '비어 있음 = 무제한'
+      help: '렌더링할 최대 깊이(1 = 루트만, 2 = 루트 + 한 수준, 비어 있음 = 무제한).'
     collapsible:
-      label: "Collapsible (wrap menu in toggle block)"
+      label: '접기 가능(메뉴를 토글 블록으로 감싸기)'
     collapsible_expanded:
-      label: "Collapsible expanded (open by default)"
+      label: '접기 가능, 펼침(기본적으로 열림)'
     nested_collapsible:
-      label: "Nested collapsible (items with children have toggle)"
+      label: '중첩 접기(하위 항목이 있는 항목에 토글 표시)'
+    nested_collapsible_sections:
+      label: '접을 수 있는 섹션'
+      help: '중첩 접기가 필요합니다. 활성화하면 섹션 행 오른쪽에 화살표가 표시되고 해당 링크를 접을 수 있습니다. 비활성화하면 섹션의 하위 항목이 항상 펼쳐진 상태로 유지됩니다(화살표 없음).'
     class_menu:
-      label: "Class menu (root <ul>)"
-      placeholder: "e.g. nav flex-column"
+      label: '메뉴 클래스(루트 <ul>)'
+      placeholder: '예: nav flex-column'
+    ul_id:
+      label: 'ul ID(루트 <ul>)'
+      placeholder: '예: main-menu-navigation'
     class_item:
-      label: "Class item (<li>)"
-      placeholder: "e.g. nav-item"
+      label: '항목 클래스(<li>)'
+      placeholder: '예: nav-item'
     class_link:
-      label: "Class link (<a>)"
-      placeholder: "e.g. nav-link"
+      label: '링크 클래스(<a>)'
+      placeholder: '예: nav-link'
     class_children:
-      label: "Class children (nested <ul>)"
-      placeholder: "e.g. nav flex-column ms-2"
+      label: '하위 클래스(중첩 <ul>)'
+      placeholder: '예: nav flex-column ms-2'
+    class_section_children:
+      label: '섹션 하위 클래스(itemType "section" 아래의 <ul>)'
+      placeholder: '예: nav flex-column list-unstyled ps-0(평면, 비어 있음 = 하위 클래스와 동일)'
+      help: '설정하면 각 섹션 아래의 첫 번째 수준 목록에 “하위 클래스” 대신 이 클래스가 사용되어 링크를 섹션 제목에 맞춰 정렬할 수 있습니다(들여쓰기 없음). 중첩 하위 클래스를 계속 사용하려면 비워 두세요.'
+    class_section_child_item:
+      label: 'itemType "section"의 직계 하위 항목용 <li> 클래스'
+      placeholder: '예: nav-item ms-0(비어 있음 = 항목 클래스와 동일)'
+      help: '설정하면 섹션의 직계 하위 항목인 링크와 구분선의 <li> 클래스에 “항목 클래스” 대신 이 값이 사용됩니다. 평면 섹션 목록 아래의 여백/패딩 조정에 사용하세요.'
+    class_section_child_link:
+      label: 'itemType "section"의 직계 하위 항목용 <a> 클래스'
+      placeholder: '예: d-flex align-items-center ps-0(비어 있음 = 링크 클래스와 동일)'
+      help: '설정하면 섹션의 직계 하위 항목인 링크의 <a> 클래스에 “링크 클래스” 대신 이 값이 사용됩니다. 정렬을 위해 섹션 하위 <li>와 함께 사용합니다.'
+    class_section_label:
+      label: '섹션 레이블 클래스(itemType "section")'
+      placeholder: '예: navigation-header'
     class_section:
-      label: "Class section (<li> when itemType \"section\")"
-      placeholder: "e.g. menu-section"
+      label: '섹션 클래스(itemType "section"일 때의 <li>)'
+      placeholder: '예: menu-section'
     class_divider:
-      label: "Class divider (<li> when itemType \"divider\")"
-      placeholder: "e.g. menu-divider"
+      label: '구분선 클래스(itemType "divider"일 때의 <li>)'
+      placeholder: '예: menu-divider'
     class_current:
-      label: "Class current (link matching current route)"
-      placeholder: "e.g. active"
+      label: '현재 클래스(현재 라우트와 일치하는 링크)'
+      placeholder: '예: active'
     class_branch_expanded:
-      label: "Class branch expanded (<li> when route in branch)"
-      placeholder: "e.g. active-branch"
+      label: '펼친 분기 클래스(라우트가 분기에 있을 때의 <li>)'
+      placeholder: '예: active-branch'
     class_has_children:
-      label: "Class has children (<li> when item has children)"
-      placeholder: "e.g. has-children"
+      label: '하위 항목 있음 클래스(항목에 하위 항목이 있을 때의 <li>)'
+      placeholder: '예: has-children'
     class_expanded:
-      label: "Class expanded (<li> when children block is open)"
-      placeholder: "e.g. is-expanded"
+      label: '펼침 클래스(하위 블록이 열려 있을 때의 <li>)'
+      placeholder: '예: is-expanded'
     class_collapsed:
-      label: "Class collapsed (<li> when children block is closed)"
-      placeholder: "e.g. is-collapsed"
-    empty_choice: "— Empty —"
-    css_section_heading: "CSS classes for rendering (override config when set)."
+      label: '접힘 클래스(하위 블록이 닫혀 있을 때의 <li>)'
+      placeholder: '예: is-collapsed'
+    empty_choice: '— 비어 있음 —'
+    css_section_heading: '렌더링용 CSS 클래스(설정하면 구성을 재정의함).'
+    section_definition: '정의(코드, 기본, 이름, 컨텍스트, 아이콘)'
+    section_config: '구성(권한, 깊이, 접기, CSS)'
 
   menu_item_type:
+    section_basic: '기본 정보(레이블)'
+    section_icon: '기본 정보(유형, 위치, 아이콘)'
+    section_config: '구성(링크, 권한)'
+    label_required: '링크와 섹션에는 레이블이 필요합니다.'
     label:
-      label: Label
-    label_locale: "Label (%locale%)"
+      label: '레이블'
+    label_locale: '레이블(%locale%)'
+    divider_label_hint: '이 구분선의 선택적 이름입니다(접근성 및 대시보드 목록을 위해 권장). 시각적 구분선만 필요하면 비워 두세요.'
     type:
-      label: Type
-      link: Link
-      section: Section
-      divider: Divider
+      label: '유형'
+      link: '링크'
+      section: '섹션'
+      divider: '구분선'
+      service: '서비스(런타임 URL)'
+    link_resolver:
+      label: '링크 리졸버'
+      placeholder: '— 리졸버 선택 —'
+      help: 'MenuLinkResolverInterface를 구현하는 서비스를 선택하세요. 단일 URL 또는 하위 링크 행(레이블, href, 위치) 목록을 반환할 수 있으며, 이 경우 상위 항목의 href는 "#"이 됩니다.'
+      service_id_placeholder: '예: App\Menu\MyLinkResolver'
+      help_free_text: 'MenuLinkResolverInterface를 구현하는 서비스 ID(클래스 이름 또는 컨테이너 ID)를 입력하세요.'
+      required: '항목 유형 “서비스”에는 링크 리졸버가 필요합니다.'
+      route_params_hint: '리졸버에 전달되는 선택적 JSON(예: 라우트와 유사한 매개변수).'
     position:
-      label: Position
+      label: '위치'
     link_type:
-      label: Link type
-      route: Route
-      external_url: External URL
+      label: '링크 유형'
+      route: '라우트'
+      external_url: '외부 URL'
     route_name:
-      label: Route name
-      placeholder: "— Select route —"
+      label: '라우트 이름'
+      placeholder: '— 라우트 선택 —'
     route_params:
-      label: "Route params (JSON)"
-      placeholder: "{}"
+      label: '라우트 매개변수(JSON)'
+      placeholder: '{}'
     external_url:
-      label: External URL
-      placeholder: "https://..."
+      label: '외부 URL'
+      placeholder: 'https://...'
     target_blank:
-      label: Open in new tab
+      label: '새 탭에서 열기'
     permission_keys:
-      label: Permission keys
-      placeholder: "— Allow all —"
-      help_csv: "Comma-separated keys (used when no configured choices are available)."
+      label: '권한 키'
+      placeholder: '— 모두 허용 —'
+      help_csv: '쉼표로 구분된 키(구성된 선택지가 없을 때 사용).'
       choice:
-        authenticated: "Authenticated only"
-        admin: "Admin only"
-        path__: "Path: / (home only)"
+        authenticated: '인증된 사용자만'
+        admin: '관리자만'
+        path__: '경로: /(홈만)'
     is_unanimous:
-      label: Require all selected keys
-      help: "Enabled: all keys must pass (AND). Disabled: any key may pass (OR)."
+      label: '선택한 모든 키 필요'
+      help: '활성화: 모든 키를 통과해야 합니다(AND). 비활성화: 하나의 키만 통과해도 됩니다(OR).'
     icon:
-      label: Icon
-      placeholder: "heroicons:home"
+      label: '아이콘'
+      placeholder: 'heroicons:home'
     parent:
-      label: Parent
-      placeholder: "— Root (no parent) —"
+      label: '상위 항목'
+      placeholder: '— 루트(상위 항목 없음) —'
+      help_inheritance: '상위 항목은 트리에서 이 항목보다 위에 있습니다. 이 행의 권한 키는 이 항목에 적용되며, 상위/하위 규칙의 결합 방식은 MenuPermissionChecker가 결정합니다. 섹션과 펼칠 수 있는 링크는 하위 항목이 하나 이상 표시될 때만 렌더링됩니다.'
+      circular_violation: '순환 상위 계층 구조는 허용되지 않습니다.'
+      section_must_be_root: '섹션 항목은 루트 수준에 있어야 합니다(상위 항목 없음).'
+    section_collapsible:
+      label: '섹션 하위 항목 접기 가능'
+      inherit: '메뉴 기본값 사용'
+      yes: '예(화살표로 접기 가능)'
+      no: '아니요(항상 펼침)'
+      help: '이 섹션에 한해 메뉴 옵션 “접을 수 있는 섹션”을 재정의합니다. “메뉴 기본값 사용”은 메뉴 구성을 따릅니다.'
 
   import_menu_type:
     file:
-      label: JSON file
-      required: Please choose a file.
-      mime_message: File must be JSON.
+      label: 'JSON 파일'
+      required: '파일을 선택하세요.'
+      mime_message: '파일은 JSON 형식이어야 합니다.'
     strategy:
-      label: When a menu with the same code and context already exists
-      skip_existing: Skip (do not import)
-      replace: Replace (delete existing items and import)
+      label: '같은 코드와 컨텍스트를 가진 메뉴가 이미 존재하는 경우'
+      skip_existing: '건너뛰기(가져오지 않음)'
+      replace: '대체(기존 항목을 삭제하고 가져오기)'
 
   copy_menu_type:
     code:
-      label: Code
-      placeholder: "e.g. sidebar_copy"
-      regex_message: "Code must contain only letters, numbers, underscore and hyphen."
+      label: '코드'
+      placeholder: '예: sidebar_copy'
+      regex_message: '코드에는 문자, 숫자, 밑줄, 하이픈만 사용할 수 있습니다.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar (copy)"
+      label: '이름'
+      placeholder: '예: 사이드바(사본)'

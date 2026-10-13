@@ -2,220 +2,292 @@
 
 # Dashboard UI
 dashboard:
-  title: Menu dashboard
-  title_suffix: Dashboard Menu
-  menus: Menus
-  menu: Menu
-  menus_back: "← Menus"
-  new_menu: New menu
-  edit_menu: Edit menu
-  edit_item: Edit item
-  edit_items: Edit items
-  copy: Copy
-  copy_menu: Copy menu
-  copy_menu_help: "Copy menu and all its items. You can change the code and name for the new menu."
-  delete: Delete
-  cancel: Cancel
-  close: Close
-  confirm_delete: Confirm delete
-  delete_menu_confirm: 'Delete menu "%name%" and all its items?'
-  delete_menu_message: Delete this menu and all its items?
-  delete_item_confirm: 'Delete "%name%" and its children?'
-  delete_item_message: Delete this item and its children?
-  add_item: Add item
-  new_item: New item
-  add_one: Add one
-  add_child: Add child
-  search: Search
-  search_placeholder: "Search by code or name…"
-  clear: Clear
-  filter: Filter
-  clear_filters: Clear filters
-  no_menus_yet: "No menus yet. Create one to get started."
-  no_items: No items.
-  context: Context
-  parent: Parent
-  route_url: "Route / URL"
-  item: Item
-  actions: Actions
-  first: First
-  last: Last
-  move_up: Move up
-  move_down: Move down
-  edit: Edit
-  create: Create
-  update: Update
-  loading: "Loading…"
-  error_loading_form: Error loading form.
-  previous: Previous
-  next: Next
-  pagination_menus: Menus pagination
-  showing_from_to_of_total: "Showing %from%-%to% of %total%"
-  depth_limit: Depth limit
-  permission_checker: Permission checker
-  collapsible: Collapsible
-  collapsible_expanded: Collapsible expanded
-  nested_collapsible: Nested collapsible
-  css_classes: CSS classes
-  root: "— Root —"
-  no_label: "(no label)"
+  title: 'Správa menu'
+  title_suffix: 'Správa menu'
+  menus: 'Menu'
+  menu: 'Menu'
+  menus_back: '← Menu'
+  new_menu: 'Nové menu'
+  edit_menu: 'Upravit menu'
+  edit_item: 'Upravit položku'
+  edit_items: 'Upravit položky'
+  edit_identity: 'Upravit (ikona, popisek, typ)'
+  edit_labels: 'Upravit popisek a překlady'
+  edit_type_position_icon: 'Upravit typ, pozici a ikonu'
+  edit_config: 'Upravit konfiguraci (nadřazená položka, odkaz, oprávnění)'
+  copy: 'Kopírovat'
+  copy_menu: 'Kopírovat menu'
+  copy_menu_help: 'Zkopíruje menu a všechny jeho položky. U nového menu můžete změnit kód a název.'
+  delete: 'Smazat'
+  cancel: 'Zrušit'
+  close: 'Zavřít'
+  confirm_delete: 'Potvrdit smazání'
+  delete_menu_confirm: 'Smazat menu „%name%“ a všechny jeho položky?'
+  delete_menu_message: 'Smazat toto menu a všechny jeho položky?'
+  delete_item_confirm: 'Smazat „%name%“ a jeho podřízené položky?'
+  delete_item_message: 'Smazat tuto položku a její podřízené položky?'
+  add_item: 'Přidat položku'
+  new_item: 'Nová položka'
+  add_one: 'Přidat'
+  add_child: 'Přidat podřízenou položku'
+  add_child_disabled: 'Sekce a oddělovače nemohou mít podřízené položky'
+  search: 'Hledat'
+  search_placeholder: 'Hledat podle kódu nebo názvu…'
+  clear: 'Vymazat'
+  filter: 'Filtrovat'
+  clear_filters: 'Zrušit filtry'
+  no_menus_yet: 'Zatím žádná menu. Začněte vytvořením nového.'
+  no_items: 'Žádné položky.'
+  context: 'Kontext'
+  parent: 'Nadřazená položka'
+  route_url: 'Routa / URL'
+  item: 'Položka'
+  actions: 'Akce'
+  first: 'První'
+  last: 'Poslední'
+  move_up: 'Posunout nahoru'
+  move_down: 'Posunout dolů'
+  reindex_positions: 'Přečíslovat pozice (krok %step%)'
+  reindex_positions_title: 'Znovu přiřadí pozice s krokem %step% v rámci každé nadřazené skupiny (pořadí zůstane zachováno).'
+  reindex_positions_done: 'Pozice byly přečíslovány s krokem %step%.'
+  reindex_positions_unchanged: 'Žádné změny pozic nebyly potřeba.'
+  check_parent_cycles: 'Zkontrolovat cykly nadřazených položek'
+  check_parent_cycles_title: 'Ověří, že řetězec nadřazených položek neobsahuje nekonečné smyčky (v rámci téhož menu).'
+  check_parent_cycles_ok: 'Nebyly nalezeny žádné cyklické odkazy na nadřazené položky.'
+  check_parent_cycles_loop: 'Zjištěn cyklický řetězec nadřazených položek: %chain%'
+  sortable_page_heading: 'Řazení přetažením'
+  open_sortable_reorder: 'Změnit pořadí (přetažením)'
+  back_to_items_table: 'Zobrazení tabulky'
+  sortable_title: 'Přetažením změníte pořadí'
+  sortable_help: 'Přetažením položek za úchyt změníte jejich pořadí, vnoříte je pod nadřazenou položku nebo je přesunete do jiné úrovně. Poté změny uložte tlačítkem Použít.'
+  sortable_apply: 'Použít pořadí stromu'
+  sortable_drag_handle: 'Přetažením změníte pořadí'
+  reorder_tree_done: 'Strom menu byl aktualizován.'
+  reorder_tree_invalid_json: 'Neplatná data stromu (JSON).'
+  reorder_tree_invalid_payload: 'Neplatný obsah stromu.'
+  reorder_tree_invalid_layout: 'Strom nelze použít (cyklus, limit hloubky nebo chybějící položky).'
+  reorder_tree_section_not_root: 'Sekce musí zůstat na kořenové úrovni. Přesuňte sekci mimo vnořené seznamy a použijte změny znovu.'
+  edit: 'Upravit'
+  create: 'Vytvořit'
+  update: 'Aktualizovat'
+  loading: 'Načítání…'
+  error_loading_form: 'Chyba při načítání formuláře.'
+  previous: 'Předchozí'
+  next: 'Další'
+  pagination_menus: 'Stránkování menu'
+  showing_from_to_of_total: 'Zobrazeno %from%–%to% z %total%'
+  depth_limit: 'Limit hloubky'
+  permission_checker: 'Kontrola oprávnění'
+  collapsible: 'Sbalitelné'
+  collapsible_expanded: 'Sbalitelné rozbalené'
+  nested_collapsible: 'Vnořené sbalitelné'
+  css_classes: 'Třídy CSS'
+  root: '— Kořen —'
+  no_label: '(bez popisku)'
   # 2.3.0 — admin chrome (index table view, item permission badges)
-  table_code: "Kód"
-  table_name: "Název"
-  table_items: "Položky"
-  table_context: "Kontext"
-  no_permission_keys: "Žádné klíče oprávnění"
-  unanimous: "Jednomyslné"
-  non_unanimous: "Nejednomyslné"
-  position_short: "Poz."
-  unique_code_context_error: A menu with this code and context already exists.
-  base: Base
-  base_badge_title: "Base menu: code cannot be changed after creation."
-  toggle: Toggle
-  yes: Yes
-  no: No
-  export: Export
-  export_all: Export all menus
-  import: Import
-  import_help: "Upload a JSON file exported from this dashboard (one menu or all menus). Choose whether to skip menus that already exist (same code + context) or replace their items."
-  import_json_invalid: Invalid JSON file.
-  import_json_error: "Invalid JSON: %message%"
-  import_file_too_large: "File is too large. Maximum size is %max% MiB."
-  import_done: "Import complete: %created% created, %updated% updated, %skipped% skipped."
-  import_format_invalid_root_array: 'Invalid format: a root JSON array must contain only objects with "menu" and "items". You can also use {"menus": [...]} or {"menu": {...}, "items": [...]}.'
-  import_format_expected: 'Invalid format: expected "menu" + "items", or "menus", or a root array of menu blocks.'
+  table_code: 'Kód'
+  table_name: 'Název'
+  table_items: 'Položky'
+  table_context: 'Kontext'
+  no_permission_keys: 'Žádné klíče oprávnění'
+  unanimous: 'Jednomyslné'
+  non_unanimous: 'Nejednomyslné'
+  position_short: 'Poz.'
+  unique_code_context_error: 'Menu s tímto kódem a kontextem již existuje.'
+  base: 'Základní'
+  base_badge_title: 'Základní menu: kód nelze po vytvoření změnit.'
+  toggle: 'Přepnout'
+  yes: 'Ano'
+  no: 'Ne'
+  export: 'Exportovat'
+  export_all: 'Exportovat všechna menu'
+  import: 'Importovat'
+  import_help: 'Nahrajte soubor JSON exportovaný z této správy. Podporované formáty: jedno menu {"menu": {...}, "items": [...]}, více menu {"menus": [{...}, ...]}, nebo stejný seznam jako kořenové pole JSON [{"menu": {...}, "items": [...]}, ...]. Zvolte, zda již existující menu (stejný kód + kontext) přeskočit, nebo nahradit jejich položky.'
+  import_format_invalid_root_array: 'Neplatný formát: kořenové pole JSON smí obsahovat pouze objekty s "menu" a "items". Můžete také použít {"menus": [...]} nebo {"menu": {...}, "items": [...]}.'
+  import_format_expected: 'Neplatný formát: očekáváno "menu" + "items", nebo "menus", nebo kořenové pole bloků menu.'
+  import_json_invalid: 'Neplatný soubor JSON.'
+  import_json_error: 'Neplatný JSON: %message%'
+  import_file_too_large: 'Soubor je příliš velký. Maximální velikost je %max% MiB.'
+  import_done: 'Import dokončen: vytvořeno %created%, aktualizováno %updated%, přeskočeno %skipped%.'
 
 # Form: MenuType
 form:
   menu_type:
     code:
-      label: Code
-      help: "Unique identifier (letters, numbers, _ -). For base menus, code cannot be changed after creation."
-      placeholder: "e.g. sidebar"
+      label: 'Kód'
+      help: 'Jedinečný identifikátor (písmena, číslice, _ -). U základních menu nelze kód po vytvoření změnit.'
+      placeholder: 'např. sidebar'
     base:
-      label: "Base menu"
-      help: "When checked, this menu's code cannot be changed after creation."
+      label: 'Základní menu'
+      help: 'Je-li zaškrtnuto, kód tohoto menu nelze po vytvoření změnit.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar"
+      label: 'Název'
+      placeholder: 'např. Postranní panel'
     context:
-      label: Context
-      help: "Optional JSON key-value pairs to identify this menu variant. When resolving by code, the first matching menu in the ordered context sets is used; empty = fallback for that code."
+      label: 'Kontext'
+      help: 'Volitelné páry klíč–hodnota v JSON pro identifikaci této varianty menu. Při vyhledávání podle kódu se použije první odpovídající menu v seřazených sadách kontextu; prázdné = výchozí varianta pro daný kód.'
       placeholder: '{"partnerId": 1, "operatorId": 1}'
     icon:
-      label: Icon
-      help: "Optional icon identifier (e.g. Symfony UX Icons: heroicons:home, bootstrap:house)."
-      placeholder: "e.g. heroicons:bars-3, bootstrap:list"
+      label: 'Ikona'
+      help: 'Volitelný identifikátor ikony (např. Symfony UX Icons: heroicons:home, bootstrap:house).'
+      placeholder: 'např. heroicons:bars-3, bootstrap:list'
     permission_checker:
-      label: Permission checker
-      placeholder: "— Allow all —"
-      allow_all: "— Allow all —"
-      help: "Service implementing MenuPermissionCheckerInterface (empty = allow all)."
+      label: 'Kontrola oprávnění'
+      placeholder: '— Povolit vše —'
+      allow_all: '— Povolit vše —'
+      permission_key_aware: '— Podle klíče oprávnění (struktura) —'
+      help: 'Služba implementující MenuPermissionCheckerInterface (prázdné = povolit vše).'
     depth_limit:
-      label: Depth limit
-      placeholder: "empty = unlimited"
-      help: "Max depth to render (1 = root only, 2 = root + one level; empty = unlimited)."
+      label: 'Limit hloubky'
+      placeholder: 'prázdné = bez omezení'
+      help: 'Maximální hloubka vykreslení (1 = pouze kořen, 2 = kořen + jedna úroveň; prázdné = bez omezení).'
     collapsible:
-      label: "Collapsible (wrap menu in toggle block)"
+      label: 'Sbalitelné (obalit menu do přepínacího bloku)'
     collapsible_expanded:
-      label: "Collapsible expanded (open by default)"
+      label: 'Sbalitelné rozbalené (ve výchozím stavu otevřené)'
     nested_collapsible:
-      label: "Nested collapsible (items with children have toggle)"
+      label: 'Vnořené sbalitelné (položky s podřízenými mají přepínač)'
+    nested_collapsible_sections:
+      label: 'Sbalitelné sekce'
+      help: 'Vyžaduje vnořené sbalování. Je-li zapnuto, řádky sekcí zobrazují vpravo šipku a jejich odkazy lze sbalit. Je-li vypnuto, podřízené položky sekcí zůstávají vždy rozbalené (bez šipky).'
     class_menu:
-      label: "Class menu (root <ul>)"
-      placeholder: "e.g. nav flex-column"
+      label: 'Třída menu (kořenový <ul>)'
+      placeholder: 'např. nav flex-column'
+    ul_id:
+      label: 'Id ul (kořenový <ul>)'
+      placeholder: 'např. main-menu-navigation'
     class_item:
-      label: "Class item (<li>)"
-      placeholder: "e.g. nav-item"
+      label: 'Třída položky (<li>)'
+      placeholder: 'např. nav-item'
     class_link:
-      label: "Class link (<a>)"
-      placeholder: "e.g. nav-link"
+      label: 'Třída odkazu (<a>)'
+      placeholder: 'např. nav-link'
     class_children:
-      label: "Class children (nested <ul>)"
-      placeholder: "e.g. nav flex-column ms-2"
+      label: 'Třída podřízených (vnořený <ul>)'
+      placeholder: 'např. nav flex-column ms-2'
+    class_section_children:
+      label: 'Třída podřízených sekce (<ul> pod itemType "section")'
+      placeholder: 'např. nav flex-column list-unstyled ps-0 (plochý; prázdné = stejné jako podřízené)'
+      help: 'Je-li nastaveno, seznam první úrovně pod každou sekcí použije tyto třídy místo „Třída podřízených“, takže se odkazy mohou zarovnat s nadpisem sekce (bez odsazení). Ponechte prázdné, chcete-li dále používat třídu vnořených podřízených.'
+    class_section_child_item:
+      label: 'Třída <li> pro přímé potomky itemType "section"'
+      placeholder: 'např. nav-item ms-0 (prázdné = stejné jako Třída položky)'
+      help: 'Je-li nastaveno, odkazy a oddělovače, které jsou přímými potomky sekce, použijí tuto hodnotu jako třídu <li> místo „Třída položky“. Slouží k úpravám okrajů/odsazení pod plochými seznamy sekcí.'
+    class_section_child_link:
+      label: 'Třída <a> pro přímé potomky itemType "section"'
+      placeholder: 'např. d-flex align-items-center ps-0 (prázdné = stejné jako Třída odkazu)'
+      help: 'Je-li nastaveno, odkazy, které jsou přímými potomky sekce, použijí tuto hodnotu jako třídu <a> místo „Třída odkazu“. Kombinuje se s třídou <li> potomků sekce pro zarovnání.'
+    class_section_label:
+      label: 'Třída popisku sekce (itemType "section")'
+      placeholder: 'např. navigation-header'
     class_section:
-      label: "Class section (<li> when itemType \"section\")"
-      placeholder: "e.g. menu-section"
+      label: 'Třída sekce (<li> při itemType "section")'
+      placeholder: 'např. menu-section'
     class_divider:
-      label: "Class divider (<li> when itemType \"divider\")"
-      placeholder: "e.g. menu-divider"
+      label: 'Třída oddělovače (<li> při itemType "divider")'
+      placeholder: 'např. menu-divider'
     class_current:
-      label: "Class current (link matching current route)"
-      placeholder: "e.g. active"
+      label: 'Třída aktuální položky (odkaz odpovídající aktuální routě)'
+      placeholder: 'např. active'
     class_branch_expanded:
-      label: "Class branch expanded (<li> when route in branch)"
-      placeholder: "e.g. active-branch"
+      label: 'Třída rozbalené větve (<li>, když je routa ve větvi)'
+      placeholder: 'např. active-branch'
     class_has_children:
-      label: "Class has children (<li> when item has children)"
-      placeholder: "e.g. has-children"
+      label: 'Třída s podřízenými (<li>, když má položka podřízené)'
+      placeholder: 'např. has-children'
     class_expanded:
-      label: "Class expanded (<li> when children block is open)"
-      placeholder: "e.g. is-expanded"
+      label: 'Třída rozbaleno (<li>, když je blok podřízených otevřený)'
+      placeholder: 'např. is-expanded'
     class_collapsed:
-      label: "Class collapsed (<li> when children block is closed)"
-      placeholder: "e.g. is-collapsed"
-    empty_choice: "— Empty —"
-    css_section_heading: "CSS classes for rendering (override config when set)."
+      label: 'Třída sbaleno (<li>, když je blok podřízených zavřený)'
+      placeholder: 'např. is-collapsed'
+    empty_choice: '— Prázdné —'
+    css_section_heading: 'Třídy CSS pro vykreslení (pokud jsou nastaveny, přepisují konfiguraci).'
+    section_definition: 'Definice (kód, základní, název, kontext, ikona)'
+    section_config: 'Konfigurace (oprávnění, hloubka, sbalování, CSS)'
 
   menu_item_type:
+    section_basic: 'Identita (popisky)'
+    section_icon: 'Identita (typ, pozice, ikona)'
+    section_config: 'Konfigurace (odkaz, oprávnění)'
+    label_required: 'Popisek je povinný pro Odkaz a Sekci.'
     label:
-      label: Label
-    label_locale: "Label (%locale%)"
+      label: 'Popisek'
+    label_locale: 'Popisek (%locale%)'
+    divider_label_hint: 'Volitelný název tohoto oddělovače (doporučeno kvůli přístupnosti a seznamu ve správě). Ponechte prázdné, pokud potřebujete jen vizuální oddělovač.'
     type:
-      label: Type
-      link: Link
-      section: Section
-      divider: Divider
+      label: 'Typ'
+      link: 'Odkaz'
+      section: 'Sekce'
+      divider: 'Oddělovač'
+      service: 'Služba (URL za běhu)'
+    link_resolver:
+      label: 'Resolver odkazů'
+      placeholder: '— Vyberte resolver —'
+      help: 'Vyberte službu, která implementuje MenuLinkResolverInterface. Může vrátit jednu URL nebo seznam řádků podřízených odkazů (popisek, href, pozice); href nadřazené položky je pak "#".'
+      service_id_placeholder: 'např. App\Menu\MyLinkResolver'
+      help_free_text: 'Zadejte id služby (název třídy nebo id v kontejneru), která implementuje MenuLinkResolverInterface.'
+      required: 'Pro typ položky „Služba“ je resolver odkazů povinný.'
+      route_params_hint: 'Volitelný JSON předaný resolveru (například parametry podobné parametrům routy).'
     position:
-      label: Position
+      label: 'Pozice'
     link_type:
-      label: Link type
-      route: Route
-      external_url: External URL
+      label: 'Typ odkazu'
+      route: 'Routa'
+      external_url: 'Externí URL'
     route_name:
-      label: Route name
-      placeholder: "— Select route —"
+      label: 'Název routy'
+      placeholder: '— Vyberte routu —'
     route_params:
-      label: "Route params (JSON)"
-      placeholder: "{}"
+      label: 'Parametry routy (JSON)'
+      placeholder: '{}'
     external_url:
-      label: External URL
-      placeholder: "https://..."
+      label: 'Externí URL'
+      placeholder: 'https://...'
     target_blank:
-      label: Open in new tab
+      label: 'Otevřít v nové kartě'
     permission_keys:
-      label: Permission keys
-      placeholder: "— Allow all —"
-      help_csv: "Comma-separated keys (used when no configured choices are available)."
+      label: 'Klíče oprávnění'
+      placeholder: '— Povolit vše —'
+      help_csv: 'Klíče oddělené čárkami (použijí se, pokud nejsou k dispozici nakonfigurované volby).'
       choice:
-        authenticated: "Authenticated only"
-        admin: "Admin only"
-        path__: "Path: / (home only)"
+        authenticated: 'Pouze přihlášení'
+        admin: 'Pouze administrátoři'
+        path__: 'Cesta: / (pouze úvodní stránka)'
     is_unanimous:
-      label: Require all selected keys
-      help: "Enabled: all keys must pass (AND). Disabled: any key may pass (OR)."
+      label: 'Vyžadovat všechny vybrané klíče'
+      help: 'Zapnuto: musí projít všechny klíče (AND). Vypnuto: stačí jakýkoli klíč (OR).'
     icon:
-      label: Icon
-      placeholder: "heroicons:home"
+      label: 'Ikona'
+      placeholder: 'heroicons:home'
     parent:
-      label: Parent
-      placeholder: "— Root (no parent) —"
+      label: 'Nadřazená položka'
+      placeholder: '— Kořen (bez nadřazené položky) —'
+      help_inheritance: 'Nadřazené položky jsou ve stromu nad touto položkou. Klíče oprávnění v tomto řádku platí pro tuto položku; váš MenuPermissionChecker rozhoduje, jak se kombinují pravidla nadřazených a podřízených položek. Sekce a rozbalovací odkazy se vykreslí, jen pokud je zobrazena alespoň jedna podřízená položka.'
+      circular_violation: 'Cyklická hierarchie nadřazených položek není povolena.'
+      section_must_be_root: 'Položky sekcí musí zůstat na kořenové úrovni (bez nadřazené položky).'
+    section_collapsible:
+      label: 'Sbalitelné podřízené položky sekce'
+      inherit: 'Použít výchozí nastavení menu'
+      yes: 'Ano (sbalitelné se šipkou)'
+      no: 'Ne (vždy rozbalené)'
+      help: 'Přepíše volbu menu „Sbalitelné sekce“ pouze pro tuto sekci. „Použít výchozí nastavení menu“ se řídí konfigurací menu.'
 
   import_menu_type:
     file:
-      label: JSON file
-      required: Please choose a file.
-      mime_message: File must be JSON.
+      label: 'Soubor JSON'
+      required: 'Vyberte prosím soubor.'
+      mime_message: 'Soubor musí být ve formátu JSON.'
     strategy:
-      label: When a menu with the same code and context already exists
-      skip_existing: Skip (do not import)
-      replace: Replace (delete existing items and import)
+      label: 'Pokud menu se stejným kódem a kontextem již existuje'
+      skip_existing: 'Přeskočit (neimportovat)'
+      replace: 'Nahradit (smazat existující položky a importovat)'
 
   copy_menu_type:
     code:
-      label: Code
-      placeholder: "e.g. sidebar_copy"
-      regex_message: "Code must contain only letters, numbers, underscore and hyphen."
+      label: 'Kód'
+      placeholder: 'např. sidebar_copy'
+      regex_message: 'Kód smí obsahovat pouze písmena, číslice, podtržítko a pomlčku.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar (copy)"
+      label: 'Název'
+      placeholder: 'např. Postranní panel (kopie)'

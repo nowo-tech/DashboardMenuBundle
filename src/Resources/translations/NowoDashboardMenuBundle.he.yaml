@@ -2,220 +2,292 @@
 
 # Dashboard UI
 dashboard:
-  title: Menu dashboard
-  title_suffix: Dashboard Menu
-  menus: Menus
-  menu: Menu
-  menus_back: "← Menus"
-  new_menu: New menu
-  edit_menu: Edit menu
-  edit_item: Edit item
-  edit_items: Edit items
-  copy: Copy
-  copy_menu: Copy menu
-  copy_menu_help: "Copy menu and all its items. You can change the code and name for the new menu."
-  delete: Delete
-  cancel: Cancel
-  close: Close
-  confirm_delete: Confirm delete
-  delete_menu_confirm: 'Delete menu "%name%" and all its items?'
-  delete_menu_message: Delete this menu and all its items?
-  delete_item_confirm: 'Delete "%name%" and its children?'
-  delete_item_message: Delete this item and its children?
-  add_item: Add item
-  new_item: New item
-  add_one: Add one
-  add_child: Add child
-  search: Search
-  search_placeholder: "Search by code or name…"
-  clear: Clear
-  filter: Filter
-  clear_filters: Clear filters
-  no_menus_yet: "No menus yet. Create one to get started."
-  no_items: No items.
-  context: Context
-  parent: Parent
-  route_url: "Route / URL"
-  item: Item
-  actions: Actions
-  first: First
-  last: Last
-  move_up: Move up
-  move_down: Move down
-  edit: Edit
-  create: Create
-  update: Update
-  loading: "Loading…"
-  error_loading_form: Error loading form.
-  previous: Previous
-  next: Next
-  pagination_menus: Menus pagination
-  showing_from_to_of_total: "Showing %from%-%to% of %total%"
-  depth_limit: Depth limit
-  permission_checker: Permission checker
-  collapsible: Collapsible
-  collapsible_expanded: Collapsible expanded
-  nested_collapsible: Nested collapsible
-  css_classes: CSS classes
-  root: "— Root —"
-  no_label: "(no label)"
+  title: 'לוח בקרה לתפריטים'
+  title_suffix: 'ניהול תפריטים'
+  menus: 'תפריטים'
+  menu: 'תפריט'
+  menus_back: '← תפריטים'
+  new_menu: 'תפריט חדש'
+  edit_menu: 'עריכת תפריט'
+  edit_item: 'עריכת פריט'
+  edit_items: 'עריכת פריטים'
+  edit_identity: 'עריכה (סמל, תווית, סוג)'
+  edit_labels: 'עריכת תווית ותרגומים'
+  edit_type_position_icon: 'עריכת סוג, מיקום וסמל'
+  edit_config: 'עריכת הגדרות (הורה, קישור, הרשאות)'
+  copy: 'העתקה'
+  copy_menu: 'העתקת תפריט'
+  copy_menu_help: 'העתקת התפריט וכל הפריטים שלו. ניתן לשנות את הקוד והשם של התפריט החדש.'
+  delete: 'מחיקה'
+  cancel: 'ביטול'
+  close: 'סגירה'
+  confirm_delete: 'אישור מחיקה'
+  delete_menu_confirm: 'למחוק את התפריט "%name%" ואת כל הפריטים שלו?'
+  delete_menu_message: 'למחוק את התפריט הזה ואת כל הפריטים שלו?'
+  delete_item_confirm: 'למחוק את "%name%" ואת פריטי הצאצא שלו?'
+  delete_item_message: 'למחוק את הפריט הזה ואת פריטי הצאצא שלו?'
+  add_item: 'הוספת פריט'
+  new_item: 'פריט חדש'
+  add_one: 'הוסיפו אחד'
+  add_child: 'הוספת צאצא'
+  add_child_disabled: 'לפריטי מקטע ומפריד לא יכולים להיות צאצאים'
+  search: 'חיפוש'
+  search_placeholder: 'חיפוש לפי קוד או שם…'
+  clear: 'ניקוי'
+  filter: 'סינון'
+  clear_filters: 'ניקוי מסננים'
+  no_menus_yet: 'אין עדיין תפריטים. צרו תפריט כדי להתחיל.'
+  no_items: 'אין פריטים.'
+  context: 'הקשר'
+  parent: 'הורה'
+  route_url: 'נתיב / URL'
+  item: 'פריט'
+  actions: 'פעולות'
+  first: 'ראשון'
+  last: 'אחרון'
+  move_up: 'הזזה למעלה'
+  move_down: 'הזזה למטה'
+  reindex_positions: 'מספור מחדש של מיקומים (מרווח %step%)'
+  reindex_positions_title: 'הקצאה מחדש של מיקומים במרווחים של %step% בתוך כל קבוצת הורה (הסדר נשמר).'
+  reindex_positions_done: 'המיקומים מוספרו מחדש במרווח %step%.'
+  reindex_positions_unchanged: 'לא נדרשו שינויי מיקום.'
+  check_parent_cycles: 'בדיקת מעגלי הורים'
+  check_parent_cycles_title: 'וידוא שאין לולאות אינסופיות בשרשרת ההורים (אותו תפריט).'
+  check_parent_cycles_ok: 'לא נמצאו הפניות הורה מעגליות.'
+  check_parent_cycles_loop: 'זוהתה שרשרת הורים מעגלית: %chain%'
+  sortable_page_heading: 'סידור בגרירה'
+  open_sortable_reorder: 'סידור מחדש (גרירה)'
+  back_to_items_table: 'תצוגת טבלה'
+  sortable_title: 'גררו כדי לסדר מחדש'
+  sortable_help: 'גררו פריטים באמצעות הידית כדי לסדר אותם מחדש, לשבץ אותם תחת הורה או להעביר אותם לרמה אחרת. לאחר מכן החילו כדי לשמור.'
+  sortable_apply: 'החלת סדר העץ'
+  sortable_drag_handle: 'גררו כדי לסדר מחדש'
+  reorder_tree_done: 'עץ התפריט עודכן.'
+  reorder_tree_invalid_json: 'נתוני עץ לא תקינים (JSON).'
+  reorder_tree_invalid_payload: 'מטען נתוני העץ אינו תקין.'
+  reorder_tree_invalid_layout: 'לא ניתן היה להחיל את העץ (מעגל, מגבלת עומק או פריטים חסרים).'
+  reorder_tree_section_not_root: 'מקטעים חייבים להישאר ברמת השורש. הוציאו את המקטע מהרשימות המקוננות והחילו שוב.'
+  edit: 'עריכה'
+  create: 'יצירה'
+  update: 'עדכון'
+  loading: 'טוען…'
+  error_loading_form: 'שגיאה בטעינת הטופס.'
+  previous: 'הקודם'
+  next: 'הבא'
+  pagination_menus: 'עימוד תפריטים'
+  showing_from_to_of_total: 'מוצגים %from%-%to% מתוך %total%'
+  depth_limit: 'מגבלת עומק'
+  permission_checker: 'בודק הרשאות'
+  collapsible: 'מתקפל'
+  collapsible_expanded: 'מתקפל ופתוח'
+  nested_collapsible: 'מתקפל מקונן'
+  css_classes: 'מחלקות CSS'
+  root: '— שורש —'
+  no_label: '(ללא תווית)'
   # 2.3.0 — admin chrome (index table view, item permission badges)
-  table_code: "קוד"
-  table_name: "שם"
-  table_items: "פריטים"
-  table_context: "הקשר"
-  no_permission_keys: "אין מפתחות הרשאה"
-  unanimous: "פה אחד"
-  non_unanimous: "לא פה אחד"
-  position_short: "מיקום"
-  unique_code_context_error: A menu with this code and context already exists.
-  base: Base
-  base_badge_title: "Base menu: code cannot be changed after creation."
-  toggle: Toggle
-  yes: Yes
-  no: No
-  export: Export
-  export_all: Export all menus
-  import: Import
-  import_help: "Upload a JSON file exported from this dashboard (one menu or all menus). Choose whether to skip menus that already exist (same code + context) or replace their items."
-  import_json_invalid: Invalid JSON file.
-  import_json_error: "Invalid JSON: %message%"
-  import_file_too_large: "File is too large. Maximum size is %max% MiB."
-  import_done: "Import complete: %created% created, %updated% updated, %skipped% skipped."
-  import_format_invalid_root_array: 'Invalid format: a root JSON array must contain only objects with "menu" and "items". You can also use {"menus": [...]} or {"menu": {...}, "items": [...]}.'
-  import_format_expected: 'Invalid format: expected "menu" + "items", or "menus", or a root array of menu blocks.'
+  table_code: 'קוד'
+  table_name: 'שם'
+  table_items: 'פריטים'
+  table_context: 'הקשר'
+  no_permission_keys: 'אין מפתחות הרשאה'
+  unanimous: 'פה אחד'
+  non_unanimous: 'לא פה אחד'
+  position_short: 'מיק׳'
+  unique_code_context_error: 'כבר קיים תפריט עם קוד והקשר אלה.'
+  base: 'בסיס'
+  base_badge_title: 'תפריט בסיס: לא ניתן לשנות את הקוד לאחר היצירה.'
+  toggle: 'הצגה/הסתרה'
+  yes: 'כן'
+  no: 'לא'
+  export: 'ייצוא'
+  export_all: 'ייצוא כל התפריטים'
+  import: 'ייבוא'
+  import_help: 'העלו קובץ JSON שיוצא מלוח בקרה זה. מבנים נתמכים: תפריט יחיד {"menu": {...}, "items": [...]}, מספר תפריטים {"menus": [{...}, ...]}, או אותה רשימה כמערך JSON בשורש [{"menu": {...}, "items": [...]}, ...]. בחרו אם לדלג על תפריטים שכבר קיימים (אותו קוד + הקשר) או להחליף את הפריטים שלהם.'
+  import_format_invalid_root_array: 'מבנה לא תקין: מערך JSON בשורש חייב להכיל רק אובייקטים עם "menu" ו-"items". ניתן גם להשתמש ב-{"menus": [...]} או ב-{"menu": {...}, "items": [...]}.'
+  import_format_expected: 'מבנה לא תקין: נדרש "menu" + "items", או "menus", או מערך בשורש של בלוקי תפריטים.'
+  import_json_invalid: 'קובץ JSON לא תקין.'
+  import_json_error: 'JSON לא תקין: %message%'
+  import_file_too_large: 'הקובץ גדול מדי. הגודל המרבי הוא %max% MiB.'
+  import_done: 'הייבוא הושלם: %created% נוצרו, %updated% עודכנו, %skipped% דולגו.'
 
 # Form: MenuType
 form:
   menu_type:
     code:
-      label: Code
-      help: "Unique identifier (letters, numbers, _ -). For base menus, code cannot be changed after creation."
-      placeholder: "e.g. sidebar"
+      label: 'קוד'
+      help: 'מזהה ייחודי (אותיות, ספרות, _ -). בתפריטי בסיס לא ניתן לשנות את הקוד לאחר היצירה.'
+      placeholder: 'לדוגמה sidebar'
     base:
-      label: "Base menu"
-      help: "When checked, this menu's code cannot be changed after creation."
+      label: 'תפריט בסיס'
+      help: 'כאשר מסומן, לא ניתן לשנות את הקוד של תפריט זה לאחר היצירה.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar"
+      label: 'שם'
+      placeholder: 'לדוגמה סרגל צד'
     context:
-      label: Context
-      help: "Optional JSON key-value pairs to identify this menu variant. When resolving by code, the first matching menu in the ordered context sets is used; empty = fallback for that code."
+      label: 'הקשר'
+      help: 'זוגות מפתח-ערך אופציונליים ב-JSON לזיהוי גרסה זו של התפריט. בעת איתור לפי קוד, נעשה שימוש בתפריט התואם הראשון לפי סדר קבוצות ההקשר; ריק = ברירת מחדל חלופית עבור קוד זה.'
       placeholder: '{"partnerId": 1, "operatorId": 1}'
     icon:
-      label: Icon
-      help: "Optional icon identifier (e.g. Symfony UX Icons: heroicons:home, bootstrap:house)."
-      placeholder: "e.g. heroicons:bars-3, bootstrap:list"
+      label: 'סמל'
+      help: 'מזהה סמל אופציונלי (לדוגמה Symfony UX Icons: heroicons:home, bootstrap:house).'
+      placeholder: 'לדוגמה heroicons:bars-3, bootstrap:list'
     permission_checker:
-      label: Permission checker
-      placeholder: "— Allow all —"
-      allow_all: "— Allow all —"
-      help: "Service implementing MenuPermissionCheckerInterface (empty = allow all)."
+      label: 'בודק הרשאות'
+      placeholder: '— לאפשר הכול —'
+      allow_all: '— לאפשר הכול —'
+      permission_key_aware: '— לפי מפתח הרשאה (מבנה) —'
+      help: 'שירות המממש את MenuPermissionCheckerInterface (ריק = לאפשר הכול).'
     depth_limit:
-      label: Depth limit
-      placeholder: "empty = unlimited"
-      help: "Max depth to render (1 = root only, 2 = root + one level; empty = unlimited)."
+      label: 'מגבלת עומק'
+      placeholder: 'ריק = ללא הגבלה'
+      help: 'עומק מרבי להצגה (1 = שורש בלבד, 2 = שורש + רמה אחת; ריק = ללא הגבלה).'
     collapsible:
-      label: "Collapsible (wrap menu in toggle block)"
+      label: 'מתקפל (עטיפת התפריט בבלוק נפתח)'
     collapsible_expanded:
-      label: "Collapsible expanded (open by default)"
+      label: 'מתקפל ופתוח (פתוח כברירת מחדל)'
     nested_collapsible:
-      label: "Nested collapsible (items with children have toggle)"
+      label: 'מתקפל מקונן (לפריטים עם צאצאים יש מתג פתיחה)'
+    nested_collapsible_sections:
+      label: 'מקטעים מתקפלים'
+      help: 'דורש מתקפל מקונן. כאשר מופעל, שורות המקטעים מציגות חץ בצד ימין וניתן לקפל את הקישורים שלהן. כאשר מושבת, צאצאי המקטעים נשארים תמיד פתוחים (ללא חץ).'
     class_menu:
-      label: "Class menu (root <ul>)"
-      placeholder: "e.g. nav flex-column"
+      label: 'מחלקת תפריט (<ul> שורש)'
+      placeholder: 'לדוגמה nav flex-column'
+    ul_id:
+      label: 'מזהה ה-ul (<ul> שורש)'
+      placeholder: 'לדוגמה main-menu-navigation'
     class_item:
-      label: "Class item (<li>)"
-      placeholder: "e.g. nav-item"
+      label: 'מחלקת פריט (<li>)'
+      placeholder: 'לדוגמה nav-item'
     class_link:
-      label: "Class link (<a>)"
-      placeholder: "e.g. nav-link"
+      label: 'מחלקת קישור (<a>)'
+      placeholder: 'לדוגמה nav-link'
     class_children:
-      label: "Class children (nested <ul>)"
-      placeholder: "e.g. nav flex-column ms-2"
+      label: 'מחלקת צאצאים (<ul> מקונן)'
+      placeholder: 'לדוגמה nav flex-column ms-2'
+    class_section_children:
+      label: 'מחלקת צאצאי מקטע (<ul> תחת itemType "section")'
+      placeholder: 'לדוגמה nav flex-column list-unstyled ps-0 (שטוח; ריק = כמו בצאצאים)'
+      help: 'כאשר מוגדר, הרשימה ברמה הראשונה תחת כל מקטע משתמשת במחלקות אלה במקום ב"מחלקת צאצאים", כך שהקישורים יכולים להתיישר עם כותרת המקטע (ללא הזחה). השאירו ריק כדי להמשיך להשתמש במחלקת הצאצאים המקוננים.'
+    class_section_child_item:
+      label: 'מחלקת <li> לצאצאים ישירים של itemType "section"'
+      placeholder: 'לדוגמה nav-item ms-0 (ריק = כמו מחלקת פריט)'
+      help: 'כאשר מוגדר, קישורים ומפרידים שהם צאצאים ישירים של מקטע משתמשים בערך זה כמחלקת ה-<li> במקום ב"מחלקת פריט". השתמשו בזה לכוונון שוליים וריפוד ברשימות מקטעים שטוחות.'
+    class_section_child_link:
+      label: 'מחלקת <a> לצאצאים ישירים של itemType "section"'
+      placeholder: 'לדוגמה d-flex align-items-center ps-0 (ריק = כמו מחלקת קישור)'
+      help: 'כאשר מוגדר, קישורים שהם צאצאים ישירים של מקטע משתמשים בערך זה כמחלקת ה-<a> במקום ב"מחלקת קישור". פועל יחד עם ה-<li> של צאצא המקטע לצורך יישור.'
+    class_section_label:
+      label: 'מחלקת תווית מקטע (itemType "section")'
+      placeholder: 'לדוגמה navigation-header'
     class_section:
-      label: "Class section (<li> when itemType \"section\")"
-      placeholder: "e.g. menu-section"
+      label: 'מחלקת מקטע (<li> כאשר itemType "section")'
+      placeholder: 'לדוגמה menu-section'
     class_divider:
-      label: "Class divider (<li> when itemType \"divider\")"
-      placeholder: "e.g. menu-divider"
+      label: 'מחלקת מפריד (<li> כאשר itemType "divider")'
+      placeholder: 'לדוגמה menu-divider'
     class_current:
-      label: "Class current (link matching current route)"
-      placeholder: "e.g. active"
+      label: 'מחלקת פריט נוכחי (קישור התואם לנתיב הנוכחי)'
+      placeholder: 'לדוגמה active'
     class_branch_expanded:
-      label: "Class branch expanded (<li> when route in branch)"
-      placeholder: "e.g. active-branch"
+      label: 'מחלקת ענף פתוח (<li> כאשר הנתיב נמצא בענף)'
+      placeholder: 'לדוגמה active-branch'
     class_has_children:
-      label: "Class has children (<li> when item has children)"
-      placeholder: "e.g. has-children"
+      label: 'מחלקת בעל צאצאים (<li> כאשר לפריט יש צאצאים)'
+      placeholder: 'לדוגמה has-children'
     class_expanded:
-      label: "Class expanded (<li> when children block is open)"
-      placeholder: "e.g. is-expanded"
+      label: 'מחלקת פתוח (<li> כאשר בלוק הצאצאים פתוח)'
+      placeholder: 'לדוגמה is-expanded'
     class_collapsed:
-      label: "Class collapsed (<li> when children block is closed)"
-      placeholder: "e.g. is-collapsed"
-    empty_choice: "— Empty —"
-    css_section_heading: "CSS classes for rendering (override config when set)."
+      label: 'מחלקת מקופל (<li> כאשר בלוק הצאצאים סגור)'
+      placeholder: 'לדוגמה is-collapsed'
+    empty_choice: '— ריק —'
+    css_section_heading: 'מחלקות CSS לתצוגה (גוברות על ההגדרות כאשר הן מוגדרות).'
+    section_definition: 'הגדרה (קוד, בסיס, שם, הקשר, סמל)'
+    section_config: 'הגדרות (הרשאות, עומק, קיפול, CSS)'
 
   menu_item_type:
+    section_basic: 'זהות (תוויות)'
+    section_icon: 'זהות (סוג, מיקום, סמל)'
+    section_config: 'הגדרות (קישור, הרשאה)'
+    label_required: 'תווית היא שדה חובה עבור קישור ומקטע.'
     label:
-      label: Label
-    label_locale: "Label (%locale%)"
+      label: 'תווית'
+    label_locale: 'תווית (%locale%)'
+    divider_label_hint: 'שם אופציונלי למפריד זה (מומלץ לנגישות ולרשימה בלוח הבקרה). השאירו ריק אם נדרש רק מפריד חזותי.'
     type:
-      label: Type
-      link: Link
-      section: Section
-      divider: Divider
+      label: 'סוג'
+      link: 'קישור'
+      section: 'מקטע'
+      divider: 'מפריד'
+      service: 'שירות (URL בזמן ריצה)'
+    link_resolver:
+      label: 'מפענח קישורים'
+      placeholder: '— בחרו מפענח —'
+      help: 'בחרו שירות המממש את MenuLinkResolverInterface. הוא יכול להחזיר URL יחיד או רשימה של שורות קישור צאצא (label, href, position); ה-href של ההורה יהיה אז "#".'
+      service_id_placeholder: 'לדוגמה App\Menu\MyLinkResolver'
+      help_free_text: 'הזינו את מזהה השירות (שם המחלקה או המזהה ב-container) המממש את MenuLinkResolverInterface.'
+      required: 'נדרש מפענח קישורים עבור סוג הפריט "שירות".'
+      route_params_hint: 'JSON אופציונלי המועבר למפענח (לדוגמה פרמטרים בסגנון נתיב).'
     position:
-      label: Position
+      label: 'מיקום'
     link_type:
-      label: Link type
-      route: Route
-      external_url: External URL
+      label: 'סוג קישור'
+      route: 'נתיב'
+      external_url: 'URL חיצוני'
     route_name:
-      label: Route name
-      placeholder: "— Select route —"
+      label: 'שם הנתיב'
+      placeholder: '— בחרו נתיב —'
     route_params:
-      label: "Route params (JSON)"
-      placeholder: "{}"
+      label: 'פרמטרי נתיב (JSON)'
+      placeholder: '{}'
     external_url:
-      label: External URL
-      placeholder: "https://..."
+      label: 'URL חיצוני'
+      placeholder: 'https://...'
     target_blank:
-      label: Open in new tab
+      label: 'פתיחה בכרטיסייה חדשה'
     permission_keys:
-      label: Permission keys
-      placeholder: "— Allow all —"
-      help_csv: "Comma-separated keys (used when no configured choices are available)."
+      label: 'מפתחות הרשאה'
+      placeholder: '— לאפשר הכול —'
+      help_csv: 'מפתחות מופרדים בפסיקים (בשימוש כאשר אין אפשרויות מוגדרות זמינות).'
       choice:
-        authenticated: "Authenticated only"
-        admin: "Admin only"
-        path__: "Path: / (home only)"
+        authenticated: 'משתמשים מחוברים בלבד'
+        admin: 'מנהלים בלבד'
+        path__: 'נתיב: / (דף הבית בלבד)'
     is_unanimous:
-      label: Require all selected keys
-      help: "Enabled: all keys must pass (AND). Disabled: any key may pass (OR)."
+      label: 'לדרוש את כל המפתחות שנבחרו'
+      help: 'מופעל: כל המפתחות חייבים לעבור (AND). מושבת: מספיק שמפתח אחד יעבור (OR).'
     icon:
-      label: Icon
-      placeholder: "heroicons:home"
+      label: 'סמל'
+      placeholder: 'heroicons:home'
     parent:
-      label: Parent
-      placeholder: "— Root (no parent) —"
+      label: 'הורה'
+      placeholder: '— שורש (ללא הורה) —'
+      help_inheritance: 'פריטי הורה נמצאים מעל פריט זה בעץ. מפתחות ההרשאה בשורה זו חלים על פריט זה; ה-MenuPermissionChecker שלכם קובע כיצד משתלבים כללי הורה וצאצא. מקטעים וקישורים נפתחים מוצגים רק כאשר לפחות צאצא אחד מוצג.'
+      circular_violation: 'היררכיית הורים מעגלית אינה מותרת.'
+      section_must_be_root: 'פריטי מקטע חייבים להישאר ברמת השורש (ללא הורה).'
+    section_collapsible:
+      label: 'צאצאי המקטע מתקפלים'
+      inherit: 'שימוש בברירת המחדל של התפריט'
+      yes: 'כן (מתקפל עם חץ)'
+      no: 'לא (תמיד פתוח)'
+      help: 'גובר על אפשרות התפריט "מקטעים מתקפלים" עבור מקטע זה בלבד. "שימוש בברירת המחדל של התפריט" פועל לפי הגדרות התפריט.'
 
   import_menu_type:
     file:
-      label: JSON file
-      required: Please choose a file.
-      mime_message: File must be JSON.
+      label: 'קובץ JSON'
+      required: 'נא לבחור קובץ.'
+      mime_message: 'הקובץ חייב להיות בפורמט JSON.'
     strategy:
-      label: When a menu with the same code and context already exists
-      skip_existing: Skip (do not import)
-      replace: Replace (delete existing items and import)
+      label: 'כאשר כבר קיים תפריט עם אותו קוד והקשר'
+      skip_existing: 'דילוג (ללא ייבוא)'
+      replace: 'החלפה (מחיקת הפריטים הקיימים וייבוא)'
 
   copy_menu_type:
     code:
-      label: Code
-      placeholder: "e.g. sidebar_copy"
-      regex_message: "Code must contain only letters, numbers, underscore and hyphen."
+      label: 'קוד'
+      placeholder: 'לדוגמה sidebar_copy'
+      regex_message: 'הקוד יכול להכיל רק אותיות, ספרות, קו תחתון ומקף.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar (copy)"
+      label: 'שם'
+      placeholder: 'לדוגמה סרגל צד (עותק)'

@@ -2,220 +2,292 @@
 
 # Dashboard UI
 dashboard:
-  title: Menu dashboard
-  title_suffix: Dashboard Menu
-  menus: Menus
-  menu: Menu
-  menus_back: "← Menus"
-  new_menu: New menu
-  edit_menu: Edit menu
-  edit_item: Edit item
-  edit_items: Edit items
-  copy: Copy
-  copy_menu: Copy menu
-  copy_menu_help: "Copy menu and all its items. You can change the code and name for the new menu."
-  delete: Delete
-  cancel: Cancel
-  close: Close
-  confirm_delete: Confirm delete
-  delete_menu_confirm: 'Delete menu "%name%" and all its items?'
-  delete_menu_message: Delete this menu and all its items?
-  delete_item_confirm: 'Delete "%name%" and its children?'
-  delete_item_message: Delete this item and its children?
-  add_item: Add item
-  new_item: New item
-  add_one: Add one
-  add_child: Add child
-  search: Search
-  search_placeholder: "Search by code or name…"
-  clear: Clear
-  filter: Filter
-  clear_filters: Clear filters
-  no_menus_yet: "No menus yet. Create one to get started."
-  no_items: No items.
-  context: Context
-  parent: Parent
-  route_url: "Route / URL"
-  item: Item
-  actions: Actions
-  first: First
-  last: Last
-  move_up: Move up
-  move_down: Move down
-  edit: Edit
-  create: Create
-  update: Update
-  loading: "Loading…"
-  error_loading_form: Error loading form.
-  previous: Previous
-  next: Next
-  pagination_menus: Menus pagination
-  showing_from_to_of_total: "Showing %from%-%to% of %total%"
-  depth_limit: Depth limit
-  permission_checker: Permission checker
-  collapsible: Collapsible
-  collapsible_expanded: Collapsible expanded
-  nested_collapsible: Nested collapsible
-  css_classes: CSS classes
-  root: "— Root —"
-  no_label: "(no label)"
+  title: 'Menü yönetim paneli'
+  title_suffix: 'Menü Paneli'
+  menus: 'Menüler'
+  menu: 'Menü'
+  menus_back: '← Menüler'
+  new_menu: 'Yeni menü'
+  edit_menu: 'Menüyü düzenle'
+  edit_item: 'Öğeyi düzenle'
+  edit_items: 'Öğeleri düzenle'
+  edit_identity: 'Düzenle (simge, etiket, tür)'
+  edit_labels: 'Etiketi ve çevirileri düzenle'
+  edit_type_position_icon: 'Türü, konumu ve simgeyi düzenle'
+  edit_config: 'Yapılandırmayı düzenle (üst öğe, bağlantı, izinler)'
+  copy: 'Kopyala'
+  copy_menu: 'Menüyü kopyala'
+  copy_menu_help: 'Menüyü ve tüm öğelerini kopyalar. Yeni menünün kodunu ve adını değiştirebilirsiniz.'
+  delete: 'Sil'
+  cancel: 'İptal'
+  close: 'Kapat'
+  confirm_delete: 'Silmeyi onayla'
+  delete_menu_confirm: '“%name%” menüsü ve tüm öğeleri silinsin mi?'
+  delete_menu_message: 'Bu menü ve tüm öğeleri silinsin mi?'
+  delete_item_confirm: '“%name%” ve alt öğeleri silinsin mi?'
+  delete_item_message: 'Bu öğe ve alt öğeleri silinsin mi?'
+  add_item: 'Öğe ekle'
+  new_item: 'Yeni öğe'
+  add_one: 'Ekle'
+  add_child: 'Alt öğe ekle'
+  add_child_disabled: 'Bölüm ve ayırıcı öğelerinin alt öğesi olamaz'
+  search: 'Ara'
+  search_placeholder: 'Koda veya ada göre ara…'
+  clear: 'Temizle'
+  filter: 'Filtrele'
+  clear_filters: 'Filtreleri temizle'
+  no_menus_yet: 'Henüz menü yok. Başlamak için bir menü oluşturun.'
+  no_items: 'Öğe yok.'
+  context: 'Bağlam'
+  parent: 'Üst öğe'
+  route_url: 'Rota / URL'
+  item: 'Öğe'
+  actions: 'İşlemler'
+  first: 'İlk'
+  last: 'Son'
+  move_up: 'Yukarı taşı'
+  move_down: 'Aşağı taşı'
+  reindex_positions: 'Konumları yeniden numaralandır (adım %step%)'
+  reindex_positions_title: 'Her üst öğe grubunda konumları %step% adımlarla yeniden atar (sıra korunur).'
+  reindex_positions_done: 'Konumlar %step% adımıyla yeniden numaralandırıldı.'
+  reindex_positions_unchanged: 'Herhangi bir konum değişikliği gerekmedi.'
+  check_parent_cycles: 'Üst öğe döngülerini denetle'
+  check_parent_cycles_title: 'Üst öğe zincirinde sonsuz döngü olmadığını doğrular (aynı menü içinde).'
+  check_parent_cycles_ok: 'Döngüsel üst öğe başvurusu bulunamadı.'
+  check_parent_cycles_loop: 'Döngüsel üst öğe zinciri algılandı: %chain%'
+  sortable_page_heading: 'Sürükleyerek sırala'
+  open_sortable_reorder: 'Yeniden sırala (sürükle)'
+  back_to_items_table: 'Tablo görünümü'
+  sortable_title: 'Yeniden sıralamak için sürükleyin'
+  sortable_help: 'Öğeleri tutamaçtan sürükleyerek yeniden sıralayın, bir üst öğenin altına yerleştirin veya başka bir düzeye taşıyın. Ardından kaydetmek için uygulayın.'
+  sortable_apply: 'Ağaç sırasını uygula'
+  sortable_drag_handle: 'Yeniden sıralamak için sürükleyin'
+  reorder_tree_done: 'Menü ağacı güncellendi.'
+  reorder_tree_invalid_json: 'Geçersiz ağaç verisi (JSON).'
+  reorder_tree_invalid_payload: 'Geçersiz ağaç içeriği.'
+  reorder_tree_invalid_layout: 'Ağaç uygulanamadı (döngü, derinlik sınırı veya eksik öğeler).'
+  reorder_tree_section_not_root: 'Bölümler kök düzeyde kalmalıdır. Bölümü iç içe listelerin dışına taşıyın ve yeniden uygulayın.'
+  edit: 'Düzenle'
+  create: 'Oluştur'
+  update: 'Güncelle'
+  loading: 'Yükleniyor…'
+  error_loading_form: 'Form yüklenirken hata oluştu.'
+  previous: 'Önceki'
+  next: 'Sonraki'
+  pagination_menus: 'Menü sayfalandırması'
+  showing_from_to_of_total: '%total% kayıttan %from%-%to% gösteriliyor'
+  depth_limit: 'Derinlik sınırı'
+  permission_checker: 'İzin denetleyicisi'
+  collapsible: 'Daraltılabilir'
+  collapsible_expanded: 'Daraltılabilir, genişletilmiş'
+  nested_collapsible: 'İç içe daraltılabilir'
+  css_classes: 'CSS sınıfları'
+  root: '— Kök —'
+  no_label: '(etiket yok)'
   # 2.3.0 — admin chrome (index table view, item permission badges)
-  table_code: "Kod"
-  table_name: "Ad"
-  table_items: "Öğeler"
-  table_context: "Bağlam"
-  no_permission_keys: "İzin anahtarı yok"
-  unanimous: "Oybirliği"
-  non_unanimous: "Oybirliği değil"
-  position_short: "Konum"
-  unique_code_context_error: A menu with this code and context already exists.
-  base: Base
-  base_badge_title: "Base menu: code cannot be changed after creation."
-  toggle: Toggle
-  yes: Yes
-  no: No
-  export: Export
-  export_all: Export all menus
-  import: Import
-  import_help: "Upload a JSON file exported from this dashboard (one menu or all menus). Choose whether to skip menus that already exist (same code + context) or replace their items."
-  import_json_invalid: Invalid JSON file.
-  import_json_error: "Invalid JSON: %message%"
-  import_file_too_large: "File is too large. Maximum size is %max% MiB."
-  import_done: "Import complete: %created% created, %updated% updated, %skipped% skipped."
-  import_format_invalid_root_array: 'Invalid format: a root JSON array must contain only objects with "menu" and "items". You can also use {"menus": [...]} or {"menu": {...}, "items": [...]}.'
-  import_format_expected: 'Invalid format: expected "menu" + "items", or "menus", or a root array of menu blocks.'
+  table_code: 'Kod'
+  table_name: 'Ad'
+  table_items: 'Öğeler'
+  table_context: 'Bağlam'
+  no_permission_keys: 'İzin anahtarı yok'
+  unanimous: 'Oybirliği'
+  non_unanimous: 'Oybirliği değil'
+  position_short: 'Konum'
+  unique_code_context_error: 'Bu kod ve bağlama sahip bir menü zaten var.'
+  base: 'Temel'
+  base_badge_title: 'Temel menü: kod, oluşturulduktan sonra değiştirilemez.'
+  toggle: 'Aç/kapat'
+  yes: 'Evet'
+  no: 'Hayır'
+  export: 'Dışa aktar'
+  export_all: 'Tüm menüleri dışa aktar'
+  import: 'İçe aktar'
+  import_help: 'Bu panelden dışa aktarılmış bir JSON dosyası yükleyin. Kabul edilen biçimler: tek bir menü {"menu": {...}, "items": [...]}, birden çok menü {"menus": [{...}, ...]} veya aynı listenin kök JSON dizisi hali [{"menu": {...}, "items": [...]}, ...]. Zaten var olan menülerin (aynı kod + bağlam) atlanıp atlanmayacağını veya öğelerinin değiştirilip değiştirilmeyeceğini seçin.'
+  import_format_invalid_root_array: 'Geçersiz biçim: kök JSON dizisi yalnızca "menu" ve "items" içeren nesnelerden oluşmalıdır. {"menus": [...]} veya {"menu": {...}, "items": [...]} da kullanabilirsiniz.'
+  import_format_expected: 'Geçersiz biçim: "menu" + "items", "menus" ya da menü bloklarından oluşan bir kök dizi bekleniyordu.'
+  import_json_invalid: 'Geçersiz JSON dosyası.'
+  import_json_error: 'Geçersiz JSON: %message%'
+  import_file_too_large: 'Dosya çok büyük. En büyük boyut %max% MiB.'
+  import_done: 'İçe aktarma tamamlandı: %created% oluşturuldu, %updated% güncellendi, %skipped% atlandı.'
 
 # Form: MenuType
 form:
   menu_type:
     code:
-      label: Code
-      help: "Unique identifier (letters, numbers, _ -). For base menus, code cannot be changed after creation."
-      placeholder: "e.g. sidebar"
+      label: 'Kod'
+      help: 'Benzersiz tanımlayıcı (harfler, rakamlar, _ -). Temel menülerde kod, oluşturulduktan sonra değiştirilemez.'
+      placeholder: 'ör. sidebar'
     base:
-      label: "Base menu"
-      help: "When checked, this menu's code cannot be changed after creation."
+      label: 'Temel menü'
+      help: 'İşaretlendiğinde bu menünün kodu, oluşturulduktan sonra değiştirilemez.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar"
+      label: 'Ad'
+      placeholder: 'ör. Kenar çubuğu'
     context:
-      label: Context
-      help: "Optional JSON key-value pairs to identify this menu variant. When resolving by code, the first matching menu in the ordered context sets is used; empty = fallback for that code."
+      label: 'Bağlam'
+      help: 'Bu menü varyantını tanımlamak için isteğe bağlı JSON anahtar-değer çiftleri. Koda göre çözümlenirken sıralı bağlam kümelerinde eşleşen ilk menü kullanılır; boş = o kod için yedek.'
       placeholder: '{"partnerId": 1, "operatorId": 1}'
     icon:
-      label: Icon
-      help: "Optional icon identifier (e.g. Symfony UX Icons: heroicons:home, bootstrap:house)."
-      placeholder: "e.g. heroicons:bars-3, bootstrap:list"
+      label: 'Simge'
+      help: 'İsteğe bağlı simge tanımlayıcısı (ör. Symfony UX Icons: heroicons:home, bootstrap:house).'
+      placeholder: 'ör. heroicons:bars-3, bootstrap:list'
     permission_checker:
-      label: Permission checker
-      placeholder: "— Allow all —"
-      allow_all: "— Allow all —"
-      help: "Service implementing MenuPermissionCheckerInterface (empty = allow all)."
+      label: 'İzin denetleyicisi'
+      placeholder: '— Tümüne izin ver —'
+      allow_all: '— Tümüne izin ver —'
+      permission_key_aware: '— İzin anahtarına göre (yapı) —'
+      help: 'MenuPermissionCheckerInterface arayüzünü uygulayan servis (boş = tümüne izin ver).'
     depth_limit:
-      label: Depth limit
-      placeholder: "empty = unlimited"
-      help: "Max depth to render (1 = root only, 2 = root + one level; empty = unlimited)."
+      label: 'Derinlik sınırı'
+      placeholder: 'boş = sınırsız'
+      help: 'İşlenecek en fazla derinlik (1 = yalnızca kök, 2 = kök + bir düzey; boş = sınırsız).'
     collapsible:
-      label: "Collapsible (wrap menu in toggle block)"
+      label: 'Daraltılabilir (menüyü aç/kapat bloğuna sar)'
     collapsible_expanded:
-      label: "Collapsible expanded (open by default)"
+      label: 'Daraltılabilir, genişletilmiş (varsayılan olarak açık)'
     nested_collapsible:
-      label: "Nested collapsible (items with children have toggle)"
+      label: 'İç içe daraltılabilir (alt öğesi olan öğelerde aç/kapat bulunur)'
+    nested_collapsible_sections:
+      label: 'Daraltılabilir bölümler'
+      help: 'İç içe daraltılabilir seçeneğini gerektirir. Etkinleştirildiğinde bölüm satırlarının sağında bir ok gösterilir ve bağlantıları daraltılabilir. Devre dışı bırakıldığında bölümlerin alt öğeleri her zaman genişletilmiş kalır (ok yok).'
     class_menu:
-      label: "Class menu (root <ul>)"
-      placeholder: "e.g. nav flex-column"
+      label: 'Menü sınıfı (kök <ul>)'
+      placeholder: 'ör. nav flex-column'
+    ul_id:
+      label: 'Ul kimliği (kök <ul>)'
+      placeholder: 'ör. main-menu-navigation'
     class_item:
-      label: "Class item (<li>)"
-      placeholder: "e.g. nav-item"
+      label: 'Öğe sınıfı (<li>)'
+      placeholder: 'ör. nav-item'
     class_link:
-      label: "Class link (<a>)"
-      placeholder: "e.g. nav-link"
+      label: 'Bağlantı sınıfı (<a>)'
+      placeholder: 'ör. nav-link'
     class_children:
-      label: "Class children (nested <ul>)"
-      placeholder: "e.g. nav flex-column ms-2"
+      label: 'Alt öğeler sınıfı (iç içe <ul>)'
+      placeholder: 'ör. nav flex-column ms-2'
+    class_section_children:
+      label: 'Bölüm alt öğeleri sınıfı (itemType "section" altındaki <ul>)'
+      placeholder: 'ör. nav flex-column list-unstyled ps-0 (düz; boş = alt öğelerle aynı)'
+      help: 'Ayarlandığında, her bölümün altındaki birinci düzey liste “Alt öğeler sınıfı” yerine bu sınıfları kullanır; böylece bağlantılar bölüm başlığıyla hizalanabilir (girinti olmadan). İç içe alt öğeler sınıfını kullanmaya devam etmek için boş bırakın.'
+    class_section_child_item:
+      label: 'itemType "section" doğrudan alt öğeleri için <li> sınıfı'
+      placeholder: 'ör. nav-item ms-0 (boş = Öğe sınıfı ile aynı)'
+      help: 'Ayarlandığında, bir bölümün doğrudan alt öğesi olan bağlantılar ve ayırıcılar <li> sınıfı olarak “Öğe sınıfı” yerine bunu kullanır. Düz bölüm listelerinde kenar boşluğu/dolgu ayarları için kullanın.'
+    class_section_child_link:
+      label: 'itemType "section" doğrudan alt öğeleri için <a> sınıfı'
+      placeholder: 'ör. d-flex align-items-center ps-0 (boş = Bağlantı sınıfı ile aynı)'
+      help: 'Ayarlandığında, bir bölümün doğrudan alt öğesi olan bağlantılar <a> sınıfı olarak “Bağlantı sınıfı” yerine bunu kullanır. Hizalama için bölüm alt öğesi <li> ile birlikte kullanılır.'
+    class_section_label:
+      label: 'Bölüm etiketi sınıfı (itemType "section")'
+      placeholder: 'ör. navigation-header'
     class_section:
-      label: "Class section (<li> when itemType \"section\")"
-      placeholder: "e.g. menu-section"
+      label: 'Bölüm sınıfı (itemType "section" olduğunda <li>)'
+      placeholder: 'ör. menu-section'
     class_divider:
-      label: "Class divider (<li> when itemType \"divider\")"
-      placeholder: "e.g. menu-divider"
+      label: 'Ayırıcı sınıfı (itemType "divider" olduğunda <li>)'
+      placeholder: 'ör. menu-divider'
     class_current:
-      label: "Class current (link matching current route)"
-      placeholder: "e.g. active"
+      label: 'Geçerli sınıfı (geçerli rotayla eşleşen bağlantı)'
+      placeholder: 'ör. active'
     class_branch_expanded:
-      label: "Class branch expanded (<li> when route in branch)"
-      placeholder: "e.g. active-branch"
+      label: 'Genişletilmiş dal sınıfı (rota daldayken <li>)'
+      placeholder: 'ör. active-branch'
     class_has_children:
-      label: "Class has children (<li> when item has children)"
-      placeholder: "e.g. has-children"
+      label: 'Alt öğesi var sınıfı (öğenin alt öğeleri olduğunda <li>)'
+      placeholder: 'ör. has-children'
     class_expanded:
-      label: "Class expanded (<li> when children block is open)"
-      placeholder: "e.g. is-expanded"
+      label: 'Genişletilmiş sınıfı (alt öğe bloğu açıkken <li>)'
+      placeholder: 'ör. is-expanded'
     class_collapsed:
-      label: "Class collapsed (<li> when children block is closed)"
-      placeholder: "e.g. is-collapsed"
-    empty_choice: "— Empty —"
-    css_section_heading: "CSS classes for rendering (override config when set)."
+      label: 'Daraltılmış sınıfı (alt öğe bloğu kapalıyken <li>)'
+      placeholder: 'ör. is-collapsed'
+    empty_choice: '— Boş —'
+    css_section_heading: 'İşleme için CSS sınıfları (ayarlandığında yapılandırmayı geçersiz kılar).'
+    section_definition: 'Tanım (kod, temel, ad, bağlam, simge)'
+    section_config: 'Yapılandırma (izinler, derinlik, daraltılabilir, CSS)'
 
   menu_item_type:
+    section_basic: 'Kimlik (etiketler)'
+    section_icon: 'Kimlik (tür, konum, simge)'
+    section_config: 'Yapılandırma (bağlantı, izin)'
+    label_required: 'Bağlantı ve Bölüm için etiket zorunludur.'
     label:
-      label: Label
-    label_locale: "Label (%locale%)"
+      label: 'Etiket'
+    label_locale: 'Etiket (%locale%)'
+    divider_label_hint: 'Bu ayırıcı için isteğe bağlı ad (erişilebilirlik ve panel listesi için önerilir). Yalnızca görsel bir ayırıcıya ihtiyacınız varsa boş bırakın.'
     type:
-      label: Type
-      link: Link
-      section: Section
-      divider: Divider
+      label: 'Tür'
+      link: 'Bağlantı'
+      section: 'Bölüm'
+      divider: 'Ayırıcı'
+      service: 'Servis (çalışma zamanı URL''si)'
+    link_resolver:
+      label: 'Bağlantı çözümleyici'
+      placeholder: '— Çözümleyici seçin —'
+      help: 'MenuLinkResolverInterface arayüzünü uygulayan bir servis seçin. Tek bir URL veya alt bağlantı satırlarından oluşan bir liste (etiket, href, konum) döndürebilir; bu durumda üst öğenin href değeri "#" olur.'
+      service_id_placeholder: 'ör. App\Menu\MyLinkResolver'
+      help_free_text: 'MenuLinkResolverInterface arayüzünü uygulayan servis kimliğini (sınıf adı veya container kimliği) girin.'
+      required: '“Servis” öğe türü için bir bağlantı çözümleyici gereklidir.'
+      route_params_hint: 'Çözümleyiciye iletilen isteğe bağlı JSON (örneğin rota benzeri parametreler).'
     position:
-      label: Position
+      label: 'Konum'
     link_type:
-      label: Link type
-      route: Route
-      external_url: External URL
+      label: 'Bağlantı türü'
+      route: 'Rota'
+      external_url: 'Harici URL'
     route_name:
-      label: Route name
-      placeholder: "— Select route —"
+      label: 'Rota adı'
+      placeholder: '— Rota seçin —'
     route_params:
-      label: "Route params (JSON)"
-      placeholder: "{}"
+      label: 'Rota parametreleri (JSON)'
+      placeholder: '{}'
     external_url:
-      label: External URL
-      placeholder: "https://..."
+      label: 'Harici URL'
+      placeholder: 'https://...'
     target_blank:
-      label: Open in new tab
+      label: 'Yeni sekmede aç'
     permission_keys:
-      label: Permission keys
-      placeholder: "— Allow all —"
-      help_csv: "Comma-separated keys (used when no configured choices are available)."
+      label: 'İzin anahtarları'
+      placeholder: '— Tümüne izin ver —'
+      help_csv: 'Virgülle ayrılmış anahtarlar (yapılandırılmış seçenek bulunmadığında kullanılır).'
       choice:
-        authenticated: "Authenticated only"
-        admin: "Admin only"
-        path__: "Path: / (home only)"
+        authenticated: 'Yalnızca oturum açmış kullanıcılar'
+        admin: 'Yalnızca yönetici'
+        path__: 'Yol: / (yalnızca ana sayfa)'
     is_unanimous:
-      label: Require all selected keys
-      help: "Enabled: all keys must pass (AND). Disabled: any key may pass (OR)."
+      label: 'Seçilen tüm anahtarları zorunlu kıl'
+      help: 'Etkin: tüm anahtarlar geçmelidir (AND). Devre dışı: herhangi bir anahtar geçebilir (OR).'
     icon:
-      label: Icon
-      placeholder: "heroicons:home"
+      label: 'Simge'
+      placeholder: 'heroicons:home'
     parent:
-      label: Parent
-      placeholder: "— Root (no parent) —"
+      label: 'Üst öğe'
+      placeholder: '— Kök (üst öğe yok) —'
+      help_inheritance: 'Üst öğeler ağaçta bu öğenin üzerinde yer alır. Bu satırdaki izin anahtarları bu öğe için geçerlidir; üst/alt öğe kurallarının nasıl birleştirileceğine MenuPermissionChecker''ınız karar verir. Bölümler ve genişletilebilir bağlantılar yalnızca en az bir alt öğe gösterildiğinde işlenir.'
+      circular_violation: 'Döngüsel üst öğe hiyerarşisine izin verilmez.'
+      section_must_be_root: 'Bölüm öğeleri kök düzeyde kalmalıdır (üst öğe olmadan).'
+    section_collapsible:
+      label: 'Bölüm alt öğeleri daraltılabilir'
+      inherit: 'Menü varsayılanını kullan'
+      yes: 'Evet (oklu, daraltılabilir)'
+      no: 'Hayır (her zaman genişletilmiş)'
+      help: 'Yalnızca bu bölüm için “Daraltılabilir bölümler” menü seçeneğini geçersiz kılar. “Menü varsayılanını kullan” menü yapılandırmasını izler.'
 
   import_menu_type:
     file:
-      label: JSON file
-      required: Please choose a file.
-      mime_message: File must be JSON.
+      label: 'JSON dosyası'
+      required: 'Lütfen bir dosya seçin.'
+      mime_message: 'Dosya JSON biçiminde olmalıdır.'
     strategy:
-      label: When a menu with the same code and context already exists
-      skip_existing: Skip (do not import)
-      replace: Replace (delete existing items and import)
+      label: 'Aynı kod ve bağlama sahip bir menü zaten varsa'
+      skip_existing: 'Atla (içe aktarma)'
+      replace: 'Değiştir (mevcut öğeleri sil ve içe aktar)'
 
   copy_menu_type:
     code:
-      label: Code
-      placeholder: "e.g. sidebar_copy"
-      regex_message: "Code must contain only letters, numbers, underscore and hyphen."
+      label: 'Kod'
+      placeholder: 'ör. sidebar_copy'
+      regex_message: 'Kod yalnızca harf, rakam, alt çizgi ve kısa çizgi içerebilir.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar (copy)"
+      label: 'Ad'
+      placeholder: 'ör. Kenar çubuğu (kopya)'

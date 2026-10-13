@@ -2,220 +2,292 @@
 
 # Dashboard UI
 dashboard:
-  title: Menu dashboard
-  title_suffix: Dashboard Menu
-  menus: Menus
-  menu: Menu
-  menus_back: "← Menus"
-  new_menu: New menu
-  edit_menu: Edit menu
-  edit_item: Edit item
-  edit_items: Edit items
-  copy: Copy
-  copy_menu: Copy menu
-  copy_menu_help: "Copy menu and all its items. You can change the code and name for the new menu."
-  delete: Delete
-  cancel: Cancel
-  close: Close
-  confirm_delete: Confirm delete
-  delete_menu_confirm: 'Delete menu "%name%" and all its items?'
-  delete_menu_message: Delete this menu and all its items?
-  delete_item_confirm: 'Delete "%name%" and its children?'
-  delete_item_message: Delete this item and its children?
-  add_item: Add item
-  new_item: New item
-  add_one: Add one
-  add_child: Add child
-  search: Search
-  search_placeholder: "Search by code or name…"
-  clear: Clear
-  filter: Filter
-  clear_filters: Clear filters
-  no_menus_yet: "No menus yet. Create one to get started."
-  no_items: No items.
-  context: Context
-  parent: Parent
-  route_url: "Route / URL"
-  item: Item
-  actions: Actions
-  first: First
-  last: Last
-  move_up: Move up
-  move_down: Move down
-  edit: Edit
-  create: Create
-  update: Update
-  loading: "Loading…"
-  error_loading_form: Error loading form.
-  previous: Previous
-  next: Next
-  pagination_menus: Menus pagination
-  showing_from_to_of_total: "Showing %from%-%to% of %total%"
-  depth_limit: Depth limit
-  permission_checker: Permission checker
-  collapsible: Collapsible
-  collapsible_expanded: Collapsible expanded
-  nested_collapsible: Nested collapsible
-  css_classes: CSS classes
-  root: "— Root —"
-  no_label: "(no label)"
+  title: 'لوحة تحكم القوائم'
+  title_suffix: 'لوحة القوائم'
+  menus: 'القوائم'
+  menu: 'القائمة'
+  menus_back: '← القوائم'
+  new_menu: 'قائمة جديدة'
+  edit_menu: 'تعديل القائمة'
+  edit_item: 'تعديل العنصر'
+  edit_items: 'تعديل العناصر'
+  edit_identity: 'تعديل (الأيقونة، التسمية، النوع)'
+  edit_labels: 'تعديل التسمية والترجمات'
+  edit_type_position_icon: 'تعديل النوع والموضع والأيقونة'
+  edit_config: 'تعديل الإعدادات (العنصر الأب، الرابط، الأذونات)'
+  copy: 'نسخ'
+  copy_menu: 'نسخ القائمة'
+  copy_menu_help: 'انسخ القائمة وجميع عناصرها. يمكنك تغيير الرمز والاسم للقائمة الجديدة.'
+  delete: 'حذف'
+  cancel: 'إلغاء'
+  close: 'إغلاق'
+  confirm_delete: 'تأكيد الحذف'
+  delete_menu_confirm: 'هل تريد حذف القائمة "%name%" وجميع عناصرها؟'
+  delete_menu_message: 'هل تريد حذف هذه القائمة وجميع عناصرها؟'
+  delete_item_confirm: 'هل تريد حذف "%name%" وعناصره الفرعية؟'
+  delete_item_message: 'هل تريد حذف هذا العنصر وعناصره الفرعية؟'
+  add_item: 'إضافة عنصر'
+  new_item: 'عنصر جديد'
+  add_one: 'أضف واحدًا'
+  add_child: 'إضافة عنصر فرعي'
+  add_child_disabled: 'لا يمكن أن تحتوي عناصر الأقسام والفواصل على عناصر فرعية'
+  search: 'بحث'
+  search_placeholder: 'ابحث بالرمز أو الاسم…'
+  clear: 'مسح'
+  filter: 'تصفية'
+  clear_filters: 'مسح عوامل التصفية'
+  no_menus_yet: 'لا توجد قوائم بعد. أنشئ قائمة للبدء.'
+  no_items: 'لا توجد عناصر.'
+  context: 'السياق'
+  parent: 'العنصر الأب'
+  route_url: 'المسار / عنوان URL'
+  item: 'العنصر'
+  actions: 'الإجراءات'
+  first: 'الأول'
+  last: 'الأخير'
+  move_up: 'نقل لأعلى'
+  move_down: 'نقل لأسفل'
+  reindex_positions: 'إعادة ترقيم المواضع (بخطوة %step%)'
+  reindex_positions_title: 'إعادة تعيين المواضع بخطوات قدرها %step% داخل كل مجموعة أب (مع الحفاظ على الترتيب).'
+  reindex_positions_done: 'تمت إعادة ترقيم المواضع بخطوة %step%.'
+  reindex_positions_unchanged: 'لم تكن هناك حاجة لتغيير أي موضع.'
+  check_parent_cycles: 'التحقق من الحلقات في العناصر الأب'
+  check_parent_cycles_title: 'التحقق من أن سلسلة العناصر الأب لا تحتوي على حلقات لا نهائية (في القائمة نفسها).'
+  check_parent_cycles_ok: 'لم يتم العثور على مراجع دائرية للعناصر الأب.'
+  check_parent_cycles_loop: 'تم اكتشاف سلسلة دائرية للعناصر الأب: %chain%'
+  sortable_page_heading: 'إعادة الترتيب بالسحب'
+  open_sortable_reorder: 'إعادة الترتيب (سحب)'
+  back_to_items_table: 'عرض الجدول'
+  sortable_title: 'اسحب لإعادة الترتيب'
+  sortable_help: 'اسحب العناصر من المقبض لإعادة ترتيبها أو تضمينها تحت عنصر أب أو نقلها إلى مستوى آخر. ثم اضغط تطبيق للحفظ.'
+  sortable_apply: 'تطبيق ترتيب الشجرة'
+  sortable_drag_handle: 'اسحب لإعادة الترتيب'
+  reorder_tree_done: 'تم تحديث شجرة القائمة.'
+  reorder_tree_invalid_json: 'بيانات الشجرة غير صالحة (JSON).'
+  reorder_tree_invalid_payload: 'حمولة الشجرة غير صالحة.'
+  reorder_tree_invalid_layout: 'تعذر تطبيق الشجرة (حلقة، أو تجاوز حد العمق، أو عناصر مفقودة).'
+  reorder_tree_section_not_root: 'يجب أن تبقى الأقسام في المستوى الجذري. انقل القسم خارج القوائم المتداخلة ثم طبّق مرة أخرى.'
+  edit: 'تعديل'
+  create: 'إنشاء'
+  update: 'تحديث'
+  loading: 'جارٍ التحميل…'
+  error_loading_form: 'حدث خطأ أثناء تحميل النموذج.'
+  previous: 'السابق'
+  next: 'التالي'
+  pagination_menus: 'ترقيم صفحات القوائم'
+  showing_from_to_of_total: 'عرض %from%-%to% من %total%'
+  depth_limit: 'حد العمق'
+  permission_checker: 'مدقق الأذونات'
+  collapsible: 'قابلة للطي'
+  collapsible_expanded: 'قابلة للطي ومفتوحة'
+  nested_collapsible: 'طي متداخل'
+  css_classes: 'فئات CSS'
+  root: '— الجذر —'
+  no_label: '(بدون تسمية)'
   # 2.3.0 — admin chrome (index table view, item permission badges)
-  table_code: "الرمز"
-  table_name: "الاسم"
-  table_items: "العناصر"
-  table_context: "السياق"
-  no_permission_keys: "لا توجد مفاتيح أذونات"
-  unanimous: "بالإجماع"
-  non_unanimous: "ليس بالإجماع"
-  position_short: "الموضع"
-  unique_code_context_error: A menu with this code and context already exists.
-  base: Base
-  base_badge_title: "Base menu: code cannot be changed after creation."
-  toggle: Toggle
-  yes: Yes
-  no: No
-  export: Export
-  export_all: Export all menus
-  import: Import
-  import_help: "Upload a JSON file exported from this dashboard (one menu or all menus). Choose whether to skip menus that already exist (same code + context) or replace their items."
-  import_json_invalid: Invalid JSON file.
-  import_json_error: "Invalid JSON: %message%"
-  import_file_too_large: "File is too large. Maximum size is %max% MiB."
-  import_done: "Import complete: %created% created, %updated% updated, %skipped% skipped."
-  import_format_invalid_root_array: 'Invalid format: a root JSON array must contain only objects with "menu" and "items". You can also use {"menus": [...]} or {"menu": {...}, "items": [...]}.'
-  import_format_expected: 'Invalid format: expected "menu" + "items", or "menus", or a root array of menu blocks.'
+  table_code: 'الرمز'
+  table_name: 'الاسم'
+  table_items: 'العناصر'
+  table_context: 'السياق'
+  no_permission_keys: 'لا توجد مفاتيح أذونات'
+  unanimous: 'بالإجماع'
+  non_unanimous: 'بدون إجماع'
+  position_short: 'الموضع'
+  unique_code_context_error: 'توجد بالفعل قائمة بهذا الرمز والسياق.'
+  base: 'أساسية'
+  base_badge_title: 'قائمة أساسية: لا يمكن تغيير الرمز بعد الإنشاء.'
+  toggle: 'تبديل'
+  yes: 'نعم'
+  no: 'لا'
+  export: 'تصدير'
+  export_all: 'تصدير جميع القوائم'
+  import: 'استيراد'
+  import_help: 'ارفع ملف JSON مُصدَّرًا من لوحة التحكم هذه. الصيغ المقبولة: قائمة واحدة {"menu": {...}, "items": [...]}، أو عدة قوائم {"menus": [{...}, ...]}، أو القائمة نفسها كمصفوفة JSON جذرية [{"menu": {...}, "items": [...]}, ...]. اختر ما إذا كنت تريد تخطي القوائم الموجودة مسبقًا (الرمز + السياق نفسهما) أو استبدال عناصرها.'
+  import_format_invalid_root_array: 'صيغة غير صالحة: يجب أن تحتوي مصفوفة JSON الجذرية على كائنات تتضمن "menu" و"items" فقط. يمكنك أيضًا استخدام {"menus": [...]} أو {"menu": {...}, "items": [...]}.'
+  import_format_expected: 'صيغة غير صالحة: المتوقع "menu" + "items"، أو "menus"، أو مصفوفة جذرية من كتل القوائم.'
+  import_json_invalid: 'ملف JSON غير صالح.'
+  import_json_error: 'JSON غير صالح: %message%'
+  import_file_too_large: 'الملف كبير جدًا. الحد الأقصى للحجم هو %max% ميبيبايت.'
+  import_done: 'اكتمل الاستيراد: تم إنشاء %created%، وتحديث %updated%، وتخطي %skipped%.'
 
 # Form: MenuType
 form:
   menu_type:
     code:
-      label: Code
-      help: "Unique identifier (letters, numbers, _ -). For base menus, code cannot be changed after creation."
-      placeholder: "e.g. sidebar"
+      label: 'الرمز'
+      help: 'معرّف فريد (حروف وأرقام و _ -). بالنسبة للقوائم الأساسية، لا يمكن تغيير الرمز بعد الإنشاء.'
+      placeholder: 'مثال: sidebar'
     base:
-      label: "Base menu"
-      help: "When checked, this menu's code cannot be changed after creation."
+      label: 'قائمة أساسية'
+      help: 'عند التحديد، لا يمكن تغيير رمز هذه القائمة بعد الإنشاء.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar"
+      label: 'الاسم'
+      placeholder: 'مثال: الشريط الجانبي'
     context:
-      label: Context
-      help: "Optional JSON key-value pairs to identify this menu variant. When resolving by code, the first matching menu in the ordered context sets is used; empty = fallback for that code."
+      label: 'السياق'
+      help: 'أزواج مفتاح-قيمة اختيارية بصيغة JSON لتمييز هذا الإصدار من القائمة. عند البحث بالرمز، تُستخدم أول قائمة مطابقة في مجموعات السياق المرتبة؛ الفارغ = القائمة الاحتياطية لذلك الرمز.'
       placeholder: '{"partnerId": 1, "operatorId": 1}'
     icon:
-      label: Icon
-      help: "Optional icon identifier (e.g. Symfony UX Icons: heroicons:home, bootstrap:house)."
-      placeholder: "e.g. heroicons:bars-3, bootstrap:list"
+      label: 'الأيقونة'
+      help: 'معرّف أيقونة اختياري (مثال: Symfony UX Icons: heroicons:home، bootstrap:house).'
+      placeholder: 'مثال: heroicons:bars-3، bootstrap:list'
     permission_checker:
-      label: Permission checker
-      placeholder: "— Allow all —"
-      allow_all: "— Allow all —"
-      help: "Service implementing MenuPermissionCheckerInterface (empty = allow all)."
+      label: 'مدقق الأذونات'
+      placeholder: '— السماح للجميع —'
+      allow_all: '— السماح للجميع —'
+      permission_key_aware: '— حسب مفتاح الإذن (البنية) —'
+      help: 'خدمة تطبّق MenuPermissionCheckerInterface (فارغ = السماح للجميع).'
     depth_limit:
-      label: Depth limit
-      placeholder: "empty = unlimited"
-      help: "Max depth to render (1 = root only, 2 = root + one level; empty = unlimited)."
+      label: 'حد العمق'
+      placeholder: 'فارغ = بلا حد'
+      help: 'أقصى عمق للعرض (1 = الجذر فقط، 2 = الجذر + مستوى واحد؛ فارغ = بلا حد).'
     collapsible:
-      label: "Collapsible (wrap menu in toggle block)"
+      label: 'قابلة للطي (تغليف القائمة في كتلة قابلة للتبديل)'
     collapsible_expanded:
-      label: "Collapsible expanded (open by default)"
+      label: 'قابلة للطي ومفتوحة (مفتوحة افتراضيًا)'
     nested_collapsible:
-      label: "Nested collapsible (items with children have toggle)"
+      label: 'طي متداخل (العناصر ذات العناصر الفرعية لها زر تبديل)'
+    nested_collapsible_sections:
+      label: 'أقسام قابلة للطي'
+      help: 'يتطلب تفعيل الطي المتداخل. عند التفعيل، تعرض صفوف الأقسام سهمًا على اليمين ويمكن طي روابطها. عند التعطيل، تبقى العناصر الفرعية للأقسام مفتوحة دائمًا (بدون سهم).'
     class_menu:
-      label: "Class menu (root <ul>)"
-      placeholder: "e.g. nav flex-column"
+      label: 'فئة القائمة (<ul> الجذري)'
+      placeholder: 'مثال: nav flex-column'
+    ul_id:
+      label: 'معرّف ul (<ul> الجذري)'
+      placeholder: 'مثال: main-menu-navigation'
     class_item:
-      label: "Class item (<li>)"
-      placeholder: "e.g. nav-item"
+      label: 'فئة العنصر (<li>)'
+      placeholder: 'مثال: nav-item'
     class_link:
-      label: "Class link (<a>)"
-      placeholder: "e.g. nav-link"
+      label: 'فئة الرابط (<a>)'
+      placeholder: 'مثال: nav-link'
     class_children:
-      label: "Class children (nested <ul>)"
-      placeholder: "e.g. nav flex-column ms-2"
+      label: 'فئة العناصر الفرعية (<ul> المتداخل)'
+      placeholder: 'مثال: nav flex-column ms-2'
+    class_section_children:
+      label: 'فئة العناصر الفرعية للقسم (<ul> تحت itemType "section")'
+      placeholder: 'مثال: nav flex-column list-unstyled ps-0 (مسطحة؛ فارغ = نفس العناصر الفرعية)'
+      help: 'عند تعيينها، تستخدم القائمة من المستوى الأول تحت كل قسم هذه الفئات بدلًا من «فئة العناصر الفرعية»، بحيث تتحاذى الروابط مع عنوان القسم (بدون إزاحة). اتركها فارغة لمواصلة استخدام فئة العناصر الفرعية المتداخلة.'
+    class_section_child_item:
+      label: 'فئة <li> للعناصر الفرعية المباشرة لـ itemType "section"'
+      placeholder: 'مثال: nav-item ms-0 (فارغ = نفس فئة العنصر)'
+      help: 'عند تعيينها، تستخدم الروابط والفواصل التي هي عناصر فرعية مباشرة لقسم ما هذه القيمة كفئة لـ <li> بدلًا من «فئة العنصر». استخدمها لضبط الهوامش/الحشو تحت قوائم الأقسام المسطحة.'
+    class_section_child_link:
+      label: 'فئة <a> للعناصر الفرعية المباشرة لـ itemType "section"'
+      placeholder: 'مثال: d-flex align-items-center ps-0 (فارغ = نفس فئة الرابط)'
+      help: 'عند تعيينها، تستخدم الروابط التي هي عناصر فرعية مباشرة لقسم ما هذه القيمة كفئة لـ <a> بدلًا من «فئة الرابط». تُستخدم مع فئة <li> للعناصر الفرعية للقسم لضبط المحاذاة.'
+    class_section_label:
+      label: 'فئة تسمية القسم (itemType "section")'
+      placeholder: 'مثال: navigation-header'
     class_section:
-      label: "Class section (<li> when itemType \"section\")"
-      placeholder: "e.g. menu-section"
+      label: 'فئة القسم (<li> عندما يكون itemType "section")'
+      placeholder: 'مثال: menu-section'
     class_divider:
-      label: "Class divider (<li> when itemType \"divider\")"
-      placeholder: "e.g. menu-divider"
+      label: 'فئة الفاصل (<li> عندما يكون itemType "divider")'
+      placeholder: 'مثال: menu-divider'
     class_current:
-      label: "Class current (link matching current route)"
-      placeholder: "e.g. active"
+      label: 'فئة العنصر الحالي (الرابط المطابق للمسار الحالي)'
+      placeholder: 'مثال: active'
     class_branch_expanded:
-      label: "Class branch expanded (<li> when route in branch)"
-      placeholder: "e.g. active-branch"
+      label: 'فئة الفرع المفتوح (<li> عندما يكون المسار ضمن الفرع)'
+      placeholder: 'مثال: active-branch'
     class_has_children:
-      label: "Class has children (<li> when item has children)"
-      placeholder: "e.g. has-children"
+      label: 'فئة وجود عناصر فرعية (<li> عندما يحتوي العنصر على عناصر فرعية)'
+      placeholder: 'مثال: has-children'
     class_expanded:
-      label: "Class expanded (<li> when children block is open)"
-      placeholder: "e.g. is-expanded"
+      label: 'فئة المفتوح (<li> عندما تكون كتلة العناصر الفرعية مفتوحة)'
+      placeholder: 'مثال: is-expanded'
     class_collapsed:
-      label: "Class collapsed (<li> when children block is closed)"
-      placeholder: "e.g. is-collapsed"
-    empty_choice: "— Empty —"
-    css_section_heading: "CSS classes for rendering (override config when set)."
+      label: 'فئة المطوي (<li> عندما تكون كتلة العناصر الفرعية مغلقة)'
+      placeholder: 'مثال: is-collapsed'
+    empty_choice: '— فارغ —'
+    css_section_heading: 'فئات CSS للعرض (تتجاوز الإعدادات عند تعيينها).'
+    section_definition: 'التعريف (الرمز، أساسية، الاسم، السياق، الأيقونة)'
+    section_config: 'الإعدادات (الأذونات، العمق، الطي، CSS)'
 
   menu_item_type:
+    section_basic: 'الهوية (التسميات)'
+    section_icon: 'الهوية (النوع، الموضع، الأيقونة)'
+    section_config: 'الإعدادات (الرابط، الإذن)'
+    label_required: 'التسمية مطلوبة للرابط والقسم.'
     label:
-      label: Label
-    label_locale: "Label (%locale%)"
+      label: 'التسمية'
+    label_locale: 'التسمية (%locale%)'
+    divider_label_hint: 'اسم اختياري لهذا الفاصل (يُنصح به لإمكانية الوصول ولقائمة لوحة التحكم). اتركه فارغًا إذا كنت تحتاج إلى فاصل مرئي فقط.'
     type:
-      label: Type
-      link: Link
-      section: Section
-      divider: Divider
+      label: 'النوع'
+      link: 'رابط'
+      section: 'قسم'
+      divider: 'فاصل'
+      service: 'خدمة (عنوان URL وقت التشغيل)'
+    link_resolver:
+      label: 'محلّل الروابط'
+      placeholder: '— اختر المحلّل —'
+      help: 'اختر خدمة تطبّق MenuLinkResolverInterface. يمكنها إرجاع عنوان URL واحد أو قائمة بصفوف روابط فرعية (التسمية، href، الموضع)؛ وعندها يكون href للعنصر الأب "#".'
+      service_id_placeholder: 'مثال: App\Menu\MyLinkResolver'
+      help_free_text: 'أدخل معرّف الخدمة (اسم الفئة أو معرّف الحاوية) التي تطبّق MenuLinkResolverInterface.'
+      required: 'محلّل الروابط مطلوب لنوع العنصر «خدمة».'
+      route_params_hint: 'JSON اختياري يُمرَّر إلى المحلّل (على سبيل المثال معاملات مشابهة لمعاملات المسار).'
     position:
-      label: Position
+      label: 'الموضع'
     link_type:
-      label: Link type
-      route: Route
-      external_url: External URL
+      label: 'نوع الرابط'
+      route: 'مسار'
+      external_url: 'عنوان URL خارجي'
     route_name:
-      label: Route name
-      placeholder: "— Select route —"
+      label: 'اسم المسار'
+      placeholder: '— اختر المسار —'
     route_params:
-      label: "Route params (JSON)"
-      placeholder: "{}"
+      label: 'معاملات المسار (JSON)'
+      placeholder: '{}'
     external_url:
-      label: External URL
-      placeholder: "https://..."
+      label: 'عنوان URL خارجي'
+      placeholder: 'https://...'
     target_blank:
-      label: Open in new tab
+      label: 'فتح في علامة تبويب جديدة'
     permission_keys:
-      label: Permission keys
-      placeholder: "— Allow all —"
-      help_csv: "Comma-separated keys (used when no configured choices are available)."
+      label: 'مفاتيح الأذونات'
+      placeholder: '— السماح للجميع —'
+      help_csv: 'مفاتيح مفصولة بفواصل (تُستخدم عند عدم توفر خيارات مُعدّة).'
       choice:
-        authenticated: "Authenticated only"
-        admin: "Admin only"
-        path__: "Path: / (home only)"
+        authenticated: 'المستخدمون المصادَق عليهم فقط'
+        admin: 'المسؤولون فقط'
+        path__: 'المسار: / (الصفحة الرئيسية فقط)'
     is_unanimous:
-      label: Require all selected keys
-      help: "Enabled: all keys must pass (AND). Disabled: any key may pass (OR)."
+      label: 'اشتراط جميع المفاتيح المحددة'
+      help: 'مفعّل: يجب أن تنجح جميع المفاتيح (AND). معطّل: يكفي نجاح أي مفتاح (OR).'
     icon:
-      label: Icon
-      placeholder: "heroicons:home"
+      label: 'الأيقونة'
+      placeholder: 'heroicons:home'
     parent:
-      label: Parent
-      placeholder: "— Root (no parent) —"
+      label: 'العنصر الأب'
+      placeholder: '— الجذر (بدون عنصر أب) —'
+      help_inheritance: 'العناصر الأب تقع فوق هذا العنصر في الشجرة. تنطبق مفاتيح الأذونات في هذا الصف على هذا العنصر؛ ويحدد MenuPermissionChecker الخاص بك كيفية دمج قواعد العنصر الأب/الفرعي. لا تُعرض الأقسام والروابط القابلة للتوسيع إلا عند عرض عنصر فرعي واحد على الأقل.'
+      circular_violation: 'التسلسل الهرمي الدائري للعناصر الأب غير مسموح به.'
+      section_must_be_root: 'يجب أن تبقى عناصر الأقسام في المستوى الجذري (بدون عنصر أب).'
+    section_collapsible:
+      label: 'العناصر الفرعية للقسم قابلة للطي'
+      inherit: 'استخدام الإعداد الافتراضي للقائمة'
+      yes: 'نعم (قابلة للطي مع سهم)'
+      no: 'لا (مفتوحة دائمًا)'
+      help: 'يتجاوز خيار القائمة «أقسام قابلة للطي» لهذا القسم فقط. يتبع «استخدام الإعداد الافتراضي للقائمة» إعدادات القائمة.'
 
   import_menu_type:
     file:
-      label: JSON file
-      required: Please choose a file.
-      mime_message: File must be JSON.
+      label: 'ملف JSON'
+      required: 'يرجى اختيار ملف.'
+      mime_message: 'يجب أن يكون الملف بصيغة JSON.'
     strategy:
-      label: When a menu with the same code and context already exists
-      skip_existing: Skip (do not import)
-      replace: Replace (delete existing items and import)
+      label: 'عند وجود قائمة بنفس الرمز والسياق مسبقًا'
+      skip_existing: 'تخطي (عدم الاستيراد)'
+      replace: 'استبدال (حذف العناصر الموجودة والاستيراد)'
 
   copy_menu_type:
     code:
-      label: Code
-      placeholder: "e.g. sidebar_copy"
-      regex_message: "Code must contain only letters, numbers, underscore and hyphen."
+      label: 'الرمز'
+      placeholder: 'مثال: sidebar_copy'
+      regex_message: 'يجب أن يحتوي الرمز على حروف وأرقام وشرطة سفلية وشرطة فقط.'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar (copy)"
+      label: 'الاسم'
+      placeholder: 'مثال: الشريط الجانبي (نسخة)'

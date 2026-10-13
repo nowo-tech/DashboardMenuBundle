@@ -2,220 +2,292 @@
 
 # Dashboard UI
 dashboard:
-  title: Menu dashboard
-  title_suffix: Dashboard Menu
-  menus: Menus
-  menu: Menu
-  menus_back: "← Menus"
-  new_menu: New menu
-  edit_menu: Edit menu
-  edit_item: Edit item
-  edit_items: Edit items
-  copy: Copy
-  copy_menu: Copy menu
-  copy_menu_help: "Copy menu and all its items. You can change the code and name for the new menu."
-  delete: Delete
-  cancel: Cancel
-  close: Close
-  confirm_delete: Confirm delete
-  delete_menu_confirm: 'Delete menu "%name%" and all its items?'
-  delete_menu_message: Delete this menu and all its items?
-  delete_item_confirm: 'Delete "%name%" and its children?'
-  delete_item_message: Delete this item and its children?
-  add_item: Add item
-  new_item: New item
-  add_one: Add one
-  add_child: Add child
-  search: Search
-  search_placeholder: "Search by code or name…"
-  clear: Clear
-  filter: Filter
-  clear_filters: Clear filters
-  no_menus_yet: "No menus yet. Create one to get started."
-  no_items: No items.
-  context: Context
-  parent: Parent
-  route_url: "Route / URL"
-  item: Item
-  actions: Actions
-  first: First
-  last: Last
-  move_up: Move up
-  move_down: Move down
-  edit: Edit
-  create: Create
-  update: Update
-  loading: "Loading…"
-  error_loading_form: Error loading form.
-  previous: Previous
-  next: Next
-  pagination_menus: Menus pagination
-  showing_from_to_of_total: "Showing %from%-%to% of %total%"
-  depth_limit: Depth limit
-  permission_checker: Permission checker
-  collapsible: Collapsible
-  collapsible_expanded: Collapsible expanded
-  nested_collapsible: Nested collapsible
-  css_classes: CSS classes
-  root: "— Root —"
-  no_label: "(no label)"
+  title: '菜单管理面板'
+  title_suffix: '菜单管理面板'
+  menus: '菜单'
+  menu: '菜单'
+  menus_back: '← 菜单'
+  new_menu: '新建菜单'
+  edit_menu: '编辑菜单'
+  edit_item: '编辑菜单项'
+  edit_items: '编辑菜单项'
+  edit_identity: '编辑（图标、标签、类型）'
+  edit_labels: '编辑标签和翻译'
+  edit_type_position_icon: '编辑类型、位置和图标'
+  edit_config: '编辑配置（父级、链接、权限）'
+  copy: '复制'
+  copy_menu: '复制菜单'
+  copy_menu_help: '复制菜单及其所有菜单项。您可以为新菜单修改代码和名称。'
+  delete: '删除'
+  cancel: '取消'
+  close: '关闭'
+  confirm_delete: '确认删除'
+  delete_menu_confirm: '删除菜单“%name%”及其所有菜单项？'
+  delete_menu_message: '删除此菜单及其所有菜单项？'
+  delete_item_confirm: '删除“%name%”及其子项？'
+  delete_item_message: '删除此菜单项及其子项？'
+  add_item: '添加菜单项'
+  new_item: '新建菜单项'
+  add_one: '添加一个'
+  add_child: '添加子项'
+  add_child_disabled: '分区和分隔线项不能包含子项'
+  search: '搜索'
+  search_placeholder: '按代码或名称搜索…'
+  clear: '清除'
+  filter: '筛选'
+  clear_filters: '清除筛选'
+  no_menus_yet: '暂无菜单。创建一个以开始使用。'
+  no_items: '暂无菜单项。'
+  context: '上下文'
+  parent: '父级'
+  route_url: '路由 / URL'
+  item: '菜单项'
+  actions: '操作'
+  first: '第一个'
+  last: '最后一个'
+  move_up: '上移'
+  move_down: '下移'
+  reindex_positions: '重新编排位置（步长 %step%）'
+  reindex_positions_title: '在每个父级分组内按 %step% 的步长重新分配位置（保持顺序）。'
+  reindex_positions_done: '已按步长 %step% 重新编排位置。'
+  reindex_positions_unchanged: '无需更改任何位置。'
+  check_parent_cycles: '检查父级循环'
+  check_parent_cycles_title: '验证父级链中不存在无限循环（同一菜单内）。'
+  check_parent_cycles_ok: '未发现循环的父级引用。'
+  check_parent_cycles_loop: '检测到循环的父级链：%chain%'
+  sortable_page_heading: '拖放排序'
+  open_sortable_reorder: '重新排序（拖放）'
+  back_to_items_table: '表格视图'
+  sortable_title: '拖动以重新排序'
+  sortable_help: '通过拖动手柄来重新排序菜单项、将其嵌套到父级下或移动到其他层级。然后点击应用以保存。'
+  sortable_apply: '应用树形顺序'
+  sortable_drag_handle: '拖动以重新排序'
+  reorder_tree_done: '菜单树已更新。'
+  reorder_tree_invalid_json: '树数据无效（JSON）。'
+  reorder_tree_invalid_payload: '树数据载荷无效。'
+  reorder_tree_invalid_layout: '无法应用该树结构（存在循环、超出深度限制或缺少菜单项）。'
+  reorder_tree_section_not_root: '分区必须保持在根级别。请将分区移出嵌套列表后再次应用。'
+  edit: '编辑'
+  create: '创建'
+  update: '更新'
+  loading: '加载中…'
+  error_loading_form: '加载表单时出错。'
+  previous: '上一页'
+  next: '下一页'
+  pagination_menus: '菜单分页'
+  showing_from_to_of_total: '显示第 %from%-%to% 项，共 %total% 项'
+  depth_limit: '深度限制'
+  permission_checker: '权限检查器'
+  collapsible: '可折叠'
+  collapsible_expanded: '可折叠（默认展开）'
+  nested_collapsible: '嵌套可折叠'
+  css_classes: 'CSS 类'
+  root: '— 根级 —'
+  no_label: '（无标签）'
   # 2.3.0 — admin chrome (index table view, item permission badges)
-  table_code: "代码"
-  table_name: "名称"
-  table_items: "项目"
-  table_context: "上下文"
-  no_permission_keys: "无权限键"
-  unanimous: "全部满足"
-  non_unanimous: "任一满足"
-  position_short: "位置"
-  unique_code_context_error: A menu with this code and context already exists.
-  base: Base
-  base_badge_title: "Base menu: code cannot be changed after creation."
-  toggle: Toggle
-  yes: Yes
-  no: No
-  export: Export
-  export_all: Export all menus
-  import: Import
-  import_help: "Upload a JSON file exported from this dashboard (one menu or all menus). Choose whether to skip menus that already exist (same code + context) or replace their items."
-  import_json_invalid: Invalid JSON file.
-  import_json_error: "Invalid JSON: %message%"
-  import_file_too_large: "File is too large. Maximum size is %max% MiB."
-  import_done: "Import complete: %created% created, %updated% updated, %skipped% skipped."
-  import_format_invalid_root_array: 'Invalid format: a root JSON array must contain only objects with "menu" and "items". You can also use {"menus": [...]} or {"menu": {...}, "items": [...]}.'
-  import_format_expected: 'Invalid format: expected "menu" + "items", or "menus", or a root array of menu blocks.'
+  table_code: '代码'
+  table_name: '名称'
+  table_items: '菜单项'
+  table_context: '上下文'
+  no_permission_keys: '无权限键'
+  unanimous: '全部满足'
+  non_unanimous: '任一满足'
+  position_short: '位置'
+  unique_code_context_error: '已存在具有相同代码和上下文的菜单。'
+  base: '基础'
+  base_badge_title: '基础菜单：创建后无法更改代码。'
+  toggle: '切换'
+  yes: '是'
+  no: '否'
+  export: '导出'
+  export_all: '导出所有菜单'
+  import: '导入'
+  import_help: '上传从此管理面板导出的 JSON 文件。支持的格式：单个菜单 {"menu": {...}, "items": [...]}、多个菜单 {"menus": [{...}, ...]}，或以根 JSON 数组形式提供的相同列表 [{"menu": {...}, "items": [...]}, ...]。请选择是跳过已存在的菜单（相同代码 + 上下文）还是替换其菜单项。'
+  import_format_invalid_root_array: '格式无效：根 JSON 数组只能包含带有 "menu" 和 "items" 的对象。您也可以使用 {"menus": [...]} 或 {"menu": {...}, "items": [...]}。'
+  import_format_expected: '格式无效：应为 "menu" + "items"、"menus"，或由菜单块组成的根数组。'
+  import_json_invalid: 'JSON 文件无效。'
+  import_json_error: 'JSON 无效：%message%'
+  import_file_too_large: '文件过大。最大允许 %max% MiB。'
+  import_done: '导入完成：已创建 %created% 个，已更新 %updated% 个，已跳过 %skipped% 个。'
 
 # Form: MenuType
 form:
   menu_type:
     code:
-      label: Code
-      help: "Unique identifier (letters, numbers, _ -). For base menus, code cannot be changed after creation."
-      placeholder: "e.g. sidebar"
+      label: '代码'
+      help: '唯一标识符（字母、数字、_ -）。基础菜单的代码在创建后无法更改。'
+      placeholder: '例如 sidebar'
     base:
-      label: "Base menu"
-      help: "When checked, this menu's code cannot be changed after creation."
+      label: '基础菜单'
+      help: '勾选后，此菜单的代码在创建后将无法更改。'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar"
+      label: '名称'
+      placeholder: '例如 侧边栏'
     context:
-      label: Context
-      help: "Optional JSON key-value pairs to identify this menu variant. When resolving by code, the first matching menu in the ordered context sets is used; empty = fallback for that code."
+      label: '上下文'
+      help: '可选的 JSON 键值对，用于标识此菜单变体。按代码解析时，将使用有序上下文集合中第一个匹配的菜单；留空 = 该代码的后备菜单。'
       placeholder: '{"partnerId": 1, "operatorId": 1}'
     icon:
-      label: Icon
-      help: "Optional icon identifier (e.g. Symfony UX Icons: heroicons:home, bootstrap:house)."
-      placeholder: "e.g. heroicons:bars-3, bootstrap:list"
+      label: '图标'
+      help: '可选的图标标识符（例如 Symfony UX Icons：heroicons:home、bootstrap:house）。'
+      placeholder: '例如 heroicons:bars-3、bootstrap:list'
     permission_checker:
-      label: Permission checker
-      placeholder: "— Allow all —"
-      allow_all: "— Allow all —"
-      help: "Service implementing MenuPermissionCheckerInterface (empty = allow all)."
+      label: '权限检查器'
+      placeholder: '— 允许全部 —'
+      allow_all: '— 允许全部 —'
+      permission_key_aware: '— 按权限键（结构）—'
+      help: '实现 MenuPermissionCheckerInterface 的服务（留空 = 允许全部）。'
     depth_limit:
-      label: Depth limit
-      placeholder: "empty = unlimited"
-      help: "Max depth to render (1 = root only, 2 = root + one level; empty = unlimited)."
+      label: '深度限制'
+      placeholder: '留空 = 无限制'
+      help: '渲染的最大深度（1 = 仅根级，2 = 根级 + 一层；留空 = 无限制）。'
     collapsible:
-      label: "Collapsible (wrap menu in toggle block)"
+      label: '可折叠（将菜单包裹在切换块中）'
     collapsible_expanded:
-      label: "Collapsible expanded (open by default)"
+      label: '可折叠且展开（默认打开）'
     nested_collapsible:
-      label: "Nested collapsible (items with children have toggle)"
+      label: '嵌套可折叠（有子项的菜单项带切换按钮）'
+    nested_collapsible_sections:
+      label: '可折叠分区'
+      help: '需要启用嵌套可折叠。启用后，分区行右侧会显示箭头，其链接可以折叠。禁用后，分区子项始终展开（无箭头）。'
     class_menu:
-      label: "Class menu (root <ul>)"
-      placeholder: "e.g. nav flex-column"
+      label: '菜单类（根 <ul>）'
+      placeholder: '例如 nav flex-column'
+    ul_id:
+      label: 'Ul ID（根 <ul>）'
+      placeholder: '例如 main-menu-navigation'
     class_item:
-      label: "Class item (<li>)"
-      placeholder: "e.g. nav-item"
+      label: '菜单项类（<li>）'
+      placeholder: '例如 nav-item'
     class_link:
-      label: "Class link (<a>)"
-      placeholder: "e.g. nav-link"
+      label: '链接类（<a>）'
+      placeholder: '例如 nav-link'
     class_children:
-      label: "Class children (nested <ul>)"
-      placeholder: "e.g. nav flex-column ms-2"
+      label: '子级类（嵌套 <ul>）'
+      placeholder: '例如 nav flex-column ms-2'
+    class_section_children:
+      label: '分区子级类（itemType "section" 下的 <ul>）'
+      placeholder: '例如 nav flex-column list-unstyled ps-0（扁平；留空 = 与子级类相同）'
+      help: '设置后，每个分区下的第一层列表将使用这些类而非“子级类”，使链接可以与分区标题对齐（无缩进）。留空则继续使用嵌套子级类。'
+    class_section_child_item:
+      label: 'itemType "section" 直接子项的 <li> 类'
+      placeholder: '例如 nav-item ms-0（留空 = 与菜单项类相同）'
+      help: '设置后，作为分区直接子项的链接和分隔线将使用此值作为 <li> 类，而非“菜单项类”。可用于调整扁平分区列表下的外边距/内边距。'
+    class_section_child_link:
+      label: 'itemType "section" 直接子项的 <a> 类'
+      placeholder: '例如 d-flex align-items-center ps-0（留空 = 与链接类相同）'
+      help: '设置后，作为分区直接子项的链接将使用此值作为 <a> 类，而非“链接类”。与分区子项 <li> 类配合使用以实现对齐。'
+    class_section_label:
+      label: '分区标签类（itemType "section"）'
+      placeholder: '例如 navigation-header'
     class_section:
-      label: "Class section (<li> when itemType \"section\")"
-      placeholder: "e.g. menu-section"
+      label: '分区类（itemType "section" 时的 <li>）'
+      placeholder: '例如 menu-section'
     class_divider:
-      label: "Class divider (<li> when itemType \"divider\")"
-      placeholder: "e.g. menu-divider"
+      label: '分隔线类（itemType "divider" 时的 <li>）'
+      placeholder: '例如 menu-divider'
     class_current:
-      label: "Class current (link matching current route)"
-      placeholder: "e.g. active"
+      label: '当前项类（与当前路由匹配的链接）'
+      placeholder: '例如 active'
     class_branch_expanded:
-      label: "Class branch expanded (<li> when route in branch)"
-      placeholder: "e.g. active-branch"
+      label: '分支展开类（路由位于分支内时的 <li>）'
+      placeholder: '例如 active-branch'
     class_has_children:
-      label: "Class has children (<li> when item has children)"
-      placeholder: "e.g. has-children"
+      label: '含子项类（菜单项有子项时的 <li>）'
+      placeholder: '例如 has-children'
     class_expanded:
-      label: "Class expanded (<li> when children block is open)"
-      placeholder: "e.g. is-expanded"
+      label: '展开类（子项块打开时的 <li>）'
+      placeholder: '例如 is-expanded'
     class_collapsed:
-      label: "Class collapsed (<li> when children block is closed)"
-      placeholder: "e.g. is-collapsed"
-    empty_choice: "— Empty —"
-    css_section_heading: "CSS classes for rendering (override config when set)."
+      label: '折叠类（子项块关闭时的 <li>）'
+      placeholder: '例如 is-collapsed'
+    empty_choice: '— 空 —'
+    css_section_heading: '用于渲染的 CSS 类（设置后将覆盖配置）。'
+    section_definition: '定义（代码、基础、名称、上下文、图标）'
+    section_config: '配置（权限、深度、可折叠、CSS）'
 
   menu_item_type:
+    section_basic: '标识（标签）'
+    section_icon: '标识（类型、位置、图标）'
+    section_config: '配置（链接、权限）'
+    label_required: '链接和分区必须填写标签。'
     label:
-      label: Label
-    label_locale: "Label (%locale%)"
+      label: '标签'
+    label_locale: '标签（%locale%）'
+    divider_label_hint: '此分隔线的可选名称（建议填写，以提升无障碍性并便于在管理面板列表中识别）。如果只需要视觉分隔，请留空。'
     type:
-      label: Type
-      link: Link
-      section: Section
-      divider: Divider
+      label: '类型'
+      link: '链接'
+      section: '分区'
+      divider: '分隔线'
+      service: '服务（运行时 URL）'
+    link_resolver:
+      label: '链接解析器'
+      placeholder: '— 选择解析器 —'
+      help: '选择一个实现 MenuLinkResolverInterface 的服务。它可以返回单个 URL，或子链接行列表（label、href、position）；此时父级的 href 为 "#"。'
+      service_id_placeholder: '例如 App\Menu\MyLinkResolver'
+      help_free_text: '输入实现 MenuLinkResolverInterface 的服务 ID（类名或容器 ID）。'
+      required: '菜单项类型为“服务”时必须指定链接解析器。'
+      route_params_hint: '传递给解析器的可选 JSON（例如类似路由的参数）。'
     position:
-      label: Position
+      label: '位置'
     link_type:
-      label: Link type
-      route: Route
-      external_url: External URL
+      label: '链接类型'
+      route: '路由'
+      external_url: '外部 URL'
     route_name:
-      label: Route name
-      placeholder: "— Select route —"
+      label: '路由名称'
+      placeholder: '— 选择路由 —'
     route_params:
-      label: "Route params (JSON)"
-      placeholder: "{}"
+      label: '路由参数（JSON）'
+      placeholder: '{}'
     external_url:
-      label: External URL
-      placeholder: "https://..."
+      label: '外部 URL'
+      placeholder: 'https://...'
     target_blank:
-      label: Open in new tab
+      label: '在新标签页中打开'
     permission_keys:
-      label: Permission keys
-      placeholder: "— Allow all —"
-      help_csv: "Comma-separated keys (used when no configured choices are available)."
+      label: '权限键'
+      placeholder: '— 允许全部 —'
+      help_csv: '以逗号分隔的键（在没有可用的配置选项时使用）。'
       choice:
-        authenticated: "Authenticated only"
-        admin: "Admin only"
-        path__: "Path: / (home only)"
+        authenticated: '仅限已登录用户'
+        admin: '仅限管理员'
+        path__: '路径：/（仅首页）'
     is_unanimous:
-      label: Require all selected keys
-      help: "Enabled: all keys must pass (AND). Disabled: any key may pass (OR)."
+      label: '要求满足所有选定的键'
+      help: '启用：所有键都必须通过（AND）。禁用：任一键通过即可（OR）。'
     icon:
-      label: Icon
-      placeholder: "heroicons:home"
+      label: '图标'
+      placeholder: 'heroicons:home'
     parent:
-      label: Parent
-      placeholder: "— Root (no parent) —"
+      label: '父级'
+      placeholder: '— 根级（无父级）—'
+      help_inheritance: '父级菜单项在树中位于此项之上。此行上的权限键作用于此菜单项；父级/子级规则如何组合由您的 MenuPermissionChecker 决定。分区和可展开链接仅在至少显示一个子项时才会渲染。'
+      circular_violation: '不允许循环的父级层次结构。'
+      section_must_be_root: '分区项必须保持在根级别（无父级）。'
+    section_collapsible:
+      label: '分区子项可折叠'
+      inherit: '使用菜单默认设置'
+      yes: '是（可折叠，带箭头）'
+      no: '否（始终展开）'
+      help: '仅针对此分区覆盖菜单选项“可折叠分区”。“使用菜单默认设置”将遵循菜单配置。'
 
   import_menu_type:
     file:
-      label: JSON file
-      required: Please choose a file.
-      mime_message: File must be JSON.
+      label: 'JSON 文件'
+      required: '请选择一个文件。'
+      mime_message: '文件必须为 JSON 格式。'
     strategy:
-      label: When a menu with the same code and context already exists
-      skip_existing: Skip (do not import)
-      replace: Replace (delete existing items and import)
+      label: '当已存在具有相同代码和上下文的菜单时'
+      skip_existing: '跳过（不导入）'
+      replace: '替换（删除现有菜单项后导入）'
 
   copy_menu_type:
     code:
-      label: Code
-      placeholder: "e.g. sidebar_copy"
-      regex_message: "Code must contain only letters, numbers, underscore and hyphen."
+      label: '代码'
+      placeholder: '例如 sidebar_copy'
+      regex_message: '代码只能包含字母、数字、下划线和连字符。'
     name:
-      label: Name
-      placeholder: "e.g. Sidebar (copy)"
+      label: '名称'
+      placeholder: '例如 侧边栏（副本）'
