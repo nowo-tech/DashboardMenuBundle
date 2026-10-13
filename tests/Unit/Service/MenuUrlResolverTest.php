@@ -7,6 +7,7 @@ namespace Nowo\DashboardMenuBundle\Tests\Service;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Service\MenuLinkResolverInterface;
 use Nowo\DashboardMenuBundle\Service\MenuUrlResolver;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use RuntimeException;
@@ -33,6 +34,42 @@ final class MenuUrlResolverTest extends TestCase
         $resolver = $this->createResolver($this->createStub(UrlGeneratorInterface::class), new RequestStack());
 
         self::assertSame('https://example.com/page', $resolver->getHref($item));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function unsafeExternalUrlProvider(): iterable
+    {
+        yield 'javascript' => ['javascript:alert(document.cookie)'];
+        yield 'mixed case with whitespace' => ["  JaVa\tScRiPt:alert(1)"];
+        yield 'data' => ['data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg=='];
+        yield 'vbscript' => ['vbscript:msgbox(1)'];
+    }
+
+    #[DataProvider('unsafeExternalUrlProvider')]
+    public function testGetHrefNeutralisesDisallowedExternalUrlSchemes(string $url): void
+    {
+        $item = new MenuItem();
+        $item->setLinkType(MenuItem::LINK_TYPE_EXTERNAL);
+        $item->setExternalUrl($url);
+
+        $resolver = $this->createResolver($this->createStub(UrlGeneratorInterface::class), new RequestStack());
+
+        self::assertSame('#', $resolver->getHref($item));
+    }
+
+    public function testGetHrefKeepsMailtoTelAndRelativeExternalUrls(): void
+    {
+        $resolver = $this->createResolver($this->createStub(UrlGeneratorInterface::class), new RequestStack());
+
+        foreach (['mailto:info@example.com', 'tel:+34900000000', '/relative/path', 'HTTPS://EXAMPLE.COM'] as $url) {
+            $item = new MenuItem();
+            $item->setLinkType(MenuItem::LINK_TYPE_EXTERNAL);
+            $item->setExternalUrl($url);
+
+            self::assertSame($url, $resolver->getHref($item));
+        }
     }
 
     public function testGetHrefReturnsHashWhenRouteNameIsNull(): void

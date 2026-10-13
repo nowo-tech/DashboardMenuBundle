@@ -96,6 +96,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- **Menu item external URLs:** the dashboard form now validates `externalUrl` with `Assert\Url` (`http` / `https` only). Rendered hrefs and JSON imports enforce a scheme allowlist (`http`, `https`, `mailto`, `tel`, or relative URLs): `javascript:`, `data:`, `vbscript:` … are rendered as `#` and dropped on import.
+- **Dashboard access fails closed:** `DashboardAccessSubscriber` is now always registered. With `dashboard.enabled: false`, dashboard routes answer 404 even if `routes_dashboard.yaml` is imported; `security.access_roles: []` without a custom `security.access_checker` now denies access (it used to leave the dashboard open).
+
 ## [2.3.2] - 2026-10-13
 
 ### Fixed

@@ -82,6 +82,34 @@ final class MenuImporterTest extends TestCase
         self::assertSame([], $result['errors']);
     }
 
+    public function testImportDropsExternalUrlsWithDisallowedSchemes(): void
+    {
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
+
+        /** @var array<string, string|null> $persisted */
+        $persisted = [];
+        $em        = $this->createStub(EntityManagerInterface::class);
+        $em->method('persist')->willReturnCallback(static function (object $entity) use (&$persisted): void {
+            if ($entity instanceof MenuItem) {
+                $persisted[$entity->getLabel()] = $entity->getExternalUrl();
+            }
+        });
+
+        $importer = new MenuImporter($this->createStub(MenuItemRepository::class), $menuRepo, $em);
+        $result   = $importer->import([
+            'menu'  => ['code' => 'sidebar', 'name' => 'Sidebar'],
+            'items' => [
+                ['label' => 'Evil', 'linkType' => MenuItem::LINK_TYPE_EXTERNAL, 'externalUrl' => 'javascript:alert(document.cookie)'],
+                ['label' => 'Data', 'linkType' => MenuItem::LINK_TYPE_EXTERNAL, 'externalUrl' => 'data:text/html,<script>alert(1)</script>'],
+                ['label' => 'Docs', 'linkType' => MenuItem::LINK_TYPE_EXTERNAL, 'externalUrl' => 'https://example.com/docs'],
+            ],
+        ]);
+
+        self::assertSame([], $result['errors']);
+        self::assertSame(['Evil' => null, 'Data' => null, 'Docs' => 'https://example.com/docs'], $persisted);
+    }
+
     public function testImportMenusArraySkipsDuplicateBlocksWithSameCodeAndContext(): void
     {
         $menuRepo = $this->createStub(MenuRepository::class);

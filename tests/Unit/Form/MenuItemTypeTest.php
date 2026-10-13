@@ -28,6 +28,7 @@ use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Violation\ConstraintViolationBuilderInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -661,6 +662,38 @@ final class MenuItemTypeTest extends TestCase
 
         $this->expectException(\Symfony\Component\OptionsResolver\Exception\InvalidOptionsException::class);
         $resolver->resolve(['locale' => 123]);
+    }
+
+    public function testMenuItemConfigTypeExternalUrlRejectsJavascriptScheme(): void
+    {
+        $type = new MenuItemConfigType(
+            menuItemRepository: $this->createStub(MenuItemRepository::class),
+            permissionKeyChoices: [],
+            defaultLocale: 'en',
+        );
+        $this->injectFormKitMerger($type);
+
+        $addCalls = [];
+        $builder  = $this->createFormBuilderMock($addCalls, new MenuItem(), routeParamsFormTransformer: true);
+
+        $type->buildForm($builder, [
+            'app_routes'        => [],
+            'menu'              => null,
+            'exclude_ids'       => [],
+            'locale'            => 'en',
+            'item_form_section' => null,
+        ]);
+
+        $externalUrl = $this->findAddCall($addCalls, 'externalUrl');
+        self::assertNotNull($externalUrl);
+        $constraints = $externalUrl['constraints'] ?? [];
+        self::assertNotEmpty($constraints);
+
+        $validator = Validation::createValidator();
+        self::assertCount(0, $validator->validate('https://example.com/page', $constraints));
+        self::assertCount(0, $validator->validate('http://intranet/page', $constraints));
+        self::assertGreaterThan(0, $validator->validate('javascript:alert(document.cookie)', $constraints)->count());
+        self::assertGreaterThan(0, $validator->validate('data:text/html,<script>alert(1)</script>', $constraints)->count());
     }
 
     public function testMenuItemConfigTypeBuildRouteChoiceAttrReturnsJsonParams(): void

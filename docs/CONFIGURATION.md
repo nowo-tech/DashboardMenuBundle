@@ -158,7 +158,7 @@ Options for the admin dashboard (list, create, edit, copy menus and manage items
 
 | Option                        | Default        | Description |
 |-------------------------------|----------------|-------------|
-| `enabled`                     | `false`        | Enable dashboard routes. Set to `true` in app config to use the admin UI. |
+| `enabled`                     | `false`        | Enable dashboard routes. Set to `true` in app config to use the admin UI. When `false`, dashboard routes answer 404 even if `routes_dashboard.yaml` is imported. |
 | `layout_template`             | `@NowoDashboardMenuBundle/dashboard/layout.html.twig` | Twig template that dashboard views ultimately extend (via `dashboard/base.html.twig`). Must define block `nowo_dashboard_menu_content` (aliased as `nowo_ui_content` in the demo layout). Override to use your app layout (e.g. `base.html.twig`) so the dashboard matches your app shell. |
 | `css_framework`               | `bootstrap5`   | CSS framework for the built-in dashboard UI. Values: `bootstrap5` (alias `bootstrap`), `bootstrap4`, `tailwind`, `foundation`, `tabler`, `custom`, `none`. Default `bootstrap5` keeps demos working. Exposed as Twig global `nowo_dashboard_menu_css_framework` and the `cssFramework` key of the `#nowo-dashboard-menu-config` JSON island (legacy `window.__nowoDashboardMenuConfig` fallback kept in 2.x; removal moved to 3.0). When UiKit is installed and the host has not set `nowo_ui_kit.css_framework`, this value is also prepended as the UiKit default (REQ-UI-001-kit). |
 | `icon_set`                    | `bootstrap-icons` | Icon library for built-in dashboard templates. Values: `bootstrap-icons`, `tabler-icons`, `ux_icon`, `svg_inline`, `none`. Exposed as Twig global `nowo_dashboard_menu_icon_set`. Likewise seeds `nowo_ui_kit.icon_set` when the host has not set it. |
@@ -214,7 +214,7 @@ Canonical REQ-UI-002 keys under `nowo_dashboard_menu.security`:
 
 | Option | Default | Description |
 | --- | --- | --- |
-| `access_roles` | `[ROLE_ADMIN]` | User must be granted **at least one** role for dashboard CRUD. Empty list disables bundle-level role checks (rely on firewall / custom checker). |
+| `access_roles` | `[ROLE_ADMIN]` | User must be granted **at least one** role for dashboard CRUD. Empty list **denies** access (fail-closed) unless `access_checker` is set; to rely on the firewall only, use e.g. `[IS_AUTHENTICATED_FULLY]`. |
 | `access_checker` | `null` | Optional service id implementing `DashboardMenuAccessCheckerInterface`. |
 | `allow_unauthenticated` | `false` | **DEV/DEMO only.** When `true`, dashboard may load without SecurityBundle / login. Production **MUST** keep `false`. |
 

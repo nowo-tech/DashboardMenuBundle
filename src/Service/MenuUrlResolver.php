@@ -6,6 +6,7 @@ namespace Nowo\DashboardMenuBundle\Service;
 
 use Exception;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
+use Nowo\DashboardMenuBundle\Util\ExternalUrlPolicy;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -176,7 +177,8 @@ final class MenuUrlResolver implements ResetInterface
             return '#';
         }
         if ($linkType === MenuItem::LINK_TYPE_EXTERNAL && $item->getExternalUrl() !== null) {
-            return $item->getExternalUrl();
+            // Scheme allowlist: neutralise javascript:/data: URLs stored before validation (or via direct DB writes).
+            return ExternalUrlPolicy::sanitize($item->getExternalUrl()) ?? '#';
         }
 
         $routeName = $item->getRouteName();

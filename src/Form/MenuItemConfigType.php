@@ -11,6 +11,7 @@ use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Form\DataTransformer\JsonToArrayTransformer;
 use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
+use Nowo\DashboardMenuBundle\Util\ExternalUrlPolicy;
 use Nowo\FormKitBundle\Attribute\FormKitConfig;
 use Nowo\FormKitBundle\Form\FormOptionsTrait;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -22,6 +23,7 @@ use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Callback;
+use Symfony\Component\Validator\Constraints\Url;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -152,10 +154,11 @@ final class MenuItemConfigType extends AbstractType
                 'tom_select_options' => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
             ]);
             $this->addWithDefaults($builder, 'externalUrl', UrlType::class, [
-                'required' => false,
-                'label'    => 'form.menu_item_type.external_url.label',
-                'attr'     => ['placeholder' => $t('form.menu_item_type.external_url.placeholder')],
-                'row_attr' => ['class' => 'mb-1'],
+                'required'    => false,
+                'constraints' => [new Url(protocols: ExternalUrlPolicy::FORM_PROTOCOLS, requireTld: false)],
+                'label'       => 'form.menu_item_type.external_url.label',
+                'attr'        => ['placeholder' => $t('form.menu_item_type.external_url.placeholder')],
+                'row_attr'    => ['class' => 'mb-1'],
             ]);
         }
 

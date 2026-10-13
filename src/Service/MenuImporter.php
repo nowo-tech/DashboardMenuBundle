@@ -9,6 +9,7 @@ use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
+use Nowo\DashboardMenuBundle\Util\ExternalUrlPolicy;
 
 use function array_key_exists;
 use function count;
@@ -273,7 +274,8 @@ final readonly class MenuImporter
             $item->setLinkType($this->stringOrDefault($row['linkType'] ?? null, MenuItem::LINK_TYPE_ROUTE));
             $item->setRouteName($this->stringOrNull($row['routeName'] ?? null));
             $item->setRouteParams($this->routeParamsFromRow($row));
-            $item->setExternalUrl($this->stringOrNull($row['externalUrl'] ?? null));
+            // Disallowed schemes (javascript:, data:, …) are dropped on import.
+            $item->setExternalUrl(ExternalUrlPolicy::sanitize($this->stringOrNull($row['externalUrl'] ?? null)));
             $item->setIcon($this->stringOrNull($row['icon'] ?? null));
             $item->setPermissionKeys($this->permissionKeysFromRow($row));
             $item->setIsUnanimous($this->boolOrDefault($row['isUnanimous'] ?? null, true));
