@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.5.1](#to-251)
 - [To 2.5.0](#to-250)
 - [To 2.4.1](#to-241)
 - [To 2.4.0](#to-240)
@@ -101,6 +102,16 @@
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## To 2.5.1
+
+From **2.5.0** — container compiles in dev when the profiler is disabled
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
+
+- No breaking changes. No application upgrade steps.
 
 ## To 2.5.0
 
