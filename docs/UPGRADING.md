@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+## To 2.5.0
+
+From **2.4.1** — complete translations for 24 locales, api.enabled/path_prefix wired, configuration docs.
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
+
 - `nowo_dashboard_menu.api` is now honoured: with `api.enabled: false` the `nowo_dashboard_menu_api` route is no longer registered (remove any `path('nowo_dashboard_menu_api')` calls or keep the API enabled), and a custom `api.path_prefix` now changes the URL. Hosts that import `@NowoDashboardMenuBundle/Resources/config/routes.yaml` need no change; hosts that declared the API route by hand can switch to that import.
 
 ## To 2.4.1
