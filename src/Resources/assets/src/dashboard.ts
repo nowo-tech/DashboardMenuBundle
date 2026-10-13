@@ -40,6 +40,7 @@ interface StimulusAppLike {
   router?: {
     elementConnected?(el: Element): void;
     proposeToConnectScopeForElementAndIdentifier?(element: Element, identifier: string): void;
+    modulesByIdentifier?: Map<string, unknown>;
   };
 }
 
@@ -50,6 +51,8 @@ export interface NowoDashboardMenuConfig {
   appRoutes?: Record<string, { params?: string[] }>;
   debug?: boolean;
   cssFramework?: string;
+  /** dashboard.autocomplete_bootstrap (2.3.2): false = never load UX Autocomplete / Tom Select CSS from a CDN. */
+  autocompleteBootstrap?: boolean;
 }
 
 const i18n = (key: string, fallback: string) =>
@@ -58,6 +61,7 @@ const i18n = (key: string, fallback: string) =>
 const AUTOCOMPLETE_IDENTIFIER = 'symfony--ux-autocomplete--autocomplete';
 let autocompleteControllerReady = false;
 let autocompleteControllerPromise: Promise<void> | null = null;
+let autocompleteBootstrapEnabled = true;
 
 function describeStimulusAppLike(app: StimulusAppLike | null): Record<string, boolean> {
   return {
@@ -90,7 +94,7 @@ function ensureTomSelectCssLoaded(): void {
 }
 
 async function ensureAutocompleteControllerRegistered(): Promise<void> {
-  if (autocompleteControllerReady) return;
+  if (!autocompleteBootstrapEnabled || autocompleteControllerReady) return;
   if (autocompleteControllerPromise) return autocompleteControllerPromise;
   autocompleteControllerPromise = (async () => {
     try {
@@ -99,6 +103,12 @@ async function ensureAutocompleteControllerRegistered(): Promise<void> {
       log.debug('Autocomplete bootstrap: resolved StimulusAppLike.', describeStimulusAppLike(app));
       if (!app || typeof app.register !== 'function') {
         log.debug('Autocomplete bootstrap skipped: StimulusAppLike.register not available yet.');
+        return;
+      }
+      if (app.router?.modulesByIdentifier?.has(AUTOCOMPLETE_IDENTIFIER)) {
+        // The host app already ships UX Autocomplete (and its Tom Select styles): do not override it.
+        autocompleteControllerReady = true;
+        log.debug('Autocomplete bootstrap skipped: controller already registered by the host app.');
         return;
       }
 
@@ -899,6 +909,7 @@ function run(): void {
     window.__nowoDashboardMenuConfig,
   );
   if (!config) return;
+  autocompleteBootstrapEnabled = config.autocompleteBootstrap !== false;
   if (typeof document !== 'undefined' && !window.__dmTomSelectModalPatchBound) {
     window.__dmTomSelectModalPatchBound = true;
     document.addEventListener('dashboard-menu:modal-content-loaded', (ev) => {

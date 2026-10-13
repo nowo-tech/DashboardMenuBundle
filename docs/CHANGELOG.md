@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 - [[Unreleased]](#unreleased)
 
+- [[2.3.2] - 2026-10-13](#232---2026-10-13)
 - [[2.3.1] - 2026-10-13](#231---2026-10-13)
 - [[2.3.0] - 2026-10-13](#230---2026-10-13)
 
@@ -94,6 +95,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.3.2] - 2026-10-13
+
+### Fixed
+
+- **dashboard.js no longer overrides the host's UX Autocomplete:** when the host Stimulus app has already registered `symfony--ux-autocomplete--autocomplete`, the script skips its esm.sh registration and does not inject the Tom Select CDN stylesheet (`tom-select.bootstrap5.css`), which painted Bootstrap styles over Tailwind / custom hosts and needed third-party CSP origins.
+
+### Added
+
+- **`dashboard.autocomplete_bootstrap`** (bool, default `true`): set `false` to never load UX Autocomplete or the Tom Select stylesheet from a CDN (exposed as `autocompleteBootstrap` in the `#nowo-dashboard-menu-config` island and the `nowo_dashboard_menu_autocomplete_bootstrap` Twig global).
 
 ## [2.3.1] - 2026-10-13
 

@@ -46,6 +46,7 @@ final class ConfigurationTest extends TestCase
         self::assertArrayHasKey('section_child_link', $config['dashboard']['css_class_options']);
         self::assertSame('bootstrap5', $config['dashboard']['css_framework']);
         self::assertSame('bootstrap-icons', $config['dashboard']['icon_set']);
+        self::assertTrue($config['dashboard']['autocomplete_bootstrap']);
         self::assertSame([], $config['permission_checker_choices']);
         self::assertSame([], $config['menu_link_resolver_choices']);
         self::assertSame(['ROLE_ADMIN'], $config['security']['access_roles']);
@@ -128,6 +129,16 @@ final class ConfigurationTest extends TestCase
         $processor->processConfiguration(new Configuration(), [
             ['dashboard' => ['modals' => ['menu_form' => 'invalid']]],
         ]);
+    }
+
+    public function testAutocompleteBootstrapCanBeDisabled(): void
+    {
+        $processor = new Processor();
+        $config    = $processor->processConfiguration(new Configuration(), [
+            ['dashboard' => ['autocomplete_bootstrap' => false]],
+        ]);
+
+        self::assertFalse($config['dashboard']['autocomplete_bootstrap']);
     }
 
     public function testProcessConfigurationAcceptsValidCssFramework(): void

@@ -31,6 +31,7 @@ use Twig\TwigFunction;
  * Global nowo_dashboard_layout_template: layout template that dashboard views extend (from nowo_dashboard_menu.dashboard.layout_template).
  * Globals nowo_dashboard_menu_css_framework / nowo_dashboard_menu_icon_set: REQ-UI-001 CSS stack and icon set.
  * Global nowo_dashboard_menu_ui + dashboard_menu_ui_class(key, default): admin chrome hooks (dashboard.ui, 2.3.0).
+ * Global nowo_dashboard_menu_autocomplete_bootstrap: dashboard.autocomplete_bootstrap (2.3.2).
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
@@ -57,17 +58,19 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
         private readonly string $cssFramework = 'bootstrap5',
         private readonly string $iconSet = 'bootstrap-icons',
         private readonly DashboardUiConfig $dashboardUi = new DashboardUiConfig(),
+        private readonly bool $autocompleteBootstrap = true,
     ) {
     }
 
     public function getGlobals(): array
     {
         return [
-            'nowo_dashboard_layout_template'           => $this->dashboardLayoutTemplate,
-            'nowo_dashboard_ux_autocomplete_available' => $this->uxAutocompleteAvailable,
-            'nowo_dashboard_menu_css_framework'        => $this->cssFramework,
-            'nowo_dashboard_menu_icon_set'             => $this->iconSet,
-            'nowo_dashboard_menu_ui'                   => $this->dashboardUi->toArray(),
+            'nowo_dashboard_layout_template'             => $this->dashboardLayoutTemplate,
+            'nowo_dashboard_ux_autocomplete_available'   => $this->uxAutocompleteAvailable,
+            'nowo_dashboard_menu_css_framework'          => $this->cssFramework,
+            'nowo_dashboard_menu_icon_set'               => $this->iconSet,
+            'nowo_dashboard_menu_ui'                     => $this->dashboardUi->toArray(),
+            'nowo_dashboard_menu_autocomplete_bootstrap' => $this->autocompleteBootstrap,
         ];
     }
 

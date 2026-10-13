@@ -73,6 +73,7 @@ final class MenuExtensionTest extends TestCase
         self::assertSame('@NowoDashboardMenuBundle/dashboard/layout.html.twig', $globals['nowo_dashboard_layout_template']);
         self::assertArrayHasKey('nowo_dashboard_ux_autocomplete_available', $globals);
         self::assertFalse($globals['nowo_dashboard_ux_autocomplete_available']);
+        self::assertTrue($globals['nowo_dashboard_menu_autocomplete_bootstrap']);
     }
 
     public function testGetHrefDelegatesToUrlResolver(): void

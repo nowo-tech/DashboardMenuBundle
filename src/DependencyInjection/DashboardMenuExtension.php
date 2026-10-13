@@ -303,6 +303,10 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
             Configuration::ALIAS . '.dashboard.icon_size',
             $config['dashboard']['icon_size'] ?? '1em',
         );
+        $container->setParameter(
+            Configuration::ALIAS . '.dashboard.autocomplete_bootstrap',
+            (bool) ($config['dashboard']['autocomplete_bootstrap'] ?? true),
+        );
         $container->setParameter(Configuration::ALIAS . '.dashboard.css_class_options', $config['dashboard']['css_class_options'] ?? []);
         $container->setParameter(
             Configuration::ALIAS . '.dashboard.item_span_active',

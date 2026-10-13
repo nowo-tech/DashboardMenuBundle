@@ -1,5 +1,17 @@
 # Upgrading
 
+## To 2.3.2
+
+From **2.3.1** — no breaking changes.
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+bin/console assets:install
+```
+
+- `dashboard.js` changed: re-run `assets:install`.
+- If your app ships Symfony UX Autocomplete and its own Tom Select styles (or a strict CSP without jsDelivr / esm.sh), set `nowo_dashboard_menu.dashboard.autocomplete_bootstrap: false`. Apps that relied on the bundle loading UX Autocomplete need no change.
+
 ## To 2.3.1
 
 From **2.3.0** — dependency refresh and repository maintenance.
