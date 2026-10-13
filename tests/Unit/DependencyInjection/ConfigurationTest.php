@@ -6,6 +6,7 @@ namespace Nowo\DashboardMenuBundle\Tests\DependencyInjection;
 
 use Nowo\DashboardMenuBundle\DependencyInjection\Configuration;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\Definition\Processor;
 
 use function strlen;
@@ -122,7 +123,7 @@ final class ConfigurationTest extends TestCase
 
     public function testProcessConfigurationValidatesModalValues(): void
     {
-        $this->expectException(\Symfony\Component\Config\Definition\Exception\InvalidConfigurationException::class);
+        $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionMessage('Must be normal, lg, or xl');
 
         $processor = new Processor();
@@ -163,7 +164,7 @@ final class ConfigurationTest extends TestCase
 
     public function testProcessConfigurationRejectsInvalidCssFramework(): void
     {
-        $this->expectException(\Symfony\Component\Config\Definition\Exception\InvalidConfigurationException::class);
+        $this->expectException(InvalidConfigurationException::class);
 
         $processor = new Processor();
         $processor->processConfiguration(new Configuration(), [
@@ -183,7 +184,7 @@ final class ConfigurationTest extends TestCase
 
     public function testProcessConfigurationRejectsInvalidIconSet(): void
     {
-        $this->expectException(\Symfony\Component\Config\Definition\Exception\InvalidConfigurationException::class);
+        $this->expectException(InvalidConfigurationException::class);
 
         $processor = new Processor();
         $processor->processConfiguration(new Configuration(), [
@@ -204,5 +205,13 @@ final class ConfigurationTest extends TestCase
     public function testAliasConstant(): void
     {
         self::assertGreaterThan(0, strlen(Configuration::ALIAS));
+    }
+
+    public function testApiPathPrefixMustBeAString(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('api.path_prefix must be a string');
+
+        (new Processor())->processConfiguration(new Configuration(), [['api' => ['path_prefix' => null]]]);
     }
 }

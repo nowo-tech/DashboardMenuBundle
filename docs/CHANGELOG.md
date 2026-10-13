@@ -97,6 +97,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `api.path_prefix` is validated as a string at config load: `~`/non-string values used to pass the config tree and crash `MenuApiRouteLoader` (typed `string`) when the routes were loaded.
+
 ## [2.5.0] - 2026-10-13
 
 ### Fixed
