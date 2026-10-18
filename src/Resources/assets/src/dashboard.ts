@@ -53,10 +53,18 @@ export interface NowoDashboardMenuConfig {
   cssFramework?: string;
   /** dashboard.autocomplete_bootstrap (2.3.2): false = never load UX Autocomplete / Tom Select CSS from a CDN. */
   autocompleteBootstrap?: boolean;
+  /** 2.7: translated dialog strings (loading, errorLoadingForm). */
+  i18n?: Record<string, string>;
+  /** 2.7: icon-selector script URL (dashboard.icon_selector_script_url) for re-init in loaded dialog bodies. */
+  iconSelectorScriptUrl?: string | null;
+  /** 2.7: the page is the full item form (page/form scaffold). */
+  itemFormPage?: boolean;
 }
 
+let configI18n: Record<string, string> = {};
+
 const i18n = (key: string, fallback: string) =>
-  (typeof window !== 'undefined' && window.dashboardMenuI18n?.[key]) ?? fallback;
+  configI18n[key] ?? (typeof window !== 'undefined' ? window.dashboardMenuI18n?.[key] : undefined) ?? fallback;
 
 const AUTOCOMPLETE_IDENTIFIER = 'symfony--ux-autocomplete--autocomplete';
 let autocompleteControllerReady = false;
@@ -201,6 +209,8 @@ type TomSelectPatchable = {
 
 function patchTomSelectDropdownsToBody(container: Element | null): void {
   if (!container) return;
+  // A native modal <dialog> is in the top layer: a dropdown moved to <body> would render below it.
+  if (container.closest('dialog')) return;
   container.querySelectorAll('select').forEach((sel) => {
     const ts = (sel as HTMLSelectElement & { tomselect?: TomSelectPatchable }).tomselect;
     if (!ts?.dropdown || !ts.settings) return;
@@ -384,286 +394,133 @@ function initMenuSortablePanel(): void {
   }
 }
 
-function initShowPage(config: NowoDashboardMenuConfig): void {
-  // Sortable must run even when modal listeners were already bound (e.g. Turbo / in-app navigation):
-  // otherwise visiting the table view first sets __dmDashboardMenuShowBound and skips the panel init.
+function initShowPage(): void {
+  // Sortable must run on every (re)visit of the reorder page (e.g. Turbo / in-app navigation).
   initMenuSortablePanel();
+}
 
-  if (typeof window !== 'undefined' && window.__dmDashboardMenuShowBound) {
+/** Opener attribute of the dashboard form dialogs (value: the UiKit dialog id). */
+const DIALOG_ATTRIBUTE = 'data-nowo-dashboard-menu-dialog';
+
+function dialogTitleOf(opener: HTMLElement): string {
+  return (
+    opener.getAttribute('title') ??
+    opener.getAttribute('aria-label') ??
+    opener.querySelector('.nowo-ui-action__label')?.textContent ??
+    opener.textContent ??
+    ''
+  ).trim();
+}
+
+function openNativeDialog(dialog: HTMLDialogElement, opener: HTMLElement): void {
+  const open = (window as Window & { nowoUiOpenDialog?: (d: HTMLDialogElement, o: HTMLElement) => boolean }).nowoUiOpenDialog;
+  if (typeof open === 'function') {
+    open(dialog, opener);
     return;
   }
-  if (typeof window !== 'undefined') {
-    window.__dmDashboardMenuShowBound = true;
-  }
-  const menuId = config.menuId ?? 0;
-  const baseUrl = (config.baseUrl ?? '').replace(/\/[^/]+$/, '');
-  const loading = i18n('loading', 'Loading…');
-  const errorMsg = i18n('errorLoadingForm', 'Error loading form.');
-  const editItemLabel = i18n('editItem', 'Edit item');
-  const editLabelsLabel = i18n('editLabels', 'Edit label and translations');
-  const editTypePositionIconLabel = i18n('editTypePositionIcon', 'Edit type, position and icon');
-  const addItemLabel = i18n('addItem', 'Add item');
-  const deleteItemConfirmTpl = i18n('deleteItemConfirm', 'Delete this item and its children?');
-
-  const editMenuLabel = i18n('editMenu', 'Edit menu');
-  const editConfigLabel = i18n('editConfig', 'Edit configuration');
-  const modalMenuForm = document.getElementById('modal-menu-form');
-  if (modalMenuForm) {
-    modalMenuForm.addEventListener('show.bs.modal', (e) => {
-      const btn = (e as Event & { relatedTarget: HTMLElement | null }).relatedTarget;
-      if (!btn?.classList.contains('btn-edit-menu')) return;
-      const body = document.getElementById('modal-menu-form-body');
-      const title = document.getElementById('modal-menu-form-label');
-      const id = btn.getAttribute('data-id') ?? String(menuId);
-      const section = btn.getAttribute('data-section') ?? '';
-      if (title) {
-        title.textContent = section === 'config' ? editConfigLabel : editMenuLabel;
-      }
-      if (body) {
-        body.innerHTML = `<div class="text-center py-4 text-muted">${loading}</div>`;
-        let url = `${baseUrl}/${id}/edit`;
-        if (section) url += `?section=${encodeURIComponent(section)}`;
-        fetch(url)
-          .then((r) => r.text())
-          .then((html) => {
-            body.innerHTML = html;
-            if (section === 'config') {
-              const configEl = document.getElementById('menu_config_section');
-              if (configEl) configEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            } else if (section === 'basic') {
-              const defEl = document.getElementById('menu_definition_section');
-              if (defEl) defEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-          })
-          .catch(() => {
-            body.innerHTML = `<div class="alert alert-danger">${errorMsg}</div>`;
-          });
-      }
-    });
-  }
-
-  const copyMenuModal = document.getElementById('modal-menu-copy');
-  if (copyMenuModal) {
-    copyMenuModal.addEventListener('show.bs.modal', (e) => {
-      const btn = (e as Event & { relatedTarget: HTMLElement | null }).relatedTarget;
-      if (!btn?.classList.contains('btn-copy-menu')) return;
-      const copyUrl = btn.getAttribute('data-copy-url');
-      const body = document.getElementById('modal-menu-copy-body');
-      if (!body || !copyUrl) return;
-      body.innerHTML = `<div class="text-center py-4 text-muted">${loading}</div>`;
-      fetch(copyUrl)
-        .then((r) => r.text())
-        .then((html) => { body.innerHTML = html; })
-        .catch(() => {
-          body.innerHTML = `<div class="alert alert-danger">${errorMsg}</div>`;
-        });
-    });
-  }
-
-  const modalItemForm = document.getElementById('modal-item-form');
-  if (modalItemForm) {
-    modalItemForm.addEventListener('show.bs.modal', (e) => {
-      const btn = (e as Event & { relatedTarget: HTMLElement | null }).relatedTarget;
-      const isAdd = btn?.classList.contains('btn-add-item');
-      const isEdit = btn?.classList.contains('btn-edit-item') ?? false;
-      if (!isAdd && !isEdit) return;
-      const body = document.getElementById('modal-item-form-body');
-      const title = document.getElementById('modal-item-form-label');
-      const mid = btn?.getAttribute('data-id') ?? String(menuId);
-      const itemId = btn?.getAttribute('data-item-id');
-      const parent = btn?.getAttribute('data-parent') ?? '';
-      const section = btn?.getAttribute('data-section') ?? '';
-      if (title) {
-        if (isAdd) title.textContent = addItemLabel;
-        else if (section === 'config') title.textContent = editConfigLabel;
-        else if (section === 'basic') title.textContent = editLabelsLabel;
-        else if (section === 'icon') title.textContent = editTypePositionIconLabel;
-        else title.textContent = editItemLabel;
-      }
-      if (body) {
-        body.innerHTML = `<div class="text-center py-4 text-muted">${loading}</div>`;
-        let url: string;
-        if (isEdit) {
-          url = `${baseUrl}/${mid}/item/${itemId}/edit`;
-          if (section) url += `?section=${encodeURIComponent(section)}`;
-        } else {
-          url = `${baseUrl}/${mid}/item/new${parent ? `?parent=${encodeURIComponent(parent)}` : ''}`;
-        }
-        fetch(url)
-          .then((r) => r.text())
-          .then((html) => {
-            body.innerHTML = html;
-            const container = document.getElementById('modal-item-form-container');
-            if (container) {
-              reinitIconSelectorInContainer(container);
-              connectStimulusControllersInContainer(container);
-              attachItemFormToggles(container, {});
-              if (section === 'config') {
-                const configEl = container.querySelector('#item_config_section');
-                if (configEl) {
-                  configEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-              } else if (section === 'basic') {
-                const basicEl = container.querySelector('#item_basic_section');
-                if (basicEl) {
-                  basicEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-              } else if (section === 'icon') {
-                const iconEl = container.querySelector('#item_icon_section');
-                if (iconEl) {
-                  iconEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-              }
-              document.dispatchEvent(
-                new CustomEvent('dashboard-menu:modal-content-loaded', { detail: { element: container } })
-              );
-              if (window.dashboardMenuDebugLive) {
-                attachLiveComponentDebug(container);
-              }
-            }
-          })
-          .catch(() => {
-            body.innerHTML = `<div class="alert alert-danger">${errorMsg}</div>`;
-          });
-      }
-    });
-  }
-
-  const deleteItemModal = document.getElementById('modal-delete-item-confirm');
-  if (deleteItemModal) {
-    deleteItemModal.addEventListener('show.bs.modal', (e) => {
-      const btn = (e as Event & { relatedTarget: HTMLElement | null }).relatedTarget;
-      if (!btn?.classList.contains('btn-delete-item')) return;
-      const form = document.getElementById('form-delete-item-confirm');
-      const msg = document.getElementById('modal-delete-item-message');
-      if (form && msg) {
-        (form as HTMLFormElement).action = btn.getAttribute('data-url') ?? '';
-        const tokenInput = form.querySelector<HTMLInputElement>('input[name="_token"]');
-        if (tokenInput) tokenInput.value = btn.getAttribute('data-token') ?? '';
-        msg.textContent = deleteItemConfirmTpl.replace(
-          '%name%',
-          btn.getAttribute('data-name') ?? ''
-        );
-      }
-    });
+  if (!dialog.open && typeof dialog.showModal === 'function') {
+    dialog.showModal();
   }
 }
 
-function initIndexPage(config: NowoDashboardMenuConfig): void {
+function scrollToSection(container: Element, section: string): void {
+  const ids: Record<string, string> = {
+    config: '#item_config_section, #menu_config_section',
+    basic: '#item_basic_section, #menu_definition_section',
+    icon: '#item_icon_section',
+  };
+  const selector = ids[section];
+  const el = selector ? container.querySelector(selector) : null;
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/**
+ * Wire a form body loaded into a dialog (or rendered on the item form page): item type toggles, Stimulus (Live
+ * component, autocomplete), icon selector, import double-submit guard.
+ */
+function wireFormBody(body: Element, section: string, inDialog = true): void {
+  const itemContainer = body.querySelector('#modal-item-form-container') ?? (body.matches('#modal-item-form-container') ? body : null);
+  if (itemContainer) {
+    if (inDialog) reinitIconSelectorInContainer(itemContainer);
+    connectStimulusControllersInContainer(itemContainer);
+    attachItemFormToggles(itemContainer, {});
+    document.dispatchEvent(new CustomEvent('dashboard-menu:modal-content-loaded', { detail: { element: itemContainer } }));
+    if (window.dashboardMenuDebugLive) {
+      attachLiveComponentDebug(itemContainer);
+    }
+  }
+  if (section) scrollToSection(body, section);
+  body.querySelectorAll<HTMLFormElement>('form[data-import-form]').forEach((form) => {
+    if (form.dataset.dmSubmitGuard === '1') return;
+    form.dataset.dmSubmitGuard = '1';
+    form.addEventListener('submit', (e) => {
+      if (form.dataset.dmSubmitting === '1') {
+        e.preventDefault();
+        return;
+      }
+      form.dataset.dmSubmitting = '1';
+      const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
+    });
+  });
+}
+
+/**
+ * Dialog openers (2.7): links to a form page carrying data-nowo-dashboard-menu-dialog="<dialog id>". The link is
+ * fetched with ?_modal=1 into the dialog body and the UiKit dialog opens; without JavaScript (or without the
+ * dialog on the page) the link opens the full form page.
+ */
+function initDialogOpeners(): void {
   if (typeof window !== 'undefined' && window.__dmDashboardMenuIndexBound) {
     return;
   }
   if (typeof window !== 'undefined') {
     window.__dmDashboardMenuIndexBound = true;
   }
-  const dashboardBase = (config.dashboardBase ?? '').replace(/\/$/, '');
-  const loading = i18n('loading', 'Loading…');
-  const errorMsg = i18n('errorLoadingForm', 'Error loading form.');
-  const deleteMenuConfirmTpl = i18n('deleteMenuConfirm', 'Delete this menu and all its items?');
-
-  const editMenuLabel = i18n('editMenu', 'Edit menu');
-  const editConfigLabel = i18n('editConfig', 'Edit configuration');
-  const editMenuModal = document.getElementById('modal-menu-form');
-  if (editMenuModal) {
-    editMenuModal.addEventListener('show.bs.modal', (e) => {
-      const btn = (e as Event & { relatedTarget: HTMLElement | null }).relatedTarget;
-      if (!btn?.classList.contains('btn-edit-menu')) return;
-      const id = btn.getAttribute('data-id');
-      const body = document.getElementById('modal-menu-form-body');
-      const title = document.getElementById('modal-menu-form-label');
-      if (!body || !id) return;
-      const section = btn.getAttribute('data-section') ?? '';
-      if (title) {
-        title.textContent = section === 'config' ? editConfigLabel : editMenuLabel;
+  document.addEventListener(
+    'click',
+    (e) => {
+      const target = e.target as Element | null;
+      const opener = target?.closest<HTMLElement>(`[${DIALOG_ATTRIBUTE}]`);
+      if (!opener || opener.getAttribute('aria-disabled') === 'true') return;
+      const dialogId = opener.getAttribute(DIALOG_ATTRIBUTE) ?? '';
+      const dialog = document.getElementById(dialogId);
+      const href = opener.getAttribute('href');
+      if (!(dialog instanceof HTMLDialogElement) || !href || href === '#') return;
+      e.preventDefault();
+      const body = dialog.querySelector<HTMLElement>('[data-nowo-dashboard-menu-dialog-body]');
+      const title = document.getElementById(`${dialogId}-title`);
+      const titleText = dialogTitleOf(opener);
+      if (title && titleText) title.textContent = titleText;
+      const url = new URL(href, window.location.href);
+      url.searchParams.set('_modal', '1');
+      const section = url.searchParams.get('section') ?? '';
+      if (body) {
+        const loading = document.createElement('p');
+        loading.className = 'nowo-ui-muted';
+        loading.textContent = i18n('loading', 'Loading…');
+        body.replaceChildren(loading);
       }
-      body.innerHTML = `<div class="text-center py-4 text-muted">${loading}</div>`;
-      let url = `${dashboardBase}/${id}/edit`;
-      if (section) url += `?section=${encodeURIComponent(section)}`;
-      fetch(url)
-        .then((r) => r.text())
+      openNativeDialog(dialog, opener);
+      if (!body) return;
+      fetch(url.pathname + url.search, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then((r) => {
+          if (!r.ok) throw new Error(String(r.status));
+          return r.text();
+        })
         .then((html) => {
           body.innerHTML = html;
-          if (section === 'config') {
-            const configEl = document.getElementById('menu_config_section');
-            if (configEl) configEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          } else if (section === 'basic') {
-            const defEl = document.getElementById('menu_definition_section');
-            if (defEl) defEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
+          wireFormBody(body, section);
         })
         .catch(() => {
-          body.innerHTML = `<div class="alert alert-danger">${errorMsg}</div>`;
+          const error = document.createElement('p');
+          error.className = 'nowo-ui-flash nowo-ui-flash--error';
+          error.textContent = i18n('errorLoadingForm', 'Error loading form.');
+          body.replaceChildren(error);
         });
-    });
-  }
-
-  const copyMenuModal = document.getElementById('modal-menu-copy');
-  if (copyMenuModal) {
-    copyMenuModal.addEventListener('show.bs.modal', (e) => {
-      const btn = (e as Event & { relatedTarget: HTMLElement | null }).relatedTarget;
-      if (!btn?.classList.contains('btn-copy-menu')) return;
-      const copyUrl = btn.getAttribute('data-copy-url');
-      const body = document.getElementById('modal-menu-copy-body');
-      if (!body || !copyUrl) return;
-      body.innerHTML = `<div class="text-center py-4 text-muted">${loading}</div>`;
-      fetch(copyUrl)
-        .then((r) => r.text())
-        .then((html) => { body.innerHTML = html; })
-        .catch(() => {
-          body.innerHTML = `<div class="alert alert-danger">${errorMsg}</div>`;
-        });
-    });
-  }
-
-  const importModal = document.getElementById('modal-import');
-  const importModalBody = document.getElementById('modal-import-body');
-  if (importModal && importModalBody) {
-    importModal.addEventListener('show.bs.modal', (e) => {
-      const btn = (e as Event & { relatedTarget: HTMLElement | null }).relatedTarget;
-      const importUrlRaw = btn?.getAttribute('data-import-url') ?? `${dashboardBase}/import`;
-      const importUrl = new URL(importUrlRaw, window.location.origin);
-      importUrl.searchParams.set('_modal', '1');
-      importModalBody.innerHTML = `<div class="text-center py-4 text-muted">${loading}</div>`;
-      fetch(importUrl.pathname + importUrl.search)
-        .then((r) => r.text())
-        .then((html) => { importModalBody.innerHTML = html; })
-        .catch(() => {
-          importModalBody.innerHTML = `<div class="alert alert-danger">${errorMsg}</div>`;
-        });
-    });
-    importModalBody.addEventListener('submit', (e) => {
-      const form = (e.target as HTMLElement).closest('form[data-import-form], form.import-form');
-      if (!form || !importModalBody.contains(form as Node)) return;
-      const formEl = form as HTMLFormElement;
-      if (formEl.dataset.dmSubmitting === '1') {
-        e.preventDefault();
-        return;
-      }
-      formEl.dataset.dmSubmitting = '1';
-      const submitBtn = formEl.querySelector<HTMLButtonElement>('button[type="submit"]');
-      if (submitBtn) submitBtn.disabled = true;
-      // Allow native POST submit to avoid AJAX race/double-submit issues.
-    }, true);
-  }
-
-  const deleteModal = document.getElementById('modal-delete-confirm');
-  if (deleteModal) {
-    deleteModal.addEventListener('show.bs.modal', (e) => {
-      const btn = (e as Event & { relatedTarget: HTMLElement | null }).relatedTarget;
-      if (!btn?.classList.contains('btn-delete-menu')) return;
-      const form = document.getElementById('form-delete-confirm');
-      const msg = document.getElementById('modal-delete-message');
-      if (form && msg) {
-        (form as HTMLFormElement).action = btn.getAttribute('data-url') ?? '';
-        const tokenInput = form.querySelector<HTMLInputElement>('input[name="_token"]');
-        if (tokenInput) tokenInput.value = btn.getAttribute('data-token') ?? '';
-        msg.textContent = deleteMenuConfirmTpl.replace(
-          '%name%',
-          btn.getAttribute('data-name') ?? ''
-        );
-      }
-    });
-  }
+    },
+    true,
+  );
 }
 
 /** App routes map: route name -> { label, params }. Used for route selector and params hint. */
@@ -814,95 +671,6 @@ function attachItemFormToggles(
   observer.observe(container, { childList: true, subtree: true });
 }
 
-function initItemFormPage(config: NowoDashboardMenuConfig): void {
-  const appRoutes = (config.appRoutes ?? {}) as AppRoutesMap;
-  attachItemFormToggles(document.body, appRoutes);
-}
-
-/** Returns true when the configured CSS framework uses Bootstrap's modal API. */
-function isBootstrapFramework(fw: string | undefined): boolean {
-  const f = (fw ?? 'bootstrap5').trim().toLowerCase();
-  return f === 'bootstrap' || f === 'bootstrap5' || f === 'bootstrap4' || f === 'tabler';
-}
-
-/**
- * Open a modal identified by {@code targetId} without Bootstrap.
- * Adds `.nowo-ui-modal-open` to the element and `nowo-modal-open` to `<body>`.
- */
-function nowoOpenModal(targetId: string): void {
-  const el = document.getElementById(targetId);
-  if (!el) return;
-  el.classList.add('nowo-ui-modal-open');
-  document.body.classList.add('nowo-modal-open');
-  el.removeAttribute('hidden');
-  el.setAttribute('aria-hidden', 'false');
-}
-
-/**
- * Close a modal element identified by {@code targetId} without Bootstrap.
- * Removes `.nowo-ui-modal-open` and `nowo-modal-open` from `<body>` when no other modal is open.
- */
-function nowoCloseModal(targetId: string): void {
-  const el = document.getElementById(targetId);
-  if (!el) return;
-  el.classList.remove('nowo-ui-modal-open');
-  el.setAttribute('aria-hidden', 'true');
-  const anyOpen = document.querySelector('.nowo-ui-modal-open');
-  if (!anyOpen) document.body.classList.remove('nowo-modal-open');
-}
-
-/**
- * Initialize generic (non-Bootstrap) modal open/close handlers.
- * Opener elements carry {@code data-nowo-modal-open} (boolean attribute, may be empty) and
- * {@code data-nowo-modal-target="<id>"} (without leading #). If {@code data-nowo-modal-open}
- * is non-empty it is used as the id directly (legacy); otherwise {@code data-nowo-modal-target}
- * (leading # stripped) is used.
- *
- * After opening, dispatches a synthetic {@code show.bs.modal} Event with {@code relatedTarget}
- * set to the opener (so existing show.bs.modal listeners load forms without Bootstrap), then also
- * dispatches {@code nowo:modal:show} CustomEvent for forward-compat listeners.
- *
- * Buttons with {@code data-nowo-modal-close} or inside {@code [data-nowo-modal-id]} close the modal.
- */
-function initNowoModals(): void {
-  document.addEventListener('click', (e) => {
-    const target = e.target as HTMLElement;
-    const opener = target.closest<HTMLElement>('[data-nowo-modal-open]');
-    if (opener) {
-      const raw = opener.getAttribute('data-nowo-modal-open') ?? '';
-      const targetAttr = opener.getAttribute('data-nowo-modal-target') ?? '';
-      const id = raw || targetAttr.replace(/^#/, '');
-      if (id) {
-        nowoOpenModal(id);
-        const modal = document.getElementById(id);
-        if (modal) {
-          // Synthetic show.bs.modal so existing listeners (initShowPage/initIndexPage) load
-          // forms via fetch without Bootstrap being present on the page.
-          const bsEvent = new Event('show.bs.modal', { bubbles: true });
-          Object.defineProperty(bsEvent, 'relatedTarget', { value: opener, configurable: true });
-          modal.dispatchEvent(bsEvent);
-          modal.dispatchEvent(new CustomEvent('nowo:modal:show', { detail: { relatedTarget: opener }, bubbles: true }));
-        }
-      }
-      return;
-    }
-    const closer = target.closest<HTMLElement>('[data-nowo-modal-close]');
-    if (closer) {
-      const modal = closer.closest<HTMLElement>('[id].nowo-ui-modal-open, [data-nowo-modal-id]');
-      const id = modal?.id ?? closer.getAttribute('data-nowo-modal-close') ?? '';
-      if (id) nowoCloseModal(id);
-    }
-  });
-
-  // Close on backdrop click (click on the modal root, not its content).
-  document.addEventListener('click', (e) => {
-    const target = e.target as HTMLElement;
-    if (target.matches('.nowo-ui-modal-open[id]')) {
-      nowoCloseModal(target.id);
-    }
-  });
-}
-
 function run(): void {
   const config = readDashboardMenuConfig<NowoDashboardMenuConfig>(
     typeof document !== 'undefined' ? document : undefined,
@@ -925,17 +693,20 @@ function run(): void {
   log.setDebug(!!config.debug);
   if (config.debug) window.dashboardMenuDebugLive = true;
   else window.dashboardMenuDebugLive = false;
-  if (!isBootstrapFramework(config.cssFramework)) {
-    initNowoModals();
+  configI18n = config.i18n ?? {};
+  if (config.iconSelectorScriptUrl && typeof window !== 'undefined') {
+    window.dashboardMenuIconSelectorScriptUrl ??= config.iconSelectorScriptUrl;
   }
+  initDialogOpeners();
   if (config.baseUrl != null || config.menuId != null) {
-    initShowPage(config);
+    initShowPage();
   }
-  if (config.dashboardBase != null) {
-    initIndexPage(config);
-  }
-  if (config.appRoutes != null && Object.keys(config.appRoutes).length > 0) {
-    initItemFormPage(config);
+  if (config.itemFormPage) {
+    const container = document.getElementById('modal-item-form-container');
+    if (container) wireFormBody(container, '', false);
+  } else if (config.appRoutes != null && Object.keys(config.appRoutes).length > 0) {
+    // 1.x full item page (appRoutes in the config island).
+    attachItemFormToggles(document.body, config.appRoutes as AppRoutesMap);
   }
 }
 

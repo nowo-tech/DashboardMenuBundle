@@ -37,6 +37,8 @@ use Symfony\Component\DependencyInjection\Reference;
 use Throwable;
 
 use function array_key_exists;
+use function array_reverse;
+use function in_array;
 use function is_array;
 use function is_string;
 
@@ -55,8 +57,8 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
      * Prepend twig_component.defaults so the bundle's Live Component has a matching namespace
      * (avoids "Could not generate a component name ... no matching namespace found").
      * Also registers the named assets package for serving bundle public files via asset(),
-     * and aligns UiKit defaults from dashboard css_framework / icon_set when the host has
-     * not set nowo_ui_kit explicitly (REQ-UI-001-kit).
+     * seeds UiKit from the deprecated dashboard css_framework / icon_set when the host set them here only, and
+     * bridges the deprecated dashboard.ui chrome hooks into nowo_ui_kit.theme.bundles (REQ-UI-003).
      */
     public function prepend(ContainerBuilder $container): void
     {
@@ -85,9 +87,9 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
     }
 
     /**
-     * When FormKit is installed, register the {@code dashboard_menu} profile (labels domain +
-     * Bootstrap/UiKit-friendly field classes). Forms select it via {@code #[FormKitConfig]}.
-     * Does not change the host {@code default_profile}.
+     * When FormKit is installed, register the {@code dashboard_menu} profile (labels domain + field classes for the
+     * resolved CSS stack: UiKit's {@code css_framework}, else the deprecated {@code dashboard.css_framework}). Forms
+     * select it via {@code #[FormKitConfig]}. Does not change the host {@code default_profile}.
      */
     private function prependFormKitDefaults(ContainerBuilder $container): void
     {
@@ -108,36 +110,35 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
             }
         }
 
+        $fw   = $this->resolvedCssFramework($container);
         $seed = [];
 
         if (!$hostHasCssFramework) {
-            $config = $this->processConfiguration(new Configuration(), $container->getExtensionConfig(Configuration::ALIAS));
-            /** @var array<string, mixed> $dashboard */
-            $dashboard = $config['dashboard'] ?? [];
-            $raw       = (string) ($dashboard['css_framework'] ?? CssFramework::Bootstrap5->value);
-            $fw        = CssFramework::from($raw)->normalized();
             // FormKit accepts only bootstrap|tailwind|foundation|none (not bootstrap5 / tabler / …).
             $seed['css_framework'] = match ($fw) {
-                CssFramework::Tailwind   => 'tailwind',
-                CssFramework::Foundation => 'foundation',
-                CssFramework::None       => 'none',
-                default                  => 'bootstrap',
+                CssFramework::Tailwind                   => 'tailwind',
+                CssFramework::Foundation                 => 'foundation',
+                CssFramework::None, CssFramework::Custom => 'none',
+                default                                  => 'bootstrap',
             };
         }
 
         if (!$hostHasDashboardProfile) {
+            $bootstrap        = in_array($fw, [CssFramework::Bootstrap5, CssFramework::Bootstrap4, CssFramework::Tabler], true);
             $seed['profiles'] = [
                 'dashboard_menu' => [
                     'alias'              => 'dashboard_menu',
                     'translation_domain' => 'NowoDashboardMenuBundle',
-                    'defaults'           => [
-                        'attr'     => ['class' => 'nowo-ui-input form-control'],
-                        'row_attr' => ['class' => 'mb-1'],
+                    // Fields without a {form}.{field}.help / .placeholder translation keep no convention key.
+                    'convention_requires_translation' => true,
+                    'defaults'                        => [
+                        'attr'     => ['class' => $bootstrap ? 'nowo-ui-input form-control' : 'nowo-ui-input'],
+                        'row_attr' => ['class' => $bootstrap ? 'mb-2' : ''],
                     ],
-                    'field_types' => [
+                    'field_types' => $bootstrap ? [
                         'checkbox' => [
                             'attr'     => ['class' => 'form-check-input'],
-                            'row_attr' => ['class' => 'form-check mb-1'],
+                            'row_attr' => ['class' => 'form-check mb-2'],
                         ],
                         'choice' => [
                             'attr' => ['class' => 'form-select'],
@@ -151,6 +152,11 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
                         'textarea' => [
                             'attr' => ['class' => 'nowo-ui-input form-control'],
                         ],
+                    ] : [
+                        'checkbox' => [
+                            'attr'     => ['class' => ''],
+                            'row_attr' => ['class' => ''],
+                        ],
                     ],
                 ],
             ];
@@ -162,9 +168,11 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
     }
 
     /**
-     * When UiKit is installed, seed nowo_ui_kit.css_framework / icon_set from dashboard
-     * config so kit macros (ui.btn, …) resolve the same stack without editing every call.
-     * Does not override keys the host already set under nowo_ui_kit.
+     * When UiKit is installed:
+     * - seed nowo_ui_kit.css_framework / icon_set from the deprecated dashboard.css_framework / icon_set when the
+     *   host set them here and not under nowo_ui_kit (REQ-UI-003: the CSS stack is inherited from UiKit);
+     * - bridge the deprecated dashboard.ui chrome hooks into nowo_ui_kit.theme.bundles.NowoDashboardMenuBundle
+     *   (prepended, so the host's own nowo_ui_kit config still wins).
      */
     private function prependUiKitDefaults(ContainerBuilder $container): void
     {
@@ -184,26 +192,62 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
             }
         }
 
-        if ($hostHasCssFramework && $hostHasIconSet) {
-            return;
+        $raw      = $this->rawDashboardConfig($container);
+        $config   = $this->processConfiguration(new Configuration(), $container->getExtensionConfig(Configuration::ALIAS));
+        $defaults = [];
+
+        if (!$hostHasCssFramework && is_string($raw['css_framework'] ?? null)) {
+            $defaults['css_framework'] = CssFramework::from($raw['css_framework'])->normalized()->value;
+        }
+        if (!$hostHasIconSet && is_string($raw['icon_set'] ?? null)) {
+            $defaults['icon_set'] = IconSet::from($raw['icon_set'])->value;
         }
 
-        $config = $this->processConfiguration(new Configuration(), $container->getExtensionConfig(Configuration::ALIAS));
-        /** @var array<string, mixed> $dashboard */
-        $dashboard = $config['dashboard'] ?? [];
-        $defaults  = [];
-
-        if (!$hostHasCssFramework) {
-            $raw                       = (string) ($dashboard['css_framework'] ?? CssFramework::Bootstrap5->value);
-            $defaults['css_framework'] = CssFramework::from($raw)->normalized()->value;
-        }
-        if (!$hostHasIconSet) {
-            $defaults['icon_set'] = IconSet::from(
-                (string) ($dashboard['icon_set'] ?? IconSet::BootstrapIcons->value),
-            )->value;
+        /** @var array<string, mixed> $ui */
+        $ui    = is_array($config['dashboard']['ui'] ?? null) ? $config['dashboard']['ui'] : [];
+        $theme = LegacyThemeBridge::themeException($ui);
+        if ($theme !== []) {
+            $defaults['theme'] = ['bundles' => [LegacyThemeBridge::BUNDLE => $theme]];
         }
 
-        $container->prependExtensionConfig('nowo_ui_kit', $defaults);
+        if ($defaults !== []) {
+            $container->prependExtensionConfig('nowo_ui_kit', $defaults);
+        }
+    }
+
+    /**
+     * CSS stack the dashboard forms are themed for: nowo_ui_kit.css_framework (host config), else the deprecated
+     * dashboard.css_framework, else bootstrap5 (UiKit's default).
+     */
+    private function resolvedCssFramework(ContainerBuilder $container): CssFramework
+    {
+        foreach (array_reverse($container->getExtensionConfig('nowo_ui_kit')) as $cfg) {
+            if (is_string($cfg['css_framework'] ?? null)) {
+                return CssFramework::tryFrom($cfg['css_framework'])?->normalized() ?? CssFramework::Bootstrap5;
+            }
+        }
+        $raw = $this->rawDashboardConfig($container);
+
+        return is_string($raw['css_framework'] ?? null)
+            ? (CssFramework::tryFrom($raw['css_framework'])?->normalized() ?? CssFramework::Bootstrap5)
+            : CssFramework::Bootstrap5;
+    }
+
+    /**
+     * The dashboard node exactly as the host wrote it (last config wins per key), to tell explicit values from defaults.
+     *
+     * @return array<string, mixed>
+     */
+    private function rawDashboardConfig(ContainerBuilder $container): array
+    {
+        $raw = [];
+        foreach ($container->getExtensionConfig(Configuration::ALIAS) as $cfg) {
+            if (is_array($cfg['dashboard'] ?? null)) {
+                $raw = $cfg['dashboard'] + $raw;
+            }
+        }
+
+        return $raw;
     }
 
     public function load(array $configs, ContainerBuilder $container): void
@@ -263,6 +307,7 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
             'menu_link_resolver_choices' => $config['menu_link_resolver_choices'] ?? [],
             'api'                        => $config['api'] ?? [],
             'dashboard'                  => $config['dashboard'] ?? [],
+            'web_ui'                     => $config['web_ui'] ?? [],
             'security'                   => $config['security'] ?? [],
         ];
 
@@ -294,9 +339,15 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
         ]);
         $container->setParameter(Configuration::ALIAS . '.api.enabled', $config['api']['enabled']);
         $container->setParameter(Configuration::ALIAS . '.api.path_prefix', $config['api']['path_prefix']);
-        $container->setParameter(Configuration::ALIAS . '.dashboard.enabled', $config['dashboard']['enabled'] ?? false);
-        $container->setParameter(Configuration::ALIAS . '.dashboard.layout_template', $config['dashboard']['layout_template'] ?? '@NowoDashboardMenuBundle/dashboard/layout.html.twig');
-        $container->setParameter(Configuration::ALIAS . '.dashboard.path_prefix', $config['dashboard']['path_prefix'] ?? '/admin/menus');
+        $webUi = $config['web_ui'] ?? [];
+        $container->setParameter(Configuration::ALIAS . '.web_ui.enabled', (bool) ($webUi['enabled'] ?? false));
+        $container->setParameter(Configuration::ALIAS . '.web_ui.path_prefix', $webUi['path_prefix'] ?? '/admin/menus');
+        $container->setParameter(Configuration::ALIAS . '.web_ui.layout_template', $webUi['layout_template'] ?? null);
+        $container->setParameter(Configuration::ALIAS . '.web_ui.templates', $webUi['templates'] ?? []);
+        // 1.x parameter names (kept for hosts / compiler passes reading them).
+        $container->setParameter(Configuration::ALIAS . '.dashboard.enabled', (bool) ($webUi['enabled'] ?? false));
+        $container->setParameter(Configuration::ALIAS . '.dashboard.layout_template', $webUi['layout_template'] ?? null);
+        $container->setParameter(Configuration::ALIAS . '.dashboard.path_prefix', $webUi['path_prefix'] ?? '/admin/menus');
         $cssFrameworkRaw = (string) ($config['dashboard']['css_framework'] ?? CssFramework::Bootstrap5->value);
         $cssFramework    = CssFramework::from($cssFrameworkRaw)->normalized()->value;
         $container->setParameter(Configuration::ALIAS . '.dashboard.css_framework', $cssFramework);

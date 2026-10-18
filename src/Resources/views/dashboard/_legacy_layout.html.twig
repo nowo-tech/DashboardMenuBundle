@@ -1,0 +1,35 @@
+{#
+  BC bridge (deprecated since 2.7, removed in 3.0): wraps a 1.x layout (dashboard.layout_template, or a host
+  override of the removed dashboard/layout.html.twig) that renders the 1.x block "nowo_dashboard_menu_content"
+  (and optionally dashboard_title, stylesheets, javascripts) instead of the UiKit canonical blocks. DashboardWebUi
+  selects it automatically. Variable: nowo_dashboard_menu_legacy_layout.
+#}
+{% extends nowo_dashboard_menu_legacy_layout %}
+{% set _dm_nonce = app is defined and app and app.request ? app.request.attributes.get('csp_nonce')|default('') : '' %}
+
+{% block dashboard_title %}{% block nowo_ui_document_title %}{% endblock %}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/nowo-ui.css', 'nowo_ui_kit') }}">
+    {% block nowo_ui_head %}{% endblock %}
+    {% block nowo_ui_styles %}{% endblock %}
+{% endblock %}
+
+{% block nowo_dashboard_menu_content %}
+    {% block nowo_ui_navigation %}{% endblock %}
+    <div class="{{ nowo_ui_class('content', nowo_ui_bundle|default(null)) }}"{% if nowo_ui_bundle|default(null) %} data-nowo-ui-bundle="{{ nowo_ui_bundle }}"{% endif %}>
+        {% block nowo_ui_page_header %}{% endblock %}
+        {% block nowo_ui_flashes %}{{ include(nowo_ui_partial('flashes', nowo_ui_bundle|default(null)), {bundle: nowo_ui_bundle|default(null)}) }}{% endblock %}
+        {% block nowo_ui_content %}{% endblock %}
+    </div>
+    {% block nowo_ui_modals %}{% endblock %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {% for _script in ['nowo-ui-confirm', 'nowo-ui-dialog'] %}
+        <script src="{{ asset('js/' ~ _script ~ '.js', 'nowo_ui_kit') }}" defer{% if _dm_nonce %} nonce="{{ _dm_nonce }}"{% endif %}></script>
+    {% endfor %}
+    {% block nowo_ui_scripts %}{% endblock %}
+{% endblock %}

@@ -109,7 +109,6 @@ final class MenuItemConfigType extends AbstractType
                     'placeholder'               => $t('form.menu_item_type.link_resolver.placeholder'),
                     'choices'                   => $resolverChoices,
                     'choice_translation_domain' => false,
-                    'row_attr'                  => ['class' => 'mb-1'],
                     'help'                      => 'form.menu_item_type.link_resolver.help',
                     'autocomplete'              => true,
                     'tom_select_options'        => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
@@ -119,11 +118,9 @@ final class MenuItemConfigType extends AbstractType
                     'required' => false,
                     'label'    => 'form.menu_item_type.link_resolver.label',
                     'attr'     => [
-                        'class'       => 'nowo-ui-input form-control font-monospace',
                         'placeholder' => $t('form.menu_item_type.link_resolver.service_id_placeholder'),
                     ],
-                    'row_attr' => ['class' => 'mb-1'],
-                    'help'     => 'form.menu_item_type.link_resolver.help_free_text',
+                    'help' => 'form.menu_item_type.link_resolver.help_free_text',
                 ]);
             }
         }
@@ -135,7 +132,6 @@ final class MenuItemConfigType extends AbstractType
                     'form.menu_item_type.link_type.external_url' => MenuItem::LINK_TYPE_EXTERNAL,
                 ],
                 'label'              => 'form.menu_item_type.link_type.label',
-                'row_attr'           => ['class' => 'mb-1'],
                 'autocomplete'       => true,
                 'tom_select_options' => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
             ]);
@@ -144,7 +140,6 @@ final class MenuItemConfigType extends AbstractType
                 'label'       => 'form.menu_item_type.route_name.label',
                 'placeholder' => $t('form.menu_item_type.route_name.placeholder'),
                 'choices'     => $routeChoices,
-                'row_attr'    => ['class' => 'mb-1'],
                 'choice_attr' => static function ($choice, $key, $value) use ($appRoutes): array {
                     $params = $appRoutes[$value]['params'] ?? [];
 
@@ -158,7 +153,6 @@ final class MenuItemConfigType extends AbstractType
                 'constraints' => [new Url(protocols: ExternalUrlPolicy::FORM_PROTOCOLS, requireTld: false)],
                 'label'       => 'form.menu_item_type.external_url.label',
                 'attr'        => ['placeholder' => $t('form.menu_item_type.external_url.placeholder')],
-                'row_attr'    => ['class' => 'mb-1'],
             ]);
         }
 
@@ -166,18 +160,15 @@ final class MenuItemConfigType extends AbstractType
             $this->addWithDefaults($builder, 'routeParams', TextType::class, [
                 'required' => false,
                 'label'    => 'form.menu_item_type.route_params.label',
-                'attr'     => ['class' => 'nowo-ui-input form-control font-monospace', 'placeholder' => $t('form.menu_item_type.route_params.placeholder')],
-                'row_attr' => ['class' => 'mb-1'],
+                'attr'     => ['placeholder' => $t('form.menu_item_type.route_params.placeholder')],
             ]);
             $builder->get('routeParams')->addModelTransformer(new JsonToArrayTransformer());
         }
 
         if ($showTargetBlank) {
             $this->addWithDefaults($builder, 'targetBlank', CheckboxType::class, [
-                'required'   => false,
-                'label'      => 'form.menu_item_type.target_blank.label',
-                'row_attr'   => ['class' => 'ms-3 mb-1 form-check'],
-                'label_attr' => ['class' => 'form-check-label'],
+                'required' => false,
+                'label'    => 'form.menu_item_type.target_blank.label',
             ]);
         }
 
@@ -185,7 +176,6 @@ final class MenuItemConfigType extends AbstractType
         $permissionKeyOptions = [
             'required'                  => false,
             'label'                     => 'form.menu_item_type.permission_keys.label',
-            'row_attr'                  => ['class' => 'mb-1'],
             'choices'                   => $choices,
             'placeholder'               => $t('form.menu_item_type.permission_keys.placeholder'),
             'choice_translation_domain' => false,
@@ -199,11 +189,9 @@ final class MenuItemConfigType extends AbstractType
         ];
         $this->addWithDefaults($builder, 'permissionKeys', ChoiceType::class, $permissionKeyOptions);
         $this->addWithDefaults($builder, 'isUnanimous', CheckboxType::class, [
-            'required'   => false,
-            'label'      => 'form.menu_item_type.is_unanimous.label',
-            'help'       => 'form.menu_item_type.is_unanimous.help',
-            'row_attr'   => ['class' => 'ms-3 mb-1 form-check'],
-            'label_attr' => ['class' => 'form-check-label'],
+            'required' => false,
+            'label'    => 'form.menu_item_type.is_unanimous.label',
+            'help'     => 'form.menu_item_type.is_unanimous.help',
         ]);
 
         $menu = $options['menu'];
@@ -233,7 +221,6 @@ final class MenuItemConfigType extends AbstractType
                 'placeholder'   => $t('form.menu_item_type.parent.placeholder'),
                 'required'      => false,
                 'label'         => 'form.menu_item_type.parent.label',
-                'row_attr'      => ['class' => 'mb-1'],
                 // No UX Autocomplete here: remote Tom Select queries rebuild the form without the
                 // editing MenuItem, so excluded ids (self + subtree) are not applied and the item
                 // can appear as its own parent. Plain EntityType uses query_builder choices only.
@@ -250,7 +237,6 @@ final class MenuItemConfigType extends AbstractType
                 'form.menu_item_type.section_collapsible.no'  => false,
             ],
             'choice_translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
-            'row_attr'                  => ['class' => 'mb-1'],
         ]);
     }
 

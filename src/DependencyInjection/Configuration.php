@@ -7,6 +7,7 @@ namespace Nowo\DashboardMenuBundle\DependencyInjection;
 use Nowo\DashboardMenuBundle\Enum\CssFramework;
 use Nowo\DashboardMenuBundle\Enum\IconSet;
 use Nowo\DashboardMenuBundle\Service\DashboardUiConfig;
+use Nowo\DashboardMenuBundle\View\DashboardWebUi;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -32,6 +33,10 @@ final class Configuration implements ConfigurationInterface
 {
     public const ALIAS = 'nowo_dashboard_menu';
 
+    private const DEPRECATION_PACKAGE = 'nowo-tech/dashboard-menu-bundle';
+
+    private const DEPRECATION_VERSION = '2.7';
+
     public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder(self::ALIAS);
@@ -54,6 +59,32 @@ final class Configuration implements ConfigurationInterface
                     }
 
                     $v['security'] = $security;
+
+                    // REQ-UI-003 canonical keys: dashboard.enabled / path_prefix / layout_template → web_ui.* (the
+                    // canonical key wins); dashboard.ui.templates → web_ui.templates (only values a host changed).
+                    $webUi = is_array($v['web_ui'] ?? null) ? $v['web_ui'] : [];
+                    foreach (['enabled', 'path_prefix', 'layout_template'] as $key) {
+                        if (array_key_exists($key, $dashboard) && !array_key_exists($key, $webUi)) {
+                            $webUi[$key] = $dashboard[$key];
+                        }
+                    }
+                    // The 1.x default layout (CSS frameworks from CDNs) is gone: that value now means the UiKit layout.
+                    if (($webUi['layout_template'] ?? null) === DashboardWebUi::LEGACY_LAYOUT) {
+                        $webUi['layout_template'] = null;
+                    }
+                    $legacyTemplates = is_array($dashboard['ui']['templates'] ?? null) ? $dashboard['ui']['templates'] : [];
+                    foreach ($legacyTemplates as $page => $template) {
+                        if (
+                            is_string($page) && is_string($template) && $template !== ''
+                            && isset(DashboardWebUi::TEMPLATES[$page]) && $template !== DashboardWebUi::TEMPLATES[$page]
+                            && !isset($webUi['templates'][$page])
+                        ) {
+                            $webUi['templates'][$page] = $template;
+                        }
+                    }
+                    if ($webUi !== []) {
+                        $v['web_ui'] = $webUi;
+                    }
 
                     return $v;
                 })
@@ -188,15 +219,17 @@ final class Configuration implements ConfigurationInterface
                     ->addDefaultsIfNotSet()
                     ->children()
                         ->booleanNode('enabled')
-                            ->defaultValue(false)
+                            ->info('Deprecated alias of web_ui.enabled.')
+                            ->setDeprecated(self::DEPRECATION_PACKAGE, self::DEPRECATION_VERSION, 'The "%path%.%node%" option is deprecated, use "nowo_dashboard_menu.web_ui.enabled" instead.')
                         ->end()
                         ->scalarNode('layout_template')
-                            ->info('Twig template that dashboard views extend (e.g. @App/base.html.twig). Must define block "nowo_dashboard_menu_content". If not set or template does not exist, the bundle layout is used.')
-                            ->defaultValue('@NowoDashboardMenuBundle/dashboard/layout.html.twig')
+                            ->info('Deprecated alias of web_ui.layout_template (the 1.x default layout is removed: null = UiKit layout).')
+                            ->setDeprecated(self::DEPRECATION_PACKAGE, self::DEPRECATION_VERSION, 'The "%path%.%node%" option is deprecated, use "nowo_dashboard_menu.web_ui.layout_template" (null = nowo_ui_kit.layouts.admin) instead.')
                         ->end()
                         ->scalarNode('css_framework')
                             ->defaultValue(CssFramework::Bootstrap5->value)
-                            ->info('CSS stack for dashboard markup (REQ-UI-001): see Nowo\DashboardMenuBundle\Enum\CssFramework.')
+                            ->setDeprecated(self::DEPRECATION_PACKAGE, self::DEPRECATION_VERSION, 'The "%path%.%node%" option is deprecated, set "nowo_ui_kit.css_framework" instead.')
+                            ->info('Deprecated: the dashboard pages follow nowo_ui_kit.css_framework (seeded from this value when set here and not in nowo_ui_kit).')
                             ->validate()
                                 ->ifNotInArray(CssFramework::values())
                                 ->thenInvalid('Invalid css_framework "%s".')
@@ -204,16 +237,16 @@ final class Configuration implements ConfigurationInterface
                         ->end()
                         ->scalarNode('icon_set')
                             ->defaultValue(IconSet::BootstrapIcons->value)
-                            ->info('Icon set for dashboard row actions (REQ-UI-001): see Nowo\DashboardMenuBundle\Enum\IconSet.')
+                            ->setDeprecated(self::DEPRECATION_PACKAGE, self::DEPRECATION_VERSION, 'The "%path%.%node%" option is deprecated, set "nowo_ui_kit.icon_set" instead.')
+                            ->info('Deprecated: row action icons follow nowo_ui_kit.icon_set (seeded from this value when set here and not in nowo_ui_kit).')
                             ->validate()
                                 ->ifNotInArray(IconSet::values())
                                 ->thenInvalid('Invalid icon_set "%s".')
                             ->end()
                         ->end()
                         ->scalarNode('path_prefix')
-                            ->info('Deprecated: set the dashboard URL prefix in config/routes.yaml when importing routes_dashboard.yaml (e.g. prefix: /admin/menus).')
-                            ->defaultValue('/admin/menus')
-                            ->setDeprecated('nowo-tech/dashboard-menu-bundle', '2.0', 'The option "%path%" is deprecated. Configure the dashboard URL prefix in your app routing (e.g. config/routes.yaml or config/routes_nowo_dashboard_menu.yaml) when importing @NowoDashboardMenuBundle/Resources/config/routes_dashboard.yaml.')
+                            ->info('Deprecated alias of web_ui.path_prefix (the URL prefix itself is set when importing routes_dashboard.yaml).')
+                            ->setDeprecated(self::DEPRECATION_PACKAGE, '2.0', 'The option "%path%" is deprecated. Use "nowo_dashboard_menu.web_ui.path_prefix" and configure the same prefix in your app routing (e.g. config/routes.yaml) when importing @NowoDashboardMenuBundle/Resources/config/routes_dashboard.yaml.')
                         ->end()
                         ->arrayNode('route_name_exclude_patterns')
                             ->info('Regex patterns to exclude route names from the route selector (e.g. "^_" to hide internal routes, "^(web_profiler|_)" for profiler).')
@@ -423,6 +456,34 @@ final class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
+                ->arrayNode('web_ui')
+                    ->info('REQ-UI-003 admin dashboard: pages extend the UiKit scaffolds; theme them once in nowo_ui_kit.theme (per-bundle exception: nowo_ui_kit.theme.bundles.NowoDashboardMenuBundle).')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->booleanNode('enabled')
+                            ->info('Enable the admin dashboard routes (import @NowoDashboardMenuBundle/Resources/config/routes_dashboard.yaml with your prefix).')
+                            ->defaultFalse()
+                        ->end()
+                        ->scalarNode('path_prefix')
+                            ->info('URL prefix the host imports routes_dashboard.yaml with (informational: lock it in security.access_control).')
+                            ->defaultValue('/admin/menus')
+                        ->end()
+                        ->scalarNode('layout_template')
+                            ->info('Layout the dashboard scaffolds extend instead of nowo_ui_kit.layouts.admin (null = UiKit layout). It must render the UiKit canonical blocks (nowo_ui_content…); a 1.x layout that renders "nowo_dashboard_menu_content" is bridged (deprecated).')
+                            ->defaultNull()
+                        ->end()
+                        ->arrayNode('templates')
+                            ->info('Per-page template override (page => template): ' . implode(', ', array_keys(DashboardWebUi::TEMPLATES)) . '. Prefer a thin {% extends \'@!NowoDashboardMenuBundle/…\' %} that overrides a data block.')
+                            ->normalizeKeys(false)
+                            ->useAttributeAsKey('page')
+                            ->scalarPrototype()->cannotBeEmpty()->end()
+                            ->validate()
+                                ->ifTrue(static fn (array $v): bool => array_diff(array_keys($v), array_keys(DashboardWebUi::TEMPLATES)) !== [])
+                                ->thenInvalid('Unknown nowo_dashboard_menu.web_ui.templates page in %s. Allowed: ' . implode(', ', array_keys(DashboardWebUi::TEMPLATES)) . '.')
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
                 ->arrayNode('security')
                     ->info('Dashboard admin access control (REQ-UI-002). Host should also lock dashboard.path_prefix via security.access_control.')
                     ->addDefaultsIfNotSet()
@@ -456,7 +517,8 @@ final class Configuration implements ConfigurationInterface
         /** @var ArrayNodeDefinition $node */
         $node = (new TreeBuilder('ui'))->getRootNode();
         $node
-            ->info('Admin chrome hooks so hosts theme the dashboard with config + blocks instead of forking pages. See docs/USAGE.md "Customising the admin chrome".')
+            ->info('Deprecated (2.7): 1.x admin chrome hooks. Theme the pages once with nowo_ui_kit.theme (classes are bridged into nowo_ui_kit.theme.bundles.NowoDashboardMenuBundle); templates map to web_ui.templates. See docs/UPGRADING.md.')
+            ->setDeprecated(self::DEPRECATION_PACKAGE, self::DEPRECATION_VERSION, 'The "%path%.%node%" option is deprecated: theme the dashboard with "nowo_ui_kit.theme" (classes → nowo_ui_kit.theme.bundles.NowoDashboardMenuBundle.classes, templates → nowo_dashboard_menu.web_ui.templates). See docs/UPGRADING.md.')
             ->addDefaultsIfNotSet()
             ->children()
                 ->booleanNode('include_ui_kit_css')

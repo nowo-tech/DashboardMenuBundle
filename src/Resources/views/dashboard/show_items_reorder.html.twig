@@ -1,102 +1,76 @@
-{% extends '@NowoDashboardMenuBundle/dashboard/base.html.twig' %}
-{% import '@NowoDashboardMenuBundle/dashboard/_sortable_tree_macro.html.twig' as sortable %}
-{% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
-{% import '@NowoDashboardMenuBundle/dashboard/_icons.html.twig' as icons %}
 {#
-  Chrome hooks (2.3.0, docs/USAGE.md "Customising the admin chrome"):
-    blocks  dashboard_page_header, dashboard_header_title, dashboard_header_links, dashboard_header_actions,
-            dashboard_menu_properties, dashboard_empty_state, dashboard_sortable, dashboard_sortable_header
-    config  dashboard.ui.{classes, header_actions_in_layout, header_action_variants, row_action_display, region_attribute}
-    var     nowo_dashboard_menu_header_actions (links + actions HTML, for the layout_template)
-  Keep #nowo-menu-sortable-root, .nowo-menu-sortable-list, #nowo-menu-sortable-form and #nowo-menu-sortable-payload (dashboard.js).
+  Drag reorder of the items tree (REQ-UI-003 unique page: a sortable tree, no scaffold fits). Extends the layout
+  (layout ?? nowo_ui_layout.admin), fills nowo_ui_document_title, nowo_ui_page_header (UiKit page_header partial),
+  nowo_ui_content, nowo_ui_modals and nowo_ui_scripts. Context: header (PageHeader from
+  DashboardPages::reorderHeader()), layout, bundle, menu, items_tree, reorder_form, dialogs.
+  Blocks: nowo_dashboard_menu_sortable (the card), nowo_dashboard_menu_sortable_header (its heading).
+  Keep #nowo-menu-sortable-root, .nowo-menu-sortable-list, #nowo-menu-sortable-form and #nowo-menu-sortable-payload
+  (dashboard.js).
 #}
+{% extends layout ?? nowo_ui_layout.admin %}
+{% set nowo_ui_bundle = bundle|default('NowoDashboardMenuBundle') %}
+{% import '@NowoDashboardMenuBundle/dashboard/_sortable_tree_macro.html.twig' as sortable %}
 
-{# Merged into the single #nowo-dashboard-menu-config JSON island by base.html.twig. #}
-{% set nowo_dashboard_menu_page_config = {
-    baseUrl: path(dashboard_show_route|default(dashboard_routes.show|default('nowo_dashboard_menu_dashboard_show')), { id: menu.id }),
-    menuId: menu.id,
-    debug: app.debug ? true : false
-} %}
-{% set _dm_ui = nowo_dashboard_menu_ui|default({}) %}
-{% set _dm_hv = _dm_ui.header_action_variants ?? {} %}
-{#- Rendered once here so the layout_template can place them (dashboard.ui.header_actions_in_layout). -#}
-{% set nowo_dashboard_menu_header_links %}{{ block('dashboard_header_links') }}{% endset %}
-{% set nowo_dashboard_menu_header_actions_main %}{{ block('dashboard_header_actions') }}{% endset %}
-{% set nowo_dashboard_menu_header_actions %}{{ nowo_dashboard_menu_header_links }}{{ nowo_dashboard_menu_header_actions_main }}{% endset %}
+{% block nowo_ui_document_title %}{{ header.title|nowo_ui_trans }} — {{ header.intro|nowo_ui_trans }}{% endblock %}
 
-{% block dashboard_title %}{{ 'dashboard.menu'|trans({}, 'NowoDashboardMenuBundle') }}: {{ menu.code }} — {{ 'dashboard.sortable_page_heading'|trans({}, 'NowoDashboardMenuBundle') }}{% endblock %}
-
-{% block dashboard_header_links %}
-    <a href="{{ path(dashboard_routes.show|default('nowo_dashboard_menu_dashboard_show'), { id: menu.id }) }}" class="{{ dashboard_menu_ui_class('button_small', ui.btn('secondary', 'sm')) }}">{{ 'dashboard.back_to_items_table'|trans({}, 'NowoDashboardMenuBundle') }}</a>
+{% block nowo_ui_page_header %}
+    {% set _actions %}{% for action in header.actions %}{{ include(nowo_ui_partial('action', nowo_ui_bundle), {action: action, context: 'toolbar', bundle: nowo_ui_bundle}, false) }}{% endfor %}{% endset %}
+    {{ include(nowo_ui_partial('page_header', nowo_ui_bundle), {
+        header: header,
+        actions: header.actions,
+        title: header.title|nowo_ui_trans,
+        intro: header.intro is null ? null : header.intro|nowo_ui_trans,
+        toolbar: _actions|trim,
+        header_actions_rendered: true,
+        region: 'header',
+        bundle: nowo_ui_bundle,
+    }, false) }}
 {% endblock %}
 
-{% block dashboard_header_actions %}
-    <a href="{{ path(dashboard_routes.export_menu|default('nowo_dashboard_menu_dashboard_export_menu'), { id: menu.id }) }}" class="{{ dashboard_menu_ui_class('button_' ~ (_dm_hv.export ?? 'secondary'), ui.btn(_dm_hv.export ?? 'secondary')) }}" target="_blank" rel="noopener noreferrer">{{ 'dashboard.export'|trans({}, 'NowoDashboardMenuBundle') }}</a>
-    <button type="button" class="{{ dashboard_menu_ui_class('button_' ~ (_dm_hv.copy ?? 'secondary'), ui.btn(_dm_hv.copy ?? 'secondary')) }} btn-copy-menu" data-id="{{ menu.id }}" data-copy-url="{{ path(dashboard_routes.menu_copy|default('nowo_dashboard_menu_dashboard_menu_copy'), { id: menu.id }) }}" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-menu-copy')|raw }}>{{ 'dashboard.copy'|trans({}, 'NowoDashboardMenuBundle') }}</button>
-    <button type="button" class="{{ dashboard_menu_ui_class('button_' ~ (_dm_hv.edit_menu ?? 'primary'), ui.btn(_dm_hv.edit_menu ?? 'primary')) }} btn-edit-menu" data-id="{{ menu.id }}" data-section="basic" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-menu-form')|raw }} title="{{ 'dashboard.edit_identity'|trans({}, 'NowoDashboardMenuBundle') }}">{{ 'dashboard.edit_menu'|trans({}, 'NowoDashboardMenuBundle') }}</button>
-    {% if not menu.base %}
-        {% set _label = 'dashboard.edit_config'|trans({}, 'NowoDashboardMenuBundle') %}
-        <button type="button" class="{{ dashboard_menu_ui_class('button_' ~ (_dm_hv.edit_config ?? 'secondary'), ui.btn(_dm_hv.edit_config ?? 'secondary')) }} btn-edit-menu btn-edit-menu-config" data-id="{{ menu.id }}" data-section="config" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-menu-form')|raw }} title="{{ _label }}" aria-label="{{ _label }}">
-            {% include _dm_ui.partials.row_action_inner ?? '@NowoDashboardMenuBundle/dashboard/_row_action_inner.html.twig' with { display: _dm_ui.row_action_display ?? null, icon: 'config', icon_name: 'config', label: _label } only %}
-        </button>
-    {% endif %}
-    <button type="button" class="{{ dashboard_menu_ui_class('button_' ~ (_dm_hv.add_item ?? 'primary'), ui.btn(_dm_hv.add_item ?? 'primary')) }} btn-add-item" data-id="{{ menu.id }}" data-parent="" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-item-form')|raw }}>{{ 'dashboard.add_item'|trans({}, 'NowoDashboardMenuBundle') }}</button>
-{% endblock %}
-
-{% block body %}
-    {% block dashboard_page_header %}
-        {% if not (_dm_ui.header_actions_in_layout ?? false) %}
-            <div class="{{ dashboard_menu_ui_class('page_header', 'd-flex justify-content-between align-items-center flex-wrap gap-2 mb-2') }}">
-                <div class="d-flex flex-wrap align-items-center gap-2">
-                    {% block dashboard_header_title %}
-                        <a href="{{ path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index')) }}" class="{{ dashboard_menu_ui_class('button_link', ui.btn('link')) }}">{{ 'dashboard.menus_back'|trans({}, 'NowoDashboardMenuBundle') }}</a>
-                        <h1 class="h3 d-inline">{% include '@NowoDashboardMenuBundle/dashboard/_dashboard_item_icon.html.twig' with { item: menu } only %}{{ menu.code }}{% if menu.name %} <span class="{{ dashboard_menu_ui_class('muted', ui.muted()) }}">({{ menu.name }})</span>{% endif %}</h1>
-                    {% endblock %}
-                    {{ nowo_dashboard_menu_header_links }}
-                </div>
-                <div class="{{ ui.row_actions() }} flex-wrap justify-content-end">
-                    {{ nowo_dashboard_menu_header_actions_main }}
-                </div>
-            </div>
-        {% endif %}
-    {% endblock %}
-
-    {% block dashboard_menu_properties %}
-        {% include '@NowoDashboardMenuBundle/dashboard/_menu_properties.html.twig' with { with_css_classes: false } %}
-    {% endblock %}
-
-    {% set currentLocale = app.request.locale|default('en') %}
-    {% if items_tree is not defined or items_tree is empty %}
-        {% block dashboard_empty_state %}
-            <p class="{{ dashboard_menu_ui_class('empty', ui.empty()) }}">{{ 'dashboard.no_items'|trans({}, 'NowoDashboardMenuBundle') }} <button type="button" class="{{ dashboard_menu_ui_class('empty_action', ui.btn('link') ~ ' p-0 align-baseline') }} btn-add-item" data-id="{{ menu.id }}" data-parent="" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-item-form')|raw }}>{{ 'dashboard.add_one'|trans({}, 'NowoDashboardMenuBundle') }}</button>.</p>
-        {% endblock %}
-    {% else %}
-        {% block dashboard_sortable %}
-            <div class="{{ dashboard_menu_ui_class('sortable_panel', 'card border mb-3') }}"{% if _dm_ui.region_attribute ?? null %} {{ _dm_ui.region_attribute }}="dashboard-menu-sortable"{% endif %}>
-                <div class="{{ dashboard_menu_ui_class('sortable_header', 'card-header d-flex flex-wrap align-items-center justify-content-between gap-2') }}">
-                    {% block dashboard_sortable_header %}
-                        <span class="fw-semibold">{{ 'dashboard.sortable_title'|trans({}, 'NowoDashboardMenuBundle') }}</span>
-                        <span class="small {{ dashboard_menu_ui_class('muted', ui.muted()) }}">{{ 'dashboard.sortable_help'|trans({}, 'NowoDashboardMenuBundle') }}</span>
-                    {% endblock %}
-                </div>
-                <div class="{{ dashboard_menu_ui_class('sortable_body', 'card-body') }}">
-                    {% set _csp_nonce = app.request is defined and app.request ? app.request.attributes.get('csp_nonce')|default('') : '' %}
-                    <style{% if _csp_nonce %} nonce="{{ _csp_nonce }}"{% endif %}>
-                        .nowo-menu-sortable-nested { /* min-height: 1.5rem; */ }
-                    </style>
-                    <div id="nowo-menu-sortable-root">
-                        <ul class="nowo-menu-sortable-list list-unstyled mb-0" data-parent-id="">
-                            {{ sortable.sortable_items(items_tree, currentLocale) }}
-                        </ul>
+{% block nowo_ui_content %}
+    {% set _b = nowo_ui_bundle %}
+    {% set current_locale = app is defined and app and app.request ? app.request.locale : 'en' %}
+    <div class="nowo-dashboard-menu-reorder" data-testid="dashboard-menu-reorder">
+        {% if items_tree is empty %}
+            <p class="{{ nowo_ui_class('empty', _b) }}" data-nowo-ui-region="empty"{{ nowo_ui_attrs('empty', _b) }}>{{ 'dashboard.no_items'|trans({}, 'NowoDashboardMenuBundle') }}</p>
+        {% else %}
+            {% block nowo_dashboard_menu_sortable %}
+                <section class="{{ nowo_ui_class('card', _b) }}" data-nowo-ui-region="section"{{ nowo_ui_attrs('card', _b) }}>
+                    <header class="{{ nowo_ui_class('card_header', _b) }}">
+                        {% block nowo_dashboard_menu_sortable_header %}
+                            <h2 class="{{ nowo_ui_class('card_title', _b) }}">{{ 'dashboard.sortable_title'|trans({}, 'NowoDashboardMenuBundle') }}</h2>
+                            <p class="{{ nowo_ui_class('card_intro', _b) }}">{{ 'dashboard.sortable_help'|trans({}, 'NowoDashboardMenuBundle') }}</p>
+                        {% endblock %}
+                    </header>
+                    <div class="{{ nowo_ui_class('card_body', _b) }}">
+                        <div id="nowo-menu-sortable-root">
+                            <ul class="nowo-menu-sortable-list" data-parent-id="">
+                                {{ sortable.sortable_items(items_tree, current_locale, _b) }}
+                            </ul>
+                        </div>
+                        {{ form_start(reorder_form, {attr: {id: 'nowo-menu-sortable-form', class: nowo_ui_class('form', _b)}}) }}
+                            {{ form_widget(reorder_form.tree, {attr: {id: 'nowo-menu-sortable-payload'}}) }}
+                            <div class="{{ nowo_ui_class('form_actions', _b) }}">
+                                <button type="submit" class="{{ nowo_ui_class('btn_primary', _b) }}">{{ 'dashboard.sortable_apply'|trans({}, 'NowoDashboardMenuBundle') }}</button>
+                            </div>
+                        {{ form_end(reorder_form) }}
                     </div>
-                    {% if _dm_ui.form_themes|default([]) is not empty %}{% form_theme reorder_form with _dm_ui.form_themes %}{% endif %}
-                    {{ form_start(reorder_form, { attr: { id: 'nowo-menu-sortable-form', class: 'mt-3' } }) }}
-                        {{ form_widget(reorder_form.tree, { attr: { id: 'nowo-menu-sortable-payload' } }) }}
-                        <button type="submit" class="{{ dashboard_menu_ui_class('button_primary', ui.btn('primary')) }}">{{ 'dashboard.sortable_apply'|trans({}, 'NowoDashboardMenuBundle') }}</button>
-                    {{ form_end(reorder_form) }}
-                </div>
-            </div>
-        {% endblock %}
-    {% endif %}
+                </section>
+            {% endblock %}
+        {% endif %}
+    </div>
+{% endblock %}
 
+{% block nowo_ui_styles %}{{ parent() }}{{ include('@NowoDashboardMenuBundle/dashboard/_page_styles.html.twig') }}{% endblock %}
+
+{% block nowo_ui_modals %}
+    {{ parent() }}
+    {{ include('@NowoDashboardMenuBundle/dashboard/_dialogs.html.twig', {dialogs: dialogs|default([]), bundle: nowo_ui_bundle}) }}
+{% endblock %}
+
+{% block nowo_ui_scripts %}
+    {{ parent() }}
+    {{ include('@NowoDashboardMenuBundle/dashboard/_page_scripts.html.twig', {
+        page_config: {baseUrl: path('nowo_dashboard_menu_dashboard_show', {id: menu.id}), menuId: menu.id, debug: app is defined and app ? app.debug : false},
+    }) }}
 {% endblock %}

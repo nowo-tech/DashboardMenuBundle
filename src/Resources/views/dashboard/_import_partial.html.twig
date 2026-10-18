@@ -1,32 +1,9 @@
-{% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
-{#- Chrome: dashboard.ui.classes.{modal_form, modal_content, modal_actions, button_primary, button_secondary, muted}, dashboard.ui.form_themes. Keep data-import-form (dashboard.js). -#}
-{% set _dm_ui = nowo_dashboard_menu_ui|default({}) %}
-{% if _dm_ui.form_themes|default([]) is not empty %}{% form_theme form with _dm_ui.form_themes %}{% endif %}
-<div id="modal-import-container">
-    {% for msg in app.flashes('error') %}
-        <div class="{{ ui.flash('error') }}">{{ msg }}</div>
+{#- Import dialog fragment (GET ?_modal=1). Keep data-import-form (dashboard.js disables a double submit). Variables: form. Override: web_ui.templates.import_partial. -#}
+{% set _b = 'NowoDashboardMenuBundle' %}
+<p class="{{ nowo_ui_class('muted', _b) }}">{{ 'dashboard.import_help'|trans({}, 'NowoDashboardMenuBundle') }}</p>
+{{ form_start(form, {attr: {class: nowo_ui_class('form', _b) ~ ' nowo-dashboard-menu-form import-form', 'data-import-form': '1'}}) }}
+    {% for field in form %}
+        {% if not field.rendered %}{{ form_row(field) }}{% endif %}
     {% endfor %}
-    {% for msg in app.flashes('success') %}
-        <div class="{{ ui.flash('success') }}">{{ msg }}</div>
-    {% endfor %}
-    <p class="{{ dashboard_menu_ui_class('muted', ui.muted()) }} small">{{ 'dashboard.import_help'|trans({}, 'NowoDashboardMenuBundle') }}</p>
-    {{ form_start(form, { attr: { enctype: 'multipart/form-data', class: (dashboard_menu_ui_class('modal_form', '') ~ ' import-form dm-dashboard-form')|trim, 'data-import-form': '1' } }) }}
-        <input type="hidden" name="_modal" value="1">
-        {% if _dm_ui.classes.modal_content is defined %}<div class="{{ _dm_ui.classes.modal_content }}">{% endif %}
-        {{ form_row(form.file, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
-        {{ form_row(form.strategy, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
-        {{ form_rest(form) }}
-        {% if _dm_ui.classes.modal_content is defined %}</div>{% endif %}
-        {% if _dm_ui.classes.modal_actions is defined %}
-        <div class="{{ _dm_ui.classes.modal_actions }}">
-            <button type="button" class="{{ dashboard_menu_ui_class('button_secondary', ui.btn('secondary')) }}" {{ ui.modal_dismiss_attrs()|raw }}>{{ 'dashboard.cancel'|trans({}, 'NowoDashboardMenuBundle') }}</button>
-            <button type="submit" class="{{ dashboard_menu_ui_class('button_primary', ui.btn('primary')) }}">{{ 'dashboard.import'|trans({}, 'NowoDashboardMenuBundle') }}</button>
-        </div>
-        {% else %}
-        <div class="{{ ui.row_actions() }}">
-            <button type="submit" class="{{ dashboard_menu_ui_class('button_primary', ui.btn('primary')) }}">{{ 'dashboard.import'|trans({}, 'NowoDashboardMenuBundle') }}</button>
-            <button type="button" class="{{ dashboard_menu_ui_class('button_secondary', ui.btn('secondary')) }}" {{ ui.modal_dismiss_attrs()|raw }}>{{ 'dashboard.cancel'|trans({}, 'NowoDashboardMenuBundle') }}</button>
-        </div>
-        {% endif %}
-    {{ form_end(form) }}
-</div>
+    {{ include('@NowoDashboardMenuBundle/dashboard/_dialog_form_actions.html.twig', {submit_label: 'dashboard.import'|trans({}, 'NowoDashboardMenuBundle'), bundle: _b}) }}
+{{ form_end(form) }}

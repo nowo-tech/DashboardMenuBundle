@@ -1,62 +1,16 @@
-{% extends '@NowoDashboardMenuBundle/dashboard/base.html.twig' %}
-{% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
+{#
+  New / edit menu (REQ-UI-003): UiKit form scaffold. View model: page (FormPage from DashboardPages::menuFormPage()).
+  Extra context: form, is_edit, section_focus (basic | config | null), menu. Data block: nowo_ui_form_body (the
+  definition / configuration fieldsets of _menu_form_fields.html.twig). The same fields open in a dialog through
+  _menu_form_partial.html.twig (?_modal=1). Override per page: nowo_dashboard_menu.web_ui.templates.menu_form.
+#}
+{% extends '@NowoUiKit/page/form.html.twig' %}
 
-{% block dashboard_title %}{{ (is_edit ? 'dashboard.edit_menu' : 'dashboard.new_menu')|trans({}, 'NowoDashboardMenuBundle') }}{% endblock %}
+{% block nowo_ui_styles %}{{ parent() }}{{ include('@NowoDashboardMenuBundle/dashboard/_page_styles.html.twig') }}{% endblock %}
 
-{% block body %}
-    <p><a href="{{ path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index')) }}" class="{{ ui.btn('link') }}">{{ 'dashboard.menus_back'|trans({}, 'NowoDashboardMenuBundle') }}</a></p>
-
-    {{ form_start(form, { attr: { style: 'max-width: 32rem;' } }) }}
-        <p class="{{ ui.muted() }} small mb-2">
-            <span class="bi bi-pencil-fill me-1" aria-hidden="true"></span>
-            {{ 'form.menu_type.section_definition'|trans({}, 'NowoDashboardMenuBundle') }}
-        </p>
-        {{ form_row(form.definition.code, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
-        {{ form_row(form.definition.base, { row_attr: { class: 'mb-2 form-check' }, label_attr: { class: 'form-check-label' } }) }}
-        {{ form_row(form.definition.name, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
-        {{ form_row(form.definition.context, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
-        {{ form_row(form.definition.icon, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
-
-        {% if form.config is defined %}
-        <hr class="my-3">
-        <p class="{{ ui.muted() }} small mb-2">
-            <span class="bi bi-gear-fill me-1" aria-hidden="true"></span>
-            {{ 'form.menu_type.section_config'|trans({}, 'NowoDashboardMenuBundle') }}
-        </p>
-        {{ form_row(form.config.permissionChecker, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
-        {{ form_row(form.config.depthLimit, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
-        <div class="mb-2">
-            {{ form_row(form.config.collapsible, { row_attr: { class: 'form-check' }, label_attr: { class: 'form-check-label' } }) }}
-        </div>
-        <div class="mb-2">
-            {{ form_row(form.config.collapsibleExpanded, { row_attr: { class: 'form-check' }, label_attr: { class: 'form-check-label' } }) }}
-        </div>
-        <div class="mb-2">
-            {{ form_row(form.config.nestedCollapsible, { row_attr: { class: 'form-check' }, label_attr: { class: 'form-check-label' } }) }}
-        </div>
-        <div class="mb-2">
-            {{ form_row(form.config.nestedCollapsibleSections, { row_attr: { class: 'form-check' }, label_attr: { class: 'form-check-label' } }) }}
-        </div>
-        <hr class="my-3">
-        <p class="{{ ui.muted() }} small mb-2">{{ 'form.menu_type.css_section_heading'|trans({}, 'NowoDashboardMenuBundle') }}</p>
-        {{ form_row(form.config.classMenu, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
-        {{ form_row(form.config.ulId, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
-        {{ form_row(form.config.classItem, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
-        {{ form_row(form.config.classLink, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
-        {{ form_row(form.config.classChildren, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
-        {{ form_row(form.config.classSectionChildren, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
-        {{ form_row(form.config.classSectionChildItem, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
-        {{ form_row(form.config.classSectionChildLink, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
-        {{ form_row(form.config.classSectionLabel, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
-        {{ form_row(form.config.classSection, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
-        {{ form_row(form.config.classDivider, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
-        {{ form_row(form.config.classCurrent, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
-        {{ form_row(form.config.classBranchExpanded, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
-        {{ form_row(form.config.classHasChildren, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
-        {{ form_row(form.config.classExpanded, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
-        {{ form_row(form.config.classCollapsed, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
-        {% endif %}
-        {{ form_rest(form) }}
-        <button type="submit" class="{{ ui.btn('primary') }}">{{ (is_edit ? 'dashboard.update' : 'dashboard.create')|trans({}, 'NowoDashboardMenuBundle') }}</button>
-    {{ form_end(form) }}
+{% block nowo_ui_form_body %}
+    <div class="nowo-dashboard-menu-form">
+        {{ include('@NowoDashboardMenuBundle/dashboard/_menu_form_fields.html.twig', {form: form, section_focus: section_focus|default(null), is_edit: is_edit|default(false), bundle: page.bundle}) }}
+    </div>
+    {{ parent() }}
 {% endblock %}

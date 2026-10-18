@@ -1,0 +1,30 @@
+{#
+  Fields of the menu form (page body and dialog fragment): definition and configuration fieldsets.
+  Variables: form (MenuType view), section_focus (basic | config | null), is_edit, bundle.
+  Keep #menu_definition_section / #menu_config_section (dashboard.js scrolls to them).
+#}
+{% set _section_focus = section_focus|default('') %}
+{% set _show_definition = form.definition is defined and (_section_focus == '' or _section_focus == 'basic') %}
+{% set _show_config = form.config is defined and (_section_focus == 'config' or (_section_focus == '' and is_edit|default(false))) %}
+{% if _section_focus != '' %}
+    <input type="hidden" name="_section" value="{{ _section_focus }}">
+{% endif %}
+{% if _show_definition %}
+    <fieldset id="menu_definition_section" class="nowo-dashboard-menu-fieldset">
+        <legend>{{ 'form.menu_type.section_definition'|trans({}, 'NowoDashboardMenuBundle') }}</legend>
+        {% for field in form.definition %}
+            {{ form_row(field) }}
+        {% endfor %}
+    </fieldset>
+{% endif %}
+{% if _show_config %}
+    <fieldset id="menu_config_section" class="nowo-dashboard-menu-fieldset">
+        <legend>{{ 'form.menu_type.section_config'|trans({}, 'NowoDashboardMenuBundle') }}</legend>
+        {% for field in form.config %}
+            {% if field.vars.name == 'classMenu' %}
+                <h3 class="nowo-dashboard-menu-subheading">{{ 'form.menu_type.css_section_heading'|trans({}, 'NowoDashboardMenuBundle') }}</h3>
+            {% endif %}
+            {{ form_row(field) }}
+        {% endfor %}
+    </fieldset>
+{% endif %}

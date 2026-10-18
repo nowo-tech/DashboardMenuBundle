@@ -71,7 +71,6 @@ final class MenuItemIconType extends AbstractType
                 'form.menu_item_type.type.divider' => MenuItem::ITEM_TYPE_DIVIDER,
             ],
             'label'              => 'form.menu_item_type.type.label',
-            'row_attr'           => ['class' => 'mb-1'],
             'autocomplete'       => true,
             'tom_select_options' => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
         ]);
@@ -82,7 +81,6 @@ final class MenuItemIconType extends AbstractType
                 'empty_data' => '0',
                 'label'      => 'form.menu_item_type.position.label',
                 'attr'       => ['min' => 0],
-                'row_attr'   => ['class' => 'mb-1'],
             ]);
 
             $builder->addEventListener(FormEvents::PRE_SUBMIT, static function (FormEvent $event): void {
@@ -121,7 +119,6 @@ final class MenuItemIconType extends AbstractType
                     'label'              => 'form.menu_item_type.icon.label',
                     'translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
                     'attr'               => ['placeholder' => $t('form.menu_item_type.icon.placeholder')],
-                    'row_attr'           => ['class' => 'mb-1'],
                 ]);
             } else {
                 $this->addWithDefaults($builder, 'icon', TextType::class, [
@@ -131,7 +128,6 @@ final class MenuItemIconType extends AbstractType
                     'attr'               => [
                         'placeholder' => $t('form.menu_item_type.icon.placeholder'),
                     ],
-                    'row_attr' => ['class' => 'mb-1'],
                 ]);
             }
         }

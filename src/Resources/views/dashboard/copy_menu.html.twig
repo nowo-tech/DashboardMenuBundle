@@ -1,18 +1,9 @@
-{% extends '@NowoDashboardMenuBundle/dashboard/base.html.twig' %}
-{% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
+{#
+  Copy a menu with its items (REQ-UI-003): UiKit form scaffold. View model: page (FormPage from
+  DashboardPages::copyFormPage(): help text as the header intro). Extra context: form, menu. The default child loop
+  renders the fields (code, name). Dialog fragment: _copy_menu_partial.html.twig. Override per page:
+  nowo_dashboard_menu.web_ui.templates.copy_menu.
+#}
+{% extends '@NowoUiKit/page/form.html.twig' %}
 
-{% block dashboard_title %}{{ 'dashboard.copy_menu'|trans({}, 'NowoDashboardMenuBundle') }}: {{ menu.code }}{% endblock %}
-
-{% block body %}
-    <p><a href="{{ path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index')) }}" class="{{ ui.btn('link') }}">{{ 'dashboard.menus_back'|trans({}, 'NowoDashboardMenuBundle') }}</a></p>
-
-    <p class="{{ ui.muted() }}">{{ 'dashboard.copy_menu_help'|trans({}, 'NowoDashboardMenuBundle') }}</p>
-
-    {{ form_start(form) }}
-        {{ form_row(form.code, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
-        {{ form_row(form.name, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
-        {{ form_rest(form) }}
-        <button type="submit" class="{{ ui.btn('primary') }}">{{ 'dashboard.copy_menu'|trans({}, 'NowoDashboardMenuBundle') }}</button>
-        <a href="{{ path(dashboard_show_route|default(dashboard_routes.show|default('nowo_dashboard_menu_dashboard_show')), { id: menu.id }) }}" class="{{ ui.btn('secondary') }}">{{ 'dashboard.cancel'|trans({}, 'NowoDashboardMenuBundle') }}</a>
-    {{ form_end(form) }}
-{% endblock %}
+{% block nowo_ui_styles %}{{ parent() }}{{ include('@NowoDashboardMenuBundle/dashboard/_page_styles.html.twig') }}{% endblock %}

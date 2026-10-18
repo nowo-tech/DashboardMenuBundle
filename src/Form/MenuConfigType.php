@@ -82,7 +82,6 @@ final class MenuConfigType extends AbstractType
             'placeholder'               => 'form.menu_type.permission_checker.placeholder',
             'choices'                   => $checkerChoices,
             'choice_translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
-            'row_attr'                  => ['class' => 'mb-1'],
             'autocomplete'              => true,
             'tom_select_options'        => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
             'help'                      => 'form.menu_type.permission_checker.help',
@@ -91,33 +90,24 @@ final class MenuConfigType extends AbstractType
             'required' => false,
             'label'    => 'form.menu_type.depth_limit.label',
             'attr'     => ['min' => 0, 'placeholder' => $t('form.menu_type.depth_limit.placeholder')],
-            'row_attr' => ['class' => 'mb-1'],
             'help'     => 'form.menu_type.depth_limit.help',
         ]);
         $this->addWithDefaults($builder, 'collapsible', CheckboxType::class, [
-            'required'   => false,
-            'label'      => 'form.menu_type.collapsible.label',
-            'row_attr'   => ['class' => 'ms-3 mb-1 form-check'],
-            'label_attr' => ['class' => 'form-check-label'],
+            'required' => false,
+            'label'    => 'form.menu_type.collapsible.label',
         ]);
         $this->addWithDefaults($builder, 'collapsibleExpanded', CheckboxType::class, [
-            'required'   => false,
-            'label'      => 'form.menu_type.collapsible_expanded.label',
-            'row_attr'   => ['class' => 'ms-3 mb-1 form-check'],
-            'label_attr' => ['class' => 'form-check-label'],
+            'required' => false,
+            'label'    => 'form.menu_type.collapsible_expanded.label',
         ]);
         $this->addWithDefaults($builder, 'nestedCollapsible', CheckboxType::class, [
-            'required'   => false,
-            'label'      => 'form.menu_type.nested_collapsible.label',
-            'row_attr'   => ['class' => 'ms-3 mb-1 form-check'],
-            'label_attr' => ['class' => 'form-check-label'],
+            'required' => false,
+            'label'    => 'form.menu_type.nested_collapsible.label',
         ]);
         $this->addWithDefaults($builder, 'nestedCollapsibleSections', CheckboxType::class, [
-            'required'   => false,
-            'label'      => 'form.menu_type.nested_collapsible_sections.label',
-            'row_attr'   => ['class' => 'ms-3 mb-1 form-check'],
-            'label_attr' => ['class' => 'form-check-label'],
-            'help'       => 'form.menu_type.nested_collapsible_sections.help',
+            'required' => false,
+            'label'    => 'form.menu_type.nested_collapsible_sections.label',
+            'help'     => 'form.menu_type.nested_collapsible_sections.help',
         ]);
 
         $this->addCssClassField($builder, 'classMenu', 'menu', 'form.menu_type.class_menu.label', 'form.menu_type.class_menu.placeholder');
@@ -194,7 +184,6 @@ final class MenuConfigType extends AbstractType
                 'placeholder'               => $placeholder,
                 'choices'                   => $choices,
                 'choice_translation_domain' => false,
-                'row_attr'                  => ['class' => 'mb-1'],
                 'autocomplete'              => true,
                 'tom_select_options'        => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
             ];
@@ -208,7 +197,6 @@ final class MenuConfigType extends AbstractType
                 'required' => false,
                 'label'    => $label,
                 'attr'     => ['placeholder' => $placeholderText],
-                'row_attr' => ['class' => 'mb-1'],
             ];
             if ($help !== null) {
                 $textFieldOptions['help'] = $help;
@@ -247,7 +235,6 @@ final class MenuConfigType extends AbstractType
                 'placeholder'               => $placeholder,
                 'choices'                   => $choices,
                 'choice_translation_domain' => false,
-                'row_attr'                  => ['class' => 'mb-1'],
                 'autocomplete'              => true,
                 'tom_select_options'        => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
             ]);
@@ -263,7 +250,6 @@ final class MenuConfigType extends AbstractType
             'required' => false,
             'label'    => 'form.menu_type.ul_id.label',
             'attr'     => ['placeholder' => $placeholderText],
-            'row_attr' => ['class' => 'mb-1'],
         ]);
     }
 

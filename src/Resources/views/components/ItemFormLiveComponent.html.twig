@@ -1,11 +1,15 @@
 {% if nowo_dashboard_ux_autocomplete_available|default(false) %}
 {% form_theme form '@SymfonyUXAutocomplete/autocomplete_form_theme.html.twig' %}
 {% endif %}
-{#- Chrome: dashboard.ui.classes.{modal_form, modal_content, modal_section, modal_actions, button_primary, button_secondary}, dashboard.ui.form_themes. Keep the live#action hooks. -#}
-{% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
-{% set _dm_ui = nowo_dashboard_menu_ui|default({}) %}
-{% if _dm_ui.form_themes|default([]) is not empty %}{% form_theme form with _dm_ui.form_themes %}{% endif %}
-{% set _dm_section = _dm_ui.classes.modal_section ?? null %}
+{#-
+  Live item form (configuration section). Keep the live#action hooks. embedded (2.7): the fields render inside the
+  page/form scaffold <form> (no own form tag / submit button; the scaffold form posts natively to the edit action),
+  every field carries its own data-model binding. Semantic classes + UiKit theme slots only.
+-#}
+{% set _b = 'NowoDashboardMenuBundle' %}
+{% set _muted = nowo_ui_class('muted', _b) %}
+{% set _hidden = 'nowo-dashboard-menu-hidden' %}
+{% set _embedded = embedded|default(false) %}
 {% set _section_focus = sectionFocus|default('') %}
 {% set _show_basic = form.basic is defined and (_section_focus == '' or _section_focus == 'basic' or _section_focus == 'identity') %}
 {% set _show_icon = form.icon is defined and (_section_focus == '' or _section_focus == 'icon' or _section_focus == 'identity') %}
@@ -13,7 +17,7 @@
 <div {{ attributes }}>
     {% if app.debug %}
         <div id="dm-livecomponent-debug"
-             class="d-none"
+             class="{{ _hidden }}"
              data-php-item-id="{{ this.itemId }}"
              data-php-item-type="{{ this.getItemType() }}"
              data-php-link-type="{{ this.getLinkType() }}"
@@ -32,47 +36,39 @@
      # Re-render the LiveComponent only when "itemType" changes.
      # This prevents wiping in-progress translation inputs when you switch fields.
     #}
+    {% if not _embedded %}
     {{ form_start(form, {
         method: 'POST',
         action: this.actionUrl,
         attr: {
-            class: dashboard_menu_ui_class('modal_form', 'form form-vertical'),
+            class: nowo_ui_class('form', _b) ~ ' nowo-dashboard-menu-form',
             'data-model': 'on(change)|*',
             'data-action': 'live#action:prevent',
             'data-live-action-param': 'save',
-        }
+        },
     }) }}
+    {% endif %}
         {% if _section_focus != '' %}
             <input type="hidden" name="_section" value="{{ _section_focus }}">
         {% endif %}
-        {% if _dm_ui.classes.modal_content is defined %}<div class="{{ _dm_ui.classes.modal_content }}">{% endif %}
         {% if _show_basic %}
-        <div id="item_basic_section" class="mb-2">
+        <div id="item_basic_section" class="nowo-dashboard-menu-fieldset">
             {% set formName = form.vars.name %}
-            {% if _dm_section is not null %}
-            <p class="{{ _dm_section }}">{{ 'form.menu_item_type.section_basic'|trans({}, 'NowoDashboardMenuBundle') }}</p>
-            {% else %}
-            <h6 class="text-muted mb-2">
-                <i class="bi bi-pencil" aria-hidden="true"></i>
-                {{ 'form.menu_item_type.section_basic'|trans({}, 'NowoDashboardMenuBundle') }}
-            </h6>
-            {% endif %}
+            <h3 class="nowo-dashboard-menu-subheading">{{ 'form.menu_item_type.section_basic'|trans({}, 'NowoDashboardMenuBundle') }}</h3>
             {% if this.getItemType() == 'divider' %}
-                <p class="form-text text-muted small mb-2">{{ 'form.menu_item_type.divider_label_hint'|trans({}, 'NowoDashboardMenuBundle') }}</p>
+                <p class="{{ _muted }}">{{ 'form.menu_item_type.divider_label_hint'|trans({}, 'NowoDashboardMenuBundle') }}</p>
             {% endif %}
             <div>
-                <div class="row">
-                    {{ form_row(form.basic.label, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.basic.label' } }) }}
+                <div>
+                    {{ form_row(form.basic.label, {attr: {'data-model': 'on(change)|' ~ formName ~ '.basic.label'}}) }}
                 </div>
                 {% if isEdit and locales is not empty %}
-                    <div class="row mb-2">
+                    <div class="nowo-dashboard-menu-locales">
                         {% for locale in locales %}
                             {% set fieldName = 'label_' ~ locale %}
                             {% if attribute(form.basic, fieldName) is defined %}
-                                {% set inputAttr = { 'data-model': 'on(change)|' ~ formName ~ '.basic.' ~ fieldName } %}
-                                <div class="col-md-6">
-                                    {{ form_row(attribute(form.basic, fieldName), { attr: inputAttr }) }}
-                                </div>
+                                {% set inputAttr = {'data-model': 'on(change)|' ~ formName ~ '.basic.' ~ fieldName} %}
+                                {{ form_row(attribute(form.basic, fieldName), {attr: inputAttr}) }}
                             {% endif %}
                         {% endfor %}
                     </div>
@@ -82,143 +78,126 @@
         {% endif %}
 
         {% if _show_icon %}
-        <div id="item_icon_section" class="mb-2">
+        <div id="item_icon_section" class="nowo-dashboard-menu-fieldset">
             {% set formName = form.vars.name %}
-            {% if _dm_section is not null %}
-            <p class="{{ _dm_section }}">{{ 'form.menu_item_type.section_icon'|trans({}, 'NowoDashboardMenuBundle') }}</p>
-            {% else %}
-            <h6 class="text-muted mb-2">
-                <i class="bi bi-image" aria-hidden="true"></i>
-                {{ 'form.menu_item_type.section_icon'|trans({}, 'NowoDashboardMenuBundle') }}
-            </h6>
-            {% endif %}
-            <div class="row">
-                <div class="col-md-6">
-                    {{ form_row(form.icon.itemType, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.icon.itemType' } }) }}
+            <h3 class="nowo-dashboard-menu-subheading">{{ 'form.menu_item_type.section_icon'|trans({}, 'NowoDashboardMenuBundle') }}</h3>
+            <div>
+                <div>
+                    {{ form_row(form.icon.itemType, {attr: {'data-model': 'on(change)|' ~ formName ~ '.icon.itemType'}}) }}
                 </div>
-                {% set positionAttr = { 'data-model': 'on(change)|' ~ formName ~ '.icon.position' } %}
+                {% set positionAttr = {'data-model': 'on(change)|' ~ formName ~ '.icon.position'} %}
                 {% if not isEdit %}
-                    {% set positionAttr = positionAttr|merge({ 'disabled': 'disabled' }) %}
+                    {% set positionAttr = positionAttr|merge({disabled: 'disabled'}) %}
                 {% endif %}
-                <div class="col-md-6 {{ isEdit ? '' : 'd-none' }}">
-                    {{ form_row(form.icon.position, { attr: positionAttr }) }}
+                <div class="{{ isEdit ? '' : _hidden }}">
+                    {{ form_row(form.icon.position, {attr: positionAttr}) }}
                 </div>
             </div>
 
-            {% set iconAttr = { 'data-model': 'on(change)|' ~ formName ~ '.icon.icon' } %}
+            {% set iconAttr = {'data-model': 'on(change)|' ~ formName ~ '.icon.icon'} %}
             {% if not isEdit %}
-                {% set iconAttr = iconAttr|merge({ 'disabled': 'disabled' }) %}
+                {% set iconAttr = iconAttr|merge({disabled: 'disabled'}) %}
             {% endif %}
-            <div class="{{ isEdit ? '' : 'd-none' }}">
-                {{ form_row(form.icon.icon, { attr: iconAttr }) }}
+            <div class="{{ isEdit ? '' : _hidden }}">
+                {{ form_row(form.icon.icon, {attr: iconAttr}) }}
             </div>
         </div>
         {% endif %}
 
         {% if _show_config %}
-        <div id="item_config_section" class="mb-2">
-            {% if _show_basic %}<hr class="my-3">{% endif %}
+        <div id="item_config_section" class="nowo-dashboard-menu-fieldset">
             {% set formName = form.vars.name %}
-            {% if _dm_section is not null %}
-            <p class="{{ _dm_section }}">{{ 'form.menu_item_type.section_config'|trans({}, 'NowoDashboardMenuBundle') }}</p>
-            {% else %}
-            <h6 class="text-muted mb-2">
-                <i class="bi bi-gear" aria-hidden="true"></i>
-                {{ 'form.menu_item_type.section_config'|trans({}, 'NowoDashboardMenuBundle') }}
-            </h6>
-            {% endif %}
-            {% if form.config.parent is defined %}
+            <h3 class="nowo-dashboard-menu-subheading">{{ 'form.menu_item_type.section_config'|trans({}, 'NowoDashboardMenuBundle') }}</h3>
+            {% if form.config.children.parent is defined %}
                 {% if this.showParentField() %}
-                    {{ form_row(form.config.parent) }}
+                    {{ form_row(form.config.parent, {attr: {'data-model': 'on(change)|' ~ formName ~ '.config.parent'}}) }}
                 {% else %}
-                    <div class="d-none">{{ form_row(form.config.parent) }}</div>
+                    <div class="{{ _hidden }}">{{ form_row(form.config.parent, {attr: {'data-model': 'on(change)|' ~ formName ~ '.config.parent'}}) }}</div>
                 {% endif %}
             {% endif %}
             {% if form.config.sectionCollapsible is defined %}
                 {% if this.showSectionCollapsibleField() %}
                     {% set formName = form.vars.name %}
-                    {{ form_row(form.config.sectionCollapsible, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.sectionCollapsible' } }) }}
+                    {{ form_row(form.config.sectionCollapsible, {attr: {'data-model': 'on(change)|' ~ formName ~ '.config.sectionCollapsible'}}) }}
                 {% else %}
-                    <div class="d-none">{{ form_row(form.config.sectionCollapsible) }}</div>
+                    <div class="{{ _hidden }}">{{ form_row(form.config.sectionCollapsible) }}</div>
                 {% endif %}
             {% endif %}
-            <div class="row">
-                {% if this.showLinkFields() and form.config.linkType is defined %}
-                    <div class="col-md-6">{{ form_row(form.config.linkType, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.linkType' } }) }}</div>
-                {% endif %}
-            </div>
+            {% if this.showLinkFields() and form.config.linkType is defined %}
+                <div>{{ form_row(form.config.linkType, {attr: {'data-model': 'on(change)|' ~ formName ~ '.config.linkType'}}) }}</div>
+            {% endif %}
             {% if this.showServiceLinkFields() and form.config.linkResolver is defined %}
-                <div class="mb-2" id="item_service_link_block">
-                    {{ form_row(form.config.linkResolver, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.linkResolver' } }) }}
+                <div id="item_service_link_block">
+                    {{ form_row(form.config.linkResolver, {attr: {'data-model': 'on(change)|' ~ formName ~ '.config.linkResolver'}}) }}
                     {% if form.config.routeParams is defined %}
-                        <small class="form-text text-muted d-block mb-2">{{ 'form.menu_item_type.link_resolver.route_params_hint'|trans({}, 'NowoDashboardMenuBundle') }}</small>
+                        <small class="{{ _muted }}">{{ 'form.menu_item_type.link_resolver.route_params_hint'|trans({}, 'NowoDashboardMenuBundle') }}</small>
                     {% endif %}
                 </div>
             {% endif %}
             {% if this.showLinkFields() and form.config.linkType is defined %}
-                <div class="mb-2" id="item_classic_link_block">
+                <div id="item_classic_link_block">
                     {% if form.config.routeName is defined %}
-                    <div class="mb-2 {{ not this.showRouteFields() ? 'd-none' : '' }}" id="route_name_row">
-                        {{ form_row(form.config.routeName, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.routeName' } }) }}
+                    <div class="{{ not this.showRouteFields() ? _hidden : '' }}" id="route_name_row">
+                        {{ form_row(form.config.routeName, {attr: {'data-model': 'on(change)|' ~ formName ~ '.config.routeName'}}) }}
                     </div>
                     {% endif %}
                 </div>
                 {% if form.config.externalUrl is defined %}
-                <div class="mb-2 {{ not this.showExternalUrlField() ? 'd-none' : '' }}" id="item_external_link_block">
-                    {{ form_row(form.config.externalUrl, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.externalUrl' } }) }}
+                <div class="{{ not this.showExternalUrlField() ? _hidden : '' }}" id="item_external_link_block">
+                    {{ form_row(form.config.externalUrl, {attr: {'data-model': 'on(change)|' ~ formName ~ '.config.externalUrl'}}) }}
                 </div>
                 {% endif %}
             {% endif %}
             {% if (this.showLinkFields() or this.showServiceLinkFields()) and form.config.routeParams is defined %}
                 <div
-                    class="mb-2 {% if this.showLinkFields() and not this.showRouteFields() %}d-none{% endif %}"
+                    class="{% if this.showLinkFields() and not this.showRouteFields() %}{{ _hidden }}{% endif %}"
                     id="route_fields"
                 >
-                    {{ form_row(form.config.routeParams, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.routeParams' } }) }}
+                    {{ form_row(form.config.routeParams, {attr: {'data-model': 'on(change)|' ~ formName ~ '.config.routeParams'}}) }}
                     {% if this.showRouteFields() %}
                         {% set suggested = this.suggestedRouteParams %}
                         {% if suggested is not empty %}
-                            <small class="form-text text-muted d-block mt-1">{{ 'Suggested:'|trans({}, 'NowoDashboardMenuBundle') }} {{ suggested|json_encode(2) }}</small>
+                            <small class="{{ _muted }}">{{ 'Suggested:'|trans({}, 'NowoDashboardMenuBundle') }} {{ suggested|json_encode(2) }}</small>
                         {% endif %}
                     {% endif %}
-                    <small class="form-text text-muted d-none mt-1" id="route_params_hint" aria-hidden="true"></small>
+                    <small class="{{ _hidden }}" id="route_params_hint" aria-hidden="true"></small>
                 </div>
             {% endif %}
             {% if (this.showLinkFields() or this.showServiceLinkFields()) and form.config.targetBlank is defined %}
-                {{ form_row(form.config.targetBlank, { row_attr: { class: 'form-check ms-0 mb-1' }, attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.targetBlank' } }) }}
+                {{ form_row(form.config.targetBlank, {attr: {'data-model': 'on(change)|' ~ formName ~ '.config.targetBlank'}}) }}
             {% elseif not this.showServiceLinkFields() %}
-                <div class="d-none">
-                    {% if form.config.linkType is defined %}{{ form_row(form.config.linkType, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.linkType' } }) }}{% endif %}
-                    {% if form.config.routeName is defined %}{{ form_row(form.config.routeName, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.routeName' } }) }}{% endif %}
-                    {% if form.config.routeParams is defined %}{{ form_row(form.config.routeParams, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.routeParams' } }) }}{% endif %}
-                    {% if form.config.externalUrl is defined %}{{ form_row(form.config.externalUrl, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.externalUrl' } }) }}{% endif %}
-                    {% if form.config.targetBlank is defined %}{{ form_row(form.config.targetBlank, { row_attr: { class: 'form-check ms-0 mb-1' }, attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.targetBlank' } }) }}{% endif %}
+                <div class="{{ _hidden }}">
+                    {% if form.config.linkType is defined %}{{ form_row(form.config.linkType, {attr: {'data-model': 'on(change)|' ~ formName ~ '.config.linkType'}}) }}{% endif %}
+                    {% if form.config.routeName is defined %}{{ form_row(form.config.routeName, {attr: {'data-model': 'on(change)|' ~ formName ~ '.config.routeName'}}) }}{% endif %}
+                    {% if form.config.routeParams is defined %}{{ form_row(form.config.routeParams, {attr: {'data-model': 'on(change)|' ~ formName ~ '.config.routeParams'}}) }}{% endif %}
+                    {% if form.config.externalUrl is defined %}{{ form_row(form.config.externalUrl, {attr: {'data-model': 'on(change)|' ~ formName ~ '.config.externalUrl'}}) }}{% endif %}
+                    {% if form.config.targetBlank is defined %}{{ form_row(form.config.targetBlank, {attr: {'data-model': 'on(change)|' ~ formName ~ '.config.targetBlank'}}) }}{% endif %}
                     {% if form.config.linkResolver is defined %}
-                        {{ form_row(form.config.linkResolver, { attr: { 'data-model': 'on(change)|' ~ formName ~ '.config.linkResolver' } }) }}
+                        {{ form_row(form.config.linkResolver, {attr: {'data-model': 'on(change)|' ~ formName ~ '.config.linkResolver'}}) }}
                     {% endif %}
                 </div>
             {% endif %}
             {% if form.config.permissionKeys is defined %}
-                {{ form_row(form.config.permissionKeys) }}
+                {{ form_row(form.config.permissionKeys, {attr: {'data-model': 'on(change)|' ~ formName ~ '.config.permissionKeys'}}) }}
             {% else %}
-                {{ form_row(form.config.permissionKey) }}
+                {{ form_row(form.config.permissionKey, {attr: {'data-model': 'on(change)|' ~ formName ~ '.config.permissionKey'}}) }}
             {% endif %}
-            {{ form_row(form.config.isUnanimous, { row_attr: { class: 'form-check ms-0 mb-1' } }) }}
+            {{ form_row(form.config.isUnanimous, {attr: {'data-model': 'on(change)|' ~ formName ~ '.config.isUnanimous'}}) }}
         </div>
         {% endif %}
         {{ form_rest(form) }}
-        {% if _dm_ui.classes.modal_content is defined %}</div>{% endif %}
-        {% if _dm_ui.classes.modal_actions is defined %}<div class="{{ _dm_ui.classes.modal_actions }}">
-            <button type="button" class="{{ dashboard_menu_ui_class('button_secondary', ui.btn('secondary')) }}" {{ ui.modal_dismiss_attrs()|raw }}>{{ 'dashboard.cancel'|trans({}, 'NowoDashboardMenuBundle') }}</button>
+        {% if not _embedded %}
+        <div class="{{ nowo_ui_class('form_actions', _b) }}">
+            <button
+                type="submit"
+                class="{{ nowo_ui_class('btn_primary', _b) }}"
+                data-action="live#action:prevent"
+                data-live-action-param="save"
+            >
+                {{ (isEdit ? 'dashboard.update' : 'dashboard.create')|trans({}, 'NowoDashboardMenuBundle') }}
+            </button>
+            <button type="button" class="{{ nowo_ui_class('btn_secondary', _b) }}" data-nowo-ui-dialog-close>{{ 'dashboard.cancel'|trans({}, 'NowoDashboardMenuBundle') }}</button>
+        </div>
         {% endif %}
-        <button
-            type="submit"
-            class="{{ dashboard_menu_ui_class('button_primary', 'btn btn-primary') }}"
-            data-action="live#action:prevent"
-            data-live-action-param="save"
-        >
-            {{ (isEdit ? 'dashboard.update' : 'dashboard.create')|trans({}, 'NowoDashboardMenuBundle') }}
-        </button>
-        {% if _dm_ui.classes.modal_actions is defined %}</div>{% endif %}
-    {{ form_end(form) }}
+    {% if not _embedded %}{{ form_end(form) }}{% endif %}
 </div>

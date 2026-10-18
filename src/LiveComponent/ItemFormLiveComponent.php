@@ -74,6 +74,13 @@ final class ItemFormLiveComponent
     #[LiveProp]
     public string $redirectToUrl = '';
 
+    /**
+     * True when the component renders inside the page/form scaffold of the full item page (2.7): no own form tag or
+     * submit button; the scaffold form posts natively to the edit action (the dialog keeps the Live save action).
+     */
+    #[LiveProp]
+    public bool $embedded = false;
+
     /** When set ('basic' or 'config'), only that section is shown and submitted. */
     #[LiveProp]
     public ?string $sectionFocus = null;

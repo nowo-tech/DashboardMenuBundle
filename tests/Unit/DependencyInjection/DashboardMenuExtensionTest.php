@@ -521,7 +521,8 @@ final class DashboardMenuExtensionTest extends TestCase
             ) {
                 $found = true;
                 self::assertSame('NowoDashboardMenuBundle', $cfg['profiles']['dashboard_menu']['translation_domain']);
-                self::assertSame('nowo-ui-input form-control', $cfg['profiles']['dashboard_menu']['defaults']['attr']['class']);
+                // Tailwind stack: no Bootstrap field classes (2.7).
+                self::assertSame('nowo-ui-input', $cfg['profiles']['dashboard_menu']['defaults']['attr']['class']);
                 break;
             }
         }
@@ -631,6 +632,72 @@ final class DashboardMenuExtensionTest extends TestCase
         (new DashboardMenuExtension())->prepend($container);
 
         self::assertSame([], $container->getExtensionConfig('nowo_form_kit'));
+    }
+
+    #[\PHPUnit\Framework\Attributes\IgnoreDeprecations]
+    public function testPrependBridgesTheDeprecatedChromeIntoTheUiKitTheme(): void
+    {
+        $container = new ContainerBuilder();
+        $this->registerStubExtension($container, 'nowo_ui_kit');
+        $container->prependExtensionConfig(Configuration::ALIAS, [
+            'dashboard' => ['ui' => ['classes' => ['button_primary' => 'btn btn-dark']]],
+        ]);
+
+        (new DashboardMenuExtension())->prepend($container);
+
+        $configs = $container->getExtensionConfig('nowo_ui_kit');
+        self::assertSame(['btn_primary' => ['value' => 'btn btn-dark', 'framework_defaults' => false]], $configs[0]['theme']['bundles']['NowoDashboardMenuBundle']['classes']);
+        self::assertArrayNotHasKey('css_framework', $configs[0], 'Default dashboard.css_framework is not seeded (UiKit owns the stack).');
+    }
+
+    #[\PHPUnit\Framework\Attributes\IgnoreDeprecations]
+    public function testPrependSeedsUiKitOnlyFromExplicitDashboardStack(): void
+    {
+        $container = new ContainerBuilder();
+        $this->registerStubExtension($container, 'nowo_ui_kit');
+        $this->registerStubExtension($container, 'nowo_form_kit');
+        $container->prependExtensionConfig(Configuration::ALIAS, ['dashboard' => ['css_framework' => 'bootstrap', 'icon_set' => 'tabler-icons']]);
+
+        (new DashboardMenuExtension())->prepend($container);
+
+        $uiKit = $container->getExtensionConfig('nowo_ui_kit')[0];
+        self::assertSame('bootstrap5', $uiKit['css_framework']);
+        self::assertSame('tabler-icons', $uiKit['icon_set']);
+        $formKit = $container->getExtensionConfig('nowo_form_kit')[0];
+        self::assertSame('bootstrap', $formKit['css_framework']);
+        self::assertSame('form-check mb-2', $formKit['profiles']['dashboard_menu']['field_types']['checkbox']['row_attr']['class']);
+    }
+
+    public function testFormKitProfileFollowsTheHostUiKitStack(): void
+    {
+        $container = new ContainerBuilder();
+        $this->registerStubExtension($container, 'nowo_form_kit');
+        $container->prependExtensionConfig('nowo_ui_kit', ['css_framework' => 'none']);
+
+        (new DashboardMenuExtension())->prepend($container);
+
+        $formKit = $container->getExtensionConfig('nowo_form_kit')[0];
+        self::assertSame('none', $formKit['css_framework']);
+        self::assertSame('nowo-ui-input', $formKit['profiles']['dashboard_menu']['defaults']['attr']['class']);
+        self::assertTrue($formKit['profiles']['dashboard_menu']['convention_requires_translation']);
+    }
+
+    #[\PHPUnit\Framework\Attributes\IgnoreDeprecations]
+    public function testLoadMapsTheDeprecatedDashboardKeysToWebUi(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'prod');
+        $container->setParameter('kernel.bundles', []);
+        (new DashboardMenuExtension())->load([[
+            'dashboard' => ['enabled' => true, 'layout_template' => '@NowoDashboardMenuBundle/dashboard/layout.html.twig', 'ui' => ['templates' => ['index' => 'admin/menus.html.twig']]],
+            'web_ui'    => ['path_prefix' => '/backoffice/menus'],
+        ]], $container);
+
+        self::assertTrue($container->getParameter('nowo_dashboard_menu.web_ui.enabled'));
+        self::assertTrue($container->getParameter('nowo_dashboard_menu.dashboard.enabled'));
+        self::assertNull($container->getParameter('nowo_dashboard_menu.web_ui.layout_template'), 'The removed 1.x default layout means the UiKit layout.');
+        self::assertSame('/backoffice/menus', $container->getParameter('nowo_dashboard_menu.web_ui.path_prefix'));
+        self::assertSame(['index' => 'admin/menus.html.twig'], $container->getParameter('nowo_dashboard_menu.web_ui.templates'));
     }
 
     private function registerStubExtension(ContainerBuilder $container, string $alias): void

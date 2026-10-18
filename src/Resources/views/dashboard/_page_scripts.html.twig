@@ -1,0 +1,25 @@
+{#
+  Scripts of every dashboard page (rendered in nowo_ui_scripts after the layout's own scripts): the CSP-safe JSON
+  config island (#nowo-dashboard-menu-config, REQ-CSP-001: page data + translated dialog strings), the optional
+  Stimulus / icon-selector scripts (dashboard.stimulus_script_url, dashboard.icon_selector_script_url) and
+  dashboard.js (dialog openers, item form toggles, sortable tree). No inline code, no CDN by default.
+
+  Variables: page_config (map merged into the island), stimulus_script_url, icon_selector_script_url.
+#}
+{% set _dm_nonce = app is defined and app and app.request ? app.request.attributes.get('csp_nonce')|default('') : '' %}
+{% set _dm_config = {
+    autocompleteBootstrap: nowo_dashboard_menu_autocomplete_bootstrap ?? true,
+    iconSelectorScriptUrl: icon_selector_script_url|default(null) ? ((icon_selector_script_url starts with 'http') ? icon_selector_script_url : asset(icon_selector_script_url)) : null,
+    i18n: {
+        loading: 'dashboard.loading'|trans({}, 'NowoDashboardMenuBundle'),
+        errorLoadingForm: 'dashboard.error_loading_form'|trans({}, 'NowoDashboardMenuBundle'),
+    },
+}|merge(page_config|default({})) %}
+<script type="application/json" id="nowo-dashboard-menu-config">{{ _dm_config|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT') b-or constant('JSON_UNESCAPED_SLASHES'))|raw }}</script>
+{% if stimulus_script_url|default(null) %}
+    <script type="module" src="{{ (stimulus_script_url starts with 'http') ? stimulus_script_url : asset(stimulus_script_url) }}"{% if _dm_nonce %} nonce="{{ _dm_nonce }}"{% endif %}></script>
+{% endif %}
+{% if icon_selector_script_url|default(null) %}
+    <script src="{{ (icon_selector_script_url starts with 'http') ? icon_selector_script_url : asset(icon_selector_script_url) }}" defer{% if _dm_nonce %} nonce="{{ _dm_nonce }}"{% endif %}></script>
+{% endif %}
+<script src="{{ asset('js/dashboard.js', 'nowo_dashboard_menu') }}" defer{% if _dm_nonce %} nonce="{{ _dm_nonce }}"{% endif %}></script>

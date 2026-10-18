@@ -1,3 +1,4 @@
+{#- Live item form dialog fragment (configuration section, GET ?_modal=1): the component keeps its own form and Live save action. Override: web_ui.templates.item_form_live. -#}
 <div id="modal-item-form-container" data-app-routes="{{ app_routes|default({})|json_encode|e('html_attr') }}" data-section-focus="{{ section_focus|default('') }}">
 {{ component('dashboard_menu_item_form', {
     menu: menu,

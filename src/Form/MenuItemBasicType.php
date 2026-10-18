@@ -60,7 +60,6 @@ final class MenuItemBasicType extends AbstractType
         $this->addWithDefaults($builder, 'label', TextType::class, [
             'required' => false,
             'label'    => 'form.menu_item_type.label.label',
-            'row_attr' => ['class' => 'mb-1'],
         ])
         ;
 
@@ -75,7 +74,6 @@ final class MenuItemBasicType extends AbstractType
                     'label'                        => 'form.menu_item_type.label_locale',
                     'label_translation_parameters' => ['%locale%' => $locale],
                     'data'                         => $translations[$locale] ?? null,
-                    'row_attr'                     => ['class' => 'mb-1'],
                 ]);
             }
 

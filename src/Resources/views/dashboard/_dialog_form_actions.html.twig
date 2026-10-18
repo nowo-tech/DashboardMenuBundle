@@ -1,0 +1,5 @@
+{#- Submit + cancel of a dialog form fragment (cancel closes the UiKit dialog: data-nowo-ui-dialog-close). Variables: submit_label, bundle. -#}
+<div class="{{ nowo_ui_class('form_actions', bundle) }}">
+    <button type="submit" class="{{ nowo_ui_class('btn_primary', bundle) }}">{{ submit_label }}</button>
+    <button type="button" class="{{ nowo_ui_class('btn_secondary', bundle) }}" data-nowo-ui-dialog-close>{{ 'dashboard.cancel'|trans({}, 'NowoDashboardMenuBundle') }}</button>
+</div>

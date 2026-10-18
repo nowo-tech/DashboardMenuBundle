@@ -30,8 +30,12 @@ final class ConfigurationTest extends TestCase
         self::assertNull($config['default_locale']);
         self::assertTrue($config['api']['enabled']);
         self::assertSame('/api/menu', $config['api']['path_prefix']);
-        self::assertFalse($config['dashboard']['enabled']);
-        self::assertSame('/admin/menus', $config['dashboard']['path_prefix']);
+        self::assertArrayNotHasKey('enabled', $config['dashboard'], 'Deprecated alias: only present when set.');
+        self::assertArrayNotHasKey('layout_template', $config['dashboard']);
+        self::assertFalse($config['web_ui']['enabled']);
+        self::assertSame('/admin/menus', $config['web_ui']['path_prefix']);
+        self::assertNull($config['web_ui']['layout_template']);
+        self::assertSame([], $config['web_ui']['templates']);
         self::assertSame([], $config['dashboard']['route_name_exclude_patterns']);
         self::assertTrue($config['dashboard']['pagination']['enabled']);
         self::assertSame(20, $config['dashboard']['pagination']['per_page']);
@@ -81,6 +85,7 @@ final class ConfigurationTest extends TestCase
         self::assertFalse($config['api']['enabled']);
         self::assertSame('/menus/api', $config['api']['path_prefix']);
         self::assertTrue($config['dashboard']['enabled']);
+        self::assertTrue($config['web_ui']['enabled'], 'dashboard.enabled is mapped to web_ui.enabled.');
         self::assertSame(['^_'], $config['dashboard']['route_name_exclude_patterns']);
         self::assertFalse($config['dashboard']['pagination']['enabled']);
         self::assertSame(50, $config['dashboard']['pagination']['per_page']);

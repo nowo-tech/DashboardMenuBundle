@@ -28,9 +28,10 @@ use Twig\TwigFunction;
 /**
  * Twig extension: dashboard_menu_tree(menuCode, permissionContext?, contextSets?), dashboard_menu_href(item), dashboard_menu_config(menuCode, contextSets?).
  * contextSets: ordered list of JSON key-value objects to try when resolving menu (code + context); use null/[] for no context.
- * Global nowo_dashboard_layout_template: layout template that dashboard views extend (from nowo_dashboard_menu.dashboard.layout_template).
+ * Global nowo_dashboard_layout_template (deprecated, 2.7): web_ui.layout_template (null = UiKit layout); the pages no longer read it.
  * Globals nowo_dashboard_menu_css_framework / nowo_dashboard_menu_icon_set: REQ-UI-001 CSS stack and icon set.
- * Global nowo_dashboard_menu_ui + dashboard_menu_ui_class(key, default): admin chrome hooks (dashboard.ui, 2.3.0).
+ * Global nowo_dashboard_menu_ui + dashboard_menu_ui_class(key, default): deprecated 1.x admin chrome hooks (dashboard.ui, 2.3.0;
+ * unused by the 2.7 pages, kept for host templates until 3.0).
  * Global nowo_dashboard_menu_autocomplete_bootstrap: dashboard.autocomplete_bootstrap (2.3.2).
  * Global nowo_dashboard_menu_collapse: menu_collapse {enabled, mode, storage_key} for menu.html.twig (2.6.0).
  *
@@ -51,7 +52,7 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
         private readonly CurrentRouteTreeDecorator $currentRouteTreeDecorator,
         private readonly MenuLocaleResolver $localeResolver,
         private readonly MenuIconNameResolver $menuIconNameResolver,
-        private readonly string $dashboardLayoutTemplate,
+        private readonly ?string $dashboardLayoutTemplate,
         private readonly bool $uxAutocompleteAvailable = false,
         private readonly ?DashboardMenuDataCollector $dataCollector = null,
         private readonly ?MenuQueryCounter $menuQueryCounter = null,

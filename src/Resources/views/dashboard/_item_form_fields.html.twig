@@ -1,0 +1,100 @@
+{#
+  Fields of the item form (page body and dialog fragment). Variables: form (MenuItemType view), section_focus
+  (minimal | basic | icon | config | identity | null = full edit), is_edit, locales, show_translations,
+  item_has_children, bundle. Keep the element ids (dashboard.js toggles link / route / external fields by type).
+#}
+{% set _section_focus = section_focus|default('') %}
+{% set _is_edit = is_edit|default(false) %}
+{% set _show_translations = show_translations|default(_is_edit) %}
+{% set _muted = nowo_ui_class('muted', bundle) %}
+{% set _show_basic = form.basic is defined and _section_focus in ['', 'basic', 'identity', 'minimal'] %}
+{% set _show_icon = form.icon is defined and _section_focus in ['', 'icon', 'identity', 'minimal'] %}
+{% set _show_config_gear = form.config is defined and (_section_focus == 'config' or (_section_focus == '' and _is_edit)) %}
+{% set _show_config_identity = form.config is defined and _section_focus == 'identity' %}
+{% if _section_focus != '' %}
+    <input type="hidden" name="_section" value="{{ _section_focus }}">
+{% endif %}
+{% if _show_basic %}
+    <fieldset id="item_basic_section" class="nowo-dashboard-menu-fieldset">
+        <legend>{{ 'form.menu_item_type.section_basic'|trans({}, 'NowoDashboardMenuBundle') }}</legend>
+        <p id="divider_label_hint" class="{{ _muted }}" style="display: none;">{{ 'form.menu_item_type.divider_label_hint'|trans({}, 'NowoDashboardMenuBundle') }}</p>
+        <div id="item_basic_label_icon_fields">
+            {{ form_row(form.basic.label) }}
+            {% if _show_translations and locales is defined and locales is not empty %}
+                <div class="nowo-dashboard-menu-locales">
+                    {% for locale in locales %}
+                        {% if attribute(form.basic, 'label_' ~ locale) is defined %}
+                            {{ form_row(attribute(form.basic, 'label_' ~ locale)) }}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </fieldset>
+{% endif %}
+{% if _show_icon %}
+    <fieldset id="item_icon_section" class="nowo-dashboard-menu-fieldset">
+        <legend>{{ 'form.menu_item_type.section_icon'|trans({}, 'NowoDashboardMenuBundle') }}</legend>
+        {{ form_row(form.icon.itemType) }}
+        {% if form.icon.position is defined or form.icon.icon is defined %}
+            <div{% if not _is_edit %} class="nowo-dashboard-menu-hidden"{% endif %}>
+                {% if form.icon.position is defined %}
+                    {{ form_row(form.icon.position, {attr: _is_edit ? {} : {disabled: 'disabled'}}) }}
+                {% endif %}
+                {% if form.icon.icon is defined %}
+                    {{ form_row(form.icon.icon, {attr: _is_edit ? {} : {disabled: 'disabled'}}) }}
+                {% endif %}
+            </div>
+        {% endif %}
+    </fieldset>
+{% endif %}
+{% if _show_config_gear or _show_config_identity %}
+    <fieldset id="item_config_section" class="nowo-dashboard-menu-fieldset">
+        <legend>{{ 'form.menu_item_type.section_config'|trans({}, 'NowoDashboardMenuBundle') }}</legend>
+        {% if _show_config_gear and form.config.children.parent is defined %}
+            <div id="item_parent_field">{{ form_row(form.config.parent) }}</div>
+        {% endif %}
+        {% if _show_config_gear and form.config.sectionCollapsible is defined %}
+            <div id="item_section_collapsible_row" style="display: none;">{{ form_row(form.config.sectionCollapsible) }}</div>
+        {% endif %}
+        {% if form.config.linkResolver is defined or form.config.linkType is defined %}
+            {% set _item_type_ui = form.vars.data.itemType|default('link') %}
+            <div id="item_link_fields" data-item-has-children="{{ item_has_children|default(false) ? 'true' : 'false' }}" data-initial-item-type="{{ _item_type_ui }}">
+                {% if form.config.linkResolver is defined %}
+                    <div id="item_service_link_block"{% if form.config.linkType is defined and _item_type_ui != 'service' %} style="display: none;"{% endif %}>
+                        {{ form_row(form.config.linkResolver) }}
+                        {% if form.config.routeParams is defined %}
+                            <p class="{{ _muted }}" id="item_service_route_params_hint">{{ 'form.menu_item_type.link_resolver.route_params_hint'|trans({}, 'NowoDashboardMenuBundle') }}</p>
+                        {% endif %}
+                    </div>
+                {% endif %}
+                {% if form.config.linkType is defined %}
+                    <div id="item_classic_link_block"{% if form.config.linkResolver is defined and _item_type_ui == 'service' %} style="display: none;"{% endif %}>
+                        {{ form_row(form.config.linkType) }}
+                        <div id="route_name_row">{{ form_row(form.config.routeName) }}</div>
+                        <div id="external_field" style="display: none;">{{ form_row(form.config.externalUrl) }}</div>
+                    </div>
+                {% endif %}
+                {% if form.config.routeParams is defined %}
+                    <div id="route_fields">
+                        {{ form_row(form.config.routeParams) }}
+                        <p class="{{ _muted }}" id="route_params_hint"></p>
+                    </div>
+                {% endif %}
+                {% if form.config.targetBlank is defined %}
+                    <div id="item_link_target_blank_row">{{ form_row(form.config.targetBlank) }}</div>
+                {% endif %}
+            </div>
+        {% endif %}
+        <div{% if not _show_config_gear %} class="nowo-dashboard-menu-hidden" aria-hidden="true"{% endif %}>
+            {% if form.config.permissionKeys is defined %}
+                {{ form_row(form.config.permissionKeys) }}
+            {% elseif form.config.permissionKey is defined %}
+                {{ form_row(form.config.permissionKey) }}
+            {% endif %}
+            {% if form.config.isUnanimous is defined %}
+                {{ form_row(form.config.isUnanimous) }}
+            {% endif %}
+        </div>
+    </fieldset>
+{% endif %}

@@ -23,12 +23,16 @@ use Nowo\DashboardMenuBundle\Service\DashboardUiConfig;
 use Nowo\DashboardMenuBundle\Service\ImportExportRateLimiter;
 use Nowo\DashboardMenuBundle\Service\MenuExporter;
 use Nowo\DashboardMenuBundle\Service\MenuImporter;
+use Nowo\DashboardMenuBundle\View\DashboardPages;
+use Nowo\DashboardMenuBundle\View\DashboardWebUi;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -38,6 +42,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
+use Twig\Environment;
 
 use function array_is_list;
 use function count;
@@ -109,7 +114,9 @@ final class MenuDashboardController extends AbstractController
      * @param int $positionStep Gap for dashboard "re-index positions" action (e.g. 100 → 100, 200, 300 per sibling group)
      * @param ImportExportRateLimiter $importExportRateLimiter Rate limiter for import/export (no-op when disabled in config)
      * @param bool $itemFormLiveComponentEnabled Whether the item form modal uses the Live Component (true when symfony/ux-live-component is installed)
-     * @param DashboardUiConfig $dashboardUi Admin chrome hooks (dashboard.ui): page / partial template overrides
+     * @param DashboardUiConfig $dashboardUi Deprecated 1.x chrome hooks (dashboard.ui), read by the page factory
+     * @param DashboardWebUi|null $webUi Page templates and layout (web_ui.*); null = built from the Twig service
+     * @param DashboardPages|null $pages UiKit view-model factory; null = built from the router
      */
     public function __construct(
         private readonly MenuRepository $menuRepository,
@@ -131,7 +138,51 @@ final class MenuDashboardController extends AbstractController
         private readonly ImportExportRateLimiter $importExportRateLimiter,
         private readonly bool $itemFormLiveComponentEnabled = false,
         private readonly DashboardUiConfig $dashboardUi = new DashboardUiConfig(),
+        private readonly ?DashboardWebUi $webUi = null,
+        private readonly ?DashboardPages $pages = null,
     ) {
+    }
+
+    private function webUi(): DashboardWebUi
+    {
+        if ($this->webUi instanceof DashboardWebUi) {
+            return $this->webUi;
+        }
+        /** @var Environment $twig */
+        $twig = $this->container->get('twig');
+
+        return new DashboardWebUi($twig);
+    }
+
+    private function pages(): DashboardPages
+    {
+        return $this->pages ?? new DashboardPages($this->router, $this->dashboardUi, $this->modalSizes);
+    }
+
+    /**
+     * Renders a dashboard page (UiKit scaffold) or a dialog fragment with the shared page context (script URLs, the
+     * 1.x layout the bridge extends).
+     *
+     * @param array<string, mixed> $context
+     * @param FormInterface<mixed>|null $form submitted and invalid = HTTP 422 (as AbstractController::render() does for forms)
+     */
+    private function renderPage(string $page, array $context, ?FormInterface $form = null): Response
+    {
+        $response = $form instanceof FormInterface && $form->isSubmitted() && !$form->isValid() ? new Response(null, Response::HTTP_UNPROCESSABLE_ENTITY) : null;
+
+        return $this->render($this->webUi()->template($page), $context + [
+            'dashboard_routes'         => $this->getDashboardRoutes(),
+            'icon_selector_script_url' => $this->iconSelectorScriptUrl,
+            'stimulus_script_url'      => $this->stimulusScriptUrl,
+        ] + $this->webUi()->context(), $response);
+    }
+
+    /**
+     * True when the dashboard script loads the form into a dialog ({@code ?_modal=1}): render the fragment only.
+     */
+    private function isDialogRequest(Request $request): bool
+    {
+        return $request->isMethod('GET') && $request->query->has('_modal');
     }
 
     #[Route(path: '', name: 'index', methods: ['GET'])]
@@ -154,12 +205,7 @@ final class MenuDashboardController extends AbstractController
             $page       = max(1, min($page, $totalPages > 0 ? $totalPages : 1));
             $offset     = ($page - 1) * $perPage;
             $menus      = $this->menuRepository->findForDashboard($search, $offset, $perPage);
-            $pagination = [
-                'current_page' => $page,
-                'per_page'     => $perPage,
-                'total'        => $total,
-                'total_pages'  => $totalPages,
-            ];
+            $pagination = $this->pages()->pagination($page, $perPage, $total, $totalPages);
         } else {
             $menus      = $this->menuRepository->findForDashboard($search, 0);
             $pagination = null;
@@ -173,40 +219,21 @@ final class MenuDashboardController extends AbstractController
         }
         $menuItemCounts = $this->menuItemRepository->countForMenus($menuIds);
 
-        $menuDeleteTokens = [];
+        $deleteForms = [];
         foreach ($menus as $menu) {
             $menuId = $menu->getId();
             if ($menuId === null || $menu->isBase()) {
                 continue;
             }
-            $deleteForm = $this->createActionForm(
+            $deleteForms[(int) $menuId] = $this->createActionForm(
                 $this->generateUrl(DashboardRoutes::ROUTE_MENU_DELETE, ['id' => $menuId]),
                 'delete_menu_' . $menuId,
-            );
-            $deleteFormView                  = $deleteForm->createView();
-            $menuDeleteTokens[(int) $menuId] = (string) ($deleteFormView['_token']->vars['value'] ?? '');
+            )->createView();
         }
 
-        $newMenu     = new Menu();
-        $newMenuForm = $this->createForm(MenuType::class, $newMenu, [
-            'action'  => $this->generateUrl(DashboardRoutes::ROUTE_MENU_NEW),
-            'section' => 'basic',
-        ]);
-
-        return $this->render($this->dashboardUi->template('index'), [
-            'menus'                    => $menus,
-            'menu_item_counts'         => $menuItemCounts,
-            'search'                   => $search,
-            'search_form'              => $searchForm->createView(),
-            'menu_delete_tokens'       => $menuDeleteTokens,
-            'delete_menu_modal_form'   => $this->createActionForm('#', 'delete_menu_modal')->createView(),
-            'pagination'               => $pagination,
-            'new_menu_form'            => $newMenuForm,
-            'dashboard_show_route'     => DashboardRoutes::ROUTE_SHOW,
-            'dashboard_routes'         => $this->getDashboardRoutes(),
-            'modal_classes'            => self::resolveModalClasses($this->modalSizes),
-            'icon_selector_script_url' => $this->iconSelectorScriptUrl,
-            'stimulus_script_url'      => $this->stimulusScriptUrl,
+        return $this->renderPage('index', [
+            'page'    => $this->pages()->indexPage($menus, $menuItemCounts, $searchForm->createView(), $search, $pagination, $deleteForms, $this->webUi()->layout()),
+            'dialogs' => $this->pages()->dialogs([DashboardPages::DIALOG_MENU, DashboardPages::DIALOG_COPY, DashboardPages::DIALOG_IMPORT]),
         ]);
     }
 
@@ -238,11 +265,22 @@ final class MenuDashboardController extends AbstractController
             }
         }
 
-        return $this->render($this->dashboardUi->template('menu_form_partial'), [
-            'form'             => $form,
-            'is_edit'          => false,
-            'dashboard_routes' => $this->getDashboardRoutes(),
-        ]);
+        return $this->renderMenuForm($request, $form, false, null, null);
+    }
+
+    /**
+     * @param FormInterface<Menu>|FormInterface<Menu|null> $form
+     */
+    private function renderMenuForm(Request $request, FormInterface $form, bool $isEdit, ?Menu $menu, ?string $section): Response
+    {
+        $context = ['form' => $form->createView(), 'is_edit' => $isEdit, 'section_focus' => $section, 'menu' => $menu];
+        if ($this->isDialogRequest($request)) {
+            return $this->renderPage('menu_form_partial', $context, $form);
+        }
+
+        return $this->renderPage('menu_form', $context + [
+            'page' => $this->pages()->menuFormPage($context['form'], $isEdit, $menu, $section, $this->webUi()->layout()),
+        ], $form);
     }
 
     #[Route(path: '/{id}/items/reorder', name: 'show_items_reorder', requirements: ['id' => '\d+'], methods: ['GET'])]
@@ -259,15 +297,14 @@ final class MenuDashboardController extends AbstractController
             'csrf_token_id' => 'reorder_tree_' . $id,
         ]);
 
-        return $this->render($this->dashboardUi->template('show_items_reorder'), [
-            'menu'                     => $menu,
-            'items_tree'               => $itemsTree,
-            'reorder_form'             => $reorderForm->createView(),
-            'modal_classes'            => self::resolveModalClasses($this->modalSizes),
-            'dashboard_show_route'     => DashboardRoutes::ROUTE_SHOW,
-            'dashboard_routes'         => $this->getDashboardRoutes(),
-            'icon_selector_script_url' => $this->iconSelectorScriptUrl,
-            'stimulus_script_url'      => $this->stimulusScriptUrl,
+        return $this->renderPage('show_items_reorder', [
+            'header'       => $this->pages()->reorderHeader($menu),
+            'layout'       => $this->webUi()->layout(),
+            'bundle'       => DashboardPages::BUNDLE,
+            'menu'         => $menu,
+            'items_tree'   => $itemsTree,
+            'reorder_form' => $reorderForm->createView(),
+            'dialogs'      => $this->pages()->dialogs([DashboardPages::DIALOG_MENU, DashboardPages::DIALOG_COPY, DashboardPages::DIALOG_ITEM]),
         ]);
     }
 
@@ -294,7 +331,7 @@ final class MenuDashboardController extends AbstractController
         );
         $itemMoveUpForms   = [];
         $itemMoveDownForms = [];
-        $itemDeleteTokens  = [];
+        $itemDeleteForms   = [];
         foreach ($items as $item) {
             $itemId = $item->getId();
             if ($itemId === null) {
@@ -312,33 +349,23 @@ final class MenuDashboardController extends AbstractController
                     'item_move_down_' . $itemId,
                 )->createView();
             }
-            $deleteForm = $this->createActionForm(
+            $itemDeleteForms[(int) $itemId] = $this->createActionForm(
                 $this->generateUrl(DashboardRoutes::ROUTE_ITEM_DELETE, ['id' => $id, 'itemId' => $itemId]),
                 'delete_item_' . $itemId,
-            );
-            $deleteFormView                  = $deleteForm->createView();
-            $itemDeleteTokens[(int) $itemId] = (string) ($deleteFormView['_token']->vars['value'] ?? '');
+            )->createView();
         }
+        /** @var RequestStack $requestStack */
+        $requestStack = $this->container->get('request_stack');
+        $locale       = $requestStack->getCurrentRequest()?->getLocale() ?? 'en';
 
-        return $this->render($this->dashboardUi->template('show'), [
-            'menu'                     => $menu,
-            'items'                    => $items,
-            'reindex_positions_form'   => $reindexPositionsForm->createView(),
-            'check_parent_cycles_form' => $checkParentCyclesForm->createView(),
-            'item_move_up_forms'       => $itemMoveUpForms,
-            'item_move_down_forms'     => $itemMoveDownForms,
-            'item_delete_tokens'       => $itemDeleteTokens,
-            'delete_item_modal_form'   => $this->createActionForm('#', 'delete_item_modal')->createView(),
-            'modal_classes'            => self::resolveModalClasses($this->modalSizes),
-            'prev_sibling'             => $siblings['prev'],
-            'next_sibling'             => $siblings['next'],
-            'item_depths'              => $itemDepths,
-            'item_parent_labels'       => $itemParentLabels,
-            'dashboard_show_route'     => DashboardRoutes::ROUTE_SHOW,
-            'dashboard_routes'         => $this->getDashboardRoutes(),
-            'icon_selector_script_url' => $this->iconSelectorScriptUrl,
-            'stimulus_script_url'      => $this->stimulusScriptUrl,
-            'position_step'            => $this->positionStep,
+        return $this->renderPage('show', [
+            'page'           => $this->pages()->showPage($menu, $items !== [], $reindexPositionsForm->createView(), $checkParentCyclesForm->createView(), $this->positionStep, $this->webUi()->layout()),
+            'menu'           => $menu,
+            'item_columns'   => $this->pages()->itemColumns($locale),
+            'item_rows'      => $this->pages()->itemRows($menu, $items, $itemDepths, $itemParentLabels, $itemMoveUpForms, $itemMoveDownForms, $itemDeleteForms, $locale),
+            'add_item'       => $this->pages()->addItemAction($menu),
+            'current_locale' => $locale,
+            'dialogs'        => $this->pages()->dialogs([DashboardPages::DIALOG_MENU, DashboardPages::DIALOG_COPY, DashboardPages::DIALOG_ITEM]),
         ]);
     }
 
@@ -773,12 +800,7 @@ final class MenuDashboardController extends AbstractController
             }
         }
 
-        return $this->render($this->dashboardUi->template('menu_form_partial'), [
-            'form'             => $form,
-            'is_edit'          => true,
-            'dashboard_routes' => $this->getDashboardRoutes(),
-            'section_focus'    => $sectionFocus,
-        ]);
+        return $this->renderMenuForm($request, $form, true, $menu, is_string($sectionFocus) ? $sectionFocus : null);
     }
 
     #[Route(path: '/{id}/delete', name: 'menu_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
@@ -853,8 +875,8 @@ final class MenuDashboardController extends AbstractController
             'action' => $this->generateUrl(DashboardRoutes::ROUTE_IMPORT),
         ]);
         $form->handleRequest($request);
-        // GET (modal fetch) sends ?_modal=1; POST includes hidden _modal from the partial form.
-        $isModal = $request->request->has('_modal') || $request->query->has('_modal');
+        // GET (dialog fetch) sends ?_modal=1: render the dialog fragment; anything else renders the page.
+        $isModal = $this->isDialogRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
@@ -926,14 +948,12 @@ final class MenuDashboardController extends AbstractController
      */
     private function renderImportResponse(FormInterface $form, bool $usePartial): Response
     {
-        $vars = [
-            'form'             => $form,
-            'dashboard_routes' => $this->getDashboardRoutes(),
-        ];
+        $view = $form->createView();
+        if ($usePartial) {
+            return $this->renderPage('import_partial', ['form' => $view], $form);
+        }
 
-        return $usePartial
-            ? $this->render($this->dashboardUi->template('import_partial'), $vars)
-            : $this->render('@NowoDashboardMenuBundle/dashboard/import.html.twig', $vars);
+        return $this->renderPage('import', ['form' => $view, 'page' => $this->pages()->importFormPage($view, $this->webUi()->layout())], $form);
     }
 
     /**
@@ -987,10 +1007,12 @@ final class MenuDashboardController extends AbstractController
             }
         }
 
-        return $this->render($this->dashboardUi->template('copy_menu_partial'), [
-            'menu' => $menu,
-            'form' => $form,
-        ]);
+        $view = $form->createView();
+        if ($this->isDialogRequest($request)) {
+            return $this->renderPage('copy_menu_partial', ['menu' => $menu, 'form' => $view], $form);
+        }
+
+        return $this->renderPage('copy_menu', ['menu' => $menu, 'form' => $view, 'page' => $this->pages()->copyFormPage($view, $menu, $this->webUi()->layout())], $form);
     }
 
     /**
@@ -1146,8 +1168,9 @@ final class MenuDashboardController extends AbstractController
             return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
         }
 
-        return $this->render($this->dashboardUi->template('item_form_partial'), [
-            'form'              => $form,
+        $view    = $form->createView();
+        $context = [
+            'form'              => $view,
             'menu'              => $menu,
             'is_edit'           => false,
             'app_routes'        => $appRoutes,
@@ -1155,7 +1178,14 @@ final class MenuDashboardController extends AbstractController
             'item_has_children' => false,
             'section_focus'     => 'minimal',
             'show_translations' => $includeTranslations,
-        ]);
+        ];
+        if ($this->isDialogRequest($request)) {
+            return $this->renderPage('item_form_partial', $context, $form);
+        }
+
+        return $this->renderPage('item_form', $context + [
+            'page' => $this->pages()->itemFormPage($view, $menu, false, 'minimal', $parent, null, $locale, $this->webUi()->layout()),
+        ], $form);
     }
 
     #[Route(path: '/{id}/item/{itemId}/edit', name: 'item_edit', requirements: ['id' => '\d+', 'itemId' => '\d+'], methods: ['GET', 'POST'])]
@@ -1203,7 +1233,7 @@ final class MenuDashboardController extends AbstractController
         // when the modal content changes. LiveComponent is only used for the config (gear) section on GET.
         $useLiveComponent = $request->isMethod('GET') && $this->itemFormLiveComponentEnabled && $sectionFocus === 'config';
         if ($useLiveComponent) {
-            return $this->render('@NowoDashboardMenuBundle/dashboard/_item_form_live_partial.html.twig', [
+            $liveContext = [
                 'menu'              => $menu,
                 'item'              => $item,
                 'app_routes'        => $appRoutes,
@@ -1215,6 +1245,22 @@ final class MenuDashboardController extends AbstractController
                 'redirect_to_url'   => $this->generateUrl(DashboardRoutes::ROUTE_SHOW, ['id' => $id]),
                 'locales'           => $this->locales,
                 'section_focus'     => $sectionFocus,
+            ];
+            if ($this->isDialogRequest($request)) {
+                return $this->renderPage('item_form_live', $liveContext);
+            }
+            // Full page: the Live component renders its fields inside the form scaffold (embedded mode) and the
+            // scaffold's form posts natively to this action. The shell form only carries the form tag.
+            $shell = $this->container->get('form.factory')->createNamedBuilder('menu_item', FormType::class, null, [
+                'action'          => $liveContext['action_url'],
+                'method'          => 'POST',
+                'csrf_protection' => false,
+            ])->getForm()->createView();
+
+            return $this->renderPage('item_form', $liveContext + [
+                'live' => true,
+                'form' => $shell,
+                'page' => $this->pages()->itemFormPage($shell, $menu, true, 'config', $item->getParent(), $item, $locale, $this->webUi()->layout()),
             ]);
         }
 
@@ -1289,15 +1335,23 @@ final class MenuDashboardController extends AbstractController
             return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
         }
 
-        return $this->render($this->dashboardUi->template('item_form_partial'), [
-            'form'              => $form,
+        $view    = $form->createView();
+        $context = [
+            'form'              => $view,
             'menu'              => $menu,
             'is_edit'           => true,
             'app_routes'        => $appRoutes,
             'locales'           => $this->locales,
             'item_has_children' => $itemHasChildren,
             'section_focus'     => $sectionFocus,
-        ]);
+        ];
+        if ($this->isDialogRequest($request)) {
+            return $this->renderPage('item_form_partial', $context, $form);
+        }
+
+        return $this->renderPage('item_form', $context + [
+            'page' => $this->pages()->itemFormPage($view, $menu, true, is_string($sectionFocus) ? $sectionFocus : null, $item->getParent(), $item, $request->getLocale(), $this->webUi()->layout()),
+        ], $form);
     }
 
     #[Route(path: '/{id}/item/{itemId}/delete', name: 'item_delete', requirements: ['id' => '\d+', 'itemId' => '\d+'], methods: ['POST'])]

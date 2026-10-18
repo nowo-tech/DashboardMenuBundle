@@ -112,10 +112,23 @@ services:
       $currentMatchers: !tagged_iterator nowo_dashboard_menu.current_matcher
     public: false
 
-  # Admin chrome hooks (dashboard.ui): class map, partial paths, template overrides (2.3.0).
+  # Deprecated 1.x admin chrome hooks (dashboard.ui, 2.3.0): still read by the page factory for one minor version.
   Nowo\DashboardMenuBundle\Service\DashboardUiConfig:
     arguments:
       $config: '%nowo_dashboard_menu.dashboard.ui%'
+
+  # REQ-UI-003: dashboard pages on the UiKit page contract (templates, layout, view models).
+  Nowo\DashboardMenuBundle\View\DashboardWebUi:
+    arguments:
+      $twig: '@?twig'
+      $layoutTemplate: '%nowo_dashboard_menu.web_ui.layout_template%'
+      $templates: '%nowo_dashboard_menu.web_ui.templates%'
+
+  Nowo\DashboardMenuBundle\View\DashboardPages:
+    arguments:
+      $urls: '@router'
+      $legacyUi: '@Nowo\DashboardMenuBundle\Service\DashboardUiConfig'
+      $modalSizes: '%nowo_dashboard_menu.dashboard.modals%'
 
   Nowo\DashboardMenuBundle\Twig\MenuExtension:
     arguments:
@@ -159,6 +172,8 @@ services:
       $importExportRateLimiter: '@Nowo\DashboardMenuBundle\Service\ImportExportRateLimiter'
       $itemFormLiveComponentEnabled: '%nowo_dashboard_menu.dashboard.item_form_live_component_enabled%'
       $dashboardUi: '@Nowo\DashboardMenuBundle\Service\DashboardUiConfig'
+      $webUi: '@Nowo\DashboardMenuBundle\View\DashboardWebUi'
+      $pages: '@Nowo\DashboardMenuBundle\View\DashboardPages'
     public: true
 
   Nowo\DashboardMenuBundle\EventSubscriber\DashboardMenuWorkerStateSubscriber:

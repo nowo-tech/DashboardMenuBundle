@@ -1,13 +1,14 @@
-{% macro sortable_items(nodes, currentLocale) %}
+{#- Nested sortable list of the reorder page (semantic classes only; dashboard.js + SortableJS drive it). -#}
+{% macro sortable_items(nodes, currentLocale, bundle = null) %}
     {% for node in nodes %}
-        <li class="nowo-menu-sortable-item border rounded px-2 py-1 bg-body-secondary" data-item-id="{{ node.item.id }}" data-item-type="{{ node.item.itemType }}">
-            <span class="nowo-menu-sortable-handle text-muted me-1 user-select-none" role="button" tabindex="0" title="{{ 'dashboard.sortable_drag_handle'|trans({}, 'NowoDashboardMenuBundle') }}">⋮⋮</span>
-            {% include '@NowoDashboardMenuBundle/dashboard/_dashboard_item_icon.html.twig' with { item: node.item } only %}
-            <span class="badge bg-secondary me-1">{{ node.item.itemType }}</span>
+        <li class="nowo-menu-sortable-item" data-item-id="{{ node.item.id }}" data-item-type="{{ node.item.itemType }}">
+            <span class="nowo-menu-sortable-handle {{ nowo_ui_class('muted', bundle) }}" role="button" tabindex="0" title="{{ 'dashboard.sortable_drag_handle'|trans({}, 'NowoDashboardMenuBundle') }}" aria-label="{{ 'dashboard.sortable_drag_handle'|trans({}, 'NowoDashboardMenuBundle') }}">⋮⋮</span>
+            {{ include('@NowoDashboardMenuBundle/dashboard/_dashboard_item_icon.html.twig', {item: node.item}, false) }}
+            <span class="{{ nowo_ui_class('badge_neutral', bundle) }} nowo-dashboard-menu-badge--type">{{ node.item.itemType }}</span>
             {{ node.item.getLabelForLocale(currentLocale) ?: ('dashboard.no_label'|trans({}, 'NowoDashboardMenuBundle')) }}
-            <ul class="nowo-menu-sortable-list nowo-menu-sortable-nested list-unstyled ms-3 border-start border-2 ps-2" data-parent-id="{{ node.item.id }}">
+            <ul class="nowo-menu-sortable-list nowo-menu-sortable-nested" data-parent-id="{{ node.item.id }}">
                 {% if node.children is not empty %}
-                    {{ _self.sortable_items(node.children, currentLocale) }}
+                    {{ _self.sortable_items(node.children, currentLocale, bundle) }}
                 {% endif %}
             </ul>
         </li>

@@ -1,0 +1,19 @@
+{#
+  UiKit dialogs (nowo_ui_partial('dialog'), native <dialog>) the form openers of the page load into. An opener is a
+  link to the full form page with data-nowo-dashboard-menu-dialog="<dialog id>": dashboard.js fetches it with
+  ?_modal=1 into [data-nowo-dashboard-menu-dialog-body] and opens the dialog (without JavaScript the link opens the
+  form page). Variables: dialogs (list of {id, title, size} from DashboardPages::dialogs()), bundle.
+#}
+{% for _dialog in dialogs|default([]) %}
+    {% set _body %}<div data-nowo-dashboard-menu-dialog-body><p class="{{ nowo_ui_class('muted', bundle) }}">{{ 'dashboard.loading'|trans({}, 'NowoDashboardMenuBundle') }}</p></div>{% endset %}
+    {{ include(nowo_ui_partial('dialog', bundle), {
+        id: _dialog.id,
+        title: _dialog.title,
+        size: _dialog.size,
+        body: _body,
+        close_label: 'dashboard.close'|trans({}, 'NowoDashboardMenuBundle'),
+        backdrop_close: false,
+        attr: {'data-nowo-dashboard-menu-dialog-root': _dialog.id},
+        bundle: bundle,
+    }, false) }}
+{% endfor %}

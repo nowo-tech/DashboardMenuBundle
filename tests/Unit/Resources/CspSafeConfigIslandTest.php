@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Guards the CSP-safe JSON config island contract (2.2.0): no inline assignment of
- * window.__nowoDashboardMenuConfig in dashboard templates, and a single island in base.html.twig.
+ * window.__nowoDashboardMenuConfig in dashboard templates, and a single island in _page_scripts.html.twig (2.7).
  */
 final class CspSafeConfigIslandTest extends TestCase
 {
@@ -29,13 +29,13 @@ final class CspSafeConfigIslandTest extends TestCase
         }
     }
 
-    public function testBaseTemplateEmitsSingleJsonIsland(): void
+    public function testPageScriptsEmitSingleJsonIsland(): void
     {
-        $base = (string) file_get_contents(self::VIEWS . '/base.html.twig');
+        $scripts = (string) file_get_contents(self::VIEWS . '/_page_scripts.html.twig');
 
-        self::assertSame(1, substr_count($base, 'type="application/json" id="nowo-dashboard-menu-config"'));
-        self::assertStringContainsString('nowo_dashboard_menu_page_config', $base);
-        self::assertStringContainsString('JSON_HEX_TAG', $base);
+        self::assertSame(1, substr_count($scripts, 'type="application/json" id="nowo-dashboard-menu-config"'));
+        self::assertStringContainsString('page_config', $scripts);
+        self::assertStringContainsString('JSON_HEX_TAG', $scripts);
     }
 
     /**
@@ -49,11 +49,12 @@ final class CspSafeConfigIslandTest extends TestCase
     }
 
     #[DataProvider('pageTemplates')]
-    public function testPageTemplatesProvidePageConfigAtTopLevel(string $template): void
+    public function testPageTemplatesPassTheirConfigToThePageScripts(string $template): void
     {
         $content = (string) file_get_contents(self::VIEWS . '/' . $template);
 
-        self::assertStringContainsString('{% set nowo_dashboard_menu_page_config', $content);
+        self::assertStringContainsString('_page_scripts.html.twig', $content);
+        self::assertStringContainsString('page_config:', $content);
         self::assertStringNotContainsString('<script>', $content);
     }
 }

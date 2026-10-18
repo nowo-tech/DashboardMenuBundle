@@ -1,130 +1,46 @@
-{% extends '@NowoDashboardMenuBundle/dashboard/base.html.twig' %}
-{% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
+{#
+  New / edit menu item (REQ-UI-003): UiKit form scaffold. View model: page (FormPage from
+  DashboardPages::itemFormPage()). Extra context: form, menu, is_edit, app_routes, locales, item_has_children,
+  section_focus, show_translations; live (true when the configuration section renders the Live component: the
+  component prints its fields inside the scaffold form in embedded mode and the scaffold form posts natively).
+  Data block: nowo_ui_form_body. Dialog fragments: _item_form_partial.html.twig, _item_form_live_partial.html.twig.
+  Override per page: nowo_dashboard_menu.web_ui.templates.item_form.
+#}
+{% extends '@NowoUiKit/page/form.html.twig' %}
 
-{# Merged into the single #nowo-dashboard-menu-config JSON island by base.html.twig. #}
-{% set nowo_dashboard_menu_page_config = { appRoutes: app_routes } %}
+{% block nowo_ui_styles %}{{ parent() }}{{ include('@NowoDashboardMenuBundle/dashboard/_page_styles.html.twig') }}{% endblock %}
 
-{% block dashboard_title %}{{ (is_edit ? 'dashboard.edit_item' : 'dashboard.new_item')|trans({}, 'NowoDashboardMenuBundle') }}{% endblock %}
+{% block nowo_ui_form_body %}
+    {% if nowo_dashboard_ux_autocomplete_available|default(false) and not (live|default(false)) %}
+        {% form_theme form '@SymfonyUXAutocomplete/autocomplete_form_theme.html.twig' %}
+    {% endif %}
+    <div id="modal-item-form-container" class="nowo-dashboard-menu-form" data-app-routes="{{ app_routes|default({})|json_encode|e('html_attr') }}" data-item-has-children="{{ item_has_children|default(false) ? 'true' : 'false' }}" data-section-focus="{{ section_focus|default('') }}">
+        {% if live|default(false) %}
+            {{ component('dashboard_menu_item_form', {
+                menu: menu,
+                appRoutes: app_routes,
+                excludeIds: exclude_ids|default([]),
+                locale: locale|default('en'),
+                isEdit: true,
+                itemHasChildren: item_has_children|default(false),
+                actionUrl: action_url,
+                redirectToUrl: redirect_to_url,
+                initialFormData: item,
+                itemId: item.id,
+                locales: locales|default([]),
+                sectionFocus: section_focus|default(null),
+                embedded: true,
+            }) }}
+        {% else %}
+            {{ include('@NowoDashboardMenuBundle/dashboard/_item_form_fields.html.twig', {bundle: page.bundle}) }}
+        {% endif %}
+    </div>
+    {{ parent() }}
+{% endblock %}
 
-{% block body %}
-    {% if nowo_dashboard_ux_autocomplete_available|default(false) %}
-{% form_theme form '@SymfonyUXAutocomplete/autocomplete_form_theme.html.twig' %}
-{% endif %}
-
-    <p>
-        <a href="{{ path(dashboard_show_route|default(dashboard_routes.show|default('nowo_dashboard_menu_dashboard_show')), { id: menu.id }) }}" class="{{ ui.btn('link') }}">← {{ menu.code }}</a>
-    </p>
-
-    {{ form_start(form, { attr: { class: 'form form-vertical dm-dashboard-form' } }) }}
-        {% set show_translations = show_translations|default(is_edit|default(false)) %}
-        <div class="row">
-            <div class="mb-2">
-                <h6 class="{{ ui.muted() }} mb-2">
-                    <i class="bi bi-pencil" aria-hidden="true"></i>
-                    {{ 'form.menu_item_type.section_basic'|trans({}, 'NowoDashboardMenuBundle') }}
-                </h6>
-                <p id="divider_label_hint" class="form-text {{ ui.muted() }} small mb-2" style="display: none;">{{ 'form.menu_item_type.divider_label_hint'|trans({}, 'NowoDashboardMenuBundle') }}</p>
-                <div id="item_basic_label_icon_fields" class="mb-2">
-                    {{ form_row(form.basic.label) }}
-                    {% if (show_translations|default(is_edit|default(false))) and locales is defined and locales is not empty %}
-                        <div class="row">
-                            {% for locale in locales %}
-                                {% set fieldName = 'label_' ~ locale %}
-                                {% if attribute(form.basic, fieldName) is defined %}
-                                    <div class="col-md-6">{{ form_row(attribute(form.basic, fieldName), { label_attr: { class: 'form-label' } }) }}</div>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-                {% if form.icon is defined %}
-                    <div class="mb-2">
-                        <h6 class="{{ ui.muted() }} mb-2">
-                            <i class="bi bi-image" aria-hidden="true"></i>
-                            {{ 'form.menu_item_type.section_icon'|trans({}, 'NowoDashboardMenuBundle') }}
-                        </h6>
-                        <div class="row">
-                        <div class="col-md-6 mb-2">{{ form_row(form.icon.itemType) }}</div>
-                        {% if form.icon.position is defined %}
-                        {% set positionAttr = {} %}
-                        {% if not is_edit|default(false) %}
-                            {% set positionAttr = positionAttr|merge({ 'disabled': 'disabled' }) %}
-                        {% endif %}
-                        <div class="col-md-6 mb-2 {{ is_edit|default(false) ? '' : 'd-none' }}">{{ form_row(form.icon.position, { attr: positionAttr }) }}</div>
-                        {% endif %}
-                        </div>
-                        {% if form.icon.icon is defined %}
-                        <div class="{{ is_edit|default(false) ? '' : 'd-none' }}">
-                        {% set iconAttr = {} %}
-                        {% if not is_edit|default(false) %}
-                            {% set iconAttr = iconAttr|merge({ 'disabled': 'disabled' }) %}
-                        {% endif %}
-                        {{ form_row(form.icon.icon, { attr: iconAttr }) }}
-                        </div>
-                        {% endif %}
-                    </div>
-                {% endif %}
-            </div>
-            {% if form.config is defined %}
-            <div class="mb-2">
-                <h6 class="{{ ui.muted() }} mb-2">
-                    <i class="bi bi-gear" aria-hidden="true"></i>
-                    {{ 'form.menu_item_type.section_config'|trans({}, 'NowoDashboardMenuBundle') }}
-                </h6>
-                {% if form.config.parent is defined %}
-                    <div id="item_parent_field">{{ form_row(form.config.parent) }}</div>
-                {% endif %}
-                {% if form.config.sectionCollapsible is defined %}
-                    <div id="item_section_collapsible_row" class="mb-2" style="display: none;">
-                        {{ form_row(form.config.sectionCollapsible) }}
-                    </div>
-                {% endif %}
-                {% if form.config.linkResolver is defined or form.config.linkType is defined %}
-                {% set _item_type_ui = form.vars.data.itemType|default('link') %}
-                <div
-                    id="item_link_fields"
-                    data-item-has-children="{{ item_has_children|default(false) ? 'true' : 'false' }}"
-                    data-initial-item-type="{{ _item_type_ui }}"
-                >
-                    {% if form.config.linkResolver is defined %}
-                    <div id="item_service_link_block" class="mb-2"{% if form.config.linkType is defined and _item_type_ui != 'service' %} style="display: none;"{% endif %}>
-                        {{ form_row(form.config.linkResolver) }}
-                        {% if form.config.routeParams is defined %}
-                            <small class="form-text {{ ui.muted() }} d-block mb-2" id="item_service_route_params_hint">{{ 'form.menu_item_type.link_resolver.route_params_hint'|trans({}, 'NowoDashboardMenuBundle') }}</small>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-                    {% if form.config.linkType is defined %}
-                    <div id="item_classic_link_block"{% if form.config.linkResolver is defined and _item_type_ui == 'service' %} style="display: none;"{% endif %}>
-                        {{ form_row(form.config.linkType) }}
-                        <div class="mb-2" id="route_name_row">{{ form_row(form.config.routeName) }}</div>
-                        <div id="external_field" style="display: none;">{{ form_row(form.config.externalUrl) }}</div>
-                    </div>
-                    {% endif %}
-                    {% if form.config.routeParams is defined %}
-                    <div class="mb-2" id="route_fields">
-                        {{ form_row(form.config.routeParams) }}
-                        <small class="form-text {{ ui.muted() }} d-block mt-1" id="route_params_hint"></small>
-                    </div>
-                    {% endif %}
-                    {% if form.config.targetBlank is defined %}
-                    <div class="mb-2" id="item_link_target_blank_row">
-                        {{ form_row(form.config.targetBlank, { row_attr: { class: 'form-check ms-0 mb-1' } }) }}
-                    </div>
-                    {% endif %}
-                </div>
-                {% endif %}
-                {% if form.config.permissionKeys is defined %}
-                    {{ form_row(form.config.permissionKeys) }}
-                {% else %}
-                    {{ form_row(form.config.permissionKey) }}
-                {% endif %}
-                {{ form_row(form.config.isUnanimous, { row_attr: { class: 'form-check ms-0 mb-1' } }) }}
-            </div>
-            {% endif %}
-        </div>
-        {{ form_rest(form) }}
-        <button type="submit" class="{{ ui.btn('primary') }}">{{ (is_edit ? 'dashboard.update' : 'dashboard.create')|trans({}, 'NowoDashboardMenuBundle') }}</button>
-    {{ form_end(form) }}
-
+{% block nowo_ui_scripts %}
+    {{ parent() }}
+    {{ include('@NowoDashboardMenuBundle/dashboard/_page_scripts.html.twig', {
+        page_config: {itemFormPage: true},
+    }) }}
 {% endblock %}

@@ -1,18 +1,9 @@
-{% extends '@NowoDashboardMenuBundle/dashboard/base.html.twig' %}
-{% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
+{#
+  Import menus from JSON (REQ-UI-003): UiKit form scaffold (multipart). View model: page (FormPage from
+  DashboardPages::importFormPage(): help text as the header intro). Extra context: form. The default child loop
+  renders the fields (file, strategy). Dialog fragment: _import_partial.html.twig. Override per page:
+  nowo_dashboard_menu.web_ui.templates.import.
+#}
+{% extends '@NowoUiKit/page/form.html.twig' %}
 
-{% block dashboard_title %}{{ 'dashboard.import'|trans({}, 'NowoDashboardMenuBundle') }}{% endblock %}
-
-{% block body %}
-    <p><a href="{{ path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index')) }}" class="{{ ui.btn('link') }}">{{ 'dashboard.menus_back'|trans({}, 'NowoDashboardMenuBundle') }}</a></p>
-
-    <p class="{{ ui.muted() }}">{{ 'dashboard.import_help'|trans({}, 'NowoDashboardMenuBundle') }}</p>
-
-    {{ form_start(form, { attr: { enctype: 'multipart/form-data', style: 'max-width: 32rem;' } }) }}
-        {{ form_row(form.file, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
-        {{ form_row(form.strategy, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
-        {{ form_rest(form) }}
-        <button type="submit" class="{{ ui.btn('primary') }}">{{ 'dashboard.import'|trans({}, 'NowoDashboardMenuBundle') }}</button>
-        <a href="{{ path(dashboard_routes.index|default('nowo_dashboard_menu_dashboard_index')) }}" class="{{ ui.btn('secondary') }}">{{ 'dashboard.cancel'|trans({}, 'NowoDashboardMenuBundle') }}</a>
-    {{ form_end(form) }}
-{% endblock %}
+{% block nowo_ui_styles %}{{ parent() }}{{ include('@NowoDashboardMenuBundle/dashboard/_page_styles.html.twig') }}{% endblock %}

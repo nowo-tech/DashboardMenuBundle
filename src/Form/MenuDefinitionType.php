@@ -53,11 +53,9 @@ final class MenuDefinitionType extends AbstractType
                 ],
             ]);
             $this->addCheckboxField('base', [
-                'required'   => false,
-                'label'      => 'form.menu_type.base.label',
-                'help'       => 'form.menu_type.base.help',
-                'row_attr'   => ['class' => 'ms-3 mb-1 form-check'],
-                'label_attr' => ['class' => 'form-check-label'],
+                'required' => false,
+                'label'    => 'form.menu_type.base.label',
+                'help'     => 'form.menu_type.base.help',
             ]);
             $this->addTextField('name', [
                 'required' => false,
@@ -70,7 +68,6 @@ final class MenuDefinitionType extends AbstractType
                 'label'    => 'form.menu_type.context.label',
                 'help'     => 'form.menu_type.context.help',
                 'attr'     => [
-                    'class'       => 'nowo-ui-input form-control font-monospace',
                     'rows'        => 3,
                     'placeholder' => $t('form.menu_type.context.placeholder'),
                 ],
