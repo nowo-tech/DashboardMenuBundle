@@ -107,6 +107,16 @@
 
 ## Unreleased
 
+Requires UiKit **^2.2** (`composer require nowo-tech/ui-kit-bundle:^2.2`). No configuration change. What hosts may
+notice:
+
+- **Full item page, configuration section** (Live component): the page has no scaffold `<form>` any more — the
+  component renders its own form and saves through its Live `save` action (same as the dialog), then redirects to the
+  menu. Overrides of `dashboard/item_form.html.twig` that relied on `form` (the shell `FormView`) in live mode get
+  `form: null`; pass `cancelHref` instead of `embedded: true` to the component.
+- UiKit 2.2 default theme: small uppercase table headers, striped rows, row actions on one line, subtle badges, muted
+  help text (UiKit UPGRADING "Template contract (2.2)").
+
 ## To 2.7.0
 
 From **2.6.0**:

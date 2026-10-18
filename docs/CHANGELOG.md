@@ -100,6 +100,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Requires `nowo-tech/ui-kit-bundle` **^2.2** (default-theme polish: table header hierarchy, striped rows, row actions
+  on one line, search filter as a grid row, subtle badges, muted help text). See [UPGRADING](UPGRADING.md#unreleased).
+- Full item page, configuration section (Live component): UiKit 2.2 body-only form page (`FormPage::$form` null)
+  instead of a field-less "shell" `FormView` wrapping the component in embedded mode. The component renders its own
+  form (Live `save` action, then redirect to the menu, as in the dialog) and a Cancel link (new LiveProp
+  `cancelHref`). `DashboardPages::itemFormPage()` accepts a null form.
+- Demo: the host layout prints the UiKit runtimes through the UiKit `scripts` partial.
+
+### Deprecated
+
+- `ItemFormLiveComponent::$embedded` is no longer used by the bundle pages (kept for host templates that embed the
+  component inside their own form).
+
 ## [2.7.0] - 2026-10-18
 
 Dashboard pages on the UiKit 2.1 standard page contract (REQ-UI-003): list, show and form scaffolds, UiKit dialogs with no-JS fallbacks (Live item form kept), confirm dialogs; deprecated `dashboard.*` / `dashboard.ui.*` keys mapped or bridged into `nowo_ui_kit.theme.bundles`. See [UPGRADING](UPGRADING.md#to-270).
