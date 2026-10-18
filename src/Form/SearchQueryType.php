@@ -38,7 +38,7 @@ final class SearchQueryType extends AbstractType
             : $id;
 
         $this->addWithDefaults($builder, 'q', SearchType::class, [
-            'required'    => false,
+            'required' => false,
             // Visible label of the UiKit filter row (a `false` label is replaced by the FormKit convention in hosts).
             'label'       => 'dashboard.search',
             'help'        => false,
