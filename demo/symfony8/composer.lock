@@ -1118,7 +1118,7 @@
         },
         {
             "name": "nowo-tech/dashboard-menu-bundle",
-            "version": "dev-feature/ui-page-contract",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "/var/dashboard-menu-bundle",
