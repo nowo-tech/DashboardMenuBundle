@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.8.1](#to-281)
 - [To 2.8.0](#to-280)
 - [To 2.7.0](#to-270)
   - [Template contract](#template-contract)
@@ -107,6 +108,14 @@
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## To 2.8.1
+
+From **2.8.0**:
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
 
 ## To 2.8.0
 
