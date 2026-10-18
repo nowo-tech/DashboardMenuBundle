@@ -259,7 +259,7 @@ final readonly class DashboardPages
     {
         $title  = !$isEdit ? 'dashboard.new_menu' : ($section === 'config' ? 'dashboard.edit_config' : 'dashboard.edit_menu');
         $cancel = $menu instanceof Menu && $menu->getId() !== null
-            ? $this->url(DashboardRoutes::ROUTE_SHOW, ['id' => (int) $menu->getId()])
+            ? $this->url(DashboardRoutes::ROUTE_SHOW, ['id' => $menu->getId()])
             : $this->url(DashboardRoutes::ROUTE_INDEX);
         $crumbs = $menu instanceof Menu && $menu->getId() !== null ? $this->menuCrumbs($menu, true) : [new Crumb($this->label('dashboard.menus'), $this->url(DashboardRoutes::ROUTE_INDEX))];
 
@@ -275,8 +275,10 @@ final readonly class DashboardPages
 
     /**
      * New / edit item form ({@code section}: minimal (new item), basic, icon, config, identity or null = full edit).
+     * {@code $form} null: UiKit 2.2 body-only form page (the configuration section's Live component renders its own
+     * form, submit and cancel inside the form panel).
      */
-    public function itemFormPage(FormView $form, Menu $menu, bool $isEdit, ?string $section = null, ?MenuItem $parent = null, ?MenuItem $item = null, string $locale = 'en', ?string $layout = null): FormPage
+    public function itemFormPage(?FormView $form, Menu $menu, bool $isEdit, ?string $section = null, ?MenuItem $parent = null, ?MenuItem $item = null, string $locale = 'en', ?string $layout = null): FormPage
     {
         $title = match (true) {
             !$isEdit              => $parent instanceof MenuItem ? 'dashboard.add_child' : 'dashboard.add_item',
@@ -362,7 +364,7 @@ final readonly class DashboardPages
         return $this->legacyUi->toArray()['form_themes'];
     }
 
-    private function formPage(PageHeader $header, FormView $form, string $submitLabel, string $cancelHref, string $testId, ?string $layout): FormPage
+    private function formPage(PageHeader $header, ?FormView $form, string $submitLabel, string $cancelHref, string $testId, ?string $layout): FormPage
     {
         return new FormPage(
             $header,

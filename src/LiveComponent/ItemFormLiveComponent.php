@@ -75,11 +75,18 @@ final class ItemFormLiveComponent
     public string $redirectToUrl = '';
 
     /**
-     * True when the component renders inside the page/form scaffold of the full item page (2.7): no own form tag or
-     * submit button; the scaffold form posts natively to the edit action (the dialog keeps the Live save action).
+     * True when the component renders inside a host page/form scaffold <form> (2.7): no own form tag or submit button;
+     * the scaffold form posts natively to the edit action. The bundle's full item page uses the UiKit 2.2 body-only
+     * form page instead (own form, {@see $cancelHref}) since 2.8; kept for host templates.
      */
     #[LiveProp]
     public bool $embedded = false;
+
+    /**
+     * Cancel link of the own form (full item page, 2.8); null = the cancel button closes the enclosing UiKit dialog.
+     */
+    #[LiveProp]
+    public ?string $cancelHref = null;
 
     /** When set ('basic' or 'config'), only that section is shown and submitted. */
     #[LiveProp]

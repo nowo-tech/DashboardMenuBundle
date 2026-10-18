@@ -1,8 +1,9 @@
 {#
   New / edit menu item (REQ-UI-003): UiKit form scaffold. View model: page (FormPage from
   DashboardPages::itemFormPage()). Extra context: form, menu, is_edit, app_routes, locales, item_has_children,
-  section_focus, show_translations; live (true when the configuration section renders the Live component: the
-  component prints its fields inside the scaffold form in embedded mode and the scaffold form posts natively).
+  section_focus, show_translations; live (true when the configuration section renders the Live component: UiKit 2.2
+  body-only form page — page.form is null, the component renders its own form, Live save action and a cancel link to
+  page.cancelHref inside the form panel).
   Data block: nowo_ui_form_body. Dialog fragments: _item_form_partial.html.twig, _item_form_live_partial.html.twig.
   Override per page: nowo_dashboard_menu.web_ui.templates.item_form.
 #}
@@ -29,7 +30,7 @@
                 itemId: item.id,
                 locales: locales|default([]),
                 sectionFocus: section_focus|default(null),
-                embedded: true,
+                cancelHref: page.cancelHref,
             }) }}
         {% else %}
             {{ include('@NowoDashboardMenuBundle/dashboard/_item_form_fields.html.twig', {bundle: page.bundle}) }}

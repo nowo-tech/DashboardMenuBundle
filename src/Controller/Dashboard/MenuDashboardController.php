@@ -26,7 +26,6 @@ use Nowo\DashboardMenuBundle\Service\MenuImporter;
 use Nowo\DashboardMenuBundle\View\DashboardPages;
 use Nowo\DashboardMenuBundle\View\DashboardWebUi;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -1249,18 +1248,13 @@ final class MenuDashboardController extends AbstractController
             if ($this->isDialogRequest($request)) {
                 return $this->renderPage('item_form_live', $liveContext);
             }
-            // Full page: the Live component renders its fields inside the form scaffold (embedded mode) and the
-            // scaffold's form posts natively to this action. The shell form only carries the form tag.
-            $shell = $this->container->get('form.factory')->createNamedBuilder('menu_item', FormType::class, null, [
-                'action'          => $liveContext['action_url'],
-                'method'          => 'POST',
-                'csrf_protection' => false,
-            ])->getForm()->createView();
 
+            // Full page: UiKit 2.2 body-only form page — the Live component renders its own form (Live save action,
+            // then redirect_to_url), submit and cancel (link back to the menu) inside the form panel.
             return $this->renderPage('item_form', $liveContext + [
                 'live' => true,
-                'form' => $shell,
-                'page' => $this->pages()->itemFormPage($shell, $menu, true, 'config', $item->getParent(), $item, $locale, $this->webUi()->layout()),
+                'form' => null,
+                'page' => $this->pages()->itemFormPage(null, $menu, true, 'config', $item->getParent(), $item, $locale, $this->webUi()->layout()),
             ]);
         }
 

@@ -2,7 +2,8 @@
 {% form_theme form '@SymfonyUXAutocomplete/autocomplete_form_theme.html.twig' %}
 {% endif %}
 {#-
-  Live item form (configuration section). Keep the live#action hooks. embedded (2.7): the fields render inside the
+  Live item form (configuration section). Keep the live#action hooks. cancelHref (2.8): cancel link of the own form
+  (full item page, UiKit body-only form page; null = closes the dialog). embedded (2.7): the fields render inside the
   page/form scaffold <form> (no own form tag / submit button; the scaffold form posts natively to the edit action),
   every field carries its own data-model binding. Semantic classes + UiKit theme slots only.
 -#}
@@ -196,7 +197,11 @@
             >
                 {{ (isEdit ? 'dashboard.update' : 'dashboard.create')|trans({}, 'NowoDashboardMenuBundle') }}
             </button>
-            <button type="button" class="{{ nowo_ui_class('btn_secondary', _b) }}" data-nowo-ui-dialog-close>{{ 'dashboard.cancel'|trans({}, 'NowoDashboardMenuBundle') }}</button>
+            {% if cancelHref|default(null) %}
+                <a class="{{ nowo_ui_class('btn_secondary', _b) }}" href="{{ cancelHref }}">{{ 'dashboard.cancel'|trans({}, 'NowoDashboardMenuBundle') }}</a>
+            {% else %}
+                <button type="button" class="{{ nowo_ui_class('btn_secondary', _b) }}" data-nowo-ui-dialog-close>{{ 'dashboard.cancel'|trans({}, 'NowoDashboardMenuBundle') }}</button>
+            {% endif %}
         </div>
         {% endif %}
     {% if not _embedded %}{{ form_end(form) }}{% endif %}

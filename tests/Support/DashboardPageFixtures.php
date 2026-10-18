@@ -330,19 +330,19 @@ final class DashboardPageFixtures
     }
 
     /**
-     * Full item page with the Live component (configuration section): a shell form, the component renders the fields.
+     * Full item page with the Live component (configuration section): UiKit 2.2 body-only form page, the component
+     * renders its own form.
      *
      * @return array<string, mixed>
      */
     public static function itemFormLive(): array
     {
-        $menu  = self::sidebar();
-        $item  = self::items()[1];
-        $shell = self::formFactory()->createNamedBuilder('menu_item', FormType::class, null, ['action' => '/admin/menus/1/item/11/edit', 'csrf_protection' => false])->getForm()->createView();
+        $menu = self::sidebar();
+        $item = self::items()[1];
 
         return [
             'live'              => true,
-            'form'              => $shell,
+            'form'              => null,
             'menu'              => $menu,
             'item'              => $item,
             'app_routes'        => [],
@@ -354,7 +354,7 @@ final class DashboardPageFixtures
             'redirect_to_url'   => '/admin/menus/1',
             'locales'           => ['en', 'es'],
             'section_focus'     => 'config',
-            'page'              => self::pages()->itemFormPage($shell, $menu, true, 'config', null, $item),
+            'page'              => self::pages()->itemFormPage(null, $menu, true, 'config', null, $item),
         ];
     }
 

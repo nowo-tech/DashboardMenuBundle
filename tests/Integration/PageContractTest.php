@@ -147,14 +147,15 @@ final class PageContractTest extends PageContractTestCase
         self::assertStringContainsString('This value should not be blank.', $error);
     }
 
-    public function testLiveItemPageEmbedsTheComponentInTheScaffoldForm(): void
+    public function testLiveItemPageIsABodyOnlyFormPage(): void
     {
         $html = $this->renderPage(new PageFixture(self::VIEWS . 'item_form.html.twig', DashboardPageFixtures::itemFormLive()))->html;
 
         self::assertStringContainsString('<live-component name="dashboard_menu_item_form"', $html);
-        self::assertStringContainsString('&quot;embedded&quot;:true', $html);
-        self::assertStringContainsString('action="/admin/menus/1/item/11/edit"', $html);
-        self::assertSame(1, substr_count($html, '<form'), 'One form: the scaffold form wraps the embedded component.');
+        self::assertStringNotContainsString('&quot;embedded&quot;:true', $html);
+        self::assertStringContainsString('&quot;cancelHref&quot;:&quot;\/admin\/menus\/1&quot;', $html);
+        self::assertSame(0, substr_count($html, '<form'), 'UiKit 2.2 body-only: the component renders its own form.');
+        self::assertStringNotContainsString('data-nowo-ui-region="form"', $html);
     }
 
     public function testCopyAndImportShowTheirHelpText(): void
@@ -233,7 +234,7 @@ final class PageContractTest extends PageContractTestCase
         $twig->addFunction(new TwigFunction('ux_icon', static fn (string $name, array $attributes = []): Markup => new Markup('<svg data-icon="' . htmlspecialchars($name) . '"></svg>', 'UTF-8')));
         // Live component stub: name + props (the real component is rendered by symfony/ux-live-component).
         $twig->addFunction(new TwigFunction('component', static function (string $name, array $props = []): Markup {
-            $data = ['embedded' => $props['embedded'] ?? false, 'sectionFocus' => $props['sectionFocus'] ?? null];
+            $data = ['embedded' => $props['embedded'] ?? false, 'sectionFocus' => $props['sectionFocus'] ?? null, 'cancelHref' => $props['cancelHref'] ?? null];
 
             return new Markup('<live-component name="' . htmlspecialchars($name) . '" data-props="' . htmlspecialchars((string) json_encode($data)) . '"></live-component>', 'UTF-8');
         }));
