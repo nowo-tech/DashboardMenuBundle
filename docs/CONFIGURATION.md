@@ -13,6 +13,7 @@
   - [menu_link_resolver_choices](#menu_link_resolver_choices)
   - [api](#api)
   - [menu_collapse](#menu_collapse)
+  - [web_ui](#web_ui)
   - [dashboard](#dashboard)
     - [css_class_options](#css_class_options)
 - [Per-menu options (database)](#per-menu-options-database)
@@ -203,23 +204,47 @@ nowo_dashboard_menu:
 
 The Twig global `nowo_dashboard_menu_collapse` exposes the resolved values (`enabled`, `mode`, `storage_key`).
 
+### web_ui
+
+*Since 2.7 (REQ-UI-003).* The admin dashboard pages extend the UiKit scaffolds (list, show, form) and render inside
+`nowo_ui_kit.layouts.admin`. CSS stack, icon set, row-action display and every class / attribute / partial come from
+`nowo_ui_kit` (theme once in `nowo_ui_kit.theme`, per-bundle exception `nowo_ui_kit.theme.bundles.NowoDashboardMenuBundle`).
+Pages, blocks and view models: [TEMPLATES.md](TEMPLATES.md).
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `enabled` | `false` | Enable the dashboard routes (import `routes_dashboard.yaml`); when `false` they answer 404. Replaces `dashboard.enabled`. |
+| `path_prefix` | `/admin/menus` | The prefix you import `routes_dashboard.yaml` with (informational; lock it in `security.access_control`). Replaces `dashboard.path_prefix`. |
+| `layout_template` | `null` | Layout the scaffolds extend instead of `nowo_ui_kit.layouts.admin`. Must render the UiKit canonical blocks (`nowo_ui_content`…). A 1.x layout that renders `nowo_dashboard_menu_content` is wrapped in a deprecated bridge. Replaces `dashboard.layout_template`. |
+| `templates` | `{}` | Per-page override (page => template): `index`, `show`, `show_items_reorder`, `menu_form`, `item_form`, `copy_menu`, `import`, `menu_form_partial`, `item_form_partial`, `item_form_live`, `copy_menu_partial`, `import_partial`. Prefer a thin `{% extends '@!NowoDashboardMenuBundle/…' %}` overriding a data block. |
+
+```yaml
+nowo_ui_kit:
+    layouts:
+        admin: 'layouts/admin.html.twig'   # your layout or a one-file bridge rendering the canonical blocks
+nowo_dashboard_menu:
+    web_ui:
+        enabled: true
+        path_prefix: /admin/menus
+```
+
 ### dashboard
 
 Options for the admin dashboard (list, create, edit, copy menus and manage items).
 
 | Option                        | Default        | Description |
 |-------------------------------|----------------|-------------|
-| `enabled`                     | `false`        | Enable dashboard routes. Set to `true` in app config to use the admin UI. When `false`, dashboard routes answer 404 even if `routes_dashboard.yaml` is imported. |
-| `layout_template`             | `@NowoDashboardMenuBundle/dashboard/layout.html.twig` | Twig template that dashboard views ultimately extend (via `dashboard/base.html.twig`). Must define block `nowo_dashboard_menu_content` (aliased as `nowo_ui_content` in the demo layout). Override to use your app layout (e.g. `base.html.twig`) so the dashboard matches your app shell. |
-| `css_framework`               | `bootstrap5`   | CSS framework for the built-in dashboard UI. Values: `bootstrap5` (alias `bootstrap`), `bootstrap4`, `tailwind`, `foundation`, `tabler`, `custom`, `none`. Default `bootstrap5` keeps demos working. Exposed as Twig global `nowo_dashboard_menu_css_framework` and the `cssFramework` key of the `#nowo-dashboard-menu-config` JSON island (legacy `window.__nowoDashboardMenuConfig` fallback kept in 2.x; removal moved to 3.0). When UiKit is installed and the host has not set `nowo_ui_kit.css_framework`, this value is also prepended as the UiKit default (REQ-UI-001-kit). |
-| `icon_set`                    | `bootstrap-icons` | Icon library for built-in dashboard templates. Values: `bootstrap-icons`, `tabler-icons`, `ux_icon`, `svg_inline`, `none`. Exposed as Twig global `nowo_dashboard_menu_icon_set`. Likewise seeds `nowo_ui_kit.icon_set` when the host has not set it. |
-| `path_prefix`                 | *(deprecated)* | **Deprecated.** Set the dashboard URL prefix in your app routing when importing `routes_dashboard.yaml` (e.g. in `config/routes.yaml` or the recipe’s `config/routes_nowo_dashboard_menu.yaml`). |
+| `enabled`                     | *(deprecated)* | **Deprecated (2.7)** alias of `web_ui.enabled`. |
+| `layout_template`             | *(deprecated)* | **Deprecated (2.7)** alias of `web_ui.layout_template`; the 1.x default `@NowoDashboardMenuBundle/dashboard/layout.html.twig` (removed) maps to `null` (UiKit layout). |
+| `css_framework`               | `bootstrap5`   | **Deprecated (2.7)**: the pages follow `nowo_ui_kit.css_framework`. When set here (and not under `nowo_ui_kit`) it is seeded into UiKit; it also picks the FormKit `dashboard_menu` profile classes. Twig global `nowo_dashboard_menu_css_framework` kept. |
+| `icon_set`                    | `bootstrap-icons` | **Deprecated (2.7)**: row-action icons follow `nowo_ui_kit.icon_set` (seeded from this value when set here only). |
+| `path_prefix`                 | *(deprecated)* | **Deprecated** alias of `web_ui.path_prefix`. Set the dashboard URL prefix in your app routing when importing `routes_dashboard.yaml` (e.g. in `config/routes.yaml` or the recipe’s `config/routes_nowo_dashboard_menu.yaml`). |
 | `route_name_exclude_patterns`  | `[]`           | Regex patterns to hide route names from the route selector (e.g. `['^_', '^web_profiler']`). |
 | `pagination.enabled`         | `true`         | Paginate the menus list. |
 | `pagination.per_page`        | `20`           | Menus per page. |
 | `position_step`              | `100`          | Gap used by the dashboard “Re-index positions” action: within each sibling group (same parent), positions become `step`, `2*step`, `3*step`, … in current sort order. |
-| `modals`                      | see below      | Modal sizes: `menu_form`, `copy`, `item_form`, `delete` (Bootstrap 5: `normal`, `lg`, `xl`). |
-| `ui`                          | see below      | *(2.3.0)* Admin chrome hooks: `include_ui_kit_css`, `header_actions_in_layout`, `header_action_variants` *(2.4.1)*, `index_view`, `actions_column`, `row_action_display`, `region_attribute`, `form_themes`, `classes.*`, `partials.*`, `templates.*`. All opt-in; defaults keep the bundle markup. Full reference and example in [USAGE — Customising the admin chrome](USAGE.md#customising-the-admin-chrome). |
+| `modals`                      | see below      | Dialog sizes (UiKit `dialog` partial): `menu_form` (menu + import dialogs), `copy`, `item_form`: `normal`, `lg`, `xl`. `delete` is unused since 2.7 (UiKit confirm dialog). |
+| `ui`                          | see below      | **Deprecated (2.7)** 1.x admin chrome hooks. `classes.*` and `partials.pagination` are bridged into `nowo_ui_kit.theme.bundles.NowoDashboardMenuBundle`, `templates.*` mapped to `web_ui.templates`, `row_action_display` / `header_action_variants` / `form_themes` still applied, the rest has no effect. Mapping: [UPGRADING](UPGRADING.md#deprecated-configuration). |
 | `css_class_options`           | (defaults)     | Arrays of CSS class choices shown as dropdowns when editing a menu. `section` / `divider` (and `span`) also provide rendering defaults. See [css_class_options](#css_class_options). |
 | `icon_selector_script_url`   | `null`         | Optional URL of the icon-selector script (e.g. with `nowo-tech/icon-selector-bundle`). When set, the item form can show an icon selector. |
 | `stimulus_script_url`        | *(see below)*  | URL of the Stimulus script for the Live Component form in the item modal (e.g. `bundles/nowodashboardmenu/js/stimulus-live.js`). The bundle needs `window.Stimulus` (or `$$stimulusApp$$` / `__stimulusApp__`) to connect controllers in the modal. Set to `null` only if your layout loads Stimulus and exposes it on `window` before the modal is opened. If you override the dashboard layout, include the script tag when this is set (same as the bundle layout). Dashboard autocomplete bootstrap in `dashboard.js` also relies on Stimulus availability to auto-register UX Autocomplete when needed. |
@@ -234,7 +259,7 @@ Options for the admin dashboard (list, create, edit, copy menus and manage items
 
 **Modal defaults:** `menu_form: normal`, `copy: normal`, `item_form: lg`, `delete: normal`.
 
-**`ui` defaults:**
+**`ui` defaults (deprecated):**
 
 ```yaml
 ui:
@@ -351,11 +376,11 @@ nowo_dashboard_menu:
     api:
         enabled: true
         path_prefix: /api/menu
-    dashboard:
+    web_ui:
         enabled: true
-        layout_template: '@NowoDashboardMenuBundle/dashboard/layout.html.twig'  # or e.g. base.html.twig
-        css_framework: bootstrap5  # bootstrap5 | tailwind | tabler | custom | none
-        icon_set: bootstrap-icons  # bootstrap-icons | tabler-icons | ux_icon | svg_inline | none
+        path_prefix: /admin/menus  # same prefix as the routes_dashboard.yaml import
+        # layout_template: null    # null = nowo_ui_kit.layouts.admin
+    dashboard:
         # Prefix is set in config/routes.yaml when importing routes_dashboard.yaml (e.g. prefix: /admin/menus).
         route_name_exclude_patterns: ['^_', '^web_profiler']
         pagination:

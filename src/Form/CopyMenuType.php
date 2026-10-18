@@ -42,7 +42,7 @@ final class CopyMenuType extends AbstractType
                 'label'    => 'form.copy_menu_type.code.label',
                 'help'     => false,
                 'attr'     => [
-                    'pattern'     => '[a-zA-Z0-9_-]+',
+                    'pattern'     => '[a-zA-Z0-9_\\-]+',
                     'placeholder' => $t('form.copy_menu_type.code.placeholder'),
                 ],
                 'constraints' => [

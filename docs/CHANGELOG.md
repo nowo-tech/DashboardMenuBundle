@@ -99,6 +99,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **UiKit page contract (REQ-UI-003)**: the dashboard pages extend the UiKit 2.1 scaffolds — menus list → `page/list`, menu detail → `page/show` (items table in `nowo_ui_show_after`), menu / item / copy / import forms → `page/form`; the drag reorder page is a declared unique page. View models come from `Nowo\DashboardMenuBundle\View\DashboardPages`; `View\DashboardWebUi` resolves templates and the layout. See [docs/TEMPLATES.md](TEMPLATES.md).
+- Canonical configuration `nowo_dashboard_menu.web_ui.{enabled, path_prefix, layout_template, templates}` (layout null = `nowo_ui_kit.layouts.admin`).
+- Forms open in UiKit native dialogs (`nowo_ui_partial('dialog')`): openers are links to the form pages (no-JS fallback) loaded with `?_modal=1`; every form also exists as a full page.
+- Live item form (configuration section) in embedded mode inside the form scaffold (`embedded` Live prop); the scaffold form posts natively.
+- `css/dashboard.css` (bundle semantic classes painted from the UiKit tokens), contract test `tests/Integration/PageContractTest.php`.
+
+### Changed
+
+- Delete confirmations use the UiKit confirm contract (`<dialog>`, CSRF `FormView`), move up / down, re-index and cycle check are UiKit POST actions; row and header actions are `View\Action`s.
+- Form types no longer hard-code Bootstrap classes (`mb-1`, `form-check`, `form-check-label`, `font-monospace`): the seeded FormKit `dashboard_menu` profile follows the UiKit CSS stack (Bootstrap classes only for Bootstrap / Tabler) with `convention_requires_translation`.
+- Form pages answer HTTP 422 when a submitted form is invalid; dialog fragments only for `GET …?_modal=1`.
+- The search field shows the "Search" label (UiKit filter row).
+- Requires `nowo-tech/ui-kit-bundle` `^2.1`.
+
+### Deprecated
+
+- `dashboard.enabled`, `dashboard.layout_template`, `dashboard.path_prefix` → `web_ui.*`; `dashboard.css_framework` / `icon_set` → `nowo_ui_kit.css_framework` / `icon_set`; the whole `dashboard.ui` node (classes bridged into `nowo_ui_kit.theme.bundles.NowoDashboardMenuBundle`, templates mapped to `web_ui.templates`); `DashboardUiConfig`, the `nowo_dashboard_menu_ui` / `nowo_dashboard_layout_template` Twig globals and `dashboard_menu_ui_class()`. A 1.x layout rendering `nowo_dashboard_menu_content` is wrapped in a bridge (deprecation at runtime). Removal in 3.0.
+
+### Removed
+
+- Local chrome: `dashboard/layout.html.twig` (CSS frameworks from CDNs), `dashboard/base.html.twig`, `_pagination`, `_row_action_inner`, `_delete_confirm_body`, `_modal`, `_menu_dashboard_modals`, `_menu_properties`, `_icons`, the hard-coded flash loop and the Bootstrap-modal code of `dashboard.js`.
+
 ## [2.6.0] - 2026-10-13
 
 ### Added

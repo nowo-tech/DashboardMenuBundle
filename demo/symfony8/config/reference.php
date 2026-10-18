@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 // This file is auto-generated and is for apps only. Bundles SHOULD NOT rely on its content.
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
@@ -1378,11 +1376,11 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         storage_key?: scalar|Param|null, // localStorage key holding { <menu code>: { <panel id>: open } }. Empty string disables persistence. // Default: "nowo.dashboardMenu.navCollapse"
  *     },
  *     dashboard?: array{ // Admin dashboard to manage menus and items. Import routes with prefix (e.g. /admin/menus).
- *         enabled?: bool|Param, // Default: false
- *         layout_template?: scalar|Param|null, // Twig template that dashboard views extend (e.g. @App/base.html.twig). Must define block "nowo_dashboard_menu_content". If not set or template does not exist, the bundle layout is used. // Default: "@NowoDashboardMenuBundle/dashboard/layout.html.twig"
- *         css_framework?: scalar|Param|null, // CSS stack for dashboard markup (REQ-UI-001): see Nowo\DashboardMenuBundle\Enum\CssFramework. // Default: "bootstrap5"
- *         icon_set?: scalar|Param|null, // Icon set for dashboard row actions (REQ-UI-001): see Nowo\DashboardMenuBundle\Enum\IconSet. // Default: "bootstrap-icons"
- *         path_prefix?: scalar|Param|null, // Deprecated: The option "nowo_dashboard_menu.dashboard.path_prefix" is deprecated. Configure the dashboard URL prefix in your app routing (e.g. config/routes.yaml or config/routes_nowo_dashboard_menu.yaml) when importing @NowoDashboardMenuBundle/Resources/config/routes_dashboard.yaml. // Deprecated: set the dashboard URL prefix in config/routes.yaml when importing routes_dashboard.yaml (e.g. prefix: /admin/menus). // Default: "/admin/menus"
+ *         enabled?: bool|Param, // Deprecated: The "nowo_dashboard_menu.dashboard.enabled.enabled" option is deprecated, use "nowo_dashboard_menu.web_ui.enabled" instead. // Deprecated alias of web_ui.enabled.
+ *         layout_template?: scalar|Param|null, // Deprecated: The "nowo_dashboard_menu.dashboard.layout_template.layout_template" option is deprecated, use "nowo_dashboard_menu.web_ui.layout_template" (null = nowo_ui_kit.layouts.admin) instead. // Deprecated alias of web_ui.layout_template (the 1.x default layout is removed: null = UiKit layout).
+ *         css_framework?: scalar|Param|null, // Deprecated: The "nowo_dashboard_menu.dashboard.css_framework.css_framework" option is deprecated, set "nowo_ui_kit.css_framework" instead. // Deprecated: the dashboard pages follow nowo_ui_kit.css_framework (seeded from this value when set here and not in nowo_ui_kit). // Default: "bootstrap5"
+ *         icon_set?: scalar|Param|null, // Deprecated: The "nowo_dashboard_menu.dashboard.icon_set.icon_set" option is deprecated, set "nowo_ui_kit.icon_set" instead. // Deprecated: row action icons follow nowo_ui_kit.icon_set (seeded from this value when set here and not in nowo_ui_kit). // Default: "bootstrap-icons"
+ *         path_prefix?: scalar|Param|null, // Deprecated: The option "nowo_dashboard_menu.dashboard.path_prefix" is deprecated. Use "nowo_dashboard_menu.web_ui.path_prefix" and configure the same prefix in your app routing (e.g. config/routes.yaml) when importing @NowoDashboardMenuBundle/Resources/config/routes_dashboard.yaml. // Deprecated alias of web_ui.path_prefix (the URL prefix itself is set when importing routes_dashboard.yaml).
  *         route_name_exclude_patterns?: list<scalar|Param|null>,
  *         pagination?: array{ // Pagination for the menus list in the dashboard.
  *             enabled?: bool|Param, // When true, the menus list is paginated. // Default: true
@@ -1394,7 +1392,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             item_form?: scalar|Param|null, // Add/edit item modal. // Default: "lg"
  *             delete?: scalar|Param|null, // Delete confirmation modals. // Default: "normal"
  *         },
- *         ui?: array{ // Admin chrome hooks so hosts theme the dashboard with config + blocks instead of forking pages. See docs/USAGE.md "Customising the admin chrome".
+ *         ui?: array{ // Deprecated: The "nowo_dashboard_menu.dashboard.ui.ui" option is deprecated: theme the dashboard with "nowo_ui_kit.theme" (classes → nowo_ui_kit.theme.bundles.NowoDashboardMenuBundle.classes, templates → nowo_dashboard_menu.web_ui.templates). See docs/UPGRADING.md. // Deprecated (2.7): 1.x admin chrome hooks. Theme the pages once with nowo_ui_kit.theme (classes are bridged into nowo_ui_kit.theme.bundles.NowoDashboardMenuBundle); templates map to web_ui.templates. See docs/UPGRADING.md.
  *             include_ui_kit_css?: bool|Param, // Append UiKit nowo-ui.css after the layout stylesheets (dashboard/base.html.twig). Set false when the host layout already loads it (re-appending reasserts UiKit :root tokens). // Default: true
  *             header_actions_in_layout?: bool|Param, // When true, pages do not render their header (back link, title, primary actions) / toolbar in the body; the actions HTML is exposed as nowo_dashboard_menu_header_actions for the layout_template to place. // Default: false
  *             index_view?: "list"|"table"|Param, // Menus list markup: "list" (default) or "table" (code / name / items / context / actions columns). // Default: "list"
@@ -1494,6 +1492,12 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             collapsed?: list<scalar|Param|null>,
  *         },
  *     },
+ *     web_ui?: array{ // REQ-UI-003 admin dashboard: pages extend the UiKit scaffolds; theme them once in nowo_ui_kit.theme (per-bundle exception: nowo_ui_kit.theme.bundles.NowoDashboardMenuBundle).
+ *         enabled?: bool|Param, // Enable the admin dashboard routes (import @NowoDashboardMenuBundle/Resources/config/routes_dashboard.yaml with your prefix). // Default: false
+ *         path_prefix?: scalar|Param|null, // URL prefix the host imports routes_dashboard.yaml with (informational: lock it in security.access_control). // Default: "/admin/menus"
+ *         layout_template?: scalar|Param|null, // Layout the dashboard scaffolds extend instead of nowo_ui_kit.layouts.admin (null = UiKit layout). It must render the UiKit canonical blocks (nowo_ui_content…); a 1.x layout that renders "nowo_dashboard_menu_content" is bridged (deprecated). // Default: null
+ *         templates?: array<string, scalar|Param|null>,
+ *     },
  *     security?: array{ // Dashboard admin access control (REQ-UI-002). Host should also lock dashboard.path_prefix via security.access_control.
  *         access_checker?: scalar|Param|null, // Optional service id implementing DashboardMenuAccessCheckerInterface. Null uses the built-in role checker. // Default: null
  *         access_roles?: list<scalar|Param|null>,
@@ -1513,10 +1517,98 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         default_branch?: scalar|Param|null, // Branch used as compare target when the installed version is already the latest. // Default: "main"
  *         user_agent?: scalar|Param|null, // User-Agent sent to api.github.com. // Default: "nowo-ui-kit-release-check"
  *     },
+ *     route_links?: array{ // Route (or route prefix) → link map read by nowo_ui_route_link(), e.g. for the page-edge "manual" tab (partials/_edge_tab.html.twig). A prefix matches the route itself or any route starting with "<prefix>_"; the longest prefix wins.
+ *         base_url?: scalar|Param|null, // Prepended to every relative path (paths starting with "/", "//", "http://" or "https://" are used as is). // Default: ""
+ *         default_testid?: scalar|Param|null, // testid returned for entries without their own. // Default: null
+ *         routes?: array<string, Param|string|array{ // Default: []
+ *             path?: scalar|Param|null,
+ *             testid?: scalar|Param|null, // Default: null
+ *         }>,
+ *     },
+ *     appearance?: array{ // Optional site appearance SPI (presets, --nowo-ui-* token emitter, Twig functions). Off by default.
+ *         enabled?: bool|Param, // Default: false
+ *         provider?: scalar|Param|null, // Service id implementing AppearanceProviderInterface (host storage). Null = the config defaults below. // Default: null
+ *         defaults?: array{
+ *             brand_name?: scalar|Param|null, // Default: ""
+ *             brand_eyebrow?: scalar|Param|null, // Default: ""
+ *             preset?: scalar|Param|null, // Preset whose light colours are the default. // Default: "slate"
+ *             preset_dark?: scalar|Param|null, // Preset whose dark colours are the default. // Default: "midnight"
+ *             corner_style?: "sharp"|"soft"|"rounded"|Param, // Default: "soft"
+ *             border_strength?: "subtle"|"medium"|"strong"|Param, // Default: "medium"
+ *             footer_fixed?: bool|Param, // Default: false
+ *         },
+ *         presets?: array<string, array{ // Default: []
+ *             mode?: "light"|"dark"|Param, // Default: "light"
+ *             light?: array{
+ *                 accent?: scalar|Param|null,
+ *                 accent_deep?: scalar|Param|null,
+ *                 danger?: scalar|Param|null,
+ *                 warn?: scalar|Param|null,
+ *                 paper?: scalar|Param|null,
+ *                 ink?: scalar|Param|null,
+ *                 surface?: scalar|Param|null,
+ *             },
+ *             dark?: array{
+ *                 accent?: scalar|Param|null,
+ *                 accent_deep?: scalar|Param|null,
+ *                 danger?: scalar|Param|null,
+ *                 warn?: scalar|Param|null,
+ *                 paper?: scalar|Param|null,
+ *                 ink?: scalar|Param|null,
+ *                 surface?: scalar|Param|null,
+ *             },
+ *         }>,
+ *         builtin_presets?: list<scalar|Param|null>,
+ *         kit_tokens?: bool|Param, // Emit the --nowo-ui-* tokens. False = only the token_aliases are written. // Default: true
+ *         token_aliases?: array<string, list<scalar|Param|null>>,
+ *         selectors?: array{ // Selectors of the three emitted blocks.
+ *             root?: scalar|Param|null, // Default: ":root"
+ *             light?: scalar|Param|null, // Default: ":root, [data-theme=\"light\"]"
+ *             dark?: scalar|Param|null, // Default: "[data-theme=\"dark\"]"
+ *         },
+ *         shadow_rgb_fallback?: scalar|Param|null, // --nowo-ui-shadow-rgb when the light ink colour is not hex ("r g b"). // Default: "15 23 42"
+ *     },
+ *     layouts?: array{ // Layouts the page scaffolds extend (Twig global nowo_ui_layout). Host layouts or one-file bridges must render the canonical nowo_ui_* blocks.
+ *         admin?: scalar|Param|null, // Default: "@NowoUiKit/layout/admin.html.twig"
+ *         guest?: scalar|Param|null, // Default: "@NowoUiKit/layout/guest.html.twig"
+ *     },
+ *     breadcrumbs?: array{ // Page header breadcrumbs: BreadcrumbKit (breadcrumb_render) when installed and enabled here, else the plain trail from PageHeader::breadcrumbs.
+ *         breadcrumb_kit?: bool|Param, // Use BreadcrumbKit when its breadcrumb_render() Twig function exists. // Default: true
+ *         collection?: scalar|Param|null, // BreadcrumbKit collection code (null = its default collection). PageHeader::breadcrumbCollection overrides it. // Default: null
+ *     },
+ *     theme?: array{ // Global theme (REQ-UI-003): semantic slot classes / attributes, partial overrides and --nowo-ui-* tokens, configured once for every bundle.
+ *         framework_defaults?: bool|Param, // false = slots print the semantic nowo-ui-* class and the host classes only (no UiKit framework defaults such as btn / badge / card). Per slot: classes.<slot>: {value: …, framework_defaults: false}. // Default: true
+ *         classes?: array<string, mixed>,
+ *         attributes?: array<string, array<string, mixed>>,
+ *         partials?: array<string, scalar|Param|null>,
+ *         tokens?: array<string, mixed>,
+ *         tokens_dark?: array<string, mixed>,
+ *         confirm_message_in_header?: bool|Param, // Confirm dialogs and the full-page confirm render the message inside the header, under the title (hosts whose dialog header is title + message). View\Confirm::messageInHeader wins when set. // Default: false
+ *         bundles?: array<string, array{ // Default: []
+ *             framework_defaults?: bool|Param, // Override of theme.framework_defaults for this bundle (unset = inherit).
+ *             classes?: array<string, mixed>,
+ *             attributes?: array<string, array<string, mixed>>,
+ *             partials?: array<string, scalar|Param|null>,
+ *             tokens?: array<string, mixed>,
+ *             tokens_dark?: array<string, mixed>,
+ *             pages?: array<string, array{ // Default: []
+ *                 framework_defaults?: bool|Param, // Override of theme.framework_defaults for this page type (unset = inherit).
+ *                 classes?: array<string, mixed>,
+ *                 attributes?: array<string, array<string, mixed>>,
+ *             }>,
+ *         }>,
+ *         pages?: array<string, array{ // Default: []
+ *             framework_defaults?: bool|Param, // Override of theme.framework_defaults for this page type (unset = inherit).
+ *             classes?: array<string, mixed>,
+ *             attributes?: array<string, array<string, mixed>>,
+ *             header_actions_in_filters?: bool|Param, // list only: render the page-header actions at the end of the filter row instead of the page header (ListPage::headerActionsInFilters wins when set; unset = false).
+ *         }>,
+ *     },
  * }
  * @psalm-type NowoFormKitConfig = array{
  *     type_map?: array<string, scalar|Param|null>,
  *     default_profile?: scalar|Param|null, // Name of the profile to use when no profile is specified (key in profiles) // Default: "default"
+ *     convention_requires_translation?: bool|Param, // Global default for profiles.<name>.convention_requires_translation: only apply auto help / placeholder convention keys that exist in the translator catalogue. Requires a translator implementing TranslatorBagInterface (no effect otherwise). Default: false. // Default: false
  *     css_framework?: scalar|Param|null, // CSS framework for CssClassUtilities (column merge + class ordering): bootstrap, tailwind, foundation, none. // Default: "bootstrap"
  *     stateless_csrf?: array{ // Give selected (usually anonymous/public) form types a stateless CSRF token id so rendering them does not start a session. Off by default.
  *         enabled?: bool|Param, // Default: false
@@ -1527,11 +1619,15 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     accessibility?: array{ // Accessibility helpers applied by kit form type extensions.
  *         unlabelled_choice_aria_label?: bool|Param, // When true (default), non-expanded ChoiceType fields (and subtypes such as EntityType) rendered with label: false and no aria-label/aria-labelledby get aria-label from their translated help, else their placeholder. // Default: true
  *     },
+ *     twig?: array{ // Twig helpers shipped by the bundle (registered only when twig/twig is installed).
+ *         csrf_action_form?: bool|Param, // When true (default), registers the csrf_action_form() Twig function (CSRF-only single-action POST forms). Set false if the host keeps its own function with that name. // Default: true
+ *     },
  *     profiles?: array<string, array{ // Default: []
  *         alias?: scalar|Param|null, // Alias for this profile (e.g. for reference in form types)
  *         translation_domain?: scalar|Param|null, // Default: "messages"
  *         auto_placeholder?: bool|Param, // When true (default), unset placeholders become {form}.{field}.placeholder translation keys. Set false for kits that only set explicit labels. // Default: true
  *         auto_help?: bool|Param, // When true (default), unset help becomes {form}.{field}.help translation keys. Set false to avoid raw missing-help keys in the UI. // Default: true
+ *         convention_requires_translation?: bool|Param|null, // When true, the auto help / placeholder convention keys are only applied if the key exists in the translator catalogue (current locale + fallbacks) for the field's translation domain. Never affects labels. Null (default) inherits the root convention_requires_translation. // Default: null
  *         required_label_suffix?: scalar|Param|null, // Appended to the label when the field is required (e.g. " *"). Empty or null to disable. // Default: null
  *         help_modal?: array{ // Default help modal configuration (used when the field option "help_modal" is enabled).
  *             framework?: scalar|Param|null, // Modal framework to use when opening from frontend. // Default: "bootstrap5"

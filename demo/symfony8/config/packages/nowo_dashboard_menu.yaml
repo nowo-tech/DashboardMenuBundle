@@ -30,13 +30,13 @@ nowo_dashboard_menu:
         ttl: 60
         pool: cache.app
 
-    dashboard:
+    # REQ-UI-003: the admin pages extend the UiKit scaffolds and render in nowo_ui_kit.layouts.admin
+    # (templates/layouts/admin.html.twig, the demo shell). Theme them once in nowo_ui_kit.theme.
+    web_ui:
         enabled: true
-        # Layout that dashboard views extend. Must define block "nowo_dashboard_menu_content".
-        # Override in templates/bundles/NowoDashboardMenuBundle/dashboard/layout.html.twig to inject your app's CSS/JS (e.g. Vite).
-        layout_template: '@NowoDashboardMenuBundle/dashboard/layout.html.twig'
-        # Deprecated: configure route import prefix in config/routes.yaml instead.
-        # path_prefix: '/admin/menus'
+        path_prefix: /admin/menus      # same prefix as the routes_dashboard.yaml import (config/routes.yaml)
+        # layout_template: null        # null = nowo_ui_kit.layouts.admin
+    dashboard:
         # URL or asset path for the icon-selector script (Stimulus/UX). Enables the icon field in the item form modal.
         icon_selector_script_url: 'bundles/nowoiconselector/icon-selector.js'
         # Stimulus for Live form: use the bundle's script so window.Stimulus is always available when opening the item modal. Set to null only if your layout loads Stimulus (e.g. Vite) and exposes window.Stimulus before the modal is used.
@@ -53,26 +53,12 @@ nowo_dashboard_menu:
             per_page: 20
         # Permission keys offered in the item form selector (same as in MenuFixtures: authenticated, admin, path:/).
         permission_key_choices: ['authenticated', 'admin', 'path:/']
-        # Modal sizes: normal, lg, or xl (Bootstrap 5). Affects new/edit menu, copy menu, add/edit item, delete confirm.
+        # Dialog sizes (UiKit dialog partial): normal, lg or xl. Affects the menu, copy, import and item form dialogs.
         modals:
             menu_form: lg
             copy: normal
             item_form: lg
             delete: normal
-        # Admin chrome hooks (2.3.0): theme the dashboard without copying pages. All opt-in; defaults keep the bundle markup.
-        # See docs/USAGE.md "Customising the admin chrome".
-        # ui:
-        #     include_ui_kit_css: false        # your layout already loads nowo-ui.css
-        #     header_actions_in_layout: true   # print nowo_dashboard_menu_header_actions in layout_template
-        #     index_view: table                # list | table
-        #     actions_column: last             # first | last
-        #     row_action_display: text         # null (SVG icons) | icon | text | icon_text
-        #     region_attribute: data-testid
-        #     classes:
-        #         button_primary: 'btn btn-dark'
-        #         table: 'table table-sm table-hover'
-        #     partials:
-        #         pagination: '@NowoUiKitBundle/partials/_pagination.html.twig'
         # Maximum JSON import size in bytes (default 2 MiB).
         import_max_bytes: 2097152
         # Step used by the dashboard “Re-index positions” action (sibling groups: step, 2*step, …).

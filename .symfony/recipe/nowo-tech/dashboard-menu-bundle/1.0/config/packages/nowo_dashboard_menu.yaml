@@ -50,10 +50,13 @@ nowo_dashboard_menu:
         enabled: true
         path_prefix: /api/menu
 
-    dashboard:
+    # Admin dashboard (UiKit page contract): pages render in nowo_ui_kit.layouts.admin; theme them in nowo_ui_kit.theme.
+    web_ui:
         enabled: false
-        # Layout that dashboard views extend. Must define block "content".
-        # layout_template: '@NowoDashboardMenuBundle/dashboard/layout.html.twig'
+        # path_prefix: /admin/menus     # same prefix as the routes_dashboard.yaml import
+        # layout_template: null          # null = nowo_ui_kit.layouts.admin
+
+    dashboard:
 
         route_name_exclude_patterns:
             - '^_'
@@ -63,7 +66,7 @@ nowo_dashboard_menu:
             enabled: true
             per_page: 20
 
-        # Modal sizes: normal (default), lg, or xl (Bootstrap 5).
+        # Dialog sizes (UiKit dialog): normal (default), lg, or xl.
         # modals:
         #     menu_form: normal
         #     copy: normal

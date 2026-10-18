@@ -417,7 +417,7 @@ final readonly class DashboardPages
             $this->dialogAction('edit', 'dashboard.edit_menu', $this->url(DashboardRoutes::ROUTE_MENU_EDIT, ['id' => $id, 'section' => 'basic']), self::DIALOG_MENU, $this->variant('edit_menu', 'primary')),
         ];
         if (!$menu->isBase()) {
-            $actions[] = $this->dialogAction('config', 'dashboard.edit_config', $this->url(DashboardRoutes::ROUTE_MENU_EDIT, ['id' => $id, 'section' => 'config']), self::DIALOG_MENU, $this->variant('edit_config'), 'config');
+            $actions[] = $this->dialogAction('config', 'dashboard.edit_config', $this->url(DashboardRoutes::ROUTE_MENU_EDIT, ['id' => $id, 'section' => 'config']), self::DIALOG_MENU, $this->variant('edit_config'));
         }
 
         return $actions;

@@ -62,69 +62,11 @@ templates/
 
 Copy the original from `vendor/nowo-tech/dashboard-menu-bundle/src/Resources/views/menu.html.twig` and adjust markup, blocks or variables as needed. The bundle passes `menuTree`, `menuCode` and `menuConfig` (and optional `menuConfig` is resolved by the template if omitted).
 
-**Templates you can override:**
+**Templates you can override:** `menu.html.twig` (frontend menu tree: receives `menuTree`, `menuCode`, `menuConfig`) and `Collector/dashboard_menu.html.twig` (profiler panel). The dashboard pages (2.7) are on the UiKit page contract: do **not** copy them into `templates/bundles/` — use `nowo_dashboard_menu.web_ui.templates.<page>` with a thin `{% extends '@!NowoDashboardMenuBundle/…' %}` that overrides a data block, and theme them through `nowo_ui_kit.theme`. The list of pages, fragments, data blocks and view models is in [TEMPLATES.md](TEMPLATES.md); see [Customising the admin chrome](#customising-the-admin-chrome).
 
-| Path | Purpose |
-|------|---------|
-| `menu.html.twig` | Frontend menu tree (sidebar, nav, etc.). Receives `menuTree`, `menuCode`, `menuConfig`. |
-| `dashboard/layout.html.twig` | Demo/fallback full HTML shell. Defines `nowo_dashboard_menu_content` / `nowo_ui_content`. |
-| `dashboard/base.html.twig` | Intermediate layout: flashes, modals, `parent()` asset stacking, `{% block body %}`. Pages extend this. |
-| `dashboard/_icons.html.twig` | Inline SVG action icons. |
-| `dashboard/index.html.twig` | Dashboard menu list. |
-| `dashboard/show.html.twig` | Single menu detail and item table (links to reorder page). |
-| `dashboard/show_items_reorder.html.twig` | Drag-and-drop tree reorder (SortableJS); posts to `items_reorder_tree`. |
-| `dashboard/_sortable_tree_macro.html.twig` | Nested list markup for the reorder view. |
-| `dashboard/_menu_dashboard_modals.html.twig` | Shared modals for show and reorder pages. |
-| `dashboard/_dashboard_item_icon.html.twig` | Optional icon next to item labels in dashboard lists. |
-| `dashboard/menu_form.html.twig` | Create/edit menu form. |
-| `dashboard/item_form.html.twig` | Create/edit menu item form. |
-| `dashboard/copy_menu.html.twig` | Copy menu form. |
-| `dashboard/import.html.twig` | Import menus from JSON (standalone page). |
-| `dashboard/_import_partial.html.twig` | Partial for import form (loaded in modal). |
-| `dashboard/_menu_form_partial.html.twig` | Partial used in menu form. |
-| `dashboard/_item_form_partial.html.twig` | Partial used in item form. |
-| `dashboard/_copy_menu_partial.html.twig` | Partial used in copy form. |
-| `components/ItemFormLiveComponent.html.twig` | Live Component template for the item form (modal). |
-| `dashboard/_modal.html.twig` | *(2.3.0)* Modal shell embedded by every dashboard modal (prefer `dashboard.ui.partials.modal`). |
-| `dashboard/_pagination.html.twig` | *(2.3.0)* Menus list pagination (prefer `dashboard.ui.partials.pagination`). |
-| `dashboard/_row_action_inner.html.twig` | *(2.3.0)* Icon / label of one row action (prefer `dashboard.ui.partials.row_action_inner`). |
-| `dashboard/_menu_properties.html.twig` | *(2.3.0)* Menu properties / CSS classes panels (show and reorder pages). |
-| `dashboard/_delete_confirm_body.html.twig` | *(2.3.0)* Body of the delete confirmation modals. |
-| `Collector/dashboard_menu.html.twig` | Web debug toolbar / profiler panel. |
+**Dashboard reorder:** the item table (`show`) links to a separate page for drag-and-drop ordering. Symfony registers `nowo_dashboard_menu_dashboard_show_items_reorder` (GET `/{id}/items/reorder`) and `nowo_dashboard_menu_dashboard_items_reorder_tree` (POST `/{id}/items/reorder-tree`, CSRF).
 
-**Dashboard reorder:** the item table (`show`) links to a separate page for drag-and-drop ordering. Symfony registers `nowo_dashboard_menu_dashboard_show_items_reorder` (GET `/{id}/items/reorder`) and `nowo_dashboard_menu_dashboard_items_reorder_tree` (POST `/{id}/items/reorder-tree`, CSRF). Bundle templates use the `dashboard_routes` map (`show_items_reorder`, `items_reorder_tree` keys → those full names) so overrides stay aligned if routing prefixes change.
-
-**Dashboard forms:** bundle dashboard templates use Symfony Form Types for both full CRUD forms and lightweight search / CSRF-only actions. When you override `dashboard/index.html.twig`, `dashboard/show.html.twig`, `dashboard/show_items_reorder.html.twig`, or shared modals, prefer `form_start()` / `form_end()` (FormKit profile `dashboard_menu`) instead of literal HTML `<form>` tags so CSRF field names, token ids, and widget classes stay aligned with the controller and JS hooks.
-
-**Dashboard layout:** besides overriding `dashboard/layout.html.twig` in the bundle path above, you can keep using the bundle layout and only change the **wrapper** via config: set `dashboard.layout_template` in `nowo_dashboard_menu.yaml` to your app layout (e.g. `base.html.twig`) so the dashboard uses your shell (see [CONFIGURATION.md](CONFIGURATION.md#dashboard)). Overriding the file gives full control over the dashboard HTML; the config option only swaps the extended template.
-
-**CSS stack (REQ-UI-001 / REQ-UI-001-kit):** set `dashboard.css_framework` (`bootstrap5` default, or `tailwind` / `foundation` / `custom` / …) and optionally `dashboard.icon_set`. Markup always includes semantic `nowo-ui-*` classes; framework classes come from **[UiKitBundle](https://github.com/nowo-tech/UiKitBundle)** macros:
-
-```twig
-{% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
-```
-
-CSS loads from the kit named package; dashboard behaviour JS stays on `nowo_dashboard_menu` (REQ-ASSETS-004):
-
-```twig
-<link href="{{ asset('css/nowo-ui.css', 'nowo_ui_kit') }}" rel="stylesheet">
-<script src="{{ asset('js/dashboard.js', 'nowo_dashboard_menu') }}" defer></script>
-```
-
-When the host does not configure `nowo_ui_kit`, this bundle prepends `nowo_ui_kit.css_framework` / `icon_set` from the dashboard keys so `ui.btn('primary')` and friends resolve the same stack. Explicit host `nowo_ui_kit` config wins.
-
-`nowo-ui.css` (from UiKit) uses CSS custom properties (`--nowo-ui-primary`, `--nowo-ui-surface`, `--nowo-ui-border`, `--nowo-ui-text`, `--nowo-ui-muted`, …) with slate/blue defaults. Remap under your host chrome (e.g. `.kit-admin`) without forking templates:
-
-```css
-.kit-admin {
-  --nowo-ui-primary: var(--brand-primary);
-  --nowo-ui-text: var(--brand-ink);
-  --nowo-ui-border: var(--brand-border);
-  --nowo-ui-surface: var(--brand-surface);
-}
-```
-
-When `layout_template` points at the **project** layout, the demo CDN is skipped; your layout must expose `stylesheets` / `javascripts` (bundle `base.html.twig` calls `{{ parent() }}`). Twig globals: `nowo_dashboard_layout_template`, `nowo_dashboard_menu_css_framework`, `nowo_dashboard_menu_icon_set` (and UiKit globals `nowo_ui_kit_css_framework` / `nowo_ui_kit_icon_set`).
+**Dashboard layout and CSS stack:** the pages render in `nowo_ui_kit.layouts.admin` (or `web_ui.layout_template`), which loads `nowo-ui.css`, the UiKit scripts (`nowo-ui-confirm.js`, `nowo-ui-dialog.js`…) and `nowo_ui_tokens()`; the pages stack `css/dashboard.css` and `js/dashboard.js` (asset package `nowo_dashboard_menu`) in `nowo_ui_styles` / `nowo_ui_scripts`. The CSS framework, icon set and row-action display are UiKit's (`nowo_ui_kit.css_framework`, `icon_set`, `row_actions_display`); colours come from the `--nowo-ui-*` tokens (`nowo_ui_kit.theme.tokens`). A 1.x `dashboard.layout_template` rendering `nowo_dashboard_menu_content` still works through a deprecated bridge.
 
 After adding or changing template overrides, clear the Twig cache if needed: `php bin/console cache:clear`.
 
@@ -155,171 +97,44 @@ You only need to define the keys you want to change; the rest fall back to the b
 
 ## Customising the admin chrome
 
-*Since 2.3.0.* The admin dashboard can be themed **without copying page templates** into `templates/bundles/NowoDashboardMenuBundle/`. Three layers, all opt-in (with the defaults the markup is the same as before):
+*Since 2.7 (REQ-UI-003).* The admin dashboard is built on the **UiKit page contract**: every page extends a UiKit
+scaffold (`page/list`, `page/show`, `page/form`; the drag reorder page is a declared unique page) and renders inside
+`nowo_ui_kit.layouts.admin`. Theme it — together with every other Nowo UI bundle — once:
 
-1. **Config** (`nowo_dashboard_menu.dashboard.ui`): a CSS class map, partial paths, form themes and a few layout switches.
-2. **Blocks**: every page and partial is split into named blocks. Point `dashboard.ui.templates.<page>` to a host template that `{% extends %}` the bundle page and overrides only the blocks you need (no `templates/bundles/` copy, so vendor updates still reach you).
-3. **Layout variables**: pages expose their header actions as `nowo_dashboard_menu_header_actions` so your `layout_template` can place them in the page header.
-
-What must stay intact in any override: the modal ids (`modal-menu-form`, `modal-menu-copy`, `modal-item-form`, `modal-import`, `modal-menu-new`, `modal-delete-confirm`, `modal-delete-item-confirm`), the `*-body` ids of fetch-loaded modals, the `btn-*-menu` / `btn-*-item` / `btn-import` classes with their `data-*` attributes, `#nowo-menu-sortable-*`, `data-import-form` and the Live `data-action` / `data-live-action-param` attributes. They are `dashboard.js` hooks.
-
-### Configuration
-
-```yaml
-nowo_dashboard_menu:
-    dashboard:
-        layout_template: 'admin/menus_layout.html.twig'
-        css_framework: tailwind
-        ui:
-            include_ui_kit_css: false        # the host layout already loads nowo-ui.css
-            header_actions_in_layout: true   # layout prints nowo_dashboard_menu_header_actions
-            index_view: table                # list (default) | table
-            actions_column: last             # items table: first (default) | last
-            row_action_display: text         # null (default: SVG icons) | icon | text | icon_text
-            region_attribute: data-testid    # tags the menus / items / sortable regions (E2E)
-            header_action_variants:          # one primary CTA per header: repaint single actions
-                edit_menu: secondary
-            form_themes: ['form/admin_theme.html.twig']
-            classes:
-                button_primary: btn-primary
-                button_secondary: btn-ghost
-                button_danger: btn-danger
-                table_wrap: 'panel overflow-x-auto'
-                table: data-table
-                row_action: 'btn-ghost btn-sm btn-label'
-                row_action_danger: 'btn-danger btn-sm btn-label'
-                modal_form: kit-modal__panel
-                modal_content: confirm-dialog__content
-                modal_section: kit-modal__section
-                modal_actions: confirm-dialog__actions
-            partials:
-                modal: 'admin/_modal.html.twig'
-                pagination: '@NowoUiKitBundle/partials/_pagination.html.twig'
-```
-
-| Option | Default | Effect |
-|--------|---------|--------|
-| `include_ui_kit_css` | `true` | `dashboard/base.html.twig` appends UiKit `nowo-ui.css` after the layout stylesheets. Set `false` when your layout loads it (re-appending it reasserts the UiKit `:root` tokens over your remap). |
-| `header_actions_in_layout` | `false` | Pages stop rendering their header (back link, `<h1>`, primary actions) and the index toolbar; the same HTML is available to the layout as `nowo_dashboard_menu_header_actions` (the bundle demo layout prints it above the content). |
-| `index_view` | `list` | `table` renders the menus as a table (code, name, items, context, actions) with the empty state inside the table. |
-| `actions_column` | `first` | `last` moves the actions column of the items table (show page) to the end. |
-| `row_action_display` | `null` | `null` keeps the bundle SVG icons. `icon` / `text` / `icon_text` render `partials.row_action_inner` with a visually-hidden or visible label (same values as UiKit `row_actions_display`). |
-| `region_attribute` | `null` | Attribute set on the menus table (`dashboard-menu-menus-table`), the items table (`dashboard-menu-items-table`) and the sortable panel (`dashboard-menu-sortable`). |
-| `header_action_variants` | `{}` | *(2.4.1)* Button variant per page header action (block `dashboard_header_actions`): `primary` \| `secondary` \| `ghost` \| `danger` \| `link`. Keys: `export_all`, `import`, `new_menu` (index); `export`, `copy`, `edit_menu`, `edit_config`, `reindex_positions`, `check_parent_cycles`, `add_item` (show / reorder). A variant uses class-map key `button_<variant>` when set, else UiKit `ui.btn(variant)`. Unset actions keep the bundle variant (`primary` for New menu / Edit menu / Add item, `secondary` otherwise). Header links (reorder / table view) keep `button_small`. Unknown keys or variants fail at config load. |
-| `form_themes` | `[]` | Form themes applied to every dashboard form: search, reorder, modal bodies and the Live item form. |
-| `classes.*` | `null` | CSS class map (see below). `null` = UiKit macro result for `css_framework`; a string replaces the bundle class; `""` removes it. |
-| `partials.pagination` | bundle `_pagination.html.twig` | Menus list pagination. Receives `pagination` (`page`, `current_page`, `per_page`, `total`, `total_pages`), `item_count`, `route`, `route_params`, `query`, `nav_label`, `nav_trans_domain`, so `@NowoUiKitBundle/partials/_pagination.html.twig` works as is. |
-| `partials.row_action_inner` | bundle `_row_action_inner.html.twig` | Content of one row action. Receives `display`, `icon` (bundle icon name), `icon_name` (UiKit icon name) and `label`, the UiKit `_action_inner` contract. |
-| `partials.modal` | bundle `_modal.html.twig` | Shell of every dashboard modal, used with `{% embed %}`. See [Modal shell](#modal-shell). |
-| `templates.*` | bundle templates | Page / partial rendered by the controller: `index`, `show`, `show_items_reorder`, `menu_form_partial`, `item_form_partial`, `copy_menu_partial`, `import_partial`, `modals`. |
-
-**Class map keys** (default in brackets):
-
-| Area | Keys |
-|------|------|
-| Buttons | `button_primary` [`ui.btn('primary')`], `button_secondary` [`ui.btn('secondary')`], `button_danger` [`ui.btn('danger')`], `button_link` [`ui.btn('link')`, back link], `button_ghost` [`ui.btn('ghost')`, only via `header_action_variants`], `button_small` [`ui.btn('secondary', 'sm')`, reorder / table view links] |
-| Page | `page_header` (show / reorder header row), `toolbar` [`ui.toolbar()`], `search_form` [`ui.search_form()`], `search_input` [`ui.search_input()`], `info_panel` (menu properties), `inline_form` [`d-inline`], `empty` [`ui.empty()`], `empty_action` ("add one" button), `muted` [`ui.muted()`] |
-| Badges | `badge` [`ui.badge()`, item count], `badge_base`, `badge_type`, `badge_unanimous`, `badge_non_unanimous` |
-| Lists / tables | `list`, `list_item`, `table_wrap` [`ui.table_wrap()`], `table` [`ui.table()`], `table_header_row`, `table_row`, `row_actions` [`ui.row_actions()`], `row_action` [`ui.action('edit')`, …], `row_action_danger` [`ui.action('delete')`], `row_action_disabled` [`disabled`] |
-| Reorder page | `sortable_panel` [`card border mb-3`], `sortable_header` [`card-header …`], `sortable_body` [`card-body`] |
-| Modals | `modal_loading` (loading placeholder), `modal_form` (form class; `dm-dashboard-form` is always appended), `modal_content` (wrapper around the fields), `modal_section` (section headings become `<p class="…">`), `modal_message` (delete confirmation text), `modal_actions` (footer wrapper; when set, the body renders **Cancel + Submit** in it) |
-
-The Twig function `dashboard_menu_ui_class(key, default)` returns the configured class or the default; the whole config is the Twig global `nowo_dashboard_menu_ui`.
-
-### Blocks
-
-| Template | Blocks |
-|----------|--------|
-| `dashboard/index.html.twig` | `dashboard_page_header` (empty by default), `dashboard_header_actions`, `dashboard_search`, `dashboard_toolbar`, `dashboard_menus`, `dashboard_menus_list`, `dashboard_menus_table`, `dashboard_menu_row_actions`, `dashboard_empty_state`, `dashboard_pagination`, `dashboard_new_menu_modal` |
-| `dashboard/show.html.twig` | `dashboard_page_header`, `dashboard_header_title`, `dashboard_header_links`, `dashboard_header_actions`, `dashboard_menu_properties`, `dashboard_empty_state`, `dashboard_items_table`, `dashboard_item_cells`, `dashboard_item_row_actions` |
-| `dashboard/show_items_reorder.html.twig` | `dashboard_page_header`, `dashboard_header_title`, `dashboard_header_links`, `dashboard_header_actions`, `dashboard_menu_properties`, `dashboard_empty_state`, `dashboard_sortable`, `dashboard_sortable_header` |
-| `dashboard/_menu_dashboard_modals.html.twig` | `dashboard_modal_menu_form`, `dashboard_modal_menu_copy`, `dashboard_modal_item_form`, `dashboard_modal_import`, `dashboard_modal_delete_menu`, `dashboard_modal_delete_item` |
-| `dashboard/base.html.twig` | `nowo_dashboard_menu_config_island`, `nowo_ui_flashes`, `body`, `nowo_ui_modals` (unchanged) |
-
-Header blocks are rendered once at the top of the page and stored in `nowo_dashboard_menu_header_actions` (show / reorder: `dashboard_header_links` + `dashboard_header_actions`); with `header_actions_in_layout: false` the page prints the same HTML in its header / toolbar. Row-action blocks run inside the loop (`menu` or `item` in context).
-
-Override a block from a host template wired with `templates.*`:
-
-```twig
-{# templates/admin/menus/index.html.twig — dashboard.ui.templates.index #}
-{% extends '@NowoDashboardMenuBundle/dashboard/index.html.twig' %}
-
-{% block dashboard_empty_state %}
-    <div class="empty-state">{{ 'dashboard.no_menus_yet'|trans({}, 'NowoDashboardMenuBundle') }}</div>
-{% endblock %}
-```
-
-### Modal shell
-
-Every modal is rendered with `{% embed dashboard.ui.partials.modal %}`. The shell receives `modal_id`, `modal_label_id`, `modal_title`, `modal_body_id` (may be empty), `modal_size_class` (from `dashboard.modals`), `modal_scrollable` and `modal_kind` (`form` | `confirm`), and must define `{% block modal_body %}`. A `<dialog>` shell:
-
-```twig
-{# templates/admin/_modal.html.twig #}
-{% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
-<dialog class="nowo-ui-modal confirm-dialog{% if modal_size_class == 'modal-lg' %} confirm-dialog--wide{% endif %}" id="{{ modal_id }}" aria-labelledby="{{ modal_label_id }}">
-    <div class="confirm-dialog__panel">
-        <div class="confirm-dialog__header">
-            <h2 class="confirm-dialog__title" id="{{ modal_label_id }}">{{ modal_title }}</h2>
-            <button type="button" class="btn-close" {{ ui.modal_dismiss_attrs()|raw }} aria-label="{{ 'dashboard.close'|trans({}, 'NowoDashboardMenuBundle') }}"></button>
-        </div>
-        <div class="kit-modal__body"{% if modal_body_id %} id="{{ modal_body_id }}"{% endif %}>{% block modal_body %}{% endblock %}</div>
-    </div>
-</dialog>
-```
-
-### Example: a host themed with config + blocks only
-
-A host with its own Administration shell (sidebar, page heading, design tokens) and no `templates/bundles/NowoDashboardMenuBundle/` folder:
+1. **Layout**: `nowo_ui_kit.layouts.admin` → your layout or a one-file bridge rendering the UiKit canonical blocks
+   (`demo/symfony8/templates/layouts/admin.html.twig` is a complete example). `nowo_dashboard_menu.web_ui.layout_template`
+   overrides it for the dashboard only.
+2. **Theme**: `nowo_ui_kit.theme` (tokens, slot classes, attributes, partials); dashboard-only exceptions under
+   `nowo_ui_kit.theme.bundles.NowoDashboardMenuBundle`.
+3. **Per-page override** (rare): `nowo_dashboard_menu.web_ui.templates.<page>` → a template that extends
+   `@!NowoDashboardMenuBundle/dashboard/<page>.html.twig` and overrides a data block.
 
 ```yaml
-# config/packages/nowo_dashboard_menu.yaml
+nowo_ui_kit:
+    layouts: { admin: 'layouts/admin.html.twig' }
+    theme:
+        bundles:
+            NowoDashboardMenuBundle:
+                classes: { table: 'table table-sm table-hover' }
 nowo_dashboard_menu:
-    dashboard:
-        enabled: true
-        layout_template: 'admin/menus_layout.html.twig'
-        css_framework: tailwind
-        ui:
-            include_ui_kit_css: false
-            header_actions_in_layout: true
-            index_view: table
-            actions_column: last
-            row_action_display: text
-            classes:
-                button_primary: btn-primary
-                button_secondary: btn-ghost
-                button_small: btn-ghost
-                button_danger: btn-danger
-                search_form: 'toolbar mb-4'
-                table_wrap: 'panel overflow-x-auto'
-                table: 'data-table w-full text-sm'
-                table_row: row-hover
-                row_action: 'btn-ghost btn-sm btn-label'
-                row_action_danger: 'btn-danger btn-sm btn-label'
-                row_action_disabled: opacity-40
-                info_panel: 'panel mb-4'
-                sortable_panel: panel
-                modal_form: kit-modal__panel
-                modal_content: confirm-dialog__content
-                modal_section: kit-modal__section
-                modal_message: confirm-dialog__body
-                modal_actions: confirm-dialog__actions
-            partials:
-                modal: 'admin/_modal.html.twig'
-                pagination: '@NowoUiKitBundle/partials/_pagination.html.twig'
+    web_ui:
+        templates:
+            index: 'admin/dashboard_menu/index.html.twig'
 ```
 
 ```twig
-{# templates/admin/menus_layout.html.twig #}
-{% extends 'admin/base.html.twig' %}
-
-{% block page_title %}{% block dashboard_title %}{{ 'dashboard.title'|trans({}, 'NowoDashboardMenuBundle') }}{% endblock %}{% endblock %}
-{% block page_actions %}{{ nowo_dashboard_menu_header_actions|default('') }}{% endblock %}
-
-{# base.html.twig nests the page body, flashes and modals in this block #}
-{% block content %}{% block nowo_dashboard_menu_content %}{% endblock %}{% endblock %}
+{# templates/admin/dashboard_menu/index.html.twig #}
+{% extends '@!NowoDashboardMenuBundle/dashboard/index.html.twig' %}
+{% block nowo_ui_list_after %}<p class="text-muted">Menus are cached for 60 s.</p>{% endblock %}
 ```
 
-Two small host templates (layout bridge + modal shell) and config are enough: the bundle pages, partials and the Live item form keep coming from the vendor, so new fields and JS hooks arrive with `composer update`. The layout must still expose `stylesheets` / `javascripts` blocks (the bundle base calls `{{ parent() }}`). Spacing utilities the class map does not reach (table cell padding, section gaps) belong in the host CSS, e.g. `.admin .data-table td { … }`.
+Pages, data blocks, view models, dialog fragments and the hooks `dashboard.js` relies on (`data-nowo-dashboard-menu-dialog`,
+`#modal-item-form-container`, `#nowo-menu-sortable-*`, `data-import-form`, the Live `data-action` attributes):
+[TEMPLATES.md](TEMPLATES.md). Forms open in UiKit dialogs; every opener is a link to the full form page, so the
+dashboard keeps working without JavaScript.
+
+The 1.x hooks (`dashboard.ui.*`, the `dashboard_*` blocks, `nowo_dashboard_menu_header_actions`) are deprecated or
+removed: see [UPGRADING — Template contract](UPGRADING.md#template-contract).
 
 ## Nested collapse without Bootstrap JS
 

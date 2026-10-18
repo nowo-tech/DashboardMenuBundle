@@ -109,13 +109,10 @@ Run inside the demo folder: `pnpm install` (if you use Node 16.13+, run `corepac
 
 ## Dashboard layout
 
-To make the dashboard pages load the Vite app (Stimulus), the demo must **override** the bundle layout and fill in the `dashboard_head` and `dashboard_scripts` blocks:
-
-- **demo/symfony8**: `templates/bundles/NowoDashboardMenuBundle/dashboard/layout.html.twig`
-  - In `{% block dashboard_head %}`: `{{ vite_entry_link_tags('app') }}`
-  - In `{% block dashboard_scripts %}`: `{{ vite_entry_script_tags('app') }}`
-
-So when opening the dashboard, the `app` entrypoint is loaded and starts Stimulus. When the item form modal injects HTML with `data-controller="icon-selector"` (or similar), the bundle script calls `connectStimulusControllersInContainer(container)` so Stimulus connects those elements. If the icon-selector is loaded as an additional script (`icon_selector_script_url`), a cache-buster is used when injecting it into the modal so it runs again.
+Since 2.7 the dashboard pages render in the UiKit admin layout of the demo (`nowo_ui_kit.layouts.admin` →
+`templates/layouts/admin.html.twig`, a bridge into the demo shell). Stimulus for the Live item form comes from
+`dashboard.stimulus_script_url` (the bundle's `js/stimulus-live.js`), loaded by the dashboard pages in `nowo_ui_scripts`;
+a host that ships its own Vite entry can add `{{ vite_entry_script_tags('app') }}` to its layout instead. When the item form modal injects HTML with `data-controller="icon-selector"` (or similar), the bundle script calls `connectStimulusControllersInContainer(container)` so Stimulus connects those elements. If the icon-selector is loaded as an additional script (`icon_selector_script_url`), a cache-buster is used when injecting it into the modal so it runs again.
 
 ## Development
 

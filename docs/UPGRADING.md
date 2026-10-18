@@ -3,6 +3,8 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+  - [Template contract](#template-contract)
+  - [Deprecated configuration](#deprecated-configuration)
 - [To 2.6.0](#to-260)
 - [To 2.5.1](#to-251)
 - [To 2.5.0](#to-250)
@@ -103,6 +105,47 @@
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+From **2.6.0** — dashboard pages on the UiKit 2.1 page contract (REQ-UI-003). Minor release: the 1.x keys keep working (deprecated, bridged). The public menu rendering (`menu.html.twig`, `dashboard_menu_tree()`, `dashboard_menu_config()`) is unchanged.
+
+### Template contract
+
+What hosts may notice:
+
+| 2.6 | 2.7 |
+| --- | --- |
+| `dashboard/layout.html.twig` (Bootstrap / Tailwind / Foundation from CDNs) and `dashboard/base.html.twig` | **removed**: pages render in `nowo_ui_kit.layouts.admin` (or `web_ui.layout_template`). Point it to a layout (or a one-file bridge) that renders the UiKit canonical blocks — see UiKit `PAGE_CONTRACT.md` "Example: host integration" and `demo/symfony8/templates/layouts/admin.html.twig` |
+| Host layout set in `dashboard.layout_template` (or an override of `templates/bundles/NowoDashboardMenuBundle/dashboard/layout.html.twig`) that renders `nowo_dashboard_menu_content` | still works through `dashboard/_legacy_layout.html.twig` (deprecation at runtime); the bridge fills `nowo_dashboard_menu_content`, `stylesheets`, `javascripts` and `dashboard_title` |
+| `index.html.twig` (list / table switch, own toolbar, `_pagination`) | extends `@NowoUiKit/page/list.html.twig`; fills `nowo_ui_list_row` |
+| `show.html.twig` (own header, `_menu_properties`, items table) | extends `@NowoUiKit/page/show.html.twig`; properties / CSS classes are detail sections, the items table renders in `nowo_ui_show_after` (`nowo_dashboard_menu_items`, `nowo_dashboard_menu_item_cells`) |
+| `menu_form.html.twig`, `item_form.html.twig`, `copy_menu.html.twig`, `import.html.twig` (rarely reached) | `page/form` pages, linked from every opener (no-JS fallback) |
+| `_*_partial.html.twig` modal bodies fetched without query | dialog fragments, fetched with `?_modal=1` (without it the route renders the page) |
+| Bootstrap modals (`modal fade`, `data-bs-toggle`), `_modal.html.twig`, `_menu_dashboard_modals.html.twig`, `#modal-*` ids | UiKit dialogs `nowo-dashboard-menu-dialog-{menu,copy,item,import}`; openers carry `data-nowo-dashboard-menu-dialog` |
+| Delete modals with `#form-delete-confirm` and `data-token` buttons | UiKit confirm dialogs (one per row, CSRF `FormView`, same token ids `delete_menu_<id>`, `delete_item_<id>`) |
+| Blocks `dashboard_page_header`, `dashboard_header_actions`, `dashboard_header_links`, `dashboard_header_title`, `dashboard_search`, `dashboard_toolbar`, `dashboard_menus*`, `dashboard_menu_row_actions`, `dashboard_empty_state`, `dashboard_pagination`, `dashboard_new_menu_modal`, `dashboard_menu_properties`, `dashboard_items_table`, `dashboard_item_row_actions`, `dashboard_item_cells`, `dashboard_sortable*`, `dashboard_modal_*`, `nowo_dashboard_menu_config_island` | removed — use the scaffold data blocks, `nowo_dashboard_menu_items` / `nowo_dashboard_menu_item_cells` (show), `nowo_dashboard_menu_sortable` / `_header` (reorder) or the theme |
+| Twig context `menus`, `pagination` (array), `menu_delete_tokens`, `modal_classes`, `item_move_up_forms`… | `page` (`ListPage` / `ShowPage` / `FormPage`), `dialogs`; show: `item_rows`, `item_columns`; reorder: `header`, `items_tree`, `reorder_form` |
+| `nowo_dashboard_menu_header_actions` (layout placement), `window.dashboardMenuI18n` inline script | header actions live in `nowo_ui_page_header`; translations in the JSON config island |
+| Row actions: bundle SVG icons, actions column first on the items table | UiKit row actions (`nowo_ui_kit.row_actions_display`), actions column last |
+| Form field classes from the form types (`mb-1`, `form-check`…) | from the FormKit `dashboard_menu` profile only |
+
+### Deprecated configuration
+
+| Key | Replacement | Behaviour until 3.0 |
+| --- | --- | --- |
+| `dashboard.enabled` | `web_ui.enabled` | mapped |
+| `dashboard.path_prefix` | `web_ui.path_prefix` (+ your routing prefix) | mapped |
+| `dashboard.layout_template` | `web_ui.layout_template` (null = UiKit layout) | mapped; the 1.x default `@NowoDashboardMenuBundle/dashboard/layout.html.twig` means null; a layout without `nowo_ui_content` is bridged |
+| `dashboard.css_framework`, `dashboard.icon_set` | `nowo_ui_kit.css_framework`, `nowo_ui_kit.icon_set` | seeded into UiKit when set here and not in `nowo_ui_kit` |
+| `dashboard.ui.classes.*` | `nowo_ui_kit.theme.bundles.NowoDashboardMenuBundle.classes.<slot>` | bridged with `framework_defaults: false` (mapping below) |
+| `dashboard.ui.partials.pagination` | `nowo_ui_kit.theme.bundles.NowoDashboardMenuBundle.partials.pagination` | bridged (receives UiKit's pagination input) |
+| `dashboard.ui.templates.<page>` | `web_ui.templates.<page>` | mapped (`index`, `show`, `show_items_reorder`, `*_partial`); 1.x blocks inside those overrides no longer exist |
+| `dashboard.ui.row_action_display` | `nowo_ui_kit.row_actions_display` | applied to the dashboard row actions |
+| `dashboard.ui.header_action_variants` | — | applied (`ghost` → neutral) |
+| `dashboard.ui.form_themes` | FormKit `dashboard_menu` profile | applied as `FormPage::formThemes` |
+| `dashboard.ui.include_ui_kit_css`, `header_actions_in_layout`, `index_view`, `actions_column`, `region_attribute`, `partials.modal`, `partials.row_action_inner`, `templates.modals` | — | no effect (pages carry `data-testid` / `data-nowo-ui-region`) |
+| `DashboardUiConfig`, globals `nowo_dashboard_menu_ui`, `nowo_dashboard_layout_template`, `dashboard_menu_ui_class()` | the UiKit theme | kept, unused by the pages |
+
+`dashboard.ui.classes` → slot: `button_primary` → `btn_primary`; `button_secondary` → `btn_secondary`; `button_danger` → `btn_danger`; `button_link` → `btn_link`; `page_header`, `toolbar`, `empty`, `muted`, `table_wrap`, `table`, `table_row`, `row_actions`, `row_action_disabled` → same name; `search_form` → `filters`; `search_input` → `input`; `info_panel` → `detail_list`; `badge` → `badge_neutral`; `table_header_row` → `table_head_row`; `row_action` → `action`; `row_action_danger` → `action_danger`; `sortable_panel` → `card`; `sortable_header` → `card_header`; `sortable_body` → `card_body`; `modal_form` → `form`; `modal_actions` → `form_actions`. No slot (dropped): `button_ghost`, `button_small`, `inline_form`, `empty_action`, `badge_base`, `badge_type`, `badge_unanimous`, `badge_non_unanimous`, `list`, `list_item`, `modal_loading`, `modal_content`, `modal_section`, `modal_message`.
 
 ## To 2.6.0
 

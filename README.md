@@ -1,6 +1,6 @@
 # Nowo Dashboard Menu Bundle
 
-[![CI](https://github.com/nowo-tech/DashboardMenuBundle/actions/workflows/ci.yml/badge.svg)](https://github.com/nowo-tech/DashboardMenuBundle/actions/workflows/ci.yml) [![Packagist Version](https://img.shields.io/packagist/v/nowo-tech/dashboard-menu-bundle.svg?style=flat)](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) [![Packagist Downloads](https://img.shields.io/packagist/dt/nowo-tech/dashboard-menu-bundle.svg)](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php)](https://php.net) [![Symfony](https://img.shields.io/badge/Symfony-7%2B%20%7C%208-000000?logo=symfony)](https://symfony.com) [![GitHub stars](https://img.shields.io/github/stars/nowo-tech/dashboard-menu-bundle.svg?style=social&label=Star)](https://github.com/nowo-tech/DashboardMenuBundle) [![Coverage](https://img.shields.io/badge/Coverage-99.27%25-brightgreen)](#tests-and-coverage)
+[![CI](https://github.com/nowo-tech/DashboardMenuBundle/actions/workflows/ci.yml/badge.svg)](https://github.com/nowo-tech/DashboardMenuBundle/actions/workflows/ci.yml) [![Packagist Version](https://img.shields.io/packagist/v/nowo-tech/dashboard-menu-bundle.svg?style=flat)](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) [![Packagist Downloads](https://img.shields.io/packagist/dt/nowo-tech/dashboard-menu-bundle.svg)](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php)](https://php.net) [![Symfony](https://img.shields.io/badge/Symfony-7%2B%20%7C%208-000000?logo=symfony)](https://symfony.com) [![GitHub stars](https://img.shields.io/github/stars/nowo-tech/dashboard-menu-bundle.svg?style=social&label=Star)](https://github.com/nowo-tech/DashboardMenuBundle) [![Coverage](https://img.shields.io/badge/Coverage-99.31%25-brightgreen)](#tests-and-coverage)
 
 > ⭐ **Found this useful?** [Install from Packagist](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) · Give it a **star** on [GitHub](https://github.com/nowo-tech/DashboardMenuBundle) so more developers can find it.
 
@@ -9,6 +9,21 @@
 ![FrankenPHP Friendly Worker Mode](docs/images/frankenphp-friendly.png)
 
 This bundle is **FrankenPHP worker mode friendly**.
+
+<table>
+  <tr>
+    <td><a href="docs/images/demo/dashboard-menus-list.webp"><img src="docs/images/demo/dashboard-menus-list.webp" alt="Menus list: UiKit list scaffold with search, row actions and pagination inside the Symfony 8 demo shell (sidebar menus rendered by the bundle, Web Profiler toolbar)" width="420"></a></td>
+    <td><a href="docs/images/demo/dashboard-menu-items.webp"><img src="docs/images/demo/dashboard-menu-items.webp" alt="Menu detail: items table with route / URL, permission keys and row actions (move, add child, edit, configure, delete)" width="420"></a></td>
+    <td><a href="docs/images/demo/dashboard-menu-item-dialog.webp"><img src="docs/images/demo/dashboard-menu-item-dialog.webp" alt="Item configuration form (Symfony UX Live component) opened in a UiKit native dialog" width="420"></a></td>
+  </tr>
+  <tr>
+    <td>Menus list (UiKit <code>page/list</code>)</td>
+    <td>Menu detail + items (UiKit <code>page/show</code>)</td>
+    <td>Item configuration in a dialog (Live component)</td>
+  </tr>
+</table>
+
+Demo: `demo/symfony8` (Symfony 8, FrankenPHP, Bootstrap 5 host theme). More screenshots (reorder, delete confirm, form pages): [docs/TEMPLATES.md](docs/TEMPLATES.md#screenshots).
 
 ## Table of contents
 
@@ -37,7 +52,7 @@ This bundle is **FrankenPHP worker mode friendly**.
 - **Collapse without Bootstrap JS** (2.6.0, opt-in): `menu_collapse.enabled` + the CSP-safe `js/menu-collapse.js` script make collapsible / nested menus toggle without Bootstrap's JavaScript (ARIA in sync, state remembered in `localStorage`, no double toggle when Bootstrap JS is present) — see [Nested collapse without Bootstrap JS](docs/USAGE.md#nested-collapse-without-bootstrap-js)
 - **JSON API**: `GET /api/menu/{code}` for SPA consumption (optional `_locale`, `_context_sets` query params)
 - **Dashboard**: CRUD at `/admin/menus` (list, create, edit, copy menu, manage items); export/import menus as JSON; optional **drag-and-drop tree reorder** (SortableJS) on a dedicated route; forms split into definition (pencil) and configuration (gear); dashboard search/action flows use Symfony Form Types + FormKit-friendly Twig rendering (`form_start` / `form_end`); redirect to referer after successful actions; import available in a modal
-- **Admin chrome hooks** (2.3.0): theme the dashboard with `dashboard.ui` config (CSS class map, modal shell / pagination / row-action partials, table view, header actions in your layout) and named blocks instead of copying pages — see [Customising the admin chrome](docs/USAGE.md#customising-the-admin-chrome)
+- **UiKit page contract** (2.7, REQ-UI-003): the dashboard pages extend the UiKit list / show / form scaffolds and render in your `nowo_ui_kit.layouts.admin` layout; theme them once with `nowo_ui_kit.theme` (per-bundle exception `theme.bundles.NowoDashboardMenuBundle`); forms open in native UiKit dialogs, deletes use the UiKit confirm dialog — see [docs/TEMPLATES.md](docs/TEMPLATES.md). The 1.x `dashboard.ui` chrome hooks are deprecated (bridged into the UiKit theme)
 - **Performance**: Two SQL queries per menu (menu + items), optional PSR-6 cache (configurable TTL); labels by locale from JSON; tree built in PHP
 - **Dev**: Web Profiler panel “Dashboard menus” (menus on page, query count, configuration tab: connection, cache, locales, icon map, permission checkers)
 
@@ -145,6 +160,7 @@ Then run `php bin/console assets:install` in the app so `public/bundles/nowodash
 - [Configuration](docs/CONFIGURATION.md)
 - [PSR evaluation (REQ-CS-007)](docs/PSR.md)
 - [Usage](docs/USAGE.md)
+- [Templates (UiKit page contract)](docs/TEMPLATES.md)
 - [Contributing](docs/CONTRIBUTING.md)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Changelog](docs/CHANGELOG.md)

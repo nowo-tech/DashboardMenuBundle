@@ -17,6 +17,7 @@ The public menu rendering (`menu.html.twig`, `dashboard_menu_tree()`, `dashboard
 - [Per-page overrides](#per-page-overrides)
 - [Shared partials](#shared-partials)
 - [Allowed exceptions](#allowed-exceptions)
+- [Screenshots](#screenshots)
 
 ## Pages
 
@@ -78,3 +79,17 @@ Internal (not theme partials): `_page_scripts.html.twig` (JSON config island + S
 ## Allowed exceptions
 
 - (none) — `allowedClasses()` is not overridden in the contract test.
+
+## Screenshots
+
+Demo `demo/symfony8` (Bootstrap 5 host shell, `nowo_ui_kit.layouts.admin` = `templates/layouts/admin.html.twig`):
+
+| Page | Screenshot |
+| --- | --- |
+| Menus list (`page/list`) | ![Menus list](images/demo/dashboard-menus-list.webp) |
+| Menu detail: header actions + detail sections (`page/show`) | ![Menu detail](images/demo/dashboard-menu-show.webp) |
+| Menu detail: items table (`nowo_dashboard_menu_items`) | ![Items table](images/demo/dashboard-menu-items.webp) |
+| Item configuration in a UiKit dialog (Live component) | ![Item dialog](images/demo/dashboard-menu-item-dialog.webp) |
+| Delete confirmation (UiKit confirm) | ![Delete confirm](images/demo/dashboard-menu-delete-confirm.webp) |
+| Menu configuration as a full page (`page/form`) | ![Configuration form](images/demo/dashboard-menu-config-form.webp) |
+| Drag reorder (unique page) | ![Reorder](images/demo/dashboard-menu-reorder.webp) |

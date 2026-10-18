@@ -47,7 +47,7 @@ final class MenuDefinitionType extends AbstractType
                 'label'    => 'form.menu_type.code.label',
                 'help'     => 'form.menu_type.code.help',
                 'attr'     => [
-                    'pattern'     => '[a-zA-Z0-9_-]+',
+                    'pattern'     => '[a-zA-Z0-9_\\-]+',
                     'placeholder' => $t('form.menu_type.code.placeholder'),
                     'readonly'    => $codeLocked,
                 ],
