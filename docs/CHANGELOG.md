@@ -115,6 +115,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ItemFormLiveComponent::$embedded` is no longer used by the bundle pages (kept for host templates that embed the
   component inside their own form).
 
+### Fixed
+
+- **Missing / double translations (profiler):** the form types translated placeholders, help texts, labels and choice
+  labels with `$t()` and the form theme looked the translated text up again in `NowoDashboardMenuBundle` ("e.g.
+  sidebar", "Search by code or name…", "Use menu default", "Skip (do not import)"…). They are now catalogue keys
+  translated once by the theme (`CopyMenuType`, `MenuDefinitionType`, `MenuConfigType`, `MenuItemConfigType`,
+  `MenuItemIconType`, `SearchQueryType`, `ImportMenuType`); the list search no longer sets a `FilterField`
+  placeholder (UiKit translated it before the theme did). Literal choices are not looked up
+  (`choice_translation_domain: false`): permission checker service ids, app route labels, parent item labels.
+  `CopyMenuType`, `MenuDefinitionType`, `MenuConfigType` and `MenuItemIconType` no longer take a `$translator`
+  constructor argument (service definitions updated). A contract test renders every dashboard page with a
+  `DataCollectorTranslator` and asserts no missing message.
+
 ## [2.7.0] - 2026-10-18
 
 Dashboard pages on the UiKit 2.1 standard page contract (REQ-UI-003): list, show and form scaffolds, UiKit dialogs with no-JS fallbacks (Live item form kept), confirm dialogs; deprecated `dashboard.*` / `dashboard.ui.*` keys mapped or bridged into `nowo_ui_kit.theme.bundles`. See [UPGRADING](UPGRADING.md#to-270).

@@ -131,7 +131,7 @@ final readonly class DashboardPages
             layout: $layout,
             attributes: ['data-testid' => 'dashboard-menu-menus'],
             actionsLabel: $this->label('dashboard.actions'),
-            filterFields: ['q' => new FilterField('q', $this->label('dashboard.search_placeholder'), 'lg')],
+            filterFields: ['q' => new FilterField('q', width: 'lg')],
             filtersSubmit: new Action('filter', $this->label('dashboard.filter')),
             filtersClear: $searchTerm !== '' ? new Action('cancel', $this->label('dashboard.clear_filters'), $indexUrl) : null,
         );

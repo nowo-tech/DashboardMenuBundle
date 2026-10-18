@@ -12,7 +12,6 @@ use Nowo\FormKitBundle\Form\FormOptionsTrait;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Form type for menu definition: code, base, name, context, icon.
@@ -28,27 +27,21 @@ final class MenuDefinitionType extends AbstractType
 {
     use FormOptionsTrait;
 
-    public function __construct(
-        private readonly ?TranslatorInterface $translator = null,
-    ) {
-    }
-
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $data       = $builder->getData();
         $isEdit     = $data instanceof Menu && $data->getId() !== null;
         $isBase     = $data instanceof Menu && $data->isBase();
         $codeLocked = $isEdit && $isBase;
-        $t          = fn (string $id): string => $this->translator instanceof TranslatorInterface ? $this->translator->trans($id, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN) : $id;
 
-        $this->withBuilder($builder, function () use ($t, $codeLocked): void {
+        $this->withBuilder($builder, function () use ($codeLocked): void {
             $this->addTextField('code', [
                 'required' => true,
                 'label'    => 'form.menu_type.code.label',
                 'help'     => 'form.menu_type.code.help',
                 'attr'     => [
                     'pattern'     => '[a-zA-Z0-9_\\-]+',
-                    'placeholder' => $t('form.menu_type.code.placeholder'),
+                    'placeholder' => 'form.menu_type.code.placeholder',
                     'readonly'    => $codeLocked,
                 ],
             ]);
@@ -61,7 +54,7 @@ final class MenuDefinitionType extends AbstractType
                 'required' => false,
                 'label'    => 'form.menu_type.name.label',
                 'help'     => false,
-                'attr'     => ['placeholder' => $t('form.menu_type.name.placeholder')],
+                'attr'     => ['placeholder' => 'form.menu_type.name.placeholder'],
             ]);
             $this->addTextareaField('context', [
                 'required' => false,
@@ -69,14 +62,14 @@ final class MenuDefinitionType extends AbstractType
                 'help'     => 'form.menu_type.context.help',
                 'attr'     => [
                     'rows'        => 3,
-                    'placeholder' => $t('form.menu_type.context.placeholder'),
+                    'placeholder' => 'form.menu_type.context.placeholder',
                 ],
             ]);
             $this->addTextField('icon', [
                 'required' => false,
                 'label'    => 'form.menu_type.icon.label',
                 'help'     => 'form.menu_type.icon.help',
-                'attr'     => ['placeholder' => $t('form.menu_type.icon.placeholder')],
+                'attr'     => ['placeholder' => 'form.menu_type.icon.placeholder'],
             ]);
         });
 

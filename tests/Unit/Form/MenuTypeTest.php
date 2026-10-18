@@ -16,7 +16,6 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class MenuTypeTest extends TestCase
 {
@@ -160,9 +159,6 @@ final class MenuTypeTest extends TestCase
 
     public function testMenuConfigTypeUlIdFieldUsesChoiceTypeAndAddsCurrentWhenOptionsPresent(): void
     {
-        $translator = $this->createMock(TranslatorInterface::class);
-        $translator->method('trans')->willReturnCallback(static fn (mixed $id, array $parameters = [], ?string $domain = null): string => $id . '_translated');
-
         $menu = new Menu();
         $menu->setUlId('my-ul');
 
@@ -173,7 +169,6 @@ final class MenuTypeTest extends TestCase
             permissionCheckerChoices: [],
             cssClassOptions: [],
             ulIdOptions: ['a' => 'a', 'b' => 'b'],
-            translator: $translator,
         );
         $this->injectFormKitMerger($type);
 
@@ -188,11 +183,8 @@ final class MenuTypeTest extends TestCase
         self::assertFalse($ulId['choice_translation_domain'] ?? null);
     }
 
-    public function testMenuConfigTypeUlIdFieldUsesTextTypeAndTranslatesPlaceholderWhenOptionsEmpty(): void
+    public function testMenuConfigTypeUlIdFieldUsesTextTypeWithPlaceholderKeyWhenOptionsEmpty(): void
     {
-        $translator = $this->createMock(TranslatorInterface::class);
-        $translator->method('trans')->willReturn('ul_id_placeholder_translated');
-
         $addCalls = [];
         $builder  = $this->createFormBuilderMock($addCalls, new Menu());
 
@@ -200,7 +192,6 @@ final class MenuTypeTest extends TestCase
             permissionCheckerChoices: [],
             cssClassOptions: [],
             ulIdOptions: [],
-            translator: $translator,
         );
         $this->injectFormKitMerger($type);
 
@@ -209,7 +200,7 @@ final class MenuTypeTest extends TestCase
         $ulId = $this->findAddCall($addCalls, 'ulId');
         self::assertNotNull($ulId);
         self::assertSame(TextType::class, $ulId['type']);
-        self::assertSame('ul_id_placeholder_translated', $ulId['attr']['placeholder'] ?? null);
+        self::assertSame('form.menu_type.ul_id.placeholder', $ulId['attr']['placeholder'] ?? null, 'The form theme translates the key once.');
     }
 
     public function testMenuConfigTypeUlIdFieldPlaceholderFallsBackToEmptyKeyWhenNoTranslator(): void

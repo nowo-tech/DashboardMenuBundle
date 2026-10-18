@@ -18,7 +18,6 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function array_key_exists;
 use function constant;
@@ -38,7 +37,6 @@ final class MenuItemIconType extends AbstractType
 
     public function __construct(
         private readonly MenuIconNameResolver $menuIconNameResolver,
-        private readonly ?TranslatorInterface $translator = null,
     ) {
     }
 
@@ -107,9 +105,6 @@ final class MenuItemIconType extends AbstractType
         });
 
         if (!$itemTypeOnly) {
-            $t = fn (string $id): string => $this->translator instanceof TranslatorInterface
-                ? $this->translator->trans($id, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN)
-                : $id;
 
             $iconSelectorType = 'Nowo\\IconSelectorBundle\\Form\\IconSelectorType';
             if (is_subclass_of($iconSelectorType, FormTypeInterface::class)) {
@@ -118,7 +113,7 @@ final class MenuItemIconType extends AbstractType
                     'mode'               => constant($iconSelectorType . '::MODE_TOM_SELECT'),
                     'label'              => 'form.menu_item_type.icon.label',
                     'translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
-                    'attr'               => ['placeholder' => $t('form.menu_item_type.icon.placeholder')],
+                    'attr'               => ['placeholder' => 'form.menu_item_type.icon.placeholder'],
                 ]);
             } else {
                 $this->addWithDefaults($builder, 'icon', TextType::class, [
@@ -126,7 +121,7 @@ final class MenuItemIconType extends AbstractType
                     'label'              => 'form.menu_item_type.icon.label',
                     'translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
                     'attr'               => [
-                        'placeholder' => $t('form.menu_item_type.icon.placeholder'),
+                        'placeholder' => 'form.menu_item_type.icon.placeholder',
                     ],
                 ]);
             }

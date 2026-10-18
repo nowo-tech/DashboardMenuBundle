@@ -124,12 +124,12 @@ final class DashboardPageFixtures
         $repository = (new ReflectionClass(MenuItemRepository::class))->newInstanceWithoutConstructor();
         $types      = [
             new SearchQueryType($translator),
-            new CopyMenuType($translator),
+            new CopyMenuType(),
             new ImportMenuType($translator),
-            new MenuDefinitionType($translator),
-            new MenuConfigType([], [], [], $translator),
+            new MenuDefinitionType(),
+            new MenuConfigType([], [], []),
             new MenuItemBasicType(['en', 'es']),
-            new MenuItemIconType(new MenuIconNameResolver(), $translator),
+            new MenuItemIconType(new MenuIconNameResolver()),
             new MenuItemConfigType($repository, ['authenticated', 'admin'], [], 'en', $translator),
         ];
         $builder = (new FormFactoryBuilder())

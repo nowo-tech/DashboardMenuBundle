@@ -9,17 +9,13 @@ use Nowo\DashboardMenuBundle\Tests\Unit\Form\FormKitMergerTestTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class CopyMenuTypeTest extends TestCase
 {
     use FormKitMergerTestTrait;
 
-    public function testBuildFormAddsCodeAndNameWithTranslator(): void
+    public function testBuildFormAddsCodeAndNameWithPlaceholderKeys(): void
     {
-        $translator = $this->createStub(TranslatorInterface::class);
-        $translator->method('trans')->willReturnCallback(static fn (string $id): string => $id);
-
         $addCalls = [];
         $builder  = $this->createMock(FormBuilderInterface::class);
         $builder->method('add')->willReturnCallback(static function (string $name, $type, array $options = []) use (&$addCalls, $builder): \PHPUnit\Framework\MockObject\MockObject {
@@ -28,7 +24,7 @@ final class CopyMenuTypeTest extends TestCase
             return $builder;
         });
 
-        $type = new CopyMenuType($translator);
+        $type = new CopyMenuType();
         $this->injectFormKitMerger($type);
         $type->buildForm($builder, []);
 
@@ -37,9 +33,11 @@ final class CopyMenuTypeTest extends TestCase
         self::assertTrue($addCalls[0]['options']['required']);
         self::assertSame('form.copy_menu_type.code.label', $addCalls[0]['options']['label']);
         self::assertSame('name', $addCalls[1]['name']);
+        self::assertSame('form.copy_menu_type.code.placeholder', $addCalls[0]['options']['attr']['placeholder'] ?? null, 'Keys: the form theme translates them once.');
+        self::assertSame('form.copy_menu_type.name.placeholder', $addCalls[1]['options']['attr']['placeholder'] ?? null);
     }
 
-    public function testBuildFormWithNullTranslatorUsesIdAsPlaceholder(): void
+    public function testBuildFormAddsFields(): void
     {
         $builder = $this->createMock(FormBuilderInterface::class);
         $builder->method('add')->willReturnSelf();

@@ -43,7 +43,7 @@ final class SearchQueryType extends AbstractType
             'label'       => 'dashboard.search',
             'help'        => false,
             'empty_data'  => '',
-            'placeholder' => $t('dashboard.search_placeholder'),
+            'placeholder' => 'dashboard.search_placeholder',
             'attr'        => [
                 'aria-label'   => $t('dashboard.search'),
                 'autocomplete' => 'off',

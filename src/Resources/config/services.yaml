@@ -30,7 +30,6 @@ services:
   Nowo\DashboardMenuBundle\Form\MenuItemIconType:
     arguments:
       $menuIconNameResolver: '@Nowo\DashboardMenuBundle\Service\MenuIconNameResolver'
-      $translator: '@translator'
     tags: ['form.type']
 
   Nowo\DashboardMenuBundle\Form\MenuItemConfigType:
@@ -43,8 +42,6 @@ services:
     tags: ['form.type']
 
   Nowo\DashboardMenuBundle\Form\CopyMenuType:
-    arguments:
-      $translator: '@translator'
     tags: ['form.type']
 
   Nowo\DashboardMenuBundle\Form\ImportMenuType:
@@ -56,8 +53,6 @@ services:
     tags: ['form.type']
 
   Nowo\DashboardMenuBundle\Form\MenuDefinitionType:
-    arguments:
-      $translator: '@translator'
     tags: ['form.type']
 
   Nowo\DashboardMenuBundle\Form\MenuConfigType:
@@ -65,7 +60,6 @@ services:
       $permissionCheckerChoices: '%nowo_dashboard_menu.permission_checker_choices%'
       $cssClassOptions: '%nowo_dashboard_menu.dashboard.css_class_options%'
       $ulIdOptions: '%nowo_dashboard_menu.dashboard.id_options%'
-      $translator: '@translator'
     tags: ['form.type']
 
   Nowo\DashboardMenuBundle\Form\SearchQueryType:

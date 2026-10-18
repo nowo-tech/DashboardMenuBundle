@@ -51,7 +51,7 @@ final class ImportMenuTypeTest extends TestCase
 
         self::assertSame(FileType::class, $fileCall['type']);
         self::assertTrue($fileCall['options']['required']);
-        self::assertSame('t:form.import_menu_type.file.label', $fileCall['options']['label']);
+        self::assertSame('form.import_menu_type.file.label', $fileCall['options']['label'], 'Labels are keys: the form theme translates them once.');
         self::assertSame('.json,application/json', $fileCall['options']['attr']['accept'] ?? null);
         self::assertStringContainsString('form-control', (string) ($fileCall['options']['attr']['class'] ?? ''));
 
@@ -66,15 +66,15 @@ final class ImportMenuTypeTest extends TestCase
 
         self::assertSame(ChoiceType::class, $strategyCall['type']);
         self::assertTrue($strategyCall['options']['required']);
-        self::assertSame('t:form.import_menu_type.strategy.label', $strategyCall['options']['label']);
+        self::assertSame('form.import_menu_type.strategy.label', $strategyCall['options']['label']);
         self::assertSame(MenuImporter::STRATEGY_SKIP_EXISTING, $strategyCall['options']['data']);
 
         $choices = $strategyCall['options']['choices'] ?? [];
-        self::assertArrayHasKey('t:form.import_menu_type.strategy.skip_existing', $choices);
-        self::assertSame(MenuImporter::STRATEGY_SKIP_EXISTING, $choices['t:form.import_menu_type.strategy.skip_existing']);
+        self::assertArrayHasKey('form.import_menu_type.strategy.skip_existing', $choices);
+        self::assertSame(MenuImporter::STRATEGY_SKIP_EXISTING, $choices['form.import_menu_type.strategy.skip_existing']);
         self::assertSame(
             MenuImporter::STRATEGY_REPLACE,
-            $choices['t:form.import_menu_type.strategy.replace'],
+            $choices['form.import_menu_type.strategy.replace'],
         );
     }
 

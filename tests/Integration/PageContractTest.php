@@ -7,11 +7,18 @@ namespace Nowo\DashboardMenuBundle\Tests\Integration;
 use Nowo\DashboardMenuBundle\Tests\Support\DashboardPageFixtures;
 use Nowo\UiKitBundle\Test\PageContractTestCase;
 use Nowo\UiKitBundle\Test\PageFixture;
+use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Bridge\Twig\Extension\TranslationExtension;
+use Symfony\Component\Translation\DataCollectorTranslator;
 use Twig\Environment;
 use Twig\Markup;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 
+use function array_filter;
+use function array_map;
+use function array_values;
+use function assert;
 use function dirname;
 use function htmlspecialchars;
 use function json_encode;
@@ -44,6 +51,36 @@ final class PageContractTest extends PageContractTestCase
         yield 'edit item configuration (Live component)' => new PageFixture(self::VIEWS . 'item_form.html.twig', DashboardPageFixtures::itemFormLive());
         yield 'copy menu' => new PageFixture(self::VIEWS . 'copy_menu.html.twig', DashboardPageFixtures::copyForm());
         yield 'import' => new PageFixture(self::VIEWS . 'import.html.twig', DashboardPageFixtures::importForm());
+    }
+
+    /**
+     * @return iterable<string, array{PageFixture}>
+     */
+    public static function translationPages(): iterable
+    {
+        foreach (self::pageFixtures() as $name => $fixture) {
+            yield $name => [$fixture];
+        }
+    }
+
+    /**
+     * The form theme translates labels, help, placeholders and choice labels in the field domain: placeholders are
+     * catalogue keys translated once (they were translated by the form types and looked up again), literal examples
+     * are catalogue entries and literal choices are not looked up. Every lookup of a page hits the catalogues.
+     */
+    #[DataProvider('translationPages')]
+    public function testPageLooksUpNoMissingMessage(PageFixture $fixture): void
+    {
+        $twig      = $this->createTwig();
+        $collector = $twig->getExtension(TranslationExtension::class)->getTranslator();
+        assert($collector instanceof DataCollectorTranslator);
+        $twig->render($fixture->template, $fixture->context);
+
+        $missing = array_filter(
+            $collector->getCollectedMessages(),
+            static fn (array $message): bool => $message['state'] === DataCollectorTranslator::MESSAGE_MISSING,
+        );
+        self::assertSame([], array_values(array_map(static fn (array $message): string => $message['domain'] . ': ' . $message['id'], $missing)));
     }
 
     public function testMenusListRendersCellsRowActionsAndDialogs(): void

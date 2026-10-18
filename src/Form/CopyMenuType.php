@@ -12,7 +12,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Form to set code and name when copying a menu.
@@ -27,23 +26,17 @@ final class CopyMenuType extends AbstractType
 {
     use FormOptionsTrait;
 
-    public function __construct(
-        private readonly ?TranslatorInterface $translator = null,
-    ) {
-    }
-
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $t = fn (string $id): string => $this->translator instanceof TranslatorInterface ? $this->translator->trans($id, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN) : $id;
 
-        $this->withBuilder($builder, function () use ($t): void {
+        $this->withBuilder($builder, function (): void {
             $this->addTextField('code', [
                 'required' => true,
                 'label'    => 'form.copy_menu_type.code.label',
                 'help'     => false,
                 'attr'     => [
                     'pattern'     => '[a-zA-Z0-9_\\-]+',
-                    'placeholder' => $t('form.copy_menu_type.code.placeholder'),
+                    'placeholder' => 'form.copy_menu_type.code.placeholder',
                 ],
                 'constraints' => [
                     new NotBlank(),
@@ -54,7 +47,7 @@ final class CopyMenuType extends AbstractType
                 'required' => false,
                 'label'    => 'form.copy_menu_type.name.label',
                 'help'     => false,
-                'attr'     => ['placeholder' => $t('form.copy_menu_type.name.placeholder')],
+                'attr'     => ['placeholder' => 'form.copy_menu_type.name.placeholder'],
             ]);
         });
     }

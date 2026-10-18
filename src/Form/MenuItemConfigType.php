@@ -106,7 +106,7 @@ final class MenuItemConfigType extends AbstractType
                 $this->addWithDefaults($builder, 'linkResolver', ChoiceType::class, [
                     'required'                  => true,
                     'label'                     => 'form.menu_item_type.link_resolver.label',
-                    'placeholder'               => $t('form.menu_item_type.link_resolver.placeholder'),
+                    'placeholder'               => 'form.menu_item_type.link_resolver.placeholder',
                     'choices'                   => $resolverChoices,
                     'choice_translation_domain' => false,
                     'help'                      => 'form.menu_item_type.link_resolver.help',
@@ -118,7 +118,7 @@ final class MenuItemConfigType extends AbstractType
                     'required' => false,
                     'label'    => 'form.menu_item_type.link_resolver.label',
                     'attr'     => [
-                        'placeholder' => $t('form.menu_item_type.link_resolver.service_id_placeholder'),
+                        'placeholder' => 'form.menu_item_type.link_resolver.service_id_placeholder',
                     ],
                     'help' => 'form.menu_item_type.link_resolver.help_free_text',
                 ]);
@@ -138,9 +138,11 @@ final class MenuItemConfigType extends AbstractType
             $this->addWithDefaults($builder, 'routeName', ChoiceType::class, [
                 'required'    => false,
                 'label'       => 'form.menu_item_type.route_name.label',
-                'placeholder' => $t('form.menu_item_type.route_name.placeholder'),
+                'placeholder' => 'form.menu_item_type.route_name.placeholder',
                 'choices'     => $routeChoices,
-                'choice_attr' => static function ($choice, $key, $value) use ($appRoutes): array {
+                // Route labels from the router, not translation keys.
+                'choice_translation_domain' => false,
+                'choice_attr'               => static function ($choice, $key, $value) use ($appRoutes): array {
                     $params = $appRoutes[$value]['params'] ?? [];
 
                     return ['data-params' => json_encode($params)];
@@ -152,7 +154,7 @@ final class MenuItemConfigType extends AbstractType
                 'required'    => false,
                 'constraints' => [new Url(protocols: ExternalUrlPolicy::FORM_PROTOCOLS, requireTld: false)],
                 'label'       => 'form.menu_item_type.external_url.label',
-                'attr'        => ['placeholder' => $t('form.menu_item_type.external_url.placeholder')],
+                'attr'        => ['placeholder' => 'form.menu_item_type.external_url.placeholder'],
             ]);
         }
 
@@ -160,7 +162,7 @@ final class MenuItemConfigType extends AbstractType
             $this->addWithDefaults($builder, 'routeParams', TextType::class, [
                 'required' => false,
                 'label'    => 'form.menu_item_type.route_params.label',
-                'attr'     => ['placeholder' => $t('form.menu_item_type.route_params.placeholder')],
+                'attr'     => ['placeholder' => 'form.menu_item_type.route_params.placeholder'],
             ]);
             $builder->get('routeParams')->addModelTransformer(new JsonToArrayTransformer());
         }
@@ -177,7 +179,7 @@ final class MenuItemConfigType extends AbstractType
             'required'                  => false,
             'label'                     => 'form.menu_item_type.permission_keys.label',
             'choices'                   => $choices,
-            'placeholder'               => $t('form.menu_item_type.permission_keys.placeholder'),
+            'placeholder'               => 'form.menu_item_type.permission_keys.placeholder',
             'choice_translation_domain' => false,
             'autocomplete'              => true,
             'multiple'                  => true,
@@ -216,11 +218,13 @@ final class MenuItemConfigType extends AbstractType
             $this->addWithDefaults($builder, 'parent', EntityType::class, [
                 'class'         => MenuItem::class,
                 'query_builder' => $queryBuilder,
-                'help'          => $t('form.menu_item_type.parent.help_inheritance'),
+                'help'          => 'form.menu_item_type.parent.help_inheritance',
                 'choice_label'  => static fn (MenuItem $item): string => self::parentChoiceBreadcrumbLabel($item, $locale),
-                'placeholder'   => $t('form.menu_item_type.parent.placeholder'),
-                'required'      => false,
-                'label'         => 'form.menu_item_type.parent.label',
+                // Item labels (already localised), not translation keys.
+                'choice_translation_domain' => false,
+                'placeholder'               => 'form.menu_item_type.parent.placeholder',
+                'required'                  => false,
+                'label'                     => 'form.menu_item_type.parent.label',
                 // No UX Autocomplete here: remote Tom Select queries rebuild the form without the
                 // editing MenuItem, so excluded ids (self + subtree) are not applied and the item
                 // can appear as its own parent. Plain EntityType uses query_builder choices only.
@@ -231,7 +235,7 @@ final class MenuItemConfigType extends AbstractType
             'required'    => false,
             'label'       => 'form.menu_item_type.section_collapsible.label',
             'help'        => 'form.menu_item_type.section_collapsible.help',
-            'placeholder' => $t('form.menu_item_type.section_collapsible.inherit'),
+            'placeholder' => 'form.menu_item_type.section_collapsible.inherit',
             'choices'     => [
                 'form.menu_item_type.section_collapsible.yes' => true,
                 'form.menu_item_type.section_collapsible.no'  => false,

@@ -42,7 +42,7 @@ final class ImportMenuType extends AbstractType
 
         $this->addWithDefaults($builder, 'file', FileType::class, [
             'required'    => true,
-            'label'       => $t('form.import_menu_type.file.label'),
+            'label'       => 'form.import_menu_type.file.label',
             'help'        => false,
             'placeholder' => false,
             'attr'        => ['accept' => '.json,application/json'],
@@ -57,12 +57,12 @@ final class ImportMenuType extends AbstractType
         ]);
         $this->addWithDefaults($builder, 'strategy', ChoiceType::class, [
             'required'    => true,
-            'label'       => $t('form.import_menu_type.strategy.label'),
+            'label'       => 'form.import_menu_type.strategy.label',
             'help'        => false,
             'placeholder' => false,
             'choices'     => [
-                $t('form.import_menu_type.strategy.skip_existing') => MenuImporter::STRATEGY_SKIP_EXISTING,
-                $t('form.import_menu_type.strategy.replace')       => MenuImporter::STRATEGY_REPLACE,
+                'form.import_menu_type.strategy.skip_existing' => MenuImporter::STRATEGY_SKIP_EXISTING,
+                'form.import_menu_type.strategy.replace'       => MenuImporter::STRATEGY_REPLACE,
             ],
             'data' => MenuImporter::STRATEGY_SKIP_EXISTING,
         ]);

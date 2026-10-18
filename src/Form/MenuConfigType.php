@@ -15,7 +15,6 @@ use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function is_array;
 
@@ -44,7 +43,6 @@ final class MenuConfigType extends AbstractType
         private readonly array $permissionCheckerChoices = [],
         private readonly array $cssClassOptions = [],
         private readonly array $ulIdOptions = [],
-        private readonly ?TranslatorInterface $translator = null,
     ) {
     }
 
@@ -74,14 +72,13 @@ final class MenuConfigType extends AbstractType
             }
             $checkerChoices[$display] = (string) $serviceId;
         }
-        $t = fn (string $id): string => $this->translator instanceof TranslatorInterface ? $this->translator->trans($id, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN) : $id;
-
         $this->addChoiceWithKit($builder, 'permissionChecker', [
-            'required'                  => false,
-            'label'                     => 'form.menu_type.permission_checker.label',
-            'placeholder'               => 'form.menu_type.permission_checker.placeholder',
-            'choices'                   => $checkerChoices,
-            'choice_translation_domain' => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
+            'required'    => false,
+            'label'       => 'form.menu_type.permission_checker.label',
+            'placeholder' => 'form.menu_type.permission_checker.placeholder',
+            'choices'     => $checkerChoices,
+            // Service ids, not translation keys.
+            'choice_translation_domain' => false,
             'autocomplete'              => true,
             'tom_select_options'        => NowoDashboardMenuBundle::TOM_SELECT_MODAL_DROPDOWN,
             'help'                      => 'form.menu_type.permission_checker.help',
@@ -89,7 +86,7 @@ final class MenuConfigType extends AbstractType
         $this->addWithDefaults($builder, 'depthLimit', IntegerType::class, [
             'required' => false,
             'label'    => 'form.menu_type.depth_limit.label',
-            'attr'     => ['min' => 0, 'placeholder' => $t('form.menu_type.depth_limit.placeholder')],
+            'attr'     => ['min' => 0, 'placeholder' => 'form.menu_type.depth_limit.placeholder'],
             'help'     => 'form.menu_type.depth_limit.help',
         ]);
         $this->addWithDefaults($builder, 'collapsible', CheckboxType::class, [
@@ -176,12 +173,11 @@ final class MenuConfigType extends AbstractType
                     }
                 }
             }
-            $emptyKey           = 'form.menu_type.empty_choice';
-            $placeholder        = $this->translator instanceof TranslatorInterface ? $this->translator->trans($emptyKey, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN) : $emptyKey;
+            // Placeholders are keys of the form domain: the form theme translates them once.
             $choiceFieldOptions = [
                 'required'                  => false,
                 'label'                     => $label,
-                'placeholder'               => $placeholder,
+                'placeholder'               => 'form.menu_type.empty_choice',
                 'choices'                   => $choices,
                 'choice_translation_domain' => false,
                 'autocomplete'              => true,
@@ -192,11 +188,10 @@ final class MenuConfigType extends AbstractType
             }
             $this->addChoiceWithKit($builder, $fieldName, $choiceFieldOptions);
         } else {
-            $placeholderText  = $this->translator instanceof TranslatorInterface ? $this->translator->trans($placeholder, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN) : $placeholder;
             $textFieldOptions = [
                 'required' => false,
                 'label'    => $label,
-                'attr'     => ['placeholder' => $placeholderText],
+                'attr'     => ['placeholder' => $placeholder],
             ];
             if ($help !== null) {
                 $textFieldOptions['help'] = $help;
@@ -224,15 +219,10 @@ final class MenuConfigType extends AbstractType
                 }
             }
 
-            $emptyKey    = 'form.menu_type.empty_choice';
-            $placeholder = $this->translator instanceof TranslatorInterface
-                ? $this->translator->trans($emptyKey, [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN)
-                : $emptyKey;
-
             $this->addChoiceWithKit($builder, 'ulId', [
                 'required'                  => false,
                 'label'                     => 'form.menu_type.ul_id.label',
-                'placeholder'               => $placeholder,
+                'placeholder'               => 'form.menu_type.empty_choice',
                 'choices'                   => $choices,
                 'choice_translation_domain' => false,
                 'autocomplete'              => true,
@@ -242,14 +232,10 @@ final class MenuConfigType extends AbstractType
             return;
         }
 
-        $placeholderText = $this->translator instanceof TranslatorInterface
-            ? $this->translator->trans('form.menu_type.ul_id.placeholder', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN)
-            : 'form.menu_type.ul_id.placeholder';
-
         $this->addWithDefaults($builder, 'ulId', TextType::class, [
             'required' => false,
             'label'    => 'form.menu_type.ul_id.label',
-            'attr'     => ['placeholder' => $placeholderText],
+            'attr'     => ['placeholder' => 'form.menu_type.ul_id.placeholder'],
         ]);
     }
 

@@ -16,7 +16,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function class_exists;
 
@@ -77,15 +76,11 @@ final class MenuItemIconTypeTest extends TestCase
 
         $iconResolver = new MenuIconNameResolver(['bootstrap-icons' => 'bi']);
 
-        $translator = $this->createMock(TranslatorInterface::class);
-        $translator->method('trans')
-            ->willReturnCallback(static fn (string $id, array $params = [], ?string $domain = null): string => $id);
-
         $addCalls       = [];
         $eventListeners = [];
         $builder        = $this->createBuilderMockWithCaptures($item, $addCalls, $eventListeners);
 
-        $type = new MenuItemIconType($iconResolver, $translator);
+        $type = new MenuItemIconType($iconResolver);
         $this->injectFormKitMerger($type);
         $type->buildForm($builder, []);
 
@@ -156,15 +151,11 @@ final class MenuItemIconTypeTest extends TestCase
 
         $iconResolver = new MenuIconNameResolver(['bootstrap-icons' => 'bi']);
 
-        $translator = $this->createMock(TranslatorInterface::class);
-        $translator->method('trans')
-            ->willReturnCallback(static fn (string $id, array $params = [], ?string $domain = null): string => $id);
-
         $addCalls       = [];
         $eventListeners = [];
         $builder        = $this->createBuilderMockWithCaptures($item, $addCalls, $eventListeners);
 
-        $type = new MenuItemIconType($iconResolver, $translator);
+        $type = new MenuItemIconType($iconResolver);
         $this->injectFormKitMerger($type);
         $type->buildForm($builder, []);
 
@@ -180,5 +171,6 @@ final class MenuItemIconTypeTest extends TestCase
         self::assertSame(TextType::class, $iconCall['type']);
         self::assertArrayHasKey('translation_domain', $iconCall['options']);
         self::assertSame(NowoDashboardMenuBundle::TRANSLATION_DOMAIN, $iconCall['options']['translation_domain']);
+        self::assertSame('form.menu_item_type.icon.placeholder', $iconCall['options']['attr']['placeholder'] ?? null, 'Key: the form theme translates it once.');
     }
 }
