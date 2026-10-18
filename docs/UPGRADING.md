@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.8.0](#to-280)
 - [To 2.7.0](#to-270)
   - [Template contract](#template-contract)
   - [Deprecated configuration](#deprecated-configuration)
@@ -106,6 +107,14 @@
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## To 2.8.0
+
+From **2.7.0**:
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
 
 Requires UiKit **^2.2** (`composer require nowo-tech/ui-kit-bundle:^2.2`). No configuration change. What hosts may
 notice:
