@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.7.0](#to-270)
   - [Template contract](#template-contract)
   - [Deprecated configuration](#deprecated-configuration)
 - [To 2.6.0](#to-260)
@@ -105,6 +106,14 @@
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## To 2.7.0
+
+From **2.6.0**:
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
 
 From **2.6.0** — dashboard pages on the UiKit 2.1 page contract (REQ-UI-003). Minor release: the 1.x keys keep working (deprecated, bridged). The public menu rendering (`menu.html.twig`, `dashboard_menu_tree()`, `dashboard_menu_config()`) is unchanged.
 

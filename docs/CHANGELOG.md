@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.7.0] - 2026-10-18](#270---2026-10-18)
 - [[2.6.0] - 2026-10-13](#260---2026-10-13)
 - [[2.5.1] - 2026-10-13](#251---2026-10-13)
 - [[2.5.0] - 2026-10-13](#250---2026-10-13)
@@ -98,6 +99,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [[0.0.1] - 2026-03-10](#001---2026-03-10)
 
 ## [Unreleased]
+
+## [2.7.0] - 2026-10-18
+
+Dashboard pages on the UiKit 2.1 standard page contract (REQ-UI-003): list, show and form scaffolds, UiKit dialogs with no-JS fallbacks (Live item form kept), confirm dialogs; deprecated `dashboard.*` / `dashboard.ui.*` keys mapped or bridged into `nowo_ui_kit.theme.bundles`. See [UPGRADING](UPGRADING.md#to-270).
 
 ### Added
 
@@ -1283,7 +1288,7 @@ Default output is byte-identical: unset actions keep their bundle variant (`butt
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.4...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.7.0...HEAD
 [2.2.4]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.3...v2.2.4
 [2.2.3]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.2...v2.2.3
 [2.2.2]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.1...v2.2.2
