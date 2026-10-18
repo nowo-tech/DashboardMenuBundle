@@ -129,10 +129,13 @@ final class Configuration implements ConfigurationInterface
                     ->scalarPrototype()->end()
                     ->defaultValue(['bootstrap-icons' => 'bi'])
                 ->end()
-                ->arrayNode('locales')
-                    ->info('List of enabled locales for menu labels. When set, the request locale is used only if in this list; otherwise default_locale or the first locale is used.')
-                    ->scalarPrototype()->end()
+                ->variableNode('locales')
+                    ->info('List of enabled locales for menu labels. When set, the request locale is used only if in this list; otherwise default_locale or the first locale is used. A literal list, or a parameter / env var holding one: "%app.locales%", "%kernel.enabled_locales%", "%env(json:APP_LOCALES)%" (resolved at runtime).')
                     ->defaultValue([])
+                    ->validate()
+                        ->ifTrue(static fn (mixed $v): bool => !is_string($v) && !self::isLocaleList($v))
+                        ->thenInvalid('Invalid nowo_dashboard_menu.locales %s: use a list of locale codes or a parameter / env placeholder holding one.')
+                    ->end()
                 ->end()
                 ->scalarNode('default_locale')
                     ->info('Fallback locale when the request locale is not in locales. If null, the first entry in locales is used.')
@@ -609,5 +612,19 @@ final class Configuration implements ConfigurationInterface
         $children->end();
 
         return $node;
+    }
+
+    private static function isLocaleList(mixed $v): bool
+    {
+        if (!is_array($v)) {
+            return false;
+        }
+        foreach ($v as $locale) {
+            if (!is_string($locale)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

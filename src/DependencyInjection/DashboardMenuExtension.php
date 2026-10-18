@@ -13,6 +13,7 @@ use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 use Nowo\DashboardMenuBundle\Security\AllowAllDashboardMenuAccessChecker;
 use Nowo\DashboardMenuBundle\Security\ConfigurableDashboardMenuAccessChecker;
 use Nowo\DashboardMenuBundle\Security\DashboardMenuAccessCheckerInterface;
+use Nowo\DashboardMenuBundle\Service\ConfiguredLocales;
 use Nowo\DashboardMenuBundle\Service\DefaultMenuCodeResolver;
 use Nowo\DashboardMenuBundle\Service\ImportExportRateLimiter;
 use Nowo\DashboardMenuBundle\Service\MenuCodeResolverInterface;
@@ -192,8 +193,10 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
             }
         }
 
-        $raw      = $this->rawDashboardConfig($container);
-        $config   = $this->processConfiguration(new Configuration(), $container->getExtensionConfig(Configuration::ALIAS));
+        $raw = $this->rawDashboardConfig($container);
+        // Only the dashboard node is processed here: prepend() sees the raw host config, where other keys may still be
+        // "%parameter%" / env placeholders (e.g. locales: '%kernel.enabled_locales%', defined by FrameworkExtension::load()).
+        $config   = $this->processConfiguration(new Configuration(), [['dashboard' => $raw]]);
         $defaults = [];
 
         if (!$hostHasCssFramework && is_string($raw['css_framework'] ?? null)) {
@@ -296,9 +299,19 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
             }
         }
 
+        // locales may be a parameter (%app.locales%, %kernel.enabled_locales%): the kernel resolves it before load(),
+        // a direct load() caller may not. An env var (%env(json:APP_LOCALES)%) stays a placeholder until runtime.
+        $locales  = $container->getParameterBag()->resolveValue($config['locales'] ?? []);
+        $usedEnvs = [];
+        $container->resolveEnvPlaceholders($locales, null, $usedEnvs);
+        $runtimeLocales = $usedEnvs !== [];
+        if (!$runtimeLocales) {
+            $locales = ConfiguredLocales::normalize($locales);
+        }
+
         $fullConfig = [
             'project'                    => $config['project'] ?? null,
-            'locales'                    => $config['locales'] ?? [],
+            'locales'                    => $locales,
             'default_locale'             => $config['default_locale'] ?? null,
             'doctrine'                   => $config['doctrine'] ?? [],
             'cache'                      => $config['cache'] ?? [],
@@ -316,12 +329,12 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
         $container->register(MenuIconNameResolver::class, MenuIconNameResolver::class)
             ->setArguments(['%' . Configuration::ALIAS . '.icon_library_prefix_map%'])
             ->setPublic(false);
-        $locales       = $config['locales'] ?? [];
-        $locales       = is_array($locales) ? $locales : [];
-        $defaultLocale = $config['default_locale'] ?? null;
+        $defaultLocale = is_string($config['default_locale'] ?? null) ? $config['default_locale'] : null;
         $container->setParameter(Configuration::ALIAS . '.locales', $locales);
         $container->setParameter(Configuration::ALIAS . '.default_locale', $defaultLocale);
-        $container->setParameter(Configuration::ALIAS . '.default_locale_resolved', $defaultLocale ?? ($locales[0] ?? 'en'));
+        // With runtime (env) locales and no default_locale this holds the fallback; services get the first env locale
+        // from a factory (wireRuntimeLocales()).
+        $container->setParameter(Configuration::ALIAS . '.default_locale_resolved', ConfiguredLocales::defaultLocale($runtimeLocales ? [] : $locales, $defaultLocale));
         $container->setParameter(Configuration::ALIAS . '.permission_checker_choices', $config['permission_checker_choices'] ?? []);
         $container->setParameter(Configuration::ALIAS . '.menu_link_resolver_choices', $config['menu_link_resolver_choices'] ?? []);
 
@@ -469,6 +482,37 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
         if ($container->hasDefinition('logger') || $container->hasAlias('logger')) {
             // @igor-ignore - Justified false positive for FrankenPHP worker audit
             $rateLimiterDef->setArgument('$logger', new Reference('logger'));
+        }
+
+        if ($runtimeLocales) {
+            $this->wireRuntimeLocales($container, $defaultLocale);
+        }
+    }
+
+    /**
+     * Locales from an env var are only known at runtime: the services that take %nowo_dashboard_menu.locales% /
+     * %nowo_dashboard_menu.default_locale_resolved% get them through {@see ConfiguredLocales} factories instead
+     * (normalized list; first env locale as default when default_locale is null).
+     */
+    private function wireRuntimeLocales(ContainerBuilder $container, ?string $defaultLocale): void
+    {
+        $localesParameter = '%' . Configuration::ALIAS . '.locales%';
+        $locales          = (new Definition('array'))
+            ->setFactory([ConfiguredLocales::class, 'normalize'])
+            ->setArguments([$localesParameter]);
+        $replacements = [$localesParameter => $locales];
+        if ($defaultLocale === null) {
+            $replacements['%' . Configuration::ALIAS . '.default_locale_resolved%'] = (new Definition('string'))
+                ->setFactory([ConfiguredLocales::class, 'defaultLocale'])
+                ->setArguments([$localesParameter]);
+        }
+
+        foreach ($container->getDefinitions() as $definition) {
+            foreach ($definition->getArguments() as $key => $argument) {
+                if (is_string($argument) && isset($replacements[$argument])) {
+                    $definition->setArgument($key, $replacements[$argument]);
+                }
+            }
         }
     }
 

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 // This file is auto-generated and is for apps only. Bundles SHOULD NOT rely on its content.
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
@@ -1364,7 +1362,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         pool?: scalar|Param|null, // Cache pool name (e.g. cache.app). Set to null or empty to disable tree cache. // Default: "cache.app"
  *     },
  *     icon_library_prefix_map?: array<string, scalar|Param|null>,
- *     locales?: list<scalar|Param|null>,
+ *     locales?: mixed, // List of enabled locales for menu labels. When set, the request locale is used only if in this list; otherwise default_locale or the first locale is used. A literal list, or a parameter / env var holding one: "%app.locales%", "%kernel.enabled_locales%", "%env(json:APP_LOCALES)%" (resolved at runtime). // Default: []
  *     default_locale?: scalar|Param|null, // Fallback locale when the request locale is not in locales. If null, the first entry in locales is used. // Default: null
  *     permission_checker_choices?: list<scalar|Param|null>,
  *     menu_link_resolver_choices?: list<scalar|Param|null>,

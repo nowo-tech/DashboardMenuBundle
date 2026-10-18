@@ -118,6 +118,22 @@ nowo_dashboard_menu:
 | `locales`        | `[]`    | List of enabled locales for menu item labels (e.g. `['en', 'es', 'fr']`). When empty, the request locale is used as-is. When set, the request locale is used only if in this list; otherwise `default_locale` or the first locale is used. |
 | `default_locale` | `null`  | Fallback when the request locale is not in `locales`. If null, the first entry in `locales` is used. |
 
+`locales` can also be a parameter or env var holding the list, so the host keeps a single locale list:
+
+```yaml
+parameters:
+    app.locales: ['en', 'es']
+
+nowo_dashboard_menu:
+    locales: '%app.locales%'            # or '%kernel.enabled_locales%' (framework.enabled_locales)
+    # locales: '%env(json:APP_LOCALES)%' # APP_LOCALES='["en","es"]' (or '%env(csv:APP_LOCALES)%' with APP_LOCALES=en,es)
+```
+
+Parameters are resolved when the container is built (`nowo_dashboard_menu.locales` holds the resolved list). An env
+var is read at runtime: the locale resolver, the item form locale tabs, the dashboard and the profiler panel receive the
+list through a factory, and when `default_locale` is null the first env locale is the default (the
+`nowo_dashboard_menu.default_locale_resolved` parameter keeps the `en` fallback). Values are trimmed and de-duplicated.
+
 ### permission_checker_choices
 
 Services shown in the dashboard "Permission checker" dropdown when creating/editing a Menu. Any service whose class implements `MenuPermissionCheckerInterface` is **automatically** tagged and included (no need to add the tag in `services.yaml`). The dropdown label for auto-discovered checkers can be set with the class constant `DASHBOARD_LABEL` or the attribute `#[PermissionCheckerLabel('...')]`; if unset, the service id is used. This option adds or orders them and optionally overrides labels.
