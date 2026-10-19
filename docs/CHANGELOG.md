@@ -121,6 +121,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Translation key `form.menu_item_type.labels_by_locale` (label of the tab list) in every shipped locale.
 
+- Demo: `/demo/live-item-form/{menuId}/{itemId}` renders the whole item form as the Live component (label tabs inside
+  Live); README screenshot of the item dialog re-captured with the label tabs.
+
 ### Removed
 
 - CSS class `nowo-dashboard-menu-locales` (the grid of label rows).

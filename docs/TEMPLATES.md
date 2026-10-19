@@ -99,7 +99,7 @@ Demo `demo/symfony8` (Bootstrap 5 host shell, `nowo_ui_kit.layouts.admin` = `tem
 | Menus list (`page/list`) | ![Menus list](images/demo/dashboard-menus-list.webp) |
 | Menu detail: header actions + detail sections (`page/show`) | ![Menu detail](images/demo/dashboard-menu-show.webp) |
 | Menu detail: items table (`nowo_dashboard_menu_items`) | ![Items table](images/demo/dashboard-menu-items.webp) |
-| Item configuration in a UiKit dialog (Live component) | ![Item dialog](images/demo/dashboard-menu-item-dialog.webp) |
+| Item labels in a UiKit dialog (locale tabs) | ![Item dialog](images/demo/dashboard-menu-item-dialog.webp) |
 | Delete confirmation (UiKit confirm) | ![Delete confirm](images/demo/dashboard-menu-delete-confirm.webp) |
 | Menu configuration as a full page (`page/form`) | ![Configuration form](images/demo/dashboard-menu-config-form.webp) |
 | Drag reorder (unique page) | ![Reorder](images/demo/dashboard-menu-reorder.webp) |

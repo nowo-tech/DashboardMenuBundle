@@ -14,7 +14,7 @@ This bundle is **FrankenPHP worker mode friendly**.
   <tr>
     <td><a href="docs/images/demo/dashboard-menus-list.webp"><img src="docs/images/demo/dashboard-menus-list.webp" alt="Menus list: UiKit list scaffold with search, row actions and pagination inside the Symfony 8 demo shell (sidebar menus rendered by the bundle, Web Profiler toolbar)" width="420"></a></td>
     <td><a href="docs/images/demo/dashboard-menu-items.webp"><img src="docs/images/demo/dashboard-menu-items.webp" alt="Menu detail: items table with route / URL, permission keys and row actions (move, add child, edit, configure, delete)" width="420"></a></td>
-    <td><a href="docs/images/demo/dashboard-menu-item-dialog.webp"><img src="docs/images/demo/dashboard-menu-item-dialog.webp" alt="Item configuration form (Symfony UX Live component) opened in a UiKit native dialog" width="420"></a></td>
+    <td><a href="docs/images/demo/dashboard-menu-item-dialog.webp"><img src="docs/images/demo/dashboard-menu-item-dialog.webp" alt="Item label form in a UiKit native dialog: base label and one tab per locale (default locale first, starred)" width="420"></a></td>
   </tr>
   <tr>
     <td>Menus list (UiKit <code>page/list</code>)</td>
