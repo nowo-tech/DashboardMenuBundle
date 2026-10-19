@@ -128,7 +128,7 @@ final class DashboardPageFixtures
             new ImportMenuType($translator),
             new MenuDefinitionType(),
             new MenuConfigType([], [], []),
-            new MenuItemBasicType(['en', 'es']),
+            new MenuItemBasicType(['en', 'es'], 'es'),
             new MenuItemIconType(new MenuIconNameResolver()),
             new MenuItemConfigType($repository, ['authenticated', 'admin'], [], 'en', $translator),
         ];
@@ -299,7 +299,7 @@ final class DashboardPageFixtures
     /**
      * @return array<string, mixed>
      */
-    public static function itemForm(bool $isEdit, ?string $section = null, bool $withError = false): array
+    public static function itemForm(bool $isEdit, ?string $section = null, bool $withError = false, ?string $labelErrorLocale = null): array
     {
         $menu  = self::sidebar();
         $items = self::items();
@@ -314,7 +314,14 @@ final class DashboardPageFixtures
         if ($withError) {
             $form->get('basic')->get('label')->addError(new \Symfony\Component\Form\FormError('This value should not be blank.'));
         }
+        if ($labelErrorLocale !== null) {
+            $form->get('basic')->get('label_' . $labelErrorLocale)->addError(new \Symfony\Component\Form\FormError('This value is too long.'));
+        }
         $view = $form->createView();
+        if ($labelErrorLocale !== null) {
+            // as after a submit: the field with the error is not valid
+            $view['basic']['label_' . $labelErrorLocale]->vars['valid'] = false;
+        }
 
         return [
             'form'              => $view,

@@ -214,6 +214,7 @@ form:
     label:
       label: '標籤'
     label_locale: '標籤（%locale%）'
+    labels_by_locale: '依語言的標籤'
     divider_label_hint: '此分隔線的選用名稱（建議填寫，以利無障礙存取及管理面板清單辨識）。若只需要視覺分隔，請留空。'
     type:
       label: '類型'

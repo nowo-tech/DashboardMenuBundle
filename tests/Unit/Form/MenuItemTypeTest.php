@@ -529,6 +529,42 @@ final class MenuItemTypeTest extends TestCase
         $type->finishView($view, $form, ['available_locales' => []]);
     }
 
+    public function testMenuItemBasicTypeFinishViewExposesTheLocaleTabsDefaultLocale(): void
+    {
+        $form = $this->createMock(FormInterface::class);
+        $form->method('getData')->willReturn(null);
+
+        foreach ([[null, 'en'], ['es', 'es'], ['fr', 'en']] as [$configured, $expected]) {
+            $type = new MenuItemBasicType(['en', 'es'], $configured);
+            $view = new FormView();
+            $type->finishView($view, $form, ['available_locales' => ['en', 'es']]);
+
+            self::assertSame($expected, $view->vars['default_locale'], (string) $configured);
+            self::assertSame(['label'], $view->vars['locale_fields']);
+        }
+    }
+
+    public function testMenuItemBasicTypeFinishViewAddsLiveModelBindingsToTheLocaleLabels(): void
+    {
+        $type = new MenuItemBasicType(['en', 'es']);
+        $form = $this->createMock(FormInterface::class);
+        $form->method('getData')->willReturn(null);
+
+        $view                             = new FormView();
+        $view->children['label_es']       = new FormView($view);
+        $view->children['label_es']->vars = ['full_name' => 'menu_item[basic][label_es]', 'attr' => ['maxlength' => 255]];
+        $type->finishView($view, $form, ['available_locales' => ['en', 'es'], 'live_model' => true]);
+
+        self::assertSame(['maxlength' => 255, 'data-model' => 'on(change)|menu_item.basic.label_es'], $view->children['label_es']->vars['attr']);
+
+        $plain                             = new FormView();
+        $plain->children['label_es']       = new FormView($plain);
+        $plain->children['label_es']->vars = ['full_name' => 'menu_item[basic][label_es]', 'attr' => []];
+        $type->finishView($plain, $form, ['available_locales' => ['en', 'es'], 'live_model' => false]);
+
+        self::assertSame([], $plain->children['label_es']->vars['attr']);
+    }
+
     public function testMenuItemBasicTypeFinishViewReturnsEarlyWhenFormDataIsNotMenuItem(): void
     {
         $type = new MenuItemBasicType(availableLocales: ['en']);

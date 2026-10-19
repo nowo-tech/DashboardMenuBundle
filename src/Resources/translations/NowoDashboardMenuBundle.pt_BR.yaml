@@ -214,6 +214,7 @@ form:
     label:
       label: 'Rótulo'
     label_locale: 'Rótulo (%locale%)'
+    labels_by_locale: 'Rótulo por idioma'
     divider_label_hint: 'Nome opcional para este divisor (recomendado para acessibilidade e para a lista do painel). Deixe vazio se você precisa apenas de um separador visual.'
     type:
       label: 'Tipo'

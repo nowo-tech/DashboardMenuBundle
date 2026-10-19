@@ -35,7 +35,17 @@ and `layout: web_ui.layout_template` (null = `nowo_ui_layout.admin`). Bundle-pre
 UiKit tokens by `css/dashboard.css` (asset package `nowo_dashboard_menu`): `nowo-dashboard-menu-item-icon-wrap`,
 `nowo-dashboard-menu-badge--base`, `nowo-dashboard-menu-badge--type`, `nowo-dashboard-menu-permissions`,
 `nowo-dashboard-menu-depth-<n>`, `nowo-dashboard-menu-fieldset`, `nowo-dashboard-menu-subheading`,
-`nowo-dashboard-menu-locales`, `nowo-dashboard-menu-hidden`, `nowo-dashboard-menu-form`, `nowo-menu-sortable-*`.
+`nowo-dashboard-menu-rows`, `nowo-dashboard-menu-hidden`, `nowo-dashboard-menu-form`, `nowo-menu-sortable-*`.
+
+Item labels (2.9): the `label_<locale>` rows of the item form (page, dialog fragment and Live component) render as
+locale tabs through `@NowoFormKitBundle/form/_locale_tabs.html.twig` (`fields` mode, `field: form.basic`,
+`fields: form.basic.vars.locale_fields`, `default_locale: form.basic.vars.default_locale` = `nowo_dashboard_menu.default_locale`
+listed first; UiKit `locale_tabs` partial). DOM ids: tab `tab-nowo-dashboard-menu-item-labels-<locale>`, panel
+`tab-nowo-dashboard-menu-item-labels-<locale>-panel`, wrapper `data-testid="nowo-dashboard-menu-item-labels"`; the tab
+list is labelled `form.menu_item_type.labels_by_locale`. In the Live component each input carries its own `data-model`
+(`MenuItemBasicType` option `live_model`, set by the component) and the open tab survives Live re-renders. Layout: the
+form container (`nowo-dashboard-menu-form`), the sections (`nowo-dashboard-menu-fieldset`) and the field wrappers
+(`nowo-dashboard-menu-rows`) are flex columns with the UiKit row gap `--nowo-ui-form-row-gap`.
 
 Forms open in UiKit dialogs (`nowo_ui_partial('dialog')`, native `<dialog>`): the openers are links to the full form
 page with `data-nowo-dashboard-menu-dialog="<dialog id>"`; `js/dashboard.js` loads the link with `?_modal=1` into the

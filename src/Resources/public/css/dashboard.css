@@ -2,12 +2,20 @@
    the UiKit --nowo-ui-* tokens (no framework utilities). Loaded by the dashboard pages in nowo_ui_styles. */
 .nowo-dashboard-menu-item-icon-wrap { display: inline-flex; align-items: center; margin-inline-end: .25rem; vertical-align: middle; }
 .nowo-dashboard-menu-permissions { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem; margin-top: .25rem; }
-.nowo-dashboard-menu-fieldset { border: 0; margin: 0 0 1rem; padding: 0; min-width: 0; }
+.nowo-dashboard-menu-fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+/* 2.9 form spacing: the item form renders inside div.nowo-dashboard-menu-form (page) / the Live component root, where
+   the UiKit form gap does not reach its rows. Containers, sections and field wrappers stack their rows with the UiKit
+   row gap token (a Bootstrap `mb-3` row gives its rem back, as in UiKit's form rule). */
+.nowo-dashboard-menu-form,
+.nowo-dashboard-menu-fieldset,
+.nowo-dashboard-menu-rows { display: flex; flex-direction: column; gap: var(--nowo-ui-form-row-gap, 1rem); min-width: 0; }
+:where(.nowo-dashboard-menu-form, .nowo-dashboard-menu-fieldset, .nowo-dashboard-menu-rows):has(> .mb-3) { gap: max(0px, calc(var(--nowo-ui-form-row-gap, 1rem) - 1rem)); }
+:where(.nowo-dashboard-menu-form, .nowo-dashboard-menu-fieldset, .nowo-dashboard-menu-rows) > :where(p, small) { margin: 0; }
 .nowo-dashboard-menu-fieldset + .nowo-dashboard-menu-fieldset { border-top: 1px solid var(--nowo-ui-border, #dee2e6); padding-top: 1rem; }
 .nowo-dashboard-menu-fieldset > legend { font-size: 1rem; font-weight: 600; margin-bottom: .5rem; float: none; width: auto; padding: 0; }
-.nowo-dashboard-menu-subheading { font-size: .875rem; font-weight: 600; margin: 1rem 0 .5rem; color: var(--nowo-ui-muted, #6c757d); }
-.nowo-dashboard-menu-locales { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 0 1rem; }
-.nowo-dashboard-menu-hidden { display: none; }
+.nowo-dashboard-menu-subheading { font-size: .875rem; font-weight: 600; margin: .5rem 0 0; color: var(--nowo-ui-muted, #6c757d); }
+.nowo-dashboard-menu-hidden,
+.nowo-dashboard-menu-rows.nowo-dashboard-menu-hidden { display: none; }
 [data-nowo-dashboard-menu-dialog-root] .nowo-ui-input,
 .nowo-dashboard-menu-form .nowo-ui-input { max-width: none; width: 100%; }
 .nowo-menu-sortable-list { list-style: none; margin: 0; padding: 0; min-height: .5rem; }

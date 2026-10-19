@@ -214,6 +214,7 @@ form:
     label:
       label: Label
     label_locale: "Label (%locale%)"
+    labels_by_locale: 'Label by language'
     divider_label_hint: "Optional name for this divider (recommended for accessibility and the dashboard list). Leave empty if you only need a visual separator."
     type:
       label: Type

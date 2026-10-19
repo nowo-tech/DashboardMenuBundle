@@ -214,6 +214,7 @@ form:
     label:
       label: 'Etiket'
     label_locale: 'Etiket (%locale%)'
+    labels_by_locale: 'Etiket pr. sprog'
     divider_label_hint: 'Valgfrit navn til denne skillelinje (anbefales af hensyn til tilgængelighed og listen i administrationen). Lad feltet være tomt, hvis du kun har brug for en visuel adskillelse.'
     type:
       label: 'Type'

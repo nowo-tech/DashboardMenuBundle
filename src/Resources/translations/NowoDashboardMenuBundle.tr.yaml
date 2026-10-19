@@ -214,6 +214,7 @@ form:
     label:
       label: 'Etiket'
     label_locale: 'Etiket (%locale%)'
+    labels_by_locale: 'Dile göre etiket'
     divider_label_hint: 'Bu ayırıcı için isteğe bağlı ad (erişilebilirlik ve panel listesi için önerilir). Yalnızca görsel bir ayırıcıya ihtiyacınız varsa boş bırakın.'
     type:
       label: 'Tür'

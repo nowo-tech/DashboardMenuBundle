@@ -25,6 +25,7 @@ services:
   Nowo\DashboardMenuBundle\Form\MenuItemBasicType:
     arguments:
       $availableLocales: '%nowo_dashboard_menu.locales%'
+      $defaultLocale: '%nowo_dashboard_menu.default_locale_resolved%'
     tags: ['form.type']
 
   Nowo\DashboardMenuBundle\Form\MenuItemIconType:

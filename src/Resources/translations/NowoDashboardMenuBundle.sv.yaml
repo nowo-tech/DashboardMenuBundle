@@ -214,6 +214,7 @@ form:
     label:
       label: 'Etikett'
     label_locale: 'Etikett (%locale%)'
+    labels_by_locale: 'Etikett per språk'
     divider_label_hint: 'Valfritt namn på avdelaren (rekommenderas för tillgänglighet och listan i panelen). Lämna tomt om du bara behöver en visuell avgränsare.'
     type:
       label: 'Typ'

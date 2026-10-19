@@ -214,6 +214,7 @@ form:
     label:
       label: Etiqueta
     label_locale: "Etiqueta (%locale%)"
+    labels_by_locale: 'Etiqueta por idioma'
     divider_label_hint: "Nombre opcional para este divisor (recomendado por accesibilidad y para la lista del panel). Déjalo vacío si solo necesitas un separador visual."
     type:
       label: Tipo

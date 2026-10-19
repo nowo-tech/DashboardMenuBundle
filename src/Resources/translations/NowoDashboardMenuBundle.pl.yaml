@@ -214,6 +214,7 @@ form:
     label:
       label: 'Etykieta'
     label_locale: 'Etykieta (%locale%)'
+    labels_by_locale: 'Etykieta według języka'
     divider_label_hint: 'Opcjonalna nazwa separatora (zalecana ze względu na dostępność i listę w panelu). Pozostaw puste, jeśli potrzebujesz tylko wizualnego separatora.'
     type:
       label: 'Typ'

@@ -214,6 +214,7 @@ form:
     label:
       label: 'Nimike'
     label_locale: 'Nimike (%locale%)'
+    labels_by_locale: 'Nimike kielittäin'
     divider_label_hint: 'Valinnainen nimi tälle erottimelle (suositellaan saavutettavuuden ja hallintanäkymän luettelon vuoksi). Jätä tyhjäksi, jos tarvitset vain visuaalisen erottimen.'
     type:
       label: 'Tyyppi'

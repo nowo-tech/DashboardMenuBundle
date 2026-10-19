@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\Tests\Integration;
 
+use Nowo\DashboardMenuBundle\Form\MenuItemType;
 use Nowo\DashboardMenuBundle\Tests\Support\DashboardPageFixtures;
+use Nowo\FormKitBundle\Twig\LocaleTabsTwigExtension;
 use Nowo\UiKitBundle\Test\PageContractTestCase;
 use Nowo\UiKitBundle\Test\PageFixture;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -22,6 +24,7 @@ use function assert;
 use function dirname;
 use function htmlspecialchars;
 use function json_encode;
+use function strpos;
 use function substr_count;
 
 /**
@@ -184,6 +187,86 @@ final class PageContractTest extends PageContractTestCase
         self::assertStringContainsString('This value should not be blank.', $error);
     }
 
+    public function testItemLabelsRenderAsLocaleTabsWithTheDefaultLocaleFirst(): void
+    {
+        $html = $this->renderPage(new PageFixture(self::VIEWS . 'item_form.html.twig', DashboardPageFixtures::itemForm(true)))->html;
+        $id   = 'nowo-dashboard-menu-item-labels';
+
+        self::assertStringContainsString('data-testid="' . $id . '"', $html);
+        self::assertStringContainsString('data-nowo-ui-locale-tabs', $html);
+        self::assertStringContainsString('aria-label="Label by language"', $html);
+        self::assertLessThan(strpos($html, 'id="tab-' . $id . '-en"'), strpos($html, 'id="tab-' . $id . '-es"'));
+        // default locale (es) first and marked; the request locale (en) is the open tab
+        self::assertMatchesRegularExpression('/id="tab-' . $id . '-es"[^>]*aria-selected="false"[^>]*data-default/s', $html);
+        self::assertMatchesRegularExpression('/id="tab-' . $id . '-en"[^>]*aria-selected="true"/s', $html);
+        self::assertSame(1, substr_count($html, 'name="menu_item[basic][label_es]"'));
+        self::assertSame(1, substr_count($html, 'name="menu_item[basic][label_en]"'));
+        self::assertGreaterThan(strpos($html, 'id="tab-' . $id . '-en-panel"'), strpos($html, 'name="menu_item[basic][label_en]"'));
+        self::assertStringNotContainsString('nowo-dashboard-menu-locales', $html);
+        self::assertStringNotContainsString('data-model=', $html, 'page form: no Live bindings');
+        self::assertStringContainsString('id="item_basic_label_icon_fields" class="nowo-dashboard-menu-rows"', $html);
+        // the new item page (minimal section) has no translations
+        $new = $this->renderPage(new PageFixture(self::VIEWS . 'item_form.html.twig', DashboardPageFixtures::itemForm(false)))->html;
+        self::assertStringNotContainsString($id, $new);
+    }
+
+    public function testInvalidLabelLocaleTabIsMarkedAndOpened(): void
+    {
+        $html = $this->renderPage(new PageFixture(self::VIEWS . 'item_form.html.twig', DashboardPageFixtures::itemForm(true, null, false, 'es')))->html;
+        $id   = 'nowo-dashboard-menu-item-labels';
+
+        // the invalid tab (es) opens instead of the request locale (en)
+        self::assertStringContainsString('data-nowo-ui-tabs-active="' . $id . '-es"', $html);
+        self::assertMatchesRegularExpression('/id="tab-' . $id . '-es"[^>]*aria-selected="true"[^>]*data-invalid/s', $html);
+        self::assertMatchesRegularExpression('/id="tab-' . $id . '-en"[^>]*aria-selected="false"/s', $html);
+        self::assertMatchesRegularExpression('/<input[^>]*name="menu_item\[basic\]\[label_es\]"[^>]*aria-invalid="true"/s', $html);
+        self::assertStringContainsString('This value is too long.', $html);
+    }
+
+    public function testLiveComponentLabelTabsKeepTheirDataModelBindings(): void
+    {
+        $item = DashboardPageFixtures::items()[1];
+        $item->setTranslations(['es' => 'Inicio', 'de' => 'Startseite']);
+        $form = DashboardPageFixtures::formFactory()->create(MenuItemType::class, $item, [
+            'available_locales' => ['en', 'es'],
+            'csrf_token_id'     => 'submit',
+            'section'           => 'basic',
+            'live_model'        => true,
+        ]);
+        $this_ = new class {
+            public function getItemType(): string
+            {
+                return 'link';
+            }
+        };
+        $attributes = new class {
+            /** @param array<string, string> $defaults */
+            public function defaults(array $defaults): Markup
+            {
+                return new Markup('data-live-stub class="' . $defaults['class'] . '"', 'UTF-8');
+            }
+        };
+
+        $html = $this->createTwig()->render('@NowoDashboardMenuBundle/components/ItemFormLiveComponent.html.twig', [
+            'form'         => $form->createView(),
+            'this'         => $this_,
+            'attributes'   => $attributes,
+            'isEdit'       => true,
+            'locales'      => ['en', 'es'],
+            'sectionFocus' => 'basic',
+            'embedded'     => true,
+        ]);
+        $id = 'nowo-dashboard-menu-item-labels';
+
+        self::assertStringContainsString('data-live-stub class="nowo-dashboard-menu-rows"', $html);
+        self::assertMatchesRegularExpression('/id="tab-' . $id . '-es"[^>]*data-default/s', $html);
+        self::assertMatchesRegularExpression('/<input[^>]*name="menu_item\[basic\]\[label_es\]"[^>]*data-model="on\(change\)\|menu_item\.basic\.label_es"[^>]*value="Inicio"/s', $html);
+        self::assertMatchesRegularExpression('/<input[^>]*name="menu_item\[basic\]\[label_en\]"[^>]*data-model="on\(change\)\|menu_item\.basic\.label_en"/s', $html);
+        self::assertStringContainsString('data-model="on(change)|menu_item.basic.label"', $html);
+        // the tabs runtime attributes the MutationObserver re-syncs after a Live morph
+        self::assertStringContainsString('data-nowo-ui-tabs data-nowo-ui-tabs-upgrade data-nowo-ui-tabs-active="' . $id . '-en"', $html);
+    }
+
     public function testLiveItemPageIsABodyOnlyFormPage(): void
     {
         $html = $this->renderPage(new PageFixture(self::VIEWS . 'item_form.html.twig', DashboardPageFixtures::itemFormLive()))->html;
@@ -266,6 +349,7 @@ final class PageContractTest extends PageContractTestCase
     protected function configureTwig(Environment $twig): void
     {
         $urls = DashboardPageFixtures::urls();
+        $twig->addExtension(new LocaleTabsTwigExtension());
         $twig->addFunction(new TwigFunction('path', static fn (string $name, array $parameters = []): string => $urls->generate($name, $parameters)));
         $twig->addFilter(new TwigFilter('dashboard_menu_icon_name', static fn (?string $name): string => (string) $name));
         $twig->addFunction(new TwigFunction('ux_icon', static fn (string $name, array $attributes = []): Markup => new Markup('<svg data-icon="' . htmlspecialchars($name) . '"></svg>', 'UTF-8')));
@@ -281,7 +365,11 @@ final class PageContractTest extends PageContractTestCase
     {
         $views = dirname(__DIR__, 2) . '/src/Resources/views';
 
-        return ['NowoDashboardMenuBundle' => $views, '!NowoDashboardMenuBundle' => $views];
+        return [
+            'NowoDashboardMenuBundle'  => $views,
+            '!NowoDashboardMenuBundle' => $views,
+            'NowoFormKitBundle'        => dirname(__DIR__, 2) . '/vendor/nowo-tech/form-kit-bundle/src/Resources/views',
+        ];
     }
 
     protected static function translationDirs(): array

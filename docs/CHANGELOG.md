@@ -102,6 +102,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Item labels as locale tabs**: the `label_<locale>` rows of the item form (page, dialog and Live component) render
+  as one tab per locale through the FormKit `locale_tabs` include (`fields` mode) and the UiKit `locale_tabs` partial:
+  the default locale (`nowo_dashboard_menu.default_locale`) listed first and marked, the first tab with errors opened,
+  keyboard navigation, stacked fieldsets without JavaScript. In the Live component the inputs keep their `data-model`
+  binding (new `MenuItemBasicType` / `MenuItemType` option `live_model`, set by the component) and the open tab
+  survives re-renders. Translations of locales that are not configured are kept on save.
+- **Form spacing** (Beacon audit): the item form container (`nowo-dashboard-menu-form`), its sections
+  (`nowo-dashboard-menu-fieldset`) and the new field wrappers (`nowo-dashboard-menu-rows`, also on the Live component
+  root) stack their rows with the UiKit row gap token `--nowo-ui-form-row-gap` (rows were glued together inside
+  `div.nowo-dashboard-menu-form`, out of reach of the UiKit form gap). `dashboard.js` no longer forces
+  `display: block` on the toggled field blocks (it clears the inline value).
+- Requires `nowo-tech/form-kit-bundle` **^2.13** (was ^2.0) and `nowo-tech/ui-kit-bundle` **^2.5.1** (was ^2.2).
+
+### Added
+
+- Translation key `form.menu_item_type.labels_by_locale` (label of the tab list) in every shipped locale.
+
+### Removed
+
+- CSS class `nowo-dashboard-menu-locales` (the grid of label rows).
+
 ## [2.8.1] - 2026-10-18
 
 Locale lists accept %parameters% and env vars (no compile error with a parameter). See [UPGRADING](UPGRADING.md#to-281).

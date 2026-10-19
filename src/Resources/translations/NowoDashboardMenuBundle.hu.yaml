@@ -214,6 +214,7 @@ form:
     label:
       label: 'Felirat'
     label_locale: 'Felirat (%locale%)'
+    labels_by_locale: 'Felirat nyelvenként'
     divider_label_hint: 'Opcionális név ehhez az elválasztóhoz (az akadálymentesség és a kezelőfelület listája miatt ajánlott). Hagyja üresen, ha csak vizuális elválasztóra van szükség.'
     type:
       label: 'Típus'

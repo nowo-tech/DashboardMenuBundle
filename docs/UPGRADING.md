@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+  - [Item labels as locale tabs](#item-labels-as-locale-tabs)
 - [To 2.8.1](#to-281)
 - [To 2.8.0](#to-280)
 - [To 2.7.0](#to-270)
@@ -108,6 +109,26 @@
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+### Item labels as locale tabs
+
+- Composer: `nowo-tech/form-kit-bundle` **^2.13** and `nowo-tech/ui-kit-bundle` **^2.5.1**.
+- **Templates**: `dashboard/_item_form_fields.html.twig` and `components/ItemFormLiveComponent.html.twig` no longer
+  print the `div.nowo-dashboard-menu-locales` grid of `label_<locale>` rows; they include
+  `@NowoFormKitBundle/form/_locale_tabs.html.twig` (see [TEMPLATES](TEMPLATES.md)). New DOM ids: tab
+  `tab-nowo-dashboard-menu-item-labels-<locale>`, panel `tab-nowo-dashboard-menu-item-labels-<locale>-panel`. Input
+  names and ids (`menu_item[basic][label_es]`, `menu_item_basic_label_es`) are unchanged; E2E tests that type into a
+  locale other than the open one must click its tab first (`#tab-nowo-dashboard-menu-item-labels-es`). Template
+  overrides keep working; copy the include to get the tabs.
+- The `nowo-dashboard-menu-locales` CSS class is gone; the new layout class is `nowo-dashboard-menu-rows`. The item
+  form container, sections and wrappers use `--nowo-ui-form-row-gap`; set that token (or `.nowo-dashboard-menu-rows`
+  rules) to change the spacing.
+- Live component: `MenuItemBasicType` adds `data-model` to the `label_<locale>` inputs when the new option
+  `live_model` is true (the component sets it on `MenuItemType`). Host Live components that build `MenuItemType`
+  themselves should pass `'live_model' => true`. `MenuItemBasicType` takes a second constructor argument
+  `$defaultLocale` (service wiring updated).
+- No data-model change: translations stay in `MenuItem::$translations`; values of locales that are not configured are
+  kept.
 
 ## To 2.8.1
 

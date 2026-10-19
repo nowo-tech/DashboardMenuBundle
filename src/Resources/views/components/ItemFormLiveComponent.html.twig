@@ -15,7 +15,7 @@
 {% set _show_basic = form.basic is defined and (_section_focus == '' or _section_focus == 'basic' or _section_focus == 'identity') %}
 {% set _show_icon = form.icon is defined and (_section_focus == '' or _section_focus == 'icon' or _section_focus == 'identity') %}
 {% set _show_config = form.config is defined and (_section_focus == 'config' or (_section_focus == '' and isEdit)) %}
-<div {{ attributes }}>
+<div {{ attributes.defaults({class: 'nowo-dashboard-menu-rows'}) }}>
     {% if app.debug %}
         <div id="dm-livecomponent-debug"
              class="{{ _hidden }}"
@@ -59,20 +59,23 @@
             {% if this.getItemType() == 'divider' %}
                 <p class="{{ _muted }}">{{ 'form.menu_item_type.divider_label_hint'|trans({}, 'NowoDashboardMenuBundle') }}</p>
             {% endif %}
-            <div>
+            <div class="nowo-dashboard-menu-rows">
                 <div>
                     {{ form_row(form.basic.label, {attr: {'data-model': 'on(change)|' ~ formName ~ '.basic.label'}}) }}
                 </div>
-                {% if isEdit and locales is not empty %}
-                    <div class="nowo-dashboard-menu-locales">
-                        {% for locale in locales %}
-                            {% set fieldName = 'label_' ~ locale %}
-                            {% if attribute(form.basic, fieldName) is defined %}
-                                {% set inputAttr = {'data-model': 'on(change)|' ~ formName ~ '.basic.' ~ fieldName} %}
-                                {{ form_row(attribute(form.basic, fieldName), {attr: inputAttr}) }}
-                            {% endif %}
-                        {% endfor %}
-                    </div>
+                {% if isEdit and locales is not empty and form.basic.vars.locale_fields is defined %}
+                    {#- label_<locale> inputs carry their data-model from MenuItemBasicType (live_model); the active tab
+                        survives Live re-renders (UiKit tabs runtime) -#}
+                    {{ include('@NowoFormKitBundle/form/_locale_tabs.html.twig', {
+                        field: form.basic,
+                        fields: form.basic.vars.locale_fields,
+                        locales: locales,
+                        default_locale: form.basic.vars.default_locale,
+                        tabs_id: 'nowo-dashboard-menu-item-labels',
+                        testid: 'nowo-dashboard-menu-item-labels',
+                        tabs_label: 'form.menu_item_type.labels_by_locale'|trans({}, 'NowoDashboardMenuBundle'),
+                        bundle: _b,
+                    }, with_context: false) }}
                 {% endif %}
             </div>
         </div>
@@ -82,7 +85,7 @@
         <div id="item_icon_section" class="nowo-dashboard-menu-fieldset">
             {% set formName = form.vars.name %}
             <h3 class="nowo-dashboard-menu-subheading">{{ 'form.menu_item_type.section_icon'|trans({}, 'NowoDashboardMenuBundle') }}</h3>
-            <div>
+            <div class="nowo-dashboard-menu-rows">
                 <div>
                     {{ form_row(form.icon.itemType, {attr: {'data-model': 'on(change)|' ~ formName ~ '.icon.itemType'}}) }}
                 </div>
@@ -128,7 +131,7 @@
                 <div>{{ form_row(form.config.linkType, {attr: {'data-model': 'on(change)|' ~ formName ~ '.config.linkType'}}) }}</div>
             {% endif %}
             {% if this.showServiceLinkFields() and form.config.linkResolver is defined %}
-                <div id="item_service_link_block">
+                <div id="item_service_link_block" class="nowo-dashboard-menu-rows">
                     {{ form_row(form.config.linkResolver, {attr: {'data-model': 'on(change)|' ~ formName ~ '.config.linkResolver'}}) }}
                     {% if form.config.routeParams is defined %}
                         <small class="{{ _muted }}">{{ 'form.menu_item_type.link_resolver.route_params_hint'|trans({}, 'NowoDashboardMenuBundle') }}</small>

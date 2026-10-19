@@ -576,38 +576,38 @@ function attachItemFormToggles(
     const showLinkArea = isService || (isLink && !hasChildren);
 
     if (basicLabelIconFields) {
-      basicLabelIconFields.style.display = 'block';
+      basicLabelIconFields.style.display = '';
     }
     if (dividerLabelHint) {
-      dividerLabelHint.style.display = isDivider ? 'block' : 'none';
+      dividerLabelHint.style.display = isDivider ? '' : 'none';
     }
     if (itemLinkFields) {
-      itemLinkFields.style.display = showLinkArea ? 'block' : 'none';
+      itemLinkFields.style.display = showLinkArea ? '' : 'none';
     }
     if (showLinkArea) {
       /*if (serviceLinkBlock) {
-        serviceLinkBlock.style.display = isService ? 'block' : 'none';
+        serviceLinkBlock.style.display = isService ? '' : 'none';
       }*/
       if (classicLinkBlock) {
-        classicLinkBlock.style.display = isService ? 'none' : 'block';
+        classicLinkBlock.style.display = isService ? 'none' : '';
       }
       if (isService) {
         if (routeFields) routeFields.style.display = 'none';
       } else if (isLink && linkType && routeFields && externalField) {
         const isExternal = linkType.value === 'external';
-        if (routeNameRow) routeNameRow.style.display = isExternal ? 'none' : 'block';
-        routeFields.style.display = isExternal ? 'none' : 'block';
-        externalField.style.display = isExternal ? 'block' : 'none';
+        if (routeNameRow) routeNameRow.style.display = isExternal ? 'none' : '';
+        routeFields.style.display = isExternal ? 'none' : '';
+        externalField.style.display = isExternal ? '' : 'none';
       }
     }
     if (itemParentField) {
-      itemParentField.style.display = isSectionOrDivider ? 'none' : 'block';
+      itemParentField.style.display = isSectionOrDivider ? 'none' : '';
     }
     if (isSectionOrDivider && parentSelect) {
       parentSelect.value = '';
     }
     if (sectionCollapsibleRow) {
-      sectionCollapsibleRow.style.display = type === 'section' ? 'block' : 'none';
+      sectionCollapsibleRow.style.display = type === 'section' ? '' : 'none';
     }
   }
 

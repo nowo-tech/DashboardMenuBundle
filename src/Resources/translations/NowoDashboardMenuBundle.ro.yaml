@@ -214,6 +214,7 @@ form:
     label:
       label: 'Etichetă'
     label_locale: 'Etichetă (%locale%)'
+    labels_by_locale: 'Etichetă pe limbă'
     divider_label_hint: 'Nume opțional pentru acest separator (recomandat pentru accesibilitate și pentru lista din panou). Lăsați gol dacă aveți nevoie doar de un separator vizual.'
     type:
       label: 'Tip'

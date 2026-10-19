@@ -214,6 +214,7 @@ form:
     label:
       label: '레이블'
     label_locale: '레이블(%locale%)'
+    labels_by_locale: '언어별 레이블'
     divider_label_hint: '이 구분선의 선택적 이름입니다(접근성 및 대시보드 목록을 위해 권장). 시각적 구분선만 필요하면 비워 두세요.'
     type:
       label: '유형'

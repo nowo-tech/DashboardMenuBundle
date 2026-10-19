@@ -214,6 +214,7 @@ form:
     label:
       label: 'תווית'
     label_locale: 'תווית (%locale%)'
+    labels_by_locale: 'תווית לפי שפה'
     divider_label_hint: 'שם אופציונלי למפריד זה (מומלץ לנגישות ולרשימה בלוח הבקרה). השאירו ריק אם נדרש רק מפריד חזותי.'
     type:
       label: 'סוג'

@@ -214,6 +214,7 @@ form:
     label:
       label: 'ラベル'
     label_locale: 'ラベル（%locale%）'
+    labels_by_locale: '言語別ラベル'
     divider_label_hint: 'この区切り線の任意の名前（アクセシビリティとダッシュボードの一覧のために推奨）。視覚的な区切りだけが必要な場合は空のままにしてください。'
     type:
       label: 'タイプ'

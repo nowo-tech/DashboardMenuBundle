@@ -157,6 +157,7 @@ final class ItemFormLiveComponent
             // Keep CSRF consistent across Symfony versions (and match stateless_token_ids in the demos).
             'csrf_token_id' => 'submit',
             'section'       => $this->sectionFocus,
+            'live_model'    => true,
         ]);
     }
 

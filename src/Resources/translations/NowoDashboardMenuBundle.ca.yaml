@@ -214,6 +214,7 @@ form:
     label:
       label: 'Etiqueta'
     label_locale: 'Etiqueta (%locale%)'
+    labels_by_locale: 'Etiqueta per idioma'
     divider_label_hint: 'Nom opcional per a aquest separador (recomanat per a l''accessibilitat i la llista del tauler). Deixa-ho buit si només necessites un separador visual.'
     type:
       label: 'Tipus'

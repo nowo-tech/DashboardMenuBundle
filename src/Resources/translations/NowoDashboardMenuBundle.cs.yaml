@@ -214,6 +214,7 @@ form:
     label:
       label: 'Popisek'
     label_locale: 'Popisek (%locale%)'
+    labels_by_locale: 'Popisek podle jazyka'
     divider_label_hint: 'Volitelný název tohoto oddělovače (doporučeno kvůli přístupnosti a seznamu ve správě). Ponechte prázdné, pokud potřebujete jen vizuální oddělovač.'
     type:
       label: 'Typ'

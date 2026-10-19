@@ -214,6 +214,7 @@ form:
     label:
       label: Label
     label_locale: "Label (%locale%)"
+    labels_by_locale: 'Label per taal'
     divider_label_hint: "Optionele naam voor deze scheiding (aanbevolen voor toegankelijkheid en de dashboardlijst). Laat leeg als u alleen een visuele scheiding nodig hebt."
     type:
       label: Type

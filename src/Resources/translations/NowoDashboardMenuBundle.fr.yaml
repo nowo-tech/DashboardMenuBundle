@@ -214,6 +214,7 @@ form:
     label:
       label: Libellé
     label_locale: "Libellé (%locale%)"
+    labels_by_locale: 'Libellé par langue'
     divider_label_hint: "Nom optionnel pour ce séparateur (recommandé pour l'accessibilité et la liste du tableau de bord). Laissez vide si vous n'avez besoin que d'un séparateur visuel."
     type:
       label: Type

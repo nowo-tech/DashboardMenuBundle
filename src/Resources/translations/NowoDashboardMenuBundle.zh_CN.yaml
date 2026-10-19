@@ -214,6 +214,7 @@ form:
     label:
       label: '标签'
     label_locale: '标签（%locale%）'
+    labels_by_locale: '按语言的标签'
     divider_label_hint: '此分隔线的可选名称（建议填写，以提升无障碍性并便于在管理面板列表中识别）。如果只需要视觉分隔，请留空。'
     type:
       label: '类型'

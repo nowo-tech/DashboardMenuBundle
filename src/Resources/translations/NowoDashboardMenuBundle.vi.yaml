@@ -214,6 +214,7 @@ form:
     label:
       label: 'Nhãn'
     label_locale: 'Nhãn (%locale%)'
+    labels_by_locale: 'Nhãn theo ngôn ngữ'
     divider_label_hint: 'Tên tùy chọn cho mục phân cách này (nên đặt để hỗ trợ trợ năng và hiển thị trong danh sách của bảng điều khiển). Để trống nếu bạn chỉ cần một đường phân cách trực quan.'
     type:
       label: 'Loại'

@@ -2,6 +2,9 @@
   Fields of the item form (page body and dialog fragment). Variables: form (MenuItemType view), section_focus
   (minimal | basic | icon | config | identity | null = full edit), is_edit, locales, show_translations,
   item_has_children, bundle. Keep the element ids (dashboard.js toggles link / route / external fields by type).
+  2.9: the label_<locale> rows render as locale tabs (FormKit `_locale_tabs` include, `fields` mode; tab
+  `tab-nowo-dashboard-menu-item-labels-<locale>`, panel `…-<locale>-panel`). Field wrappers carry the
+  `nowo-dashboard-menu-rows` layout class (row gap `--nowo-ui-form-row-gap`).
 #}
 {% set _section_focus = section_focus|default('') %}
 {% set _is_edit = is_edit|default(false) %}
@@ -18,16 +21,19 @@
     <fieldset id="item_basic_section" class="nowo-dashboard-menu-fieldset">
         <legend>{{ 'form.menu_item_type.section_basic'|trans({}, 'NowoDashboardMenuBundle') }}</legend>
         <p id="divider_label_hint" class="{{ _muted }}" style="display: none;">{{ 'form.menu_item_type.divider_label_hint'|trans({}, 'NowoDashboardMenuBundle') }}</p>
-        <div id="item_basic_label_icon_fields">
+        <div id="item_basic_label_icon_fields" class="nowo-dashboard-menu-rows">
             {{ form_row(form.basic.label) }}
-            {% if _show_translations and locales is defined and locales is not empty %}
-                <div class="nowo-dashboard-menu-locales">
-                    {% for locale in locales %}
-                        {% if attribute(form.basic, 'label_' ~ locale) is defined %}
-                            {{ form_row(attribute(form.basic, 'label_' ~ locale)) }}
-                        {% endif %}
-                    {% endfor %}
-                </div>
+            {% if _show_translations and locales is defined and locales is not empty and form.basic.vars.locale_fields is defined %}
+                {{ include('@NowoFormKitBundle/form/_locale_tabs.html.twig', {
+                    field: form.basic,
+                    fields: form.basic.vars.locale_fields,
+                    locales: locales,
+                    default_locale: form.basic.vars.default_locale,
+                    tabs_id: 'nowo-dashboard-menu-item-labels',
+                    testid: 'nowo-dashboard-menu-item-labels',
+                    tabs_label: 'form.menu_item_type.labels_by_locale'|trans({}, 'NowoDashboardMenuBundle'),
+                    bundle: bundle|default('NowoDashboardMenuBundle'),
+                }, with_context: false) }}
             {% endif %}
         </div>
     </fieldset>
@@ -37,7 +43,7 @@
         <legend>{{ 'form.menu_item_type.section_icon'|trans({}, 'NowoDashboardMenuBundle') }}</legend>
         {{ form_row(form.icon.itemType) }}
         {% if form.icon.position is defined or form.icon.icon is defined %}
-            <div{% if not _is_edit %} class="nowo-dashboard-menu-hidden"{% endif %}>
+            <div class="nowo-dashboard-menu-rows{% if not _is_edit %} nowo-dashboard-menu-hidden{% endif %}">
                 {% if form.icon.position is defined %}
                     {{ form_row(form.icon.position, {attr: _is_edit ? {} : {disabled: 'disabled'}}) }}
                 {% endif %}
@@ -59,9 +65,9 @@
         {% endif %}
         {% if form.config.linkResolver is defined or form.config.linkType is defined %}
             {% set _item_type_ui = form.vars.data.itemType|default('link') %}
-            <div id="item_link_fields" data-item-has-children="{{ item_has_children|default(false) ? 'true' : 'false' }}" data-initial-item-type="{{ _item_type_ui }}">
+            <div id="item_link_fields" class="nowo-dashboard-menu-rows" data-item-has-children="{{ item_has_children|default(false) ? 'true' : 'false' }}" data-initial-item-type="{{ _item_type_ui }}">
                 {% if form.config.linkResolver is defined %}
-                    <div id="item_service_link_block"{% if form.config.linkType is defined and _item_type_ui != 'service' %} style="display: none;"{% endif %}>
+                    <div id="item_service_link_block" class="nowo-dashboard-menu-rows"{% if form.config.linkType is defined and _item_type_ui != 'service' %} style="display: none;"{% endif %}>
                         {{ form_row(form.config.linkResolver) }}
                         {% if form.config.routeParams is defined %}
                             <p class="{{ _muted }}" id="item_service_route_params_hint">{{ 'form.menu_item_type.link_resolver.route_params_hint'|trans({}, 'NowoDashboardMenuBundle') }}</p>
@@ -69,14 +75,14 @@
                     </div>
                 {% endif %}
                 {% if form.config.linkType is defined %}
-                    <div id="item_classic_link_block"{% if form.config.linkResolver is defined and _item_type_ui == 'service' %} style="display: none;"{% endif %}>
+                    <div id="item_classic_link_block" class="nowo-dashboard-menu-rows"{% if form.config.linkResolver is defined and _item_type_ui == 'service' %} style="display: none;"{% endif %}>
                         {{ form_row(form.config.linkType) }}
                         <div id="route_name_row">{{ form_row(form.config.routeName) }}</div>
                         <div id="external_field" style="display: none;">{{ form_row(form.config.externalUrl) }}</div>
                     </div>
                 {% endif %}
                 {% if form.config.routeParams is defined %}
-                    <div id="route_fields">
+                    <div id="route_fields" class="nowo-dashboard-menu-rows">
                         {{ form_row(form.config.routeParams) }}
                         <p class="{{ _muted }}" id="route_params_hint"></p>
                     </div>
@@ -86,7 +92,7 @@
                 {% endif %}
             </div>
         {% endif %}
-        <div{% if not _show_config_gear %} class="nowo-dashboard-menu-hidden" aria-hidden="true"{% endif %}>
+        <div class="nowo-dashboard-menu-rows{% if not _show_config_gear %} nowo-dashboard-menu-hidden{% endif %}"{% if not _show_config_gear %} aria-hidden="true"{% endif %}>
             {% if form.config.permissionKeys is defined %}
                 {{ form_row(form.config.permissionKeys) }}
             {% elseif form.config.permissionKey is defined %}

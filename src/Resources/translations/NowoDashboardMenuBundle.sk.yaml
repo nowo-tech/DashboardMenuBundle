@@ -214,6 +214,7 @@ form:
     label:
       label: 'Štítok'
     label_locale: 'Štítok (%locale%)'
+    labels_by_locale: 'Štítok podľa jazyka'
     divider_label_hint: 'Voliteľný názov tohto oddeľovača (odporúča sa kvôli prístupnosti a zoznamu v správe). Ponechajte prázdne, ak potrebujete iba vizuálny oddeľovač.'
     type:
       label: 'Typ'

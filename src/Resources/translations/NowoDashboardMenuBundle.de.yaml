@@ -214,6 +214,7 @@ form:
     label:
       label: Bezeichnung
     label_locale: "Bezeichnung (%locale%)"
+    labels_by_locale: 'Bezeichnung je Sprache'
     divider_label_hint: "Optionaler Name für diesen Trenner (empfohlen für Barrierefreiheit und die Dashboard-Liste). Leer lassen, wenn nur ein visueller Separator benötigt wird."
     type:
       label: Typ

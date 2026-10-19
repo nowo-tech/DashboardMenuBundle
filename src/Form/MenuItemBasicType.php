@@ -19,6 +19,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
+use function in_array;
+
 /**
  * Form type for menu item labels: label + per-locale translations.
  * Shown in the dashboard with a pencil icon (edit / identity).
@@ -35,9 +37,11 @@ final class MenuItemBasicType extends AbstractType
 
     /**
      * @param list<string> $availableLocales
+     * @param string|null $defaultLocale default-language tab of the label locale tabs (null = first available locale)
      */
     public function __construct(
         private readonly array $availableLocales = [],
+        private readonly ?string $defaultLocale = null,
     ) {
     }
 
@@ -126,6 +130,23 @@ final class MenuItemBasicType extends AbstractType
             return;
         }
 
+        // Locale tabs (2.9): the templates render the label_<locale> rows with the FormKit include in `fields` mode.
+        $view->vars['locale_fields']  = ['label'];
+        $view->vars['default_locale'] = $this->defaultLocale !== null && in_array($this->defaultLocale, $availableLocales, true)
+            ? $this->defaultLocale
+            : $availableLocales[0];
+
+        if (($options['live_model'] ?? false) === true) {
+            // Live Component (2.9): every label_<locale> input carries its own data-model binding, so the locale tabs
+            // include (FormKit `fields` mode) can render the rows without per-field Twig attributes.
+            foreach ($availableLocales as $locale) {
+                $child = $view->children['label_' . $locale] ?? null;
+                if ($child instanceof FormView) {
+                    $child->vars['attr']['data-model'] = 'on(change)|' . self::modelPath((string) $child->vars['full_name']);
+                }
+            }
+        }
+
         $data = $form->getData();
         if (!$data instanceof MenuItem) {
             return;
@@ -158,6 +179,7 @@ final class MenuItemBasicType extends AbstractType
             'data_class'           => MenuItem::class,
             'available_locales'    => $this->availableLocales,
             'include_translations' => true,
+            'live_model'           => false,
             'translation_domain'   => NowoDashboardMenuBundle::TRANSLATION_DOMAIN,
             'constraints'          => [
                 new Callback($this->validateLabelWhenNotDivider(...)),
@@ -165,6 +187,13 @@ final class MenuItemBasicType extends AbstractType
         ]);
         $resolver->setAllowedTypes('available_locales', 'array');
         $resolver->setAllowedTypes('include_translations', 'bool');
+        $resolver->setAllowedTypes('live_model', 'bool');
+    }
+
+    /** `menu_item[basic][label_es]` → `menu_item.basic.label_es` (Live Component model path). */
+    private static function modelPath(string $fullName): string
+    {
+        return str_replace(['][', '[', ']'], ['.', '.', ''], $fullName);
     }
 
     public function validateLabelWhenNotDivider(MenuItem $item, ExecutionContextInterface $context): void

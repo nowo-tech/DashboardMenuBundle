@@ -46,6 +46,7 @@ final class MenuItemType extends AbstractType
                 'inherit_data'         => true,
                 'available_locales'    => $options['available_locales'],
                 'include_translations' => $options['include_translations'],
+                'live_model'           => $options['live_model'] ?? false,
             ]);
         }
 
@@ -81,10 +82,12 @@ final class MenuItemType extends AbstractType
             'available_locales'    => [],
             'section'              => null,
             'include_translations' => true,
+            'live_model'           => false,
             'method'               => 'POST',
         ]);
         $resolver->setDefined(['action']);
         $resolver->setAllowedTypes('app_routes', 'array');
+        $resolver->setAllowedTypes('live_model', 'bool');
         $resolver->setAllowedTypes('menu', [\Nowo\DashboardMenuBundle\Entity\Menu::class, 'null']);
         $resolver->setAllowedTypes('exclude_ids', 'array');
         $resolver->setAllowedTypes('locale', 'string');

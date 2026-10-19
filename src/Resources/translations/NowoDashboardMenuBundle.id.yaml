@@ -214,6 +214,7 @@ form:
     label:
       label: 'Label'
     label_locale: 'Label (%locale%)'
+    labels_by_locale: 'Label per bahasa'
     divider_label_hint: 'Nama opsional untuk pemisah ini (disarankan untuk aksesibilitas dan daftar di dasbor). Biarkan kosong jika Anda hanya memerlukan pemisah visual.'
     type:
       label: 'Jenis'
