@@ -13,6 +13,7 @@ This guide covers installing Dashboard Menu Bundle in a Symfony application.
 - [Import routes](#import-routes)
 - [Schema](#schema)
 - [Verify](#verify)
+- [Using css_framework: custom (Bootstrap-free hosts)](#using-css_framework-custom-bootstrap-free-hosts)
 - [Upgrading](#upgrading)
 - [Twig Extra Bundle (REQ-TWIG-004)](#twig-extra-bundle-req-twig-004)
 

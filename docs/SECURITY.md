@@ -2,6 +2,13 @@
 
 Report vulnerabilities to the maintainers privately. Do not open public issues for security issues.
 
+## Table of contents
+
+- [Dashboard in sensitive environments](#dashboard-in-sensitive-environments)
+- [Content Security Policy (CSP)](#content-security-policy-csp)
+- [AI security audit (REQ-SEC-004)](#ai-security-audit-req-sec-004)
+- [Release security checklist (12.4.1)](#release-security-checklist-1241)
+
 ## Dashboard in sensitive environments
 
 For production or sensitive setups, configure:

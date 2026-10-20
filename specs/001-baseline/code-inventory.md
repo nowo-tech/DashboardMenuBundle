@@ -2,9 +2,9 @@
 
 **Baseline spec**: [`spec.md`](spec.md)  
 **Package**: `nowo-tech/dashboard-menu-bundle`  
-**Last audited**: 2026-07-07
+**Last audited**: 2026-10-20
 
-This file proves that **every production source artifact** under `src/` is referenced by the baseline specification. Test-only files under `tests/` and demo trees are out of Packagist scope unless promoted in the spec.
+Paths are relative to `src/`. This file proves that **every file tracked under `src/`** (`git ls-files src`, 155 files) is referenced by the baseline specification. Test-only files under `tests/` and demo trees are out of Packagist scope unless promoted in the spec.
 
 ## Bundle & DI
 
@@ -18,6 +18,9 @@ This file proves that **every production source artifact** under `src/` is refer
 | `DependencyInjection/Compiler/AutoTagMenuLinkResolversPass.php` | Link resolver autotag | FR-PLUG-001 |
 | `DependencyInjection/Compiler/PermissionCheckerPass.php` | Checker locator wiring | FR-PLUG-001 |
 | `DependencyInjection/Compiler/MenuLinkResolverPass.php` | Link resolver locator wiring | FR-PLUG-001 |
+| `DependencyInjection/Compiler/DashboardMenuSecurityPass.php` | Compile-time security gate for dashboard | FR-SEC-001 |
+| `DependencyInjection/Compiler/DataCollectorProfilerPass.php` | Drops the dev data collector when the profiler is disabled | FR-PROF-001, FR-DI-001 |
+| `DependencyInjection/LegacyThemeBridge.php` | Bridges deprecated 1.x chrome hooks into the UiKit per-bundle theme (removed in 3.0) | FR-WEBUI-002 |
 
 ## Attributes
 
@@ -76,6 +79,7 @@ This file proves that **every production source artifact** under `src/` is refer
 | --- | --- | --- |
 | `EventSubscriber/DashboardAccessSubscriber.php` | Dashboard role gate | FR-SEC-001 |
 | `EventSubscriber/DashboardMenuWorkerStateSubscriber.php` | Per-main-request memo reset (FrankenPHP B) | FR-WORKER-001 |
+| `EventSubscriber/MenuCacheInvalidationSubscriber.php` | Invalidate menu tree cache on Doctrine updates | FR-CACHE-001 |
 
 ## Forms
 
@@ -90,6 +94,9 @@ This file proves that **every production source artifact** under `src/` is refer
 | `Form/MenuItemIconType.php` | Icon selector fields | FR-FORM-001 |
 | `Form/CopyMenuType.php` | Copy menu workflow | FR-FORM-001 |
 | `Form/ImportMenuType.php` | JSON import upload | FR-FORM-001 |
+| `Form/DashboardActionType.php` | Root-level CSRF-only form for dashboard POST actions | FR-FORM-001, FR-DASH-001 |
+| `Form/SearchQueryType.php` | GET search form for dashboard filters | FR-FORM-001 |
+| `Form/SortableTreeType.php` | Root-level form of the sortable tree reorder panel | FR-FORM-001, FR-DASH-001 |
 | `Form/DataTransformer/JsonToArrayTransformer.php` | JSON form transformer | FR-FORM-002 |
 
 ## Live Component
@@ -111,6 +118,10 @@ This file proves that **every production source artifact** under `src/` is refer
 | `Service/DashboardUiConfig.php` | Admin chrome hooks (`dashboard.ui`: class map, partials, templates) | [002](../002-admin-chrome-hooks/spec.md) |
 | `Service/MenuIconNameResolver.php` | Icon library prefix map | FR-MENU-006 |
 | `Service/CurrentRouteTreeDecorator.php` | Active branch CSS state | FR-MENU-007 |
+| `Service/MenuCurrentMatcherInterface.php` | Host-defined current-item rule (autoconfigured tag) | FR-MENU-008 |
+| `Service/AbstractRoutePrefixMenuCurrentMatcher.php` | Base matcher: route prefixes keep a nav item current | FR-MENU-008 |
+| `Service/ConfiguredLocales.php` | Normalizes `locales` (literal list, parameter or env var) | FR-MENU-004, FR-CFG-001 |
+| `Service/MenuTreeCacheInvalidator.php` | Cache invalidation helper for menu trees | FR-CACHE-001 |
 
 ## Permissions & link resolvers
 
@@ -135,6 +146,35 @@ This file proves that **every production source artifact** under `src/` is refer
 | Source file | Spec section | Requirement IDs |
 | --- | --- | --- |
 | `Util/ParentRelationCycleDetector.php` | Parent cycle validation | FR-ENTITY-004 |
+| `Util/ExternalUrlPolicy.php` | Scheme allowlist for external menu URLs (blocks `javascript:`, `data:`, …) | FR-SEC-002, FR-MENU-005 |
+
+## Security
+
+| Source file | Spec section | Requirement IDs |
+| --- | --- | --- |
+| `Security/DashboardMenuAccessCheckerInterface.php` | Dashboard admin access gate contract | FR-SEC-001 |
+| `Security/ConfigurableDashboardMenuAccessChecker.php` | Role-based access checker | FR-SEC-001 |
+| `Security/AllowAllDashboardMenuAccessChecker.php` | Demo/dev permissive access checker | FR-SEC-001 |
+
+## Enums
+
+| Source file | Spec section | Requirement IDs |
+| --- | --- | --- |
+| `Enum/CssFramework.php` | `dashboard.css_framework` values | FR-CFG-001, FR-WEBUI-001 |
+| `Enum/IconSet.php` | `dashboard.icon_set` values | FR-CFG-001, FR-WEBUI-001 |
+
+## Routing
+
+| Source file | Spec section | Requirement IDs |
+| --- | --- | --- |
+| `Routing/MenuApiRouteLoader.php` | Registers the JSON API route from `api.*` config (type `nowo_dashboard_menu_api`) | FR-ROUT-001, FR-API-001 |
+
+## Admin web UI view models
+
+| Source file | Spec section | Requirement IDs |
+| --- | --- | --- |
+| `View/DashboardPages.php` | UiKit view models of the dashboard pages (list, show, reorder, forms) | FR-WEBUI-001 |
+| `View/DashboardWebUi.php` | Per-page templates and layout on the UiKit page contract; 1.x layout bridge selection | FR-WEBUI-001, FR-WEBUI-002 |
 
 ## Symfony config
 
@@ -153,14 +193,17 @@ This file proves that **every production source artifact** under `src/` is refer
 | `Resources/assets/src/dashboard.ts` | Dashboard UX (modals, SortableJS) | FR-UI-001 |
 | `Resources/assets/src/logger.ts` | Namespaced debug logger | FR-UI-002 |
 | `Resources/assets/src/stimulus-live.ts` | Stimulus bootstrap for Live modal | FR-UI-003 |
-| `Resources/assets/src/menu-collapse.ts`, `menu-collapse-boot.ts` | Nested collapse without Bootstrap JS (`js/menu-collapse.js`) | [003](../003-menu-collapse-without-bootstrap/spec.md) |
+| `Resources/assets/src/config.ts` | CSP-safe JSON config island reader (legacy global fallback) | FR-UI-004 |
+| `Resources/assets/src/menu-collapse.ts`, `Resources/assets/src/menu-collapse-boot.ts` | Nested collapse without Bootstrap JS (`js/menu-collapse.js`) | [003](../003-menu-collapse-without-bootstrap/spec.md) |
 
-## Built JavaScript (published)
+## Built JavaScript and published CSS
 
 | Source file | Spec section | Requirement IDs |
 | --- | --- | --- |
 | `Resources/public/js/dashboard.js` | Compiled dashboard bundle | FR-BUILD-001 |
 | `Resources/public/js/stimulus-live.js` | Compiled Stimulus bootstrap | FR-BUILD-001 |
+| `Resources/public/js/menu-collapse.js` | Compiled nested-collapse script | FR-BUILD-001, [003](../003-menu-collapse-without-bootstrap/spec.md) |
+| `Resources/public/css/dashboard.css` | Dashboard stylesheet (semantic classes painted from UiKit tokens) | FR-DASH-003, FR-WEBUI-001 |
 
 ## Translations
 
@@ -209,7 +252,6 @@ This file proves that **every production source artifact** under `src/` is refer
 
 | Source file | Spec section | Requirement IDs |
 | --- | --- | --- |
-| `Resources/views/dashboard/layout.html.twig` | Dashboard base layout | FR-DASH-003 |
 | `Resources/views/dashboard/index.html.twig` | Menu list | FR-DASH-003 |
 | `Resources/views/dashboard/show.html.twig` | Menu detail & items table | FR-DASH-003 |
 | `Resources/views/dashboard/show_items_reorder.html.twig` | Drag-and-drop reorder page | FR-DASH-003 |
@@ -222,9 +264,15 @@ This file proves that **every production source artifact** under `src/` is refer
 | `Resources/views/dashboard/_item_form_live_partial.html.twig` | Live item form partial | FR-DASH-003, FR-LIVE-002 |
 | `Resources/views/dashboard/_copy_menu_partial.html.twig` | Copy menu modal partial | FR-DASH-003 |
 | `Resources/views/dashboard/_import_partial.html.twig` | Import modal partial | FR-DASH-003 |
-| `Resources/views/dashboard/_menu_dashboard_modals.html.twig` | Shared modals | FR-DASH-003 |
 | `Resources/views/dashboard/_sortable_tree_macro.html.twig` | Reorder tree macro | FR-DASH-003 |
 | `Resources/views/dashboard/_dashboard_item_icon.html.twig` | Dashboard item icon partial | FR-DASH-003 |
+| `Resources/views/dashboard/_dialogs.html.twig` | UiKit `dialog`s the form openers load into | FR-DASH-003, FR-WEBUI-001 |
+| `Resources/views/dashboard/_dialog_form_actions.html.twig` | Dialog form submit/cancel actions | FR-DASH-003, FR-WEBUI-001 |
+| `Resources/views/dashboard/_menu_form_fields.html.twig` | Menu form fields (page body and dialog fragment) | FR-DASH-003, FR-FORM-001 |
+| `Resources/views/dashboard/_item_form_fields.html.twig` | Item form fields with locale tabs (page body and dialog fragment) | FR-DASH-003, FR-FORM-001 |
+| `Resources/views/dashboard/_page_scripts.html.twig` | CSP-safe JSON config island + dashboard scripts | FR-DASH-003, FR-TWIG-004, FR-UI-004 |
+| `Resources/views/dashboard/_page_styles.html.twig` | Dashboard stylesheet link | FR-DASH-003, FR-WEBUI-001 |
+| `Resources/views/dashboard/_legacy_layout.html.twig` | BC bridge for 1.x layouts (deprecated since 2.7, removed in 3.0) | FR-WEBUI-002 |
 
 ## Live Component template
 
@@ -239,38 +287,48 @@ This file proves that **every production source artifact** under `src/` is refer
 | `Resources/views/Collector/dashboard_menu.html.twig` | Profiler panel UI | FR-PROF-003 |
 | `Resources/views/Collector/icon.svg` | Toolbar icon glyph | FR-PROF-003 |
 
+## Co-located Vitest sources (`FR-TEST-*`)
+
+Vitest specs live next to the TypeScript sources under `src/`; they are not loaded at runtime but are tracked under `src/`, so they are inventoried here.
+
+| Source file | Spec section | Requirement IDs |
+| --- | --- | --- |
+| `Resources/assets/src/config.test.ts` | Vitest: config island reader | FR-TEST-001, FR-UI-004 |
+| `Resources/assets/src/logger.test.ts` | Vitest: debug logger | FR-TEST-001, FR-UI-002 |
+| `Resources/assets/src/menu-collapse.test.ts` | Vitest: nested collapse | FR-TEST-001 |
+
+
 ## Coverage summary
 
 | Category | Files | Mapped |
 | --- | ---: | ---: |
-| Bundle & DI | 8 | 8 |
+| Bundle & DI | 11 | 11 |
 | Attributes | 2 | 2 |
 | CLI | 2 | 2 |
 | API controller | 1 | 1 |
 | Dashboard controllers | 3 | 3 |
 | DataCollector & query profiling | 7 | 7 |
 | Entities & persistence | 6 | 6 |
-| Event subscribers | 1 | 1 |
-| Forms | 10 | 10 |
-| Live Component (PHP) | 1 | 1 |
-| Menu resolution services | 8 | 8 |
+| Event subscribers | 3 | 3 |
+| Forms | 13 | 13 |
+| Live Component | 1 | 1 |
+| Menu resolution services | 13 | 13 |
 | Permissions & link resolvers | 7 | 7 |
 | Twig PHP | 1 | 1 |
-| Util | 1 | 1 |
+| Util | 2 | 2 |
+| Security | 3 | 3 |
+| Enums | 2 | 2 |
+| Routing | 1 | 1 |
+| Admin web UI view models | 2 | 2 |
 | Symfony config | 5 | 5 |
-| TypeScript sources | 3 | 3 |
-| Built JavaScript | 2 | 2 |
+| TypeScript sources | 6 | 6 |
+| Built JavaScript and published CSS | 4 | 4 |
 | Translations | 31 | 31 |
-| Frontend menu template | 1 | 1 |
-| Dashboard Twig views | 16 | 16 |
+| Frontend menu template | 2 | 2 |
+| Dashboard Twig views | 21 | 21 |
 | Live Component template | 1 | 1 |
 | Web Profiler views | 2 | 2 |
-| **Total production sources** | **119** | **119** |
+| Co-located Vitest sources (`FR-TEST-*`) | 3 | 3 |
+| **Total production files (`git ls-files src`)** | **155** | **155** |
 
 Built JavaScript is documented as published output of TypeScript sources; maintainers rebuild when TS changes.
-| `EventSubscriber/MenuCacheInvalidationSubscriber.php` | Invalidate menu tree cache on Doctrine updates | FR-CACHE-001 |
-| `Service/MenuTreeCacheInvalidator.php` | Cache invalidation helper for menu trees | FR-CACHE-001 |
-| `Security/DashboardMenuAccessCheckerInterface.php` | Dashboard admin access gate contract | FR-SEC-001 |
-| `Security/ConfigurableDashboardMenuAccessChecker.php` | Role-based access checker | FR-SEC-001 |
-| `Security/AllowAllDashboardMenuAccessChecker.php` | Demo/dev permissive access checker | FR-SEC-001 |
-| `DependencyInjection/Compiler/DashboardMenuSecurityPass.php` | Compile-time security gate for dashboard | FR-SEC-001 |

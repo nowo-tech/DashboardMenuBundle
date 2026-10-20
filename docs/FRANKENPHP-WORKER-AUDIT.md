@@ -9,6 +9,21 @@
 | Remediation (2026-09-24) | W-01…W-06 addressed on top of `v2.1.12`: request-scoped href memo (`WeakMap<Request, …>`, no memo for id-less items), `DashboardMenuWorkerStateSubscriber` resets menu / version / href memos and both dev collectors at every main request, and recovers a closed entity manager. Regression tests simulate consecutive requests without `reset()`. |
 | **Verdict** | ✅ **100% bundle-owned state is viable under scenario B** (`reset_kernel: false` / no `services_resetter`). Residual **host** responsibility only: clearing the Doctrine identity map between requests (W-04) and using a shared cache pool across workers. |
 
+## Table of contents
+
+- [Execution model assumed](#execution-model-assumed)
+- [Summary](#summary)
+- [Services reviewed](#services-reviewed)
+- [Findings](#findings)
+  - [W-01 — Href memo stores request-dependent URLs, keyed only by item id (Medium)](#w-01--href-memo-stores-request-dependent-urls-keyed-only-by-item-id-medium)
+  - [W-02 — Menu and cache-version memos go stale across requests (Medium)](#w-02--menu-and-cache-version-memos-go-stale-across-requests-medium)
+  - [W-03 — Public JSON API can grow the memos without limit (Medium)](#w-03--public-json-api-can-grow-the-memos-without-limit-medium)
+  - [W-04 — Non-transactional flushes rely on Doctrine's resetter after a failure (Medium, scenario B only)](#w-04--non-transactional-flushes-rely-on-doctrines-resetter-after-a-failure-medium-scenario-b-only)
+  - [W-05 — Dev data collector accumulates when the profiler is not reset (Low)](#w-05--dev-data-collector-accumulates-when-the-profiler-is-not-reset-low)
+  - [W-06 — `spl_object_id()` key collision inside a single request (Low, theoretical)](#w-06--spl_object_id-key-collision-inside-a-single-request-low-theoretical)
+- [Usage recommendations in worker mode](#usage-recommendations-in-worker-mode)
+- [Re-audit triggers](#re-audit-triggers)
+
 ## Execution model assumed
 
 FrankenPHP worker mode boots the Symfony kernel once per worker and serves many requests with the same container. This audit assumes the **strict** variant: the kernel is **not** rebooted between requests, so every shared service, static property and PHP global survives from one request to the next. Two scenarios are evaluated:

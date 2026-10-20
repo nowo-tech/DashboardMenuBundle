@@ -184,6 +184,8 @@ As a bundle maintainer, I sync missing translation keys across locale files.
 - **FR-MENU-005**: `MenuUrlResolver` MUST generate hrefs for route names, parameters, and external URLs. Missing path variables MUST be completed from the **main** request’s `_route_params` (preferring main over current so controller forwards that drop `_route_params` still work); loose non-`_` attributes on the current sub-request MAY fill remaining gaps. The href memo MUST be scoped to the current `Request` object (e.g. `WeakMap`) and MUST NOT memoize items without id; `reset()` MUST clear it.
 - **FR-MENU-006**: `MenuIconNameResolver` MUST map icon library names via `icon_library_prefix_map` (e.g. `bootstrap-icons:house` → `bi:house`).
 - **FR-MENU-007**: `CurrentRouteTreeDecorator` MUST mark active branch/current item CSS classes on tree nodes for Twig rendering.
+- **FR-MENU-008**: Services implementing `MenuCurrentMatcherInterface` (autoconfigured tag `nowo_dashboard_menu.current_matcher`) MUST be OR-ed with the built-in exact path match by `CurrentRouteTreeDecorator`; `AbstractRoutePrefixMenuCurrentMatcher` keeps an item current for configured route prefixes.
+- **FR-CACHE-001**: `MenuCacheInvalidationSubscriber` and `MenuTreeCacheInvalidator` MUST invalidate cached menu trees when menus or items change through Doctrine.
 
 ### Permissions & import/export
 
@@ -205,6 +207,9 @@ As a bundle maintainer, I sync missing translation keys across locale files.
 - **FR-DASH-003**: Dashboard Twig views MUST render list/detail/forms/modals/reorder UI using translation domain `NowoDashboardMenuBundle` and configurable layout/CSS/modal sizes.
 - **FR-ROUT-002**: `routes_dashboard.yaml` MUST declare dashboard routes (integrator sets URL prefix on import).
 - **FR-SEC-001**: `DashboardMenuAccessCheckerInterface` + `DashboardAccessSubscriber` MUST enforce  `DashboardAccessSubscriber` MUST require configured `security.access_roles` on dashboard routes when SecurityBundle is present.
+- **FR-SEC-002**: `ExternalUrlPolicy` MUST only render external item URLs with `http`, `https`, `mailto`, `tel` or scheme-less (relative) values, ignoring whitespace/control characters when detecting the scheme (blocks `javascript:`, `data:`, `vbscript:`).
+- **FR-WEBUI-001**: The admin web UI MUST follow the UiKit page contract (REQ-UI-003): `DashboardWebUi` resolves per-page templates (`web_ui.templates.<page>`) and the layout (`web_ui.layout_template`), `DashboardPages` builds immutable view models (no request/session state), and forms open in UiKit dialogs (`_dialogs`, `_dialog_form_actions`) styled by `css/dashboard.css`; `css_framework` / `icon_set` values come from the `CssFramework` / `IconSet` enums.
+- **FR-WEBUI-002**: 1.x chrome hooks (`dashboard.ui.classes`, `dashboard.ui.partials.pagination`, `dashboard.layout_template` rendering `nowo_dashboard_menu_content`) MUST keep working through `LegacyThemeBridge` and `_legacy_layout.html.twig` until 3.0 (deprecated since 2.7).
 
 ### Forms
 
@@ -238,7 +243,9 @@ As a bundle maintainer, I sync missing translation keys across locale files.
 - **FR-UI-001**: `dashboard.ts` MUST power dashboard modals, SortableJS reorder UX, and optional UX Autocomplete registration.
 - **FR-UI-002**: `logger.ts` MUST provide namespaced debug logging for dashboard scripts.
 - **FR-UI-003**: `stimulus-live.ts` MUST bootstrap Stimulus for Live Component modal when no custom `stimulus_script_url` is configured.
+- **FR-UI-004**: `config.ts` MUST read page configuration from the CSP-safe JSON island `#nowo-dashboard-menu-config` (REQ-CSP-001), falling back to the deprecated `window.__nowoDashboardMenuConfig` global.
 - **FR-BUILD-001**: Published `Resources/public/js/*.js` MUST be kept in sync with TypeScript sources before release.
+- **FR-TEST-001**: TypeScript sources MUST keep co-located Vitest specs (`*.test.ts`) passing.
 
 ### Internationalization
 
@@ -257,7 +264,7 @@ As a bundle maintainer, I sync missing translation keys across locale files.
 
 ## Success Criteria
 
-- **SC-001**: 100% of production files in `src/` appear in [`code-inventory.md`](code-inventory.md) with requirement IDs (**119/119** mapped).
+- **SC-001**: 100% of production files in `src/` appear in [`code-inventory.md`](code-inventory.md) with requirement IDs (**155/155** mapped, `git ls-files src`).
 - **SC-002**: Twig render and JSON API return equivalent tree structures for the same code/locale/context in demo apps.
 - **SC-003**: Configuration keys in [`docs/CONFIGURATION.md`](../../docs/CONFIGURATION.md) match `Configuration.php`.
 - **SC-004**: PHPUnit, PHPStan, and documented QA targets pass in CI (`composer qa`, `make release-check`).
@@ -306,7 +313,7 @@ As a bundle maintainer, I sync missing translation keys across locale files.
 | Full QA | `composer qa` or `make release-check` |
 | PHP tests | `vendor/bin/phpunit` |
 | Static analysis | `vendor/bin/phpstan analyse` |
-| Code inventory | Row count in `code-inventory.md` MUST equal `find src -type f \| sort \| wc -l` (**119**) |
+| Code inventory | Mapped count in `code-inventory.md` MUST equal `git ls-files src \| wc -l` (**155**) |
 | Config parity | Compare `Configuration.php` with `docs/CONFIGURATION.md` |
 
 When changing behavior, update this spec, `code-inventory.md` if files are added/removed, tests, and integrator docs (`USAGE.md`, `CONFIGURATION.md`, `CHANGELOG.md`).

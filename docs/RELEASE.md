@@ -1,5 +1,11 @@
 # Release
 
+## Table of contents
+
+- [Before releasing](#before-releasing)
+- [Creating the release](#creating-the-release)
+- [After releasing](#after-releasing)
+
 ## Before releasing
 
 > Current release target: **2.6.0** (`v2.6.0`).

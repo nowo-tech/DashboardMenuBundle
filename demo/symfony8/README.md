@@ -2,6 +2,8 @@
 
 Demo app for `nowo-tech/dashboard-menu-bundle` with FrankenPHP (worker mode) and MySQL.
 
+FrankenPHP setup (development vs production startup, `FRANKENPHP_MODE` classic/worker switch, troubleshooting): see [docs/DEMO-FRANKENPHP.md](../../docs/DEMO-FRANKENPHP.md).
+
 ## Run
 
 ```bash

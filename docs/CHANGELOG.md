@@ -103,6 +103,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- Documentation: wave-1 REQ compliance — README documentation list order, CONTRIBUTING Cursor Agent queue settings and post-commit co-author check, canonical issue templates, TOCs for long docs, demo README links DEMO-FRANKENPHP, per-variable comments in the demo `.env.example`, Spec Kit baseline inventory refresh (155/155) with new FR-CACHE/FR-MENU-008/FR-SEC-002/FR-WEBUI/FR-UI-004/FR-TEST requirements.
+
 ## [2.9.0] - 2026-10-19
 
 Item labels as FormKit locale tabs (page, dialog, Live component) and row-gap layout for the item form. See [UPGRADING](UPGRADING.md#to-290).
