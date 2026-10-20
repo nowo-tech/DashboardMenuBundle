@@ -15,14 +15,14 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "sortablejs": "^1.15.6"
+    "sortablejs": "^1.15.7"
   },
   "devDependencies": {
-    "@types/sortablejs": "^1.15.8",
-    "@vitest/coverage-v8": "^4.1.11",
+    "@types/sortablejs": "^1.15.9",
+    "@vitest/coverage-v8": "^4.1.12",
     "happy-dom": "^20.14.6",
-    "typescript": "^5.6.0",
+    "typescript": "^5.9.3",
     "vite": "^8.3.4",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.12"
   }
 }
