@@ -105,6 +105,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Dependencies refreshed (Composer and pnpm/npm lock files of the bundle and its demos, campaign 2026-10-19); shipped assets rebuilt.
+- `.php-cs-fixer.dist.php`: `new ParallelConfig(2)` (REQ-CS-001).
+
 ## [2.9.2] - 2026-10-20
 
 Documentation: restore the spec-driven development layer introduction. See [UPGRADING](UPGRADING.md#to-292).
