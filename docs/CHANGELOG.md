@@ -104,6 +104,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- Documentation: restore the three-layer introduction of `docs/SPEC-DRIVEN-DEVELOPMENT.md` dropped by the 2.9.1 TOC regeneration.
+
 ## [2.9.1] - 2026-10-20
 
 Documentation: wave-1 REQ compliance (README, CONTRIBUTING, issue templates, Spec Kit inventory). See [UPGRADING](UPGRADING.md#to-291).
