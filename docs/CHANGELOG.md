@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.9.2] - 2026-10-20](#292---2026-10-20)
 - [[2.9.1] - 2026-10-20](#291---2026-10-20)
 - [[2.9.0] - 2026-10-19](#290---2026-10-19)
 - [[2.8.1] - 2026-10-18](#281---2026-10-18)
@@ -103,6 +104,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [[0.0.1] - 2026-03-10](#001---2026-03-10)
 
 ## [Unreleased]
+
+## [2.9.2] - 2026-10-20
+
+Documentation: restore the spec-driven development layer introduction. See [UPGRADING](UPGRADING.md#to-292).
 
 ### Documentation
 
@@ -1380,7 +1385,7 @@ Default output is byte-identical: unset actions keep their bundle variant (`butt
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.9.1...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.9.2...HEAD
 [2.2.4]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.3...v2.2.4
 [2.2.3]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.2...v2.2.3
 [2.2.2]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.1...v2.2.2

@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.9.2](#to-292)
 - [To 2.9.1](#to-291)
 - [To 2.9.0](#to-290)
   - [Item labels as locale tabs](#item-labels-as-locale-tabs)
@@ -111,6 +112,14 @@
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## To 2.9.2
+
+From **2.9.1**:
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
 
 ## To 2.9.1
 
