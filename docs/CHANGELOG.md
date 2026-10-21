@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.10.0] - 2026-10-21](#2100---2026-10-21)
 - [[2.9.3] - 2026-10-20](#293---2026-10-20)
 - [[2.9.2] - 2026-10-20](#292---2026-10-20)
 - [[2.9.1] - 2026-10-20](#291---2026-10-20)
@@ -105,6 +106,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [[0.0.1] - 2026-03-10](#001---2026-03-10)
 
 ## [Unreleased]
+
+## [2.10.0] - 2026-10-21
+
+Configurable intro on the menus list page (web_ui.index.intro), rendered in the UiKit page header; hosts drop their index template copy. See [UPGRADING](UPGRADING.md#to-2100).
 
 ### Added
 
@@ -1403,7 +1408,7 @@ Default output is byte-identical: unset actions keep their bundle variant (`butt
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.9.3...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.10.0...HEAD
 [2.2.4]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.3...v2.2.4
 [2.2.3]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.2...v2.2.3
 [2.2.2]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.1...v2.2.2
