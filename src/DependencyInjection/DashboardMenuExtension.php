@@ -9,6 +9,7 @@ use Nowo\DashboardMenuBundle\DataCollector\MenuQueryCounter;
 use Nowo\DashboardMenuBundle\DataCollector\MenuQueryCountMiddleware;
 use Nowo\DashboardMenuBundle\Enum\CssFramework;
 use Nowo\DashboardMenuBundle\Enum\IconSet;
+use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 use Nowo\DashboardMenuBundle\Security\AllowAllDashboardMenuAccessChecker;
 use Nowo\DashboardMenuBundle\Security\ConfigurableDashboardMenuAccessChecker;
@@ -42,6 +43,7 @@ use function array_reverse;
 use function in_array;
 use function is_array;
 use function is_string;
+use function trim;
 
 /**
  * Loads bundle configuration and services.
@@ -357,6 +359,9 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
         $container->setParameter(Configuration::ALIAS . '.web_ui.path_prefix', $webUi['path_prefix'] ?? '/admin/menus');
         $container->setParameter(Configuration::ALIAS . '.web_ui.layout_template', $webUi['layout_template'] ?? null);
         $container->setParameter(Configuration::ALIAS . '.web_ui.templates', $webUi['templates'] ?? []);
+        $indexIntro = $webUi['index']['intro'] ?? null;
+        $container->setParameter(Configuration::ALIAS . '.web_ui.index.intro', is_string($indexIntro) && trim($indexIntro) !== '' ? $indexIntro : null);
+        $container->setParameter(Configuration::ALIAS . '.web_ui.index.intro_domain', $webUi['index']['intro_domain'] ?? NowoDashboardMenuBundle::TRANSLATION_DOMAIN);
         // 1.x parameter names (kept for hosts / compiler passes reading them).
         $container->setParameter(Configuration::ALIAS . '.dashboard.enabled', (bool) ($webUi['enabled'] ?? false));
         $container->setParameter(Configuration::ALIAS . '.dashboard.layout_template', $webUi['layout_template'] ?? null);

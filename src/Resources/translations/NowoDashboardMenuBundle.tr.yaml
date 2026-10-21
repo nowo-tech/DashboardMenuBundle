@@ -5,6 +5,7 @@ dashboard:
   title: 'Menü yönetim paneli'
   title_suffix: 'Menü Paneli'
   menus: 'Menüler'
+  menus_intro: 'Sitenin gezinme menüleri: öğelerini, sırasını ve izinlerini düzenleyin ya da JSON olarak dışa ve içe aktarın.'
   menu: 'Menü'
   menus_back: '← Menüler'
   new_menu: 'Yeni menü'

@@ -8,6 +8,7 @@ use Nowo\DashboardMenuBundle\DependencyInjection\Configuration;
 use Nowo\DashboardMenuBundle\DependencyInjection\DashboardMenuExtension;
 use Nowo\DashboardMenuBundle\Form\SearchQueryType;
 use Nowo\DashboardMenuBundle\Twig\MenuExtension;
+use Nowo\DashboardMenuBundle\View\DashboardPages;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -698,6 +699,32 @@ final class DashboardMenuExtensionTest extends TestCase
         self::assertNull($container->getParameter('nowo_dashboard_menu.web_ui.layout_template'), 'The removed 1.x default layout means the UiKit layout.');
         self::assertSame('/backoffice/menus', $container->getParameter('nowo_dashboard_menu.web_ui.path_prefix'));
         self::assertSame(['index' => 'admin/menus.html.twig'], $container->getParameter('nowo_dashboard_menu.web_ui.templates'));
+    }
+
+    public function testLoadSetsTheIndexIntroParameters(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'prod');
+        $container->setParameter('kernel.bundles', []);
+        (new DashboardMenuExtension())->load([[]], $container);
+
+        self::assertNull($container->getParameter('nowo_dashboard_menu.web_ui.index.intro'));
+        self::assertSame('NowoDashboardMenuBundle', $container->getParameter('nowo_dashboard_menu.web_ui.index.intro_domain'));
+        self::assertSame('%nowo_dashboard_menu.web_ui.index.intro%', $container->getDefinition(DashboardPages::class)->getArgument('$indexIntro'));
+
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'prod');
+        $container->setParameter('kernel.bundles', []);
+        (new DashboardMenuExtension())->load([['web_ui' => ['index' => ['intro' => 'admin.hub.menus_hint', 'intro_domain' => 'messages']]]], $container);
+
+        self::assertSame('admin.hub.menus_hint', $container->getParameter('nowo_dashboard_menu.web_ui.index.intro'));
+        self::assertSame('messages', $container->getParameter('nowo_dashboard_menu.web_ui.index.intro_domain'));
+
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'prod');
+        $container->setParameter('kernel.bundles', []);
+        (new DashboardMenuExtension())->load([['web_ui' => ['index' => ['intro' => ' ']]]], $container);
+        self::assertNull($container->getParameter('nowo_dashboard_menu.web_ui.index.intro'), 'A blank intro means none.');
     }
 
     private function registerStubExtension(ContainerBuilder $container, string $alias): void

@@ -88,9 +88,9 @@ final class DashboardPageFixtures
         return new UrlGenerator($routes, new RequestContext());
     }
 
-    public static function pages(?DashboardUiConfig $legacyUi = null): DashboardPages
+    public static function pages(?DashboardUiConfig $legacyUi = null, ?string $indexIntro = null, string $indexIntroDomain = DashboardPages::DOMAIN): DashboardPages
     {
-        return new DashboardPages(self::urls(), $legacyUi ?? new DashboardUiConfig(), ['menu_form' => 'lg', 'item_form' => 'lg']);
+        return new DashboardPages(self::urls(), $legacyUi ?? new DashboardUiConfig(), ['menu_form' => 'lg', 'item_form' => 'lg'], $indexIntro, $indexIntroDomain);
     }
 
     public static function translator(): Translator
@@ -204,10 +204,10 @@ final class DashboardPageFixtures
     /**
      * @return array<string, mixed>
      */
-    public static function index(bool $empty = false, string $search = ''): array
+    public static function index(bool $empty = false, string $search = '', ?string $intro = null): array
     {
         $menus = $empty ? [] : [self::sidebar(), self::footer()];
-        $pages = self::pages();
+        $pages = self::pages(null, $intro);
 
         return [
             'page' => $pages->indexPage(

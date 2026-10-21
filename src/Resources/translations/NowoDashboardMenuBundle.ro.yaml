@@ -5,6 +5,7 @@ dashboard:
   title: 'Panou meniuri'
   title_suffix: 'Panou meniuri'
   menus: 'Meniuri'
+  menus_intro: 'Meniurile de navigare ale site-ului: editează elementele, ordinea și permisiunile sau exportă și importă-le ca JSON.'
   menu: 'Meniu'
   menus_back: '← Meniuri'
   new_menu: 'Meniu nou'

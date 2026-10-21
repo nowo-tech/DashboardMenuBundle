@@ -5,6 +5,7 @@ dashboard:
   title: Menü-Dashboard
   title_suffix: Dashboard-Menü
   menus: Menüs
+  menus_intro: 'Navigationsmenüs der Website: Einträge, Reihenfolge und Berechtigungen bearbeiten oder als JSON exportieren und importieren.'
   menu: Menü
   menus_back: "← Menüs"
   new_menu: Neues Menü

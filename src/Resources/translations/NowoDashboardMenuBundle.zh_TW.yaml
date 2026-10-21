@@ -5,6 +5,7 @@ dashboard:
   title: '選單管理面板'
   title_suffix: '選單管理面板'
   menus: '選單'
+  menus_intro: '網站導覽選單：編輯項目、順序與權限，或以 JSON 匯出和匯入。'
   menu: '選單'
   menus_back: '← 選單'
   new_menu: '新增選單'

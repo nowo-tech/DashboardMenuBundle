@@ -5,6 +5,7 @@ dashboard:
   title: 'Menuoversigt'
   title_suffix: 'Menuadministration'
   menus: 'Menuer'
+  menus_intro: 'Webstedets navigationsmenuer: rediger punkter, rækkefølge og tilladelser, eller eksportér og importér dem som JSON.'
   menu: 'Menu'
   menus_back: '← Menuer'
   new_menu: 'Ny menu'

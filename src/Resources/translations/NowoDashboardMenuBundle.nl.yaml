@@ -5,6 +5,7 @@ dashboard:
   title: Menudashboard
   title_suffix: Dashboardmenu
   menus: Menu's
+  menus_intro: 'Navigatiemenu''s van de site: bewerk items, volgorde en rechten, of exporteer en importeer ze als JSON.'
   menu: Menu
   menus_back: "← Menu's"
   new_menu: Nieuw menu

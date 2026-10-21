@@ -5,6 +5,7 @@ dashboard:
   title: 'Dasbor menu'
   title_suffix: 'Menu Dasbor'
   menus: 'Menu'
+  menus_intro: 'Menu navigasi situs: ubah item, urutan, dan izinnya, atau ekspor dan impor sebagai JSON.'
   menu: 'Menu'
   menus_back: '← Daftar menu'
   new_menu: 'Menu baru'

@@ -5,6 +5,7 @@ dashboard:
   title: 'Menyhantering'
   title_suffix: 'Menyhantering'
   menus: 'Menyer'
+  menus_intro: 'Webbplatsens navigeringsmenyer: redigera poster, ordning och behörigheter, eller exportera och importera dem som JSON.'
   menu: 'Meny'
   menus_back: '← Menyer'
   new_menu: 'Ny meny'

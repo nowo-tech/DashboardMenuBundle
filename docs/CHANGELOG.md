@@ -106,6 +106,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Menus list intro (2.10):** new options `web_ui.index.intro` (translation key or text, default `null` = no intro) and
+  `web_ui.index.intro_domain` (default `NowoDashboardMenuBundle`). The intro is the `PageHeader` intro of the index
+  `ListPage`, so it renders through the UiKit page header (theme slot `page_intro`) — no template override needed. New
+  bundle translation `dashboard.menus_intro` (31 locales). Hosts that overrode `web_ui.templates.index` only to add an
+  intro paragraph can delete that template (see UPGRADING).
+
 ## [2.9.3] - 2026-10-20
 
 Dependency refresh (bundle and demos), php-cs-fixer ParallelConfig(2). See [UPGRADING](UPGRADING.md#to-293).

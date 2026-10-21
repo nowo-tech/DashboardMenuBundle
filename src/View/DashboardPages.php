@@ -29,6 +29,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use function array_keys;
 use function implode;
 use function is_string;
+use function trim;
 
 /**
  * Builds the UiKit view models of the dashboard pages (REQ-UI-003): menus list (list scaffold), menu detail with the
@@ -77,6 +78,8 @@ final readonly class DashboardPages
         private UrlGeneratorInterface $urls,
         private DashboardUiConfig $legacyUi = new DashboardUiConfig(),
         private array $modalSizes = [],
+        private ?string $indexIntro = null,
+        private string $indexIntroDomain = self::DOMAIN,
     ) {
     }
 
@@ -110,7 +113,7 @@ final readonly class DashboardPages
         $newMenu = $this->dialogAction('create', 'dashboard.new_menu', $this->url(DashboardRoutes::ROUTE_MENU_NEW), self::DIALOG_MENU, $this->variant('new_menu', 'primary'));
 
         return new ListPage(
-            new PageHeader($this->label('dashboard.menus'), null, [
+            new PageHeader($this->label('dashboard.menus'), $this->indexIntro(), [
                 new Action('export', $this->label('dashboard.export_all'), $this->url(DashboardRoutes::ROUTE_EXPORT_ALL), variant: $this->variant('export_all'), attributes: ['target' => '_blank', 'rel' => 'noopener noreferrer']),
                 $this->dialogAction('import', 'dashboard.import', $this->url(DashboardRoutes::ROUTE_IMPORT), self::DIALOG_IMPORT, $this->variant('import')),
                 $newMenu,
@@ -604,6 +607,14 @@ final readonly class DashboardPages
     private function url(string $route, array $params = []): string
     {
         return $this->urls->generate($route, $params);
+    }
+
+    /**
+     * Intro of the menus list (web_ui.index.intro, 2.10+): a translation key or text of web_ui.index.intro_domain.
+     */
+    private function indexIntro(): ?Label
+    {
+        return $this->indexIntro === null || trim($this->indexIntro) === '' ? null : new Label($this->indexIntro, $this->indexIntroDomain !== '' ? $this->indexIntroDomain : self::DOMAIN);
     }
 
     /**

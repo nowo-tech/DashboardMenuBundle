@@ -5,6 +5,7 @@ dashboard:
   title: 'Menükezelő'
   title_suffix: 'Menükezelő'
   menus: 'Menük'
+  menus_intro: 'A webhely navigációs menüi: szerkessze az elemeket, a sorrendet és a jogosultságokat, vagy exportálja és importálja őket JSON-ként.'
   menu: 'Menü'
   menus_back: '← Menük'
   new_menu: 'Új menü'

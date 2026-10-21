@@ -9,6 +9,7 @@ use Nowo\DashboardMenuBundle\Tests\Support\DashboardPageFixtures;
 use Nowo\FormKitBundle\Twig\LocaleTabsTwigExtension;
 use Nowo\UiKitBundle\Test\PageContractTestCase;
 use Nowo\UiKitBundle\Test\PageFixture;
+use Nowo\UiKitBundle\View\Label;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Symfony\Component\Translation\DataCollectorTranslator;
@@ -41,6 +42,7 @@ final class PageContractTest extends PageContractTestCase
         yield 'menus list' => new PageFixture(self::VIEWS . 'index.html.twig', DashboardPageFixtures::index());
         yield 'menus list (search)' => new PageFixture(self::VIEWS . 'index.html.twig', DashboardPageFixtures::index(false, 'side'));
         yield 'menus list (empty)' => new PageFixture(self::VIEWS . 'index.html.twig', DashboardPageFixtures::index(true));
+        yield 'menus list (intro)' => new PageFixture(self::VIEWS . 'index.html.twig', DashboardPageFixtures::index(false, '', 'dashboard.menus_intro'));
         yield 'menu detail' => new PageFixture(self::VIEWS . 'show.html.twig', DashboardPageFixtures::show());
         yield 'menu detail (no items)' => new PageFixture(self::VIEWS . 'show.html.twig', DashboardPageFixtures::show(true));
         yield 'drag reorder' => new PageFixture(self::VIEWS . 'show_items_reorder.html.twig', DashboardPageFixtures::reorder());
@@ -112,6 +114,20 @@ final class PageContractTest extends PageContractTestCase
         self::assertStringContainsString('"dashboardBase":"/admin/menus"', $html);
         self::assertStringContainsString('js/dashboard.js', $html);
         self::assertStringContainsString('css/dashboard.css', $html);
+    }
+
+    public function testMenusListRendersTheConfiguredIntroInThePageHeader(): void
+    {
+        // The intro is the PageHeader intro: the UiKit page_header partial renders it (the contract stub partial
+        // overrides that partial, so the view model is asserted here; the fixture "menus list (intro)" runs the contract).
+        $context = DashboardPageFixtures::index(false, '', 'dashboard.menus_intro');
+        $intro   = $context['page']->header->intro;
+        self::assertInstanceOf(Label::class, $intro);
+        self::assertSame('dashboard.menus_intro', $intro->key);
+        self::assertSame('Navigation menus of the site: edit their items, order and permissions, or export and import them as JSON.', $this->createTwig()->getExtension(TranslationExtension::class)->getTranslator()->trans($intro->key, [], $intro->domain, 'en'));
+
+        $this->renderPage(new PageFixture(self::VIEWS . 'index.html.twig', $context));
+        self::assertNull(DashboardPageFixtures::index()['page']->header->intro, 'No intro by default (BC).');
     }
 
     public function testSearchKeepsTheTermAndOffersClear(): void

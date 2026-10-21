@@ -40,6 +40,9 @@ nowo_dashboard_menu:
         enabled: true
         path_prefix: /admin/menus      # same prefix as the routes_dashboard.yaml import (config/routes.yaml)
         # layout_template: null        # null = nowo_ui_kit.layouts.admin
+        # 2.10: intro under the menus list title (UiKit page header intro); bundle key or a host key + intro_domain.
+        index:
+            intro: dashboard.menus_intro
     dashboard:
         # URL or asset path for the icon-selector script (Stimulus/UX). Enables the icon field in the item form modal.
         icon_selector_script_url: 'bundles/nowoiconselector/icon-selector.js'

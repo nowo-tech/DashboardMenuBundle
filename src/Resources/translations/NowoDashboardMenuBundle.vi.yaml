@@ -5,6 +5,7 @@ dashboard:
   title: 'Bảng điều khiển menu'
   title_suffix: 'Bảng điều khiển menu'
   menus: 'Danh sách menu'
+  menus_intro: 'Các menu điều hướng của trang: chỉnh sửa mục, thứ tự và quyền, hoặc xuất và nhập dưới dạng JSON.'
   menu: 'Menu'
   menus_back: '← Danh sách menu'
   new_menu: 'Menu mới'

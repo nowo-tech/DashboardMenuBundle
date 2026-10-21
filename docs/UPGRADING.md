@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.10.0](#to-2100)
 - [To 2.9.3](#to-293)
 - [To 2.9.2](#to-292)
 - [To 2.9.1](#to-291)
@@ -113,6 +114,32 @@
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## To 2.10.0
+
+From **2.9.x**:
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
+
+No breaking change: without `web_ui.index.intro` the menus list renders as in 2.9 (title only).
+
+**Retire an index override that only adds an intro.** If your app sets `web_ui.templates.index` to a template that
+re-renders `nowo_ui_page_header` just to add an intro under the title (e.g. `templates/kit/dashboard_menu_index.html.twig`),
+delete the template and its `web_ui.templates.index` line, then configure the intro:
+
+```yaml
+# config/packages/nowo_dashboard_menu.yaml
+nowo_dashboard_menu:
+    web_ui:
+        index:
+            intro: admin.hub.menus_hint   # your key (or text); the bundle ships dashboard.menus_intro
+            intro_domain: messages        # default NowoDashboardMenuBundle
+```
+
+The intro is rendered by the UiKit page header partial (`page_intro` slot), with the header actions in the toolbar as
+before.
 
 ## To 2.9.3
 

@@ -233,6 +233,8 @@ Pages, blocks and view models: [TEMPLATES.md](TEMPLATES.md).
 | `enabled` | `false` | Enable the dashboard routes (import `routes_dashboard.yaml`); when `false` they answer 404. Replaces `dashboard.enabled`. |
 | `path_prefix` | `/admin/menus` | The prefix you import `routes_dashboard.yaml` with (informational; lock it in `security.access_control`). Replaces `dashboard.path_prefix`. |
 | `layout_template` | `null` | Layout the scaffolds extend instead of `nowo_ui_kit.layouts.admin`. Must render the UiKit canonical blocks (`nowo_ui_content`…). A 1.x layout that renders `nowo_dashboard_menu_content` is wrapped in a deprecated bridge. Replaces `dashboard.layout_template`. |
+| `index.intro` | `null` | *(2.10+)* Intro paragraph under the menus list title, rendered by the UiKit page header (`header.intro`, theme slot `page_intro`). Translation key (or text) of `index.intro_domain`; the bundle ships `dashboard.menus_intro` (31 locales). `null` / blank = no intro. |
+| `index.intro_domain` | `NowoDashboardMenuBundle` | *(2.10+)* Translation domain of `index.intro` (e.g. `messages` for host copy). |
 | `templates` | `{}` | Per-page override (page => template): `index`, `show`, `show_items_reorder`, `menu_form`, `item_form`, `copy_menu`, `import`, `menu_form_partial`, `item_form_partial`, `item_form_live`, `copy_menu_partial`, `import_partial`. Prefer a thin `{% extends '@!NowoDashboardMenuBundle/…' %}` overriding a data block. |
 
 ```yaml
@@ -243,6 +245,8 @@ nowo_dashboard_menu:
     web_ui:
         enabled: true
         path_prefix: /admin/menus
+        index:
+            intro: dashboard.menus_intro      # or a host key + intro_domain: messages
 ```
 
 ### dashboard

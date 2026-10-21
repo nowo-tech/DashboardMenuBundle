@@ -5,6 +5,7 @@ dashboard:
   title: '菜单管理面板'
   title_suffix: '菜单管理面板'
   menus: '菜单'
+  menus_intro: '站点导航菜单：编辑菜单项、顺序和权限，或以 JSON 导出和导入。'
   menu: '菜单'
   menus_back: '← 菜单'
   new_menu: '新建菜单'

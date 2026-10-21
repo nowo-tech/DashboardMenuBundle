@@ -5,6 +5,7 @@ dashboard:
   title: 'Valikkojen hallinta'
   title_suffix: 'Valikkojen hallinta'
   menus: 'Valikot'
+  menus_intro: 'Sivuston navigointivalikot: muokkaa kohteita, järjestystä ja oikeuksia tai vie ja tuo ne JSON-muodossa.'
   menu: 'Valikko'
   menus_back: '← Valikot'
   new_menu: 'Uusi valikko'

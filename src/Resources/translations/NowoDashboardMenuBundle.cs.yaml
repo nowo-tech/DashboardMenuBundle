@@ -5,6 +5,7 @@ dashboard:
   title: 'Správa menu'
   title_suffix: 'Správa menu'
   menus: 'Menu'
+  menus_intro: 'Navigační menu webu: upravte jejich položky, pořadí a oprávnění, nebo je exportujte a importujte jako JSON.'
   menu: 'Menu'
   menus_back: '← Menu'
   new_menu: 'Nové menu'

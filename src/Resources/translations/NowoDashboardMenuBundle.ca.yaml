@@ -5,6 +5,7 @@ dashboard:
   title: 'Tauler de menús'
   title_suffix: 'Tauler de menús'
   menus: 'Menús'
+  menus_intro: 'Menús de navegació del lloc: edita''n els elements, l''ordre i els permisos, o exporta''ls i importa''ls en JSON.'
   menu: 'Menú'
   menus_back: '← Menús'
   new_menu: 'Menú nou'

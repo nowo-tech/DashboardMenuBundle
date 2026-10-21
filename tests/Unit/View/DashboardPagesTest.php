@@ -45,6 +45,25 @@ final class DashboardPagesTest extends TestCase
         self::assertNull($plain->filtersClearHref);
     }
 
+    public function testIndexPageIntroFromConfiguration(): void
+    {
+        self::assertNull(DashboardPageFixtures::pages()->indexPage([], [], new FormView())->header->intro);
+        self::assertNull(DashboardPageFixtures::pages(null, '  ')->indexPage([], [], new FormView())->header->intro);
+
+        $intro = DashboardPageFixtures::pages(null, 'dashboard.menus_intro')->indexPage([], [], new FormView())->header->intro;
+        self::assertInstanceOf(Label::class, $intro);
+        self::assertSame('dashboard.menus_intro', $intro->key);
+        self::assertSame(DashboardPages::DOMAIN, $intro->domain);
+
+        $host = DashboardPageFixtures::pages(null, 'admin.hub.menus_hint', 'messages')->indexPage([], [], new FormView())->header->intro;
+        self::assertInstanceOf(Label::class, $host);
+        self::assertSame('messages', $host->domain);
+
+        $fallback = DashboardPageFixtures::pages(null, 'x', '')->indexPage([], [], new FormView())->header->intro;
+        self::assertInstanceOf(Label::class, $fallback);
+        self::assertSame(DashboardPages::DOMAIN, $fallback->domain, 'An empty domain falls back to the bundle domain.');
+    }
+
     public function testLegacyChromeHooksStillApply(): void
     {
         $pages = DashboardPageFixtures::pages(new DashboardUiConfig([

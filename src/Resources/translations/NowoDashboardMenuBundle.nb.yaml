@@ -5,6 +5,7 @@ dashboard:
   title: 'Menyoversikt'
   title_suffix: 'Dashbordmeny'
   menus: 'Menyer'
+  menus_intro: 'Nettstedets navigasjonsmenyer: rediger elementer, rekkefølge og tillatelser, eller eksporter og importer dem som JSON.'
   menu: 'Meny'
   menus_back: '← Menyer'
   new_menu: 'Ny meny'

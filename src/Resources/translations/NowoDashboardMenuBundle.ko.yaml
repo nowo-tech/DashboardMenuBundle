@@ -5,6 +5,7 @@ dashboard:
   title: '메뉴 대시보드'
   title_suffix: '대시보드 메뉴'
   menus: '메뉴 목록'
+  menus_intro: '사이트 내비게이션 메뉴: 항목, 순서, 권한을 편집하거나 JSON으로 내보내고 가져옵니다.'
   menu: '메뉴'
   menus_back: '← 메뉴 목록'
   new_menu: '새 메뉴'

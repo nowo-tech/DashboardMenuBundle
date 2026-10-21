@@ -5,6 +5,7 @@ dashboard:
   title: Dashboard menu
   title_suffix: Menu dashboard
   menus: Menu
+  menus_intro: 'Menu di navigazione del sito: modifica voci, ordine e permessi, oppure esportali e importali in JSON.'
   menu: Menu
   menus_back: "← Menu"
   new_menu: Nuovo menu

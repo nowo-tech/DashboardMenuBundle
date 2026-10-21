@@ -5,6 +5,7 @@ dashboard:
   title: Panel de menús
   title_suffix: Menús del panel
   menus: Menús
+  menus_intro: 'Menús de navegación del sitio: edita sus elementos, orden y permisos, o expórtalos e impórtalos en JSON.'
   menu: Menú
   menus_back: "← Menús"
   new_menu: Nuevo menú

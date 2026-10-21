@@ -5,6 +5,7 @@ dashboard:
   title: 'メニューダッシュボード'
   title_suffix: 'ダッシュボードメニュー'
   menus: 'メニュー一覧'
+  menus_intro: 'サイトのナビゲーションメニュー：項目、並び順、権限を編集したり、JSON でエクスポート／インポートしたりできます。'
   menu: 'メニュー'
   menus_back: '← メニュー一覧'
   new_menu: '新規メニュー'

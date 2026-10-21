@@ -124,6 +124,8 @@ services:
       $urls: '@router'
       $legacyUi: '@Nowo\DashboardMenuBundle\Service\DashboardUiConfig'
       $modalSizes: '%nowo_dashboard_menu.dashboard.modals%'
+      $indexIntro: '%nowo_dashboard_menu.web_ui.index.intro%'
+      $indexIntroDomain: '%nowo_dashboard_menu.web_ui.index.intro_domain%'
 
   Nowo\DashboardMenuBundle\Twig\MenuExtension:
     arguments:

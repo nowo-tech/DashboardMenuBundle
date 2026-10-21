@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 // This file is auto-generated and is for apps only. Bundles SHOULD NOT rely on its content.
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
@@ -1498,6 +1496,10 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         enabled?: bool|Param, // Enable the admin dashboard routes (import @NowoDashboardMenuBundle/Resources/config/routes_dashboard.yaml with your prefix). // Default: false
  *         path_prefix?: scalar|Param|null, // URL prefix the host imports routes_dashboard.yaml with (informational: lock it in security.access_control). // Default: "/admin/menus"
  *         layout_template?: scalar|Param|null, // Layout the dashboard scaffolds extend instead of nowo_ui_kit.layouts.admin (null = UiKit layout). It must render the UiKit canonical blocks (nowo_ui_content…); a 1.x layout that renders "nowo_dashboard_menu_content" is bridged (deprecated). // Default: null
+ *         index?: array{ // Menus list page (2.10+).
+ *             intro?: scalar|Param|null, // Intro paragraph under the page title (UiKit page header intro / theme slot page_intro): translation key or text of index.intro_domain, e.g. dashboard.menus_intro (bundle copy). Null = no intro. // Default: null
+ *             intro_domain?: scalar|Param|null, // Translation domain of index.intro (default NowoDashboardMenuBundle; e.g. messages for host copy). // Default: "NowoDashboardMenuBundle"
+ *         },
  *         templates?: array<string, scalar|Param|null>,
  *     },
  *     security?: array{ // Dashboard admin access control (REQ-UI-002). Host should also lock dashboard.path_prefix via security.access_control.
@@ -1607,6 +1609,35 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             attributes?: array<string, array<string, mixed>>,
  *             header_actions_in_filters?: bool|Param, // list only: render the page-header actions at the end of the filter row instead of the page header (ListPage::headerActionsInFilters wins when set; unset = false).
  *         }>,
+ *     },
+ *     error_pages?: array{ // Kit error pages (2.6): templates/bundles/TwigBundle/Exception/error.html.twig = {% extends '@NowoUiKit/error/status.html.twig' %}.
+ *         layout_template?: scalar|Param|null, // Document the status template extends: the kit layout, or a host template extending it (own <head> assets, brand, chat dock…). // Default: "@NowoUiKit/error/layout.html.twig"
+ *         translation_domain?: scalar|Param|null, // Domain of the page texts (e.g. messages). Keys missing there fall back to UiKit's own NowoUiKitBundle error.* texts. // Default: "NowoUiKitBundle"
+ *         translation_prefix?: scalar|Param|null, // Key prefix: <prefix>.<code>.title|lead|hint|image_alt, <prefix>.generic.*, <prefix>.home|retry|back|retry_after|auto_retry|skip_to_content. // Default: "error"
+ *         home_path?: scalar|Param|null, // Href of the "Back to home" button. // Default: "/"
+ *         illustrations?: array<string, Param|string|array{ // Default: []
+ *             path?: scalar|Param|null,
+ *             width?: int|Param, // Default: null
+ *             height?: int|Param, // Default: null
+ *             webp?: bool|Param|null, // Default: null
+ *             extension?: scalar|Param|null, // Default: null
+ *         }>,
+ *         illustration_width?: int|Param, // Default intrinsic width of the illustrations. // Default: 1024
+ *         illustration_height?: int|Param, // Default intrinsic height of the illustrations. // Default: 683
+ *         webp?: bool|Param, // Illustrations ship a .webp next to the fallback image (<source type="image/webp">). // Default: true
+ *         retry_statuses?: list<int|Param>,
+ *         back_link_statuses?: list<int|Param>,
+ *         auto_retry_seconds?: int|Param, // A 5xx on GET reloads itself after this many seconds (REQ-ERROR-001 item 10; 0 = never). Never on POST. // Default: 600
+ *         theme_storage?: scalar|Param|null, // localStorage key of the theme (data-nowo-ui-theme-storage on <html> and the toggle), e.g. the host's beacon-theme. // Default: "nowo-ui-theme"
+ *         theme_toggle?: bool|Param, // Render the light / dark toggle in the top controls. // Default: true
+ *         html_attributes?: array<string, mixed>,
+ *     },
+ *     shell?: array{ // Signed-in app shell (2.6, @NowoUiKit/shell/_open|_close|_shell|_burger.html.twig; Twig global nowo_ui_kit_shell).
+ *         kit_styles?: bool|Param, // Add the kit shell classes (nowo-ui-shell, nowo-ui-header, nowo-ui-aside…) painted by nowo-ui.css and driven by nowo-ui-shell.js. false: only the app_* slot classes (host shell CSS / JS). // Default: true
+ *         sidebar_cookie?: scalar|Param|null, // Cookie holding the desktop aside mode (e.g. beacon_sidebar), read server-side so the first paint is already collapsed / rail; null = expanded unless the template passes collapsed. // Default: null
+ *         sidebar_hidden_value?: scalar|Param|null, // Cookie value of the hidden aside. // Default: "collapsed"
+ *         sidebar_rail_value?: scalar|Param|null, // Cookie value of the icons-only rail. // Default: "rail"
+ *         sidebar_storage?: scalar|Param|null, // localStorage key of the aside mode (data-nowo-ui-sidebar-storage on the shell root; kit_styles + rail only). // Default: null
  *     },
  * }
  * @psalm-type NowoFormKitConfig = array{
