@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\Command;
 
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
 use Nowo\DashboardMenuBundle\Entity\Menu;
@@ -112,7 +113,7 @@ PHP;
             $platform = $conn->getDatabasePlatform();
             /** @phpstan-ignore function.alreadyNarrowedType (DBAL 2.x has no createSchemaManager) */
             $sm = method_exists($conn, 'createSchemaManager') ? $conn->createSchemaManager() : null;
-            if ($sm instanceof \Doctrine\DBAL\Schema\AbstractSchemaManager && $sm->tablesExist([$menuTable])) {
+            if ($sm instanceof AbstractSchemaManager && $sm->tablesExist([$menuTable])) {
                 $alterSql = [];
                 $table    = $sm->introspectTable($menuTable);
                 if (!$table->hasColumn('class_section_label')) {

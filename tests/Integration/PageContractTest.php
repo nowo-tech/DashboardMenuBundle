@@ -9,6 +9,7 @@ use Nowo\DashboardMenuBundle\Tests\Support\DashboardPageFixtures;
 use Nowo\FormKitBundle\Twig\LocaleTabsTwigExtension;
 use Nowo\UiKitBundle\Test\PageContractTestCase;
 use Nowo\UiKitBundle\Test\PageFixture;
+use Nowo\UiKitBundle\View\FormPage;
 use Nowo\UiKitBundle\View\Label;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bridge\Twig\Extension\TranslationExtension;
@@ -332,7 +333,7 @@ final class PageContractTest extends PageContractTestCase
     {
         $context                                      = DashboardPageFixtures::copyForm();
         $page                                         = $context['page'];
-        $context['page']                              = new \Nowo\UiKitBundle\View\FormPage($page->header, $page->form, $page->submitLabel, $page->cancelHref, $page->cancelLabel, bundle: $page->bundle, layout: '@NowoDashboardMenuBundle/dashboard/_legacy_layout.html.twig');
+        $context['page']                              = new FormPage($page->header, $page->form, $page->submitLabel, $page->cancelHref, $page->cancelLabel, bundle: $page->bundle, layout: '@NowoDashboardMenuBundle/dashboard/_legacy_layout.html.twig');
         $context['nowo_dashboard_menu_legacy_layout'] = 'host/legacy.html.twig';
 
         $html = $this->createTwig()->render(self::VIEWS . 'copy_menu.html.twig', $context);

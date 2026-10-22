@@ -105,6 +105,8 @@ form:
 
 You only need to define the keys you want to change; the rest fall back to the bundle’s translations. Clear the cache after changing translations: `php bin/console cache:clear`.
 
+**Maintainer tool — missing keys / Google Translate:** `php bin/console nowo_dashboard_menu:translations:google-sync --base-locale=en [--translate-missing --write] [--timeout=20]` reports keys missing per locale and can fill them through the Google Translate REST API. Each HTTP call is bounded by `--timeout` (seconds, default **20**, REQ-RUNTIME-001); on timeout or any API error the source string is kept, so the command never hangs and never writes an empty value. It runs from the CLI only (no web request), so no PHP / FrankenPHP request deadline applies.
+
 ## Customising the admin chrome
 
 *Since 2.7 (REQ-UI-003).* The admin dashboard is built on the **UiKit page contract**: every page extends a UiKit

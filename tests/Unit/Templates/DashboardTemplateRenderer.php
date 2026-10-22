@@ -32,6 +32,7 @@ use Symfony\Bridge\Twig\Form\TwigRendererEngine;
 use Symfony\Component\Asset\Package;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
+use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -43,6 +44,7 @@ use Symfony\Component\Form\FormView;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Csrf\CsrfTokenManager;
@@ -101,11 +103,11 @@ final readonly class DashboardTemplateRenderer
         $this->twig->addExtension(new TranslationExtension($translator));
 
         $urlGenerator = new class implements UrlGeneratorInterface {
-            private \Symfony\Component\Routing\RequestContext $context;
+            private RequestContext $context;
 
             public function __construct()
             {
-                $this->context = new \Symfony\Component\Routing\RequestContext();
+                $this->context = new RequestContext();
             }
 
             /**
@@ -116,12 +118,12 @@ final readonly class DashboardTemplateRenderer
                 return '/' . $name . ($parameters !== [] ? '?' . http_build_query($parameters) : '');
             }
 
-            public function setContext(\Symfony\Component\Routing\RequestContext $context): void
+            public function setContext(RequestContext $context): void
             {
                 $this->context = $context;
             }
 
-            public function getContext(): \Symfony\Component\Routing\RequestContext
+            public function getContext(): RequestContext
             {
                 return $this->context;
             }
@@ -310,7 +312,7 @@ final readonly class DashboardTemplateRenderer
         $menuRepo  = (new ReflectionClass(MenuRepository::class))->newInstanceWithoutConstructor();
         $itemRepo  = (new ReflectionClass(MenuItemRepository::class))->newInstanceWithoutConstructor();
         $config    = new MenuConfigResolver(['project' => null], $menuRepo);
-        $container = new \Symfony\Component\DependencyInjection\Container();
+        $container = new Container();
 
         $router = new class implements RouterInterface {
             public function getRouteCollection(): RouteCollection
@@ -326,13 +328,13 @@ final readonly class DashboardTemplateRenderer
                 return '#';
             }
 
-            public function setContext(\Symfony\Component\Routing\RequestContext $context): void
+            public function setContext(RequestContext $context): void
             {
             }
 
-            public function getContext(): \Symfony\Component\Routing\RequestContext
+            public function getContext(): RequestContext
             {
-                return new \Symfony\Component\Routing\RequestContext();
+                return new RequestContext();
             }
 
             /**

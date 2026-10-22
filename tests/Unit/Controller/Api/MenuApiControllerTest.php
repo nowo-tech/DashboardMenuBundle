@@ -20,7 +20,9 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use ReflectionProperty;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
 
 use function is_callable;
@@ -226,10 +228,10 @@ final class MenuApiControllerTest extends TestCase
     {
         $urlGenerator = $this->createStub(UrlGeneratorInterface::class);
         $urlGenerator->method('generate')->willReturnCallback(is_callable($generateReturn) ? $generateReturn : static fn (): string => $generateReturn);
-        $requestStack = $this->createStub(\Symfony\Component\HttpFoundation\RequestStack::class);
+        $requestStack = $this->createStub(RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn(null);
         $router = $this->createStub(RouterInterface::class);
-        $router->method('getRouteCollection')->willReturn(new \Symfony\Component\Routing\RouteCollection());
+        $router->method('getRouteCollection')->willReturn(new RouteCollection());
 
         $container = $this->createStub(\Symfony\Component\DependencyInjection\ContainerInterface::class);
         $container->method('has')->willReturn(false);

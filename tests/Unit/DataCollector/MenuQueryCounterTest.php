@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\Tests\DataCollector;
 
+use Doctrine\DBAL\Connection;
 use Nowo\DashboardMenuBundle\DataCollector\ChainedSqlLogger;
 use Nowo\DashboardMenuBundle\DataCollector\MenuQueryCounter;
 use PHPUnit\Framework\TestCase;
@@ -56,7 +57,7 @@ final class MenuQueryCounterTest extends TestCase
 
     public function testWrapConnectionNoOpWhenConnectionGetConfigurationThrows(): void
     {
-        $connection = $this->createMock(\Doctrine\DBAL\Connection::class);
+        $connection = $this->createMock(Connection::class);
         $connection->method('getConfiguration')->willThrowException(new RuntimeException('No config'));
 
         $counter = new MenuQueryCounter();
@@ -69,7 +70,7 @@ final class MenuQueryCounterTest extends TestCase
     public function testWrapConnectionWrapsLoggerWhenSupported(): void
     {
         $config     = new ConfigurationStub();
-        $connection = $this->createMock(\Doctrine\DBAL\Connection::class);
+        $connection = $this->createMock(Connection::class);
         $connection->method('getConfiguration')->willReturn($config);
 
         $counter = new MenuQueryCounter();
@@ -89,7 +90,7 @@ final class MenuQueryCounterTest extends TestCase
         $inner          = new QueryLoggerSpy();
         $config         = new ConfigurationStub();
         $config->logger = $inner;
-        $connection     = $this->createMock(\Doctrine\DBAL\Connection::class);
+        $connection     = $this->createMock(Connection::class);
         $connection->method('getConfiguration')->willReturn($config);
 
         $counter = new MenuQueryCounter();
@@ -106,7 +107,7 @@ final class MenuQueryCounterTest extends TestCase
     public function testWrapConnectionOnlyWrapsOnce(): void
     {
         $config     = new ConfigurationStub();
-        $connection = $this->createMock(\Doctrine\DBAL\Connection::class);
+        $connection = $this->createMock(Connection::class);
         $connection->method('getConfiguration')->willReturn($config);
 
         $counter = new MenuQueryCounter();
@@ -122,7 +123,7 @@ final class MenuQueryCounterTest extends TestCase
         $chain          = new ChainedSqlLogger(null, $counter);
         $config         = new ConfigurationStub();
         $config->logger = $chain;
-        $connection     = $this->createMock(\Doctrine\DBAL\Connection::class);
+        $connection     = $this->createMock(Connection::class);
         $connection->method('getConfiguration')->willReturn($config);
 
         $counter->wrapConnection($connection);
@@ -136,7 +137,7 @@ final class MenuQueryCounterTest extends TestCase
     public function testWrapConnectionNoOpWhenConfigDoesNotSupportSQLLogger(): void
     {
         $config     = new ConfigurationStub();
-        $connection = $this->createMock(\Doctrine\DBAL\Connection::class);
+        $connection = $this->createMock(Connection::class);
         $connection->method('getConfiguration')->willReturn($config);
 
         $counter = new MenuQueryCounter(static fn (object $c): bool => false);

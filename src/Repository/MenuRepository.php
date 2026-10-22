@@ -10,6 +10,8 @@ use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
+use Nowo\DashboardMenuBundle\EventSubscriber\DashboardMenuWorkerStateSubscriber;
+use Nowo\DashboardMenuBundle\EventSubscriber\MenuCacheInvalidationSubscriber;
 use SortDirection;
 use Symfony\Contracts\Service\ResetInterface;
 
@@ -21,7 +23,7 @@ use function count;
  *
  * {@see findOneByCodeAndContext} is memoized for the request lifetime (Doctrine does not
  * dedupe identical {@see findOneBy} lookups). The memo is cleared at the start of every main
- * request by {@see \Nowo\DashboardMenuBundle\EventSubscriber\DashboardMenuWorkerStateSubscriber}
+ * request by {@see DashboardMenuWorkerStateSubscriber}
  * and by `kernel.reset`, so long-lived workers never keep it across requests.
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
@@ -50,7 +52,7 @@ class MenuRepository extends ServiceEntityRepository implements ResetInterface
      * Finds one menu by code and exact context match (null or [] = no context).
      *
      * Results are memoized until {@see reset()} (end of request, or after menu write
-     * invalidation via {@see \Nowo\DashboardMenuBundle\EventSubscriber\MenuCacheInvalidationSubscriber}).
+     * invalidation via {@see MenuCacheInvalidationSubscriber}).
      *
      * @param array<string, bool|int|string>|null $context
      */

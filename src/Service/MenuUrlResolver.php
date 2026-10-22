@@ -10,6 +10,7 @@ use Nowo\DashboardMenuBundle\Util\ExternalUrlPolicy;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\Router;
@@ -332,7 +333,7 @@ final class MenuUrlResolver implements ResetInterface
         if (!$request instanceof Request || !$request->hasSession()) {
             return;
         }
-        /** @var \Symfony\Component\HttpFoundation\Session\Session $session */
+        /** @var Session $session */
         $session  = $request->getSession();
         $flashBag = $session->getFlashBag();
         $flashBag->add('error', 'Menu URL: ' . $e->getMessage());

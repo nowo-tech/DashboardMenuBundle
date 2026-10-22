@@ -17,6 +17,7 @@ use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use ReflectionProperty;
 use stdClass;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -25,6 +26,7 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
+use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
@@ -448,7 +450,7 @@ final class MenuItemTypeTest extends TestCase
         $resolvedWithOverride = $resolver->resolve(['available_locales' => ['fr']]);
         self::assertSame(['fr'], $resolvedWithOverride['available_locales']);
 
-        $this->expectException(\Symfony\Component\OptionsResolver\Exception\InvalidOptionsException::class);
+        $this->expectException(InvalidOptionsException::class);
         $resolver->resolve(['available_locales' => 'not-an-array']);
     }
 
@@ -696,7 +698,7 @@ final class MenuItemTypeTest extends TestCase
         self::assertSame([1, 2], $optionsOverride['exclude_ids']);
         self::assertSame('fr', $optionsOverride['locale']);
 
-        $this->expectException(\Symfony\Component\OptionsResolver\Exception\InvalidOptionsException::class);
+        $this->expectException(InvalidOptionsException::class);
         $resolver->resolve(['locale' => 123]);
     }
 
@@ -867,7 +869,7 @@ final class MenuItemTypeTest extends TestCase
 
         $parentCall = $this->findAddCall($addCalls, 'parent');
         self::assertNotNull($parentCall);
-        self::assertSame(\Symfony\Bridge\Doctrine\Form\Type\EntityType::class, $parentCall['type']);
+        self::assertSame(EntityType::class, $parentCall['type']);
         $parentQb = $parentCall['query_builder'];
         self::assertIsCallable($parentQb);
         self::assertSame($qb, $parentQb($repo));

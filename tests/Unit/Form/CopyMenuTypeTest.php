@@ -6,6 +6,7 @@ namespace Nowo\DashboardMenuBundle\Tests\Form;
 
 use Nowo\DashboardMenuBundle\Form\CopyMenuType;
 use Nowo\DashboardMenuBundle\Tests\Unit\Form\FormKitMergerTestTrait;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -18,7 +19,7 @@ final class CopyMenuTypeTest extends TestCase
     {
         $addCalls = [];
         $builder  = $this->createMock(FormBuilderInterface::class);
-        $builder->method('add')->willReturnCallback(static function (string $name, $type, array $options = []) use (&$addCalls, $builder): \PHPUnit\Framework\MockObject\MockObject {
+        $builder->method('add')->willReturnCallback(static function (string $name, $type, array $options = []) use (&$addCalls, $builder): MockObject {
             $addCalls[] = ['name' => $name, 'options' => $options];
 
             return $builder;

@@ -15,6 +15,7 @@ return RectorConfig::configure()
             __DIR__ . '/tests/Unit/DependencyInjection/Compiler/AutoTagPermissionCheckersPassTest.php',
         ],
     ])
+    ->withParallel(300, 2, 10)
     ->withPhpSets(php82: true)
     ->withPreparedSets(
         deadCode: true,

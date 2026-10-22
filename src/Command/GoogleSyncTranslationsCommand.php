@@ -46,6 +46,21 @@ use const JSON_THROW_ON_ERROR;
 )]
 final class GoogleSyncTranslationsCommand extends Command
 {
+    /** Google Translate v2 endpoint; `%s` receives the URL-encoded API key. */
+    public const DEFAULT_ENDPOINT = 'https://translation.googleapis.com/language/translate/v2?key=%s';
+
+    /** Default per-request timeout in seconds (REQ-RUNTIME-001). */
+    public const DEFAULT_TIMEOUT = 20.0;
+
+    /**
+     * @param string $endpointTemplate Translate endpoint with a `%s` placeholder for the API key (overridable for tests)
+     */
+    public function __construct(
+        private readonly string $endpointTemplate = self::DEFAULT_ENDPOINT,
+    ) {
+        parent::__construct();
+    }
+
     protected function configure(): void
     {
         $this
@@ -55,6 +70,7 @@ final class GoogleSyncTranslationsCommand extends Command
             ->addOption('write', null, InputOption::VALUE_NONE, 'Write translated values back to files')
             ->addOption('api-key', null, InputOption::VALUE_REQUIRED, 'Google Translate API key (or env GOOGLE_TRANSLATE_API_KEY)')
             ->addOption('strict', null, InputOption::VALUE_NONE, 'Exit with failure when missing keys are found')
+            ->addOption('timeout', null, InputOption::VALUE_REQUIRED, 'Timeout in seconds of each Google Translate request', (string) self::DEFAULT_TIMEOUT)
             ->setHelp(
                 'Compares bundle YAML translation files against a base locale and reports missing keys.' . "\n\n"
                 . 'Pass <info>--translate-missing</info> to auto-translate via the Google Translate REST API' . "\n"
@@ -149,7 +165,8 @@ final class GoogleSyncTranslationsCommand extends Command
             return $strict ? Command::FAILURE : Command::SUCCESS;
         }
 
-        $apiKey = trim((string) ($input->getOption('api-key') ?: ($_SERVER['GOOGLE_TRANSLATE_API_KEY'] ?? getenv('GOOGLE_TRANSLATE_API_KEY') ?: '')));
+        $timeout = max(0.1, (float) $input->getOption('timeout'));
+        $apiKey  = trim((string) ($input->getOption('api-key') ?: ($_SERVER['GOOGLE_TRANSLATE_API_KEY'] ?? getenv('GOOGLE_TRANSLATE_API_KEY') ?: '')));
         if ($apiKey === '') {
             $io->error('Google API key required. Use --api-key or GOOGLE_TRANSLATE_API_KEY.');
 
@@ -169,7 +186,7 @@ final class GoogleSyncTranslationsCommand extends Command
                 if (!is_string($source) || trim($source) === '') {
                     continue;
                 }
-                $translated = $this->translateWithGoogle($apiKey, $source, $baseLocale, $locale);
+                $translated = $this->translateWithGoogle($apiKey, $source, $baseLocale, $locale, $timeout);
                 $this->setNestedValue($targetData, explode('.', $key), $translated);
                 ++$translatedCount;
                 $io->text(sprintf('Translated [%s] %s', $locale, $key));
@@ -254,9 +271,12 @@ final class GoogleSyncTranslationsCommand extends Command
         }
     }
 
-    private function translateWithGoogle(string $apiKey, string $text, string $sourceLocale, string $targetLocale): string
+    /**
+     * Translates one string; on timeout, transport failure or an unexpected answer the source text is kept.
+     */
+    private function translateWithGoogle(string $apiKey, string $text, string $sourceLocale, string $targetLocale, float $timeout = self::DEFAULT_TIMEOUT): string
     {
-        $endpoint = sprintf('https://translation.googleapis.com/language/translate/v2?key=%s', rawurlencode($apiKey));
+        $endpoint = sprintf($this->endpointTemplate, rawurlencode($apiKey));
         $payload  = json_encode([
             'q'      => $text,
             'source' => $sourceLocale,
@@ -269,11 +289,11 @@ final class GoogleSyncTranslationsCommand extends Command
                 'method'  => 'POST',
                 'header'  => "Content-Type: application/json\r\n",
                 'content' => $payload,
-                'timeout' => 20,
+                'timeout' => $timeout,
             ],
         ]);
 
-        $raw = file_get_contents($endpoint, false, $context);
+        $raw = @file_get_contents($endpoint, false, $context);
         if (!is_string($raw) || trim($raw) === '') {
             return $text;
         }

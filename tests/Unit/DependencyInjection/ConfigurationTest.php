@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nowo\DashboardMenuBundle\Tests\DependencyInjection;
 
 use Nowo\DashboardMenuBundle\DependencyInjection\Configuration;
+use Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\Definition\Processor;
@@ -100,14 +101,14 @@ final class ConfigurationTest extends TestCase
         $config    = $processor->processConfiguration(new Configuration(), [
             [
                 'permission_checker_choices' => [
-                    \Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker::class,
+                    AllowAllMenuPermissionChecker::class,
                     'App\Service\DemoMenuPermissionChecker',
                 ],
             ],
         ]);
 
         self::assertSame(
-            [\Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker::class, 'App\Service\DemoMenuPermissionChecker'],
+            [AllowAllMenuPermissionChecker::class, 'App\Service\DemoMenuPermissionChecker'],
             $config['permission_checker_choices'],
         );
     }

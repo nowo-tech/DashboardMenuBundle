@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\Tests\Twig;
 
+use Doctrine\DBAL\Connection;
 use Nowo\DashboardMenuBundle\DataCollector\DashboardMenuDataCollector;
 use Nowo\DashboardMenuBundle\DataCollector\MenuQueryCounter;
 use Nowo\DashboardMenuBundle\Entity\Menu;
@@ -25,9 +26,12 @@ use ReflectionProperty;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
+use Twig\Markup;
+use Twig\TwigFunction;
 
 final class MenuExtensionTest extends TestCase
 {
@@ -36,7 +40,7 @@ final class MenuExtensionTest extends TestCase
         $extension = $this->createExtension();
         $functions = $extension->getFunctions();
         self::assertCount(4, $functions);
-        $names = array_map(static fn (\Twig\TwigFunction $f): string => $f->getName(), $functions);
+        $names = array_map(static fn (TwigFunction $f): string => $f->getName(), $functions);
         self::assertContains('dashboard_menu_tree', $names);
         self::assertContains('dashboard_menu_href', $names);
         self::assertContains('dashboard_menu_config', $names);
@@ -49,7 +53,7 @@ final class MenuExtensionTest extends TestCase
 
         self::assertSame('btn btn-primary', $extension->getUiClass('button_primary', 'btn btn-primary'));
         self::assertSame('', $extension->getUiClass('button_primary'));
-        self::assertSame('ui-macro', $extension->getUiClass('table', new \Twig\Markup('ui-macro', 'UTF-8')));
+        self::assertSame('ui-macro', $extension->getUiClass('table', new Markup('ui-macro', 'UTF-8')));
 
         $globals = $extension->getGlobals();
         self::assertArrayHasKey('nowo_dashboard_menu_ui', $globals);
@@ -190,7 +194,7 @@ final class MenuExtensionTest extends TestCase
         $dataCollector = new DashboardMenuDataCollector();
         $extension     = $this->createExtension(menuTreeLoader: $loader, requestStack: $stack, dataCollector: $dataCollector);
         $result        = $extension->getMenuTree('nav');
-        $dataCollector->collect($request, new \Symfony\Component\HttpFoundation\Response());
+        $dataCollector->collect($request, new Response());
 
         self::assertCount(1, $result);
         self::assertSame(['locale' => 'en'], $dataCollector->getMenus()[0]['resolved_context'] ?? null);
@@ -212,7 +216,7 @@ final class MenuExtensionTest extends TestCase
         $dataCollector = new DashboardMenuDataCollector();
         $extension     = $this->createExtension(menuTreeLoader: $loader, requestStack: $stack, dataCollector: $dataCollector);
         $extension->getMenuTree('nav');
-        $dataCollector->collect($request, new \Symfony\Component\HttpFoundation\Response());
+        $dataCollector->collect($request, new Response());
 
         self::assertCount(1, $dataCollector->getMenus());
         self::assertNull($dataCollector->getMenus()[0]['resolved_context']);
@@ -233,7 +237,7 @@ final class MenuExtensionTest extends TestCase
 
         $dataCollector    = new DashboardMenuDataCollector();
         $menuQueryCounter = new MenuQueryCounter();
-        $connection       = $this->createStub(\Doctrine\DBAL\Connection::class);
+        $connection       = $this->createStub(Connection::class);
         $connection->method('getConfiguration')->willThrowException(new RuntimeException('no config'));
 
         $extension = $this->createExtension(
@@ -244,7 +248,7 @@ final class MenuExtensionTest extends TestCase
             connection: $connection,
         );
         $extension->getMenuTree('nav');
-        $dataCollector->collect($request, new \Symfony\Component\HttpFoundation\Response());
+        $dataCollector->collect($request, new Response());
 
         self::assertCount(1, $dataCollector->getMenus());
         self::assertSame(0, $dataCollector->getMenus()[0]['query_count']);
@@ -257,7 +261,7 @@ final class MenuExtensionTest extends TestCase
         ?RequestStack $requestStack = null,
         ?DashboardMenuDataCollector $dataCollector = null,
         ?MenuQueryCounter $menuQueryCounter = null,
-        ?\Doctrine\DBAL\Connection $connection = null,
+        ?Connection $connection = null,
     ): MenuExtension {
         $menuRepo = $this->createStub(MenuRepository::class);
         $menuRepo->method('findForCodeWithContextSets')->willReturn(null);

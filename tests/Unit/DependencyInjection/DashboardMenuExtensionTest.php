@@ -4,15 +4,28 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\Tests\DependencyInjection;
 
+use Nowo\DashboardMenuBundle\DataCollector\DashboardMenuDataCollector;
 use Nowo\DashboardMenuBundle\DependencyInjection\Configuration;
 use Nowo\DashboardMenuBundle\DependencyInjection\DashboardMenuExtension;
+use Nowo\DashboardMenuBundle\EventSubscriber\DashboardAccessSubscriber;
 use Nowo\DashboardMenuBundle\Form\SearchQueryType;
+use Nowo\DashboardMenuBundle\Security\AllowAllDashboardMenuAccessChecker;
+use Nowo\DashboardMenuBundle\Security\ConfigurableDashboardMenuAccessChecker;
+use Nowo\DashboardMenuBundle\Security\DashboardMenuAccessCheckerInterface;
+use Nowo\DashboardMenuBundle\Service\DashboardUiConfig;
+use Nowo\DashboardMenuBundle\Service\ImportExportRateLimiter;
 use Nowo\DashboardMenuBundle\Twig\MenuExtension;
 use Nowo\DashboardMenuBundle\View\DashboardPages;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\UX\Autocomplete\AutocompleteBundle;
+use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 
 final class DashboardMenuExtensionTest extends TestCase
 {
@@ -33,11 +46,11 @@ final class DashboardMenuExtensionTest extends TestCase
      */
     public function testBPrependRegistersLiveComponentTwigComponentDefaultsWhenClassExists(): void
     {
-        if (!class_exists(\Symfony\UX\LiveComponent\Attribute\AsLiveComponent::class)) {
+        if (!class_exists(AsLiveComponent::class)) {
             eval('namespace Symfony\\UX\\LiveComponent\\Attribute; class AsLiveComponent {}');
         }
 
-        self::assertTrue(class_exists(\Symfony\UX\LiveComponent\Attribute\AsLiveComponent::class));
+        self::assertTrue(class_exists(AsLiveComponent::class));
 
         $container = new ContainerBuilder();
         $extension = new DashboardMenuExtension();
@@ -62,7 +75,7 @@ final class DashboardMenuExtensionTest extends TestCase
         $container = new ContainerBuilder();
         $container->setParameter('kernel.environment', 'prod');
         $container->setParameter('kernel.bundles', [
-            \Symfony\UX\Autocomplete\AutocompleteBundle::class => new stdClass(),
+            AutocompleteBundle::class => new stdClass(),
         ]);
 
         $extension = new DashboardMenuExtension();
@@ -101,7 +114,7 @@ final class DashboardMenuExtensionTest extends TestCase
         self::assertIsArray($ui);
         self::assertSame('table', $ui['index_view']);
         self::assertSame('data-table', $ui['classes']['table']);
-        self::assertTrue($container->hasDefinition(\Nowo\DashboardMenuBundle\Service\DashboardUiConfig::class));
+        self::assertTrue($container->hasDefinition(DashboardUiConfig::class));
     }
 
     /**
@@ -109,7 +122,7 @@ final class DashboardMenuExtensionTest extends TestCase
      */
     public function testDLoadSetsStimulusScriptUrlWhenMissingAndLiveComponentEnabled(): void
     {
-        if (!class_exists(\Symfony\UX\LiveComponent\Attribute\AsLiveComponent::class)) {
+        if (!class_exists(AsLiveComponent::class)) {
             eval('namespace Symfony\\UX\\LiveComponent\\Attribute; class AsLiveComponent {}');
         }
 
@@ -151,8 +164,8 @@ final class DashboardMenuExtensionTest extends TestCase
         self::assertSame(['ROLE_ADMIN'], $container->getParameter(Configuration::ALIAS . '.security.access_roles'));
         self::assertFalse($container->getParameter(Configuration::ALIAS . '.security.allow_unauthenticated'));
         self::assertSame('ROLE_ADMIN', $container->getParameter(Configuration::ALIAS . '.dashboard.required_role'));
-        self::assertFalse($container->hasDefinition(\Nowo\DashboardMenuBundle\EventSubscriber\DashboardAccessSubscriber::class));
-        self::assertTrue($container->hasAlias(\Nowo\DashboardMenuBundle\Security\DashboardMenuAccessCheckerInterface::class));
+        self::assertFalse($container->hasDefinition(DashboardAccessSubscriber::class));
+        self::assertTrue($container->hasAlias(DashboardMenuAccessCheckerInterface::class));
     }
 
     public function testLoadTagsSearchQueryTypeAsFormType(): void
@@ -207,8 +220,8 @@ final class DashboardMenuExtensionTest extends TestCase
     {
         $container = new ContainerBuilder();
         $container->setParameter('kernel.environment', 'prod');
-        $container->setDefinition('app.custom_access_checker', new \Symfony\Component\DependencyInjection\Definition(
-            \Nowo\DashboardMenuBundle\Security\AllowAllDashboardMenuAccessChecker::class,
+        $container->setDefinition('app.custom_access_checker', new Definition(
+            AllowAllDashboardMenuAccessChecker::class,
         ));
 
         $extension = new DashboardMenuExtension();
@@ -222,7 +235,7 @@ final class DashboardMenuExtensionTest extends TestCase
 
         self::assertSame(
             'app.custom_access_checker',
-            (string) $container->getAlias(\Nowo\DashboardMenuBundle\Security\DashboardMenuAccessCheckerInterface::class),
+            (string) $container->getAlias(DashboardMenuAccessCheckerInterface::class),
         );
     }
 
@@ -243,7 +256,7 @@ final class DashboardMenuExtensionTest extends TestCase
         self::assertTrue($container->hasDefinition('nowo_dashboard_menu.access_checker.allow_all'));
         self::assertSame(
             'nowo_dashboard_menu.access_checker.allow_all',
-            (string) $container->getAlias(\Nowo\DashboardMenuBundle\Security\DashboardMenuAccessCheckerInterface::class),
+            (string) $container->getAlias(DashboardMenuAccessCheckerInterface::class),
         );
     }
 
@@ -251,19 +264,19 @@ final class DashboardMenuExtensionTest extends TestCase
     {
         $container = new ContainerBuilder();
         $container->setParameter('kernel.environment', 'prod');
-        $container->setDefinition('security.authorization_checker', new \Symfony\Component\DependencyInjection\Definition());
-        $container->setDefinition('logger', new \Symfony\Component\DependencyInjection\Definition());
+        $container->setDefinition('security.authorization_checker', new Definition());
+        $container->setDefinition('logger', new Definition());
 
         $extension = new DashboardMenuExtension();
         $extension->load([[]], $container);
 
         $definition = $container->getDefinition('nowo_dashboard_menu.access_checker.default');
         self::assertSame(
-            \Nowo\DashboardMenuBundle\Security\ConfigurableDashboardMenuAccessChecker::class,
+            ConfigurableDashboardMenuAccessChecker::class,
             $definition->getClass(),
         );
         self::assertArrayHasKey('$authorizationChecker', $definition->getArguments());
-        $limiter = $container->getDefinition(\Nowo\DashboardMenuBundle\Service\ImportExportRateLimiter::class);
+        $limiter = $container->getDefinition(ImportExportRateLimiter::class);
         self::assertArrayHasKey('$logger', $limiter->getArguments());
     }
 
@@ -304,7 +317,7 @@ final class DashboardMenuExtensionTest extends TestCase
         $def = $container->getDefinition(MenuExtension::class);
         $ref = $def->getArgument('$dataCollector');
         self::assertInstanceOf(Reference::class, $ref);
-        self::assertSame(\Nowo\DashboardMenuBundle\DataCollector\DashboardMenuDataCollector::class, (string) $ref);
+        self::assertSame(DashboardMenuDataCollector::class, (string) $ref);
     }
 
     public function testLoadWithCustomConfigSetsParameters(): void
@@ -391,7 +404,7 @@ final class DashboardMenuExtensionTest extends TestCase
     public function testPrependRegistersAssetsPackageWhenFrameworkExtensionExists(): void
     {
         $container = new ContainerBuilder();
-        $container->registerExtension(new class extends \Symfony\Component\DependencyInjection\Extension\Extension {
+        $container->registerExtension(new class extends Extension {
             public function getAlias(): string
             {
                 return 'framework';
@@ -421,7 +434,7 @@ final class DashboardMenuExtensionTest extends TestCase
     public function testPrependAlignsUiKitDefaultsFromDashboardWhenHostUnset(): void
     {
         $container = new ContainerBuilder();
-        $container->registerExtension(new class extends \Symfony\Component\DependencyInjection\Extension\Extension {
+        $container->registerExtension(new class extends Extension {
             public function getAlias(): string
             {
                 return 'nowo_ui_kit';
@@ -456,7 +469,7 @@ final class DashboardMenuExtensionTest extends TestCase
     public function testPrependDoesNotOverrideExplicitUiKitHostConfig(): void
     {
         $container = new ContainerBuilder();
-        $container->registerExtension(new class extends \Symfony\Component\DependencyInjection\Extension\Extension {
+        $container->registerExtension(new class extends Extension {
             public function getAlias(): string
             {
                 return 'nowo_ui_kit';
@@ -544,9 +557,7 @@ final class DashboardMenuExtensionTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider formKitCssFrameworkProvider
-     */
+    #[DataProvider('formKitCssFrameworkProvider')]
     public function testPrependMapsDashboardCssFrameworkToFormKit(string $dashboardFw, string $expectedFormKitFw): void
     {
         $container = new ContainerBuilder();
@@ -635,7 +646,7 @@ final class DashboardMenuExtensionTest extends TestCase
         self::assertSame([], $container->getExtensionConfig('nowo_form_kit'));
     }
 
-    #[\PHPUnit\Framework\Attributes\IgnoreDeprecations]
+    #[IgnoreDeprecations]
     public function testPrependBridgesTheDeprecatedChromeIntoTheUiKitTheme(): void
     {
         $container = new ContainerBuilder();
@@ -651,7 +662,7 @@ final class DashboardMenuExtensionTest extends TestCase
         self::assertArrayNotHasKey('css_framework', $configs[0], 'Default dashboard.css_framework is not seeded (UiKit owns the stack).');
     }
 
-    #[\PHPUnit\Framework\Attributes\IgnoreDeprecations]
+    #[IgnoreDeprecations]
     public function testPrependSeedsUiKitOnlyFromExplicitDashboardStack(): void
     {
         $container = new ContainerBuilder();
@@ -683,7 +694,7 @@ final class DashboardMenuExtensionTest extends TestCase
         self::assertTrue($formKit['profiles']['dashboard_menu']['convention_requires_translation']);
     }
 
-    #[\PHPUnit\Framework\Attributes\IgnoreDeprecations]
+    #[IgnoreDeprecations]
     public function testLoadMapsTheDeprecatedDashboardKeysToWebUi(): void
     {
         $container = new ContainerBuilder();
@@ -729,7 +740,7 @@ final class DashboardMenuExtensionTest extends TestCase
 
     private function registerStubExtension(ContainerBuilder $container, string $alias): void
     {
-        $container->registerExtension(new class($alias) extends \Symfony\Component\DependencyInjection\Extension\Extension {
+        $container->registerExtension(new class($alias) extends Extension {
             public function __construct(private readonly string $extensionAlias)
             {
             }

@@ -13,6 +13,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Extension\Extension;
 
 /**
  * nowo_dashboard_menu.locales as a literal list, a parameter or an env placeholder (direct load() callers).
@@ -73,7 +74,7 @@ final class LocalesConfigTest extends TestCase
     public function testPrependIgnoresParameterStringsOutsideTheDashboardNode(): void
     {
         $container = $this->container();
-        $container->registerExtension(new class extends \Symfony\Component\DependencyInjection\Extension\Extension {
+        $container->registerExtension(new class extends Extension {
             public function load(array $configs, ContainerBuilder $container): void
             {
             }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\DependencyInjection;
 
+use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
 use Nowo\DashboardMenuBundle\DataCollector\DashboardMenuDataCollector;
 use Nowo\DashboardMenuBundle\DataCollector\MenuQueryCounter;
 use Nowo\DashboardMenuBundle\DataCollector\MenuQueryCountMiddleware;
@@ -36,6 +37,8 @@ use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\UX\Autocomplete\AutocompleteBundle;
+use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Throwable;
 
 use function array_key_exists;
@@ -77,7 +80,7 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
             ]);
         }
 
-        if (class_exists(\Symfony\UX\LiveComponent\Attribute\AsLiveComponent::class)) {
+        if (class_exists(AsLiveComponent::class)) {
             $container->prependExtensionConfig('twig_component', [
                 'defaults' => [
                     'Nowo\\DashboardMenuBundle\\LiveComponent\\' => 'components/',
@@ -262,14 +265,14 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
 
         $container->setParameter(
             Configuration::ALIAS . '.dashboard.item_form_live_component_enabled',
-            class_exists(\Symfony\UX\LiveComponent\Attribute\AsLiveComponent::class),
+            class_exists(AsLiveComponent::class),
         );
         $uxAutocompleteAvailable = false;
-        if (class_exists(\Symfony\UX\Autocomplete\AutocompleteBundle::class)) {
+        if (class_exists(AutocompleteBundle::class)) {
             try {
                 /** @var array<string, mixed> $bundles */
                 $bundles                 = $container->getParameter('kernel.bundles');
-                $uxAutocompleteAvailable = array_key_exists(\Symfony\UX\Autocomplete\AutocompleteBundle::class, $bundles);
+                $uxAutocompleteAvailable = array_key_exists(AutocompleteBundle::class, $bundles);
             } catch (Throwable) {
                 $uxAutocompleteAvailable = false;
             }
@@ -279,7 +282,7 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.yaml');
 
-        if (class_exists(\Symfony\UX\LiveComponent\Attribute\AsLiveComponent::class)) {
+        if (class_exists(AsLiveComponent::class)) {
             $loader->load('services_live_component.yaml');
         }
 
@@ -294,7 +297,7 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
             $menuExtensionDef->setArgument('$menuQueryCounter', new Reference(MenuQueryCounter::class));
             $menuExtensionDef->setArgument('$connection', new Reference('doctrine.dbal.' . $connectionName . '_connection'));
             // Register query-count middleware when DBAL exposes Middleware (3.3+); DBAL 4 has no SQLLogger.
-            if (class_exists(\Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware::class)) {
+            if (class_exists(AbstractDriverMiddleware::class)) {
                 $container->register(MenuQueryCountMiddleware::class, MenuQueryCountMiddleware::class)
                     ->setArguments([new Reference(MenuQueryCounter::class)])
                     ->addTag('doctrine.middleware', ['connection' => $connectionName, 'priority' => 20]);
@@ -411,7 +414,7 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
         $container->setParameter(Configuration::ALIAS . '.dashboard.icon_selector_script_url', $config['dashboard']['icon_selector_script_url'] ?? null);
         $dashboardConfig = $config['dashboard'] ?? [];
         $stimulusUrl     = $dashboardConfig['stimulus_script_url'] ?? null;
-        $liveEnabled     = class_exists(\Symfony\UX\LiveComponent\Attribute\AsLiveComponent::class);
+        $liveEnabled     = class_exists(AsLiveComponent::class);
         // If UX LiveComponent is available and the user didn't configure a custom stimulus URL,
         // fall back to the bundle default that exposes window.Stimulus.
         if ($stimulusUrl === null && $liveEnabled) {

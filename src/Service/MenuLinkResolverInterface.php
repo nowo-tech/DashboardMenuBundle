@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\Service;
 
+use Nowo\DashboardMenuBundle\Attribute\MenuLinkResolverLabel;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -16,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
  * persisted children and ordered by `position` (see {@see MenuTreeLoader}).
  *
  * Optional: public const string DASHBOARD_LABEL = '…' for the dashboard dropdown label,
- * or use {@see \Nowo\DashboardMenuBundle\Attribute\MenuLinkResolverLabel}.
+ * or use {@see MenuLinkResolverLabel}.
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech

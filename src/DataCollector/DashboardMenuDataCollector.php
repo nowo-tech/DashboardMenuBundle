@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;
 use Symfony\Component\HttpKernel\DataCollector\LateDataCollectorInterface;
+use Symfony\Component\HttpKernel\Profiler\Profiler;
 use Symfony\Contracts\Service\ResetInterface;
 use Throwable;
 
@@ -49,7 +50,7 @@ final class DashboardMenuDataCollector extends DataCollector implements LateData
     private ?int $menuRelatedQueryCount = null;
 
     public function __construct(
-        private readonly ?\Symfony\Component\HttpKernel\Profiler\Profiler $profiler = null,
+        private readonly ?Profiler $profiler = null,
         private readonly ?MenuIconNameResolver $menuIconNameResolver = null,
         /** @var array<string, mixed> */
         private readonly array $bundleConfig = [],
@@ -123,7 +124,7 @@ final class DashboardMenuDataCollector extends DataCollector implements LateData
 
     public function lateCollect(): void
     {
-        if (!$this->profiler instanceof \Symfony\Component\HttpKernel\Profiler\Profiler) {
+        if (!$this->profiler instanceof Profiler) {
             return;
         }
         try {

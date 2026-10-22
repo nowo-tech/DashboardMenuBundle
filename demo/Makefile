@@ -137,7 +137,7 @@ demo-smoke:
 	echo "Demo smoke: symfony8 (http://127.0.0.1:$$PORT)"; \
 	$(MAKE) -C symfony8 up || exit 1; \
 	sleep 12; \
-	code=$$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:$$PORT" || true); \
+	code=$$(curl -sL -o /dev/null -w "%{http_code}" "http://127.0.0.1:$$PORT/" || true); \
 	[ -z "$$code" ] && code=000; \
 	$(MAKE) -C symfony8 down 2>/dev/null || true; \
 	if [ "$$code" != "200" ]; then echo "symfony8 failed with HTTP $$code"; exit 1; fi; \

@@ -31,6 +31,7 @@ use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Csrf\CsrfExtension;
 use Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormFactoryBuilder;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormView;
@@ -312,10 +313,10 @@ final class DashboardPageFixtures
             'include_translations' => $isEdit,
         ]);
         if ($withError) {
-            $form->get('basic')->get('label')->addError(new \Symfony\Component\Form\FormError('This value should not be blank.'));
+            $form->get('basic')->get('label')->addError(new FormError('This value should not be blank.'));
         }
         if ($labelErrorLocale !== null) {
-            $form->get('basic')->get('label_' . $labelErrorLocale)->addError(new \Symfony\Component\Form\FormError('This value is too long.'));
+            $form->get('basic')->get('label_' . $labelErrorLocale)->addError(new FormError('This value is too long.'));
         }
         $view = $form->createView();
         if ($labelErrorLocale !== null) {

@@ -142,7 +142,7 @@ final class MenuItemBasicType extends AbstractType
             foreach ($availableLocales as $locale) {
                 $child = $view->children['label_' . $locale] ?? null;
                 if ($child instanceof FormView) {
-                    $child->vars['attr']['data-model'] = 'on(change)|' . self::modelPath((string) $child->vars['full_name']);
+                    $child->vars['attr']['data-model'] = 'on(change)|' . $this->modelPath((string) $child->vars['full_name']);
                 }
             }
         }
@@ -191,7 +191,7 @@ final class MenuItemBasicType extends AbstractType
     }
 
     /** `menu_item[basic][label_es]` → `menu_item.basic.label_es` (Live Component model path). */
-    private static function modelPath(string $fullName): string
+    private function modelPath(string $fullName): string
     {
         return str_replace(['][', '[', ']'], ['.', '.', ''], $fullName);
     }

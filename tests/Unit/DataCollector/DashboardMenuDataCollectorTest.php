@@ -6,11 +6,13 @@ namespace Nowo\DashboardMenuBundle\Tests\DataCollector;
 
 use Nowo\DashboardMenuBundle\DataCollector\DashboardMenuDataCollector;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
+use Nowo\DashboardMenuBundle\Service\MenuIconNameResolver;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollectorInterface;
+use Symfony\Component\HttpKernel\Profiler\Profiler;
 use Symfony\Contracts\Service\ResetInterface;
 use Throwable;
 
@@ -100,7 +102,7 @@ final class DashboardMenuDataCollectorTest extends TestCase
 
     public function testLateCollectWithProfilerThrowingResetsNothing(): void
     {
-        $profiler = $this->createMock(\Symfony\Component\HttpKernel\Profiler\Profiler::class);
+        $profiler = $this->createMock(Profiler::class);
         $profiler->method('get')->with('db')->willThrowException(new RuntimeException('No db'));
         $collector = new DashboardMenuDataCollector($profiler);
         $collector->addMenuLoad('sidebar', [], []);
@@ -140,7 +142,7 @@ final class DashboardMenuDataCollectorTest extends TestCase
                 ];
             }
         };
-        $profiler = $this->createMock(\Symfony\Component\HttpKernel\Profiler\Profiler::class);
+        $profiler = $this->createMock(Profiler::class);
         $profiler->method('get')->with('db')->willReturn($dbCollector);
         $collector = new DashboardMenuDataCollector($profiler);
         $collector->collect(new Request(), new Response());
@@ -177,7 +179,7 @@ final class DashboardMenuDataCollectorTest extends TestCase
                 ];
             }
         };
-        $profiler = $this->createMock(\Symfony\Component\HttpKernel\Profiler\Profiler::class);
+        $profiler = $this->createMock(Profiler::class);
         $profiler->method('get')->with('db')->willReturn($dbCollector);
         $collector = new DashboardMenuDataCollector($profiler);
         $collector->collect(new Request(), new Response());
@@ -213,7 +215,7 @@ final class DashboardMenuDataCollectorTest extends TestCase
                 ];
             }
         };
-        $profiler = $this->createMock(\Symfony\Component\HttpKernel\Profiler\Profiler::class);
+        $profiler = $this->createMock(Profiler::class);
         $profiler->method('get')->with('db')->willReturn($dbCollector);
         $collector = new DashboardMenuDataCollector($profiler);
         $collector->collect(new Request(), new Response());
@@ -238,7 +240,7 @@ final class DashboardMenuDataCollectorTest extends TestCase
             {
             }
         };
-        $profiler = $this->createMock(\Symfony\Component\HttpKernel\Profiler\Profiler::class);
+        $profiler = $this->createMock(Profiler::class);
         $profiler->method('get')->with('db')->willReturn($dbCollector);
         $collector = new DashboardMenuDataCollector($profiler);
         $collector->collect(new Request(), new Response());
@@ -275,7 +277,7 @@ final class DashboardMenuDataCollectorTest extends TestCase
                 ];
             }
         };
-        $profiler = $this->createMock(\Symfony\Component\HttpKernel\Profiler\Profiler::class);
+        $profiler = $this->createMock(Profiler::class);
         $profiler->method('get')->with('db')->willReturn($dbCollector);
         $collector = new DashboardMenuDataCollector($profiler);
         $collector->collect(new Request(), new Response());
@@ -313,7 +315,7 @@ final class DashboardMenuDataCollectorTest extends TestCase
 
     public function testSummarizeTreeResolvesIconWhenMenuIconNameResolverSet(): void
     {
-        $iconResolver = new \Nowo\DashboardMenuBundle\Service\MenuIconNameResolver(['bootstrap-icons' => 'bi']);
+        $iconResolver = new MenuIconNameResolver(['bootstrap-icons' => 'bi']);
         $collector    = new DashboardMenuDataCollector(null, $iconResolver);
         $item         = new MenuItem();
         $item->setLabel('Home');

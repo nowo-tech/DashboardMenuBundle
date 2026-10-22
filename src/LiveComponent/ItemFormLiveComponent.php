@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\LiveComponent;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Form\MenuItemType;
@@ -11,6 +12,7 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
@@ -35,7 +37,7 @@ final class ItemFormLiveComponent
 
     public function __construct(
         private readonly FormFactoryInterface $formFactory,
-        private readonly \Doctrine\ORM\EntityManagerInterface $entityManager,
+        private readonly EntityManagerInterface $entityManager,
         private readonly RequestStack $requestStack,
     ) {
     }
@@ -359,7 +361,7 @@ final class ItemFormLiveComponent
         $this->entityManager->flush();
 
         // @igor-ignore - UX Live Component holds request-scoped form state
-        /** @var \Symfony\Component\HttpFoundation\Session\Session $session */
+        /** @var Session $session */
         // @igor-ignore - UX Live Component holds request-scoped form state
         $session = $this->requestStack->getSession();
         // @igor-ignore - UX Live Component holds request-scoped form state

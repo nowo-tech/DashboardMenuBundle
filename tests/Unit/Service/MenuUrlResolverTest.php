@@ -16,9 +16,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\Loader\ClosureLoader;
 use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Router;
 use Symfony\Component\Routing\RouterInterface;
@@ -137,7 +139,7 @@ final class MenuUrlResolverTest extends TestCase
             ->with('app_page', ['_locale' => 'es', 'section' => 'info'], UrlGeneratorInterface::ABSOLUTE_PATH)
             ->willReturn('/es/info');
 
-        $route           = new \Symfony\Component\Routing\Route('/{_locale}/info');
+        $route           = new Route('/{_locale}/info');
         $routeCollection = new RouteCollection();
         $routeCollection->add('app_page', $route);
 
@@ -187,7 +189,7 @@ final class MenuUrlResolverTest extends TestCase
         $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
         $urlGenerator
             ->method('generate')
-            ->willThrowException(new \Symfony\Component\Routing\Exception\RouteNotFoundException('Route does not exist'));
+            ->willThrowException(new RouteNotFoundException('Route does not exist'));
 
         $resolver = $this->createResolver($urlGenerator, new RequestStack());
 
@@ -203,7 +205,7 @@ final class MenuUrlResolverTest extends TestCase
         $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
         $urlGenerator
             ->method('generate')
-            ->willThrowException(new \Symfony\Component\Routing\Exception\RouteNotFoundException('Route does not exist'));
+            ->willThrowException(new RouteNotFoundException('Route does not exist'));
 
         $request = Request::create('/en/');
         $request->setLocale('en');
@@ -232,8 +234,8 @@ final class MenuUrlResolverTest extends TestCase
     {
         $cacheDir = sys_get_temp_dir() . '/nowo_dashboard_menu_router_' . bin2hex(random_bytes(4));
         $routes   = new RouteCollection();
-        $routes->add('app_partner_list', new \Symfony\Component\Routing\Route('/{_locale}/partner/{partnerMachineName}/list'));
-        $routes->add('app_plain', new \Symfony\Component\Routing\Route('/plain'));
+        $routes->add('app_partner_list', new Route('/{_locale}/partner/{partnerMachineName}/list'));
+        $routes->add('app_plain', new Route('/plain'));
 
         try {
             // Warm the compiled generator cache (url_generating_routes.php) like cache:warmup does.
@@ -279,7 +281,7 @@ final class MenuUrlResolverTest extends TestCase
         $item->setRouteName('app_show');
         $item->setRouteParams(['tab' => 'info']);
 
-        $route           = new \Symfony\Component\Routing\Route('/show/{id}/{tab}');
+        $route           = new Route('/show/{id}/{tab}');
         $routeCollection = new RouteCollection();
         $routeCollection->add('app_show', $route);
 
@@ -322,7 +324,7 @@ final class MenuUrlResolverTest extends TestCase
         $item->setRouteName('app_partner_home');
         $item->setRouteParams([]);
 
-        $route           = new \Symfony\Component\Routing\Route('/back-office/{partnerMachineName}/home');
+        $route           = new Route('/back-office/{partnerMachineName}/home');
         $routeCollection = new RouteCollection();
         $routeCollection->add('app_partner_home', $route);
 
@@ -375,7 +377,7 @@ final class MenuUrlResolverTest extends TestCase
         $item->setRouteName('app_partner_home');
         $item->setRouteParams([]);
 
-        $route           = new \Symfony\Component\Routing\Route('/back-office/{partnerMachineName}/home');
+        $route           = new Route('/back-office/{partnerMachineName}/home');
         $routeCollection = new RouteCollection();
         $routeCollection->add('app_partner_home', $route);
 
@@ -762,7 +764,7 @@ final class MenuUrlResolverTest extends TestCase
         );
 
         $routeCollection = new RouteCollection();
-        $routeCollection->add('partner_show', new \Symfony\Component\Routing\Route('/{_locale}/partner/{id}'));
+        $routeCollection->add('partner_show', new Route('/{_locale}/partner/{id}'));
         $router = $this->createStub(RouterInterface::class);
         $router->method('getRouteCollection')->willReturn($routeCollection);
 

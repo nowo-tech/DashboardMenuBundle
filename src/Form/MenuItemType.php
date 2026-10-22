@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\Form;
 
+use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -88,7 +89,7 @@ final class MenuItemType extends AbstractType
         $resolver->setDefined(['action']);
         $resolver->setAllowedTypes('app_routes', 'array');
         $resolver->setAllowedTypes('live_model', 'bool');
-        $resolver->setAllowedTypes('menu', [\Nowo\DashboardMenuBundle\Entity\Menu::class, 'null']);
+        $resolver->setAllowedTypes('menu', [Menu::class, 'null']);
         $resolver->setAllowedTypes('exclude_ids', 'array');
         $resolver->setAllowedTypes('locale', 'string');
         $resolver->setAllowedTypes('available_locales', 'array');

@@ -26,6 +26,7 @@ use ReflectionProperty;
 use stdClass;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 
 class MenuTreeLoaderTest extends TestCase
 {
@@ -76,7 +77,7 @@ class MenuTreeLoaderTest extends TestCase
         $tree = $loader->loadTree('main', 'en');
         self::assertCount(1, $tree);
 
-        $collector->collect(new Request(), new \Symfony\Component\HttpFoundation\Response());
+        $collector->collect(new Request(), new Response());
         $checks = $collector->getPermissionChecks();
         self::assertCount(1, $checks);
         self::assertSame('main', $checks[0]['menu_code']);

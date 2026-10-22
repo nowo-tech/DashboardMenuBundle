@@ -16,23 +16,34 @@ use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 use Nowo\DashboardMenuBundle\Service\ImportExportRateLimiter;
 use Nowo\DashboardMenuBundle\Service\MenuExporter;
 use Nowo\DashboardMenuBundle\Service\MenuImporter;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
+use Symfony\Component\Clock\MockClock;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Csrf\CsrfToken;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\Environment;
 
 use function in_array;
 
@@ -279,8 +290,8 @@ final class MenuDashboardControllerTest extends TestCase
         $controller = $this->createController(menuRepository: $menuRepo);
         $this->setControllerContainer($controller);
 
-        $this->expectException(\Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class);
-        $controller->show(999);
+        $this->expectException(NotFoundHttpException::class);
+        $controller->show(999, Request::create('/'));
     }
 
     public function testShowRendersWhenMenuFound(): void
@@ -295,7 +306,7 @@ final class MenuDashboardControllerTest extends TestCase
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
         $this->setControllerContainer($controller);
 
-        $response = $controller->show(1);
+        $response = $controller->show(1, Request::create('/'));
 
         self::assertSame(200, $response->getStatusCode());
     }
@@ -388,7 +399,7 @@ final class MenuDashboardControllerTest extends TestCase
         $controller = $this->createController(menuRepository: $menuRepo);
         $this->setControllerContainer($controller, $this->createSubmittedValidFormStub());
 
-        $this->expectException(\Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class);
+        $this->expectException(NotFoundHttpException::class);
         $controller->deleteMenu($this->createPostRequestWithCsrf(), 999);
     }
 
@@ -480,7 +491,7 @@ final class MenuDashboardControllerTest extends TestCase
         $controller = $this->createController(menuRepository: $menuRepo);
         $this->setControllerContainer($controller, $this->createSubmittedValidFormStub());
 
-        $this->expectException(\Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class);
+        $this->expectException(NotFoundHttpException::class);
         $controller->itemMoveUp($this->createPostRequestWithCsrf(), 999, 1);
     }
 
@@ -506,7 +517,7 @@ final class MenuDashboardControllerTest extends TestCase
         $controller = $this->createController(menuRepository: $menuRepo);
         $this->setControllerContainer($controller, $this->createSubmittedValidFormStub());
 
-        $this->expectException(\Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class);
+        $this->expectException(NotFoundHttpException::class);
         $controller->itemMoveDown($this->createPostRequestWithCsrf(), 999, 1);
     }
 
@@ -559,7 +570,7 @@ final class MenuDashboardControllerTest extends TestCase
         $controller = $this->createController(menuRepository: $menuRepo);
         $this->setControllerContainer($controller);
 
-        $this->expectException(\Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class);
+        $this->expectException(NotFoundHttpException::class);
         $controller->editMenu(Request::create('/999/edit'), 999);
     }
 
@@ -943,7 +954,7 @@ final class MenuDashboardControllerTest extends TestCase
         $controller = $this->createController(menuRepository: $menuRepo);
         $this->setControllerContainer($controller);
 
-        $this->expectException(\Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class);
+        $this->expectException(NotFoundHttpException::class);
         $controller->copyMenu(Request::create('/999/copy'), 999);
     }
 
@@ -1035,7 +1046,7 @@ final class MenuDashboardControllerTest extends TestCase
         $router->method('generate')->willReturn('/generated');
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, router: $router);
         $this->setControllerContainer($controller);
-        $this->expectException(\Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class);
+        $this->expectException(NotFoundHttpException::class);
         $controller->newItem(Request::create('/999/item/new'), 999);
     }
 
@@ -1165,7 +1176,7 @@ final class MenuDashboardControllerTest extends TestCase
 
         $basicForm = $this->createMock(FormInterface::class);
         $basicForm->method('has')->willReturnCallback(static fn (string $name): bool => in_array($name, ['label_en', 'label_es'], true));
-        $basicForm->method('get')->willReturnCallback(static fn (string $name): \PHPUnit\Framework\MockObject\MockObject => $name === 'label_en' ? $fieldEn : $fieldEs);
+        $basicForm->method('get')->willReturnCallback(static fn (string $name): MockObject => $name === 'label_en' ? $fieldEn : $fieldEs);
 
         $form->method('get')->willReturn($basicForm);
 
@@ -1222,7 +1233,7 @@ final class MenuDashboardControllerTest extends TestCase
 
         $basicForm = $this->createMock(FormInterface::class);
         $basicForm->method('has')->willReturnCallback(static fn (string $name): bool => $name === 'label_en');
-        $basicForm->method('get')->willReturnCallback(static fn (string $name): \PHPUnit\Framework\MockObject\MockObject => $fieldEn);
+        $basicForm->method('get')->willReturnCallback(static fn (string $name): MockObject => $fieldEn);
 
         $form->method('get')->willReturn($basicForm);
 
@@ -1295,7 +1306,7 @@ final class MenuDashboardControllerTest extends TestCase
         $router->method('generate')->willReturn('/generated');
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, router: $router);
         $this->setControllerContainer($controller);
-        $this->expectException(\Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class);
+        $this->expectException(NotFoundHttpException::class);
         $controller->editItem(Request::create('/999/item/1/edit'), 999, 1);
     }
 
@@ -1306,7 +1317,7 @@ final class MenuDashboardControllerTest extends TestCase
         $itemRepo   = $this->createMock(MenuItemRepository::class);
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
         $this->setControllerContainer($controller, $this->createSubmittedValidFormStub());
-        $this->expectException(\Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class);
+        $this->expectException(NotFoundHttpException::class);
         $controller->deleteItem($this->createPostRequestWithCsrf(), 999, 1);
     }
 
@@ -1469,7 +1480,7 @@ final class MenuDashboardControllerTest extends TestCase
         $controller = $this->createController(menuRepository: $menuRepo);
         $this->setControllerContainer($controller);
 
-        $this->expectException(\Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class);
+        $this->expectException(NotFoundHttpException::class);
         $controller->exportMenu(Request::create('/export'), 123);
     }
 
@@ -1846,10 +1857,10 @@ final class MenuDashboardControllerTest extends TestCase
         $user = $this->createMock(UserInterface::class);
         $user->method('getUserIdentifier')->willReturn('user-1');
 
-        $token = $this->createMock(\Symfony\Component\Security\Core\Authentication\Token\TokenInterface::class);
+        $token = $this->createMock(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
 
-        $tokenStorage = $this->createMock(\Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface::class);
+        $tokenStorage = $this->createMock(TokenStorageInterface::class);
         $tokenStorage->method('getToken')->willReturn($token);
 
         $router = $this->createMock(RouterInterface::class);
@@ -1860,7 +1871,7 @@ final class MenuDashboardControllerTest extends TestCase
         $formFactory->method('create')->willReturn($this->createDefaultFormStub());
 
         $session = new Session();
-        $twig    = $this->createMock(\Twig\Environment::class);
+        $twig    = $this->createMock(Environment::class);
         $twig->method('render')->willReturn('<html></html>');
 
         $requestStack = new RequestStack();
@@ -1868,18 +1879,18 @@ final class MenuDashboardControllerTest extends TestCase
         $request->setSession($session);
         $requestStack->push($request);
 
-        $csrfManager = $this->createMock(\Symfony\Component\Security\Csrf\CsrfTokenManagerInterface::class);
-        $csrfManager->method('isTokenValid')->willReturnCallback(static fn (\Symfony\Component\Security\Csrf\CsrfToken $token): bool => $token->getValue() === 'test-csrf-token');
+        $csrfManager = $this->createMock(CsrfTokenManagerInterface::class);
+        $csrfManager->method('isTokenValid')->willReturnCallback(static fn (CsrfToken $token): bool => $token->getValue() === 'test-csrf-token');
 
-        $container = new class($router, $formFactory, $session, $twig, $requestStack, $csrfManager, $tokenStorage) implements \Psr\Container\ContainerInterface {
+        $container = new class($router, $formFactory, $session, $twig, $requestStack, $csrfManager, $tokenStorage) implements ContainerInterface {
             public function __construct(
                 private readonly RouterInterface $router,
                 private readonly FormFactoryInterface $formFactory,
                 private readonly Session $session,
-                private readonly \Twig\Environment $twig,
+                private readonly Environment $twig,
                 private readonly RequestStack $requestStack,
-                private readonly \Symfony\Component\Security\Csrf\CsrfTokenManagerInterface $csrfTokenManager,
-                private readonly \Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface $tokenStorage,
+                private readonly CsrfTokenManagerInterface $csrfTokenManager,
+                private readonly TokenStorageInterface $tokenStorage,
             ) {
             }
 
@@ -1893,7 +1904,7 @@ final class MenuDashboardControllerTest extends TestCase
                     'request_stack'               => $this->requestStack,
                     'security.csrf.token_manager' => $this->csrfTokenManager,
                     'security.token_storage'      => $this->tokenStorage,
-                    default                       => throw new \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException($id),
+                    default                       => throw new ServiceNotFoundException($id),
                 };
             }
 
@@ -1923,7 +1934,7 @@ final class MenuDashboardControllerTest extends TestCase
             [$request, DashboardRoutes::ROUTE_INDEX, [], 'manual'],
         );
 
-        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $redirect);
+        self::assertInstanceOf(RedirectResponse::class, $redirect);
         self::assertSame('http://example.com/target#manual', $redirect->getTargetUrl());
     }
 
@@ -1941,7 +1952,7 @@ final class MenuDashboardControllerTest extends TestCase
             [$request, DashboardRoutes::ROUTE_INDEX, [], 'frag'],
         );
 
-        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $redirect);
+        self::assertInstanceOf(RedirectResponse::class, $redirect);
         self::assertStringContainsString('/generated', $redirect->getTargetUrl());
     }
 
@@ -2267,7 +2278,7 @@ final class MenuDashboardControllerTest extends TestCase
         $em          = $entityManager ?? $this->createMock(EntityManagerInterface::class);
         $exporter    = $menuExporter ?? new MenuExporter($menuRepo, $itemRepo);
         $importer    = $menuImporter ?? new MenuImporter($itemRepo, $menuRepo, $em);
-        $rateLimiter = $importExportRateLimiter ?? new ImportExportRateLimiter(null, 0, 60, new \Symfony\Component\Clock\MockClock());
+        $rateLimiter = $importExportRateLimiter ?? new ImportExportRateLimiter(null, 0, 60, new MockClock());
 
         return new MenuDashboardController(
             $menuRepo,
@@ -2306,7 +2317,7 @@ final class MenuDashboardControllerTest extends TestCase
 
         $session = new Session();
 
-        $twig = $this->createMock(\Twig\Environment::class);
+        $twig = $this->createMock(Environment::class);
         $twig->method('render')->willReturn('<html></html>');
 
         $requestStack = new RequestStack();
@@ -2314,17 +2325,17 @@ final class MenuDashboardControllerTest extends TestCase
         $request->setSession($session);
         $requestStack->push($request);
 
-        $csrfManager = $this->createMock(\Symfony\Component\Security\Csrf\CsrfTokenManagerInterface::class);
-        $csrfManager->method('isTokenValid')->willReturnCallback(static fn (\Symfony\Component\Security\Csrf\CsrfToken $token): bool => $token->getValue() === 'test-csrf-token');
+        $csrfManager = $this->createMock(CsrfTokenManagerInterface::class);
+        $csrfManager->method('isTokenValid')->willReturnCallback(static fn (CsrfToken $token): bool => $token->getValue() === 'test-csrf-token');
 
-        $container = new class($router, $formFactory, $session, $twig, $requestStack, $csrfManager) implements \Psr\Container\ContainerInterface {
+        $container = new class($router, $formFactory, $session, $twig, $requestStack, $csrfManager) implements ContainerInterface {
             public function __construct(
                 private readonly RouterInterface $router,
                 private readonly FormFactoryInterface $formFactory,
                 private readonly Session $session,
-                private readonly \Twig\Environment $twig,
+                private readonly Environment $twig,
                 private readonly RequestStack $requestStack,
-                private readonly \Symfony\Component\Security\Csrf\CsrfTokenManagerInterface $csrfTokenManager,
+                private readonly CsrfTokenManagerInterface $csrfTokenManager,
             ) {
             }
 
@@ -2337,7 +2348,7 @@ final class MenuDashboardControllerTest extends TestCase
                     'twig'                        => $this->twig,
                     'request_stack'               => $this->requestStack,
                     'security.csrf.token_manager' => $this->csrfTokenManager,
-                    default                       => throw new \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException($id),
+                    default                       => throw new ServiceNotFoundException($id),
                 };
             }
 
@@ -2361,7 +2372,7 @@ final class MenuDashboardControllerTest extends TestCase
 
         $session = new Session();
 
-        $twig = $this->createMock(\Twig\Environment::class);
+        $twig = $this->createMock(Environment::class);
         $twig->method('render')->willReturn('<html></html>');
 
         $requestStack = new RequestStack();
@@ -2369,17 +2380,17 @@ final class MenuDashboardControllerTest extends TestCase
         $request->setSession($session);
         $requestStack->push($request);
 
-        $csrfManager = $this->createMock(\Symfony\Component\Security\Csrf\CsrfTokenManagerInterface::class);
-        $csrfManager->method('isTokenValid')->willReturnCallback(static fn (\Symfony\Component\Security\Csrf\CsrfToken $token): bool => $token->getValue() === 'test-csrf-token');
+        $csrfManager = $this->createMock(CsrfTokenManagerInterface::class);
+        $csrfManager->method('isTokenValid')->willReturnCallback(static fn (CsrfToken $token): bool => $token->getValue() === 'test-csrf-token');
 
-        $container = new class($router, $formFactory, $session, $twig, $requestStack, $csrfManager) implements \Psr\Container\ContainerInterface {
+        $container = new class($router, $formFactory, $session, $twig, $requestStack, $csrfManager) implements ContainerInterface {
             public function __construct(
                 private readonly RouterInterface $router,
                 private readonly FormFactoryInterface $formFactory,
                 private readonly Session $session,
-                private readonly \Twig\Environment $twig,
+                private readonly Environment $twig,
                 private readonly RequestStack $requestStack,
-                private readonly \Symfony\Component\Security\Csrf\CsrfTokenManagerInterface $csrfTokenManager,
+                private readonly CsrfTokenManagerInterface $csrfTokenManager,
             ) {
             }
 
@@ -2392,7 +2403,7 @@ final class MenuDashboardControllerTest extends TestCase
                     'twig'                        => $this->twig,
                     'request_stack'               => $this->requestStack,
                     'security.csrf.token_manager' => $this->csrfTokenManager,
-                    default                       => throw new \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException($id),
+                    default                       => throw new ServiceNotFoundException($id),
                 };
             }
 

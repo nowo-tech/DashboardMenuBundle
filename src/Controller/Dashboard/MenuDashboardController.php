@@ -31,7 +31,6 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -41,7 +40,6 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
-use Twig\Environment;
 
 use function array_is_list;
 use function count;
@@ -147,10 +145,10 @@ final class MenuDashboardController extends AbstractController
         if ($this->webUi instanceof DashboardWebUi) {
             return $this->webUi;
         }
-        /** @var Environment $twig */
-        $twig = $this->container->get('twig');
 
-        return new DashboardWebUi($twig);
+        // The service definition always injects DashboardWebUi; this fallback (manual construction) skips the
+        // legacy-layout probe instead of pulling Twig from the service container (REQ-SF-003).
+        return new DashboardWebUi(null);
     }
 
     private function pages(): DashboardPages
@@ -308,7 +306,7 @@ final class MenuDashboardController extends AbstractController
     }
 
     #[Route(path: '/{id}', name: 'show', requirements: ['id' => '\d+'], methods: ['GET'])]
-    public function show(int $id): Response
+    public function show(int $id, Request $request): Response
     {
         $menu = $this->menuRepository->findOneById($id);
         if (!$menu instanceof Menu) {
@@ -353,9 +351,7 @@ final class MenuDashboardController extends AbstractController
                 'delete_item_' . $itemId,
             )->createView();
         }
-        /** @var RequestStack $requestStack */
-        $requestStack = $this->container->get('request_stack');
-        $locale       = $requestStack->getCurrentRequest()?->getLocale() ?? 'en';
+        $locale = $request->getLocale();
 
         return $this->renderPage('show', [
             'page'           => $this->pages()->showPage($menu, $items !== [], $reindexPositionsForm->createView(), $checkParentCyclesForm->createView(), $this->positionStep, $this->webUi()->layout()),

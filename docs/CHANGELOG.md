@@ -107,6 +107,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `MenuDashboardController` no longer pulls services from the container: `show()` receives the `Request` (locale), and the manual-construction fallback builds `DashboardWebUi` without Twig instead of `$this->container->get('twig')` (REQ-SF-003, REQ-DI-001).
+- `nowo_dashboard_menu:translations:google-sync` gains `--timeout` (seconds, default 20) for each Google Translate call, tested against an unresponsive endpoint and documented in USAGE (REQ-RUNTIME-001).
+- php-cs-fixer imports fully-qualified names (`fully_qualified_strict_types.import_symbols`) (REQ-CS-001); CI runs PHPStan, Rector (dry run) and Igor (REQ-CS-006); Rector is capped at 2 parallel processes; `package-lock.json` removed — pnpm is the only JS package manager (REQ-ASSETS-001).
+- `make test-coverage` prints the PHPUnit text summary, publishes `coverage-php.txt` and fails under 99% (`coverage-check` is an alias); `release-check` starts with `ensure-up` and builds assets before the QA steps (REQ-MAKE-002, REQ-TEST-008); last docblock `@dataProvider` converted to `#[DataProvider]` (REQ-TEST-010); new `Demo smoke` workflow and the demo smoke requires a final HTTP 200 (REQ-TEST-011); README/badge coverage refreshed (REQ-TEST-003); the co-author check accepts git worktrees.
+
 ## [2.10.0] - 2026-10-21
 
 Configurable intro on the menus list page (web_ui.index.intro), rendered in the UiKit page header; hosts drop their index template copy. See [UPGRADING](UPGRADING.md#to-2100).
