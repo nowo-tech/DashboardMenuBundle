@@ -118,6 +118,9 @@
 
 ## Unreleased
 
+- **Permission checkers registered by class name are now auto-tagged.** If your checker implements `MenuPermissionCheckerInterface` and is loaded through a resource (`App\:` in `services.yaml`), it now appears in the permission-checker choices and is actually used by the menus that select it. Before, it was silently replaced by `AllowAllMenuPermissionChecker`: review menus that use it, since items hidden by permission keys will now be hidden.
+- The automatic label is the `DASHBOARD_LABEL` constant, the `#[PermissionCheckerLabel]` attribute or, failing both, the service id (the FQCN). Workarounds that tag the checker explicitly in `services.yaml` keep working and keep their label; you can remove them once you rely on the auto-tag.
+
 ## To 2.11.1
 
 From **2.11.0**:

@@ -13,6 +13,7 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 
 final class AutoTagPermissionCheckersPassTest extends TestCase
 {
@@ -119,17 +120,40 @@ final class AutoTagPermissionCheckersPassTest extends TestCase
         self::assertSame('123', $tags[0]['label'] ?? null);
     }
 
-    public function testProcessSkipsWhenDefinitionClassEqualsServiceId(): void
+    public function testProcessTagsDefinitionWhoseIdIsItsClassName(): void
     {
         $container = new ContainerBuilder();
-        // Coverage: line 41 (class === service id) => continue.
-        $container->register('app.skip_same_id', 'app.skip_same_id');
+        $container->register(StubCheckerNoLabel::class, StubCheckerNoLabel::class);
 
         $this->processAutoTag($container);
 
-        self::assertFalse(
-            $container->getDefinition('app.skip_same_id')->hasTag('nowo_dashboard_menu.permission_checker'),
-        );
+        $tags = $container->getDefinition(StubCheckerNoLabel::class)->getTag('nowo_dashboard_menu.permission_checker');
+        self::assertCount(1, $tags);
+        self::assertSame(StubCheckerNoLabel::class, $tags[0]['label'] ?? null);
+    }
+
+    public function testProcessUsesServiceIdAsClassWhenDefinitionHasNoClass(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setDefinition(StubCheckerWithConstant::class, new Definition());
+
+        $this->processAutoTag($container);
+
+        $tags = $container->getDefinition(StubCheckerWithConstant::class)->getTag('nowo_dashboard_menu.permission_checker');
+        self::assertSame('Label from constant', $tags[0]['label'] ?? null);
+    }
+
+    public function testProcessKeepsLabelOfAlreadyTaggedDefinitionWhoseIdIsItsClassName(): void
+    {
+        $container = new ContainerBuilder();
+        $container->register(StubCheckerWithConstant::class, StubCheckerWithConstant::class)
+            ->addTag('nowo_dashboard_menu.permission_checker', ['label' => 'Custom from YAML']);
+
+        $this->processAutoTag($container);
+
+        $tags = $container->getDefinition(StubCheckerWithConstant::class)->getTag('nowo_dashboard_menu.permission_checker');
+        self::assertCount(1, $tags);
+        self::assertSame('Custom from YAML', $tags[0]['label'] ?? null);
     }
 
     public function testProcessSkipsWhenClassDoesNotExist(): void

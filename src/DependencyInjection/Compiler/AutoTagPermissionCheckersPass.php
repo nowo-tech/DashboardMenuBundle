@@ -36,10 +36,8 @@ final class AutoTagPermissionCheckersPass implements CompilerPassInterface
                 continue;
             }
 
-            $class = $definition->getClass();
-            if (!is_string($class) || $class === $id) {
-                continue;
-            }
+            // With resource loading the service id is the class name and getClass() may be null.
+            $class = $definition->getClass() ?? $id;
 
             try {
                 if (!class_exists($class)) {

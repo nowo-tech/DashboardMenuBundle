@@ -109,6 +109,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `AutoTagPermissionCheckersPass` skipped every definition whose service id equals its class name — the default with Symfony resource loading (`App\:` in `services.yaml`) — so host checkers implementing `MenuPermissionCheckerInterface` were never tagged `nowo_dashboard_menu.permission_checker`, were missing from the permission-checker locator, and `MenuTreeLoader` silently fell back to `AllowAllMenuPermissionChecker` (every item visible whatever its permission keys). The pass now uses the service id as the class when the definition has none and tags these definitions; abstract, synthetic, deprecated and `.instanceof.` definitions are still skipped, and an explicit tag keeps its label. See [UPGRADING](UPGRADING.md#unreleased).
+
 ## [2.11.1] - 2026-10-24
 
 Bundle controllers kept out of the application's routing.controllers import. See [UPGRADING](UPGRADING.md#to-2111).
