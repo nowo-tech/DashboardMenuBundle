@@ -117,6 +117,8 @@
 
 ## Unreleased
 
+No configuration change. If your application worked around the leaked routes (for example a compiler pass filtering `routing.loader.attribute.services`, or route exclusions for `Nowo\DashboardMenuBundle\Controller\`), remove it: the bundle now keeps its controllers out of `routing.controllers`. Import `@NowoDashboardMenuBundle/Resources/config/routes_dashboard.yaml` (with your prefix) to mount the dashboard.
+
 ## To 2.11.0
 
 From **2.10.0**:

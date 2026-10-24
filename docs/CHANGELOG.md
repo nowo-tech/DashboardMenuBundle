@@ -108,6 +108,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- The bundle controllers no longer leak into an application's `routing.controllers` import (the Symfony 7.3+ default `config/routes.yaml`). `#[Route]` autoconfiguration tagged them `routing.controller`, which mounted the dashboard at `/`, `/{id}`, `/menu/new`… even with the dashboard disabled. New `ExcludeControllersFromRoutingPass` clears that tag; the routes come only from `routes.yaml` / `routes_dashboard.yaml`. See [UPGRADING](UPGRADING.md#unreleased).
+
 ## [2.11.0] - 2026-10-22
 
 Dashboard controller without container lookups, google-sync --timeout, CI static analysis and demo smoke, coverage gate in test-coverage. See [UPGRADING](UPGRADING.md#to-2110).

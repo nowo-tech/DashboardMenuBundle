@@ -8,6 +8,7 @@ use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\AutoTagMenuLinkResolve
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\AutoTagPermissionCheckersPass;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\DashboardMenuSecurityPass;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\DataCollectorProfilerPass;
+use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\ExcludeControllersFromRoutingPass;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\MenuLinkResolverPass;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\PermissionCheckerPass;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\TwigPathsPass;
@@ -42,6 +43,7 @@ final class NowoDashboardMenuBundle extends Bundle
     {
         $container->addCompilerPass(new AutoTagPermissionCheckersPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 200);
         $container->addCompilerPass(new AutoTagMenuLinkResolversPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 200);
+        $container->addCompilerPass(new ExcludeControllersFromRoutingPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 50);
         $container->addCompilerPass(new TwigPathsPass());
         $container->addCompilerPass(new PermissionCheckerPass());
         $container->addCompilerPass(new MenuLinkResolverPass());
