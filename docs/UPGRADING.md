@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.11.1](#to-2111)
 - [To 2.11.0](#to-2110)
 - [To 2.10.0](#to-2100)
 - [To 2.10.0](#to-2100-1)
@@ -116,6 +117,14 @@
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## To 2.11.1
+
+From **2.11.0**:
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
 
 No configuration change. If your application worked around the leaked routes (for example a compiler pass filtering `routing.loader.attribute.services`, or route exclusions for `Nowo\DashboardMenuBundle\Controller\`), remove it: the bundle now keeps its controllers out of `routing.controllers`. Import `@NowoDashboardMenuBundle/Resources/config/routes_dashboard.yaml` (with your prefix) to mount the dashboard.
 
