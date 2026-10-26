@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.11.2](#to-2112)
 - [To 2.11.1](#to-2111)
 - [To 2.11.0](#to-2110)
 - [To 2.10.0](#to-2100)
@@ -117,6 +118,14 @@
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## To 2.11.2
+
+From **2.11.1**:
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
 
 - **Permission checkers registered by class name are now auto-tagged.** If your checker implements `MenuPermissionCheckerInterface` and is loaded through a resource (`App\:` in `services.yaml`), it now appears in the permission-checker choices and is actually used by the menus that select it. Before, it was silently replaced by `AllowAllMenuPermissionChecker`: review menus that use it, since items hidden by permission keys will now be hidden.
 - The automatic label is the `DASHBOARD_LABEL` constant, the `#[PermissionCheckerLabel]` attribute or, failing both, the service id (the FQCN). Workarounds that tag the checker explicitly in `services.yaml` keep working and keep their label; you can remove them once you rely on the auto-tag.
