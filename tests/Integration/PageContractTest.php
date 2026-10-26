@@ -193,7 +193,7 @@ final class PageContractTest extends PageContractTestCase
         self::assertStringContainsString('Update', $menu);
 
         $config = $this->renderPage(new PageFixture(self::VIEWS . 'menu_form.html.twig', DashboardPageFixtures::menuForm(true, 'config')))->html;
-        self::assertStringContainsString('name="_section" value="config"', $config);
+        self::assertStringContainsString('name="menu[_section]" value="config"', $config);
 
         $item = $this->renderPage(new PageFixture(self::VIEWS . 'item_form.html.twig', DashboardPageFixtures::itemForm(true)))->html;
         self::assertStringContainsString('id="modal-item-form-container"', $item);
@@ -316,7 +316,7 @@ final class PageContractTest extends PageContractTestCase
 
         $item = $twig->render(self::VIEWS . '_item_form_partial.html.twig', DashboardPageFixtures::itemForm(false));
         self::assertStringContainsString('id="modal-item-form-container"', $item);
-        self::assertStringContainsString('name="_section" value="minimal"', $item);
+        self::assertStringContainsString('name="menu_item[_section]" value="minimal"', $item);
 
         $copy = $twig->render(self::VIEWS . '_copy_menu_partial.html.twig', DashboardPageFixtures::copyForm());
         self::assertStringContainsString('action="/admin/menus/1/copy"', $copy);

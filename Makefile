@@ -1,5 +1,5 @@
 # Makefile for Dashboard Menu Bundle
-.PHONY: help up down down-dev build shell install test test-ts test-coverage coverage-check validate-translations cs-check cs-fix qa clean assets ensure-up rector rector-dry phpstan igor release-check release-check-demos demo-smoke composer-sync update validate check-no-cursor-coauthor check-open-prs strip-cursor-coauthor-from-history check-twig-extra
+.PHONY: help up down down-dev build shell install test test-ts test-coverage coverage-check validate-translations cs-check cs-fix qa clean assets ensure-up rector rector-dry phpstan igor release-check release-check-demos demo-smoke composer-sync update validate check-no-cursor-coauthor check-open-prs strip-cursor-coauthor-from-history check-twig-extra check-no-raw-html-form
 
 help:
 	@echo "Dashboard Menu Bundle - Development Commands"
@@ -28,6 +28,7 @@ help:
 	@echo "  phpstan         Run PHPStan static analysis"
 	@echo "  igor          Run Igor worker-state audit (REQ-CS-008)"
 	@echo "  qa              Run all QA checks"
+	@echo "  check-no-raw-html-form  Fail on raw <form>/<input>/<textarea>/<select> in Twig (REQ-TWIG-005)"
 	@echo "  release-check   Pre-release gates (PRs, QA, coverage-check, test-ts, demos, assets)"
 	@echo "  composer-sync   Validate composer.json and align composer.lock"
 	@echo "  clean           Remove vendor and cache"
@@ -132,10 +133,14 @@ check-twig-extra:
 	@chmod +x .scripts/check-twig-extra.sh
 	@./.scripts/check-twig-extra.sh
 
+check-no-raw-html-form:
+	@chmod +x .scripts/check-no-raw-html-form.sh
+	@./.scripts/check-no-raw-html-form.sh
+
 # Run Igor worker-state audit (REQ-CS-008)
 igor: ensure-up
 	$(COMPOSE) exec -T php composer igor
-release-check: ensure-up check-no-cursor-coauthor check-open-prs check-twig-extra assets composer-sync cs-fix cs-check rector-dry phpstan igor test-coverage test-ts release-check-demos
+release-check: ensure-up check-no-cursor-coauthor check-open-prs check-twig-extra check-no-raw-html-form assets composer-sync cs-fix cs-check rector-dry phpstan igor test-coverage test-ts release-check-demos
 
 release-check-demos:
 	@if [ -f demo/Makefile ]; then $(MAKE) -C demo release-check; else true; fi

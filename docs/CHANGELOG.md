@@ -110,6 +110,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- REQ-TWIG-005: the focused section of the menu and item forms is no longer a raw `<input type="hidden" name="_section">` in `dashboard/_menu_form_fields`, `dashboard/_item_form_fields` and `components/ItemFormLiveComponent`. `MenuType` and `MenuItemType` add an unmapped `HiddenType` child `_section` whenever their `section` option is set (`MenuType::SECTION_FIELD`), the views render it with `form_widget(form._section)`, and `MenuDashboardController` reads it from the posted form (`menu[_section]` / `menu_item[_section]`), still accepting a top-level `_section` from overridden templates. See [UPGRADING](UPGRADING.md#unreleased).
+- The asset build stamp (`__DASHBOARD_MENU_BUILD_TIME__`, `__STIMULUS_LIVE_BUILD_TIME__`) is a deterministic build id (hash of the TypeScript sources and `pnpm-lock.yaml`) instead of the build time, so rebuilding unchanged sources leaves the published JS byte-identical; the console line reads `build:` instead of `build time:`.
+
+### Added
+
+- `make check-no-raw-html-form` (`.scripts/check-no-raw-html-form.sh`), run by `make release-check`: fails on raw `<form>` / `<input>` / `<textarea>` / `<select>` in the bundle and demo Twig (REQ-TWIG-005, REQ-MAKE-002).
+
 ## [2.11.2] - 2026-10-26
 
 Permission checkers registered by class name are auto-tagged instead of falling back to allow-all. See [UPGRADING](UPGRADING.md#to-2112).

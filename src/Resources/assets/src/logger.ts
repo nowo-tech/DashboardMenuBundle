@@ -14,7 +14,7 @@
  *      buildTime: typeof __MY_BUNDLE_BUILD_TIME__ !== 'undefined' ? __MY_BUNDLE_BUILD_TIME__ : undefined,
  *    });
  *
- * 2. Log that the script loaded (call once at startup; includes build time if provided):
+ * 2. Log that the script loaded (call once at startup; includes build id if provided):
  *
  *    log.scriptLoaded();
  *
@@ -32,7 +32,7 @@
  *    log.warn('unexpected but handled', error);
  *    log.error('failure', error);
  *
- * 5. To inject build time with esbuild, add to the build command:
+ * 5. To inject build id with esbuild, add to the build command:
  *
  *    --define:__MY_BUNDLE_BUILD_TIME__="\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\""
  *
@@ -48,7 +48,7 @@ export type BundleLoggerOptions = {
 };
 
 export type BundleLogger = {
-  /** Call once at startup. Logs "script loaded" and optional build time. Always shown. */
+  /** Call once at startup. Logs "script loaded" and optional build id. Always shown. */
   scriptLoaded: () => void;
   /**
    * Short notice always printed (ignores setDebug). Use for feature activation lines in the console.
@@ -99,7 +99,7 @@ export function createBundleLogger(name: string, options: BundleLoggerOptions = 
     scriptLoaded(): void {
       if (buildTime !== undefined && buildTime !== '') {
         console.log(
-          `%c${EMOJI.script} ${prefix} script loaded, build time: %c${buildTime}`,
+          `%c${EMOJI.script} ${prefix} script loaded, build: %c${buildTime}`,
           STYLES.script,
           'color:#059669',
         );

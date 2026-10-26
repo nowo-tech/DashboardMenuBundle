@@ -10,6 +10,7 @@ use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Form\MenuItemBasicType;
 use Nowo\DashboardMenuBundle\Form\MenuItemConfigType;
 use Nowo\DashboardMenuBundle\Form\MenuItemType;
+use Nowo\DashboardMenuBundle\Form\MenuType;
 use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use Nowo\DashboardMenuBundle\Tests\Unit\Form\FormKitMergerTestTrait;
@@ -97,6 +98,7 @@ final class MenuItemTypeTest extends TestCase
         $names = array_map(static fn (array $c): string => $c['name'], $addCalls);
         self::assertContains('basic', $names);
         self::assertNotContains('config', $names);
+        self::assertContains(MenuType::SECTION_FIELD, $names);
     }
 
     public function testMenuItemTypeBuildFormAddsOnlyConfigWhenSectionConfig(): void

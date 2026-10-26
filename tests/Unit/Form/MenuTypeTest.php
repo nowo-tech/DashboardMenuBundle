@@ -45,6 +45,7 @@ final class MenuTypeTest extends TestCase
         $names = array_map(static fn (array $c): string => $c['name'], $addCalls);
         self::assertContains('definition', $names);
         self::assertContains('config', $names);
+        self::assertNotContains(MenuType::SECTION_FIELD, $names);
     }
 
     public function testMenuTypeBuildFormAddsOnlyDefinitionWhenSectionBasic(): void
@@ -58,6 +59,7 @@ final class MenuTypeTest extends TestCase
         $names = array_map(static fn (array $c): string => $c['name'], $addCalls);
         self::assertContains('definition', $names);
         self::assertNotContains('config', $names);
+        self::assertContains(MenuType::SECTION_FIELD, $names);
     }
 
     public function testMenuTypeBuildFormAddsOnlyConfigWhenSectionConfig(): void
@@ -71,6 +73,7 @@ final class MenuTypeTest extends TestCase
         $names = array_map(static fn (array $c): string => $c['name'], $addCalls);
         self::assertNotContains('definition', $names);
         self::assertContains('config', $names);
+        self::assertContains(MenuType::SECTION_FIELD, $names);
     }
 
     public function testMenuDefinitionTypeLocksCodeWhenEditingBaseMenu(): void

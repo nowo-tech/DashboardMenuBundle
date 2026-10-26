@@ -31,15 +31,15 @@ describe('createBundleLogger', () => {
     vi.unstubAllGlobals();
   });
 
-  it('scriptLoaded() logs without build time when no options', () => {
+  it('scriptLoaded() logs without build id when no options', () => {
     const log = createBundleLogger('test');
     log.scriptLoaded();
     expect(consoleLog).toHaveBeenCalledTimes(1);
     expect(consoleLog.mock.calls[0][0]).toContain('script loaded');
-    expect(consoleLog.mock.calls[0][0]).not.toContain('build time');
+    expect(consoleLog.mock.calls[0][0]).not.toContain('build: ');
   });
 
-  it('scriptLoaded() logs with build time when buildTime is provided', () => {
+  it('scriptLoaded() logs with build id when buildTime is provided', () => {
     const log = createBundleLogger('test', { buildTime: '2026-01-15T12:00:00Z' });
     log.scriptLoaded();
     expect(consoleLog).toHaveBeenCalledTimes(1);
@@ -47,7 +47,7 @@ describe('createBundleLogger', () => {
     expect(consoleLog.mock.calls[0][0]).toContain('2026-01-15T12:00:00Z');
   });
 
-  it('scriptLoaded() logs without build time when buildTime is empty string', () => {
+  it('scriptLoaded() logs without build id when buildTime is empty string', () => {
     const log = createBundleLogger('test', { buildTime: '' });
     log.scriptLoaded();
     expect(consoleLog).toHaveBeenCalledTimes(1);

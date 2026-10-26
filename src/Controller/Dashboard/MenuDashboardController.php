@@ -182,6 +182,21 @@ final class MenuDashboardController extends AbstractController
         return $request->isMethod('GET') && $request->query->has('_modal');
     }
 
+    /**
+     * Section focus posted with a menu / item form: the form's `_section` child, or a top-level `_section` field
+     * (templates overridden before 2.12 still post it).
+     *
+     * @param list<string> $allowed
+     */
+    private function postedSection(Request $request, string $formName, array $allowed): ?string
+    {
+        $formData = $request->request->all()[$formName] ?? null;
+        $section  = is_array($formData) ? ($formData[MenuType::SECTION_FIELD] ?? null) : null;
+        $section ??= $request->request->get(MenuType::SECTION_FIELD);
+
+        return in_array($section, $allowed, true) ? $section : null;
+    }
+
     #[Route(path: '', name: 'index', methods: ['GET'])]
     public function index(Request $request): Response
     {
@@ -764,7 +779,7 @@ final class MenuDashboardController extends AbstractController
         }
         $sectionFocus = in_array($request->query->get('section'), ['basic', 'config'], true) ? $request->query->get('section') : null;
         if ($sectionFocus === null && $request->isMethod('POST')) {
-            $sectionFocus = in_array($request->request->get('_section'), ['basic', 'config'], true) ? $request->request->get('_section') : null;
+            $sectionFocus = $this->postedSection($request, 'menu', ['basic', 'config']);
         }
         $wasBase      = $menu->isBase();
         $menuSnapshot = $this->snapshotMenuForBaseProtection($menu);
@@ -1219,9 +1234,7 @@ final class MenuDashboardController extends AbstractController
             ? $request->query->get('section')
             : null;
         if ($sectionFocus === null && $request->isMethod('POST')) {
-            $sectionFocus = in_array($request->request->get('_section'), ['basic', 'icon', 'config', 'identity'], true)
-                ? $request->request->get('_section')
-                : null;
+            $sectionFocus = $this->postedSection($request, 'menu_item', ['basic', 'icon', 'config', 'identity']);
         }
 
         // Icon section uses a normal Symfony form to ensure the icon-selector widget refreshes correctly

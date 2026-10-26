@@ -1190,6 +1190,7 @@ final class MenuDashboardControllerTest extends TestCase
         $this->setControllerContainer($controller, $form);
 
         $request = Request::create('/1/item/5/edit', 'POST');
+        // Top-level `_section`, as posted by templates overridden before 2.12.
         $request->request->set('_section', 'basic');
 
         $controller->editItem($request, 1, 5);
@@ -1247,7 +1248,7 @@ final class MenuDashboardControllerTest extends TestCase
         $this->setControllerContainer($controller, $form);
 
         $request = Request::create('/1/item/5/edit', 'POST');
-        $request->request->set('_section', 'basic');
+        $request->request->set('menu_item', ['_section' => 'basic']);
 
         $controller->editItem($request, 1, 5);
 
@@ -2242,7 +2243,7 @@ final class MenuDashboardControllerTest extends TestCase
         $this->setControllerContainer($controller, $form);
 
         $request = Request::create('/1/item/10/edit', 'POST');
-        $request->request->set('_section', 'config');
+        $request->request->set('menu_item', ['_section' => 'config']);
 
         $controller->editItem($request, 1, 10);
         self::assertSame(6, $item->getPosition());

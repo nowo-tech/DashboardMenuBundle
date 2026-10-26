@@ -2,7 +2,7 @@
  * Bootstrap Stimulus + Symfony UX Live controller for the dashboard menu bundle.
  * If the page already has a Stimulus app (window.Stimulus / $$stimulusApp$$), only registers the 'live'
  * controller on it. Otherwise creates a new Application, registers 'live', and exposes it on window.
- * Loaded as type="module"; dependencies are resolved via esm.sh CDN (bundled at build time).
+ * Loaded as type="module"; dependencies are resolved via esm.sh CDN (bundled at build id).
  */
 import { createBundleLogger } from './logger';
 import { Application } from 'https://esm.sh/@hotwired/stimulus@3';

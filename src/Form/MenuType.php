@@ -7,6 +7,7 @@ namespace Nowo\DashboardMenuBundle\Form;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -21,6 +22,9 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 final class MenuType extends AbstractType
 {
+    /** Unmapped hidden child carrying the `section` option back on submit. */
+    public const SECTION_FIELD = '_section';
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $section = $options['section'] ?? null;
@@ -34,6 +38,10 @@ final class MenuType extends AbstractType
             $builder->add('config', MenuConfigType::class, [
                 'inherit_data' => true,
             ]);
+        }
+        if ($section !== null) {
+            // The focused section posts back with the form (REQ-TWIG-005: no raw hidden input in the views).
+            $builder->add(self::SECTION_FIELD, HiddenType::class, ['mapped' => false, 'data' => $section]);
         }
     }
 

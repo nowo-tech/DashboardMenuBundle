@@ -7,6 +7,7 @@ namespace Nowo\DashboardMenuBundle\Form;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -69,6 +70,11 @@ final class MenuItemType extends AbstractType
                 // Only the gear (config-only) partial uses trimmed fields; identity/full need all link fields for JS toggling.
                 'item_form_section' => $options['section'] === 'config' ? 'config' : null,
             ]);
+        }
+
+        if ($section !== null) {
+            // The focused section posts back with the form (REQ-TWIG-005: no raw hidden input in the views).
+            $builder->add(MenuType::SECTION_FIELD, HiddenType::class, ['mapped' => false, 'data' => $section]);
         }
     }
 

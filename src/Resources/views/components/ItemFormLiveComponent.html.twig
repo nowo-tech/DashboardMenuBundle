@@ -4,7 +4,7 @@
 {#-
   Live item form (configuration section). Keep the live#action hooks. cancelHref (2.8): cancel link of the own form
   (full item page, UiKit body-only form page; null = closes the dialog). embedded (2.7): the fields render inside the
-  page/form scaffold <form> (no own form tag / submit button; the scaffold form posts natively to the edit action),
+  page/form scaffold form element (no own form tag / submit button; the scaffold form posts natively to the edit action),
   every field carries its own data-model binding. Semantic classes + UiKit theme slots only.
 -#}
 {% set _b = 'NowoDashboardMenuBundle' %}
@@ -49,8 +49,8 @@
         },
     }) }}
     {% endif %}
-        {% if _section_focus != '' %}
-            <input type="hidden" name="_section" value="{{ _section_focus }}">
+        {% if form._section is defined %}
+            {{ form_widget(form._section) }}
         {% endif %}
         {% if _show_basic %}
         <div id="item_basic_section" class="nowo-dashboard-menu-fieldset">

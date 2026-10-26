@@ -80,6 +80,8 @@ Copy the original from `vendor/nowo-tech/dashboard-menu-bundle/src/Resources/vie
 
 After adding or changing template overrides, clear the Twig cache if needed: `php bin/console cache:clear`.
 
+**Forms (REQ-TWIG-005):** every dashboard form (menu, item, copy, import, search, CSRF-only actions) is a PHP Form Type created in the controller and rendered with `form_start` / `form_widget` / `form_row` / `form_end`. The focused section of the menu and item forms (`?section=basic|icon|config|identity`) posts back as the form's unmapped hidden child `_section` (`menu[_section]`, `menu_item[_section]`), rendered with `{% if form._section is defined %}{{ form_widget(form._section) }}{% endif %}`. Host overrides and the demo must not reintroduce raw `<form>` / `<input>` / `<textarea>` / `<select>`; `make check-no-raw-html-form` (part of `make release-check`) fails on them, with no allowlist. The controller still accepts a top-level `_section` field from templates overridden before 2.12.
+
 ### Overriding translations
 
 The bundle uses the translation domain **NowoDashboardMenuBundle** for all its strings: dashboard UI (titles, buttons, labels, pagination), form labels and validation messages. Translation files in the bundle are named `NowoDashboardMenuBundle.{locale}.yaml` (e.g. `NowoDashboardMenuBundle.en.yaml`, `NowoDashboardMenuBundle.es.yaml`).

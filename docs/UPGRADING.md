@@ -119,6 +119,8 @@
 
 ## Unreleased
 
+- **Overridden menu / item form templates:** if you override `dashboard/_menu_form_fields.html.twig`, `dashboard/_item_form_fields.html.twig` or `components/ItemFormLiveComponent.html.twig`, replace the raw `<input type="hidden" name="_section" value="{{ _section_focus }}">` with `{% if form._section is defined %}{{ form_widget(form._section) }}{% endif %}`. The old field keeps working (the controller still reads a top-level `_section`), but `form_end` now also renders the form's own `_section` child, so keep only one. No configuration change.
+
 ## To 2.11.2
 
 From **2.11.1**:
