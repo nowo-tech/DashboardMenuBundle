@@ -111,6 +111,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- CSRF fails closed: new `CsrfProtectionPass` makes the container refuse to compile when the dashboard (`web_ui.enabled: true`) is on and form CSRF protection is unavailable (`security.csrf.token_manager` or `form.type_extension.csrf` missing, or `framework.form.csrf_protection: false`). Before, the menu / item delete, move up/down, reindex, cycle check and copy actions (`DashboardActionType` declares its own CSRF options, checked by `assertSubmittedValidActionForm()`) and the CRUD / import forms accepted tokenless cross-site POSTs in that configuration. See [UPGRADING](UPGRADING.md#unreleased) and [SECURITY](SECURITY.md#dashboard-in-sensitive-environments).
+
 ## [2.12.0] - 2026-10-26
 
 Form section focus rendered as a Form child instead of a raw hidden input (REQ-TWIG-005), check-no-raw-html-form in release-check, deterministic asset build id. See [UPGRADING](UPGRADING.md#to-2120).

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\Tests;
 
+use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\CsrfProtectionPass;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\DashboardMenuSecurityPass;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\ExcludeControllersFromRoutingPass;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\PermissionCheckerPass;
@@ -44,6 +45,21 @@ final class NowoDashboardMenuBundleTest extends TestCase
             }
         }
         self::assertTrue($found, 'DashboardMenuSecurityPass should be registered');
+    }
+
+    public function testBuildAddsCsrfProtectionPass(): void
+    {
+        $container = new ContainerBuilder();
+        (new NowoDashboardMenuBundle())->build($container);
+
+        $found = false;
+        foreach ($container->getCompiler()->getPassConfig()->getBeforeOptimizationPasses() as $pass) {
+            if ($pass instanceof CsrfProtectionPass) {
+                $found = true;
+                break;
+            }
+        }
+        self::assertTrue($found, 'CsrfProtectionPass should be registered');
     }
 
     public function testBuildAddsExcludeControllersFromRoutingPass(): void

@@ -120,6 +120,10 @@
 
 ## Unreleased
 
+### Dashboard requires form CSRF protection at compile time
+
+With `web_ui.enabled: true` the container no longer compiles without form CSRF protection (`LogicException`: "requires CSRF protection"). Standard Flex hosts (`symfony/security-csrf` installed, `framework.csrf_protection` enabled, `framework.form.csrf_protection` not disabled) need no change. Otherwise enable `framework.csrf_protection: true` — also in the `test` environment of functional suites that enable the dashboard — or keep `web_ui.enabled: false`.
+
 ## To 2.12.0
 
 From **2.11.2**:
