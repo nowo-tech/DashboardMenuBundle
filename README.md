@@ -19,11 +19,11 @@ This bundle is **FrankenPHP worker mode friendly**.
   <tr>
     <td>Menus list (UiKit <code>page/list</code>)</td>
     <td>Menu detail + items (UiKit <code>page/show</code>)</td>
-    <td>Item configuration in a dialog (Live component)</td>
+    <td>Item labels and translations in a dialog (locale tabs)</td>
   </tr>
 </table>
 
-Demo: `demo/symfony8` (Symfony 8, FrankenPHP, Bootstrap 5 host theme). More screenshots (reorder, delete confirm, form pages): [docs/TEMPLATES.md](docs/TEMPLATES.md#screenshots).
+Demo: `demo/symfony8` (Symfony 8, FrankenPHP, Bootstrap 5 host theme). UiKit page templates behind these screens: [docs/TEMPLATES.md](docs/TEMPLATES.md#screenshots).
 
 ## Table of contents
 
@@ -135,6 +135,8 @@ make -C demo/symfony8 up
 make -C demo/symfony8 install
 # Open http://localhost:8011 (or PORT from demo/symfony8/.env)
 ```
+
+Playwright e2e: `make -C demo/symfony8 test-e2e`; refresh the README screenshots with `make -C demo/symfony8 demo-screenshots` (see [CONTRIBUTING](docs/CONTRIBUTING.md#end-to-end-tests-and-screenshots-req-demo-013)).
 
 ## Development
 

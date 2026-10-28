@@ -8,6 +8,7 @@ BUNDLE_ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/../..)
 help:
 	@echo "Dashboard Menu Bundle Demo - Symfony 8"
 	@echo "  ensure-up, up, down, restart, build, shell, install, setup, clean, logs, update-bundle, assets, schema-update, migrations-status, migrate, test, test-coverage, ts-assets, verify, cache-clear"
+	@echo "  test-e2e, demo-screenshots  Playwright e2e / regenerate docs/images/demo/*.webp (REQ-DEMO-013)"
 
 assets: ensure-up
 	# Build assets inside the demo container (so pnpm/vite run with container tooling).
@@ -136,6 +137,33 @@ test-coverage: ensure-up
 verify: ensure-up
 	@$(COMPOSE) exec -T php php bin/console lint:container && \
 	 $(COMPOSE) exec -T php php -r "echo file_get_contents('http://127.0.0.1:80') ? 'OK' : 'FAIL';" 2>/dev/null || true
+
+# REQ-DEMO-013: Playwright e2e + README screenshots (official Playwright image, nothing on the host).
+PLAYWRIGHT_IMAGE ?= mcr.microsoft.com/playwright:v1.63.0-jammy
+
+.PHONY: test-e2e demo-screenshots
+
+test-e2e: ensure-up
+	@mkdir -p e2e/node_modules
+	@PORT=$$(grep -E '^PORT=' .env 2>/dev/null | cut -d= -f2); PORT=$${PORT:-8011}; \
+	docker run --rm --network host \
+		-v "$(CURDIR)/e2e:/e2e" -w /e2e \
+		-e DEMO_BASE_URL=http://127.0.0.1:$$PORT \
+		$(PLAYWRIGHT_IMAGE) \
+		bash -lc 'npm install --no-fund --no-audit && node scripts/wait-for-demo.mjs && npx playwright test --project=chromium'
+
+demo-screenshots: ensure-up
+	@mkdir -p ../../docs/images/demo e2e/node_modules
+	@PORT=$$(grep -E '^PORT=' .env 2>/dev/null | cut -d= -f2); PORT=$${PORT:-8011}; \
+	docker run --rm --network host \
+		-v "$(CURDIR)/e2e:/e2e" \
+		-v "$(CURDIR)/../../docs/images/demo:/screenshots" \
+		-w /e2e \
+		-e DEMO_BASE_URL=http://127.0.0.1:$$PORT \
+		-e SCREENSHOT_DIR=/screenshots \
+		$(PLAYWRIGHT_IMAGE) \
+		bash -lc 'npm install --no-fund --no-audit && node scripts/wait-for-demo.mjs && npx playwright test --project=screenshots && node scripts/to-webp.mjs /screenshots'
+	@echo "Screenshots written under docs/images/demo/ (WebP)"
 
 # REQ-MAKE-008: update-deps (optional monorepo helper; REQ-MAKE-009 soft include)
 -include $(BUNDLE_ROOT)/../.scripts/Makefile.demo-update-deps.mk

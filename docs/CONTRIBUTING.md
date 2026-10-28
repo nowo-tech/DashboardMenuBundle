@@ -8,6 +8,7 @@ See the main [README](../README.md). Run `make qa` (cs-check + tests) and `make 
 - [Cursor Agent](#cursor-agent)
 - [Git hooks (REQ-GIT-001)](#git-hooks-req-git-001)
 - [Igor worker audit (REQ-CS-008)](#igor-worker-audit-req-cs-008)
+- [End-to-end tests and screenshots (REQ-DEMO-013)](#end-to-end-tests-and-screenshots-req-demo-013)
 
 ## Code of Conduct
 
@@ -45,3 +46,14 @@ Maintainers run `make check-no-cursor-coauthor` **after** creating a release com
 ## Igor worker audit (REQ-CS-008)
 
 Run `make igor` (or `composer igor`) before release. Igor audits package `src/` for FrankenPHP worker-state issues. It is require-dev only.
+
+## End-to-end tests and screenshots (REQ-DEMO-013)
+
+The Symfony 8 demo ships a Playwright suite in `demo/symfony8/e2e/` (official Playwright image, nothing to install on the host):
+
+```bash
+make -C demo/symfony8 test-e2e          # starts the demo if needed, runs the happy-path specs
+make -C demo/symfony8 demo-screenshots  # recaptures docs/images/demo/*.webp (PNG → WebP via sharp)
+```
+
+The happy path opens the menus list, the "User menu" detail with its items table and the item label dialog with its locale tabs. Run `make -C demo/symfony8 up` first on a fresh clone (database + fixtures). Refresh the screenshots when the dashboard UI changes and commit only the `.webp` files.
