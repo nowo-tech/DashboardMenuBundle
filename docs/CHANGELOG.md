@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.13.0] - 2026-10-28](#2130---2026-10-28)
 - [[2.12.0] - 2026-10-26](#2120---2026-10-26)
 - [[2.11.2] - 2026-10-26](#2112---2026-10-26)
 - [[2.11.1] - 2026-10-24](#2111---2026-10-24)
@@ -110,6 +111,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [[0.0.1] - 2026-03-10](#001---2026-03-10)
 
 ## [Unreleased]
+
+## [2.13.0] - 2026-10-28
+
+Security: the admin UI refuses to compile without form CSRF protection (CsrfProtectionPass, fail closed). See [UPGRADING](UPGRADING.md#to-2130).
 
 ### Security
 
@@ -1456,7 +1461,7 @@ Default output is byte-identical: unset actions keep their bundle variant (`butt
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.12.0...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.13.0...HEAD
 [2.2.4]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.3...v2.2.4
 [2.2.3]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.2...v2.2.3
 [2.2.2]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.1...v2.2.2

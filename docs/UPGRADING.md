@@ -3,6 +3,8 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.13.0](#to-2130)
+  - [Dashboard requires form CSRF protection at compile time](#dashboard-requires-form-csrf-protection-at-compile-time)
 - [To 2.12.0](#to-2120)
 - [To 2.11.2](#to-2112)
 - [To 2.11.1](#to-2111)
@@ -119,6 +121,14 @@
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## To 2.13.0
+
+From **2.12.0**:
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
 
 ### Dashboard requires form CSRF protection at compile time
 
