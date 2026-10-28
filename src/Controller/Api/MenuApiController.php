@@ -12,7 +12,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 
+use function count;
 use function is_array;
+use function is_bool;
+use function is_int;
+use function is_string;
+use function sprintf;
 
 /**
  * JSON API for menu tree (SPA / React / Vue). Route: GET {api.path_prefix}/{code} (default /api/menu/{code}), see MenuApiRouteLoader.
@@ -23,6 +28,11 @@ use function is_array;
 #[AsController]
 final readonly class MenuApiController
 {
+    /** Each context set is one cache key and, in the legacy fallback, one query: bounded per request. */
+    public const MAX_CONTEXT_SETS = 8;
+
+    public const MAX_CONTEXT_KEYS = 16;
+
     public function __construct(
         private MenuTreeLoader $menuTreeLoader,
         private MenuUrlResolver $urlResolver,
@@ -37,8 +47,12 @@ final readonly class MenuApiController
         $requestLocale = $request->query->getString('_locale', $request->getLocale());
         $locale        = $this->localeResolver->resolveLocale($requestLocale);
         $contextSets   = $this->parseContextSets($request);
+        if ($contextSets === false) {
+            return new JsonResponse(['error' => sprintf('_context_sets: at most %d sets of at most %d scalar values.', self::MAX_CONTEXT_SETS, self::MAX_CONTEXT_KEYS)], JsonResponse::HTTP_BAD_REQUEST);
+        }
 
-        $tree = $this->menuTreeLoader->loadTree($resolvedCode, $locale, null, $contextSets);
+        // Same permission context as the Twig functions (the Request), so host checkers see the same input.
+        $tree = $this->menuTreeLoader->loadTree($resolvedCode, $locale, $request, $contextSets);
 
         $data = $this->treeToArray($tree);
 
@@ -48,9 +62,9 @@ final readonly class MenuApiController
     /**
      * Parses _context_sets from query (JSON array of objects) or returns null for default [null, []].
      *
-     * @return list<array<string, bool|int|string>|null>|null
+     * @return false|list<array<string, bool|int|string>|null>|null false when the sets exceed the limits
      */
-    private function parseContextSets(Request $request): ?array
+    private function parseContextSets(Request $request): array|false|null
     {
         $raw = $request->query->getString('_context_sets', '');
         if ($raw === '') {
@@ -60,9 +74,25 @@ final readonly class MenuApiController
         if (!is_array($decoded)) {
             return null;
         }
+        if (count($decoded) > self::MAX_CONTEXT_SETS) {
+            return false;
+        }
         $sets = [];
         foreach ($decoded as $item) {
-            $sets[] = is_array($item) ? $item : null;
+            if (!is_array($item)) {
+                $sets[] = null;
+                continue;
+            }
+            if (count($item) > self::MAX_CONTEXT_KEYS) {
+                return false;
+            }
+            foreach ($item as $key => $value) {
+                if (!is_string($key) || !(is_string($value) || is_int($value) || is_bool($value))) {
+                    return false;
+                }
+            }
+            /* @var array<string, bool|int|string> $item */
+            $sets[] = $item;
         }
 
         return $sets;

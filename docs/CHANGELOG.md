@@ -112,6 +112,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- **Menu JSON API hardening.** `/api/menu/{code}` accepted an unbounded `_context_sets` list from the query string:
+  each distinct set is a new tree cache key and, when no menu matched, one query in the legacy fallback (an 8 KB URL
+  meant 1 000+ queries and cache entries). It now accepts at most 8 sets of at most 16 scalar values and answers
+  400 otherwise. The API also passes the `Request` as the permission context, like the Twig functions, so host
+  permission checkers evaluate API and page menus the same way (it was `null`).
+  The API is public by default (`api.enabled: true`): restrict `^/api/menu` with `access_control` when menus
+  contain admin entries — see [SECURITY](SECURITY.md).
+
 ## [2.13.0] - 2026-10-28
 
 Security: the admin UI refuses to compile without form CSRF protection (CsrfProtectionPass, fail closed). See [UPGRADING](UPGRADING.md#to-2130).

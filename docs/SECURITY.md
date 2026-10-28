@@ -5,6 +5,7 @@ Report vulnerabilities to the maintainers privately. Do not open public issues f
 ## Table of contents
 
 - [Dashboard in sensitive environments](#dashboard-in-sensitive-environments)
+- [Menu JSON API](#menu-json-api-apimenucode)
 - [Content Security Policy (CSP)](#content-security-policy-csp)
 - [AI security audit (REQ-SEC-004)](#ai-security-audit-req-sec-004)
 - [Release security checklist (12.4.1)](#release-security-checklist-1241)
@@ -26,6 +27,14 @@ For production or sensitive setups, configure:
 - **Import size:** `import_max_bytes` (default 2 MiB) caps the size of JSON import uploads to reduce DoS risk.
 
 - **Logging:** Operational warnings (e.g. rate-limit exceeded) use `Psr\Log\LoggerInterface` with structured context (`bundle`, `action`). Do not log tokens, passwords, or session identifiers.
+
+## Menu JSON API (`/api/menu/{code}`)
+
+The API is enabled by default and the bundle applies no access control to it: anyone who can reach it can read a
+menu by code (labels, hrefs, route names). If a menu holds admin or private entries, either set `api.enabled: false`
+or restrict the path in `access_control` (`{ path: ^/api/menu, roles: ROLE_USER }`), and use a menu permission
+checker instead of `AllowAllMenuPermissionChecker`. The API passes the `Request` as the permission context (like
+the Twig functions) and accepts at most 8 `_context_sets` of at most 16 scalar values (400 otherwise).
 
 ## Content Security Policy (CSP)
 

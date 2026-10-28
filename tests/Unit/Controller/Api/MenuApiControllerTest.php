@@ -16,6 +16,7 @@ use Nowo\DashboardMenuBundle\Service\MenuIconNameResolver;
 use Nowo\DashboardMenuBundle\Service\MenuLocaleResolver;
 use Nowo\DashboardMenuBundle\Service\MenuTreeLoader;
 use Nowo\DashboardMenuBundle\Service\MenuUrlResolver;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use ReflectionProperty;
@@ -25,7 +26,14 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
 
+use function array_fill;
+use function array_fill_keys;
+use function array_map;
 use function is_callable;
+use function json_encode;
+use function range;
+
+use const JSON_THROW_ON_ERROR;
 
 final class MenuApiControllerTest extends TestCase
 {
@@ -143,6 +151,41 @@ final class MenuApiControllerTest extends TestCase
 
         $controller = new MenuApiController($loader, $urlResolver, $codeResolver, $localeResolver);
         $response   = ($controller)($request, 'nav');
+
+        self::assertSame(200, $response->getStatusCode());
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function oversizedContextSets(): iterable
+    {
+        yield 'too many sets' => [json_encode(array_fill(0, MenuApiController::MAX_CONTEXT_SETS + 1, ['p' => 'x']), JSON_THROW_ON_ERROR)];
+        yield 'too many keys' => [json_encode([array_fill_keys(array_map(static fn (int $i): string => 'k' . $i, range(0, MenuApiController::MAX_CONTEXT_KEYS)), 1)], JSON_THROW_ON_ERROR)];
+        yield 'non-scalar value' => ['[{"a":{"nested":1}}]'];
+        yield 'list instead of map' => ['[["a","b"]]'];
+    }
+
+    #[DataProvider('oversizedContextSets')]
+    public function testInvokeRejectsUnboundedContextSets(string $sets): void
+    {
+        $codeResolver = $this->createStub(MenuCodeResolverInterface::class);
+        $codeResolver->method('resolveMenuCode')->willReturn('nav');
+        $controller = new MenuApiController($this->createLoaderWithTree([]), $this->createMenuUrlResolver('/'), $codeResolver, new MenuLocaleResolver(['en'], 'en'));
+
+        $response = ($controller)(Request::create('/api/menu/nav', 'GET', ['_context_sets' => $sets]), 'nav');
+
+        self::assertSame(400, $response->getStatusCode());
+    }
+
+    public function testInvokeAcceptsSetsAtTheLimits(): void
+    {
+        $sets         = array_fill(0, MenuApiController::MAX_CONTEXT_SETS, array_fill_keys(array_map(static fn (int $i): string => 'k' . $i, range(1, MenuApiController::MAX_CONTEXT_KEYS)), true));
+        $codeResolver = $this->createStub(MenuCodeResolverInterface::class);
+        $codeResolver->method('resolveMenuCode')->willReturn('nav');
+        $controller = new MenuApiController($this->createLoaderWithTree([]), $this->createMenuUrlResolver('/'), $codeResolver, new MenuLocaleResolver(['en'], 'en'));
+
+        $response = ($controller)(Request::create('/api/menu/nav', 'GET', ['_context_sets' => json_encode($sets, JSON_THROW_ON_ERROR)]), 'nav');
 
         self::assertSame(200, $response->getStatusCode());
     }
