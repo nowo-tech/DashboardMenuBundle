@@ -8,6 +8,7 @@ use Nowo\DashboardMenuBundle\EventSubscriber\DashboardAccessSubscriber;
 use Nowo\DashboardMenuBundle\Security\DashboardMenuAccessCheckerInterface;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
+use ReflectionMethod;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -21,7 +22,7 @@ final class DashboardAccessSubscriberTest extends TestCase
     {
         $ref  = new ReflectionClass(ControllerEvent::class);
         $ctor = $ref->getConstructor();
-        if ($ctor === null) {
+        if (!$ctor instanceof ReflectionMethod) {
             self::fail('ControllerEvent has no constructor.');
         }
 
