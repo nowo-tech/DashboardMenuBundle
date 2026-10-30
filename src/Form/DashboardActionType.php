@@ -6,6 +6,7 @@ namespace Nowo\DashboardMenuBundle\Form;
 
 use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
 use Nowo\FormKitBundle\Attribute\FormKitConfig;
+use Nowo\FormKitBundle\Form\FormOptionsTrait;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -20,6 +21,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 #[FormKitConfig('dashboard_menu')]
 final class DashboardActionType extends AbstractType
 {
+    use FormOptionsTrait;
+
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([

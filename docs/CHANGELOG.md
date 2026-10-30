@@ -116,7 +116,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **All page form types are FormKit Types (REQ-TWIG-005 rule 11):** the composing `MenuType` and `MenuItemType` now carry `#[FormKitConfig('dashboard_menu')]` + `FormOptionsTrait` like their section types. Form names, field names, `_section` hidden child, methods, CSRF settings and the rendered markup are unchanged. A unit test asserts every `src/Form/*Type.php` is bound to the `dashboard_menu` profile.
+- **All page form types are FormKit Types (REQ-TWIG-005 rule 11):** the composing `MenuType` and `MenuItemType` now carry `#[FormKitConfig('dashboard_menu')]` + `FormOptionsTrait` like their section types; `DashboardActionType` (CSRF-only actions) and `SortableTreeType`, which only had the attribute, now also use `FormOptionsTrait`. Form names, field names, `_section` hidden child, methods, CSRF settings and the rendered markup are unchanged. A unit test asserts every `src/Form/*Type.php` is bound to the `dashboard_menu` profile.
 
 ### Fixed
 
