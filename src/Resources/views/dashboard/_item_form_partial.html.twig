@@ -11,7 +11,6 @@
 <div id="modal-item-form-container" data-app-routes="{{ app_routes|default({})|json_encode|e('html_attr') }}" data-item-has-children="{{ item_has_children|default(false) ? 'true' : 'false' }}" data-section-focus="{{ section_focus|default('') }}">
     {{ form_start(form, {attr: {class: nowo_ui_class('form', _b) ~ ' nowo-dashboard-menu-form'}}) }}
         {{ include('@NowoDashboardMenuBundle/dashboard/_item_form_fields.html.twig', {bundle: _b}) }}
-        {{ form_rest(form) }}
         {{ include('@NowoDashboardMenuBundle/dashboard/_dialog_form_actions.html.twig', {submit_label: (is_edit|default(false) ? 'dashboard.update' : 'dashboard.create')|trans({}, 'NowoDashboardMenuBundle'), bundle: _b}) }}
     {{ form_end(form) }}
 </div>

@@ -6,16 +6,18 @@ namespace Nowo\DashboardMenuBundle\Routing;
 
 use Nowo\DashboardMenuBundle\Controller\Api\MenuApiController;
 use Symfony\Component\Config\Loader\Loader;
-use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 
 use function trim;
 
 /**
- * Registers the JSON menu API route (`nowo_dashboard_menu_api`) from the `api` configuration:
- * no route when `api.enabled` is false, otherwise `GET {api.path_prefix}/{code}`.
+ * Imports the JSON menu API route (`nowo_dashboard_menu_api`) declared by the `#[Route]` attribute on
+ * {@see MenuApiController} and applies the `api` configuration: no route when `api.enabled` is false,
+ * otherwise `GET {api.path_prefix}/{code}`.
  *
- * Loaded through `@NowoDashboardMenuBundle/Resources/config/routes.yaml` (type `nowo_dashboard_menu_api`).
+ * Thin wrapper only (REQ-SF-004): the route itself (name, path, requirements, methods) lives on the controller;
+ * this loader adds the configurable prefix. Loaded through `@NowoDashboardMenuBundle/Resources/config/routes.yaml`
+ * (type `nowo_dashboard_menu_api`).
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
@@ -47,18 +49,13 @@ final class MenuApiRouteLoader extends Loader
             return $routes;
         }
 
+        /** @var RouteCollection $imported the attribute loader always returns a collection for a class */
+        $imported = $this->import(MenuApiController::class, 'attribute');
+        $routes->addCollection($imported);
         $prefix = trim($this->pathPrefix, '/');
-        $path   = ($prefix === '' ? '' : '/' . $prefix) . '/{code}';
-
-        $routes->add(self::ROUTE_NAME, new Route(
-            $path,
-            ['_controller' => MenuApiController::class],
-            ['code' => '[a-zA-Z0-9_-]+'],
-            [],
-            '',
-            [],
-            ['GET'],
-        ));
+        if ($prefix !== '') {
+            $routes->addPrefix('/' . $prefix);
+        }
 
         return $routes;
     }

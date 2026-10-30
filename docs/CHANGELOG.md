@@ -113,6 +113,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Routing (REQ-SF-004):** the JSON API route `nowo_dashboard_menu_api` is now declared with `#[Route('/{code}', …)]` on `MenuApiController`. `MenuApiRouteLoader` only imports that attribute route (`type: attribute`) and prepends `api.path_prefix` (no route when `api.enabled` is false). Route name, path (`GET {api.path_prefix}/{code}`, default `/api/menu/{code}`), requirements and methods are unchanged; hosts keep importing `@NowoDashboardMenuBundle/Resources/config/routes.yaml`.
+- **Twig (REQ-TWIG-003):** item and menu form fields keep their custom layout and then run the `{% for child in form %}{% if not child.rendered %}{{ form_row(child) }}{% endif %}{% endfor %}` loop: `_item_form_fields.html.twig`, `_menu_form_fields.html.twig` and `components/ItemFormLiveComponent.html.twig` (replaces `form_rest`). New FormType fields render automatically; in the menu dialog a section that is not shown as a fieldset now renders before the actions instead of after them (same order as the full page).
+
+### CI
+
+- **Symfony matrix (REQ-SF-002):** the Symfony 8.0 cell is dropped (end of maintenance, July 2026; its `^8.0` constraint installed 8.1 anyway). Matrix: Symfony 7.4 (PHP 8.2–8.5) and 8.1 (PHP 8.4–8.5). `composer.json` still allows `^8.0`.
+
 ## [2.13.1] - 2026-10-28
 
 Security: menu API context sets are bounded and the request is passed as permission context. See [UPGRADING](UPGRADING.md#to-2131).

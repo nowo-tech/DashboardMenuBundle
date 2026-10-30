@@ -13,7 +13,9 @@
     <fieldset id="menu_definition_section" class="nowo-dashboard-menu-fieldset">
         <legend>{{ 'form.menu_type.section_definition'|trans({}, 'NowoDashboardMenuBundle') }}</legend>
         {% for field in form.definition %}
-            {{ form_row(field) }}
+            {% if not field.rendered %}
+                {{ form_row(field) }}
+            {% endif %}
         {% endfor %}
     </fieldset>
 {% endif %}
@@ -24,7 +26,15 @@
             {% if field.vars.name == 'classMenu' %}
                 <h3 class="nowo-dashboard-menu-subheading">{{ 'form.menu_type.css_section_heading'|trans({}, 'NowoDashboardMenuBundle') }}</h3>
             {% endif %}
-            {{ form_row(field) }}
+            {% if not field.rendered %}
+                {{ form_row(field) }}
+            {% endif %}
         {% endfor %}
     </fieldset>
 {% endif %}
+{#- REQ-TWIG-003: any other child (new FormType fields) still renders. -#}
+{% for child in form %}
+    {% if not child.rendered %}
+        {{ form_row(child) }}
+    {% endif %}
+{% endfor %}

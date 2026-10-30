@@ -187,7 +187,7 @@ When no resolver is registered, the item form shows a free-text field for the se
 
 ### api
 
-The JSON API route `nowo_dashboard_menu_api` is registered when you import `@NowoDashboardMenuBundle/Resources/config/routes.yaml` (route loader type `nowo_dashboard_menu_api`).
+The JSON API route `nowo_dashboard_menu_api` is declared with `#[Route]` on `MenuApiController` and registered when you import `@NowoDashboardMenuBundle/Resources/config/routes.yaml` (route loader type `nowo_dashboard_menu_api`, which imports the attribute route and prepends `path_prefix`).
 
 | Option        | Default      | Description        |
 |---------------|--------------|--------------------|

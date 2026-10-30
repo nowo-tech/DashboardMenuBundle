@@ -5,6 +5,7 @@
   2.9: the label_<locale> rows render as locale tabs (FormKit `_locale_tabs` include, `fields` mode; tab
   `tab-nowo-dashboard-menu-item-labels-<locale>`, panel `…-<locale>-panel`). Field wrappers carry the
   `nowo-dashboard-menu-rows` layout class (row gap `--nowo-ui-form-row-gap`).
+  REQ-TWIG-003: custom layout for the known children first, then the child loop renders every remaining field.
 #}
 {% set _section_focus = section_focus|default('') %}
 {% set _is_edit = is_edit|default(false) %}
@@ -104,3 +105,10 @@
         </div>
     </fieldset>
 {% endif %}
+{#- REQ-TWIG-003: the fieldsets above are an intentional custom layout (ids toggled by dashboard.js); every child they
+    did not render (new FormType fields, the label_<locale> rows when translations are hidden, …) still renders here. -#}
+{% for child in form %}
+    {% if not child.rendered %}
+        {{ form_row(child) }}
+    {% endif %}
+{% endfor %}

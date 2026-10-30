@@ -1,5 +1,6 @@
 # Import in app config/routes.yaml: NowoDashboardMenuBundle::class (or resource: '@NowoDashboardMenuBundle/Resources/config/routes.yaml')
-# The JSON API route (nowo_dashboard_menu_api) honours nowo_dashboard_menu.api: no route when api.enabled is false,
+# The JSON API route (nowo_dashboard_menu_api) is declared by #[Route] on MenuApiController; the loader honours
+# nowo_dashboard_menu.api: no route when api.enabled is false,
 # otherwise GET {api.path_prefix}/{code} (default /api/menu/{code}).
 nowo_dashboard_menu_api:
     resource: .

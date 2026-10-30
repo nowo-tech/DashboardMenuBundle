@@ -9,10 +9,13 @@ use Nowo\DashboardMenuBundle\DependencyInjection\DashboardMenuExtension;
 use Nowo\DashboardMenuBundle\Routing\MenuApiRouteLoader;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
+use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderResolver;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Loader\YamlFileLoader;
 use Symfony\Component\Routing\RouteCollection;
 
@@ -44,7 +47,7 @@ final class MenuApiRouteLoaderTest extends TestCase
     #[DataProvider('prefixes')]
     public function testRouteUsesConfiguredPathPrefix(string $prefix, string $expectedPath): void
     {
-        $route = (new MenuApiRouteLoader(true, $prefix))->load('.', 'nowo_dashboard_menu_api')->get('nowo_dashboard_menu_api');
+        $route = $this->resolvedLoader(true, $prefix)->load('.', 'nowo_dashboard_menu_api')->get('nowo_dashboard_menu_api');
 
         self::assertNotNull($route);
         self::assertSame($expectedPath, $route->getPath());
@@ -55,9 +58,20 @@ final class MenuApiRouteLoaderTest extends TestCase
 
     public function testNoRouteWhenApiIsDisabled(): void
     {
-        $routes = (new MenuApiRouteLoader(false, '/api/menu'))->load('.', 'nowo_dashboard_menu_api');
+        $routes = $this->resolvedLoader(false, '/api/menu')->load('.', 'nowo_dashboard_menu_api');
 
         self::assertCount(0, $routes);
+    }
+
+    public function testRouteIsDeclaredByAttributeOnTheController(): void
+    {
+        $attributes = (new ReflectionClass(MenuApiController::class))->getAttributes(Route::class);
+
+        self::assertCount(1, $attributes);
+        $route = $attributes[0]->newInstance();
+        self::assertSame(MenuApiRouteLoader::ROUTE_NAME, $route->name);
+        self::assertSame('/{code}', $route->path);
+        self::assertSame(['GET'], $route->methods);
     }
 
     public function testBundleRoutesFileDelegatesToTheLoader(): void
@@ -87,10 +101,18 @@ final class MenuApiRouteLoaderTest extends TestCase
         self::assertSame('/menus/api', $container->getParameter('nowo_dashboard_menu.api.path_prefix'));
     }
 
+    private function resolvedLoader(bool $enabled, string $prefix): MenuApiRouteLoader
+    {
+        $loader = new MenuApiRouteLoader($enabled, $prefix);
+        new LoaderResolver([$loader, new AttributeRouteControllerLoader()]);
+
+        return $loader;
+    }
+
     private function loadBundleRoutes(MenuApiRouteLoader $apiLoader): RouteCollection
     {
         $locator  = new FileLocator(dirname(__DIR__, 3) . '/src/Resources/config');
-        $resolver = new LoaderResolver([new YamlFileLoader($locator), $apiLoader]);
+        $resolver = new LoaderResolver([new YamlFileLoader($locator), $apiLoader, new AttributeRouteControllerLoader()]);
         $routes   = (new DelegatingLoader($resolver))->load('routes.yaml');
         self::assertInstanceOf(RouteCollection::class, $routes);
 
