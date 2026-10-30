@@ -53,10 +53,20 @@ final class HostControllersRoutesKernel extends BaseKernel
 
     private function configureContainer(ContainerConfigurator $container): void
     {
-        $container->extension('framework', ['secret' => 'test-secret', 'test' => true]);
+        $container->extension('framework', [
+            'secret'          => 'test-secret',
+            'test'            => true,
+            'csrf_protection' => true,
+            'form'            => ['csrf_protection' => true],
+            'session'         => ['storage_factory_id' => 'session.storage.factory.mock_file'],
+        ]);
         $container->import($this->getProjectDir() . '/tests/config/doctrine.yaml');
         // Both switches on: the bundle route files would expose the API and the dashboard if they were imported.
-        $container->extension('nowo_dashboard_menu', ['api' => ['enabled' => true], 'web_ui' => ['enabled' => true]]);
+        $container->extension('nowo_dashboard_menu', [
+            'api'      => ['enabled' => true],
+            'web_ui'   => ['enabled' => true],
+            'security' => ['allow_unauthenticated' => true],
+        ]);
     }
 
     private function configureRoutes(RoutingConfigurator $routes): void
