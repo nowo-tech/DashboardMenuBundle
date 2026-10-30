@@ -145,8 +145,13 @@ services:
       - { name: twig.extension }
     public: false
 
+  # REQ-SF-004 rule 7: the controllers carry #[Route] and are not autoconfigured. On Symfony >= 7.3
+  # autoconfiguration would tag them `routing.controller`, and the host's `controllers: { resource: routing.controllers }`
+  # would then mount their routes at the root, ignoring the route files (prefix, dashboard / api switches).
   Nowo\DashboardMenuBundle\Controller\Api\MenuApiController:
+    autoconfigure: false
     public: true
+    tags: [controller.service_arguments]
 
   Nowo\DashboardMenuBundle\Service\MenuExporter: ~
   Nowo\DashboardMenuBundle\Service\MenuImporter: ~
@@ -171,7 +176,10 @@ services:
       $dashboardUi: '@Nowo\DashboardMenuBundle\Service\DashboardUiConfig'
       $webUi: '@Nowo\DashboardMenuBundle\View\DashboardWebUi'
       $pages: '@Nowo\DashboardMenuBundle\View\DashboardPages'
+    # Not autoconfigured (REQ-SF-004 rule 7): explicit tags; AbstractController needs the service subscriber.
+    autoconfigure: false
     public: true
+    tags: [controller.service_arguments, container.service_subscriber]
 
   Nowo\DashboardMenuBundle\EventSubscriber\DashboardMenuWorkerStateSubscriber:
     arguments:
