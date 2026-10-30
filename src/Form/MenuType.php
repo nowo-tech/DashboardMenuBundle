@@ -6,6 +6,8 @@ namespace Nowo\DashboardMenuBundle\Form;
 
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
+use Nowo\FormKitBundle\Attribute\FormKitConfig;
+use Nowo\FormKitBundle\Form\FormOptionsTrait;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -20,8 +22,11 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  *
  * @extends AbstractType<Menu>
  */
+#[FormKitConfig('dashboard_menu')]
 final class MenuType extends AbstractType
 {
+    use FormOptionsTrait;
+
     /** Unmapped hidden child carrying the `section` option back on submit. */
     public const SECTION_FIELD = '_section';
 

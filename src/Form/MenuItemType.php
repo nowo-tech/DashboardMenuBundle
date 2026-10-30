@@ -6,6 +6,8 @@ namespace Nowo\DashboardMenuBundle\Form;
 
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
+use Nowo\FormKitBundle\Attribute\FormKitConfig;
+use Nowo\FormKitBundle\Form\FormOptionsTrait;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -22,8 +24,11 @@ use function in_array;
  *
  * @extends AbstractType<MenuItem>
  */
+#[FormKitConfig('dashboard_menu')]
 final class MenuItemType extends AbstractType
 {
+    use FormOptionsTrait;
+
     /**
      * Composes the menu item form depending on the requested section:
      * - `basic`: renders `basic` only (labels + translations; pencil edit, or add-child label step)

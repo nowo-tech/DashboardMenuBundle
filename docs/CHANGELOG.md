@@ -114,6 +114,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **All page form types are FormKit Types (REQ-TWIG-005 rule 11):** the composing `MenuType` and `MenuItemType` now carry `#[FormKitConfig('dashboard_menu')]` + `FormOptionsTrait` like their section types. Form names, field names, `_section` hidden child, methods, CSRF settings and the rendered markup are unchanged. A unit test asserts every `src/Form/*Type.php` is bound to the `dashboard_menu` profile.
+
 ### Fixed
 
 - **Bundle routes stay opt-in (REQ-SF-004 rule 7):** `MenuApiController` and `MenuDashboardController` are registered with `autoconfigure: false` and explicit tags (`controller.service_arguments`, plus `container.service_subscriber` for the dashboard `AbstractController`); `#[AsController]` is removed. Symfony >= 7.3 therefore never tags them `routing.controller`, and a host's `controllers: { resource: routing.controllers }` cannot register the bundle routes; they only come from `routes.yaml` / `routes_dashboard.yaml` (prefix, `api` / `web_ui` switches). This replaces `ExcludeControllersFromRoutingPass`, which removed the tag after autoconfiguration. Route names and paths are unchanged. Regression test with a kernel whose routing is only `routing.controllers`.
