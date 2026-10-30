@@ -189,7 +189,12 @@
             {{ form_row(form.config.isUnanimous, {attr: {'data-model': 'on(change)|' ~ formName ~ '.config.isUnanimous'}}) }}
         </div>
         {% endif %}
-        {{ form_rest(form) }}
+        {#- REQ-TWIG-003: custom layout above (data-model bindings, Live visibility); the child loop renders the rest. -#}
+        {% for child in form %}
+            {% if not child.rendered %}
+                {{ form_row(child) }}
+            {% endif %}
+        {% endfor %}
         {% if not _embedded %}
         <div class="{{ nowo_ui_class('form_actions', _b) }}">
             <button

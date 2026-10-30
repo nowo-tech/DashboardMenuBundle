@@ -11,6 +11,7 @@ use Nowo\DashboardMenuBundle\Service\MenuUrlResolver;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
+use Symfony\Component\Routing\Attribute\Route;
 
 use function count;
 use function is_array;
@@ -20,12 +21,16 @@ use function is_string;
 use function sprintf;
 
 /**
- * JSON API for menu tree (SPA / React / Vue). Route: GET {api.path_prefix}/{code} (default /api/menu/{code}), see MenuApiRouteLoader.
+ * JSON API for menu tree (SPA / React / Vue). Route: GET {api.path_prefix}/{code} (default /api/menu/{code}).
+ *
+ * The route is declared here; MenuApiRouteLoader imports it and prepends `api.path_prefix` (or skips it when
+ * `api.enabled` is false).
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
  */
 #[AsController]
+#[Route('/{code}', name: 'nowo_dashboard_menu_api', requirements: ['code' => '[a-zA-Z0-9_-]+'], methods: ['GET'])]
 final readonly class MenuApiController
 {
     /** Each context set is one cache key and, in the legacy fallback, one query: bounded per request. */
