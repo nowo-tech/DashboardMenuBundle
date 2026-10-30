@@ -10,7 +10,6 @@ use Nowo\DashboardMenuBundle\Service\MenuTreeLoader;
 use Nowo\DashboardMenuBundle\Service\MenuUrlResolver;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 
 use function count;
@@ -29,7 +28,6 @@ use function sprintf;
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
  */
-#[AsController]
 #[Route('/{code}', name: 'nowo_dashboard_menu_api', requirements: ['code' => '[a-zA-Z0-9_-]+'], methods: ['GET'])]
 final readonly class MenuApiController
 {

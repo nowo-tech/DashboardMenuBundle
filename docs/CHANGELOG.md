@@ -114,6 +114,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Bundle routes stay opt-in (REQ-SF-004 rule 7):** `MenuApiController` and `MenuDashboardController` are registered with `autoconfigure: false` and explicit tags (`controller.service_arguments`, plus `container.service_subscriber` for the dashboard `AbstractController`); `#[AsController]` is removed. Symfony >= 7.3 therefore never tags them `routing.controller`, and a host's `controllers: { resource: routing.controllers }` cannot register the bundle routes; they only come from `routes.yaml` / `routes_dashboard.yaml` (prefix, `api` / `web_ui` switches). This replaces `ExcludeControllersFromRoutingPass`, which removed the tag after autoconfiguration. Route names and paths are unchanged. Regression test with a kernel whose routing is only `routing.controllers`.
+
 ## [2.14.0] - 2026-10-30
 
 Attribute-declared JSON API route, canonical child loop in form templates, CI matrix 7.4/8.1 See [UPGRADING](UPGRADING.md#to-2140).
