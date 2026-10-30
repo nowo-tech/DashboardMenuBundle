@@ -6,6 +6,7 @@ namespace Nowo\DashboardMenuBundle\Form;
 
 use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
 use Nowo\FormKitBundle\Attribute\FormKitConfig;
+use Nowo\FormKitBundle\Form\FormOptionsTrait;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -22,6 +23,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 #[FormKitConfig('dashboard_menu')]
 final class SortableTreeType extends AbstractType
 {
+    use FormOptionsTrait;
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('tree', HiddenType::class, [

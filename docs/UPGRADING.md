@@ -124,6 +124,11 @@
 
 ## Unreleased
 
+No action needed. `MenuType` and `MenuItemType` are now FormKit Types bound to the `dashboard_menu` profile
+(REQ-TWIG-005 rule 11); their names, fields, CSRF settings and rendered markup are unchanged. `nowo-tech/form-kit-bundle`
+was already a required dependency; override the dashboard form options through `nowo_form_kit.profiles.dashboard_menu`
+(see [CONFIGURATION.md](CONFIGURATION.md#formkit-profile-dashboard_menu)).
+
 ## To 2.14.0
 
 From **2.13.1**:

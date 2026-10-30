@@ -16,6 +16,7 @@
   - [web_ui](#web_ui)
   - [dashboard](#dashboard)
   - [css_class_options](#css_class_options)
+- [FormKit profile (`dashboard_menu`)](#formkit-profile-dashboard_menu)
 - [Security (dashboard admin access)](#security-dashboard-admin-access)
 - [Per-menu options (database)](#per-menu-options-database)
 - [Example](#example)
@@ -343,6 +344,27 @@ nowo_dashboard_menu:
 ```
 
 With the example above, menus that leave **Class section** / **Class divider** empty render sections with `navigation-header` and dividers with `dropdown-divider`.
+
+## FormKit profile (`dashboard_menu`)
+
+Every dashboard form type (menu, menu item and their sections, copy, import, search, row actions, sortable tree) is a
+FormKit Type: `#[FormKitConfig('dashboard_menu')]` + `FormOptionsTrait` (REQ-TWIG-005 rule 11). The bundle prepends
+`nowo_form_kit.profiles.dashboard_menu` (translation domain `NowoDashboardMenuBundle`,
+`convention_requires_translation: true`, field classes for the resolved CSS stack: UiKit `css_framework`, else the
+deprecated `dashboard.css_framework`) and `nowo_form_kit.css_framework` when the host has not set them. It never
+changes the host `default_profile`. To override, define the same profile key; host values are never overwritten:
+
+```yaml
+nowo_form_kit:
+    profiles:
+        dashboard_menu:
+            alias: dashboard_menu
+            translation_domain: NowoDashboardMenuBundle
+            convention_requires_translation: true
+            defaults:
+                attr: { class: 'form-control' }
+                row_attr: { class: 'mb-3' }
+```
 
 ## Security (dashboard admin access)
 
