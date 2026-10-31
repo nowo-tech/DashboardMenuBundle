@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.14.2] - 2026-10-31](#2142---2026-10-31)
 - [[2.14.1] - 2026-10-30](#2141---2026-10-30)
 - [[2.14.0] - 2026-10-30](#2140---2026-10-30)
 - [[2.13.1] - 2026-10-28](#2131---2026-10-28)
@@ -114,6 +115,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [[0.0.1] - 2026-03-10](#001---2026-03-10)
 
 ## [Unreleased]
+
+## [2.14.2] - 2026-10-31
+
+Twig templates pass twig-cs-fixer (formatting only, rendered HTML unchanged); twig lint in CI and release-check. See [UPGRADING](UPGRADING.md#to-2142).
 
 ### Fixed
 
@@ -1507,7 +1512,7 @@ Default output is byte-identical: unset actions keep their bundle variant (`butt
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.14.1...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.14.2...HEAD
 [2.2.4]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.3...v2.2.4
 [2.2.3]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.2...v2.2.3
 [2.2.2]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.1...v2.2.2
