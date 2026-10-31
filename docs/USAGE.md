@@ -8,6 +8,7 @@
   - [Overriding translations](#overriding-translations)
 - [Customising the admin chrome](#customising-the-admin-chrome)
 - [Nested collapse without Bootstrap JS](#nested-collapse-without-bootstrap-js)
+- [Menu render options (link-row groups, dotted links, chevron icon)](#menu-render-options-link-row-groups-dotted-links-chevron-icon)
 - [Items with children (parent, link vs section)](#items-with-children-parent-link-vs-section)
 - [Resolving by context (context sets)](#resolving-by-context-context-sets)
 - [JSON API](#json-api)
@@ -206,6 +207,51 @@ Per include, `menuCollapse`, `menuCollapseMode` and `menuCollapseStorageKey` ove
 ```twig
 {% include '@NowoDashboardMenuBundle/menu.html.twig' with { menuTree: tree, menuCode: 'sidebar', menuCollapse: true, menuCollapseStorageKey: 'app.navCollapse' } %}
 ```
+
+## Menu render options (link-row groups, dotted links, chevron icon)
+
+Since **2.15.0**. Three options of `nowo_dashboard_menu.dashboard` change how `menu.html.twig` draws nested groups, so a
+sidebar with collapsible groups needs no copy of the template (a full override freezes it on the copied version). The
+defaults keep the 2.14 markup byte for byte.
+
+```yaml
+nowo_dashboard_menu:
+    dashboard:
+        nested_group_display: link_row        # collapsible (default) | link_row
+        group_children_marker: dot            # none (default) | dot
+        toggle_icon: 'tabler:chevron-down'    # null (default): the inline SVG triangle
+        group_classes:                        # optional: classes of the added markup (defaults shown)
+            toggle: menu-group-toggle
+            label: menu-group-label
+            chevron: menu-group-chevron
+            dot: menu-group-dot
+```
+
+| Option | Values | Effect |
+|--------|--------|--------|
+| `nested_group_display` | `collapsible` \| `link_row` | `link_row`: a **section nested in another item** (depth > 1) whose children are collapsible renders as one `<button>` toggle row in the link style — `class="<link classes> <group_classes.toggle>[ <class_branch_expanded>]"`, the item icon, `<span class="<group_classes.label>">label</span>` and the chevron (`<group_classes.chevron>`) on the right — instead of the heading link plus the small chevron button. The `<div id="…" class="collapse show">` panel, `data-bs-toggle` / `aria-*` attributes and `menu_collapse` support are unchanged. Top-level sections keep their heading. |
+| `group_children_marker` | `none` \| `dot` | `dot`: links whose parent is a section rendered as a nested list (not flattened by `sectionCollapsible: false`) show `<span class="<group_classes.dot>" aria-hidden="true"></span>` instead of their icon, styled by the host as a bullet. |
+| `toggle_icon` | `null` \| UX icon name | Renders every expand / collapse chevron with `ux_icon(<name>)` (class `menu-nested-toggle-svg` in the existing toggles, `<group_classes.chevron>` in link rows) instead of the inline SVG. Validated as `prefix:name`; needs `symfony/ux-icons`. |
+
+Per include, merge them into `menuConfig` (the same keys), e.g. one menu only:
+
+```twig
+{% set config = dashboard_menu_config('sidebar')|merge({ nested_group_display: 'link_row', group_children_marker: 'dot' }) %}
+{% include '@NowoDashboardMenuBundle/menu.html.twig' with { menuTree: dashboard_menu_tree('sidebar'), menuCode: 'sidebar', menuConfig: config } %}
+```
+
+The bundle ships no CSS for the new elements; a starting point:
+
+```css
+button.menu-group-toggle { display: flex; align-items: center; gap: .5rem; width: 100%; border: 0; background: transparent; font: inherit; text-align: start; }
+button.menu-group-toggle .menu-group-label { flex: 1 1 auto; min-width: 0; }
+button.menu-group-toggle .menu-group-chevron { width: .9rem; height: .9rem; transition: transform .2s ease; }
+button.menu-group-toggle[aria-expanded="false"] .menu-group-chevron { transform: rotate(-90deg); }
+.menu-group-dot { display: inline-grid; place-items: center; width: 1rem; height: 1rem; }
+.menu-group-dot::before { content: ''; width: .3rem; height: .3rem; border-radius: 50%; background: currentColor; opacity: .6; }
+```
+
+The demo home page shows the sidebar menu with the three options (card "Render options").
 
 ## Items with children (parent, link vs section)
 

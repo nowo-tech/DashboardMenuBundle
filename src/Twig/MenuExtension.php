@@ -42,6 +42,7 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
 {
     /**
      * @param array{enabled?: bool, mode?: string, storage_key?: string} $menuCollapse menu_collapse config (2.6.0)
+     * @param array{nested_group_display?: string, group_children_marker?: string, toggle_icon?: string|null, group_classes?: array<string, string>} $menuRender menu.html.twig render options (2.15.0)
      */
     public function __construct(
         private readonly MenuTreeLoader $menuTreeLoader,
@@ -65,6 +66,7 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
         private readonly DashboardUiConfig $dashboardUi = new DashboardUiConfig(),
         private readonly bool $autocompleteBootstrap = true,
         private readonly array $menuCollapse = [],
+        private readonly array $menuRender = [],
     ) {
     }
 
@@ -134,7 +136,11 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
      *     collapsible: bool,
      *     collapsible_expanded: bool,
      *     nested_collapsible: bool,
-     *     menu_name: string|null
+     *     menu_name: string|null,
+     *     nested_group_display: string,
+     *     group_children_marker: string,
+     *     toggle_icon: string|null,
+     *     group_classes: array<string, string>
      * }
      */
     public function getMenuConfig(string $menuCode, ?array $contextSets = null): array
@@ -158,6 +164,16 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
             'collapsible_expanded' => $config['collapsible_expanded'],
             'nested_collapsible'   => $config['nested_collapsible'],
             'menu_name'            => $config['menu_name'],
+            // menu.html.twig render options (2.15.0): defaults keep the 2.14 markup.
+            'nested_group_display'  => $this->menuRender['nested_group_display'] ?? 'collapsible',
+            'group_children_marker' => $this->menuRender['group_children_marker'] ?? 'none',
+            'toggle_icon'           => $this->menuRender['toggle_icon'] ?? null,
+            'group_classes'         => ($this->menuRender['group_classes'] ?? []) + [
+                'toggle'  => 'menu-group-toggle',
+                'label'   => 'menu-group-label',
+                'chevron' => 'menu-group-chevron',
+                'dot'     => 'menu-group-dot',
+            ],
         ];
     }
 

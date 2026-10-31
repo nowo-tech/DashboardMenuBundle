@@ -114,6 +114,30 @@ final class MenuExtensionTest extends TestCase
         self::assertNull($config['menu_name']);
     }
 
+    public function testGetMenuConfigExposesTheRenderOptions(): void
+    {
+        $config = $this->createExtension()->getMenuConfig('sidebar');
+        self::assertSame('collapsible', $config['nested_group_display']);
+        self::assertSame('none', $config['group_children_marker']);
+        self::assertNull($config['toggle_icon']);
+        self::assertSame(
+            ['toggle' => 'menu-group-toggle', 'label' => 'menu-group-label', 'chevron' => 'menu-group-chevron', 'dot' => 'menu-group-dot'],
+            $config['group_classes'],
+        );
+
+        $config = $this->createExtension(menuRender: [
+            'nested_group_display'  => 'link_row',
+            'group_children_marker' => 'dot',
+            'toggle_icon'           => 'tabler:chevron-down',
+            'group_classes'         => ['dot' => 'app-dot'],
+        ])->getMenuConfig('sidebar');
+        self::assertSame('link_row', $config['nested_group_display']);
+        self::assertSame('dot', $config['group_children_marker']);
+        self::assertSame('tabler:chevron-down', $config['toggle_icon']);
+        self::assertSame('app-dot', $config['group_classes']['dot']);
+        self::assertSame('menu-group-toggle', $config['group_classes']['toggle']);
+    }
+
     public function testGetMenuTreeWithoutRequestReturnsTreeWithDefaultLocale(): void
     {
         $menuRepo = $this->createStub(MenuRepository::class);
@@ -254,6 +278,9 @@ final class MenuExtensionTest extends TestCase
         self::assertSame(0, $dataCollector->getMenus()[0]['query_count']);
     }
 
+    /**
+     * @param array<string, mixed> $menuRender
+     */
     private function createExtension(
         ?MenuTreeLoader $menuTreeLoader = null,
         ?MenuUrlResolver $urlResolver = null,
@@ -262,6 +289,7 @@ final class MenuExtensionTest extends TestCase
         ?DashboardMenuDataCollector $dataCollector = null,
         ?MenuQueryCounter $menuQueryCounter = null,
         ?Connection $connection = null,
+        array $menuRender = [],
     ): MenuExtension {
         $menuRepo = $this->createStub(MenuRepository::class);
         $menuRepo->method('findForCodeWithContextSets')->willReturn(null);
@@ -298,6 +326,7 @@ final class MenuExtensionTest extends TestCase
             $dataCollector,
             $menuQueryCounter,
             $connection,
+            menuRender: $menuRender,
         );
     }
 

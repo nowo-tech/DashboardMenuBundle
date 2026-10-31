@@ -6,6 +6,7 @@ namespace Nowo\DashboardMenuBundle\Tests\DependencyInjection;
 
 use Nowo\DashboardMenuBundle\DependencyInjection\Configuration;
 use Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\Definition\Processor;
@@ -149,6 +150,57 @@ final class ConfigurationTest extends TestCase
 
         $config = (new Processor())->processConfiguration(new Configuration(), [['menu_collapse' => ['storage_key' => '']]]);
         self::assertSame('', $config['menu_collapse']['storage_key']);
+    }
+
+    public function testMenuRenderOptionsDefaultsAndOverrides(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [[]]);
+
+        self::assertSame('collapsible', $config['dashboard']['nested_group_display']);
+        self::assertSame('none', $config['dashboard']['group_children_marker']);
+        self::assertNull($config['dashboard']['toggle_icon']);
+        self::assertSame(
+            ['toggle' => 'menu-group-toggle', 'label' => 'menu-group-label', 'chevron' => 'menu-group-chevron', 'dot' => 'menu-group-dot'],
+            $config['dashboard']['group_classes'],
+        );
+
+        $config = (new Processor())->processConfiguration(new Configuration(), [['dashboard' => [
+            'nested_group_display'  => 'link_row',
+            'group_children_marker' => 'dot',
+            'toggle_icon'           => 'tabler:chevron-down',
+            'group_classes'         => ['toggle' => 'app-nav__group-toggle', 'dot' => 'app-nav__dot'],
+        ]]]);
+
+        self::assertSame('link_row', $config['dashboard']['nested_group_display']);
+        self::assertSame('dot', $config['dashboard']['group_children_marker']);
+        self::assertSame('tabler:chevron-down', $config['dashboard']['toggle_icon']);
+        self::assertSame(
+            ['toggle' => 'app-nav__group-toggle', 'dot' => 'app-nav__dot', 'label' => 'menu-group-label', 'chevron' => 'menu-group-chevron'],
+            $config['dashboard']['group_classes'],
+        );
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, string}>
+     */
+    public static function invalidMenuRenderOptions(): iterable
+    {
+        yield 'unknown display' => [['nested_group_display' => 'heading'], 'nested_group_display'];
+        yield 'unknown marker' => [['group_children_marker' => 'bullet'], 'group_children_marker'];
+        yield 'icon without prefix' => [['toggle_icon' => 'chevron-down'], 'dashboard.toggle_icon must be null or a UX icon name'];
+        yield 'icon with markup' => [['toggle_icon' => 'bi:x"><script>'], 'dashboard.toggle_icon must be null or a UX icon name'];
+        yield 'icon not a string' => [['toggle_icon' => 12], 'dashboard.toggle_icon must be null or a UX icon name'];
+    }
+
+    /**
+     * @param array<string, mixed> $dashboard
+     */
+    #[DataProvider('invalidMenuRenderOptions')]
+    public function testMenuRenderOptionsAreValidated(array $dashboard, string $message): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage($message);
+        (new Processor())->processConfiguration(new Configuration(), [['dashboard' => $dashboard]]);
     }
 
     public function testMenuCollapseRejectsUnknownMode(): void

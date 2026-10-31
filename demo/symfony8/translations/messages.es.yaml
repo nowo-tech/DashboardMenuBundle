@@ -27,6 +27,8 @@ demo:
   back_home: "← Inicio"
   context_resolution_title: "Mismo code, resolución por contexto"
   context_resolution_intro: "Pasa el <code>code</code> del menú y un array ordenado de objetos contexto (ej. [{partnerId: 1, operatorId: 1}, {partnerId: 1}, {}]). Se devuelve el primer menú que coincida code + contexto; <code>{}</code> coincide con el menú sin contexto (fallback)."
+  render_options_title: "Opciones de render: grupos como fila de enlace, enlaces con punto, chevrons UX"
+  render_options_intro: "El menú lateral otra vez, con <code>menuConfig</code> combinado con <code>nested_group_display: link_row</code>, <code>group_children_marker: dot</code> y <code>toggle_icon</code> (configúralos globalmente en <code>nowo_dashboard_menu.dashboard</code>). Las secciones anidadas en una sección pasan a ser filas que pliegan; los enlaces dentro de secciones muestran un punto."
   context_example_second_result: "Ejemplo 1: segundo resultado (fallback) — el primer set no coincide, el segundo es {}"
   context_example_random: "Ejemplo 2: aleatorio primero o segundo — dos menús con distinto contexto (partnerId+operatorId, partnerId)"
   context_no_menu: "No se resolvió ningún menú."
