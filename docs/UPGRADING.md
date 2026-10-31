@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.15.0](#to-2150)
 - [To 2.14.2](#to-2142)
 - [To 2.14.1](#to-2141)
 - [To 2.14.0](#to-2140)
@@ -125,6 +126,14 @@
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## To 2.15.0
+
+From **2.14.2**:
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
 
 ## To 2.14.2
 
