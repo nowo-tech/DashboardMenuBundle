@@ -115,6 +115,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Twig lint clean:** the 6 pre-existing `twig-cs-fixer` errors (hash brace spacing) are fixed with no change to the rendered HTML; `make release-check` and CI now run `composer twig:lint`.
+
 ## [2.14.1] - 2026-10-30
 
 Controllers no longer autoconfigured (REQ-SF-004 rule 7, no route change); menu form types are FormKit types (no markup change). See [UPGRADING](UPGRADING.md#to-2141).
