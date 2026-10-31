@@ -18,6 +18,7 @@ use function array_keys;
 use function implode;
 use function is_array;
 use function is_string;
+use function preg_match;
 
 /**
  * Configuration for Dashboard Menu Bundle.
@@ -370,6 +371,34 @@ final class Configuration implements ConfigurationInterface
                         ->booleanNode('item_span_active')
                             ->info('When true, the item label (non-section items) is wrapped in an extra <span> element. This controls rendering of the wrapper in menu.html.twig.')
                             ->defaultValue(false)
+                        ->end()
+                        ->enumNode('nested_group_display')
+                            ->info('How menu.html.twig draws a collapsible section nested in another section: "collapsible" (default, a heading link plus the chevron button) or "link_row" (one <button> toggle row in the link style: icon, label, chevron on the right; classes from group_classes). Top-level sections are unchanged.')
+                            ->values(['collapsible', 'link_row'])
+                            ->defaultValue('collapsible')
+                        ->end()
+                        ->enumNode('group_children_marker')
+                            ->info('Marker of the links whose parent is a section (rendered as a nested list, not flattened): "none" (default, their icon) or "dot" (an empty <span class="group_classes.dot"> instead of the icon, styled by the host as a list bullet).')
+                            ->values(['none', 'dot'])
+                            ->defaultValue('none')
+                        ->end()
+                        ->scalarNode('toggle_icon')
+                            ->info('Symfony UX icon name of the expand / collapse chevrons in menu.html.twig (e.g. "tabler:chevron-down", rendered with ux_icon and class menu-nested-toggle-svg). Null (default) keeps the inline SVG triangle.')
+                            ->defaultNull()
+                            ->validate()
+                                ->ifTrue(static fn (mixed $v): bool => $v !== null && (!is_string($v) || preg_match('/^[a-z0-9-]+:[a-z0-9-]+$/i', $v) !== 1))
+                                ->thenInvalid('dashboard.toggle_icon must be null or a UX icon name "prefix:name", got %s.')
+                            ->end()
+                        ->end()
+                        ->arrayNode('group_classes')
+                            ->info('CSS classes of the markup added by nested_group_display "link_row" and group_children_marker "dot".')
+                            ->addDefaultsIfNotSet()
+                            ->children()
+                                ->scalarNode('toggle')->info('Class added to the link-row <button> (after the link classes).')->defaultValue('menu-group-toggle')->end()
+                                ->scalarNode('label')->info('Class of the <span> holding the group label.')->defaultValue('menu-group-label')->end()
+                                ->scalarNode('chevron')->info('Class of the chevron icon of the link row.')->defaultValue('menu-group-chevron')->end()
+                                ->scalarNode('dot')->info('Class of the dot <span> of the group children.')->defaultValue('menu-group-dot')->end()
+                            ->end()
                         ->end()
                         ->arrayNode('css_class_options')
                             ->info('Lists of CSS classes shown as selectors in the dashboard when editing a menu. Override in app config to customize options.')

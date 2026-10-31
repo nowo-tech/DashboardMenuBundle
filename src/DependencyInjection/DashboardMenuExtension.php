@@ -391,6 +391,13 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
             Configuration::ALIAS . '.dashboard.item_span_active',
             $config['dashboard']['item_span_active'] ?? false,
         );
+        $container->setParameter(Configuration::ALIAS . '.dashboard.menu_render', [
+            // Defaults come from the config tree (Configuration::dashboard).
+            'nested_group_display'  => $config['dashboard']['nested_group_display'],
+            'group_children_marker' => $config['dashboard']['group_children_marker'],
+            'toggle_icon'           => $config['dashboard']['toggle_icon'],
+            'group_classes'         => $config['dashboard']['group_classes'],
+        ]);
         // `css_class_options.span` is configured as a list (same format as the other CSS dropdowns).
         // For the front-end wrapper class we use the first non-empty choice.
         $spanOptions   = $config['dashboard']['css_class_options']['span'] ?? [];

@@ -100,6 +100,27 @@ final class DashboardMenuExtensionTest extends TestCase
         self::assertSame('%' . Configuration::ALIAS . '.menu_collapse%', $arguments['$menuCollapse']);
     }
 
+    public function testCLoadExposesMenuRenderParameter(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'prod');
+        $container->setParameter('kernel.bundles', []);
+
+        (new DashboardMenuExtension())->load([['dashboard' => ['nested_group_display' => 'link_row', 'toggle_icon' => 'tabler:chevron-down']]], $container);
+
+        self::assertSame(
+            [
+                'nested_group_display'  => 'link_row',
+                'group_children_marker' => 'none',
+                'toggle_icon'           => 'tabler:chevron-down',
+                'group_classes'         => ['toggle' => 'menu-group-toggle', 'label' => 'menu-group-label', 'chevron' => 'menu-group-chevron', 'dot' => 'menu-group-dot'],
+            ],
+            $container->getParameter(Configuration::ALIAS . '.dashboard.menu_render'),
+        );
+        $arguments = $container->getDefinition(MenuExtension::class)->getArguments();
+        self::assertSame('%' . Configuration::ALIAS . '.dashboard.menu_render%', $arguments['$menuRender']);
+    }
+
     public function testCLoadExposesDashboardUiParameterAndService(): void
     {
         $container = new ContainerBuilder();

@@ -116,6 +116,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Menu render options** for `menu.html.twig` under `nowo_dashboard_menu.dashboard` (exposed by `dashboard_menu_config()` and overridable per include through `menuConfig`), so hosts no longer copy the template for a grouped sidebar: `nested_group_display` (`collapsible` default | `link_row`: a collapsible section nested in another item renders as one `<button>` toggle row in the link style — icon, label, chevron on the right, `class_branch_expanded` while the current item is inside), `group_children_marker` (`none` default | `dot`: links whose parent is a section show a dot `<span>` instead of their icon), `toggle_icon` (`null` default = inline SVG | a UX icon name `prefix:name` for every chevron) and `group_classes` (`toggle`, `label`, `chevron`, `dot`). With the defaults the markup is byte-identical to 2.14.2 (snapshot test against the 2.14.2 template). Demo: "Render options" card on the home page. See [Usage → Menu render options](USAGE.md#menu-render-options-link-row-groups-dotted-links-chevron-icon).
+
 ## [2.14.2] - 2026-10-31
 
 Twig templates pass twig-cs-fixer (formatting only, rendered HTML unchanged); twig lint in CI and release-check. See [UPGRADING](UPGRADING.md#to-2142).

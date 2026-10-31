@@ -27,6 +27,8 @@ demo:
   back_home: "← Accueil"
   context_resolution_title: "Même code, résolution par contexte"
   context_resolution_intro: "Passez le <code>code</code> du menu et un tableau ordonné d’objets contexte (ex. [{partnerId: 1, operatorId: 1}, {partnerId: 1}, {}]). Le premier menu qui correspond au code et au contexte est renvoyé ; <code>{}</code> correspond au menu sans contexte (repli)."
+  render_options_title: "Options de rendu : groupes en ligne de lien, liens à puce, chevrons UX"
+  render_options_intro: "Le menu latéral à nouveau, avec <code>menuConfig</code> fusionné avec <code>nested_group_display: link_row</code>, <code>group_children_marker: dot</code> et <code>toggle_icon</code> (à définir globalement sous <code>nowo_dashboard_menu.dashboard</code>). Les sections imbriquées dans une section deviennent des lignes repliables ; les liens dans les sections affichent une puce."
   context_example_second_result: "Exemple 1 : deuxième résultat (repli) — le premier set ne correspond pas, le second est {}"
   context_example_random: "Exemple 2 : premier ou second au hasard — deux menus avec des contextes différents (partnerId+operatorId, partnerId)"
   context_no_menu: "Aucun menu résolu."

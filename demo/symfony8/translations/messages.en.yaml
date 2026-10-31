@@ -27,6 +27,8 @@ demo:
   back_home: "← Home"
   context_resolution_title: "Same code, resolution by context"
   context_resolution_intro: "Pass the menu <code>code</code> and an ordered array of context objects (e.g. [{partnerId: 1, operatorId: 1}, {partnerId: 1}, {}]). The first menu that matches code + context is returned; <code>{}</code> matches the menu with no context (fallback)."
+  render_options_title: "Render options: link-row groups, dotted links, UX icon chevrons"
+  render_options_intro: "The sidebar menu again, with <code>menuConfig</code> merged with <code>nested_group_display: link_row</code>, <code>group_children_marker: dot</code> and <code>toggle_icon</code> (set them globally under <code>nowo_dashboard_menu.dashboard</code>). Sections nested in a section become toggle rows; links inside sections show a dot."
   context_example_second_result: "Example 1: second result (fallback) — first set does not match, second is {}"
   context_example_random: "Example 2: random first or second — two menus with different context (partnerId+operatorId, partnerId)"
   context_no_menu: "No menu resolved."

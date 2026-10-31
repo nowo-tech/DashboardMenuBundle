@@ -59,4 +59,17 @@
         </div>
     </div>
 </div>
+
+<div class="card mb-4">
+    <div class="card-header fw-bold">{{ 'demo.render_options_title'|trans({}, _demo_domain) }}</div>
+    <div class="card-body">
+        <p class="text-muted small mb-2">{{ 'demo.render_options_intro'|trans({}, _demo_domain)|raw }}</p>
+        {% set treeOptions = dashboard_menu_tree('sidebar') %}
+        {% set _cfg3 = dashboard_menu_config('sidebar')|default({}) %}
+        {% set configOptions = _cfg3|merge({ nested_group_display: 'link_row', group_children_marker: 'dot', toggle_icon: 'bootstrap-icons:chevron-down' }) %}
+        <nav class="border rounded p-2 bg-light demo-render-options">
+            {% include '@NowoDashboardMenuBundle/menu.html.twig' with { menuTree: treeOptions, menuCode: 'sidebar-options', menuConfig: configOptions } %}
+        </nav>
+    </div>
+</div>
 {% endblock %}

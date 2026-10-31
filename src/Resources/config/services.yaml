@@ -141,6 +141,7 @@ services:
       $dashboardUi: '@Nowo\DashboardMenuBundle\Service\DashboardUiConfig'
       $autocompleteBootstrap: '%nowo_dashboard_menu.dashboard.autocomplete_bootstrap%'
       $menuCollapse: '%nowo_dashboard_menu.menu_collapse%'
+      $menuRender: '%nowo_dashboard_menu.dashboard.menu_render%'
     tags:
       - { name: twig.extension }
     public: false
