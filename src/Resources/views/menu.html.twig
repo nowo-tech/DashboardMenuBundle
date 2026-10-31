@@ -83,7 +83,7 @@
                     {% if showIcon %}
                         {% if ':' in iconName %}
                             {% set iconSize = menuConfig.icon_size|default('1em') %}
-                            {{ ux_icon(iconName, { class: 'menu-item-icon-svg', style: 'height:' ~ iconSize ~ '; width:' ~ iconSize ~ ';', 'aria-hidden': true }) }}
+                            {{ ux_icon(iconName, {class: 'menu-item-icon-svg', style: 'height:' ~ iconSize ~ '; width:' ~ iconSize ~ ';', 'aria-hidden': true}) }}
                         {% else %}
                             {% set iconSize = menuConfig.icon_size|default('1em') %}
                             <span class="menu-item-icon" data-icon="{{ iconName }}" aria-hidden="true" style="font-size: {{ iconSize }}; line-height: 1; display: inline-flex; align-items: center; justify-content: center;"></span>
@@ -136,7 +136,7 @@
 {% set expanded = collapsible ? (menuConfig.collapsible_expanded|default(true)) : true %}
 {# Bootstrap-free collapse (2.6.0, opt-in): data-dashboard-menu-collapse* on the outermost element for js/menu-collapse.js. #}
 {# Per include: menuCollapse (bool), menuCollapseMode ('auto'|'always'), menuCollapseStorageKey (string, '' = no persistence). #}
-{% set _collapseCfg = nowo_dashboard_menu_collapse is defined ? nowo_dashboard_menu_collapse : { enabled: false, mode: 'auto', storage_key: 'nowo.dashboardMenu.navCollapse' } %}
+{% set _collapseCfg = nowo_dashboard_menu_collapse is defined ? nowo_dashboard_menu_collapse : {enabled: false, mode: 'auto', storage_key: 'nowo.dashboardMenu.navCollapse'} %}
 {% set _collapseOn = menuCollapse is defined and menuCollapse is not null ? menuCollapse : _collapseCfg.enabled %}
 {% set _collapseRootAttrs %}{% if _collapseOn %}
     {%- set _branchClass = (menuConfig.classes.class_branch_expanded is defined ? menuConfig.classes.class_branch_expanded : 'active-branch')|trim|split(' ')|first -%}

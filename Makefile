@@ -1,5 +1,5 @@
 # Makefile for Dashboard Menu Bundle
-.PHONY: help up down down-dev build shell install test test-ts test-coverage coverage-check validate-translations cs-check cs-fix qa clean assets ensure-up rector rector-dry phpstan igor release-check release-check-demos demo-smoke composer-sync update validate check-no-cursor-coauthor check-open-prs strip-cursor-coauthor-from-history check-twig-extra check-no-raw-html-form
+.PHONY: help up down down-dev build shell install test test-ts test-coverage coverage-check validate-translations cs-check cs-fix qa clean assets ensure-up rector rector-dry phpstan igor release-check release-check-demos demo-smoke composer-sync update validate check-no-cursor-coauthor check-open-prs strip-cursor-coauthor-from-history check-twig-extra check-no-raw-html-form twig-lint
 
 help:
 	@echo "Dashboard Menu Bundle - Development Commands"
@@ -140,7 +140,7 @@ check-no-raw-html-form:
 # Run Igor worker-state audit (REQ-CS-008)
 igor: ensure-up
 	$(COMPOSE) exec -T php composer igor
-release-check: ensure-up check-no-cursor-coauthor check-open-prs check-twig-extra check-no-raw-html-form assets composer-sync cs-fix cs-check rector-dry phpstan igor test-coverage test-ts release-check-demos
+release-check: ensure-up check-no-cursor-coauthor check-open-prs check-twig-extra check-no-raw-html-form twig-lint assets composer-sync cs-fix cs-check rector-dry phpstan igor test-coverage test-ts release-check-demos
 
 release-check-demos:
 	@if [ -f demo/Makefile ]; then $(MAKE) -C demo release-check; else true; fi
