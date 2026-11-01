@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.16.0](#to-2160)
 - [To 2.15.0](#to-2150)
 - [To 2.14.2](#to-2142)
 - [To 2.14.1](#to-2141)
@@ -126,6 +127,14 @@
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## To 2.16.0
+
+From **2.15.0**:
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
 
 No breaking change. `menu_collapse.nested_default` defaults to `expanded` (2.15.0 markup). To start with the nested groups closed except the current branch, and without remembering the state:
 
