@@ -117,6 +117,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`menu_collapse.nested_default`** (`expanded` | `collapsed` | `current`, default `expanded`): initial state of the nested collapsible groups rendered by `menu.html.twig`. `collapsed` renders every group closed (`<div class="collapse">`, toggle `aria-expanded="false"` with Bootstrap's `collapsed` class); `current` opens only the groups whose branch contains the current item (`hasCurrentInBranch`). Works with Bootstrap JS or the bundle script. Override per menu with `dashboard_menu_config(...)|merge({nested_default: ...})` or per include with `menuCollapseNestedDefault`; `dashboard_menu_config()` and the `nowo_dashboard_menu_collapse` global expose the resolved value. With the default the markup is byte-identical to 2.15.0.
+- With `menu_collapse.enabled`, panels whose branch contains the current item carry `data-dashboard-menu-collapse-current`: `js/menu-collapse.js` never restores them closed from `localStorage` (also when `class_branch_expanded` is empty).
+- `js/menu-collapse.js` keeps Bootstrap's `collapsed` class on toggles in sync with their panel.
+
+### Changed
+
+- `menu_collapse.storage_key: null` is accepted and disables persistence like `""` (it was rejected); the script neither reads nor writes `localStorage` then.
+
 ## [2.15.0] - 2026-10-31
 
 Menu render options: nested_group_display (link_row), group_children_marker (dot), toggle_icon and group_classes; defaults keep the markup byte-identical. See [UPGRADING](UPGRADING.md#to-2150).

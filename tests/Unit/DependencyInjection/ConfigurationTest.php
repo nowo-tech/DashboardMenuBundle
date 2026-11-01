@@ -54,7 +54,7 @@ final class ConfigurationTest extends TestCase
         self::assertSame('bootstrap5', $config['dashboard']['css_framework']);
         self::assertSame('bootstrap-icons', $config['dashboard']['icon_set']);
         self::assertTrue($config['dashboard']['autocomplete_bootstrap']);
-        self::assertSame(['enabled' => false, 'mode' => 'auto', 'storage_key' => 'nowo.dashboardMenu.navCollapse'], $config['menu_collapse']);
+        self::assertSame(['enabled' => false, 'mode' => 'auto', 'storage_key' => 'nowo.dashboardMenu.navCollapse', 'nested_default' => 'expanded'], $config['menu_collapse']);
         self::assertSame([], $config['permission_checker_choices']);
         self::assertSame([], $config['menu_link_resolver_choices']);
         self::assertSame(['ROLE_ADMIN'], $config['security']['access_roles']);
@@ -143,13 +143,25 @@ final class ConfigurationTest extends TestCase
     public function testMenuCollapseCanBeConfigured(): void
     {
         $config = (new Processor())->processConfiguration(new Configuration(), [
-            ['menu_collapse' => ['enabled' => true, 'mode' => 'always', 'storage_key' => 'beacon.navCollapse']],
+            ['menu_collapse' => ['enabled' => true, 'mode' => 'always', 'storage_key' => 'beacon.navCollapse', 'nested_default' => 'current']],
         ]);
 
-        self::assertSame(['enabled' => true, 'mode' => 'always', 'storage_key' => 'beacon.navCollapse'], $config['menu_collapse']);
+        self::assertSame(['enabled' => true, 'mode' => 'always', 'storage_key' => 'beacon.navCollapse', 'nested_default' => 'current'], $config['menu_collapse']);
 
-        $config = (new Processor())->processConfiguration(new Configuration(), [['menu_collapse' => ['storage_key' => '']]]);
+        $config = (new Processor())->processConfiguration(new Configuration(), [['menu_collapse' => ['storage_key' => '', 'nested_default' => 'collapsed']]]);
         self::assertSame('', $config['menu_collapse']['storage_key']);
+        self::assertSame('collapsed', $config['menu_collapse']['nested_default']);
+
+        // null disables persistence too (normalised to "").
+        $config = (new Processor())->processConfiguration(new Configuration(), [['menu_collapse' => ['storage_key' => null]]]);
+        self::assertSame('', $config['menu_collapse']['storage_key']);
+    }
+
+    public function testMenuCollapseRejectsUnknownNestedDefault(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('nested_default');
+        (new Processor())->processConfiguration(new Configuration(), [['menu_collapse' => ['nested_default' => 'open']]]);
     }
 
     public function testMenuRenderOptionsDefaultsAndOverrides(): void
@@ -213,7 +225,7 @@ final class ConfigurationTest extends TestCase
     {
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionMessage('menu_collapse.storage_key must be a string');
-        (new Processor())->processConfiguration(new Configuration(), [['menu_collapse' => ['storage_key' => null]]]);
+        (new Processor())->processConfiguration(new Configuration(), [['menu_collapse' => ['storage_key' => 12]]]);
     }
 
     public function testAutocompleteBootstrapCanBeDisabled(): void

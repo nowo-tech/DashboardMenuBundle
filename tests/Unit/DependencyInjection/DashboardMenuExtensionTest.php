@@ -93,7 +93,7 @@ final class DashboardMenuExtensionTest extends TestCase
         (new DashboardMenuExtension())->load([['menu_collapse' => ['enabled' => true, 'storage_key' => 'beacon.navCollapse']]], $container);
 
         self::assertEquals(
-            ['enabled' => true, 'mode' => 'auto', 'storage_key' => 'beacon.navCollapse'],
+            ['enabled' => true, 'mode' => 'auto', 'storage_key' => 'beacon.navCollapse', 'nested_default' => 'expanded'],
             $container->getParameter(Configuration::ALIAS . '.menu_collapse'),
         );
         $arguments = $container->getDefinition(MenuExtension::class)->getArguments();

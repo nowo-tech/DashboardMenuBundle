@@ -127,6 +127,17 @@
 
 ## Unreleased
 
+No breaking change. `menu_collapse.nested_default` defaults to `expanded` (2.15.0 markup). To start with the nested groups closed except the current branch, and without remembering the state:
+
+```yaml
+nowo_dashboard_menu:
+    menu_collapse:
+        nested_default: current   # expanded (default) | collapsed | current
+        storage_key: ''           # or null: no localStorage persistence
+```
+
+Toggles of closed groups now carry Bootstrap's `collapsed` class; style chevrons with `.menu-nested-toggle.collapsed` / `[aria-expanded="false"]`.
+
 ## To 2.15.0
 
 From **2.14.2**:

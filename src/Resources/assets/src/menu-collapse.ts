@@ -10,7 +10,11 @@
  * - one delegated click listener per root (CSP-safe: no inline handlers, no eval);
  * - keeps `aria-expanded` / `aria-controls` on the toggles and `inert` / `aria-hidden` on the panels in sync;
  * - remembers the open / closed state per menu code in `localStorage` (key configurable; empty = off);
- * - always opens the ancestors of the current item (`<li>` with the branch class, default `active-branch`);
+ * - always opens the ancestors of the current item (`<li>` with the branch class, default `active-branch`, or a
+ *   panel marked `data-dashboard-menu-collapse-current` by the template, 2.16.0): a remembered "closed" state
+ *   never hides the current item;
+ * - the server-rendered state (`menu_collapse.nested_default`: expanded | collapsed | current) is the default
+ *   when nothing is remembered;
  * - mode `auto` (default): when Bootstrap's Collapse is present (`window.bootstrap.Collapse` or the jQuery
  *   plugin) the click handler stands down and Bootstrap toggles, so a panel never flips twice; the script then
  *   only restores / remembers the state and syncs ARIA from Bootstrap's `show|shown|hidden.bs.collapse` events.
@@ -25,6 +29,8 @@ export const MODE_ATTR = 'data-dashboard-menu-collapse-mode';
 export const STORAGE_KEY_ATTR = 'data-dashboard-menu-collapse-storage-key';
 export const BRANCH_CLASS_ATTR = 'data-dashboard-menu-collapse-branch-class';
 export const TOGGLE_ATTR = 'data-dashboard-menu-collapse-toggle';
+/** Panel attribute set by menu.html.twig when the panel's branch contains the current item (2.16.0). */
+export const CURRENT_ATTR = 'data-dashboard-menu-collapse-current';
 export const DEFAULT_STORAGE_KEY = 'nowo.dashboardMenu.navCollapse';
 export const DEFAULT_MENU_CODE = 'menu';
 export const DEFAULT_BRANCH_CLASS = 'active-branch';
@@ -147,7 +153,9 @@ export class MenuCollapse {
         return;
       }
       const item = panel.closest('li');
-      const branchCurrent = item !== null && this.root.contains(item) && item.classList.contains(this.options.branchClass);
+      const branchCurrent =
+        panel.hasAttribute(CURRENT_ATTR) ||
+        (item !== null && this.root.contains(item) && item.classList.contains(this.options.branchClass));
       const savedOpen = saved[panel.id];
       const open = branchCurrent || (typeof savedOpen === 'boolean' ? savedOpen : panel.classList.contains('show'));
       this.applyOpen(panel, open);
@@ -235,6 +243,8 @@ export class MenuCollapse {
         return;
       }
       toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      // Bootstrap's convention: a toggle whose panel is closed carries `collapsed` (chevron styling).
+      toggle.classList.toggle('collapsed', !open);
       if (!toggle.hasAttribute('aria-controls')) {
         toggle.setAttribute('aria-controls', panel.id);
       }

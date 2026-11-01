@@ -8,6 +8,7 @@
   - [Overriding translations](#overriding-translations)
 - [Customising the admin chrome](#customising-the-admin-chrome)
 - [Nested collapse without Bootstrap JS](#nested-collapse-without-bootstrap-js)
+  - [Initial state of nested groups (`nested_default`)](#initial-state-of-nested-groups-nested_default)
 - [Menu render options (link-row groups, dotted links, chevron icon)](#menu-render-options-link-row-groups-dotted-links-chevron-icon)
 - [Items with children (parent, link vs section)](#items-with-children-parent-link-vs-section)
 - [Resolving by context (context sets)](#resolving-by-context-context-sets)
@@ -165,7 +166,8 @@ Since **2.6.0**. Collapsible menus (`collapsible`, `nested_collapsible`) render 
    nowo_dashboard_menu:
        menu_collapse:
            enabled: true
-           storage_key: app.navCollapse   # optional; "" = do not remember
+           storage_key: app.navCollapse   # optional; "" or null = do not remember
+           nested_default: current        # optional (2.16.0); expanded (default) | collapsed | current
    ```
 
 2. **Include the script once per page** (after `assets:install`). The partial prints an external `defer` script with the request `csp_nonce` when one is set — no inline code, no inline handlers:
@@ -188,7 +190,8 @@ Since **2.6.0**. Collapsible menus (`collapsible`, `nested_collapsible`) render 
 
 - One delegated `click` listener per root on `[data-bs-toggle="collapse"]` / `[data-dashboard-menu-collapse-toggle]` (`data-bs-target="#id"`, `href="#id"` or `aria-controls`). Nested roots are independent (a panel is toggled by its closest root only).
 - Keeps `aria-expanded` on every toggle of a panel in sync (adds `aria-controls` when missing); closed panels get `inert` and `aria-hidden="true"`; the panel's `<li>` gets `is-expanded` / `is-collapsed`.
-- Remembers the state per menu code in `localStorage` (`{ "<menu code>": { "<panel id>": bool } }`) and restores it on load; ancestors of the current item (`<li>` with the menu's `class_branch_expanded`, default `active-branch`) are always opened.
+- Remembers the state per menu code in `localStorage` (`{ "<menu code>": { "<panel id>": bool } }`) and restores it on load; ancestors of the current item (`<li>` with the menu's `class_branch_expanded`, default `active-branch`, or a panel with `data-dashboard-menu-collapse-current`) are always opened, whatever was stored. Panels without a stored value keep the server-rendered state (`nested_default`). With an empty storage key nothing is read or written.
+- Keeps Bootstrap's `collapsed` class on the toggles in sync (closed panel = `collapsed`).
 - **Bootstrap JS present:** in `auto` mode (default) the script never toggles (Bootstrap does, so a click flips a panel once); it restores the state and listens to `show|shown|hidden.bs.collapse` to sync `inert` / ARIA and remember the state. In `always` mode it removes `data-bs-toggle` from its toggles so Bootstrap's data API ignores them.
 - Dispatches `dashboard-menu:collapse-toggle` (bubbles; `detail: { menuCode, id, open }`) on the panel after each toggle.
 - Connects on `DOMContentLoaded`, `turbo:load` and `turbo:frame-load` (idempotent); `window.NowoDashboardMenuCollapse.init(scope?)` connects markup added later.
@@ -201,8 +204,37 @@ Since **2.6.0**. Collapsible menus (`collapsible`, `nested_collapsible`) render 
 | `data-dashboard-menu-collapse-mode` | `auto` | `auto` \| `always` (see above). |
 | `data-dashboard-menu-collapse-storage-key` | `nowo.dashboardMenu.navCollapse` | `localStorage` key; empty = no persistence. |
 | `data-dashboard-menu-collapse-branch-class` | `active-branch` | `<li>` class of an ancestor of the current item (forced open). |
+| `data-dashboard-menu-collapse-current` (on a `.collapse` panel) | — | 2.16.0: the panel's branch contains the current item (forced open). Emitted by `menu.html.twig` when `menu_collapse.enabled`. |
 
-Per include, `menuCollapse`, `menuCollapseMode` and `menuCollapseStorageKey` override the `menu_collapse` config:
+### Initial state of nested groups (`nested_default`)
+
+Since **2.16.0**. `menu_collapse.nested_default` decides how `menu.html.twig` renders the nested collapsible groups:
+
+| Value | Groups rendered open | Toggle of a closed group |
+|-------|----------------------|--------------------------|
+| `expanded` (default) | all (2.15 markup, byte-identical) | — |
+| `collapsed` | none | `class="… collapsed" aria-expanded="false"`, panel `class="collapse"` |
+| `current` | those whose branch contains the current item (`hasCurrentInBranch`, the current item itself included) | same as `collapsed` |
+
+`aria-controls` / panel ids are unchanged. It works with Bootstrap's collapse JS as well as the bundle script; with the script, a remembered state still wins for the other groups, so use `storage_key: ''` to always start from the server state:
+
+```yaml
+nowo_dashboard_menu:
+    menu_collapse:
+        enabled: true
+        nested_default: current
+        storage_key: ''
+```
+
+Per menu, merge it into the menu config; per include, `menuCollapseNestedDefault` wins over both:
+
+```twig
+{% set menuConfig = dashboard_menu_config('sidebar')|merge({ nested_default: 'collapsed' }) %}
+{{ include('@NowoDashboardMenuBundle/menu.html.twig', { menuTree: dashboard_menu_tree('sidebar'), menuCode: 'sidebar', menuConfig: menuConfig }) }}
+{{ include('@NowoDashboardMenuBundle/menu.html.twig', { menuTree: dashboard_menu_tree('sidebar'), menuCode: 'sidebar', menuCollapseNestedDefault: 'current' }) }}
+```
+
+Per include, `menuCollapse`, `menuCollapseMode`, `menuCollapseStorageKey` and `menuCollapseNestedDefault` override the `menu_collapse` config:
 
 ```twig
 {% include '@NowoDashboardMenuBundle/menu.html.twig' with { menuTree: tree, menuCode: 'sidebar', menuCollapse: true, menuCollapseStorageKey: 'app.navCollapse' } %}

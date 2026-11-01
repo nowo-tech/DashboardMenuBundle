@@ -79,7 +79,7 @@ final class MenuExtensionTest extends TestCase
         self::assertFalse($globals['nowo_dashboard_ux_autocomplete_available']);
         self::assertTrue($globals['nowo_dashboard_menu_autocomplete_bootstrap']);
         self::assertSame(
-            ['enabled' => false, 'mode' => 'auto', 'storage_key' => 'nowo.dashboardMenu.navCollapse'],
+            ['enabled' => false, 'mode' => 'auto', 'storage_key' => 'nowo.dashboardMenu.navCollapse', 'nested_default' => 'expanded'],
             $globals['nowo_dashboard_menu_collapse'],
         );
     }
@@ -136,6 +136,18 @@ final class MenuExtensionTest extends TestCase
         self::assertSame('tabler:chevron-down', $config['toggle_icon']);
         self::assertSame('app-dot', $config['group_classes']['dot']);
         self::assertSame('menu-group-toggle', $config['group_classes']['toggle']);
+    }
+
+    public function testGetMenuConfigExposesTheNestedDefault(): void
+    {
+        self::assertSame('expanded', $this->createExtension()->getMenuConfig('sidebar')['nested_default']);
+
+        $extension = $this->createExtension(menuCollapse: ['enabled' => true, 'storage_key' => '', 'nested_default' => 'current']);
+        self::assertSame('current', $extension->getMenuConfig('sidebar')['nested_default']);
+        self::assertSame(
+            ['enabled' => true, 'mode' => 'auto', 'storage_key' => '', 'nested_default' => 'current'],
+            $extension->getGlobals()['nowo_dashboard_menu_collapse'],
+        );
     }
 
     public function testGetMenuTreeWithoutRequestReturnsTreeWithDefaultLocale(): void
@@ -280,6 +292,7 @@ final class MenuExtensionTest extends TestCase
 
     /**
      * @param array<string, mixed> $menuRender
+     * @param array{enabled?: bool, mode?: string, storage_key?: string, nested_default?: string} $menuCollapse
      */
     private function createExtension(
         ?MenuTreeLoader $menuTreeLoader = null,
@@ -290,6 +303,7 @@ final class MenuExtensionTest extends TestCase
         ?MenuQueryCounter $menuQueryCounter = null,
         ?Connection $connection = null,
         array $menuRender = [],
+        array $menuCollapse = [],
     ): MenuExtension {
         $menuRepo = $this->createStub(MenuRepository::class);
         $menuRepo->method('findForCodeWithContextSets')->willReturn(null);
@@ -326,6 +340,7 @@ final class MenuExtensionTest extends TestCase
             $dataCollector,
             $menuQueryCounter,
             $connection,
+            menuCollapse: $menuCollapse,
             menuRender: $menuRender,
         );
     }
