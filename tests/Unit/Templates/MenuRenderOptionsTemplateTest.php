@@ -13,7 +13,8 @@ use function file_get_contents;
 use function substr_count;
 
 /**
- * menu.html.twig render options (2.15.0): nested_group_display, group_children_marker, toggle_icon, group_classes.
+ * menu.html.twig render options (2.15.0): nested_group_display, group_children_marker, toggle_icon, group_classes;
+ * nested_default (2.16.0, menu_collapse.nested_default): initial state of the nested collapsible groups.
  * With the defaults (or the options absent from menuConfig) the markup is byte-identical to the 2.14.2 template,
  * kept as tests/Fixtures/menu-2.14.2.html.twig: DashboardMenu is pinned by host apps that assert on that markup.
  */
@@ -27,6 +28,7 @@ final class MenuRenderOptionsTemplateTest extends TestCase
         'group_children_marker' => 'none',
         'toggle_icon'           => null,
         'group_classes'         => ['toggle' => 'menu-group-toggle', 'label' => 'menu-group-label', 'chevron' => 'menu-group-chevron', 'dot' => 'menu-group-dot'],
+        'nested_default'        => 'expanded',
     ];
 
     /**
@@ -133,6 +135,129 @@ final class MenuRenderOptionsTemplateTest extends TestCase
         ]));
         self::assertStringNotContainsString('<path d="M2.5 5.5L8 11l5.5-5.5H2.5z"/>', $html);
         self::assertSame(4, substr_count($html, '<svg data-icon="tabler:chevron-down"></svg>'));
+    }
+
+    public function testExpandedGlobalDefaultKeepsTheLegacyBytes(): void
+    {
+        $renderer = new DashboardTemplateRenderer(hostTemplates: [
+            self::LEGACY => (string) file_get_contents(dirname(__DIR__, 2) . '/Fixtures/menu-2.14.2.html.twig'),
+        ], menuCollapse: ['nested_default' => 'expanded']);
+        $context = self::context(true, false, true);
+
+        self::assertSame($renderer->render(self::LEGACY, $context), $renderer->render(self::MENU, $context));
+    }
+
+    public function testCollapsedRendersEveryNestedGroupClosed(): void
+    {
+        $html = $this->renderer()->render(self::MENU, self::context(true, false, true, ['nested_default' => 'collapsed']));
+
+        self::assertStringNotContainsString('class="collapse show"', $html);
+        self::assertStringNotContainsString('aria-expanded="true"', $html);
+        foreach ([10, 12, 13, 2] as $id) {
+            self::assertStringContainsString('<div id="sidebar-item-' . $id . '" class="collapse">', $html);
+            self::assertStringContainsString(
+                'class="btn btn-link btn-sm p-0 ms-1 menu-nested-toggle collapsed" data-bs-toggle="collapse" data-bs-target="#sidebar-item-' . $id . '" aria-expanded="false" aria-controls="sidebar-item-' . $id . '"',
+                $html,
+            );
+        }
+        self::assertSame(4, substr_count($html, 'aria-expanded="false"'));
+        // No script markers unless menu_collapse is enabled.
+        self::assertStringNotContainsString('data-dashboard-menu-collapse', $html);
+    }
+
+    public function testCurrentOpensOnlyTheBranchOfTheCurrentItem(): void
+    {
+        $html = $this->renderer()->render(self::MENU, self::context(true, false, true, ['nested_default' => 'current']));
+
+        // "Work" > "Reports" > "Weekly" (current): both groups open, toggles expanded without "collapsed".
+        foreach ([10, 12] as $id) {
+            self::assertStringContainsString('<div id="sidebar-item-' . $id . '" class="collapse show">', $html);
+            self::assertStringContainsString('menu-nested-toggle" data-bs-toggle="collapse" data-bs-target="#sidebar-item-' . $id . '" aria-expanded="true" aria-controls="sidebar-item-' . $id . '"', $html);
+        }
+        // "Archive" (sibling group) and "Settings" (link with children) are outside the branch: closed.
+        foreach ([13, 2] as $id) {
+            self::assertStringContainsString('<div id="sidebar-item-' . $id . '" class="collapse">', $html);
+            self::assertStringContainsString('menu-nested-toggle collapsed" data-bs-toggle="collapse" data-bs-target="#sidebar-item-' . $id . '" aria-expanded="false" aria-controls="sidebar-item-' . $id . '"', $html);
+        }
+    }
+
+    public function testLinkRowGroupsFollowTheNestedDefault(): void
+    {
+        $html = $this->renderer()->render(self::MENU, self::context(true, false, true, ['nested_group_display' => 'link_row', 'nested_default' => 'current']));
+
+        self::assertStringContainsString(
+            '<button type="button" class="nav-link ps-0 menu-group-toggle is-branch-current" data-bs-toggle="collapse" data-bs-target="#sidebar-item-12" aria-expanded="true" aria-controls="sidebar-item-12">',
+            $html,
+        );
+        self::assertStringContainsString(
+            '<button type="button" class="nav-link ps-0 menu-group-toggle collapsed" data-bs-toggle="collapse" data-bs-target="#sidebar-item-13" aria-expanded="false" aria-controls="sidebar-item-13">',
+            $html,
+        );
+        self::assertStringContainsString('<div id="sidebar-item-13" class="collapse">', $html);
+    }
+
+    public function testCurrentWithDeepNesting(): void
+    {
+        $item = static fn (int $id, string $type = 'link'): MenuItem => DashboardTemplateRenderer::item($id, 'Item ' . $id, true, $type);
+        $node = static fn (int $id, array $children = [], bool $current = false, bool $branch = false, string $type = 'link'): array => [
+            'item'               => $item($id, $type),
+            'children'           => $children,
+            'href'               => '/' . $id,
+            'isCurrent'          => $current,
+            'hasCurrentInBranch' => $branch || $current,
+        ];
+        $context             = self::context(true, false, false, ['nested_default' => 'current']);
+        $context['menuTree'] = [
+            // Level 1 > 2 > 3 > 4 (current at level 4): every ancestor group open.
+            $node(1, [$node(11, [$node(111, [$node(1111, [], true)], false, true)], false, true), $node(12, [$node(121)])], false, true),
+            // A deep branch without the current item: every group closed.
+            $node(2, [$node(21, [$node(211, [$node(2111)])])]),
+            // The current item itself has children: its own group opens (its branch contains the current item).
+            $node(3, [$node(31)], true),
+        ];
+
+        $html = $this->renderer()->render(self::MENU, $context);
+
+        foreach ([1, 11, 111, 3] as $id) {
+            self::assertStringContainsString('<div id="sidebar-item-' . $id . '" class="collapse show">', $html);
+        }
+        foreach ([12, 2, 21, 211] as $id) {
+            self::assertStringContainsString('<div id="sidebar-item-' . $id . '" class="collapse">', $html);
+            self::assertStringContainsString('data-bs-target="#sidebar-item-' . $id . '" aria-expanded="false" aria-controls="sidebar-item-' . $id . '"', $html);
+        }
+    }
+
+    public function testPrecedenceIncludeVariableThenMenuConfigThenGlobal(): void
+    {
+        $global = new DashboardTemplateRenderer(menuCollapse: ['nested_default' => 'collapsed']);
+
+        // Global only.
+        self::assertStringNotContainsString('class="collapse show"', $global->render(self::MENU, self::context(true, false, false)));
+        // menuConfig.nested_default (e.g. dashboard_menu_config(...)|merge) beats the global value.
+        self::assertStringContainsString('class="collapse show"', $global->render(self::MENU, self::context(true, false, false, ['nested_default' => 'expanded'])));
+        // The include variable beats both; null falls through.
+        $html = $global->render(self::MENU, self::context(true, false, false, ['nested_default' => 'expanded']) + ['menuCollapseNestedDefault' => 'current']);
+        self::assertStringContainsString('<div id="sidebar-item-12" class="collapse show">', $html);
+        self::assertStringContainsString('<div id="sidebar-item-13" class="collapse">', $html);
+        $html = $global->render(self::MENU, self::context(true, false, false) + ['menuCollapseNestedDefault' => null]);
+        self::assertStringNotContainsString('class="collapse show"', $html);
+        // Unknown values render expanded (the config tree validates the global value).
+        self::assertStringNotContainsString('aria-expanded="false"', $global->render(self::MENU, self::context(true, false, false) + ['menuCollapseNestedDefault' => 'bogus']));
+    }
+
+    public function testCurrentBranchPanelsAreMarkedForTheScriptWhenMenuCollapseIsOn(): void
+    {
+        $renderer = new DashboardTemplateRenderer(menuCollapse: ['enabled' => true, 'storage_key' => '', 'nested_default' => 'current']);
+        $html     = $renderer->render(self::MENU, self::context(true, false, false));
+
+        self::assertStringContainsString('data-dashboard-menu-collapse-storage-key=""', $html);
+        self::assertStringContainsString('<div id="sidebar-item-10" class="collapse show" data-dashboard-menu-collapse-current>', $html);
+        self::assertStringContainsString('<div id="sidebar-item-12" class="collapse show" data-dashboard-menu-collapse-current>', $html);
+        self::assertStringContainsString('<div id="sidebar-item-13" class="collapse">', $html);
+        self::assertSame(2, substr_count($html, 'data-dashboard-menu-collapse-current'));
+
+        // Off per include: no markers.
+        self::assertStringNotContainsString('data-dashboard-menu-collapse', $renderer->render(self::MENU, self::context(true, false, false) + ['menuCollapse' => false]));
     }
 
     private function renderer(): DashboardTemplateRenderer

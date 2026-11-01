@@ -77,7 +77,7 @@ final readonly class DashboardTemplateRenderer
     /**
      * @param array<string, mixed> $ui dashboard.ui config
      * @param array<string, string> $hostTemplates extra templates (name => source), e.g. a host modal shell
-     * @param array{enabled?: bool, mode?: string, storage_key?: string} $menuCollapse menu_collapse config (2.6.0)
+     * @param array{enabled?: bool, mode?: string, storage_key?: string, nested_default?: string} $menuCollapse menu_collapse config (2.6.0)
      */
     public function __construct(array $ui = [], array $hostTemplates = [], string $locale = 'en', ?string $viewsRoot = null, array $menuCollapse = [])
     {
@@ -305,7 +305,7 @@ final readonly class DashboardTemplateRenderer
     }
 
     /**
-     * @param array{enabled?: bool, mode?: string, storage_key?: string} $menuCollapse
+     * @param array{enabled?: bool, mode?: string, storage_key?: string, nested_default?: string} $menuCollapse
      */
     private function menuExtension(DashboardUiConfig $ui, array $menuCollapse = []): MenuExtension
     {

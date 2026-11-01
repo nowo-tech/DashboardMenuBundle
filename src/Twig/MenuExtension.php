@@ -33,7 +33,7 @@ use Twig\TwigFunction;
  * Global nowo_dashboard_menu_ui + dashboard_menu_ui_class(key, default): deprecated 1.x admin chrome hooks (dashboard.ui, 2.3.0;
  * unused by the 2.7 pages, kept for host templates until 3.0).
  * Global nowo_dashboard_menu_autocomplete_bootstrap: dashboard.autocomplete_bootstrap (2.3.2).
- * Global nowo_dashboard_menu_collapse: menu_collapse {enabled, mode, storage_key} for menu.html.twig (2.6.0).
+ * Global nowo_dashboard_menu_collapse: menu_collapse {enabled, mode, storage_key, nested_default} for menu.html.twig (2.6.0; nested_default 2.16.0).
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
@@ -41,7 +41,7 @@ use Twig\TwigFunction;
 final class MenuExtension extends AbstractExtension implements GlobalsInterface
 {
     /**
-     * @param array{enabled?: bool, mode?: string, storage_key?: string} $menuCollapse menu_collapse config (2.6.0)
+     * @param array{enabled?: bool, mode?: string, storage_key?: string, nested_default?: string} $menuCollapse menu_collapse config (2.6.0)
      * @param array{nested_group_display?: string, group_children_marker?: string, toggle_icon?: string|null, group_classes?: array<string, string>} $menuRender menu.html.twig render options (2.15.0)
      */
     public function __construct(
@@ -80,9 +80,10 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
             'nowo_dashboard_menu_ui'                     => $this->dashboardUi->toArray(),
             'nowo_dashboard_menu_autocomplete_bootstrap' => $this->autocompleteBootstrap,
             'nowo_dashboard_menu_collapse'               => [
-                'enabled'     => $this->menuCollapse['enabled'] ?? false,
-                'mode'        => $this->menuCollapse['mode'] ?? 'auto',
-                'storage_key' => $this->menuCollapse['storage_key'] ?? 'nowo.dashboardMenu.navCollapse',
+                'enabled'        => $this->menuCollapse['enabled'] ?? false,
+                'mode'           => $this->menuCollapse['mode'] ?? 'auto',
+                'storage_key'    => $this->menuCollapse['storage_key'] ?? 'nowo.dashboardMenu.navCollapse',
+                'nested_default' => $this->menuCollapse['nested_default'] ?? 'expanded',
             ],
         ];
     }
@@ -140,7 +141,8 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
      *     nested_group_display: string,
      *     group_children_marker: string,
      *     toggle_icon: string|null,
-     *     group_classes: array<string, string>
+     *     group_classes: array<string, string>,
+     *     nested_default: string
      * }
      */
     public function getMenuConfig(string $menuCode, ?array $contextSets = null): array
@@ -174,6 +176,8 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
                 'chevron' => 'menu-group-chevron',
                 'dot'     => 'menu-group-dot',
             ],
+            // Initial state of the nested collapsible groups (2.16.0): expanded | collapsed | current.
+            'nested_default' => $this->menuCollapse['nested_default'] ?? 'expanded',
         ];
     }
 

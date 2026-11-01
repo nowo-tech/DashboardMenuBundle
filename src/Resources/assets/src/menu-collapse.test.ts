@@ -5,6 +5,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   autoInit,
+  CURRENT_ATTR,
   DEFAULT_BRANCH_CLASS,
   DEFAULT_MENU_CODE,
   DEFAULT_STORAGE_KEY,
@@ -222,6 +223,56 @@ describe('MenuCollapse without Bootstrap JS', () => {
     toggleFor('sidebar-item-2').click();
     expect(panel('sidebar-item-2').classList.contains('show')).toBe(false);
     expect(localStorage.length).toBe(0);
+  });
+
+  it('ignores a stored value saved under the default key when the storage key is empty (reads nothing)', () => {
+    localStorage.setItem(DEFAULT_STORAGE_KEY, JSON.stringify({ sidebar: { 'sidebar-item-2': false } }));
+    const root = mount(menuMarkup('data-dashboard-menu-collapse="sidebar" data-dashboard-menu-collapse-storage-key=""'));
+    new MenuCollapse(root).connect();
+    expect(panel('sidebar-item-2').classList.contains('show')).toBe(true);
+    toggleFor('sidebar-item-2').click();
+    expect(stored()).toEqual({ sidebar: { 'sidebar-item-2': false } });
+  });
+
+  it('nested_default collapsed/current: keeps the server state, never collapses a panel marked current', () => {
+    // Server markup of nested_default "current": item-1 holds the current item (marked, open), item-2 closed.
+    document.body.innerHTML = `
+      <ul data-dashboard-menu-collapse="sidebar" data-dashboard-menu-collapse-branch-class="is-branch-current">
+        <li>
+          <button type="button" class="menu-nested-toggle" data-bs-toggle="collapse" data-bs-target="#p1" aria-expanded="true" aria-controls="p1">t</button>
+          <div id="p1" class="collapse show" ${CURRENT_ATTR}><ul><li>
+            <button type="button" class="menu-nested-toggle collapsed" data-bs-toggle="collapse" data-bs-target="#p3" aria-expanded="false" aria-controls="p3">t</button>
+            <div id="p3" class="collapse"><ul><li><a href="/c">C</a></li></ul></div>
+          </li></ul></div>
+        </li>
+        <li>
+          <button type="button" class="menu-nested-toggle collapsed" data-bs-toggle="collapse" data-bs-target="#p2" aria-expanded="false" aria-controls="p2">t</button>
+          <div id="p2" class="collapse"><ul><li><a href="/b">B</a></li></ul></div>
+        </li>
+      </ul>`;
+    localStorage.setItem(DEFAULT_STORAGE_KEY, JSON.stringify({ sidebar: { p1: false, p2: true } }));
+    const root = document.querySelector<HTMLElement>('[data-dashboard-menu-collapse]') as HTMLElement;
+    new MenuCollapse(root).connect();
+
+    // p1 is in the current branch (marker, no branch class on the <li>): the stored "closed" is ignored.
+    expect(panel('p1').classList.contains('show')).toBe(true);
+    expect(toggleFor('p1').classList.contains('collapsed')).toBe(false);
+    // p2 is restored open from storage; the Bootstrap "collapsed" class follows.
+    expect(panel('p2').classList.contains('show')).toBe(true);
+    expect(toggleFor('p2').getAttribute('aria-expanded')).toBe('true');
+    expect(toggleFor('p2').classList.contains('collapsed')).toBe(false);
+    // p3 has nothing stored: the server default (collapsed) stays, inert and hidden.
+    expect(panel('p3').classList.contains('show')).toBe(false);
+    expect(panel('p3').hasAttribute('inert')).toBe(true);
+    expect(toggleFor('p3').classList.contains('collapsed')).toBe(true);
+
+    // The user can still close the current branch for this page; it is remembered but reopened on the next load.
+    toggleFor('p1').click();
+    expect(panel('p1').classList.contains('show')).toBe(false);
+    expect(toggleFor('p1').classList.contains('collapsed')).toBe(true);
+    expect(stored().sidebar.p1).toBe(false);
+    new MenuCollapse(root).connect();
+    expect(panel('p1').classList.contains('show')).toBe(true);
   });
 
   it('survives invalid or unavailable storage', () => {

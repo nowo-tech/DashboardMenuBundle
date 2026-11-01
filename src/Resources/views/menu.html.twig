@@ -32,7 +32,7 @@
     {% set classCollapsed = menuConfig.classes.class_collapsed is defined ? menuConfig.classes.class_collapsed : '' %}
     {% set isCurrent = node.isCurrent|default(false) %}
     {% set hasCurrentInBranch = node.hasCurrentInBranch|default(false) %}
-    {# Nested collapsible: global flag plus whether sections inherit collapsible children by default. Render options (2.15.0, set lines trimmed with ~ so the default markup is unchanged): nested_group_display link_row = a collapsible section nested in a section is one toggle row in the link style; group_children_marker dot = links whose parent is a section show a dot instead of their icon; toggle_icon = UX icon name of the chevrons (null = inline SVG). #}
+    {# Nested collapsible: global flag plus whether sections inherit collapsible children by default. Render options (2.15.0, set lines trimmed with ~ so the default markup is unchanged): nested_group_display link_row = a collapsible section nested in a section is one toggle row in the link style; group_children_marker dot = links whose parent is a section show a dot instead of their icon; toggle_icon = UX icon name of the chevrons (null = inline SVG). nested_default (2.16.0, menu_collapse.nested_default) = initial state of the group: expanded (default) | collapsed | current (open iff the branch holds the current item); collapsed toggles get the Bootstrap "collapsed" class and aria-expanded="false". #}
     {% set nestedCollapsible = menuConfig.nested_collapsible|default(false) %}
     {% set nestedCollapsibleSections = menuConfig.nested_collapsible_sections|default(true) %}
     {% set menuDefaultSectionCollapsible = nestedCollapsible and nestedCollapsibleSections %}
@@ -48,6 +48,9 @@
     {%~ set toggleIcon = menuConfig.toggle_icon|default(null) %}
     {%~ set linkRowGroup = nestedGroupDisplay == 'link_row' and itemType == 'section' and useNestedCollapsibleForChildren and hasChildren and depth > 1 %}
     {%~ set groupChildDot = menuConfig.group_children_marker|default('none') == 'dot' and parentItemType == 'section' %}
+    {%~ set nestedDefault = menuConfig.nested_default|default('expanded') %}
+    {%~ set groupOpen = nestedDefault not in ['collapsed', 'current'] or (nestedDefault == 'current' and hasCurrentInBranch) %}
+    {%~ set groupMarkCurrent = menuConfig._collapse_markers|default(false) and hasCurrentInBranch %}
     {# Section with sectionCollapsible explicitly false: render children as sibling <li> under the parent <ul>, not in a nested sub-list. #}
     {% set flattenSectionChildren = itemType == 'section' and item.sectionCollapsible is same as(false) and hasChildren %}
     {# Extra <li> classes reflecting branch state (current in subtree, has children, expanded vs collapsed). #}
@@ -68,7 +71,7 @@
             {% if linkRowGroup %}
                 {%~ set groupToggleClass = menuConfig.group_classes.toggle|default('menu-group-toggle') %}
                 {%~ set groupChevronClass = menuConfig.group_classes.chevron|default('menu-group-chevron') %}
-                <button type="button" class="{{ linkClasses }} {{ groupToggleClass }}{{ hasCurrentInBranch and classBranchExpanded is not empty ? ' ' ~ classBranchExpanded : '' }}" data-bs-toggle="collapse" data-bs-target="#{{ collapseId }}" aria-expanded="true" aria-controls="{{ collapseId }}">
+                <button type="button" class="{{ linkClasses }} {{ groupToggleClass }}{{ hasCurrentInBranch and classBranchExpanded is not empty ? ' ' ~ classBranchExpanded : '' }}{{ groupOpen ? '' : ' collapsed' }}" data-bs-toggle="collapse" data-bs-target="#{{ collapseId }}" aria-expanded="{{ groupOpen ? 'true' : 'false' }}" aria-controls="{{ collapseId }}">
                     {% if menuConfig.icons.enabled and iconName is not empty %}
                         {% set iconSize = menuConfig.icon_size|default('1em') %}
                         {% if ':' in iconName %}
@@ -89,7 +92,7 @@
                     <span{% if menuConfig.item_span_class is not empty %} class="{{ menuConfig.item_span_class }}"{% endif %}>
                 {% endif %}
                 <a href="#" class="{{ sectionLabelClasses }} menu-section-label-link min-w-0 d-inline-flex align-items-center text-decoration-none" tabindex="-1">{{ item.label }}</a>
-                <button type="button" class="btn btn-link btn-sm p-0 ms-1 menu-nested-toggle" data-bs-toggle="collapse" data-bs-target="#{{ collapseId }}" aria-expanded="true" aria-controls="{{ collapseId }}" title="{{ 'dashboard.toggle'|trans({}, 'NowoDashboardMenuBundle') }}">
+                <button type="button" class="btn btn-link btn-sm p-0 ms-1 menu-nested-toggle{{ groupOpen ? '' : ' collapsed' }}" data-bs-toggle="collapse" data-bs-target="#{{ collapseId }}" aria-expanded="{{ groupOpen ? 'true' : 'false' }}" aria-controls="{{ collapseId }}" title="{{ 'dashboard.toggle'|trans({}, 'NowoDashboardMenuBundle') }}">
                     <span class="menu-nested-toggle-icon" aria-hidden="true">{% if toggleIcon %}{{ ux_icon(toggleIcon, {class: 'menu-nested-toggle-svg', 'aria-hidden': true}) }}{% else %}<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M2.5 5.5L8 11l5.5-5.5H2.5z"/></svg>{% endif %}</span>
                 </button>
                 {% if menuConfig.item_span_active|default(false) %}
@@ -117,7 +120,7 @@
                     {{ item.label }}
                 </a>
                 {% if useNestedCollapsibleForChildren and hasChildren %}
-                    <button type="button" class="btn btn-link btn-sm p-0 ms-1 menu-nested-toggle" data-bs-toggle="collapse" data-bs-target="#{{ collapseId }}" aria-expanded="true" aria-controls="{{ collapseId }}" title="{{ 'dashboard.toggle'|trans({}, 'NowoDashboardMenuBundle') }}">
+                    <button type="button" class="btn btn-link btn-sm p-0 ms-1 menu-nested-toggle{{ groupOpen ? '' : ' collapsed' }}" data-bs-toggle="collapse" data-bs-target="#{{ collapseId }}" aria-expanded="{{ groupOpen ? 'true' : 'false' }}" aria-controls="{{ collapseId }}" title="{{ 'dashboard.toggle'|trans({}, 'NowoDashboardMenuBundle') }}">
                         <span class="menu-nested-toggle-icon" aria-hidden="true">{% if toggleIcon %}{{ ux_icon(toggleIcon, {class: 'menu-nested-toggle-svg', 'aria-hidden': true}) }}{% else %}<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M2.5 5.5L8 11l5.5-5.5H2.5z"/></svg>{% endif %}</span>
                     </button>
                 {% endif %}
@@ -128,7 +131,7 @@
         {% if hasChildren and not flattenSectionChildren %}
             {% set childUlClasses = itemType == 'section' and sectionDirectChildrenClasses|trim != '' ? sectionDirectChildrenClasses : childrenClasses %}
             {% if useNestedCollapsibleForChildren %}
-                <div id="{{ collapseId }}" class="collapse show">
+                <div id="{{ collapseId }}" class="collapse{{ groupOpen ? ' show' : '' }}"{% if groupMarkCurrent %} data-dashboard-menu-collapse-current{% endif %}>
                     <ul{% if childUlClasses %} class="{{ childUlClasses }}"{% endif %}>
                         {% for child in node.children %}
                             {{ _self.render_node(child, menuConfig, depth + 1, idPrefix, itemType) }}
@@ -160,9 +163,12 @@
 {% set collapseId = 'dashboard-menu-' ~ code %}
 {% set expanded = collapsible ? (menuConfig.collapsible_expanded|default(true)) : true %}
 {# Bootstrap-free collapse (2.6.0, opt-in): data-dashboard-menu-collapse* on the outermost element for js/menu-collapse.js. #}
-{# Per include: menuCollapse (bool), menuCollapseMode ('auto'|'always'), menuCollapseStorageKey (string, '' = no persistence). #}
-{% set _collapseCfg = nowo_dashboard_menu_collapse is defined ? nowo_dashboard_menu_collapse : {enabled: false, mode: 'auto', storage_key: 'nowo.dashboardMenu.navCollapse'} %}
+{# Per include: menuCollapse (bool), menuCollapseMode ('auto'|'always'), menuCollapseStorageKey (string, '' = no persistence), menuCollapseNestedDefault ('expanded'|'collapsed'|'current'). #}
+{% set _collapseCfg = nowo_dashboard_menu_collapse is defined ? nowo_dashboard_menu_collapse : {enabled: false, mode: 'auto', storage_key: 'nowo.dashboardMenu.navCollapse', nested_default: 'expanded'} %}
 {% set _collapseOn = menuCollapse is defined and menuCollapse is not null ? menuCollapse : _collapseCfg.enabled %}
+{# Nested groups initial state (2.16.0): menuCollapseNestedDefault include variable > menuConfig.nested_default > menu_collapse.nested_default. Panels in the current branch get data-dashboard-menu-collapse-current when the script markers are on. #}
+{% set _nestedDefault = menuCollapseNestedDefault is defined and menuCollapseNestedDefault is not null ? menuCollapseNestedDefault : (menuConfig.nested_default is defined and menuConfig.nested_default is not null ? menuConfig.nested_default : _collapseCfg.nested_default|default('expanded')) %}
+{% set menuConfig = menuConfig|merge({nested_default: _nestedDefault, _collapse_markers: _collapseOn}) %}
 {% set _collapseRootAttrs %}{% if _collapseOn %}
     {%- set _branchClass = (menuConfig.classes.class_branch_expanded is defined ? menuConfig.classes.class_branch_expanded : 'active-branch')|trim|split(' ')|first -%}
     {{- ' ' -}}data-dashboard-menu-collapse="{{ code }}" data-dashboard-menu-collapse-mode="{{ menuCollapseMode is defined and menuCollapseMode is not null ? menuCollapseMode : _collapseCfg.mode }}" data-dashboard-menu-collapse-storage-key="{{ menuCollapseStorageKey is defined and menuCollapseStorageKey is not null ? menuCollapseStorageKey : _collapseCfg.storage_key }}"{% if _branchClass %} data-dashboard-menu-collapse-branch-class="{{ _branchClass }}"{% endif %}

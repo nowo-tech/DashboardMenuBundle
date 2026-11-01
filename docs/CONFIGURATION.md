@@ -210,7 +210,8 @@ Since **2.6.0**. Makes the menu's Bootstrap collapse markup (`data-bs-toggle="co
 |---------------|----------------------------------|-------------|
 | `enabled`     | `false`                          | `menu.html.twig` adds `data-dashboard-menu-collapse="<code>"` (+ `-mode`, `-storage-key`, `-branch-class`) to the menu root (the `.dashboard-menu-collapsible` wrapper when the menu is collapsible, else the root `<ul>`). Per include: `menuCollapse: true\|false`. |
 | `mode`        | `auto`                           | `auto`: while Bootstrap Collapse JS is loaded (`window.bootstrap.Collapse` or the jQuery plugin) the script does not toggle (Bootstrap does — no double toggle); it still restores / remembers the state and syncs ARIA. `always`: the script owns the toggles (removes their `data-bs-toggle`, so Bootstrap ignores them). Per include: `menuCollapseMode`. |
-| `storage_key` | `nowo.dashboardMenu.navCollapse` | `localStorage` key, value `{ "<menu code>": { "<panel id>": true\|false } }`. `""` disables persistence. Per include: `menuCollapseStorageKey`. |
+| `storage_key` | `nowo.dashboardMenu.navCollapse` | `localStorage` key, value `{ "<menu code>": { "<panel id>": true\|false } }`. `""` (or `null`, normalised to `""`) disables persistence: the script neither reads nor writes `localStorage`. Per include: `menuCollapseStorageKey`. |
+| `nested_default` | `expanded` | Since **2.16.0**. Initial state of the nested collapsible groups (`nested_collapsible` / collapsible sections) rendered by `menu.html.twig`: `expanded` (every group open, the 2.15 markup), `collapsed` (every group closed: `<div class="collapse">`, toggle `aria-expanded="false"` + Bootstrap's `collapsed` class), `current` (open only the groups whose branch contains the current item, the others closed). Applies to the markup whether or not `enabled` is true (Bootstrap JS or the bundle script). Per menu: `dashboard_menu_config('sidebar')\|merge({nested_default: 'current'})`; per include: `menuCollapseNestedDefault`. With `enabled`, the panels of the current branch carry `data-dashboard-menu-collapse-current` and the script never restores them closed. |
 
 ```yaml
 nowo_dashboard_menu:
@@ -218,9 +219,20 @@ nowo_dashboard_menu:
         enabled: true
         mode: auto            # auto | always
         storage_key: app.navCollapse
+        nested_default: expanded   # expanded | collapsed | current
 ```
 
-The Twig global `nowo_dashboard_menu_collapse` exposes the resolved values (`enabled`, `mode`, `storage_key`).
+Nested groups closed by default, opened only along the current item, nothing remembered between pages (copy-paste):
+
+```yaml
+nowo_dashboard_menu:
+    menu_collapse:
+        enabled: true          # data attributes for js/menu-collapse.js (omit when Bootstrap JS handles the toggles)
+        nested_default: current
+        storage_key: ''        # '' or null = no localStorage persistence
+```
+
+The Twig global `nowo_dashboard_menu_collapse` exposes the resolved values (`enabled`, `mode`, `storage_key`, `nested_default`); `dashboard_menu_config()` also returns `nested_default`.
 
 ### web_ui
 
