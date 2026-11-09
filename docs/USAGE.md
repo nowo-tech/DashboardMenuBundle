@@ -19,6 +19,9 @@
 - [Request performance (menu lookup memo)](#request-performance-menu-lookup-memo)
 - [Permissions](#permissions)
   - [Demo expression syntax (AND / OR / parentheses)](#demo-expression-syntax-and--or--parentheses)
+- [Using it from a DDD / hexagonal application](#using-it-from-a-ddd--hexagonal-application)
+  - [Keeping your domain free of the bundle](#keeping-your-domain-free-of-the-bundle)
+  - [Known limitations](#known-limitations)
 - [Item visibility rules](#item-visibility-rules)
   - [1. Permission check (per item, all types)](#1-permission-check-per-item-all-types)
   - [2. Link (leaf) — always visible when the checker allows](#2-link-leaf--always-visible-when-the-checker-allows)
@@ -494,6 +497,75 @@ Notes:
 - **Attribute:** `#[PermissionCheckerLabel('Your label')]` on the class (use `Nowo\DashboardMenuBundle\Attribute\PermissionCheckerLabel`)
 
 If neither is set, the service id (e.g. FQCN) is used as the label. You can discover your checker via a service directory (e.g. `App\Service\`: `resource: '../src/Service/'`) so you do not need to register it explicitly in `services.yaml`. You can still order or override labels via config: `permission_checker_choices` as a list of service IDs or a map (service id => label) in `nowo_dashboard_menu.yaml` (see [CONFIGURATION](CONFIGURATION.md#permission_checker_choices)). Assign a checker to a menu in the dashboard (per-menu) or leave the menu with no checker for default allow-all behaviour. Manually tagging with `nowo_dashboard_menu.permission_checker` in `services.yaml` or using `#[AsTaggedItem]` remains supported.
+
+## Using it from a DDD / hexagonal application
+
+DashboardMenuBundle is a navigation (presentation) component with its own small persistence: the `Menu` and
+`MenuItem` entities and their tables (`dashboard_menu`, `dashboard_menu_item`, optionally prefixed). It never maps
+or references your entities: no `resolve_target_entities`, no base class or trait to extend. You map
+`Nowo\DashboardMenuBundle\Entity` in `doctrine.orm.mappings` and create the tables with
+`nowo_dashboard_menu:generate-migration`.
+
+### Keeping your domain free of the bundle
+
+Your domain does not know about menus. Connect them in the infrastructure layer through the bundle ports:
+
+| Need | Port | Registration |
+|------|------|--------------|
+| Hide items the user may not see | `MenuPermissionCheckerInterface::canView(MenuItem, mixed $context)` | auto-tagged; choose it per menu (`permission_checker_choices`) |
+| Links or children computed from domain data | `MenuLinkResolverInterface::resolveHref(MenuItem, ?Request, mixed)` | auto-tagged; item type `service` (`menu_link_resolver_choices`) |
+| Custom "current item" rule | `MenuCurrentMatcherInterface::isCurrent(MenuItem, Request, string)` | tag `nowo_dashboard_menu.current_matcher` |
+| Pick the menu code per request | `MenuCodeResolverInterface::resolveMenuCode(Request, string)` | override the service alias |
+| Admin access | `DashboardMenuAccessCheckerInterface::canAccess()` | `security.access_checker` |
+
+Keep the adapters thin: read only plain values from the item (`getPermissionKeys()`, `getRouteName()`,
+`getRouteParams()`) and delegate to an application service.
+
+```php
+final class DomainMenuPermissionChecker implements MenuPermissionCheckerInterface
+{
+    public function __construct(private readonly AccessPolicy $policy) {} // your application port
+
+    public function canView(MenuItem $item, mixed $context = null): bool
+    {
+        foreach ($item->getPermissionKeys() as $key) {
+            if (!$this->policy->isGranted($key)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
+```
+
+```php
+final class ProjectsMenuLinkResolver implements MenuLinkResolverInterface
+{
+    public function __construct(
+        private readonly ListProjectsQuery $projects, // your application query
+        private readonly UrlGeneratorInterface $urls,
+    ) {}
+
+    public function resolveHref(MenuItem $item, ?Request $request, mixed $permissionContext = null): string|array
+    {
+        $rows = [];
+        foreach ($this->projects->forCurrentUser() as $i => $project) {
+            $rows[] = ['label' => $project->name, 'href' => $this->urls->generate('project_show', ['id' => $project->id]), 'position' => $i];
+        }
+
+        return $rows;
+    }
+}
+```
+
+### Known limitations
+
+- The ports receive the Doctrine entity `MenuItem`, so adapters import a bundle entity. Use only its getters.
+- `MenuTreeLoader::loadTree()` returns arrays that contain `MenuItem` entities. Outside Twig, map them to your own
+  view model, or use the JSON API (`MenuApiController`).
+- No event is dispatched while building the tree; add domain-driven entries through a `service` item and a
+  `MenuLinkResolverInterface`.
 
 ## Item visibility rules
 
