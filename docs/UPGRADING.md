@@ -4,6 +4,7 @@
 
 - [Unreleased](#unreleased)
 - [To 2.17.0](#to-2170)
+- [To 2.17.0](#to-2170-1)
 - [To 2.16.0](#to-2160)
 - [To 2.15.0](#to-2150)
 - [To 2.14.2](#to-2142)
@@ -128,6 +129,14 @@
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## To 2.17.0
+
+From **2.16.0**:
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
 
 ## To 2.17.0
 
