@@ -7,6 +7,8 @@ namespace Nowo\DashboardMenuBundle\Service;
 use Nowo\DashboardMenuBundle\DataCollector\DashboardMenuDataCollector;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
+use Nowo\DashboardMenuBundle\Model\MenuItemView;
+use Nowo\DashboardMenuBundle\Model\MenuNodeView;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 use Psr\Cache\CacheItemPoolInterface;
@@ -87,6 +89,21 @@ final readonly class MenuTreeLoader
         $this->markNodesWithChildren($tree, $this->collectParentIds($flat));
 
         return $this->pruneEmptySections($tree);
+    }
+
+    /**
+     * Same tree as {@see loadTree()} (same visibility rules, cache and permission checker), as immutable
+     * {@see MenuNodeView}s holding scalar {@see MenuItemView}s instead of entities.
+     * For hosts that consume the menu outside Twig (API, SPA, another UI). `href`/`current` are not resolved here;
+     * use {@see MenuNodeView::listFromTree()} on a decorated tree when you need them.
+     *
+     * @param list<array<string, bool|int|string>|null>|null $contextSets
+     *
+     * @return list<MenuNodeView>
+     */
+    public function loadTreeView(string $menuCode, string $locale, mixed $permissionContext = null, ?array $contextSets = null): array
+    {
+        return MenuNodeView::listFromTree($this->loadTree($menuCode, $locale, $permissionContext, $contextSets));
     }
 
     /**
@@ -390,14 +407,14 @@ final readonly class MenuTreeLoader
     }
 
     /**
-     * @return array{0: MenuPermissionCheckerInterface, 1: string|null, 2: bool}
+     * @return array{0: MenuItemViewPermissionCheckerInterface|MenuPermissionCheckerInterface, 1: string|null, 2: bool}
      */
     private function resolvePermissionChecker(?string $serviceId): array
     {
         $resolvedServiceId = $this->normalizePermissionCheckerServiceId($serviceId);
         if ($resolvedServiceId !== null && $resolvedServiceId !== '' && $this->permissionCheckerLocator->has($resolvedServiceId)) {
             $service = $this->permissionCheckerLocator->get($resolvedServiceId);
-            if ($service instanceof MenuPermissionCheckerInterface) {
+            if ($service instanceof MenuPermissionCheckerInterface || $service instanceof MenuItemViewPermissionCheckerInterface) {
                 return [$service, $resolvedServiceId, false];
             }
         }
@@ -434,7 +451,7 @@ final readonly class MenuTreeLoader
      */
     private function mergeDynamicServiceChildren(
         array $nodes,
-        MenuPermissionCheckerInterface $checker,
+        MenuPermissionCheckerInterface|MenuItemViewPermissionCheckerInterface $checker,
         mixed $permissionContext,
         string $menuCode,
         ?string $checkerSelectedServiceId,
@@ -495,7 +512,7 @@ final readonly class MenuTreeLoader
      */
     private function buildDynamicChildNodes(
         MenuItem $serviceItem,
-        MenuPermissionCheckerInterface $checker,
+        MenuPermissionCheckerInterface|MenuItemViewPermissionCheckerInterface $checker,
         mixed $permissionContext,
         string $menuCode,
         ?string $checkerSelectedServiceId,
@@ -518,13 +535,13 @@ final readonly class MenuTreeLoader
             return [];
         }
 
-        if (!$resolver instanceof MenuLinkResolverInterface) {
+        if (!$resolver instanceof MenuLinkResolverInterface && !$resolver instanceof MenuItemViewLinkResolverInterface) {
             return [];
         }
 
         $request = $this->requestStack?->getCurrentRequest();
         try {
-            $resolved = $resolver->resolveHref($serviceItem, $request instanceof Request ? $request : null, $permissionContext);
+            $resolved = MenuItemViewAdapters::resolveHref($resolver, $serviceItem, $request instanceof Request ? $request : null, $permissionContext);
         } catch (Throwable) {
             return [];
         }
@@ -553,7 +570,7 @@ final readonly class MenuTreeLoader
     private function childRowsToMenuNodes(
         array $rows,
         MenuItem $serviceItem,
-        MenuPermissionCheckerInterface $checker,
+        MenuPermissionCheckerInterface|MenuItemViewPermissionCheckerInterface $checker,
         mixed $permissionContext,
         string $menuCode,
         ?string $checkerSelectedServiceId,
@@ -584,7 +601,7 @@ final readonly class MenuTreeLoader
             $child       = MenuItem::createDynamicChildLink($menu, $label, trim($href), $position, $icon, $targetBlank);
             $this->normalizeItemIcon($child);
 
-            $visible = $checker->canView($child, $permissionContext);
+            $visible = MenuItemViewAdapters::canView($checker, $child, $permissionContext);
             if ($this->dataCollector instanceof DashboardMenuDataCollector) {
                 // @igor-ignore - Mutates attached request-scoped or value object; not worker singleton cache
                 $this->dataCollector->addPermissionCheck(
@@ -631,7 +648,7 @@ final readonly class MenuTreeLoader
      */
     private function buildTree(
         array $flat,
-        MenuPermissionCheckerInterface $checker,
+        MenuPermissionCheckerInterface|MenuItemViewPermissionCheckerInterface $checker,
         mixed $permissionContext,
         string $menuCode,
         ?string $checkerSelectedServiceId,
@@ -651,7 +668,7 @@ final readonly class MenuTreeLoader
 
         // First pass: evaluate visibility once and register diagnostics in profiler.
         foreach ($flat as $item) {
-            $isVisible                            = $checker->canView($item, $permissionContext);
+            $isVisible                            = MenuItemViewAdapters::canView($checker, $item, $permissionContext);
             $visibilityMap[$this->nodeKey($item)] = $isVisible;
             // @igor-ignore - Mutates attached request-scoped or value object; not worker singleton cache
             if ($this->dataCollector instanceof DashboardMenuDataCollector) {

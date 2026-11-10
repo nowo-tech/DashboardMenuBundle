@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nowo\DashboardMenuBundle\DependencyInjection\Compiler;
 
 use Nowo\DashboardMenuBundle\Attribute\MenuLinkResolverLabel;
+use Nowo\DashboardMenuBundle\Service\MenuItemViewLinkResolverInterface;
 use Nowo\DashboardMenuBundle\Service\MenuLinkResolverInterface;
 use ReflectionClass;
 use ReflectionClassConstant;
@@ -16,7 +17,7 @@ use Throwable;
 use function is_string;
 
 /**
- * Tags services implementing MenuLinkResolverInterface with nowo_dashboard_menu.menu_link_resolver.
+ * Tags services implementing MenuLinkResolverInterface (or MenuItemViewLinkResolverInterface) with nowo_dashboard_menu.menu_link_resolver.
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
@@ -27,8 +28,6 @@ final class AutoTagMenuLinkResolversPass implements CompilerPassInterface
 
     public function process(ContainerBuilder $container): void
     {
-        $interface = MenuLinkResolverInterface::class;
-
         foreach ($container->getDefinitions() as $id => $definition) {
             if ($this->shouldSkip($definition, $id)) {
                 continue;
@@ -44,7 +43,7 @@ final class AutoTagMenuLinkResolversPass implements CompilerPassInterface
                     continue;
                 }
 
-                if (!is_subclass_of($class, $interface)) {
+                if (!is_subclass_of($class, MenuLinkResolverInterface::class) && !is_subclass_of($class, MenuItemViewLinkResolverInterface::class)) {
                     continue;
                 }
             } catch (Throwable) {

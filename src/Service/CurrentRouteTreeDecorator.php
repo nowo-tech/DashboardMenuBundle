@@ -29,7 +29,7 @@ use const PHP_URL_QUERY;
 final readonly class CurrentRouteTreeDecorator
 {
     /**
-     * @param iterable<MenuCurrentMatcherInterface> $currentMatchers
+     * @param iterable<MenuCurrentMatcherInterface|MenuItemViewCurrentMatcherInterface> $currentMatchers
      */
     public function __construct(
         private MenuUrlResolver $urlResolver,
@@ -105,7 +105,7 @@ final readonly class CurrentRouteTreeDecorator
     private function matchesCustom(MenuItem $item, Request $request, string $href): bool
     {
         foreach ($this->currentMatchers as $matcher) {
-            if ($matcher->isCurrent($item, $request, $href)) {
+            if (MenuItemViewAdapters::isCurrent($matcher, $item, $request, $href)) {
                 return true;
             }
         }

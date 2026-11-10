@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.17.0](#to-2170)
 - [To 2.16.0](#to-2160)
 - [To 2.15.0](#to-2150)
 - [To 2.14.2](#to-2142)
@@ -127,6 +128,36 @@
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## To 2.17.0
+
+From **2.16.0**:
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
+
+No breaking change; nothing to do. The entity ports (`MenuPermissionCheckerInterface`, `MenuLinkResolverInterface`,
+`MenuCurrentMatcherInterface`) and `loadTree()` are unchanged and not deprecated.
+
+Optional: write new adapters against the view ports so they never import the `MenuItem` entity:
+
+```php
+use Nowo\DashboardMenuBundle\Model\MenuItemView;
+use Nowo\DashboardMenuBundle\Service\MenuItemViewPermissionCheckerInterface;
+
+final class DomainMenuPermissionChecker implements MenuItemViewPermissionCheckerInterface
+{
+    public function canViewItem(MenuItemView $item, mixed $context = null): bool
+    {
+        // $item->permissionKeys, $item->routeName, $item->menuCode … are plain values
+    }
+}
+```
+
+They are auto-tagged like the entity ports; a menu that already selects a checker by service id keeps working when you
+switch the class. If one class implements both interfaces, the entity method is the one called. Outside Twig, use
+`MenuTreeLoader::loadTreeView()` for a tree of `MenuNodeView` DTOs.
 
 ## To 2.16.0
 

@@ -22,6 +22,7 @@ use Nowo\DashboardMenuBundle\Service\MenuCodeResolverInterface;
 use Nowo\DashboardMenuBundle\Service\MenuConfigResolver;
 use Nowo\DashboardMenuBundle\Service\MenuCurrentMatcherInterface;
 use Nowo\DashboardMenuBundle\Service\MenuIconNameResolver;
+use Nowo\DashboardMenuBundle\Service\MenuItemViewCurrentMatcherInterface;
 use Nowo\DashboardMenuBundle\Service\MenuLocaleResolver;
 use Nowo\DashboardMenuBundle\Service\MenuTreeCacheInvalidator;
 use Nowo\DashboardMenuBundle\Service\MenuTreeLoader;
@@ -261,6 +262,8 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
     public function load(array $configs, ContainerBuilder $container): void
     {
         $container->registerForAutoconfiguration(MenuCurrentMatcherInterface::class)
+            ->addTag('nowo_dashboard_menu.current_matcher');
+        $container->registerForAutoconfiguration(MenuItemViewCurrentMatcherInterface::class)
             ->addTag('nowo_dashboard_menu.current_matcher');
 
         $container->setParameter(

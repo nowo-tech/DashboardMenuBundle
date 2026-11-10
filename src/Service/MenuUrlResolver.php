@@ -275,14 +275,14 @@ final class MenuUrlResolver implements ResetInterface
             return '#';
         }
 
-        if (!$resolver instanceof MenuLinkResolverInterface) {
+        if (!$resolver instanceof MenuLinkResolverInterface && !$resolver instanceof MenuItemViewLinkResolverInterface) {
             return '#';
         }
 
         $request = $this->resolveMenuRequest();
         $ctx     = $request;
         try {
-            $resolved = $resolver->resolveHref($item, $request, $ctx);
+            $resolved = MenuItemViewAdapters::resolveHref($resolver, $item, $request, $ctx);
         } catch (Exception $e) {
             $this->addFlashException($request, $e);
 
