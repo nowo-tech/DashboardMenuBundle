@@ -21,6 +21,7 @@
   - [Demo expression syntax (AND / OR / parentheses)](#demo-expression-syntax-and--or--parentheses)
 - [Using it from a DDD / hexagonal application](#using-it-from-a-ddd--hexagonal-application)
   - [Keeping your domain free of the bundle](#keeping-your-domain-free-of-the-bundle)
+  - [Reading the tree without entities](#reading-the-tree-without-entities)
   - [Known limitations](#known-limitations)
 - [Item visibility rules](#item-visibility-rules)
   - [1. Permission check (per item, all types)](#1-permission-check-per-item-all-types)
@@ -508,27 +509,36 @@ or references your entities: no `resolve_target_entities`, no base class or trai
 
 ### Keeping your domain free of the bundle
 
-Your domain does not know about menus. Connect them in the infrastructure layer through the bundle ports:
+Your domain does not know about menus. Connect them in the infrastructure layer through the bundle ports. Each item
+port has a **view variant** that receives a read-only `MenuItemView` (`Nowo\DashboardMenuBundle\Model`, plain
+values only) instead of the Doctrine entity `MenuItem`; use those in new adapters (since 2.17.0):
 
-| Need | Port | Registration |
-|------|------|--------------|
-| Hide items the user may not see | `MenuPermissionCheckerInterface::canView(MenuItem, mixed $context)` | auto-tagged; choose it per menu (`permission_checker_choices`) |
-| Links or children computed from domain data | `MenuLinkResolverInterface::resolveHref(MenuItem, ?Request, mixed)` | auto-tagged; item type `service` (`menu_link_resolver_choices`) |
-| Custom "current item" rule | `MenuCurrentMatcherInterface::isCurrent(MenuItem, Request, string)` | tag `nowo_dashboard_menu.current_matcher` |
-| Pick the menu code per request | `MenuCodeResolverInterface::resolveMenuCode(Request, string)` | override the service alias |
-| Admin access | `DashboardMenuAccessCheckerInterface::canAccess()` | `security.access_checker` |
+| Need | Port (view variant, preferred) | Entity variant (still supported) | Registration |
+|------|--------------------------------|----------------------------------|--------------|
+| Hide items the user may not see | `MenuItemViewPermissionCheckerInterface::canViewItem(MenuItemView, mixed $context)` | `MenuPermissionCheckerInterface::canView(MenuItem, mixed)` | auto-tagged; choose it per menu (`permission_checker_choices`) |
+| Links or children computed from domain data | `MenuItemViewLinkResolverInterface::resolveItemHref(MenuItemView, ?Request, mixed)` | `MenuLinkResolverInterface::resolveHref(MenuItem, ?Request, mixed)` | auto-tagged; item type `service` (`menu_link_resolver_choices`) |
+| Custom "current item" rule | `MenuItemViewCurrentMatcherInterface::isCurrentItem(MenuItemView, Request, string)` | `MenuCurrentMatcherInterface::isCurrent(MenuItem, Request, string)` | autoconfigured with tag `nowo_dashboard_menu.current_matcher` |
+| Pick the menu code per request | `MenuCodeResolverInterface::resolveMenuCode(Request, string)` | — | override the service alias |
+| Admin access | `DashboardMenuAccessCheckerInterface::canAccess()` | — | `security.access_checker` |
 
-Keep the adapters thin: read only plain values from the item (`getPermissionKeys()`, `getRouteName()`,
-`getRouteParams()`) and delegate to an application service.
+If a class implements both variants, the bundle calls the entity method. `MenuItemView` exposes `id`, `menuId`,
+`menuCode`, `parentId`, `itemType`, `label`, `translations` (+ `labelForLocale()`), `position`, `linkType`,
+`routeName`, `routeParams`, `externalUrl`, `linkResolver`, `runtimeHref`, `permissionKeys`, `unanimous`, `icon` and
+`targetBlank`.
+
+Keep the adapters thin and delegate to an application service:
 
 ```php
-final class DomainMenuPermissionChecker implements MenuPermissionCheckerInterface
+use Nowo\DashboardMenuBundle\Model\MenuItemView;
+use Nowo\DashboardMenuBundle\Service\MenuItemViewPermissionCheckerInterface;
+
+final class DomainMenuPermissionChecker implements MenuItemViewPermissionCheckerInterface
 {
     public function __construct(private readonly AccessPolicy $policy) {} // your application port
 
-    public function canView(MenuItem $item, mixed $context = null): bool
+    public function canViewItem(MenuItemView $item, mixed $context = null): bool
     {
-        foreach ($item->getPermissionKeys() as $key) {
+        foreach ($item->permissionKeys as $key) {
             if (!$this->policy->isGranted($key)) {
                 return false;
             }
@@ -540,14 +550,17 @@ final class DomainMenuPermissionChecker implements MenuPermissionCheckerInterfac
 ```
 
 ```php
-final class ProjectsMenuLinkResolver implements MenuLinkResolverInterface
+use Nowo\DashboardMenuBundle\Model\MenuItemView;
+use Nowo\DashboardMenuBundle\Service\MenuItemViewLinkResolverInterface;
+
+final class ProjectsMenuLinkResolver implements MenuItemViewLinkResolverInterface
 {
     public function __construct(
         private readonly ListProjectsQuery $projects, // your application query
         private readonly UrlGeneratorInterface $urls,
     ) {}
 
-    public function resolveHref(MenuItem $item, ?Request $request, mixed $permissionContext = null): string|array
+    public function resolveItemHref(MenuItemView $item, ?Request $request, mixed $permissionContext = null): string|array
     {
         $rows = [];
         foreach ($this->projects->forCurrentUser() as $i => $project) {
@@ -559,13 +572,26 @@ final class ProjectsMenuLinkResolver implements MenuLinkResolverInterface
 }
 ```
 
+### Reading the tree without entities
+
+`MenuTreeLoader::loadTree()` returns arrays holding `MenuItem` entities (what `menu.html.twig` consumes). For an API,
+an SPA or another UI, `MenuTreeLoader::loadTreeView($menuCode, $locale, $permissionContext, $contextSets)` returns the
+same tree (same visibility rules, cache and permission checker) as a list of immutable `MenuNodeView`
+(`item: MenuItemView`, `children`, `href`, `current`, `currentInBranch`). `href` and `current` are only filled for a
+tree decorated with the current request: convert the result of `dashboard_menu_tree()` (or
+`CurrentRouteTreeDecorator::decorate()`) with `MenuNodeView::listFromTree($tree)`.
+
+`MenuItemView::$externalUrl`, `$runtimeHref` and `MenuNodeView::$href` are already passed through the same scheme
+allowlist as the Twig path (`http`, `https`, `mailto`, `tel`, relative; null otherwise). If you build links from
+other values (route params, your own data), apply `Nowo\DashboardMenuBundle\Util\ExternalUrlPolicy::sanitize()`
+before putting them in an `href`.
+
 ### Known limitations
 
-- The ports receive the Doctrine entity `MenuItem`, so adapters import a bundle entity. Use only its getters.
-- `MenuTreeLoader::loadTree()` returns arrays that contain `MenuItem` entities. Outside Twig, map them to your own
-  view model, or use the JSON API (`MenuApiController`).
-- No event is dispatched while building the tree; add domain-driven entries through a `service` item and a
-  `MenuLinkResolverInterface`.
+- No event is dispatched while building the tree; add domain-driven entries through a `service` item and a link
+  resolver.
+- `permissionContext` is `mixed` (by default the current `Request`); document what your checker expects.
+- `MenuTreeLoader::loadMenu()` still returns the `Menu` entity (render configuration).
 
 ## Item visibility rules
 

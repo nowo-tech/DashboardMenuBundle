@@ -118,6 +118,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Target 2.17.0. Ports and tree without the `MenuItem` entity, for DDD / hexagonal hosts. See [UPGRADING](UPGRADING.md#to-2170).
+
+### Added
+
+- **`MenuItemView`** (`Nowo\DashboardMenuBundle\Model`): read-only scalar view of a menu item (id, menu id/code, parent id, item type, label and translations, position, link type, route name/params, external URL, link resolver, runtime href, permission keys, unanimous, icon, target blank), built with `MenuItemView::fromEntity()`.
+- **View variants of the three item ports**, next to the entity ones (which stay): `MenuItemViewPermissionCheckerInterface::canViewItem(MenuItemView, mixed)`, `MenuItemViewLinkResolverInterface::resolveItemHref(MenuItemView, ?Request, mixed)` and `MenuItemViewCurrentMatcherInterface::isCurrentItem(MenuItemView, Request, string)`. They are auto-tagged and offered in the dashboard dropdowns exactly like the entity ports (labels from `DASHBOARD_LABEL` / attributes). When a class implements both, the entity port is called.
+- **`MenuTreeLoader::loadTreeView()`**: the same tree as `loadTree()` as a list of immutable `MenuNodeView` (`item: MenuItemView`, `children`, `href`, `current`, `currentInBranch`); `MenuNodeView::listFromTree()` converts any `loadTree()` or decorated (`dashboard_menu_tree()`) tree.
+
+### Security
+
+- Link resolver results (string href) and dynamic child row hrefs go through the external URL scheme allowlist
+  (`ExternalUrlPolicy`); a `javascript:` / `data:` / `vbscript:` value renders as `#` (audit KN-D-I1). The view DTOs
+  apply the same policy to `externalUrl`, `runtimeHref` and `href` (KN-D-L1).
+
 ### Documentation
 
 - USAGE: new section "Using it from a DDD / hexagonal application" (where the bundle sits in a hexagonal host, the ports, events and DTOs to build an anti-corruption layer on, and the known limitations).
