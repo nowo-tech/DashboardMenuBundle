@@ -166,7 +166,10 @@ final class MenuUrlResolver implements ResetInterface
     {
         $runtime = $item->getRuntimeHref();
         if ($runtime !== null && $runtime !== '') {
-            return $this->normalizeHrefReferenceType(trim($runtime), $referenceType);
+            // 2.17 (KN-D-I1): dynamic child rows from a link resolver get the same scheme allowlist as external URLs.
+            $runtime = ExternalUrlPolicy::sanitize($runtime);
+
+            return $runtime === null ? '#' : $this->normalizeHrefReferenceType($runtime, $referenceType);
         }
 
         if ($item->getItemType() === MenuItem::ITEM_TYPE_SERVICE) {
@@ -294,7 +297,8 @@ final class MenuUrlResolver implements ResetInterface
         }
 
         $href = trim($resolved);
-        if ($href === '' || $href === '#') {
+        // 2.17 (KN-D-I1): a resolver result gets the same scheme allowlist as external URLs.
+        if ($href === '' || $href === '#' || !ExternalUrlPolicy::isAllowed($href)) {
             return '#';
         }
 

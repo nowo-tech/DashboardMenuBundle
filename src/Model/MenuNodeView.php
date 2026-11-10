@@ -7,6 +7,7 @@ namespace Nowo\DashboardMenuBundle\Model;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Service\CurrentRouteTreeDecorator;
 use Nowo\DashboardMenuBundle\Service\MenuTreeLoader;
+use Nowo\DashboardMenuBundle\Util\ExternalUrlPolicy;
 
 use function is_array;
 use function is_string;
@@ -57,7 +58,7 @@ final readonly class MenuNodeView
             $nodes[]  = new self(
                 MenuItemView::fromEntity($node['item']),
                 is_array($children) ? self::listFromTree($children) : [],
-                is_string($href) ? $href : null,
+                is_string($href) ? ExternalUrlPolicy::sanitize($href) : null,
                 ($node['isCurrent'] ?? false) === true,
                 ($node['hasCurrentInBranch'] ?? false) === true,
             );

@@ -95,6 +95,34 @@ final class MenuItemViewPortsTest extends TestCase
         self::assertSame('/reports', $urlResolver->getHref($item));
     }
 
+    public function testResolverOutputAndDynamicRowsGetTheSchemeAllowlist(): void
+    {
+        $container = $this->createStub(SymfonyContainerInterface::class);
+        $container->method('has')->willReturnCallback(static fn (string $id): bool => $id === 'app.evil');
+        $container->method('get')->willReturn(new class implements MenuItemViewLinkResolverInterface {
+            public function resolveItemHref(MenuItemView $item, ?Request $request, mixed $permissionContext = null): string
+            {
+                return 'javascript:alert(1)';
+            }
+        });
+        $router = $this->createStub(RouterInterface::class);
+        $router->method('getRouteCollection')->willReturn(new RouteCollection());
+        $urlResolver = new MenuUrlResolver($this->createStub(UrlGeneratorInterface::class), new RequestStack(), $router, $container);
+
+        $service = new MenuItem();
+        $service->setItemType(MenuItem::ITEM_TYPE_SERVICE);
+        $service->setLinkResolver('app.evil');
+        self::assertSame('#', $urlResolver->getHref($service));
+
+        $dynamic = new MenuItem();
+        $dynamic->setRuntimeHref(' vbscript:msgbox(1)');
+        self::assertSame('#', $urlResolver->getHref($dynamic));
+
+        $safe = new MenuItem();
+        $safe->setRuntimeHref(' /projects/a ');
+        self::assertSame('/projects/a', $urlResolver->getHref($safe));
+    }
+
     public function testDecoratorCallsViewCurrentMatcherAndEntityMatcherStillWorks(): void
     {
         $item = new MenuItem();

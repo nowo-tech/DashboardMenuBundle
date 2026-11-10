@@ -121,6 +121,31 @@ final class MenuItemViewTest extends TestCase
         self::assertFalse($nodes[0]->currentInBranch);
     }
 
+    public function testUrlsGoThroughTheSchemeAllowlist(): void
+    {
+        $item = new MenuItem();
+        $item->setLinkType(MenuItem::LINK_TYPE_EXTERNAL);
+        $item->setExternalUrl("  JaVa\tScRiPt:alert(1)");
+        $item->setRuntimeHref('data:text/html;base64,PHNjcmlwdD4=');
+
+        $view = MenuItemView::fromEntity($item);
+        self::assertNull($view->externalUrl);
+        self::assertNull($view->runtimeHref);
+
+        $item->setExternalUrl(' https://example.com/docs ');
+        $item->setRuntimeHref('/projects/1');
+        $view = MenuItemView::fromEntity($item);
+        self::assertSame('https://example.com/docs', $view->externalUrl);
+        self::assertSame('/projects/1', $view->runtimeHref);
+
+        $nodes = MenuNodeView::listFromTree([
+            ['item' => $item, 'children' => [], 'href' => 'javascript:alert(1)'],
+            ['item' => $item, 'children' => [], 'href' => 'mailto:help@example.com'],
+        ]);
+        self::assertNull($nodes[0]->href);
+        self::assertSame('mailto:help@example.com', $nodes[1]->href);
+    }
+
     private function setId(MenuItem $item, int $id): void
     {
         (new ReflectionProperty(MenuItem::class, 'id'))->setValue($item, $id);

@@ -126,6 +126,12 @@ Target 2.17.0. Ports and tree without the `MenuItem` entity, for DDD / hexagonal
 - **View variants of the three item ports**, next to the entity ones (which stay): `MenuItemViewPermissionCheckerInterface::canViewItem(MenuItemView, mixed)`, `MenuItemViewLinkResolverInterface::resolveItemHref(MenuItemView, ?Request, mixed)` and `MenuItemViewCurrentMatcherInterface::isCurrentItem(MenuItemView, Request, string)`. They are auto-tagged and offered in the dashboard dropdowns exactly like the entity ports (labels from `DASHBOARD_LABEL` / attributes). When a class implements both, the entity port is called.
 - **`MenuTreeLoader::loadTreeView()`**: the same tree as `loadTree()` as a list of immutable `MenuNodeView` (`item: MenuItemView`, `children`, `href`, `current`, `currentInBranch`); `MenuNodeView::listFromTree()` converts any `loadTree()` or decorated (`dashboard_menu_tree()`) tree.
 
+### Security
+
+- Link resolver results (string href) and dynamic child row hrefs go through the external URL scheme allowlist
+  (`ExternalUrlPolicy`); a `javascript:` / `data:` / `vbscript:` value renders as `#` (audit KN-D-I1). The view DTOs
+  apply the same policy to `externalUrl`, `runtimeHref` and `href` (KN-D-L1).
+
 ### Documentation
 
 - USAGE: new section "Using it from a DDD / hexagonal application" (where the bundle sits in a hexagonal host, the ports, events and DTOs to build an anti-corruption layer on, and the known limitations).

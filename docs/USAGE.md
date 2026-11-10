@@ -581,6 +581,11 @@ same tree (same visibility rules, cache and permission checker) as a list of imm
 tree decorated with the current request: convert the result of `dashboard_menu_tree()` (or
 `CurrentRouteTreeDecorator::decorate()`) with `MenuNodeView::listFromTree($tree)`.
 
+`MenuItemView::$externalUrl`, `$runtimeHref` and `MenuNodeView::$href` are already passed through the same scheme
+allowlist as the Twig path (`http`, `https`, `mailto`, `tel`, relative; null otherwise). If you build links from
+other values (route params, your own data), apply `Nowo\DashboardMenuBundle\Util\ExternalUrlPolicy::sanitize()`
+before putting them in an `href`.
+
 ### Known limitations
 
 - No event is dispatched while building the tree; add domain-driven entries through a `service` item and a link

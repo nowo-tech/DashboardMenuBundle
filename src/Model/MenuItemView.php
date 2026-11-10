@@ -6,6 +6,7 @@ namespace Nowo\DashboardMenuBundle\Model;
 
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Service\MenuItemViewPermissionCheckerInterface;
+use Nowo\DashboardMenuBundle\Util\ExternalUrlPolicy;
 
 /**
  * Read-only, scalar view of a menu item for host adapters.
@@ -47,7 +48,9 @@ final readonly class MenuItemView
     }
 
     /**
-     * Copies the plain values of a {@see MenuItem}; no reference to the entity is kept.
+     * Copies the plain values of a {@see MenuItem}; no reference to the entity is kept. URLs go through the same scheme
+     * allowlist as the Twig path ({@see ExternalUrlPolicy}), so a `javascript:` / `data:` value never reaches a host
+     * that renders the view.
      */
     public static function fromEntity(MenuItem $item): self
     {
@@ -65,9 +68,9 @@ final readonly class MenuItemView
             linkType: $item->getLinkType(),
             routeName: $item->getRouteName(),
             routeParams: $item->getRouteParams(),
-            externalUrl: $item->getExternalUrl(),
+            externalUrl: ExternalUrlPolicy::sanitize($item->getExternalUrl()),
             linkResolver: $item->getLinkResolver(),
-            runtimeHref: $item->getRuntimeHref(),
+            runtimeHref: ExternalUrlPolicy::sanitize($item->getRuntimeHref()),
             permissionKeys: $item->getPermissionKeys() ?? [],
             unanimous: $item->isUnanimous(),
             icon: $item->getIcon(),

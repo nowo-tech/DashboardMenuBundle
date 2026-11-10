@@ -159,6 +159,14 @@ They are auto-tagged like the entity ports; a menu that already selects a checke
 switch the class. If one class implements both interfaces, the entity method is the one called. Outside Twig, use
 `MenuTreeLoader::loadTreeView()` for a tree of `MenuNodeView` DTOs.
 
+Adapters written against the view ports need `nowo-tech/dashboard-menu-bundle: ^2.17`: on 2.16 a checker that
+implements only `MenuItemViewPermissionCheckerInterface` is not accepted and the menu falls back to allow-all.
+
+Hardening: the `href` returned by a link resolver (string result) and the `href` of dynamic child rows now go through
+the same scheme allowlist as external URLs (`http`, `https`, `mailto`, `tel`, relative). A `javascript:`, `data:` or
+`vbscript:` value renders as `#`, as an external URL already did. `MenuItemView::$externalUrl` / `$runtimeHref` and
+`MenuNodeView::$href` apply the same allowlist (null when refused).
+
 ## To 2.16.0
 
 From **2.15.0**:
