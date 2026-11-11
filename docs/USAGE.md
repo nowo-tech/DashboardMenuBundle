@@ -391,8 +391,19 @@ final class MyMenuCodeResolver implements MenuCodeContextResolverInterface
 ```
 
 `MenuRequestContext` carries the route name (`route`), the scalar route parameters (`routeParams`, `routeParam()`), the
-path, the locale, the query parameters and the host of the main request; no headers, cookies or session. The same
-resolution is used in Twig (`dashboard_menu_tree('sidebar')`) and in the API (`GET /api/menu/sidebar`). Only links that
+path, the locale, the query parameters and the host of the main request; no headers, cookies or session. To build one
+from a Symfony request yourself (your own HTTP edge code, or the unit tests of your resolvers and matchers), use the
+public `MenuRequestContextFactory::fromRequest()` (2.20): it applies exactly the bundle's rules.
+
+```php
+use Nowo\DashboardMenuBundle\Service\MenuRequestContextFactory;
+
+$request = Request::create('/admin/users');
+$request->attributes->set('_route', 'admin_users');
+self::assertTrue($matcher->isCurrentItemFor($item, MenuRequestContextFactory::fromRequest($request), '/admin'));
+```
+
+The same resolution is used in Twig (`dashboard_menu_tree('sidebar')`) and in the API (`GET /api/menu/sidebar`). Only links that
 pass the permission checker are included; parents (and section titles) with no visible children are automatically
 pruned.
 

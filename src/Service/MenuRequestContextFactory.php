@@ -16,15 +16,26 @@ use function is_string;
 
 /**
  * Translates the HttpFoundation request and the legacy `mixed` permission context into the bundle-owned value objects
- * of the request-free ports. The only place where that translation happens; hosts never need it.
+ * of the request-free ports. The only place where that translation happens.
  *
- * @internal
+ * Since 2.20, {@see fromRequest()} is a supported public API (covered by the BC promise): hosts use it in their own
+ * HTTP edge code and tests to build exactly the {@see MenuRequestContext} the bundle hands to its ports, instead of
+ * calling the constructor by hand. The class is an HTTP-edge adapter, not a port: it may take a Symfony `Request`
+ * (REQ-ARCH-001 rule 3 concerns ports and value objects). {@see droppedValues()} and {@see permissionContext()}
+ * remain internal.
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
  */
 final class MenuRequestContextFactory
 {
+    /**
+     * The framework-free context of a request, as the bundle builds it for its ports: the route (`_route`), the scalar
+     * route parameters (`_route_params`), the path info, the locale, the query parameters and the host (no headers,
+     * cookies or session). The bundle passes the main request; pass the same in tests. Public API since 2.20.
+     *
+     * @param Request $request the request the menu is rendered for
+     */
     public static function fromRequest(Request $request): MenuRequestContext
     {
         $route  = $request->attributes->get('_route');
@@ -46,6 +57,8 @@ final class MenuRequestContextFactory
     /**
      * What {@see permissionContext()} drops from a legacy context: an object (other than a request or a
      * {@see MenuPermissionContext}), or array entries that are not plain values.
+     *
+     * @internal
      *
      * @return list<string> one description per dropped value, empty when nothing is dropped
      */
@@ -75,6 +88,8 @@ final class MenuRequestContextFactory
      * - an array becomes the attributes (plain values only);
      * - a scalar becomes the attribute `value`;
      * - null or any other object gives an empty context (the checker decides with no input).
+     *
+     * @internal
      */
     public static function permissionContext(mixed $context): MenuPermissionContext
     {

@@ -133,6 +133,23 @@
 
 ## Unreleased
 
+Target **2.20.0**, from **2.19.0**:
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
+
+Nothing to change. `MenuRequestContextFactory::fromRequest(Request)` is now a supported public API (it was
+`@internal`). If your tests or edge code build a `MenuRequestContext` by hand from a request, you can replace that with:
+
+```php
+use Nowo\DashboardMenuBundle\Service\MenuRequestContextFactory;
+
+$context = MenuRequestContextFactory::fromRequest($request); // same route, scalar route params, path, locale, query, host
+```
+
+`MenuRequestContextFactory::droppedValues()` and `permissionContext()` remain internal.
+
 ## To 2.19.0
 
 From **2.18.0**:

@@ -121,6 +121,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Target **2.20.0** (minor; no behaviour change).
+
+### Changed
+
+- `Service\MenuRequestContextFactory::fromRequest(Request): MenuRequestContext` is now a **supported public API**
+  (the class is no longer `@internal`): hosts use it in their own HTTP edge code and in tests to build exactly the
+  `MenuRequestContext` the bundle hands to the request-free ports, instead of calling the constructor by hand. Only
+  this method joins the BC promise; `droppedValues()` and `permissionContext()` stay `@internal`. The context it builds
+  is unchanged, and it is built per call (REQ-RUNTIME-002). Chosen over new named constructors on `MenuRequestContext`
+  (which would put a Symfony `Request` in a value object, REQ-ARCH-001 rule 3) or a new test helper class (more API
+  surface for the same result).
+
 ## [2.19.0] - 2026-11-11
 
 Minor release (2.19.0): REQ-ARCH-001 rule 3. Every host port has a variant typed with bundle-owned value objects only;
