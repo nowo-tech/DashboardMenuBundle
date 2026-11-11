@@ -34,10 +34,8 @@ final class AutoTagMenuLinkResolversPass implements CompilerPassInterface
                 continue;
             }
 
-            $class = $definition->getClass();
-            if (!is_string($class) || $class === $id) {
-                continue;
-            }
+            // With resource loading the service id is the class name and getClass() may be null (same as the checker pass).
+            $class = $definition->getClass() ?? $id;
 
             try {
                 if (!class_exists($class)) {

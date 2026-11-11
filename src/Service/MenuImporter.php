@@ -17,6 +17,7 @@ use function in_array;
 use function is_array;
 use function is_int;
 use function is_string;
+use function sprintf;
 
 /**
  * Imports menus and items from a JSON-serializable array (exported by MenuExporter).
@@ -33,6 +34,14 @@ final readonly class MenuImporter
         private MenuItemRepository $menuItemRepository,
         private MenuRepository $menuRepository,
         private EntityManagerInterface $entityManager,
+        /**
+         * Permission checker service ids => labels known to the container (null: not checked, for direct
+         * construction). A menu naming any other checker is refused, so an import never yields a menu whose checker
+         * cannot be resolved.
+         *
+         * @var array<string, string>|null
+         */
+        private ?array $knownPermissionCheckers = null,
     ) {
     }
 
@@ -122,6 +131,14 @@ final readonly class MenuImporter
         $code = isset($menuData['code']) && is_string($menuData['code']) ? trim($menuData['code']) : '';
         if ($code === '') {
             $result['errors'][] = 'Menu "code" is required.';
+
+            return;
+        }
+
+        $checker = $menuData['permissionChecker'] ?? null;
+        if (is_string($checker) && trim($checker) !== '' && $this->knownPermissionCheckers !== null
+            && !array_key_exists(trim($checker), $this->knownPermissionCheckers) && !in_array(trim($checker), $this->knownPermissionCheckers, true)) {
+            $result['errors'][] = sprintf('Menu "%s": unknown permission checker "%s"; the menu was not imported.', $code, trim($checker));
 
             return;
         }

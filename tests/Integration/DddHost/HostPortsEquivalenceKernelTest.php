@@ -10,6 +10,7 @@ use Nowo\DashboardMenuBundle\Service\MenuImporter;
 use Nowo\DashboardMenuBundle\Twig\MenuExtension;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -46,7 +47,7 @@ final class HostPortsEquivalenceKernelTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{0: string, 1: array<string, string>, 2: list<array<string, mixed>>}>
+     * @return iterable<string, array{0: string, 1: array<string, string>, 2: list<array<string, mixed>>, 3?: mixed}>
      */
     public static function requests(): iterable
     {
@@ -60,6 +61,9 @@ final class HostPortsEquivalenceKernelTest extends TestCase
 
         yield 'admin page: keyed items by the policy, unknown keys denied' => ['/admin/users', ['_route' => 'admin_users', 'tenant' => 'acme'], $admin];
         yield 'public page: every keyed item denied, menu code not remapped' => ['/', ['_route' => 'home'], []];
+        // An object passed as the context: the legacy checker receives it, the value-object checker an empty context.
+        // Neither sees a route, so every keyed item is denied in both.
+        yield 'admin page, object as permission context: keyed items denied' => ['/admin/users', ['_route' => 'admin_users', 'tenant' => 'acme'], [$admin[0], $admin[1], $admin[4]], new stdClass()];
     }
 
     /**
@@ -67,13 +71,15 @@ final class HostPortsEquivalenceKernelTest extends TestCase
      * @param list<array<string, mixed>> $expected
      */
     #[DataProvider('requests')]
-    public function testLegacyAndDddHostsRenderTheSameTree(string $path, array $attributes, array $expected): void
+    public function testLegacyAndDddHostsRenderTheSameTree(string $path, array $attributes, array $expected, mixed $permissionContext = null): void
     {
-        $legacy  = $this->render(HostPortsTestKernel::LEGACY, $path, $attributes);
-        $context = $this->render(HostPortsTestKernel::CONTEXT, $path, $attributes);
+        $legacy  = $this->render(HostPortsTestKernel::LEGACY, $path, $attributes, $permissionContext);
+        $context = $this->render(HostPortsTestKernel::CONTEXT, $path, $attributes, $permissionContext);
+        $multi   = $this->render(HostPortsTestKernel::MULTI, $path, $attributes, $permissionContext);
 
         self::assertSame($expected, $legacy);
         self::assertSame($legacy, $context);
+        self::assertSame($legacy, $multi, 'a checker implementing both variants is called through the deprecated one');
     }
 
     /**
@@ -81,7 +87,7 @@ final class HostPortsEquivalenceKernelTest extends TestCase
      *
      * @return list<array<string, mixed>>
      */
-    private function render(string $mode, string $path, array $attributes): array
+    private function render(string $mode, string $path, array $attributes, mixed $permissionContext = null): array
     {
         $this->kernel?->shutdown();
         $this->kernel = new HostPortsTestKernel($mode, $this->database($mode));
@@ -93,7 +99,11 @@ final class HostPortsEquivalenceKernelTest extends TestCase
         self::assertInstanceOf(EntityManagerInterface::class, $manager);
         (new SchemaTool($manager))->createSchema($manager->getMetadataFactory()->getAllMetadata());
 
-        $checker  = $mode === HostPortsTestKernel::CONTEXT ? ContextHostChecker::class : LegacyHostChecker::class;
+        $checker = match ($mode) {
+            HostPortsTestKernel::CONTEXT => ContextHostChecker::class,
+            HostPortsTestKernel::MULTI   => MultiVariantHostChecker::class,
+            default                      => LegacyHostChecker::class,
+        };
         $resolver = $mode === HostPortsTestKernel::CONTEXT ? ContextHostLinkResolver::class : LegacyHostLinkResolver::class;
         $importer = $container->get(MenuImporter::class);
         self::assertInstanceOf(MenuImporter::class, $importer);
@@ -126,7 +136,7 @@ final class HostPortsEquivalenceKernelTest extends TestCase
             'href'     => $node['href'] ?? '#',
             'current'  => $node['isCurrent'],
             'children' => array_map(static fn (array $child): string => $child['item']->getLabel(), $node['children']),
-        ], $twig->getMenuTree('nav'));
+        ], $twig->getMenuTree('nav', $permissionContext));
     }
 
     private function database(string $mode): string

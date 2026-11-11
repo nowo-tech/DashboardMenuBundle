@@ -11,6 +11,7 @@ use Nowo\DashboardMenuBundle\Service\MenuItemContextLinkResolverInterface;
 use function array_key_exists;
 use function is_scalar;
 use function is_string;
+use function preg_match;
 
 /**
  * Framework-free view of the request a menu is rendered for: route, route parameters, path, locale, query and host.
@@ -53,6 +54,29 @@ final readonly class MenuRequestContext
             }
         }
         $this->routeParams = $params;
+    }
+
+    /**
+     * Dump form: query values whose key looks like a secret (token, signature, password, key, session, auth, code)
+     * are shown as `[redacted]`, so a context that reaches a dump or a log does not carry a one-time token.
+     *
+     * @return array<string, mixed>
+     */
+    public function __debugInfo(): array
+    {
+        $query = [];
+        foreach ($this->query as $name => $value) {
+            $query[$name] = preg_match('/(token|secret|pass|signature|sig$|key|session|auth|jwt|^code$)/i', (string) $name) === 1 ? '[redacted]' : $value;
+        }
+
+        return [
+            'route'       => $this->route,
+            'routeParams' => $this->routeParams,
+            'path'        => $this->path,
+            'locale'      => $this->locale,
+            'query'       => $query,
+            'host'        => $this->host,
+        ];
     }
 
     /**

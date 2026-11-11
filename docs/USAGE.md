@@ -501,6 +501,21 @@ public function canViewItemFor(MenuItemView $item, MenuPermissionContext $contex
 | a scalar | `attributes['value']` |
 | any other object | an empty context |
 
+Values the value object cannot carry (objects, nested maps, array entries with integer keys) are dropped; in debug the
+bundle logs a warning naming them. **Deny when the attribute you need is missing**: a value-object checker that
+depends on an attribute (`tenant`, a role, an id) must return false for keyed items when `hasAttribute()` is false,
+instead of assuming a default. Pass ids and plain values, never entities or services.
+
+**Unresolvable checker.** A menu with no checker shows every item (allow-all, the documented default). A menu whose
+configured checker cannot be resolved (typo, removed service, a decorator implementing no checker port, an id from an
+imported file) never falls back to allow-all since 2.19: items with permission keys are hidden, keyless items stay,
+and an error is logged; in debug (`kernel.debug`) the bundle throws a `LogicException` instead. `MenuImporter` refuses
+a menu that names a checker unknown to the container.
+
+**One variant per class.** When a checker, link resolver or matcher implements several variants of its port, the bundle
+calls the oldest; the container build logs a warning for such host services (subclasses of
+`AbstractRoutePrefixMenuCurrentMatcher` that do not override its methods are not reported).
+
 `MenuPermissionCheckerInterface::canView(MenuItem, mixed)` and `MenuItemViewPermissionCheckerInterface::canViewItem(MenuItemView, mixed)`
 still work (they receive the raw value, as before) and are deprecated since 2.19 (removed in 3.0). The bundled
 `AllowAllMenuPermissionChecker` and `PermissionKeyAwareMenuPermissionChecker` implement both.

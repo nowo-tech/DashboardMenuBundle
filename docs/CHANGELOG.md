@@ -146,6 +146,20 @@ Standard hosts need no change: their checkers, resolvers and matchers receive th
 
 - When a class implements several variants of one port, the bundle calls the oldest (entity, then `MenuItemView`,
   then value objects), as 2.17 already did for entity and view variants.
+  The container build now logs a warning for such host services (MN-D-L1).
+- In debug, values dropped from a legacy permission context on the way to a value-object checker are logged as a
+  warning (MN-D-L2).
+- `AutoTagMenuLinkResolversPass` also tags link resolvers registered under their class name (resource loading), like
+  the checker pass (MN-D-L3).
+
+### Security
+
+- A menu whose configured permission checker cannot be resolved (typo, removed service, a decorator implementing no
+  checker port, an unknown id from an imported JSON) fell back to the allow-all checker, showing items with permission
+  keys to everyone. It now uses a deny-keyed fallback (keyed items hidden, keyless items visible), logs an error, and
+  throws a `LogicException` in debug; `MenuImporter` refuses a menu naming an unknown checker. Menus with no checker
+  configured keep the allow-all default. Pre-existing since 1.x (audit MN-D-M1, Medium; no advisory).
+- `MenuRequestContext::__debugInfo()` redacts token-like query values (MN-D-I2).
 
 ### Deprecated
 

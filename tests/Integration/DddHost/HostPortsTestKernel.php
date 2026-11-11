@@ -23,7 +23,8 @@ use function sys_get_temp_dir;
 
 /**
  * Host kernel wired either with the deprecated ports (`legacy`: entity + Request + `mixed`, the default entity
- * manager) or as a DDD host (`context`: value-object ports only, a dedicated `dashboard_menu` entity manager).
+ * manager), as a DDD host (`context`: value-object ports only, a dedicated `dashboard_menu` entity manager), or as a
+ * standard host whose checker implements both variants (`multi`).
  */
 final class HostPortsTestKernel extends Kernel
 {
@@ -31,6 +32,7 @@ final class HostPortsTestKernel extends Kernel
 
     public const LEGACY  = 'legacy';
     public const CONTEXT = 'context';
+    public const MULTI   = 'multi';
 
     public function __construct(
         private readonly string $mode,
@@ -93,7 +95,7 @@ final class HostPortsTestKernel extends Kernel
                     'orm'  => ['auto_mapping' => true, 'naming_strategy' => $naming],
                 ]);
                 $container->loadFromExtension('nowo_dashboard_menu', ['locales' => ['en']]);
-                $classes = [LegacyHostChecker::class, LegacyHostMatcher::class, LegacyHostLinkResolver::class, LegacyHostCodeResolver::class];
+                $classes = [$this->mode === self::MULTI ? MultiVariantHostChecker::class : LegacyHostChecker::class, LegacyHostMatcher::class, LegacyHostLinkResolver::class, LegacyHostCodeResolver::class];
             }
             foreach ($classes as $class) {
                 $definition = $container->register($class, $class)->setAutoconfigured(true)->setPublic(true);

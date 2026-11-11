@@ -134,6 +134,14 @@
 
 ## To 2.19.0
 
+**Behaviour change (security hardening, audit MN-D-M1):** a menu whose configured permission checker cannot be
+resolved (typo, removed service, a service implementing no checker port, an unknown id from an imported file) no longer
+falls back to allow-all: items with permission keys are hidden, keyless items stay visible, an error is logged, and in
+debug a `LogicException` is thrown. Menus with no checker still allow everything. Fix the menu's checker in the
+dashboard (or its id in your import file) if items disappear after the upgrade. `MenuImporter` now refuses a menu that
+names an unknown checker. A host service implementing several variants of one port is reported in the container build
+log (the oldest variant is the one called).
+
 From **2.18.0**: no configuration or schema change; existing checkers, link resolvers, current matchers and menu code
 resolvers keep working and receive the same values. Their interfaces are deprecated (Symfony's debug class loader
 reports a class that implements one in `dev`) and removed in **3.0.0**.
@@ -154,7 +162,9 @@ Migration, one service at a time:
    `$request->query->all()` → `$request->query`.
 2. A `mixed` permission context becomes `MenuPermissionContext`: the default (the current request) is
    `$context->request`; an array you passed to `dashboard_menu_tree(code, {...})` is `$context->attributes` (plain values
-   only; pass ids, not objects); a scalar is `$context->attributes['value']`.
+   only; pass ids, not objects); a scalar is `$context->attributes['value']`; any other object becomes an **empty**
+   context (dropped values are logged as a warning in debug). Deny keyed items when an attribute your rule needs is
+   missing (`! $context->hasAttribute('tenant')` → false).
 3. Remove the old interface. While a class implements both, the bundle keeps calling the old method.
 4. Menu code resolver: alias `Nowo\DashboardMenuBundle\Service\MenuCodeContextResolverInterface` to your service and
    drop the alias on `MenuCodeResolverInterface`.

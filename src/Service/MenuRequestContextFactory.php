@@ -8,6 +8,8 @@ use Nowo\DashboardMenuBundle\Model\MenuPermissionContext;
 use Nowo\DashboardMenuBundle\Model\MenuRequestContext;
 use Symfony\Component\HttpFoundation\Request;
 
+use function array_key_exists;
+use function get_debug_type;
 use function is_array;
 use function is_scalar;
 use function is_string;
@@ -39,6 +41,31 @@ final class MenuRequestContextFactory
             $query,
             $request->getHost(),
         );
+    }
+
+    /**
+     * What {@see permissionContext()} drops from a legacy context: an object (other than a request or a
+     * {@see MenuPermissionContext}), or array entries that are not plain values.
+     *
+     * @return list<string> one description per dropped value, empty when nothing is dropped
+     */
+    public static function droppedValues(mixed $context): array
+    {
+        if ($context === null || is_scalar($context) || $context instanceof MenuPermissionContext || $context instanceof Request) {
+            return [];
+        }
+        if (!is_array($context)) {
+            return ['object ' . get_debug_type($context)];
+        }
+        $kept    = (new MenuPermissionContext(null, $context))->attributes;
+        $dropped = [];
+        foreach ($context as $name => $value) {
+            if (!is_string($name) || !array_key_exists($name, $kept)) {
+                $dropped[] = 'attribute ' . (is_string($name) ? $name : '#' . $name) . ' (' . get_debug_type($value) . ')';
+            }
+        }
+
+        return $dropped;
     }
 
     /**
