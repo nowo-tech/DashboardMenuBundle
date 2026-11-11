@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.18.0] - 2026-11-11](#2180---2026-11-11)
 - [[2.17.0] - 2026-11-10](#2170---2026-11-10)
 - [[2.16.0] - 2026-11-01](#2160---2026-11-01)
 - [[2.15.0] - 2026-10-31](#2150---2026-10-31)
@@ -119,7 +120,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Target 2.18.0 (architecture bar, wave W1: standard Symfony and DDD hosts).
+## [2.18.0] - 2026-11-11
+
+New doctrine.entity_manager option used by every bundle writer and the item form component; MenuTreeBuiltEvent and a MenuView DTO. See [UPGRADING](https://github.com/nowo-tech/DashboardMenuBundle/blob/v2.18.0/docs/UPGRADING.md#to-2180).
+
 
 ### Added
 
@@ -1577,7 +1581,7 @@ Default output is byte-identical: unset actions keep their bundle variant (`butt
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.17.0...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.18.0...HEAD
 [2.2.4]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.3...v2.2.4
 [2.2.3]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.2...v2.2.3
 [2.2.2]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.1...v2.2.2
