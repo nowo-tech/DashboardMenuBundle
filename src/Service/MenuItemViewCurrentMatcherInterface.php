@@ -16,6 +16,9 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * When a class implements both interfaces, the bundle calls {@see MenuCurrentMatcherInterface::isCurrent()}.
  *
+ * @deprecated since 2.19.0, implement {@see MenuItemContextCurrentMatcherInterface} instead (isCurrentItemFor(MenuItemView, MenuRequestContext, string), bundle-owned value
+ *             objects only, no HttpFoundation type or `mixed` context); removed in 3.0.0
+ *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
  */

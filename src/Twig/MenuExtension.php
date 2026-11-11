@@ -11,9 +11,11 @@ use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Service\CurrentRouteTreeDecorator;
 use Nowo\DashboardMenuBundle\Service\DashboardUiConfig;
+use Nowo\DashboardMenuBundle\Service\MenuCodeContextResolverInterface;
 use Nowo\DashboardMenuBundle\Service\MenuCodeResolverInterface;
 use Nowo\DashboardMenuBundle\Service\MenuConfigResolver;
 use Nowo\DashboardMenuBundle\Service\MenuIconNameResolver;
+use Nowo\DashboardMenuBundle\Service\MenuItemViewAdapters;
 use Nowo\DashboardMenuBundle\Service\MenuLocaleResolver;
 use Nowo\DashboardMenuBundle\Service\MenuTreeLoader;
 use Nowo\DashboardMenuBundle\Service\MenuUrlResolver;
@@ -48,7 +50,7 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
         private readonly MenuTreeLoader $menuTreeLoader,
         private readonly MenuUrlResolver $urlResolver,
         private readonly MenuConfigResolver $configResolver,
-        private readonly MenuCodeResolverInterface $menuCodeResolver,
+        private readonly MenuCodeResolverInterface|MenuCodeContextResolverInterface $menuCodeResolver,
         private readonly RequestStack $requestStack,
         private readonly CurrentRouteTreeDecorator $currentRouteTreeDecorator,
         private readonly MenuLocaleResolver $localeResolver,
@@ -148,7 +150,7 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
     public function getMenuConfig(string $menuCode, ?array $contextSets = null): array
     {
         $request = $this->resolveMenuRequest();
-        $code    = $request instanceof Request ? $this->menuCodeResolver->resolveMenuCode($request, $menuCode) : $menuCode;
+        $code    = $request instanceof Request ? MenuItemViewAdapters::resolveMenuCode($this->menuCodeResolver, $request, $menuCode) : $menuCode;
         $locale  = $request instanceof Request ? $this->localeResolver->resolveLocale($request->getLocale()) : 'en';
         // Reuse the raw rows already loaded (request memo / tree cache) by dashboard_menu_tree(): no extra ORM query.
         $menu   = $this->menuTreeLoader->loadMenu($code, $locale, $contextSets);
@@ -206,7 +208,7 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
         if (!$request instanceof Request) {
             return $this->menuTreeLoader->loadTree($menuCode, 'en', $context, $contextSets);
         }
-        $resolvedCode = $this->menuCodeResolver->resolveMenuCode($request, $menuCode);
+        $resolvedCode = MenuItemViewAdapters::resolveMenuCode($this->menuCodeResolver, $request, $menuCode);
         $locale       = $this->localeResolver->resolveLocale($request->getLocale());
         $queryCount   = null;
         if ($this->dataCollector instanceof DashboardMenuDataCollector && $this->menuQueryCounter instanceof MenuQueryCounter && $this->connection instanceof Connection) {

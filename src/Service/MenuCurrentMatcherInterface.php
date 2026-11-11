@@ -14,6 +14,9 @@ use Symfony\Component\HttpFoundation\Request;
  * automatically (autoconfigure). {@see CurrentRouteTreeDecorator} ORs each matcher with the
  * built-in exact path match so index routes can stay lit on child pages (e.g. admin index → section).
  *
+ * @deprecated since 2.19.0, implement {@see MenuItemContextCurrentMatcherInterface} instead (isCurrentItemFor(MenuItemView, MenuRequestContext, string), bundle-owned value
+ *             objects only, no HttpFoundation type or `mixed` context); removed in 3.0.0
+ *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
  */

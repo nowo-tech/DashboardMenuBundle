@@ -12,11 +12,13 @@ use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 use Nowo\DashboardMenuBundle\Util\ExternalUrlPolicy;
 
 use function array_key_exists;
+use function array_keys;
 use function count;
 use function in_array;
 use function is_array;
 use function is_int;
 use function is_string;
+use function sprintf;
 
 /**
  * Imports menus and items from a JSON-serializable array (exported by MenuExporter).
@@ -33,6 +35,14 @@ final readonly class MenuImporter
         private MenuItemRepository $menuItemRepository,
         private MenuRepository $menuRepository,
         private EntityManagerInterface $entityManager,
+        /**
+         * Permission checker service ids => labels known to the container (null: not checked, for direct
+         * construction). A menu naming any other checker is refused, so an import never yields a menu whose checker
+         * cannot be resolved.
+         *
+         * @var array<string, string>|null
+         */
+        private ?array $knownPermissionCheckers = null,
     ) {
     }
 
@@ -124,6 +134,22 @@ final readonly class MenuImporter
             $result['errors'][] = 'Menu "code" is required.';
 
             return;
+        }
+
+        $checker = $menuData['permissionChecker'] ?? null;
+        if (is_string($checker) && trim($checker) !== '' && $this->knownPermissionCheckers !== null) {
+            $checker = trim($checker);
+            if (!array_key_exists($checker, $this->knownPermissionCheckers)) {
+                // A label: store the service id it names, and refuse a label shared by several checkers.
+                $ids = array_keys($this->knownPermissionCheckers, $checker, true);
+                if (count($ids) !== 1) {
+                    $result['errors'][] = sprintf($ids === [] ? 'Menu "%s": unknown permission checker "%s"; the menu was not imported.' : 'Menu "%s": the permission checker label "%s" names several checkers; use the service id. The menu was not imported.', $code, $checker);
+
+                    return;
+                }
+                $checker = (string) $ids[0];
+            }
+            $menuData['permissionChecker'] = $checker;
         }
 
         $context  = $this->menuContextFromMenuData($menuData);

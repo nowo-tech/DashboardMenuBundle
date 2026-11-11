@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\Controller\Api;
 
+use Nowo\DashboardMenuBundle\Service\MenuCodeContextResolverInterface;
 use Nowo\DashboardMenuBundle\Service\MenuCodeResolverInterface;
+use Nowo\DashboardMenuBundle\Service\MenuItemViewAdapters;
 use Nowo\DashboardMenuBundle\Service\MenuLocaleResolver;
 use Nowo\DashboardMenuBundle\Service\MenuTreeLoader;
 use Nowo\DashboardMenuBundle\Service\MenuUrlResolver;
@@ -39,14 +41,14 @@ final readonly class MenuApiController
     public function __construct(
         private MenuTreeLoader $menuTreeLoader,
         private MenuUrlResolver $urlResolver,
-        private MenuCodeResolverInterface $menuCodeResolver,
+        private MenuCodeResolverInterface|MenuCodeContextResolverInterface $menuCodeResolver,
         private MenuLocaleResolver $localeResolver,
     ) {
     }
 
     public function __invoke(Request $request, string $code): JsonResponse
     {
-        $resolvedCode  = $this->menuCodeResolver->resolveMenuCode($request, $code);
+        $resolvedCode  = MenuItemViewAdapters::resolveMenuCode($this->menuCodeResolver, $request, $code);
         $requestLocale = $request->query->getString('_locale', $request->getLocale());
         $locale        = $this->localeResolver->resolveLocale($requestLocale);
         $contextSets   = $this->parseContextSets($request);

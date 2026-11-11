@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nowo\DashboardMenuBundle\DependencyInjection\Compiler;
 
 use Nowo\DashboardMenuBundle\Attribute\PermissionCheckerLabel;
+use Nowo\DashboardMenuBundle\Service\MenuItemContextPermissionCheckerInterface;
 use Nowo\DashboardMenuBundle\Service\MenuItemViewPermissionCheckerInterface;
 use Nowo\DashboardMenuBundle\Service\MenuPermissionCheckerInterface;
 use ReflectionClass;
@@ -43,7 +44,7 @@ final class AutoTagPermissionCheckersPass implements CompilerPassInterface
                     continue;
                 }
 
-                if (!is_subclass_of($class, MenuPermissionCheckerInterface::class) && !is_subclass_of($class, MenuItemViewPermissionCheckerInterface::class)) {
+                if (!is_subclass_of($class, MenuPermissionCheckerInterface::class) && !is_subclass_of($class, MenuItemViewPermissionCheckerInterface::class) && !is_subclass_of($class, MenuItemContextPermissionCheckerInterface::class)) {
                     continue;
                 }
             } catch (Throwable) {

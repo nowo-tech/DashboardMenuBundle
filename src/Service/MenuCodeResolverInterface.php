@@ -13,6 +13,9 @@ use Symfony\Component\HttpFoundation\Request;
  * Return the first matching menu code: e.g. try (operatorId + partnerId + name), then (partnerId + name), then (name).
  * The bundle will only render links that pass the permission checker; parents with no visible children are pruned.
  *
+ * @deprecated since 2.19.0, implement {@see MenuCodeContextResolverInterface} instead (resolveMenuCodeFor(MenuRequestContext, string), bundle-owned value
+ *             objects only, no HttpFoundation type or `mixed` context); removed in 3.0.0
+ *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
  */

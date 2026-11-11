@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
 use Nowo\DashboardMenuBundle\DataCollector\DashboardMenuDataCollector;
 use Nowo\DashboardMenuBundle\DataCollector\MenuQueryCounter;
 use Nowo\DashboardMenuBundle\DataCollector\MenuQueryCountMiddleware;
+use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\MenuCodeResolverPass;
 use Nowo\DashboardMenuBundle\Enum\CssFramework;
 use Nowo\DashboardMenuBundle\Enum\IconSet;
 use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
@@ -18,10 +19,12 @@ use Nowo\DashboardMenuBundle\Security\DashboardMenuAccessCheckerInterface;
 use Nowo\DashboardMenuBundle\Service\ConfiguredLocales;
 use Nowo\DashboardMenuBundle\Service\DefaultMenuCodeResolver;
 use Nowo\DashboardMenuBundle\Service\ImportExportRateLimiter;
+use Nowo\DashboardMenuBundle\Service\MenuCodeContextResolverInterface;
 use Nowo\DashboardMenuBundle\Service\MenuCodeResolverInterface;
 use Nowo\DashboardMenuBundle\Service\MenuConfigResolver;
 use Nowo\DashboardMenuBundle\Service\MenuCurrentMatcherInterface;
 use Nowo\DashboardMenuBundle\Service\MenuIconNameResolver;
+use Nowo\DashboardMenuBundle\Service\MenuItemContextCurrentMatcherInterface;
 use Nowo\DashboardMenuBundle\Service\MenuItemViewCurrentMatcherInterface;
 use Nowo\DashboardMenuBundle\Service\MenuLocaleResolver;
 use Nowo\DashboardMenuBundle\Service\MenuTreeCacheInvalidator;
@@ -268,6 +271,8 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
             ->addTag('nowo_dashboard_menu.current_matcher');
         $container->registerForAutoconfiguration(MenuItemViewCurrentMatcherInterface::class)
             ->addTag('nowo_dashboard_menu.current_matcher');
+        $container->registerForAutoconfiguration(MenuItemContextCurrentMatcherInterface::class)
+            ->addTag('nowo_dashboard_menu.current_matcher');
 
         $container->setParameter(
             Configuration::ALIAS . '.dashboard.item_form_live_component_enabled',
@@ -347,6 +352,7 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
         // from a factory (wireRuntimeLocales()).
         $container->setParameter(Configuration::ALIAS . '.default_locale_resolved', ConfiguredLocales::defaultLocale($runtimeLocales ? [] : $locales, $defaultLocale));
         $container->setParameter(Configuration::ALIAS . '.permission_checker_choices', $config['permission_checker_choices'] ?? []);
+        $container->setParameter(Configuration::ALIAS . '.strict_permission_checker', (bool) ($config['strict_permission_checker'] ?? false));
         $container->setParameter(Configuration::ALIAS . '.menu_link_resolver_choices', $config['menu_link_resolver_choices'] ?? []);
 
         $container->register(MenuLocaleResolver::class, MenuLocaleResolver::class)
@@ -472,6 +478,11 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
         $container->register(DefaultMenuCodeResolver::class, DefaultMenuCodeResolver::class)
             ->setPublic(false);
         $container->setAlias(MenuCodeResolverInterface::class, DefaultMenuCodeResolver::class)
+            ->setPublic(false);
+        $container->setAlias(MenuCodeContextResolverInterface::class, DefaultMenuCodeResolver::class)
+            ->setPublic(false);
+        // The resolver the Twig functions and the JSON API call; MenuCodeResolverPass points it at the host's choice.
+        $container->setAlias(MenuCodeResolverPass::RESOLVER_ID, MenuCodeResolverInterface::class)
             ->setPublic(false);
 
         $security = $this->resolveSecurityConfig($config);

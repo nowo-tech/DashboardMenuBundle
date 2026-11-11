@@ -120,6 +120,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Minor release (2.19.0): REQ-ARCH-001 rule 3. Every host port has a variant typed with bundle-owned value objects only;
+the variants that take the HttpFoundation `Request` or a `mixed` permission context are deprecated (removed in 3.0.0).
+Standard hosts need no change: their checkers, resolvers and matchers receive the same values as before.
+
+### Added
+
+- `Model\MenuRequestContext` (route, scalar route params, path, locale, query, host of the main request) and
+  `Model\MenuPermissionContext` (`request` + plain `attributes`; replaces the `mixed` context).
+- Ports: `MenuItemContextPermissionCheckerInterface::canViewItemFor(MenuItemView, MenuPermissionContext)`,
+  `MenuItemContextLinkResolverInterface::resolveItemHrefFor(MenuItemView, ?MenuRequestContext, MenuPermissionContext)`,
+  `MenuItemContextCurrentMatcherInterface::isCurrentItemFor(MenuItemView, MenuRequestContext, string)`,
+  `MenuCodeContextResolverInterface::resolveMenuCodeFor(MenuRequestContext, string)`. Checkers and link resolvers are
+  auto-tagged and offered in the dashboard dropdowns, matchers are autoconfigured, and the code resolver is chosen by
+  aliasing its interface (`MenuCodeResolverPass`).
+- `AllowAllMenuPermissionChecker`, `PermissionKeyAwareMenuPermissionChecker` (keyed items still hidden: deny by
+  default), `DefaultMenuCodeResolver` and `AbstractRoutePrefixMenuCurrentMatcher` implement the new ports too; subclasses
+  of the abstract matcher need no change.
+- Tests: old-vs-new equivalence of every bundled implementation, precedence, the context-only checker used instead
+  of the allow-all fallback, and a kernel test where a DDD host (value-object ports only, dedicated entity manager)
+  and a standard host (deprecated ports) render the same tree (`tests/Integration/DddHost/`).
+- USAGE: "Standard Symfony host" and "DDD host" sections (linked from the README); the permission-context table.
+
+### Changed
+
+- When a class implements several variants of one port, the bundle calls the oldest (entity, then `MenuItemView`,
+  then value objects), as 2.17 already did for entity and view variants.
+  The container build now logs a warning for such host services (compiler log, plus a silenced `E_USER_DEPRECATED`
+  collected in debug; MN-D-L1, MN-D-I5).
+- In debug, values dropped from a legacy permission context on the way to a value-object checker are logged as a
+  warning (MN-D-L2).
+- `AutoTagMenuLinkResolversPass` also tags link resolvers registered under their class name (resource loading), like
+  the checker pass (MN-D-L3).
+
+### Security
+
+- A menu whose configured permission checker cannot be resolved (typo, removed service, a decorator implementing no
+  checker port, an unknown id from an imported JSON) fell back to the allow-all checker, showing items with permission
+  keys to everyone. It now uses a deny-keyed fallback (keyed items hidden, keyless items visible), logs an error and
+  shows the fallback in the profiler; the new option `strict_permission_checker` (default false) throws a
+  `LogicException` instead. `MenuImporter` refuses a menu naming an unknown checker or an ambiguous label and stores
+  the service id of a checker named by its label (MN-D-L4, MN-D-I4). Menus with no checker
+  configured keep the allow-all default. Pre-existing since 1.x (audit MN-D-M1, Medium; no advisory).
+- `MenuRequestContext::__debugInfo()` redacts token-like query values (MN-D-I2).
+
+### Deprecated
+
+- `MenuPermissionCheckerInterface`, `MenuItemViewPermissionCheckerInterface`, `MenuLinkResolverInterface`,
+  `MenuItemViewLinkResolverInterface`, `MenuCurrentMatcherInterface`, `MenuItemViewCurrentMatcherInterface`,
+  `MenuCodeResolverInterface`, and the matching methods of the bundled implementations. Removed in 3.0.0; see
+  [UPGRADING](UPGRADING.md#to-2190).
+
+### Removed
+
+- The "presentation ports, accepted by the architecture bar" note in USAGE (no such exception exists).
+
 ## [2.18.0] - 2026-11-11
 
 New doctrine.entity_manager option used by every bundle writer and the item form component; MenuTreeBuiltEvent and a MenuView DTO. See [UPGRADING](https://github.com/nowo-tech/DashboardMenuBundle/blob/v2.18.0/docs/UPGRADING.md#to-2180).

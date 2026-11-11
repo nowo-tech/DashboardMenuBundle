@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\Service;
 
+use LogicException;
 use Nowo\DashboardMenuBundle\DataCollector\DashboardMenuDataCollector;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
@@ -16,6 +17,7 @@ use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\Log\LoggerInterface;
 use ReflectionProperty;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -23,12 +25,14 @@ use Throwable;
 
 use function array_key_exists;
 use function count;
+use function implode;
 use function is_array;
 use function is_int;
 use function is_string;
 use function json_decode;
 use function md5;
 use function serialize;
+use function sprintf;
 use function unserialize;
 
 /**
@@ -64,6 +68,9 @@ final readonly class MenuTreeLoader
         private array $permissionCheckerChoices = [],
         private ?MenuTreeCacheInvalidator $cacheInvalidator = null,
         private ?EventDispatcherInterface $eventDispatcher = null,
+        private ?LoggerInterface $logger = null,
+        private bool $debug = false,
+        private bool $strictPermissionChecker = false,
     ) {
     }
 
@@ -88,8 +95,9 @@ final readonly class MenuTreeLoader
         [$menu, $flat]                                  = $this->hydrateMenuAndItems($raw['menu'], $raw['items'], $locale);
         $config                                         = $this->configResolver->getConfig($menuCode, $sets, $menu);
         [$checker, $checkerServiceId, $checkerFallback] = $this->resolvePermissionChecker($config['permission_checker']);
-        $tree                                           = $this->buildTree($flat, $checker, $permissionContext, $menuCode, $config['permission_checker'], $checkerServiceId, $checkerFallback);
-        $tree                                           = $this->mergeDynamicServiceChildren($tree, $checker, $permissionContext, $menuCode, $config['permission_checker'], $checkerServiceId, $checkerFallback);
+        $this->warnAboutDroppedContext($checker, $permissionContext, $menuCode);
+        $tree = $this->buildTree($flat, $checker, $permissionContext, $menuCode, $config['permission_checker'], $checkerServiceId, $checkerFallback);
+        $tree = $this->mergeDynamicServiceChildren($tree, $checker, $permissionContext, $menuCode, $config['permission_checker'], $checkerServiceId, $checkerFallback);
         $this->markNodesWithChildren($tree, $this->collectParentIds($flat));
 
         return $this->pruneEmptySections($tree);
@@ -216,8 +224,9 @@ final readonly class MenuTreeLoader
         $flat                                           = $this->menuItemRepository->findAllForMenuOrderedByTree($menu, $locale);
         $config                                         = $this->configResolver->getConfig($menuCode, $sets, $menu);
         [$checker, $checkerServiceId, $checkerFallback] = $this->resolvePermissionChecker($config['permission_checker']);
-        $tree                                           = $this->buildTree($flat, $checker, $permissionContext, $menuCode, $config['permission_checker'], $checkerServiceId, $checkerFallback);
-        $tree                                           = $this->mergeDynamicServiceChildren($tree, $checker, $permissionContext, $menuCode, $config['permission_checker'], $checkerServiceId, $checkerFallback);
+        $this->warnAboutDroppedContext($checker, $permissionContext, $menuCode);
+        $tree = $this->buildTree($flat, $checker, $permissionContext, $menuCode, $config['permission_checker'], $checkerServiceId, $checkerFallback);
+        $tree = $this->mergeDynamicServiceChildren($tree, $checker, $permissionContext, $menuCode, $config['permission_checker'], $checkerServiceId, $checkerFallback);
         $this->markNodesWithChildren($tree, $this->collectParentIds($flat));
 
         return $this->pruneEmptySections($tree);
@@ -434,19 +443,50 @@ final readonly class MenuTreeLoader
     }
 
     /**
-     * @return array{0: MenuItemViewPermissionCheckerInterface|MenuPermissionCheckerInterface, 1: string|null, 2: bool}
+     * @return array{0: MenuItemContextPermissionCheckerInterface|MenuItemViewPermissionCheckerInterface|MenuPermissionCheckerInterface, 1: string|null, 2: bool}
      */
     private function resolvePermissionChecker(?string $serviceId): array
     {
         $resolvedServiceId = $this->normalizePermissionCheckerServiceId($serviceId);
         if ($resolvedServiceId !== null && $resolvedServiceId !== '' && $this->permissionCheckerLocator->has($resolvedServiceId)) {
             $service = $this->permissionCheckerLocator->get($resolvedServiceId);
-            if ($service instanceof MenuPermissionCheckerInterface || $service instanceof MenuItemViewPermissionCheckerInterface) {
+            if ($service instanceof MenuPermissionCheckerInterface || $service instanceof MenuItemViewPermissionCheckerInterface || $service instanceof MenuItemContextPermissionCheckerInterface) {
                 return [$service, $resolvedServiceId, false];
             }
         }
 
-        return [$this->defaultPermissionChecker, null, $serviceId !== null && $serviceId !== ''];
+        if ($serviceId === null || $serviceId === '') {
+            // No checker configured for the menu: everything is visible (documented default).
+            return [$this->defaultPermissionChecker, null, false];
+        }
+
+        // A checker is configured but cannot be used (typo, removed service, a decorator implementing no checker
+        // port, an id from an imported file): never fall back to allow-all. Keyed items are hidden, keyless stay.
+        $message = sprintf('DashboardMenu: the permission checker "%s" of a menu cannot be resolved to a service implementing a permission checker port; items with permission keys are hidden until it is fixed.', $serviceId);
+        if ($this->strictPermissionChecker) {
+            throw new LogicException($message);
+        }
+        $this->logger?->error($message, ['bundle' => 'nowo_dashboard_menu', 'permission_checker' => $serviceId]);
+
+        return [new PermissionKeyAwareMenuPermissionChecker(), null, true];
+    }
+
+    /**
+     * In debug, warns when a value-object checker receives a legacy context it cannot carry (an object, or array
+     * entries that are not plain values): those values are dropped from {@see MenuPermissionContext}.
+     */
+    private function warnAboutDroppedContext(
+        MenuPermissionCheckerInterface|MenuItemViewPermissionCheckerInterface|MenuItemContextPermissionCheckerInterface $checker,
+        mixed $permissionContext,
+        string $menuCode,
+    ): void {
+        if (!$this->debug || !$this->logger instanceof LoggerInterface || $checker instanceof MenuPermissionCheckerInterface || $checker instanceof MenuItemViewPermissionCheckerInterface) {
+            return;
+        }
+        $dropped = MenuRequestContextFactory::droppedValues($permissionContext);
+        if ($dropped !== []) {
+            $this->logger->warning('DashboardMenu: the permission context of menu "{menu}" carries values the value-object checker cannot receive; they were dropped: {dropped}.', ['menu' => $menuCode, 'dropped' => implode(', ', $dropped), 'bundle' => 'nowo_dashboard_menu']);
+        }
     }
 
     private function normalizePermissionCheckerServiceId(?string $serviceId): ?string
@@ -478,7 +518,7 @@ final readonly class MenuTreeLoader
      */
     private function mergeDynamicServiceChildren(
         array $nodes,
-        MenuPermissionCheckerInterface|MenuItemViewPermissionCheckerInterface $checker,
+        MenuPermissionCheckerInterface|MenuItemViewPermissionCheckerInterface|MenuItemContextPermissionCheckerInterface $checker,
         mixed $permissionContext,
         string $menuCode,
         ?string $checkerSelectedServiceId,
@@ -539,7 +579,7 @@ final readonly class MenuTreeLoader
      */
     private function buildDynamicChildNodes(
         MenuItem $serviceItem,
-        MenuPermissionCheckerInterface|MenuItemViewPermissionCheckerInterface $checker,
+        MenuPermissionCheckerInterface|MenuItemViewPermissionCheckerInterface|MenuItemContextPermissionCheckerInterface $checker,
         mixed $permissionContext,
         string $menuCode,
         ?string $checkerSelectedServiceId,
@@ -562,7 +602,7 @@ final readonly class MenuTreeLoader
             return [];
         }
 
-        if (!$resolver instanceof MenuLinkResolverInterface && !$resolver instanceof MenuItemViewLinkResolverInterface) {
+        if (!$resolver instanceof MenuLinkResolverInterface && !$resolver instanceof MenuItemViewLinkResolverInterface && !$resolver instanceof MenuItemContextLinkResolverInterface) {
             return [];
         }
 
@@ -597,7 +637,7 @@ final readonly class MenuTreeLoader
     private function childRowsToMenuNodes(
         array $rows,
         MenuItem $serviceItem,
-        MenuPermissionCheckerInterface|MenuItemViewPermissionCheckerInterface $checker,
+        MenuPermissionCheckerInterface|MenuItemViewPermissionCheckerInterface|MenuItemContextPermissionCheckerInterface $checker,
         mixed $permissionContext,
         string $menuCode,
         ?string $checkerSelectedServiceId,
@@ -675,7 +715,7 @@ final readonly class MenuTreeLoader
      */
     private function buildTree(
         array $flat,
-        MenuPermissionCheckerInterface|MenuItemViewPermissionCheckerInterface $checker,
+        MenuPermissionCheckerInterface|MenuItemViewPermissionCheckerInterface|MenuItemContextPermissionCheckerInterface $checker,
         mixed $permissionContext,
         string $menuCode,
         ?string $checkerSelectedServiceId,

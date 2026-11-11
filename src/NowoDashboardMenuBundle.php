@@ -10,7 +10,9 @@ use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\CsrfProtectionPass;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\DashboardMenuEntityManagerPass;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\DashboardMenuSecurityPass;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\DataCollectorProfilerPass;
+use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\MenuCodeResolverPass;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\MenuLinkResolverPass;
+use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\MultiVariantPortsPass;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\PermissionCheckerPass;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\TwigPathsPass;
 use Nowo\DashboardMenuBundle\DependencyInjection\DashboardMenuExtension;
@@ -47,6 +49,8 @@ final class NowoDashboardMenuBundle extends Bundle
         $container->addCompilerPass(new TwigPathsPass());
         $container->addCompilerPass(new PermissionCheckerPass());
         $container->addCompilerPass(new MenuLinkResolverPass());
+        $container->addCompilerPass(new MenuCodeResolverPass());
+        $container->addCompilerPass(new MultiVariantPortsPass());
         $container->addCompilerPass(new DashboardMenuSecurityPass());
         $container->addCompilerPass(new CsrfProtectionPass());
         $container->addCompilerPass(new DataCollectorProfilerPass());

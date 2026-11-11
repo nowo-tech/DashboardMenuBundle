@@ -16,6 +16,7 @@ use Nowo\DashboardMenuBundle\Service\MenuLinkResolverInterface;
 use Nowo\DashboardMenuBundle\Service\MenuPermissionCheckerInterface;
 use Nowo\DashboardMenuBundle\Service\MenuTreeCacheInvalidator;
 use Nowo\DashboardMenuBundle\Service\MenuTreeLoader;
+use Nowo\DashboardMenuBundle\Service\PermissionKeyAwareMenuPermissionChecker;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
@@ -74,8 +75,9 @@ class MenuTreeLoaderTest extends TestCase
             $collector,
         );
 
+        // 2.19 (audit MN-D-M1): a configured checker that cannot be resolved hides keyed items (no allow-all).
         $tree = $loader->loadTree('main', 'en');
-        self::assertCount(1, $tree);
+        self::assertCount(0, $tree);
 
         $collector->collect(new Request(), new Response());
         $checks = $collector->getPermissionChecks();
@@ -84,7 +86,7 @@ class MenuTreeLoaderTest extends TestCase
         self::assertSame('missing_checker', $checks[0]['checker_selected']);
         self::assertNull($checks[0]['checker_service_id']);
         self::assertTrue($checks[0]['checker_fallback']);
-        self::assertSame(AllowAllMenuPermissionChecker::class, $checks[0]['checker_resolved']);
+        self::assertSame(PermissionKeyAwareMenuPermissionChecker::class, $checks[0]['checker_resolved']);
         self::assertSame(['menu.root'], $checks[0]['permission_keys']);
         self::assertTrue($checks[0]['is_unanimous']);
     }

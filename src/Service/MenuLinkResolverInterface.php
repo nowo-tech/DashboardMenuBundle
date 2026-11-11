@@ -19,6 +19,9 @@ use Symfony\Component\HttpFoundation\Request;
  * Optional: public const string DASHBOARD_LABEL = '…' for the dashboard dropdown label,
  * or use {@see MenuLinkResolverLabel}.
  *
+ * @deprecated since 2.19.0, implement {@see MenuItemContextLinkResolverInterface} instead (resolveItemHrefFor(MenuItemView, ?MenuRequestContext, MenuPermissionContext), bundle-owned value
+ *             objects only, no HttpFoundation type or `mixed` context); removed in 3.0.0
+ *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
  */
