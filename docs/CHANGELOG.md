@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.19.0] - 2026-11-11](#2190---2026-11-11)
 - [[2.18.0] - 2026-11-11](#2180---2026-11-11)
 - [[2.17.0] - 2026-11-10](#2170---2026-11-10)
 - [[2.16.0] - 2026-11-01](#2160---2026-11-01)
@@ -120,6 +121,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.19.0] - 2026-11-11
+
 Minor release (2.19.0): REQ-ARCH-001 rule 3. Every host port has a variant typed with bundle-owned value objects only;
 the variants that take the HttpFoundation `Request` or a `mixed` permission context are deprecated (removed in 3.0.0).
 Standard hosts need no change: their checkers, resolvers and matchers receive the same values as before.
@@ -178,7 +181,6 @@ Standard hosts need no change: their checkers, resolvers and matchers receive th
 ## [2.18.0] - 2026-11-11
 
 New doctrine.entity_manager option used by every bundle writer and the item form component; MenuTreeBuiltEvent and a MenuView DTO. See [UPGRADING](https://github.com/nowo-tech/DashboardMenuBundle/blob/v2.18.0/docs/UPGRADING.md#to-2180).
-
 
 ### Added
 
@@ -1636,7 +1638,7 @@ Default output is byte-identical: unset actions keep their bundle variant (`butt
 - **Recipe:** Symfony Flex recipe for config and routes.
 - **Docs:** INSTALLATION, CONFIGURATION, USAGE, CONTRIBUTING, CHANGELOG, UPGRADING, RELEASE, SECURITY, ENGRAM, DEMO, DEVELOPMENT.
 
-[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.18.0...HEAD
+[Unreleased]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.19.0...HEAD
 [2.2.4]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.3...v2.2.4
 [2.2.3]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.2...v2.2.3
 [2.2.2]: https://github.com/nowo-tech/DashboardMenuBundle/compare/v2.2.1...v2.2.2
