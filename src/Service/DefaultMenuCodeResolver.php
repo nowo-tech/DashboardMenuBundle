@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\Service;
 
+use Nowo\DashboardMenuBundle\Model\MenuRequestContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -12,8 +13,16 @@ use Symfony\Component\HttpFoundation\Request;
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
  */
-final class DefaultMenuCodeResolver implements MenuCodeResolverInterface
+final class DefaultMenuCodeResolver implements MenuCodeContextResolverInterface, MenuCodeResolverInterface
 {
+    public function resolveMenuCodeFor(MenuRequestContext $request, string $hint): string
+    {
+        return $hint;
+    }
+
+    /**
+     * @deprecated since 2.19.0, use {@see resolveMenuCodeFor()}; removed in 3.0.0
+     */
     public function resolveMenuCode(Request $request, string $hint): string
     {
         return $hint;

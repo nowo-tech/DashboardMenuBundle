@@ -434,14 +434,14 @@ final readonly class MenuTreeLoader
     }
 
     /**
-     * @return array{0: MenuItemViewPermissionCheckerInterface|MenuPermissionCheckerInterface, 1: string|null, 2: bool}
+     * @return array{0: MenuItemContextPermissionCheckerInterface|MenuItemViewPermissionCheckerInterface|MenuPermissionCheckerInterface, 1: string|null, 2: bool}
      */
     private function resolvePermissionChecker(?string $serviceId): array
     {
         $resolvedServiceId = $this->normalizePermissionCheckerServiceId($serviceId);
         if ($resolvedServiceId !== null && $resolvedServiceId !== '' && $this->permissionCheckerLocator->has($resolvedServiceId)) {
             $service = $this->permissionCheckerLocator->get($resolvedServiceId);
-            if ($service instanceof MenuPermissionCheckerInterface || $service instanceof MenuItemViewPermissionCheckerInterface) {
+            if ($service instanceof MenuPermissionCheckerInterface || $service instanceof MenuItemViewPermissionCheckerInterface || $service instanceof MenuItemContextPermissionCheckerInterface) {
                 return [$service, $resolvedServiceId, false];
             }
         }
@@ -478,7 +478,7 @@ final readonly class MenuTreeLoader
      */
     private function mergeDynamicServiceChildren(
         array $nodes,
-        MenuPermissionCheckerInterface|MenuItemViewPermissionCheckerInterface $checker,
+        MenuPermissionCheckerInterface|MenuItemViewPermissionCheckerInterface|MenuItemContextPermissionCheckerInterface $checker,
         mixed $permissionContext,
         string $menuCode,
         ?string $checkerSelectedServiceId,
@@ -539,7 +539,7 @@ final readonly class MenuTreeLoader
      */
     private function buildDynamicChildNodes(
         MenuItem $serviceItem,
-        MenuPermissionCheckerInterface|MenuItemViewPermissionCheckerInterface $checker,
+        MenuPermissionCheckerInterface|MenuItemViewPermissionCheckerInterface|MenuItemContextPermissionCheckerInterface $checker,
         mixed $permissionContext,
         string $menuCode,
         ?string $checkerSelectedServiceId,
@@ -562,7 +562,7 @@ final readonly class MenuTreeLoader
             return [];
         }
 
-        if (!$resolver instanceof MenuLinkResolverInterface && !$resolver instanceof MenuItemViewLinkResolverInterface) {
+        if (!$resolver instanceof MenuLinkResolverInterface && !$resolver instanceof MenuItemViewLinkResolverInterface && !$resolver instanceof MenuItemContextLinkResolverInterface) {
             return [];
         }
 
@@ -597,7 +597,7 @@ final readonly class MenuTreeLoader
     private function childRowsToMenuNodes(
         array $rows,
         MenuItem $serviceItem,
-        MenuPermissionCheckerInterface|MenuItemViewPermissionCheckerInterface $checker,
+        MenuPermissionCheckerInterface|MenuItemViewPermissionCheckerInterface|MenuItemContextPermissionCheckerInterface $checker,
         mixed $permissionContext,
         string $menuCode,
         ?string $checkerSelectedServiceId,
@@ -675,7 +675,7 @@ final readonly class MenuTreeLoader
      */
     private function buildTree(
         array $flat,
-        MenuPermissionCheckerInterface|MenuItemViewPermissionCheckerInterface $checker,
+        MenuPermissionCheckerInterface|MenuItemViewPermissionCheckerInterface|MenuItemContextPermissionCheckerInterface $checker,
         mixed $permissionContext,
         string $menuCode,
         ?string $checkerSelectedServiceId,

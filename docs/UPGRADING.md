@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.19.0](#to-2190)
 - [To 2.18.0](#to-2180)
 - [To 2.17.0](#to-2170)
 - [To 2.17.0](#to-2170-1)
@@ -130,6 +131,35 @@
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## To 2.19.0
+
+From **2.18.0**: no configuration or schema change; existing checkers, link resolvers, current matchers and menu code
+resolvers keep working and receive the same values. Their interfaces are deprecated (Symfony's debug class loader
+reports a class that implements one in `dev`) and removed in **3.0.0**.
+
+| Deprecated (removed in 3.0.0) | Replacement |
+|---|---|
+| `MenuPermissionCheckerInterface::canView(MenuItem, mixed)` / `MenuItemViewPermissionCheckerInterface::canViewItem(MenuItemView, mixed)` | `MenuItemContextPermissionCheckerInterface::canViewItemFor(MenuItemView, MenuPermissionContext)` |
+| `MenuLinkResolverInterface::resolveHref(MenuItem, ?Request, mixed)` / `MenuItemViewLinkResolverInterface::resolveItemHref(MenuItemView, ?Request, mixed)` | `MenuItemContextLinkResolverInterface::resolveItemHrefFor(MenuItemView, ?MenuRequestContext, MenuPermissionContext)` |
+| `MenuCurrentMatcherInterface::isCurrent(MenuItem, Request, string)` / `MenuItemViewCurrentMatcherInterface::isCurrentItem(MenuItemView, Request, string)` | `MenuItemContextCurrentMatcherInterface::isCurrentItemFor(MenuItemView, MenuRequestContext, string)` |
+| `MenuCodeResolverInterface::resolveMenuCode(Request, string)` (alias on `MenuCodeResolverInterface`) | `MenuCodeContextResolverInterface::resolveMenuCodeFor(MenuRequestContext, string)` (alias on `MenuCodeContextResolverInterface`) |
+
+Migration, one service at a time:
+
+1. Implement the new interface and move the logic: `$item->getPermissionKeys() ?? []` → `$item->permissionKeys`,
+   `$item->isUnanimous()` → `$item->unanimous`, `$item->getRouteName()` → `$item->routeName`;
+   `$request->attributes->get('_route')` → `$request->route`, `_route_params` → `$request->routeParams` /
+   `routeParam()`, `$request->getPathInfo()` → `$request->path`, `$request->getLocale()` → `$request->locale`,
+   `$request->query->all()` → `$request->query`.
+2. A `mixed` permission context becomes `MenuPermissionContext`: the default (the current request) is
+   `$context->request`; an array you passed to `dashboard_menu_tree(code, {...})` is `$context->attributes` (plain values
+   only; pass ids, not objects); a scalar is `$context->attributes['value']`.
+3. Remove the old interface. While a class implements both, the bundle keeps calling the old method.
+4. Menu code resolver: alias `Nowo\DashboardMenuBundle\Service\MenuCodeContextResolverInterface` to your service and
+   drop the alias on `MenuCodeResolverInterface`.
+5. Subclasses of `AbstractRoutePrefixMenuCurrentMatcher` need no change. Unknown permission keys stay the checker's
+   decision: return false for them (the bundled `PermissionKeyAwareMenuPermissionChecker` hides every keyed item).
 
 ## To 2.18.0
 

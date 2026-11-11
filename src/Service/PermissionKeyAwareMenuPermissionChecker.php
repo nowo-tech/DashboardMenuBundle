@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Nowo\DashboardMenuBundle\Service;
 
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
+use Nowo\DashboardMenuBundle\Model\MenuItemView;
+use Nowo\DashboardMenuBundle\Model\MenuPermissionContext;
 
 /**
  * Base/example permission checker that uses the item's permission_key.
@@ -17,7 +19,7 @@ use Nowo\DashboardMenuBundle\Entity\MenuItem;
  * Selecting it in the dashboard without extending it will hide all keyed items in production.
  *
  * To implement real access control, either:
- *  a) Create a custom class implementing {@see MenuPermissionCheckerInterface} and inject Security.
+ *  a) Create a custom class implementing {@see MenuItemContextPermissionCheckerInterface} and inject Security.
  *  b) Copy this class and fill in the "resolve key against $context" section.
  *
  * See demo/symfony8 for working examples with Symfony Security.
@@ -28,7 +30,7 @@ use Nowo\DashboardMenuBundle\Entity\MenuItem;
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
  */
-final class PermissionKeyAwareMenuPermissionChecker implements MenuPermissionCheckerInterface
+final class PermissionKeyAwareMenuPermissionChecker implements MenuItemContextPermissionCheckerInterface, MenuPermissionCheckerInterface
 {
     /** Label shown in the dashboard dropdown — clarifies this is a base/example class. */
     public const DASHBOARD_LABEL = 'form.menu_type.permission_checker.permission_key_aware';
@@ -38,6 +40,15 @@ final class PermissionKeyAwareMenuPermissionChecker implements MenuPermissionChe
      *
      * Override or replace with a custom checker that resolves the key against $context
      * (e.g. current user roles via Symfony Security's isGranted()).
+     */
+    public function canViewItemFor(MenuItemView $item, MenuPermissionContext $context): bool
+    {
+        // Same rule as canView(): keys are never resolved here, so any key hides the item (deny by default).
+        return $item->permissionKeys === [];
+    }
+
+    /**
+     * @deprecated since 2.19.0, use {@see canViewItemFor()}; removed in 3.0.0
      */
     public function canView(MenuItem $item, mixed $context = null): bool
     {

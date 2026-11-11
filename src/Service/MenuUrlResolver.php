@@ -278,7 +278,7 @@ final class MenuUrlResolver implements ResetInterface
             return '#';
         }
 
-        if (!$resolver instanceof MenuLinkResolverInterface && !$resolver instanceof MenuItemViewLinkResolverInterface) {
+        if (!$resolver instanceof MenuLinkResolverInterface && !$resolver instanceof MenuItemViewLinkResolverInterface && !$resolver instanceof MenuItemContextLinkResolverInterface) {
             return '#';
         }
 

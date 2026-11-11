@@ -13,6 +13,9 @@ use Nowo\DashboardMenuBundle\Entity\MenuItem;
  * "Permission checker" dropdown (no need to add the tag in services.yaml). Optionally set the
  * dropdown label via the class constant DASHBOARD_LABEL or the attribute #[PermissionCheckerLabel('...')].
  *
+ * @deprecated since 2.19.0, implement {@see MenuItemContextPermissionCheckerInterface} instead (canViewItemFor(MenuItemView, MenuPermissionContext), bundle-owned value
+ *             objects only, no HttpFoundation type or `mixed` context); removed in 3.0.0
+ *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
  */

@@ -141,6 +141,7 @@ services:
 
   Nowo\DashboardMenuBundle\Twig\MenuExtension:
     arguments:
+      $menuCodeResolver: '@nowo_dashboard_menu.internal.menu_code_resolver'
       $dataCollector: null
       $menuIconNameResolver: '@Nowo\DashboardMenuBundle\Service\MenuIconNameResolver'
       $dashboardLayoutTemplate: '%nowo_dashboard_menu.dashboard.layout_template%'
@@ -163,6 +164,8 @@ services:
   # would then mount their routes at the root, ignoring the route files (prefix, dashboard / api switches).
   Nowo\DashboardMenuBundle\Controller\Api\MenuApiController:
     autoconfigure: false
+    arguments:
+      $menuCodeResolver: '@nowo_dashboard_menu.internal.menu_code_resolver'
     public: true
     tags: [controller.service_arguments]
 

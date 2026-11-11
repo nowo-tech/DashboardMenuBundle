@@ -19,7 +19,9 @@
 - [Request performance (menu lookup memo)](#request-performance-menu-lookup-memo)
 - [Permissions](#permissions)
   - [Demo expression syntax (AND / OR / parentheses)](#demo-expression-syntax-and--or--parentheses)
-- [Using it from a DDD / hexagonal application](#using-it-from-a-ddd--hexagonal-application)
+- [Standard Symfony host](#standard-symfony-host)
+- [DDD host](#ddd-host)
+  - [Using it from a DDD / hexagonal application](#using-it-from-a-ddd--hexagonal-application)
   - [Keeping your domain free of the bundle](#keeping-your-domain-free-of-the-bundle)
   - [Reading the tree without entities](#reading-the-tree-without-entities)
   - [Known limitations](#known-limitations)
@@ -343,24 +345,30 @@ The JSON format accepts: one menu as an object with `menu` + `items`; several me
 
 ## Resolving menu by criteria (operatorId, partnerId, menu name)
 
-You can resolve which menu to show using custom criteria (e.g. first try operatorId + partnerId + menu name, then partnerId + menu name, then menu name). Implement `Nowo\DashboardMenuBundle\Service\MenuCodeResolverInterface` and set `nowo_dashboard_menu.menu_code_resolver` to your service id.
+You can resolve which menu to show using custom criteria (e.g. first try operatorId + partnerId + menu name, then partnerId + menu name, then menu name). Implement `Nowo\DashboardMenuBundle\Service\MenuCodeContextResolverInterface` and alias the interface to your service:
+
+```yaml
+# config/services.yaml
+services:
+    Nowo\DashboardMenuBundle\Service\MenuCodeContextResolverInterface: '@App\Menu\MyMenuCodeResolver'
+```
 
 ```php
+use Nowo\DashboardMenuBundle\Model\MenuRequestContext;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
-use Nowo\DashboardMenuBundle\Service\MenuCodeResolverInterface;
-use Symfony\Component\HttpFoundation\Request;
+use Nowo\DashboardMenuBundle\Service\MenuCodeContextResolverInterface;
 
-final class MyMenuCodeResolver implements MenuCodeResolverInterface
+final class MyMenuCodeResolver implements MenuCodeContextResolverInterface
 {
     public function __construct(
         private readonly MenuRepository $menuRepository,
     ) {
     }
 
-    public function resolveMenuCode(Request $request, string $hint): string
+    public function resolveMenuCodeFor(MenuRequestContext $request, string $hint): string
     {
-        $operatorId = $request->attributes->getInt('operatorId', 0);
-        $partnerId  = $request->attributes->getInt('partnerId', 0);
+        $operatorId = (int) $request->routeParam('operatorId');
+        $partnerId  = (int) $request->routeParam('partnerId');
 
         // First try: operator + partner + name
         if ($operatorId > 0 && $partnerId > 0) {
@@ -382,28 +390,40 @@ final class MyMenuCodeResolver implements MenuCodeResolverInterface
 }
 ```
 
-The same resolution is used in Twig (`dashboard_menu_tree('sidebar')`) and in the API (`GET /api/menu/sidebar`). Only links that pass the permission checker are included; parents (and section titles) with no visible children are automatically pruned.
+`MenuRequestContext` carries the route name (`route`), the scalar route parameters (`routeParams`, `routeParam()`), the
+path, the locale, the query parameters and the host of the main request; no headers, cookies or session. The same
+resolution is used in Twig (`dashboard_menu_tree('sidebar')`) and in the API (`GET /api/menu/sidebar`). Only links that
+pass the permission checker are included; parents (and section titles) with no visible children are automatically
+pruned.
+
+A resolver written for 2.18 or earlier (`MenuCodeResolverInterface::resolveMenuCode(Request, string)`, aliased on
+`MenuCodeResolverInterface`) keeps working; that interface is deprecated since 2.19 and removed in 3.0. When you alias
+`MenuCodeContextResolverInterface` to your own service, the bundle uses it instead.
 
 ## Current item matchers
 
 By default, `CurrentRouteTreeDecorator` marks a link **current** when the request path equals the item href path and the request query contains every query param from the href (extra request params are allowed).
 
-Hosts can OR additional rules by implementing `MenuCurrentMatcherInterface`. Autoconfigure tags the service as `nowo_dashboard_menu.current_matcher` (no manual tag needed):
+Hosts can OR additional rules by implementing `MenuItemContextCurrentMatcherInterface`. Autoconfigure tags the service as `nowo_dashboard_menu.current_matcher` (no manual tag needed):
 
 ```php
-use Nowo\DashboardMenuBundle\Entity\MenuItem;
-use Nowo\DashboardMenuBundle\Service\MenuCurrentMatcherInterface;
-use Symfony\Component\HttpFoundation\Request;
+use Nowo\DashboardMenuBundle\Model\MenuItemView;
+use Nowo\DashboardMenuBundle\Model\MenuRequestContext;
+use Nowo\DashboardMenuBundle\Service\MenuItemContextCurrentMatcherInterface;
 
-final class OpsDefaultsCurrentMatcher implements MenuCurrentMatcherInterface
+final class OpsDefaultsCurrentMatcher implements MenuItemContextCurrentMatcherInterface
 {
-    public function isCurrent(MenuItem $item, Request $request, string $resolvedHref): bool
+    public function isCurrentItemFor(MenuItemView $item, MenuRequestContext $request, string $resolvedHref): bool
     {
-        return $item->getRouteName() === 'admin_ops_defaults'
-            && str_starts_with((string) $request->attributes->get('_route'), 'admin_ops_defaults');
+        return $item->routeName === 'admin_ops_defaults'
+            && str_starts_with((string) $request->route, 'admin_ops_defaults');
     }
 }
 ```
+
+`MenuCurrentMatcherInterface::isCurrent(MenuItem, Request, string)` and
+`MenuItemViewCurrentMatcherInterface::isCurrentItem(MenuItemView, Request, string)` still work and are deprecated since
+2.19 (removed in 3.0).
 
 For the common case “menu points at an index route, pages use `*_section` / kit prefixes”, extend `AbstractRoutePrefixMenuCurrentMatcher`:
 
@@ -422,6 +442,9 @@ final class AdministrationMenuCurrentMatcher extends AbstractRoutePrefixMenuCurr
 }
 ```
 
+`AbstractRoutePrefixMenuCurrentMatcher` implements both the new and the deprecated matcher interface; subclasses that
+only define `routePrefixes()` need no change now or in 3.0.
+
 `hasCurrentInBranch` still bubbles from children after custom matchers run, so nested collapsible sections stay open.
 
 ## Request performance (menu lookup memo)
@@ -434,19 +457,23 @@ Tree loading (`findMenuAndItemsRaw` / `MenuTreeLoader` cache pool) is separate; 
 
 ## Permissions
 
-Implement `Nowo\DashboardMenuBundle\Service\MenuPermissionCheckerInterface`:
+Implement `Nowo\DashboardMenuBundle\Service\MenuItemContextPermissionCheckerInterface`:
 
 ```php
-public function canView(MenuItem $item, mixed $context = null): bool
+use Nowo\DashboardMenuBundle\Model\MenuItemView;
+use Nowo\DashboardMenuBundle\Model\MenuPermissionContext;
+use Nowo\DashboardMenuBundle\Service\MenuItemContextPermissionCheckerInterface;
+
+public function canViewItemFor(MenuItemView $item, MenuPermissionContext $context): bool
 {
-    $keys = $item->getPermissionKeys() ?? [];
+    $keys = $item->permissionKeys;
     if ($keys === []) {
         return true;
     }
 
-    if ($item->isUnanimous()) {
+    if ($item->unanimous) {
         foreach ($keys as $key) {
-            if (!$this->authorizationChecker->isGranted($key, $context)) {
+            if (!$this->authorizationChecker->isGranted($key)) {
                 return false;
             }
         }
@@ -455,14 +482,28 @@ public function canView(MenuItem $item, mixed $context = null): bool
     }
 
     foreach ($keys as $key) {
-        if ($this->authorizationChecker->isGranted($key, $context)) {
+        if ($this->authorizationChecker->isGranted($key)) {
             return true; // OR
         }
     }
 
-    return false;
+    return false; // unknown or refused keys: hidden (deny by default)
 }
 ```
+
+`MenuPermissionContext` replaces the `mixed` context of the deprecated ports:
+
+| You pass (`dashboard_menu_tree(code, context)`, `MenuTreeLoader::loadTree(…, $permissionContext)`) | The checker receives |
+|---|---|
+| nothing (Twig, JSON API) | `request`: the main request as `MenuRequestContext`; no attributes |
+| an array of plain values, e.g. `{tenant: 'acme'}` | `attributes` (scalars, null, lists of those; objects dropped); `request` null |
+| a `MenuPermissionContext` | that object |
+| a scalar | `attributes['value']` |
+| any other object | an empty context |
+
+`MenuPermissionCheckerInterface::canView(MenuItem, mixed)` and `MenuItemViewPermissionCheckerInterface::canViewItem(MenuItemView, mixed)`
+still work (they receive the raw value, as before) and are deprecated since 2.19 (removed in 3.0). The bundled
+`AllowAllMenuPermissionChecker` and `PermissionKeyAwareMenuPermissionChecker` implement both.
 
 ### Demo expression syntax (AND / OR / parentheses)
 
@@ -499,7 +540,27 @@ Notes:
 
 If neither is set, the service id (e.g. FQCN) is used as the label. You can discover your checker via a service directory (e.g. `App\Service\`: `resource: '../src/Service/'`) so you do not need to register it explicitly in `services.yaml`. You can still order or override labels via config: `permission_checker_choices` as a list of service IDs or a map (service id => label) in `nowo_dashboard_menu.yaml` (see [CONFIGURATION](CONFIGURATION.md#permission_checker_choices)). Assign a checker to a menu in the dashboard (per-menu) or leave the menu with no checker for default allow-all behaviour. Manually tagging with `nowo_dashboard_menu.permission_checker` in `services.yaml` or using `#[AsTaggedItem]` remains supported.
 
-## Using it from a DDD / hexagonal application
+## Standard Symfony host
+
+The zero-config path. Nothing to change when upgrading from 2.18:
+
+1. `composer require nowo-tech/dashboard-menu-bundle`, map `Nowo\DashboardMenuBundle\Entity` on your entity manager
+   (attribute mapping, `auto_mapping: true` is enough) and create the tables with
+   `nowo_dashboard_menu:generate-migration`.
+2. Render menus with `dashboard_menu_tree('sidebar')` / `dashboard_menu_config('sidebar')`; build them in the dashboard
+   or import them with `MenuImporter`.
+3. Add behaviour with autoconfigured services: a permission checker
+   (`MenuItemContextPermissionCheckerInterface`, see [Permissions](#permissions)), link resolvers for `service` items,
+   current-item matchers, a menu code resolver.
+
+Checkers, resolvers and matchers written for 2.18 or earlier (`MenuPermissionCheckerInterface`,
+`MenuLinkResolverInterface`, `MenuCurrentMatcherInterface`, `MenuCodeResolverInterface` and the 2.17 `MenuItemView*`
+variants) keep working unchanged and receive the same values as before; they are deprecated since 2.19 (Symfony's
+debug class loader reports them in `dev`) and removed in 3.0. See [UPGRADING](UPGRADING.md#to-2190).
+
+## DDD host
+
+### Using it from a DDD / hexagonal application
 
 DashboardMenuBundle is a navigation (presentation) component with its own small persistence: the `Menu` and
 `MenuItem` entities and their tables (`dashboard_menu`, `dashboard_menu_item`, optionally prefixed). It never maps
@@ -509,37 +570,43 @@ or references your entities: no `resolve_target_entities`, no base class or trai
 
 ### Keeping your domain free of the bundle
 
-Your domain does not know about menus. Connect them in the infrastructure layer through the bundle ports. Each item
-port has a **view variant** that receives a read-only `MenuItemView` (`Nowo\DashboardMenuBundle\Model`, plain
-values only) instead of the Doctrine entity `MenuItem`; use those in new adapters (since 2.17.0):
+Your domain does not know about menus. Connect them in the infrastructure layer through the bundle ports. Since 2.19
+every port has a variant that takes only bundle-owned value objects (`Nowo\DashboardMenuBundle\Model`): the item as a
+read-only `MenuItemView` (no Doctrine entity), the request as `MenuRequestContext` (no HttpFoundation `Request`) and the
+permission context as `MenuPermissionContext` (no `mixed`):
 
-| Need | Port (view variant, preferred) | Entity variant (still supported) | Registration |
-|------|--------------------------------|----------------------------------|--------------|
-| Hide items the user may not see | `MenuItemViewPermissionCheckerInterface::canViewItem(MenuItemView, mixed $context)` | `MenuPermissionCheckerInterface::canView(MenuItem, mixed)` | auto-tagged; choose it per menu (`permission_checker_choices`) |
-| Links or children computed from domain data | `MenuItemViewLinkResolverInterface::resolveItemHref(MenuItemView, ?Request, mixed)` | `MenuLinkResolverInterface::resolveHref(MenuItem, ?Request, mixed)` | auto-tagged; item type `service` (`menu_link_resolver_choices`) |
-| Custom "current item" rule | `MenuItemViewCurrentMatcherInterface::isCurrentItem(MenuItemView, Request, string)` | `MenuCurrentMatcherInterface::isCurrent(MenuItem, Request, string)` | autoconfigured with tag `nowo_dashboard_menu.current_matcher` |
-| Pick the menu code per request | `MenuCodeResolverInterface::resolveMenuCode(Request, string)` | — | override the service alias |
+| Need | Port (value objects only, 2.19+) | Deprecated variants (removed in 3.0) | Registration |
+|------|----------------------------------|--------------------------------------|--------------|
+| Hide items the user may not see | `MenuItemContextPermissionCheckerInterface::canViewItemFor(MenuItemView, MenuPermissionContext)` | `MenuPermissionCheckerInterface::canView(MenuItem, mixed)`, `MenuItemViewPermissionCheckerInterface::canViewItem(MenuItemView, mixed)` | auto-tagged; choose it per menu (`permission_checker_choices`) |
+| Links or children computed from domain data | `MenuItemContextLinkResolverInterface::resolveItemHrefFor(MenuItemView, ?MenuRequestContext, MenuPermissionContext)` | `MenuLinkResolverInterface::resolveHref(MenuItem, ?Request, mixed)`, `MenuItemViewLinkResolverInterface::resolveItemHref(MenuItemView, ?Request, mixed)` | auto-tagged; item type `service` (`menu_link_resolver_choices`) |
+| Custom "current item" rule | `MenuItemContextCurrentMatcherInterface::isCurrentItemFor(MenuItemView, MenuRequestContext, string)` | `MenuCurrentMatcherInterface::isCurrent(MenuItem, Request, string)`, `MenuItemViewCurrentMatcherInterface::isCurrentItem(MenuItemView, Request, string)` | autoconfigured with tag `nowo_dashboard_menu.current_matcher` |
+| Pick the menu code per request | `MenuCodeContextResolverInterface::resolveMenuCodeFor(MenuRequestContext, string)` | `MenuCodeResolverInterface::resolveMenuCode(Request, string)` | alias `MenuCodeContextResolverInterface` to your service |
 | Admin access | `DashboardMenuAccessCheckerInterface::canAccess()` | — | `security.access_checker` |
 
-If a class implements both variants, the bundle calls the entity method. `MenuItemView` exposes `id`, `menuId`,
-`menuCode`, `parentId`, `itemType`, `label`, `translations` (+ `labelForLocale()`), `position`, `linkType`,
-`routeName`, `routeParams`, `externalUrl`, `linkResolver`, `runtimeHref`, `permissionKeys`, `unanimous`, `icon` and
-`targetBlank`.
+If a class implements several variants of one port, the bundle calls the oldest one (entity, then `MenuItemView` with
+`Request` / `mixed`, then the value-object variant), so adding the new interface during a migration changes nothing
+until you remove the old one. `MenuItemView` exposes `id`, `menuId`, `menuCode`, `parentId`, `itemType`, `label`,
+`translations` (+ `labelForLocale()`), `position`, `linkType`, `routeName`, `routeParams`, `externalUrl`, `linkResolver`,
+`runtimeHref`, `permissionKeys`, `unanimous`, `icon` and `targetBlank`. `MenuRequestContext` exposes `route`,
+`routeParams` (scalars only, `routeParam()`), `path`, `locale`, `query` and `host` of the main request.
+`MenuPermissionContext` exposes `request` (a `MenuRequestContext` or null) and `attributes` (plain values you passed,
+see [Permissions](#permissions)).
 
 Keep the adapters thin and delegate to an application service:
 
 ```php
 use Nowo\DashboardMenuBundle\Model\MenuItemView;
-use Nowo\DashboardMenuBundle\Service\MenuItemViewPermissionCheckerInterface;
+use Nowo\DashboardMenuBundle\Model\MenuPermissionContext;
+use Nowo\DashboardMenuBundle\Service\MenuItemContextPermissionCheckerInterface;
 
-final class DomainMenuPermissionChecker implements MenuItemViewPermissionCheckerInterface
+final class DomainMenuPermissionChecker implements MenuItemContextPermissionCheckerInterface
 {
     public function __construct(private readonly AccessPolicy $policy) {} // your application port
 
-    public function canViewItem(MenuItemView $item, mixed $context = null): bool
+    public function canViewItemFor(MenuItemView $item, MenuPermissionContext $context): bool
     {
         foreach ($item->permissionKeys as $key) {
-            if (!$this->policy->isGranted($key)) {
+            if (!$this->policy->isGranted($key)) { // unknown keys: not granted
                 return false;
             }
         }
@@ -551,16 +618,18 @@ final class DomainMenuPermissionChecker implements MenuItemViewPermissionChecker
 
 ```php
 use Nowo\DashboardMenuBundle\Model\MenuItemView;
-use Nowo\DashboardMenuBundle\Service\MenuItemViewLinkResolverInterface;
+use Nowo\DashboardMenuBundle\Model\MenuPermissionContext;
+use Nowo\DashboardMenuBundle\Model\MenuRequestContext;
+use Nowo\DashboardMenuBundle\Service\MenuItemContextLinkResolverInterface;
 
-final class ProjectsMenuLinkResolver implements MenuItemViewLinkResolverInterface
+final class ProjectsMenuLinkResolver implements MenuItemContextLinkResolverInterface
 {
     public function __construct(
         private readonly ListProjectsQuery $projects, // your application query
         private readonly UrlGeneratorInterface $urls,
     ) {}
 
-    public function resolveItemHref(MenuItemView $item, ?Request $request, mixed $permissionContext = null): string|array
+    public function resolveItemHrefFor(MenuItemView $item, ?MenuRequestContext $request, MenuPermissionContext $context): string|array
     {
         $rows = [];
         foreach ($this->projects->forCurrentUser() as $i => $project) {
@@ -571,6 +640,10 @@ final class ProjectsMenuLinkResolver implements MenuItemViewLinkResolverInterfac
     }
 }
 ```
+
+`tests/Integration/DddHost/HostPortsEquivalenceKernelTest.php` boots such a host (value-object ports only, dedicated
+entity manager) next to a standard host written against the deprecated ports and checks that both render the same
+tree.
 
 ### Reading the tree without entities
 
@@ -605,8 +678,11 @@ them), so there is no separate "host controls the transaction" mode.
 
 ### Known limitations
 
-- `permissionContext` is `mixed` (by default the current `Request`); document what your checker expects. The view
-  ports take `?Request` (presentation ports, accepted by the architecture bar).
+- `MenuTreeLoader::loadTree()` / `loadTreeView()` and `dashboard_menu_tree()` still accept a `mixed` permission context
+  for the deprecated checkers; pass an array of plain values or a `MenuPermissionContext` (the value-object ports
+  receive it as `MenuPermissionContext`, see [Permissions](#permissions)).
+- `CurrentRouteTreeDecorator::decorate()` takes the HttpFoundation request: it is the bundle's own presentation service,
+  not a port you implement; call `dashboard_menu_tree()` or use the matcher port instead.
 - The JSON menu API path is not versioned yet (separate API versioning track).
 
 ## Item visibility rules
@@ -615,9 +691,9 @@ The bundle applies the following rules in order to decide which items appear in 
 
 ### 1. Permission check (per item, all types)
 
-Every item — regardless of type — is evaluated once by the configured `MenuPermissionCheckerInterface::canView($item, $context)`. If the checker returns `false`, the item is excluded from the tree; none of its children are rendered either.
+Every item — regardless of type — is evaluated once by the configured permission checker (`MenuItemContextPermissionCheckerInterface::canViewItemFor($item, $context)`, or a deprecated variant). If the checker returns `false`, the item is excluded from the tree; none of its children are rendered either.
 
-The checker receives the full `MenuItem` object and can inspect `$item->getPermissionKeys()` and `$item->isUnanimous()` to implement OR / AND logic. The bundle does not enforce that logic itself; it is the checker's responsibility.
+The checker receives the item (`MenuItemView`: `permissionKeys`, `unanimous`) and implements the OR / AND logic. The bundle does not enforce that logic itself; it is the checker's responsibility.
 
 ### 2. Link (leaf) — always visible when the checker allows
 

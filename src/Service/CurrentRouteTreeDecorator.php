@@ -29,7 +29,7 @@ use const PHP_URL_QUERY;
 final readonly class CurrentRouteTreeDecorator
 {
     /**
-     * @param iterable<MenuCurrentMatcherInterface|MenuItemViewCurrentMatcherInterface> $currentMatchers
+     * @param iterable<MenuCurrentMatcherInterface|MenuItemContextCurrentMatcherInterface|MenuItemViewCurrentMatcherInterface> $currentMatchers
      */
     public function __construct(
         private MenuUrlResolver $urlResolver,

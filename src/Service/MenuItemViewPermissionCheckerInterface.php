@@ -14,6 +14,9 @@ use Nowo\DashboardMenuBundle\Model\MenuItemView;
  *
  * When a class implements both interfaces, the bundle calls {@see MenuPermissionCheckerInterface::canView()}.
  *
+ * @deprecated since 2.19.0, implement {@see MenuItemContextPermissionCheckerInterface} instead (canViewItemFor(MenuItemView, MenuPermissionContext), bundle-owned value
+ *             objects only, no HttpFoundation type or `mixed` context); removed in 3.0.0
+ *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
  */

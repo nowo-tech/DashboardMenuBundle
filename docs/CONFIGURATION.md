@@ -140,7 +140,7 @@ list through a factory, and when `default_locale` is null the first env locale i
 
 ### permission_checker_choices
 
-Services shown in the dashboard "Permission checker" dropdown when creating/editing a Menu. Any service whose class implements `MenuPermissionCheckerInterface` is **automatically** tagged and included (no need to add the tag in `services.yaml`). The dropdown label for auto-discovered checkers can be set with the class constant `DASHBOARD_LABEL` or the attribute `#[PermissionCheckerLabel('...')]`; if unset, the service id is used. This option adds or orders them and optionally overrides labels.
+Services shown in the dashboard "Permission checker" dropdown when creating/editing a Menu. Any service whose class implements `MenuItemContextPermissionCheckerInterface` (or a deprecated `MenuPermissionCheckerInterface` / `MenuItemViewPermissionCheckerInterface`) is **automatically** tagged and included (no need to add the tag in `services.yaml`). The dropdown label for auto-discovered checkers can be set with the class constant `DASHBOARD_LABEL` or the attribute `#[PermissionCheckerLabel('...')]`; if unset, the service id is used. This option adds or orders them and optionally overrides labels.
 
 You can use either format:
 
@@ -173,7 +173,7 @@ The bundle also provides `PermissionKeyAwareMenuPermissionChecker` (structure ex
 
 ### menu_link_resolver_choices
 
-Services shown in the menu item form "Link resolver" dropdown (item type **Service**, runtime URL). Any service implementing `MenuLinkResolverInterface` is **automatically** tagged `nowo_dashboard_menu.menu_link_resolver` and listed. The label is, in order: the tag attribute `label`, the class constant `DASHBOARD_LABEL`, the attribute `#[MenuLinkResolverLabel('...')]`, or the service id.
+Services shown in the menu item form "Link resolver" dropdown (item type **Service**, runtime URL). Any service implementing `MenuItemContextLinkResolverInterface` (or a deprecated `MenuLinkResolverInterface` / `MenuItemViewLinkResolverInterface`) is **automatically** tagged `nowo_dashboard_menu.menu_link_resolver` and listed. The label is, in order: the tag attribute `label`, the class constant `DASHBOARD_LABEL`, the attribute `#[MenuLinkResolverLabel('...')]`, or the service id.
 
 | Option | Default | Description |
 |--------|---------|-------------|
@@ -411,7 +411,7 @@ Each **Menu** entity in the database can override:
 
 - **Name**, **code**, **context** (JSON), **icon**
 - **CSS classes**: classMenu, classItem, classLink, classChildren, classCurrent, classBranchExpanded, classHasChildren, classExpanded, classCollapsed
-- **Permission checker**: service id of a `MenuPermissionCheckerInterface` implementation
+- **Permission checker**: service id of a `MenuItemContextPermissionCheckerInterface` implementation (or a deprecated checker interface)
 - **Depth limit**: max depth to render (null = unlimited)
 - **Collapsible**, **collapsible_expanded**, **nested_collapsible**
 - **Root `<ul>` id:** `ulId` (rendered as the `id` attribute when set)

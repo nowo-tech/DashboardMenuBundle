@@ -151,7 +151,7 @@ final class Configuration implements ConfigurationInterface
                     ->defaultNull()
                 ->end()
                 ->arrayNode('permission_checker_choices')
-                    ->info('Ordered list of permission checker service IDs (FQCN) for the dashboard dropdown. Each must implement MenuPermissionCheckerInterface. Tagged services are merged automatically; this list adds or orders them. The visible label is the service id unless the tag defines label= (or class metadata). Legacy YAML with only `order:` (and ignored `labels:`) is normalized to this list.')
+                    ->info('Ordered list of permission checker service IDs (FQCN) for the dashboard dropdown. Each must implement MenuItemContextPermissionCheckerInterface (or a deprecated MenuPermissionCheckerInterface / MenuItemViewPermissionCheckerInterface). Tagged services are merged automatically; this list adds or orders them. The visible label is the service id unless the tag defines label= (or class metadata). Legacy YAML with only `order:` (and ignored `labels:`) is normalized to this list.')
                     ->beforeNormalization()
                         ->ifArray()
                         ->then(static function (array $v): array {
@@ -169,7 +169,7 @@ final class Configuration implements ConfigurationInterface
                     ->defaultValue([])
                 ->end()
                 ->arrayNode('menu_link_resolver_choices')
-                    ->info('Ordered list of MenuLinkResolverInterface service IDs for the "Link resolver" dropdown (item type service). Tagged resolvers are merged; this list adds or orders them. The visible label is the service id unless the tag defines label=. Legacy YAML with only `order:` is normalized to this list.')
+                    ->info('Ordered list of link resolver service IDs (MenuItemContextLinkResolverInterface, or the deprecated MenuLinkResolverInterface / MenuItemViewLinkResolverInterface) for the "Link resolver" dropdown (item type service). Tagged resolvers are merged; this list adds or orders them. The visible label is the service id unless the tag defines label=. Legacy YAML with only `order:` is normalized to this list.')
                     ->beforeNormalization()
                         ->ifArray()
                         ->then(static function (array $v): array {
