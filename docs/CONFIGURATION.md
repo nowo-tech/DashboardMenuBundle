@@ -51,12 +51,14 @@ Menus are **defined in the database** (dashboard at `/admin/menus` or fixtures):
 |----------------|-----------|-------------|
 | `connection`   | `default` | Doctrine DBAL connection name for menu entities. |
 | `table_prefix` | `''`      | Prefix for table names (`dashboard_menu`, `dashboard_menu_item`). Empty = no prefix. |
+| `entity_manager` | `null` | **2.18.** Doctrine entity manager the menu entities are mapped on (e.g. a dedicated `dashboard_menu` manager). Mapped on that manager only, also when the default manager has `auto_mapping: true`; the dashboard, importer, Live Component, migration command and recovery reset use it. Unknown manager = build error. `null` = the manager that maps the entities (unchanged). Keep the underscore naming strategy on it. |
 
 ```yaml
 nowo_dashboard_menu:
     doctrine:
         connection: default
         table_prefix: ''   # or e.g. 'app_'
+        entity_manager: null   # 2.18: e.g. dashboard_menu (dedicated manager)
 ```
 
 **Generating a migration**

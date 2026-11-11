@@ -60,6 +60,9 @@ use function trim;
  */
 final class DashboardMenuExtension extends Extension implements PrependExtensionInterface
 {
+    /** Container parameter holding `doctrine.entity_manager` (null: the manager that maps the entities), 2.18. */
+    public const ENTITY_MANAGER_PARAMETER = 'nowo_dashboard_menu.doctrine.entity_manager';
+
     /**
      * Prepend twig_component.defaults so the bundle's Live Component has a matching namespace
      * (avoids "Could not generate a component name ... no matching namespace found").
@@ -452,6 +455,8 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
             $cacheInvalidatorDef->setArgument('$cachePool', new Reference($poolName));
         }
         $container->setParameter(Configuration::ALIAS . '.doctrine.connection', $config['doctrine']['connection'] ?? 'default');
+        $entityManagerName = $config['doctrine']['entity_manager'] ?? null;
+        $container->setParameter(self::ENTITY_MANAGER_PARAMETER, is_string($entityManagerName) && $entityManagerName !== '' ? $entityManagerName : null);
         $container->setParameter(Configuration::ALIAS . '.doctrine.table_prefix', $config['doctrine']['table_prefix'] ?? '');
         $container->setParameter(Configuration::ALIAS . '.table_prefix', $config['doctrine']['table_prefix'] ?? '');
 

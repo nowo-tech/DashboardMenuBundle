@@ -7,12 +7,15 @@ namespace Nowo\DashboardMenuBundle\Service;
 use Nowo\DashboardMenuBundle\DataCollector\DashboardMenuDataCollector;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
+use Nowo\DashboardMenuBundle\Event\MenuTreeBuiltEvent;
 use Nowo\DashboardMenuBundle\Model\MenuItemView;
 use Nowo\DashboardMenuBundle\Model\MenuNodeView;
+use Nowo\DashboardMenuBundle\Model\MenuView;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Container\ContainerInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use ReflectionProperty;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -60,6 +63,7 @@ final readonly class MenuTreeLoader
         /** @var array<string, string> */
         private array $permissionCheckerChoices = [],
         private ?MenuTreeCacheInvalidator $cacheInvalidator = null,
+        private ?EventDispatcherInterface $eventDispatcher = null,
     ) {
     }
 
@@ -103,7 +107,30 @@ final readonly class MenuTreeLoader
      */
     public function loadTreeView(string $menuCode, string $locale, mixed $permissionContext = null, ?array $contextSets = null): array
     {
-        return MenuNodeView::listFromTree($this->loadTree($menuCode, $locale, $permissionContext, $contextSets));
+        $nodes = MenuNodeView::listFromTree($this->loadTree($menuCode, $locale, $permissionContext, $contextSets));
+        if (!$this->eventDispatcher instanceof EventDispatcherInterface) {
+            return $nodes;
+        }
+
+        // 2.18: listeners add domain-driven entries or remove nodes (DTOs only).
+        $event = new MenuTreeBuiltEvent($menuCode, $locale, $nodes);
+        $this->eventDispatcher->dispatch($event);
+
+        return $event->getNodes();
+    }
+
+    /**
+     * Render configuration of the menu as an immutable {@see MenuView} (2.18), from the same cached rows as
+     * {@see loadMenu()}: for hosts that render or serialise the menu without the bundle's entities. Null when no menu
+     * matches.
+     *
+     * @param list<array<string, bool|int|string>|null>|null $contextSets
+     */
+    public function loadMenuView(string $menuCode, string $locale, ?array $contextSets = null): ?MenuView
+    {
+        $menu = $this->loadMenu($menuCode, $locale, $contextSets);
+
+        return $menu instanceof Menu ? MenuView::fromEntity($menu) : null;
     }
 
     /**

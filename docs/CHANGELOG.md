@@ -119,6 +119,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Target 2.18.0 (architecture bar, wave W1: standard Symfony and DDD hosts).
+
+### Added
+
+- **`doctrine.entity_manager`** option: map the menu entities on a dedicated Doctrine entity manager only (also when the
+  default manager has `auto_mapping: true`). The dashboard controller, the importer, the item form Live Component, the
+  migration command and the closed-manager recovery use it; an unknown manager fails the build. Default `null`:
+  unchanged.
+- **`MenuTreeBuiltEvent`** (menu code, locale, `MenuNodeView` list; `setNodes()`): dispatched by
+  `MenuTreeLoader::loadTreeView()`, so domain-driven entries can be added or removed without a `service` item.
+- **`MenuView`** DTO and `MenuTreeLoader::loadMenuView()`: the render configuration of a menu without the `Menu` entity.
+- Kernel tests for a standard host, two managers with `auto_mapping`, a host without `default_entity_manager`, an
+  unknown manager and the recovery of the bundle manager only.
+
+### Changed
+
+- The dashboard controller, `MenuImporter`, `ItemFormLiveComponent` and the migration command get the manager of the
+  menu entities (`nowo_dashboard_menu.entity_manager`) instead of the autowired default `EntityManagerInterface` /
+  `doctrine.orm.entity_manager` (the same manager in a standard host).
+
 ## [2.17.0] - 2026-11-10
 
 Target 2.17.0. Ports and tree without the `MenuItem` entity, for DDD / hexagonal hosts. See [UPGRADING](UPGRADING.md#to-2170).

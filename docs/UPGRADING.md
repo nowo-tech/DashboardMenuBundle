@@ -130,6 +130,19 @@
 
 ## Unreleased
 
+### To 2.18.0
+
+From **2.17.0**: no configuration or schema change for standard hosts.
+
+- **Optional `doctrine.entity_manager`**: maps the menu entities on that manager only (declare it under
+  `doctrine.orm.entity_managers`) and makes the bundle use it everywhere. Move the two menu tables to its connection (or
+  point it at the same database). The raw read path selects snake_case columns: keep the underscore naming strategy
+  (the Flex default) on that manager.
+- **New `MenuTreeBuiltEvent`** from `loadTreeView()`, and **`loadMenuView()`** / `MenuView`.
+- Code that replaced the dashboard controller, the importer or the Live Component and relied on the default manager now
+  receives `nowo_dashboard_menu.entity_manager` (the same object in a standard host).
+- The versioned menu API path is a separate change (API versioning track).
+
 ## To 2.17.0
 
 From **2.16.0**:

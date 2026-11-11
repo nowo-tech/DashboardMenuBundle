@@ -7,7 +7,7 @@ services:
   Nowo\DashboardMenuBundle\LiveComponent\ItemFormLiveComponent:
     arguments:
       $formFactory: '@form.factory'
-      $entityManager: '@doctrine.orm.entity_manager'
+      $entityManager: '@nowo_dashboard_menu.entity_manager'
       $requestStack: '@request_stack'
     tags:
       - { name: twig.component, key: dashboard_menu_item_form }

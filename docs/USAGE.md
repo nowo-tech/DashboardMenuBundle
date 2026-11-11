@@ -586,12 +586,28 @@ allowlist as the Twig path (`http`, `https`, `mailto`, `tel`, relative; null oth
 other values (route params, your own data), apply `Nowo\DashboardMenuBundle\Util\ExternalUrlPolicy::sanitize()`
 before putting them in an `href`.
 
+### Domain-driven entries and render configuration (2.18)
+
+- `loadTreeView()` dispatches `MenuTreeBuiltEvent` (menu code, locale, `MenuNodeView` list): a listener can append
+  entries built from your own read model (e.g. the user's projects, with `runtimeHref`) or remove nodes with
+  `setNodes()`, without a `service` item and without the bundle's entities.
+- `loadMenuView()` returns the render configuration as a `MenuView` DTO (code, name, icon, context, CSS classes,
+  collapse flags); `loadMenu()` keeps returning the entity for standard hosts.
+
+### Dedicated entity manager (2.18)
+
+`nowo_dashboard_menu.doctrine.entity_manager: dashboard_menu` maps the two menu entities on that manager only (also
+when your default manager has `auto_mapping: true`) and makes the dashboard, the importer, the item form Live Component
+and the migration command write there. The bundle then never flushes, clears or resets your managers; a closed
+`dashboard_menu` manager is recovered on the next request (FrankenPHP worker mode, no services resetter needed).
+Standard hosts leave it null. Menu writes are the dashboard's and the importer's own (no host command handler writes
+them), so there is no separate "host controls the transaction" mode.
+
 ### Known limitations
 
-- No event is dispatched while building the tree; add domain-driven entries through a `service` item and a link
-  resolver.
-- `permissionContext` is `mixed` (by default the current `Request`); document what your checker expects.
-- `MenuTreeLoader::loadMenu()` still returns the `Menu` entity (render configuration).
+- `permissionContext` is `mixed` (by default the current `Request`); document what your checker expects. The view
+  ports take `?Request` (presentation ports, accepted by the architecture bar).
+- The JSON menu API path is not versioned yet (separate API versioning track).
 
 ## Item visibility rules
 

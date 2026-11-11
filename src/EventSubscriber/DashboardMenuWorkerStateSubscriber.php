@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\EventSubscriber;
 
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Nowo\DashboardMenuBundle\DataCollector\DashboardMenuDataCollector;
 use Nowo\DashboardMenuBundle\DataCollector\MenuQueryCounter;
-use Nowo\DashboardMenuBundle\Entity\Menu;
+use Nowo\DashboardMenuBundle\Doctrine\DashboardMenuEntityManagerResolver;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 use Nowo\DashboardMenuBundle\Service\MenuTreeCacheInvalidator;
 use Nowo\DashboardMenuBundle\Service\MenuUrlResolver;
@@ -37,6 +36,7 @@ final readonly class DashboardMenuWorkerStateSubscriber implements EventSubscrib
         private ?ManagerRegistry $managerRegistry = null,
         private ?DashboardMenuDataCollector $dataCollector = null,
         private ?MenuQueryCounter $menuQueryCounter = null,
+        private ?string $entityManagerName = null,
     ) {
     }
 
@@ -68,17 +68,7 @@ final readonly class DashboardMenuWorkerStateSubscriber implements EventSubscrib
             return;
         }
 
-        $manager = $this->managerRegistry->getManagerForClass(Menu::class);
-        if (!$manager instanceof EntityManagerInterface || $manager->isOpen()) {
-            return;
-        }
-
-        foreach (array_keys($this->managerRegistry->getManagerNames()) as $name) {
-            if ($this->managerRegistry->getManager($name) === $manager) {
-                $this->managerRegistry->resetManager($name);
-
-                return;
-            }
-        }
+        // 2.18: the menu manager only (doctrine.entity_manager, else the one that maps Menu).
+        (new DashboardMenuEntityManagerResolver($this->managerRegistry, $this->entityManagerName))->resetIfClosed();
     }
 }

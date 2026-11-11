@@ -7,6 +7,7 @@ namespace Nowo\DashboardMenuBundle;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\AutoTagMenuLinkResolversPass;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\AutoTagPermissionCheckersPass;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\CsrfProtectionPass;
+use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\DashboardMenuEntityManagerPass;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\DashboardMenuSecurityPass;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\DataCollectorProfilerPass;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\MenuLinkResolverPass;
@@ -49,6 +50,8 @@ final class NowoDashboardMenuBundle extends Bundle
         $container->addCompilerPass(new DashboardMenuSecurityPass());
         $container->addCompilerPass(new CsrfProtectionPass());
         $container->addCompilerPass(new DataCollectorProfilerPass());
+        // doctrine.entity_manager (2.18): the menu entities on that manager only.
+        $container->addCompilerPass(new DashboardMenuEntityManagerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, -10);
     }
 
     public function getContainerExtension(): ExtensionInterface

@@ -3,6 +3,18 @@ services:
     autowire: true
     autoconfigure: true
     public: false
+    bind:
+      # 2.18 (rule 6): the manager of the menu entities, never the host's default manager by accident.
+      Doctrine\ORM\EntityManagerInterface $entityManager: '@nowo_dashboard_menu.entity_manager'
+      Doctrine\ORM\EntityManagerInterface $em: '@nowo_dashboard_menu.entity_manager'
+
+  Nowo\DashboardMenuBundle\Doctrine\DashboardMenuEntityManagerResolver:
+    arguments:
+      $managerName: '%nowo_dashboard_menu.doctrine.entity_manager%'
+
+  nowo_dashboard_menu.entity_manager:
+    class: Doctrine\ORM\EntityManagerInterface
+    factory: ['@Nowo\DashboardMenuBundle\Doctrine\DashboardMenuEntityManagerResolver', 'entityManager']
 
   Nowo\DashboardMenuBundle\Routing\MenuApiRouteLoader:
     arguments:
@@ -185,6 +197,7 @@ services:
   Nowo\DashboardMenuBundle\EventSubscriber\DashboardMenuWorkerStateSubscriber:
     arguments:
       $managerRegistry: '@?doctrine'
+      $entityManagerName: '%nowo_dashboard_menu.doctrine.entity_manager%'
       $dataCollector: '@?Nowo\DashboardMenuBundle\DataCollector\DashboardMenuDataCollector'
       $menuQueryCounter: '@?Nowo\DashboardMenuBundle\DataCollector\MenuQueryCounter'
 
