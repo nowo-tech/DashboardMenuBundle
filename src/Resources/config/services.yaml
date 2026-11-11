@@ -107,6 +107,7 @@ services:
       $cacheInvalidator: '@Nowo\DashboardMenuBundle\Service\MenuTreeCacheInvalidator'
       $logger: '@?logger'
       $debug: '%kernel.debug%'
+      $strictPermissionChecker: '%nowo_dashboard_menu.strict_permission_checker%'
     public: true
 
   Nowo\DashboardMenuBundle\Service\MenuUrlResolver:

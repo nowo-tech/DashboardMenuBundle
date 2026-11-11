@@ -8,6 +8,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use LogicException;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\AutoTagMenuLinkResolversPass;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\MultiVariantPortsPass;
+use Nowo\DashboardMenuBundle\DependencyInjection\DashboardMenuExtension;
+use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Model\MenuRequestContext;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
@@ -65,12 +67,31 @@ final class MenuPortsHardeningTest extends TestCase
         self::assertSame(['Public'], $this->labels($this->loader('app.checker', new stdClass())->loadTree('main', 'en')));
     }
 
-    public function testAnUnresolvableCheckerThrowsInDebug(): void
+    public function testAnUnresolvableCheckerThrowsOnlyWhenStrict(): void
     {
+        $logger = new RecordingLogger();
+        self::assertSame(['Public'], $this->labels($this->loader('app.typo', null, $logger, true)->loadTree('main', 'en')), 'debug alone never locks the dashboard');
+        self::assertSame('error', $logger->records[0][0]);
+
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage('"app.typo"');
 
-        $this->loader('app.typo', null, null, true)->loadTree('main', 'en');
+        $this->loader('app.typo', null, null, false, true)->loadTree('main', 'en');
+    }
+
+    public function testStrictModeIsOffByDefault(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'prod');
+        $container->setParameter('kernel.bundles', []);
+        (new DashboardMenuExtension())->load([], $container);
+        self::assertFalse($container->getParameter('nowo_dashboard_menu.strict_permission_checker'));
+
+        $strict = new ContainerBuilder();
+        $strict->setParameter('kernel.environment', 'prod');
+        $strict->setParameter('kernel.bundles', []);
+        (new DashboardMenuExtension())->load([['strict_permission_checker' => true]], $strict);
+        self::assertTrue($strict->getParameter('nowo_dashboard_menu.strict_permission_checker'));
     }
 
     public function testDroppedContextValuesAreReportedInDebugOnly(): void
@@ -154,18 +175,30 @@ final class MenuPortsHardeningTest extends TestCase
 
     public function testImportRefusesAMenuNamingAnUnknownChecker(): void
     {
-        $known    = ['app.checker' => 'App checker'];
-        $importer = new MenuImporter($this->createStub(MenuItemRepository::class), $this->createStub(MenuRepository::class), $this->createStub(EntityManagerInterface::class), $known);
+        $known  = ['app.checker' => 'App checker', 'app.other' => 'Shared label', 'app.third' => 'Shared label'];
+        $stored = [];
+        $em     = $this->createStub(EntityManagerInterface::class);
+        $em->method('persist')->willReturnCallback(static function (object $entity) use (&$stored): void {
+            if ($entity instanceof Menu) {
+                $stored[] = $entity->getPermissionChecker();
+            }
+        });
+        $importer = new MenuImporter($this->createStub(MenuItemRepository::class), $this->createStub(MenuRepository::class), $em, $known);
 
         $result = $importer->import(['menu' => ['code' => 'side', 'permissionChecker' => 'app.typo'], 'items' => []]);
         self::assertSame(0, $result['created']);
         self::assertSame(['Menu "side": unknown permission checker "app.typo"; the menu was not imported.'], $result['errors']);
 
-        foreach (['app.checker', 'App checker', '', null] as $checker) {
+        $ambiguous = $importer->import(['menu' => ['code' => 'side', 'permissionChecker' => 'Shared label'], 'items' => []]);
+        self::assertSame(0, $ambiguous['created']);
+        self::assertStringContainsString('names several checkers', $ambiguous['errors'][0]);
+
+        foreach (['app.checker', ' App checker ', '', null] as $checker) {
             $ok = $importer->import(['menu' => ['code' => 'side', 'permissionChecker' => $checker], 'items' => []]);
             self::assertSame([], $ok['errors'], (string) $checker);
             self::assertSame(1, $ok['created']);
         }
+        self::assertSame(['app.checker', 'app.checker', null, null], $stored, 'a label is stored as the service id it names');
 
         $unchecked = new MenuImporter($this->createStub(MenuItemRepository::class), $this->createStub(MenuRepository::class), $this->createStub(EntityManagerInterface::class));
         self::assertSame([], $unchecked->import(['menu' => ['code' => 'side', 'permissionChecker' => 'app.typo'], 'items' => []])['errors']);
@@ -181,7 +214,7 @@ final class MenuPortsHardeningTest extends TestCase
         return array_map(static fn (array $node): string => $node['item']->getLabel(), $tree);
     }
 
-    private function loader(?string $checkerId, ?object $checker, ?RecordingLogger $logger = null, bool $debug = false): MenuTreeLoader
+    private function loader(?string $checkerId, ?object $checker, ?RecordingLogger $logger = null, bool $debug = false, bool $strict = false): MenuTreeLoader
     {
         $raw = [
             'menu'  => ['id' => 1, 'code' => 'main', 'attributes_key' => '', 'permission_checker' => $checkerId],
@@ -207,6 +240,7 @@ final class MenuPortsHardeningTest extends TestCase
             $this->createStub(ContainerInterface::class),
             logger: $logger,
             debug: $debug,
+            strictPermissionChecker: $strict,
         );
     }
 }

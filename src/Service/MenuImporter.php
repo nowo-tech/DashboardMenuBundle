@@ -12,6 +12,7 @@ use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 use Nowo\DashboardMenuBundle\Util\ExternalUrlPolicy;
 
 use function array_key_exists;
+use function array_keys;
 use function count;
 use function in_array;
 use function is_array;
@@ -136,11 +137,19 @@ final readonly class MenuImporter
         }
 
         $checker = $menuData['permissionChecker'] ?? null;
-        if (is_string($checker) && trim($checker) !== '' && $this->knownPermissionCheckers !== null
-            && !array_key_exists(trim($checker), $this->knownPermissionCheckers) && !in_array(trim($checker), $this->knownPermissionCheckers, true)) {
-            $result['errors'][] = sprintf('Menu "%s": unknown permission checker "%s"; the menu was not imported.', $code, trim($checker));
+        if (is_string($checker) && trim($checker) !== '' && $this->knownPermissionCheckers !== null) {
+            $checker = trim($checker);
+            if (!array_key_exists($checker, $this->knownPermissionCheckers)) {
+                // A label: store the service id it names, and refuse a label shared by several checkers.
+                $ids = array_keys($this->knownPermissionCheckers, $checker, true);
+                if (count($ids) !== 1) {
+                    $result['errors'][] = sprintf($ids === [] ? 'Menu "%s": unknown permission checker "%s"; the menu was not imported.' : 'Menu "%s": the permission checker label "%s" names several checkers; use the service id. The menu was not imported.', $code, $checker);
 
-            return;
+                    return;
+                }
+                $checker = (string) $ids[0];
+            }
+            $menuData['permissionChecker'] = $checker;
         }
 
         $context  = $this->menuContextFromMenuData($menuData);

@@ -509,11 +509,14 @@ instead of assuming a default. Pass ids and plain values, never entities or serv
 **Unresolvable checker.** A menu with no checker shows every item (allow-all, the documented default). A menu whose
 configured checker cannot be resolved (typo, removed service, a decorator implementing no checker port, an id from an
 imported file) never falls back to allow-all since 2.19: items with permission keys are hidden, keyless items stay,
-and an error is logged; in debug (`kernel.debug`) the bundle throws a `LogicException` instead. `MenuImporter` refuses
-a menu that names a checker unknown to the container.
+an error is logged and the profiler's DashboardMenu panel shows the fallback. Set `strict_permission_checker: true` to
+throw a `LogicException` instead (off by default, so a typo never locks you out of the dashboard). `MenuImporter`
+refuses a menu that names a checker unknown to the container or a label shared by several checkers, and stores the
+service id when the file names a checker by its label.
 
 **One variant per class.** When a checker, link resolver or matcher implements several variants of its port, the bundle
-calls the oldest; the container build logs a warning for such host services (subclasses of
+calls the oldest; the container build logs a warning (compiler log, plus a deprecation collected in debug) for such
+host services (subclasses of
 `AbstractRoutePrefixMenuCurrentMatcher` that do not override its methods are not reported).
 
 `MenuPermissionCheckerInterface::canView(MenuItem, mixed)` and `MenuItemViewPermissionCheckerInterface::canViewItem(MenuItemView, mixed)`

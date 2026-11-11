@@ -28,15 +28,16 @@ use function is_a;
 use function sprintf;
 use function str_starts_with;
 
-use const E_USER_WARNING;
+use const E_USER_DEPRECATED;
 
 /**
  * Warns at container build when a host checker, link resolver or current matcher implements more than one variant of
  * its port. The bundle calls the oldest variant (entity, then `MenuItemView`, then value objects), so the newer method
  * of such a class is never called: a stricter rule written there would be dead code.
  *
- * The warning goes to the container build log (`bin/console debug:container --show-deprecations` /
- * `var/cache/<env>/<kernel>Deprecations.log`) and, in debug, to a PHP `E_USER_WARNING` silenced like a deprecation.
+ * The warning goes to the compiler log (`var/cache/<env>/<kernel>Compiler.log`) and is also emitted as a silenced
+ * `E_USER_DEPRECATED` (the older variant is deprecated), which Symfony collects in debug into the container
+ * deprecations log shown by `bin/console debug:container --deprecations` and the profiler.
  * Bundle classes are skipped (they implement both on purpose and answer the same), and so are subclasses of
  * {@see AbstractRoutePrefixMenuCurrentMatcher} that do not override its match methods.
  *
@@ -61,9 +62,7 @@ final class MultiVariantPortsPass implements CompilerPassInterface
                 $warning = $this->warningFor($container->findDefinition($id)->getClass() ?? $id, $id, $variants);
                 if ($warning !== null) {
                     $container->log($this, $warning);
-                    if ($container->hasParameter('kernel.debug') && $container->getParameter('kernel.debug') === true) {
-                        @trigger_error($warning, E_USER_WARNING);
-                    }
+                    @trigger_error($warning, E_USER_DEPRECATED);
                 }
             }
         }

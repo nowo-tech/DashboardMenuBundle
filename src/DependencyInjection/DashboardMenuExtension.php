@@ -352,6 +352,7 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
         // from a factory (wireRuntimeLocales()).
         $container->setParameter(Configuration::ALIAS . '.default_locale_resolved', ConfiguredLocales::defaultLocale($runtimeLocales ? [] : $locales, $defaultLocale));
         $container->setParameter(Configuration::ALIAS . '.permission_checker_choices', $config['permission_checker_choices'] ?? []);
+        $container->setParameter(Configuration::ALIAS . '.strict_permission_checker', (bool) ($config['strict_permission_checker'] ?? false));
         $container->setParameter(Configuration::ALIAS . '.menu_link_resolver_choices', $config['menu_link_resolver_choices'] ?? []);
 
         $container->register(MenuLocaleResolver::class, MenuLocaleResolver::class)

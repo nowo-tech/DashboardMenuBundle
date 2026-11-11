@@ -9,6 +9,7 @@
   - [cache](#cache)
   - [icon_library_prefix_map](#icon_library_prefix_map)
   - [locales and default_locale](#locales-and-default_locale)
+  - [strict_permission_checker](#strict_permission_checker)
   - [permission_checker_choices](#permission_checker_choices)
   - [menu_link_resolver_choices](#menu_link_resolver_choices)
   - [api](#api)
@@ -137,6 +138,18 @@ Parameters are resolved when the container is built (`nowo_dashboard_menu.locale
 var is read at runtime: the locale resolver, the item form locale tabs, the dashboard and the profiler panel receive the
 list through a factory, and when `default_locale` is null the first env locale is the default (the
 `nowo_dashboard_menu.default_locale_resolved` parameter keeps the `en` fallback). Values are trimmed and de-duplicated.
+
+
+### strict_permission_checker
+
+Default `false`. A menu whose configured permission checker cannot be resolved hides its items with permission keys
+(keyless items stay), logs an error and shows the fallback in the profiler. Set `true` to throw a `LogicException`
+instead (useful in CI; not recommended in production, where a typo would break every page that renders the menu).
+
+```yaml
+nowo_dashboard_menu:
+    strict_permission_checker: false
+```
 
 ### permission_checker_choices
 

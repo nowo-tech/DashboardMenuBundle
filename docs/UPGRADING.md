@@ -136,10 +136,11 @@
 
 **Behaviour change (security hardening, audit MN-D-M1):** a menu whose configured permission checker cannot be
 resolved (typo, removed service, a service implementing no checker port, an unknown id from an imported file) no longer
-falls back to allow-all: items with permission keys are hidden, keyless items stay visible, an error is logged, and in
-debug a `LogicException` is thrown. Menus with no checker still allow everything. Fix the menu's checker in the
+falls back to allow-all: items with permission keys are hidden, keyless items stay visible, an error is logged and the
+profiler shows the fallback; with the new option `strict_permission_checker: true` (default false) a `LogicException`
+is thrown instead. Menus with no checker still allow everything. Fix the menu's checker in the
 dashboard (or its id in your import file) if items disappear after the upgrade. `MenuImporter` now refuses a menu that
-names an unknown checker. A host service implementing several variants of one port is reported in the container build
+names an unknown checker or an ambiguous label, and stores the service id of a checker named by its label. A host service implementing several variants of one port is reported in the container build
 log (the oldest variant is the one called).
 
 From **2.18.0**: no configuration or schema change; existing checkers, link resolvers, current matchers and menu code

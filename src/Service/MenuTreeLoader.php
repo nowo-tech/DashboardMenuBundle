@@ -70,6 +70,7 @@ final readonly class MenuTreeLoader
         private ?EventDispatcherInterface $eventDispatcher = null,
         private ?LoggerInterface $logger = null,
         private bool $debug = false,
+        private bool $strictPermissionChecker = false,
     ) {
     }
 
@@ -462,7 +463,7 @@ final readonly class MenuTreeLoader
         // A checker is configured but cannot be used (typo, removed service, a decorator implementing no checker
         // port, an id from an imported file): never fall back to allow-all. Keyed items are hidden, keyless stay.
         $message = sprintf('DashboardMenu: the permission checker "%s" of a menu cannot be resolved to a service implementing a permission checker port; items with permission keys are hidden until it is fixed.', $serviceId);
-        if ($this->debug) {
+        if ($this->strictPermissionChecker) {
             throw new LogicException($message);
         }
         $this->logger?->error($message, ['bundle' => 'nowo_dashboard_menu', 'permission_checker' => $serviceId]);
