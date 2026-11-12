@@ -122,6 +122,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Target **2.21.0** (minor; REQ-RUNTIME-002, FrankenPHP worker mode with kernel reset false). Without
+`doctrine.entity_manager` the default behaviour is unchanged (the host's manager is never cleared).
+
+### Added
+
+- `Worker\DashboardMenuOwnEntityManagerSubscriber`: when `doctrine.entity_manager` names a manager that is not the
+  host's default, the bundle clears that OWN manager (and recreates it when a failed flush closed it) at every
+  OUTERMOST unit-of-work boundary: main request start / `kernel.terminate`, Messenger message received / handled /
+  failed, outermost console command start / terminate. Nested units (a command run from another command, a handler
+  or a controller; a request handled inside a command or a message) never clear the outer unit's manager. A manager
+  that is the host default is never cleared (rule 7).
+- `Worker\UnitOfWorkBoundaries` (internal): outermost request / message / command tracker shared with
+  PageBuilderKitBundle 1.15.1 (command frames keyed by Command and input, saved and restored message / request
+  state, failing frames dropped before any flag write, request counter reset at a top-level `kernel.terminate`,
+  `WorkerMessageSkipEvent`).
+- Kept-alive kernel tests (`tests/Integration/Worker/WorkerKeptAliveKernelTest.php`): 1,000 requests through
+  `http_kernel` (no services resetter) alternating two users with different permission outcomes, menu renamed behind
+  Doctrine's back before every request, flat memory (4 MB margin); probes for throwing console terminate / error,
+  Messenger received and `kernel.exception` listeners, self-recursive and unknown nested commands.
+
+### Fixed
+
+- The menu / cache-version / href memos and the dev collectors were emptied only at the main `kernel.request`: a
+  long-running Messenger consumer or console command kept the menus and cache versions of the previous message.
+  `DashboardMenuWorkerStateSubscriber` now also empties them when a message is received, handled or failed and when
+  the outermost command starts and terminates.
+- The bundle's own entity manager was never cleared in a kept-alive kernel, so menus loaded through the ORM could be
+  served stale from its identity map in the next request (see Added).
+
+### Changed
+
+- `docs/FRANKENPHP-WORKER-AUDIT.md` refreshed for 2.21.0 (dedicated manager, console / Messenger boundaries, worker
+  test).
+
 ## [2.20.0] - 2026-11-12
 
 Target **2.20.0** (minor; no behaviour change).

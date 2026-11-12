@@ -202,8 +202,12 @@ services:
     public: true
     tags: [controller.service_arguments, container.service_subscriber]
 
+  # 2.21.0 (REQ-RUNTIME-002): outermost request / message / command tracker (process-lifetime, never reset).
+  Nowo\DashboardMenuBundle\Worker\UnitOfWorkBoundaries: ~
+
   Nowo\DashboardMenuBundle\EventSubscriber\DashboardMenuWorkerStateSubscriber:
     arguments:
+      $boundaries: '@Nowo\DashboardMenuBundle\Worker\UnitOfWorkBoundaries'
       $managerRegistry: '@?doctrine'
       $entityManagerName: '%nowo_dashboard_menu.doctrine.entity_manager%'
       $dataCollector: '@?Nowo\DashboardMenuBundle\DataCollector\DashboardMenuDataCollector'
