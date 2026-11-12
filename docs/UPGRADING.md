@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.21.0](#to-2210)
 - [To 2.20.0](#to-2200)
 - [To 2.19.0](#to-2190)
 - [To 2.19.0](#to-2190-1)
@@ -133,6 +134,25 @@
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## To 2.21.0
+
+Target **2.21.0**, from **2.20.0** (no configuration change):
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
+
+- **Standard host (no `doctrine.entity_manager`)**: nothing changes. The host's manager is never cleared by the
+  bundle; the menu memos are now also emptied at the Messenger message and outermost console command boundaries.
+- **`doctrine.entity_manager` set to a dedicated manager** (not the host default): the bundle now clears that manager
+  at the outermost request / message / command boundaries (REQ-RUNTIME-002 rule 4). Do not keep `Menu` / `MenuItem`
+  entities of that manager across requests, messages or commands: re-read them (they are detached after the
+  boundary). Unflushed changes made on that manager outside the bundle are discarded at the end of the outermost unit,
+  so flush them inside the unit that made them.
+- **`doctrine.entity_manager` naming the host default**: nothing changes (the bundle never clears it).
+- `DashboardMenuWorkerStateSubscriber` gained an optional last constructor argument (`UnitOfWorkBoundaries`); a host
+  that builds it by hand keeps working (without the tracker every console boundary empties the memos).
 
 ## To 2.20.0
 

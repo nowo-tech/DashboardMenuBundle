@@ -15,11 +15,17 @@ use Nowo\DashboardMenuBundle\EventSubscriber\DashboardMenuWorkerStateSubscriber;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 use Nowo\DashboardMenuBundle\Service\MenuTreeCacheInvalidator;
 use Nowo\DashboardMenuBundle\Service\MenuUrlResolver;
+use Nowo\DashboardMenuBundle\Tests\Unit\Worker\BoundaryEvents;
+use Nowo\DashboardMenuBundle\Worker\UnitOfWorkBoundaries;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use ReflectionProperty;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Event\ConsoleTerminateEvent;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -38,9 +44,68 @@ final class DashboardMenuWorkerStateSubscriberTest extends TestCase
     public function testSubscribesToMainRequestBeforeRoutingAndSecurity(): void
     {
         self::assertSame(
-            [KernelEvents::REQUEST => ['onKernelRequest', 4096]],
+            [
+                KernelEvents::REQUEST                                   => ['onKernelRequest', 4096],
+                UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_RECEIVED => ['resetMemos', 4096],
+                UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_HANDLED  => ['resetMemos', -1024],
+                UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_FAILED   => ['resetMemos', -1024],
+                UnitOfWorkBoundaries::CONSOLE_COMMAND                   => ['onConsoleBoundary', 4096],
+                UnitOfWorkBoundaries::CONSOLE_TERMINATE                 => ['onConsoleBoundary', -1024],
+            ],
             DashboardMenuWorkerStateSubscriber::getSubscribedEvents(),
         );
+    }
+
+    /**
+     * 2.21.0: a long-running consumer sees the cache versions bumped by another worker on the next message, and the
+     * outermost command boundaries reset too; a command run in-process inside a message keeps the message's memos.
+     */
+    public function testMessagesAndOutermostCommandsStartWithFreshMemos(): void
+    {
+        $pool        = new ArrayAdapter();
+        $thisWorker  = new MenuTreeCacheInvalidator($pool);
+        $otherWorker = new MenuTreeCacheInvalidator($pool);
+        $boundaries  = new UnitOfWorkBoundaries();
+        $events      = new BoundaryEvents($boundaries, new DashboardMenuWorkerStateSubscriber(
+            $this->createStub(MenuRepository::class),
+            $thisWorker,
+            $this->createUrlResolver(),
+            null,
+            null,
+            null,
+            null,
+            $boundaries,
+        ));
+
+        $events->message(UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_RECEIVED);
+        self::assertSame(0, $thisWorker->getVersionForMenuCode('sidebar'));
+        $otherWorker->invalidateForMenuCode('sidebar');
+        $nested = new Command('app:nested');
+        $events->command($nested);
+        $events->terminate($nested);
+        self::assertSame(0, $thisWorker->getVersionForMenuCode('sidebar'), 'a command inside the message keeps its memos');
+        $events->message(UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_HANDLED);
+        $events->message(UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_RECEIVED);
+        self::assertSame(1, $thisWorker->getVersionForMenuCode('sidebar'), 'the next message reads the bumped version');
+        $otherWorker->invalidateForMenuCode('sidebar');
+        $events->message(UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_FAILED);
+        self::assertSame(2, $thisWorker->getVersionForMenuCode('sidebar'));
+
+        $outer = new Command('app:outer');
+        $events->command($outer);
+        self::assertSame(2, $thisWorker->getVersionForMenuCode('sidebar'));
+        $otherWorker->invalidateForMenuCode('sidebar');
+        $events->terminate($outer);
+        self::assertSame(3, $thisWorker->getVersionForMenuCode('sidebar'), 'the outermost command resets at terminate');
+    }
+
+    public function testConsoleBoundaryWithoutTrackerAlwaysResets(): void
+    {
+        $repository = $this->createMock(MenuRepository::class);
+        $repository->expects(self::once())->method('reset');
+
+        (new DashboardMenuWorkerStateSubscriber($repository, new MenuTreeCacheInvalidator(), $this->createUrlResolver()))
+            ->onConsoleBoundary(new ConsoleTerminateEvent(new Command('app:x'), new ArrayInput([]), new NullOutput(), 0));
     }
 
     public function testSecondRequestSeesMenusAndCacheVersionsWrittenByAnotherWorkerWithoutReset(): void

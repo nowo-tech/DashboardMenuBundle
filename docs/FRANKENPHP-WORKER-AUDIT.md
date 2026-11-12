@@ -3,11 +3,12 @@
 | Field | Value |
 |-------|-------|
 | Package | `nowo-tech/dashboard-menu-bundle` (`symfony-bundle`) |
-| Audited revision | `v2.1.13` (worker B remediation) |
-| Audit date | 2026-09-24 |
+| Audited revision | `2.21.0` (REQ-RUNTIME-002 re-audit on top of `v2.20.0`); first audit `v2.1.13` |
+| Audit date | 2026-11-12 (first audit 2026-09-24) |
 | Method | Manual review of every service registered by the bundle under `src/` (services, repositories, Twig extension, controllers, Doctrine listeners, event subscriber, data collector, DBAL middleware, Live Component, form types, commands), `src/Resources/config/*.yaml`, the DI extension and compiler passes |
 | Remediation (2026-09-24) | W-01…W-06 addressed on top of `v2.1.12`: request-scoped href memo (`WeakMap<Request, …>`, no memo for id-less items), `DashboardMenuWorkerStateSubscriber` resets menu / version / href memos and both dev collectors at every main request, and recovers a closed entity manager. Regression tests simulate consecutive requests without `reset()`. |
-| **Verdict** | ✅ **100% bundle-owned state is viable under scenario B** (`reset_kernel: false` / no `services_resetter`). Residual **host** responsibility only: clearing the Doctrine identity map between requests (W-04) and using a shared cache pool across workers. |
+| Remediation (2026-11-12, 2.21.0) | W-07, W-08: memos also emptied at Messenger / outermost console boundaries; the bundle's OWN manager (`doctrine.entity_manager`, not the host default) is cleared at every outermost unit-of-work boundary by `Worker\DashboardMenuOwnEntityManagerSubscriber`, judged by `Worker\UnitOfWorkBoundaries` (same tracker as PageBuilderKitBundle 1.15.1). |
+| **Verdict** | ✅ **100% bundle-owned state is viable under scenario B** (`reset_kernel: false` / no `services_resetter`), HTTP, Messenger and console. Residual **host** responsibility only: clearing the host's own Doctrine manager when the menu entities live on it (standard host, W-04; rule 7: the bundle never clears a host manager) and using a shared cache pool across workers. |
 
 ## Table of contents
 
@@ -21,6 +22,9 @@
   - [W-04 — Non-transactional flushes rely on Doctrine's resetter after a failure (Medium, scenario B only)](#w-04--non-transactional-flushes-rely-on-doctrines-resetter-after-a-failure-medium-scenario-b-only)
   - [W-05 — Dev data collector accumulates when the profiler is not reset (Low)](#w-05--dev-data-collector-accumulates-when-the-profiler-is-not-reset-low)
   - [W-06 — `spl_object_id()` key collision inside a single request (Low, theoretical)](#w-06--spl_object_id-key-collision-inside-a-single-request-low-theoretical)
+  - [W-07 — Memos emptied only at the main request (Medium, Messenger / console)](#w-07--memos-emptied-only-at-the-main-request-medium-messenger--console)
+  - [W-08 — The bundle's own entity manager was never cleared (Medium)](#w-08--the-bundles-own-entity-manager-was-never-cleared-medium)
+- [Worker test](#worker-test)
 - [Usage recommendations in worker mode](#usage-recommendations-in-worker-mode)
 - [Re-audit triggers](#re-audit-triggers)
 
@@ -42,7 +46,7 @@ A bundle that is safe under **B** is safe under **A** and under classic mode / P
 | `ResetInterface` / `kernel.reset` coverage | ✅ | Every mutable service implements `ResetInterface` (scenario A) and is additionally reset per main request by a bundle-owned subscriber (scenario B) |
 | Request / user / locale captured in services | ✅ | `RequestStack` is read at call time; nothing is captured in constructors. Request-derived hrefs are memoized per request object only |
 | Superglobals, `$_ENV`, `putenv`, `ini_set`, `setlocale`, timezone | ✅ | Only `$_SERVER` / `getenv` in `GoogleSyncTranslationsCommand` (CLI only) |
-| Doctrine / EntityManager | ✅ (host clears identity map) | `Menu` memo lives for one request; a closed manager is reset at the next main request; the tree path reads raw DBAL rows (fresh); identity-map clearing stays the application's job |
+| Doctrine / EntityManager | ✅ | Dedicated manager (`doctrine.entity_manager`, not the host default): cleared (or recreated when closed) at every outermost request / message / command boundary (W-08). Standard host: the manager is the host's, never cleared by the bundle (rule 7), a closed one is reset at the next main request; the tree path reads raw DBAL rows (fresh) |
 | Output, headers, `exit`, shutdown functions | ✅ | Only `echo` inside `StreamedResponse` callbacks (export), which is correct |
 | Resources (files, sockets, cURL) held open | ✅ | None in the HTTP path |
 | Memory growth across requests | ✅ | Memos keyed by menu codes / context sets from the public JSON API are bounded by one request (URL length); the dev collector is emptied at every main request |
@@ -59,7 +63,9 @@ Worker demo: `demo/symfony8/docker/frankenphp/Caddyfile` runs `php_server` with 
 | `Service\MenuUrlResolver` | yes (public) | `$hrefMemo` (`WeakMap<Request, …>`, items with id only); `ResetInterface` via autoconfigure; reset per main request | ✅ | ✅ |
 | `Repository\MenuRepository` | yes (public) | `$byCodeContext` (memoized `Menu` entities / `null`); explicit `kernel.reset` tag; reset per main request | ✅ | ✅ |
 | `Service\MenuTreeCacheInvalidator` | yes | `$versionMemo` (cache version per menu code); `ResetInterface` via autoconfigure; reset per main request | ✅ | ✅ |
-| `EventSubscriber\DashboardMenuWorkerStateSubscriber` | yes | none (`final readonly`) | ✅ | ✅ |
+| `EventSubscriber\DashboardMenuWorkerStateSubscriber` | yes | none (`final readonly`); empties the memos at main request, Messenger received / handled / failed and outermost console command / terminate | ✅ | ✅ |
+| `Worker\UnitOfWorkBoundaries` | yes | process-lifetime tracker of the running units (command frames, message flag, main-request counter, per-event verdicts in a `WeakMap`); deliberately not reset, holds no request data; state changes at `PHP_INT_MAX`, failing frames dropped first | ✅ | ✅ |
+| `Worker\DashboardMenuOwnEntityManagerSubscriber` (only with a dedicated `doctrine.entity_manager`) | yes | none (`final readonly`); clears the own manager at outermost boundaries; never builds an uninitialized manager | ✅ | ✅ |
 | `Service\MenuTreeLoader` | yes (public) | none (`final readonly`) | ✅ | ✅ |
 | `Service\MenuConfigResolver` | yes | none (`final readonly`), reads the request-scoped `MenuRepository` memo | ✅ | ✅ |
 | `Service\CurrentRouteTreeDecorator` | yes | none (`final readonly`) | ✅ | ✅ |
@@ -130,6 +136,35 @@ Entities (`Menu`, `MenuItem`) and enums are value holders created per request by
 - **Recommendation:** do not memoize items without an id (same fix as W-01).
 - **Status:** Resolved — items without id are never memoized (W-01); the `spl_object_id()` key was removed.
 
+### W-07 — Memos emptied only at the main request (Medium, Messenger / console)
+
+- **Where:** `src/EventSubscriber/DashboardMenuWorkerStateSubscriber.php` subscribed only to the main `kernel.request` (up to 2.20.0).
+- **Impact:** a Messenger consumer or a long console command that renders menus (e-mails, exports) kept `MenuRepository::$byCodeContext`, `MenuTreeCacheInvalidator::$versionMemo` and the dev collectors from the previous message, so a version bump made by another worker was ignored for the whole consumer life.
+- **Status:** Resolved in 2.21.0 — the subscriber also empties the memos when a message is received (4096), handled or failed (-1024), and when the OUTERMOST command starts (4096) and terminates (-1024), judged by `Worker\UnitOfWorkBoundaries`. Memos only: no entity manager is touched there. Test: `DashboardMenuWorkerStateSubscriberTest::testMessagesAndOutermostCommandsStartWithFreshMemos`.
+
+### W-08 — The bundle's own entity manager was never cleared (Medium)
+
+- **Where:** `doctrine.entity_manager` (2.18) gives the menu entities their own manager; nothing called `clear()` on it (rule 4 of REQ-RUNTIME-002).
+- **Impact:** scenario B: menus loaded through the ORM (dashboard, importer, `MenuRepository`) stayed in that manager's identity map, so a later request, message or command read stale fields (a rename made by another worker) and memory grew with every distinct menu.
+- **Status:** Resolved in 2.21.0 — `Worker\DashboardMenuOwnEntityManagerSubscriber` (registered by `DashboardMenuEntityManagerPass` only when the option names a manager that is not `doctrine.default_entity_manager`) clears the manager, or resets it by name when closed, at the outermost boundaries: main `kernel.request` (4096) and `kernel.terminate` (-1024) outside a command / message; Messenger received (4096) / handled / failed (-1024); outermost command start (4096) / terminate (-1024). The manager is injected through an `IGNORE_ON_UNINITIALIZED_REFERENCE` iterator, so a boundary never builds it. `Worker\UnitOfWorkBoundaries` changes its state at `PHP_INT_MAX` before any other listener can throw: command frames keyed by Command and input (self-recursive commands), each frame saves and restores the message / main-request state, a frame marked failing by `console.error` is dropped (restoring its state) at the next request, message, command or worker stop before the handler writes its own flag, a top-level `kernel.terminate` resets the main-request counter (a request whose `kernel.finish_request` never fired), `WorkerMessageSkipEvent` (only `messenger:failed:retry`) ends a message. The host's managers are never cleared (rule 7): with no option, or with the option naming the host default, no subscriber is registered. Tests: `tests/Unit/Worker/*`, `tests/Integration/Worker/WorkerKeptAliveKernelTest.php`.
+
+## Worker test
+
+`tests/Integration/Worker/WorkerKeptAliveKernelTest.php` boots ONE kernel and drives the `http_kernel` service directly (the services resetter never runs):
+
+| Test | What it proves |
+|------|----------------|
+| `testTwoUsersAlternateOverManyRequestsWithIsolationAndFlatMemory` | N = 1,000 requests alternating `alice` / `bob` (different permission outcomes: Reports vs Billing); the menu is renamed through DBAL before every request and each response shows the fresh name; the own manager holds no entity after each request; the host manager keeps its pending insert; memory after `gc_collect_cycles()` grows less than 4 MB after warm-up (iteration 50) |
+| `testStandardHostManagerIsNeverClearedByTheBundle`, `testDedicatedOptionNamingTheHostDefaultNeverClearsIt` | default behaviour unchanged, no own-manager subscriber, the host manager keeps its entities |
+| `testClosedOwnManagerIsRecreatedAtTheNextBoundary` | a closed own manager is recreated |
+| `testNestedUnitsKeepTheOuterManagerAndOutermostUnitsClear` | nested command, in-process request inside a command, command inside a message keep the outer entities; outermost command / message clear |
+| `testThrowingTerminateAndErrorListenersNeverStopTheClear` | throwing `console.terminate` (0, `PHP_INT_MAX`) and `console.error` (0, `PHP_INT_MIN`) listeners through a real `Application`: the next request still clears |
+| `testSelfRecursiveAndNestedFailingCommandsWithThrowingErrorListener`, `testUnknownNestedCommandNeverClearsTheOuterUnit` | frames keyed by input; an unknown nested command never clears the outer unit |
+| `testThrowingMessageReceivedListenerInsideConsumeHeals`, `testFailedCommandInsideAFailedMessageThenWorkerStopped` | Messenger probes (revision 3 ordering) |
+| `testThrowingKernelExceptionListenerDoesNotLeaveARequestInFlight` | revision 4: the request counter is reset at a top-level `kernel.terminate` |
+
+Igor (`composer igor`) and the FrankenPHP PHPStan rulesets run in `make release-check`; the 2.21.0 run reports 0 KO and one pre-existing WARN (the CLI-only `$_SERVER` read in `GoogleSyncTranslationsCommand`); the tracker's process-lifetime bookkeeping carries `@igor-ignore` notes.
+
 Info / good patterns:
 
 - `MenuTreeLoader` caches only the raw DB rows in the PSR-6 pool (`src/Service/MenuTreeLoader.php:99-104`); permission checks, dynamic service children and current-route decoration run on every request, so the shared cache cannot leak one user's visibility to another.
@@ -140,7 +175,7 @@ Info / good patterns:
 ## Usage recommendations in worker mode
 
 - Bundle-owned state no longer depends on `services_resetter`; keeping it active (default Symfony) is still recommended for framework and Doctrine state. With FrankenPHP `reset_kernel: false` (no resetter), this bundle remains correct for its own memos and recovers a closed menu EntityManager.
-- Under scenario B, clear the Doctrine identity map between requests in the application (the bundle only resets a *closed* manager).
+- Prefer a dedicated `doctrine.entity_manager` for the menu entities: the bundle then clears it at every outermost request / message / command boundary. When the menu entities live on the host's default manager (standard host), clearing that identity map between requests stays the application's job (the bundle only resets a *closed* manager and never clears a host manager).
 - If you expose `/api/menu/{code}`, protect it with a firewall or rate limiter (load protection).
 - Custom `MenuLinkResolverInterface`, `MenuPermissionCheckerInterface`, `MenuCurrentMatcherInterface` and `MenuCodeResolverInterface` services must stay stateless, or implement `ResetInterface`. Do not store the request, the user or the resolved hrefs in properties.
 - A multi-worker setup should use a shared cache pool (Redis, APCu is per-process) for `cache.pool`, so version bumps from one worker are seen by the others.
