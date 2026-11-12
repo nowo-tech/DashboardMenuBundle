@@ -29,7 +29,9 @@ use Symfony\Component\HttpKernel\HttpKernel;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 use Symfony\Component\Messenger\Event\WorkerMessageReceivedEvent;
+use Symfony\Component\Messenger\Event\WorkerMessageSkipEvent;
 use Symfony\Component\Messenger\Event\WorkerRunningEvent;
 use Symfony\Component\Messenger\Event\WorkerStoppedEvent;
 use Symfony\Component\Messenger\Handler\HandlersLocator;
@@ -309,10 +311,7 @@ final class UnitOfWorkBoundariesNxTest extends TestCase
             self::fail('the received listener throws');
         } catch (RuntimeException) {
         }
-        self::assertTrue($this->boundaries->isMessageInFlight());
-        $this->request(static function (): void {
-        });
-        self::assertFalse($this->boundaries->isMessageInFlight(), 'a top-level terminate resets the stacks');
+        self::assertFalse($this->boundaries->isMessageInFlight(), 'the aborted run is gone with its worker (audit OB-M1)');
         $this->assertRequestClears();
     }
 
@@ -342,6 +341,129 @@ final class UnitOfWorkBoundariesNxTest extends TestCase
         self::assertSame(0, $this->boundaries->requestsInFlight());
     }
 
+    /**
+     * Audit OB-M1 (S8): a long-running command runs workers in a loop and catches their exceptions; the first run aborts
+     * in a throwing received listener (no handled, running or stopped event). The later workers' messages are still the
+     * outermost units.
+     */
+    #[Test]
+    public function anAbortedWorkerInsideALongCommandNeverStopsTheNextMessagesFromClearing(): void
+    {
+        $application = $this->application();
+        $perWorker   = [];
+        $application->addCommand(new CallbackCommand('app:loop', function () use (&$perWorker): int {
+            $throw = static function (): never {
+                throw new RuntimeException('received listener failed');
+            };
+            $this->dispatcher->addListener(WorkerMessageReceivedEvent::class, $throw);
+            try {
+                $this->worker(1, static function (): void {
+                });
+            } catch (RuntimeException) {
+            } finally {
+                $this->dispatcher->removeListener(WorkerMessageReceivedEvent::class, $throw);
+            }
+
+            for ($i = 0; $i < 3; ++$i) {
+                $before = $this->clears;
+                $this->worker(2, static function (): void {
+                });
+                $perWorker[] = $this->clears - $before;
+            }
+
+            return 0;
+        }));
+
+        self::assertSame(0, $application->run(new ArrayInput(['command' => 'app:loop']), new NullOutput()));
+        self::assertSame([4, 4, 4], $perWorker, 'every message clears when received and when handled');
+        $this->assertRequestClears();
+    }
+
+    /**
+     * Audit OB-L1 (S13): 500 runs aborted by a throwing handled listener inside one command leave a bounded stack.
+     */
+    #[Test]
+    public function abortedRunsNeverGrowTheWorkerStack(): void
+    {
+        $application = $this->application();
+        $entries     = null;
+        $clears      = null;
+        $application->addCommand(new CallbackCommand('app:loop', function () use (&$entries, &$clears): int {
+            $throw = static function (): never {
+                throw new RuntimeException('handled listener failed');
+            };
+            $this->dispatcher->addListener(WorkerMessageHandledEvent::class, $throw);
+            for ($i = 0; $i < 500; ++$i) {
+                try {
+                    $this->worker(1, static function (): void {
+                    });
+                } catch (RuntimeException) {
+                }
+            }
+            $this->dispatcher->removeListener(WorkerMessageHandledEvent::class, $throw);
+            gc_collect_cycles();
+            $entries = $this->boundaries->workerEntries();
+            $before  = $this->clears;
+            $this->worker(2, static function (): void {
+            });
+            $clears = $this->clears - $before;
+
+            return 0;
+        }));
+
+        self::assertSame(0, $application->run(new ArrayInput(['command' => 'app:loop']), new NullOutput()));
+        self::assertSame(0, $entries, 'no aborted run is kept');
+        self::assertSame(4, $clears);
+    }
+
+    /**
+     * Audit OB-L2 (S9): a received listener of an inner worker dispatches `WorkerMessageSkipEvent` (as
+     * `messenger:failed:retry` does) and skips the message: only the inner message ends, the outer one still runs.
+     */
+    #[Test]
+    public function aSkipEventFromAReceivedListenerNeverEndsTheOuterMessage(): void
+    {
+        $inside = null;
+        $this->worker(1, function () use (&$inside): void {
+            $skip = function (WorkerMessageReceivedEvent $event): void {
+                $this->dispatcher->dispatch(new WorkerMessageSkipEvent($event->getEnvelope(), $event->getReceiverName()));
+                $event->shouldHandle(false);
+            };
+            $this->dispatcher->addListener(WorkerMessageReceivedEvent::class, $skip);
+            $this->worker(1, static function (): void {
+            }, null, true);
+            $this->dispatcher->removeListener(WorkerMessageReceivedEvent::class, $skip);
+            self::assertTrue($this->boundaries->isMessageInFlight(), 'the outer message still runs');
+            $before = $this->clears;
+            $this->request(static function (): void {
+            });
+            $inside = $this->clears - $before;
+        });
+
+        self::assertSame(0, $inside);
+        $this->assertRequestClears();
+    }
+
+    /**
+     * Audit OB-L3 (S10): the in-process `kernel.terminate` of a nested main request does not clear the outer request.
+     */
+    #[Test]
+    public function theTerminateOfANestedMainRequestKeepsTheOuterRequest(): void
+    {
+        $inside = null;
+        $this->request(function () use (&$inside): void {
+            $before = $this->clears;
+            $this->request(static function (): void {
+            });
+            $inside = $this->clears - $before;
+            self::assertSame(1, $this->boundaries->requestsInFlight());
+        });
+
+        self::assertSame(0, $inside);
+        self::assertSame(2, $this->clears);
+        $this->assertRequestClears();
+    }
+
     private function assertRequestClears(): void
     {
         $before = $this->clears;
@@ -367,7 +489,7 @@ final class UnitOfWorkBoundariesNxTest extends TestCase
     /**
      * Runs a real Messenger worker over $count messages until it is idle.
      */
-    private function worker(int $count, Closure $handler, ?Closure $onReceived = null): void
+    private function worker(int $count, Closure $handler, ?Closure $onReceived = null, bool $stopAfterFirst = false): void
     {
         $transport = new InMemoryTransport();
         for ($i = 0; $i < $count; ++$i) {
@@ -381,8 +503,8 @@ final class UnitOfWorkBoundariesNxTest extends TestCase
             return $message instanceof Envelope ? $message : new Envelope($message);
         });
         $worker = new Worker(['memory' => $transport], $bus, $this->dispatcher);
-        $stop   = static function (WorkerRunningEvent $event) use ($worker): void {
-            if ($event->getWorker() === $worker && $event->isWorkerIdle()) {
+        $stop   = static function (WorkerRunningEvent $event) use ($worker, $stopAfterFirst): void {
+            if ($event->getWorker() === $worker && ($stopAfterFirst || $event->isWorkerIdle())) {
                 $worker->stop();
             }
         };

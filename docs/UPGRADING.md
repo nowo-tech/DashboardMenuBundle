@@ -135,6 +135,13 @@
 
 ## Unreleased
 
+No configuration change. Worker mode (audits NX CR1–CR3 and OB): a second MAIN request handled in-process inside
+another main request (`HttpKernel::handle()` with `MAIN_REQUEST` from a controller) no longer clears the own manager,
+neither at its start nor at its in-process `kernel.terminate`; the outer request keeps its entities and clears at its
+own end. This supersedes the "To 2.21.0" note below. A Messenger worker run in-process inside a message handler no longer
+clears the outer message's manager either; in hosts with Messenger, DoctrineBundle's own subscriber still clears every
+manager after each message, so only the bundle's pending state is protected there, not the identity map.
+
 ## To 2.21.0
 
 Target **2.21.0**, from **2.20.0** (no configuration change):

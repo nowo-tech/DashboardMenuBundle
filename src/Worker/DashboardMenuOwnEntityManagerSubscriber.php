@@ -24,8 +24,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * Boundaries, judged by {@see UnitOfWorkBoundaries} (same policy as PageBuilderKitBundle 1.15.1):
  * - HTTP: the main `kernel.request` (priority 4096) and `kernel.terminate` (priority -1024), only outside a console
  *   command and a Messenger message; sub-requests share their main request's unit of work. A second MAIN request
- *   handled in-process while another main request runs does not clear it (audit NX CR2; a `kernel.terminate`
- *   dispatched for that nested request still counts as a top-level request end);
+ *   handled in-process while another main request runs does not clear it, neither at its start nor at its
+ *   in-process `kernel.terminate` (audits NX CR2, OB-L3);
  * - Messenger: when a message is received (priority 4096) and after it is handled or failed (priority -1024), only
  *   outside another message (a worker run in-process by a handler does not clear the outer message, audit NX CR1);
  * - console: when the OUTERMOST command starts and terminates. A command run in-process from another command, a
