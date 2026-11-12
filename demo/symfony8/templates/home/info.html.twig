@@ -2,8 +2,11 @@
 
 {% block title %}{{ 'demo.page_title'|trans({ '%title%': title }, _demo_domain) }}{% endblock %}
 
+{% block nowo_ui_page_header %}
+    {{ include(nowo_ui_partial('page_header'), {title: title}) }}
+{% endblock %}
+
 {% block body %}
-<h1>{{ title }}</h1>
 <p>{{ 'demo.route_info'|trans({ '%section%': section }, _demo_domain)|raw }}</p>
-<p><a href="{{ path('app_home') }}">{{ 'demo.back_home'|trans({}, _demo_domain) }}</a></p>
+<p><a class="nowo-ui-link" href="{{ path('app_home') }}">{{ 'demo.back_home'|trans({}, _demo_domain) }}</a></p>
 {% endblock %}

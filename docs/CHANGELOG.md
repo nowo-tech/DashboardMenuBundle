@@ -123,6 +123,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Demo uses the UiKit base style (REQ-DEMO-014)
+
 ### Documentation
 
 - Worker mode wording (audit NX, D1/D2): a second MAIN request handled in-process from a controller DOES clear the own

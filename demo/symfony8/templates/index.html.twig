@@ -2,8 +2,11 @@
 
 {% block title %}{{ 'demo.home_title'|trans({}, _demo_domain) }}{% endblock %}
 
+{% block nowo_ui_page_header %}
+    {{ include(nowo_ui_partial('page_header'), {title: 'demo.bundle_demo'|trans({}, _demo_domain)}) }}
+{% endblock %}
+
 {% block body %}
-<h1>{{ 'demo.bundle_demo'|trans({}, _demo_domain) }}</h1>
 <p>{{ 'demo.sidebar_rendered_short'|trans({}, _demo_domain)|raw }}</p>
-<p>{{ 'demo.api_json'|trans({}, _demo_domain) }} <a href="{{ path('nowo_dashboard_menu_api', { code: 'sidebar' }) }}">GET /api/menu/sidebar</a></p>
+<p>{{ 'demo.api_json'|trans({}, _demo_domain) }} <a class="nowo-ui-link" href="{{ path('nowo_dashboard_menu_api', { code: 'sidebar' }) }}">GET /api/menu/sidebar</a></p>
 {% endblock %}

@@ -35,7 +35,7 @@ nowo_dashboard_menu:
         pool: cache.app
 
     # REQ-UI-003: the admin pages extend the UiKit scaffolds and render in nowo_ui_kit.layouts.admin
-    # (templates/layouts/admin.html.twig, the demo shell). Theme them once in nowo_ui_kit.theme.
+    # (templates/base.html.twig, the demo shell). Theme them once in nowo_ui_kit.theme.
     web_ui:
         enabled: true
         path_prefix: /admin/menus      # same prefix as the routes_dashboard.yaml import (config/routes.yaml)
@@ -84,20 +84,20 @@ nowo_dashboard_menu:
         item_span_active: false
         # CSS class options: when set, the menu form shows dropdowns instead of free text for each slot
         css_class_options:
-            menu: ['nav flex-column', 'nav flex-row', 'dropdown-menu dropdown-menu-end', 'nav flex-wrap gap-1']
-            item: ['nav-item', 'dropdown-item', '']
-            link: ['nav-link', 'dropdown-item', 'nav-link link-secondary']
-            children: ['nav flex-column ms-2', 'nav flex-column', 'dropdown-menu']
-            section_children: ['nav flex-column list-unstyled ps-0', 'nav flex-column ms-2', 'nav flex-column', '']
-            section_child_item: ['nav-item ms-0', 'nav-item', '']
-            section_child_link: ['nav-link py-0 d-flex align-items-center menu-title text-truncate ps-0', 'nav-link d-flex align-items-center ps-0', 'nav-link', 'nav-link link-secondary', '']
-            section_label: ['menu-section-label', 'navigation-header', '']
-            section: ['menu-section', 'navigation-header', '']
+            menu: ['nowo-ui-aside__nav', 'nowo-ui-footer__nav', 'nowo-ui-header__end', 'nowo-ui-menu__entry']
+            item: ['']
+            link: ['nowo-ui-aside__link', 'nowo-ui-menu__item', 'nowo-ui-link', '']
+            children: ['nowo-ui-aside__nav', 'nowo-ui-footer__nav', 'nowo-ui-menu__entry']
+            section_children: ['nowo-ui-aside__nav', '']
+            section_child_item: ['']
+            section_child_link: ['nowo-ui-aside__link', 'nowo-ui-link', '']
+            section_label: ['nowo-ui-aside__label', '']
+            section: ['menu-section', '']
             divider: ['menu-divider', '']
-            span: ['ms-2 d-flex align-items-center flex-nowrap']
-            current: ['active', '']
+            span: ['']
+            current: ['is-current', '']
             branch_expanded: ['active-branch', 'active-branch-has-children', '']
-            has_children: ['dropdown', 'has-children', '']
+            has_children: ['has-children', '']
             expanded: ['expanded', '']
             collapsed: ['collapsed', '']
     api:
