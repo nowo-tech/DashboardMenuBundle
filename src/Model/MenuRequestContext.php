@@ -7,6 +7,7 @@ namespace Nowo\DashboardMenuBundle\Model;
 use Nowo\DashboardMenuBundle\Service\MenuCodeContextResolverInterface;
 use Nowo\DashboardMenuBundle\Service\MenuItemContextCurrentMatcherInterface;
 use Nowo\DashboardMenuBundle\Service\MenuItemContextLinkResolverInterface;
+use Nowo\DashboardMenuBundle\Service\MenuRequestContextFactory;
 
 use function array_key_exists;
 use function is_scalar;
@@ -21,6 +22,10 @@ use function preg_match;
  * {@see MenuItemContextLinkResolverInterface},
  * {@see MenuItemContextCurrentMatcherInterface}) and inside
  * {@see MenuPermissionContext}. It holds no headers, cookies or session data.
+ *
+ * To build one from a Symfony request (an HTTP edge of your own, or a test), use the public
+ * {@see MenuRequestContextFactory::fromRequest()} (2.20): it applies the same
+ * rules as the bundle.
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
