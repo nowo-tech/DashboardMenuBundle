@@ -9,6 +9,7 @@ use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\Console\Event\ConsoleTerminateEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\FinishRequestEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;
@@ -51,7 +52,9 @@ use const PHP_INT_MIN;
  * - main requests: a STACK of the main `Request` objects in flight (audit NX CR2). A main request is the outermost
  *   unit only when no other main request is in flight, so a main request handled in-process inside another one never
  *   clears the outer one. `kernel.finish_request` / `kernel.terminate` pop their request and the requests above it
- *   (nested requests whose end never came); an unknown request pops nothing. A top-level `kernel.terminate` (no
+ *   (nested requests whose end never came); an unknown request pops nothing. A main request that is the HTTP
+ *   kernel's own main request (its `RequestStack`, popped in a `finally`) drops the requests left on the stack by a
+ *   request whose end never came (a throwing `kernel.exception` listener). A top-level `kernel.terminate` (no
  *   command) resets the request and worker stacks: the response went out, nothing started before it still runs;
  * - Messenger: a STACK of the running workers (`WorkerStartedEvent` → `WorkerStoppedEvent`), each with its message in
  *   flight (audit NX CR1). A worker run in-process inside a message handler gets its own entry, so its events never
@@ -99,8 +102,13 @@ final class UnitOfWorkBoundaries implements EventSubscriberInterface
     /** @var WeakMap<object, bool> outermost verdict per boundary event */
     private WeakMap $verdicts;
 
-    public function __construct()
-    {
+    /**
+     * @param RequestStack|null $requestStack the HTTP kernel's request stack (read only), to tell a nested main request
+     *                                        from one left on the stack by a request whose end never came
+     */
+    public function __construct(
+        private readonly ?RequestStack $requestStack = null,
+    ) {
         $this->verdicts = new WeakMap();
     }
 
@@ -136,10 +144,18 @@ final class UnitOfWorkBoundaries implements EventSubscriberInterface
         }
 
         $this->dropFailedFrames();
+        $request = $event->getRequest();
+        if ($this->requests !== [] && $this->requestStack?->getMainRequest() === $request) {
+            // The HTTP kernel runs no other request (it pops its own stack in a `finally`): the requests left here never
+            // reached their finish_request / terminate (a throwing `kernel.exception` listener).
+            // @igor-ignore - Stack of the main requests in flight (no request data kept), healed at a top-level start.
+            $this->requests = [];
+        }
+
         // @igor-ignore - Per-event verdict; the WeakMap entry dies with the event.
         $this->verdicts[$event] = $this->isIdle();
         // @igor-ignore - Stack of the main requests in flight, popped at their own finish_request / terminate.
-        $this->requests[] = $event->getRequest();
+        $this->requests[] = $request;
     }
 
     public function onFinishRequest(FinishRequestEvent $event): void

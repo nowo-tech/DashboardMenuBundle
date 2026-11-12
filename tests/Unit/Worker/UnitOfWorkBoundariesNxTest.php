@@ -59,7 +59,8 @@ final class UnitOfWorkBoundariesNxTest extends TestCase
     protected function setUp(): void
     {
         $this->dispatcher = new EventDispatcher();
-        $this->boundaries = new UnitOfWorkBoundaries();
+        $requestStack     = new RequestStack();
+        $this->boundaries = new UnitOfWorkBoundaries($requestStack);
         $manager          = $this->createStub(EntityManagerInterface::class);
         $manager->method('isOpen')->willReturn(true);
         $manager->method('clear')->willReturnCallback(function (): void {
@@ -67,7 +68,7 @@ final class UnitOfWorkBoundariesNxTest extends TestCase
         });
         $this->dispatcher->addSubscriber($this->boundaries);
         $this->dispatcher->addSubscriber(new DashboardMenuOwnEntityManagerSubscriber($this->boundaries, [$manager], $this->createStub(ManagerRegistry::class), 'own'));
-        $this->kernel = new HttpKernel($this->dispatcher, new ControllerResolver(), new RequestStack(), new ArgumentResolver());
+        $this->kernel = new HttpKernel($this->dispatcher, new ControllerResolver(), $requestStack, new ArgumentResolver());
     }
 
     /**
@@ -315,6 +316,32 @@ final class UnitOfWorkBoundariesNxTest extends TestCase
         $this->assertRequestClears();
     }
 
+    /**
+     * Audit NR-b with the request stack: a top-level request whose `kernel.exception` listener throws never reaches its
+     * finish_request / terminate; the next top-level request is still the outermost unit from its start.
+     */
+    #[Test]
+    public function aRequestWhoseEndNeverCameIsDroppedAtTheNextTopLevelStart(): void
+    {
+        $throw = static function (): never {
+            throw new RuntimeException('exception listener failed');
+        };
+        $this->dispatcher->addListener(KernelEvents::EXCEPTION, $throw);
+        try {
+            $this->request(static function (): never {
+                throw new RuntimeException('controller failed');
+            }, true, true);
+            self::fail('the kernel.exception listener throws');
+        } catch (RuntimeException) {
+        } finally {
+            $this->dispatcher->removeListener(KernelEvents::EXCEPTION, $throw);
+        }
+
+        self::assertSame(1, $this->boundaries->requestsInFlight());
+        $this->assertRequestClears();
+        self::assertSame(0, $this->boundaries->requestsInFlight());
+    }
+
     private function assertRequestClears(): void
     {
         $before = $this->clears;
@@ -323,7 +350,7 @@ final class UnitOfWorkBoundariesNxTest extends TestCase
         self::assertSame(2, $this->clears - $before, 'a top-level request clears at its start and its terminate');
     }
 
-    private function request(Closure $body, bool $terminate = true): void
+    private function request(Closure $body, bool $terminate = true, bool $catch = false): void
     {
         $request = Request::create('/');
         $request->attributes->set('_controller', static function () use ($body): Response {
@@ -331,7 +358,7 @@ final class UnitOfWorkBoundariesNxTest extends TestCase
 
             return new Response('ok');
         });
-        $response = $this->kernel->handle($request, HttpKernelInterface::MAIN_REQUEST, false);
+        $response = $this->kernel->handle($request, HttpKernelInterface::MAIN_REQUEST, $catch);
         if ($terminate) {
             $this->kernel->terminate($request, $response);
         }
