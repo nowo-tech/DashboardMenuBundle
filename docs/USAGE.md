@@ -702,6 +702,8 @@ before putting them in an `href`.
 when your default manager has `auto_mapping: true`) and makes the dashboard, the importer, the item form Live Component
 and the migration command write there. The bundle then never flushes, clears or resets your managers; a closed
 `dashboard_menu` manager is recovered on the next request (FrankenPHP worker mode, no services resetter needed).
+Since 2.21.0 the bundle clears that manager at every outermost request / message / command boundary, so it must be
+dedicated to the bundle (map no host entity on it).
 Standard hosts leave it null. Menu writes are the dashboard's and the importer's own (no host command handler writes
 them), so there is no separate "host controls the transaction" mode.
 

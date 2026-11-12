@@ -22,7 +22,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
  *
  * Boundaries, judged by {@see UnitOfWorkBoundaries} (same policy as PageBuilderKitBundle 1.15.1):
  * - HTTP: the main `kernel.request` (priority 4096) and `kernel.terminate` (priority -1024), only outside a console
- *   command and a Messenger message; sub-requests share their main request's unit of work;
+ *   command and a Messenger message; sub-requests share their main request's unit of work. A second MAIN request
+ *   handled in-process from a controller (outside any command or message) is judged outermost and clears too;
  * - Messenger: when a message is received (priority 4096) and after it is handled or failed (priority -1024);
  * - console: when the OUTERMOST command starts and terminates. A command run in-process from another command, a
  *   message handler or a controller does not clear the outer unit's manager.

@@ -149,7 +149,10 @@ composer update nowo-tech/dashboard-menu-bundle
   at the outermost request / message / command boundaries (REQ-RUNTIME-002 rule 4). Do not keep `Menu` / `MenuItem`
   entities of that manager across requests, messages or commands: re-read them (they are detached after the
   boundary). Unflushed changes made on that manager outside the bundle are discarded at the end of the outermost unit,
-  so flush them inside the unit that made them.
+  so flush them inside the unit that made them. Nested commands, and requests / messages run from a command or a
+  handler, keep the outer unit's entities. A second MAIN request handled in-process from a controller (`HttpKernel::handle()` with `MAIN_REQUEST`, outside any command or message) is judged outermost and clears the manager at its start and end, detaching the outer request's entities; use a sub-request there (`SUB_REQUEST`, `render(controller(...))`), which shares the main request's unit.
+  The option must name a manager dedicated to the bundle (mapping only the menu entities): a manager that also maps
+  host entities would have them detached at every boundary.
 - **`doctrine.entity_manager` naming the host default**: nothing changes (the bundle never clears it).
 - `DashboardMenuWorkerStateSubscriber` gained an optional last constructor argument (`UnitOfWorkBoundaries`); a host
   that builds it by hand keeps working (without the tracker every console boundary empties the memos).

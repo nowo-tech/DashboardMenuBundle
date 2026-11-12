@@ -123,6 +123,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- Worker mode wording (audit NX, D1/D2): a second MAIN request handled in-process from a controller DOES clear the own
+  manager (only commands, and requests / messages run from a command or a handler, keep the outer unit);
+  `doctrine.entity_manager` must name a manager dedicated to the bundle. CHANGELOG 2.21.0, UPGRADING "To 2.21.0",
+  CONFIGURATION and the subscriber docblock corrected. No code change.
+
 ## [2.21.0] - 2026-11-12
 
 Target **2.21.0** (minor; REQ-RUNTIME-002, FrankenPHP worker mode with kernel reset false). Without
@@ -134,7 +141,8 @@ Target **2.21.0** (minor; REQ-RUNTIME-002, FrankenPHP worker mode with kernel re
   host's default, the bundle clears that OWN manager (and recreates it when a failed flush closed it) at every
   OUTERMOST unit-of-work boundary: main request start / `kernel.terminate`, Messenger message received / handled /
   failed, outermost console command start / terminate. Nested units (a command run from another command, a handler
-  or a controller; a request handled inside a command or a message) never clear the outer unit's manager. A manager
+  or a controller; a request handled inside a command or a message) never clear the outer unit's manager; a second main
+  request handled in-process from a controller does (see UPGRADING). A manager
   that is the host default is never cleared (rule 7).
 - `Worker\UnitOfWorkBoundaries` (internal): outermost request / message / command tracker shared with
   PageBuilderKitBundle 1.15.1 (command frames keyed by Command and input, saved and restored message / request
