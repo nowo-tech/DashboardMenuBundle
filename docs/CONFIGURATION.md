@@ -52,7 +52,7 @@ Menus are **defined in the database** (dashboard at `/admin/menus` or fixtures):
 |----------------|-----------|-------------|
 | `connection`   | `default` | Doctrine DBAL connection name for menu entities. |
 | `table_prefix` | `''`      | Prefix for table names (`dashboard_menu`, `dashboard_menu_item`). Empty = no prefix. |
-| `entity_manager` | `null` | **2.18.** Doctrine entity manager the menu entities are mapped on (e.g. a dedicated `dashboard_menu` manager). Mapped on that manager only, also when the default manager has `auto_mapping: true`; the dashboard, importer, Live Component, migration command and recovery reset use it. Unknown manager = build error. `null` = the manager that maps the entities (unchanged). Keep the underscore naming strategy on it. |
+| `entity_manager` | `null` | **2.18.** Doctrine entity manager the menu entities are mapped on (e.g. a dedicated `dashboard_menu` manager). Mapped on that manager only, also when the default manager has `auto_mapping: true`; the dashboard, importer, Live Component, migration command and recovery reset use it. Unknown manager = build error. `null` = the manager that maps the entities (unchanged). Keep the underscore naming strategy on it. **Must name a manager dedicated to the bundle** (mapping only the menu entities): when it is not the host's default manager the bundle clears it at every outermost request / message / command boundary, so any host entity mapped on it would be detached and its unflushed changes discarded. Naming the host's default manager is allowed and never cleared. |
 
 ```yaml
 nowo_dashboard_menu:
