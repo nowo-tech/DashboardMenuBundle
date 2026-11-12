@@ -19,7 +19,7 @@ use Nowo\DashboardMenuBundle\Entity\MenuItem;
  * Loads sample menus with at least 3 levels (root → children → grandchildren) for the demo.
  * Sidebar and Aside have collapsible items (nested_collapsible in config).
  * Section headers keep at least one child so they still render after empty-section pruning; includes a nested section under Settings.
- * Sidebar and aside menus set classSectionChildren plus classSectionChildItem / classSectionChildLink so links under sections align without extra indent (demo Bootstrap classes).
+ * Sidebar and aside menus set classSectionChildren plus classSectionChildItem / classSectionChildLink so links under sections align without extra indent (demo UiKit classes).
  */
 class MenuFixtures extends Fixture
 {
@@ -51,14 +51,15 @@ class MenuFixtures extends Fixture
         $menu = new Menu();
         $menu->setCode('sidebar');
         $menu->setName('Sidebar');
-        $menu->setClassMenu('nav flex-column');
-        $menu->setClassItem('nav-item');
-        $menu->setClassLink('nav-link py-0 d-flex align-items-center menu-title text-truncate');
-        $menu->setClassChildren('nav flex-column ms-2');
-        $menu->setClassSectionChildren('nav flex-column list-unstyled ps-0');
-        $menu->setClassSectionChildItem('nav-item ms-0');
-        $menu->setClassSectionChildLink('nav-link py-0 d-flex align-items-center menu-title text-truncate ps-0');
-        $menu->setClassCurrent('active');
+        $menu->setClassMenu('nowo-ui-aside__nav');
+        $menu->setClassItem('');
+        $menu->setClassLink('nowo-ui-aside__link');
+        $menu->setClassChildren('nowo-ui-aside__nav');
+        $menu->setClassSectionChildren('nowo-ui-aside__nav');
+        $menu->setClassSectionChildItem('');
+        $menu->setClassSectionChildLink('nowo-ui-aside__link');
+        $menu->setClassSectionLabel('nowo-ui-aside__label');
+        $menu->setClassCurrent('is-current');
         $menu->setClassBranchExpanded('active-branch');
         $menu->setClassHasChildren('has-sub');
         $menu->setClassExpanded('expanded');
@@ -78,14 +79,15 @@ class MenuFixtures extends Fixture
         $menu = new Menu();
         $menu->setCode('sidebar');
         $menu->setName('Sidebar (' . $key . ')');
-        $menu->setClassMenu('nav flex-column');
-        $menu->setClassItem('nav-item');
-        $menu->setClassLink('nav-link py-0 d-flex align-items-center menu-title text-truncate');
-        $menu->setClassChildren('nav flex-column ms-2');
-        $menu->setClassSectionChildren('nav flex-column list-unstyled ps-0');
-        $menu->setClassSectionChildItem('nav-item ms-0');
-        $menu->setClassSectionChildLink('nav-link py-0 d-flex align-items-center menu-title text-truncate ps-0');
-        $menu->setClassCurrent('active');
+        $menu->setClassMenu('nowo-ui-aside__nav');
+        $menu->setClassItem('');
+        $menu->setClassLink('nowo-ui-aside__link');
+        $menu->setClassChildren('nowo-ui-aside__nav');
+        $menu->setClassSectionChildren('nowo-ui-aside__nav');
+        $menu->setClassSectionChildItem('');
+        $menu->setClassSectionChildLink('nowo-ui-aside__link');
+        $menu->setClassSectionLabel('nowo-ui-aside__label');
+        $menu->setClassCurrent('is-current');
         $menu->setClassBranchExpanded('active-branch');
         $menu->setClassHasChildren('has-sub');
         $menu->setClassExpanded('expanded');
@@ -104,14 +106,15 @@ class MenuFixtures extends Fixture
         $menu = new Menu();
         $menu->setCode('aside');
         $menu->setName('Aside');
-        $menu->setClassMenu('nav flex-column');
-        $menu->setClassItem('nav-item');
-        $menu->setClassLink('nav-link py-0 d-flex align-items-center menu-title text-truncate');
-        $menu->setClassChildren('nav flex-column ms-2');
-        $menu->setClassSectionChildren('nav flex-column list-unstyled ps-0');
-        $menu->setClassSectionChildItem('nav-item ms-0');
-        $menu->setClassSectionChildLink('nav-link py-0 d-flex align-items-center menu-title text-truncate ps-0');
-        $menu->setClassCurrent('active');
+        $menu->setClassMenu('nowo-ui-aside__nav');
+        $menu->setClassItem('');
+        $menu->setClassLink('nowo-ui-aside__link');
+        $menu->setClassChildren('nowo-ui-aside__nav');
+        $menu->setClassSectionChildren('nowo-ui-aside__nav');
+        $menu->setClassSectionChildItem('');
+        $menu->setClassSectionChildLink('nowo-ui-aside__link');
+        $menu->setClassSectionLabel('nowo-ui-aside__label');
+        $menu->setClassCurrent('is-current');
         $menu->setClassBranchExpanded('active-branch');
         $menu->setClassHasChildren('has-sub');
         $menu->setClassExpanded('expanded');
@@ -129,11 +132,11 @@ class MenuFixtures extends Fixture
         $menu = new Menu();
         $menu->setCode('footer');
         $menu->setName('Footer');
-        $menu->setClassMenu('nav flex-wrap gap-1');
-        $menu->setClassItem('nav-item');
-        $menu->setClassLink('nav-link link-secondary');
-        $menu->setClassChildren('nav flex-column');
-        $menu->setClassCurrent('active');
+        $menu->setClassMenu('nowo-ui-footer__nav');
+        $menu->setClassItem('');
+        $menu->setClassLink('');
+        $menu->setClassChildren('nowo-ui-footer__nav');
+        $menu->setClassCurrent('is-current');
         $menu->setClassBranchExpanded('active-branch');
         $menu->setPermissionChecker('App\\Service\\DemoMenuPermissionChecker');
 
@@ -145,11 +148,11 @@ class MenuFixtures extends Fixture
         $menu = new Menu();
         $menu->setCode('dropdown');
         $menu->setName('User menu');
-        $menu->setClassMenu('dropdown-menu dropdown-menu-end');
+        $menu->setClassMenu('nowo-ui-menu__entry');
         $menu->setClassItem('');
-        $menu->setClassLink('dropdown-item');
-        $menu->setClassChildren('dropdown-menu');
-        $menu->setClassCurrent('active');
+        $menu->setClassLink('nowo-ui-menu__item');
+        $menu->setClassChildren('nowo-ui-menu__entry');
+        $menu->setClassCurrent('is-current');
         $menu->setClassBranchExpanded('active-branch');
         $menu->setPermissionChecker('App\\Service\\DemoMenuPermissionChecker');
 
@@ -161,11 +164,11 @@ class MenuFixtures extends Fixture
         $menu = new Menu();
         $menu->setCode('locale_switcher');
         $menu->setName('Language');
-        $menu->setClassMenu('nav');
-        $menu->setClassItem('nav-item');
-        $menu->setClassLink('nav-link');
+        $menu->setClassMenu('nowo-ui-header__end');
+        $menu->setClassItem('');
+        $menu->setClassLink('nowo-ui-link');
         $menu->setClassChildren('');
-        $menu->setClassCurrent('active');
+        $menu->setClassCurrent('is-current');
         $menu->setClassBranchExpanded('active-branch');
         $menu->setPermissionChecker('App\\Service\\DemoMenuPermissionChecker');
 

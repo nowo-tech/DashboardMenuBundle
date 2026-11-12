@@ -1,0 +1,6 @@
+/* Structural reset for the DashboardMenu tree markup (<ul>/<li>) inside UiKit regions. No colours, fonts or tokens:
+   the look stays UiKit's default theme (REQ-DEMO-014). */
+.dashboard-menu-tree { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.15rem; }
+.dashboard-menu-tree ul { list-style: none; margin: 0; padding: 0 0 0 0.75rem; }
+.dashboard-menu-tree li { list-style: none; margin: 0; }
+.nowo-ui-header__end.dashboard-menu-tree, .nowo-ui-footer__nav.dashboard-menu-tree { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 0.75rem; }

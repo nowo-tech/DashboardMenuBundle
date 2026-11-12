@@ -1,4 +1,4 @@
-# Optional host overrides. Profile `dashboard_menu` is prepended by DashboardMenuBundle.
+# REQ-DEMO-014: FormKit profile themed with UiKit's semantic classes (no Bootstrap classes).
 nowo_form_kit:
     default_profile: default
     profiles:
@@ -7,6 +7,6 @@ nowo_form_kit:
             translation_domain: messages
             defaults:
                 attr:
-                    class: form-control
+                    class: nowo-ui-input
                 row_attr:
-                    class: mb-3
+                    class: nowo-ui-form-row
