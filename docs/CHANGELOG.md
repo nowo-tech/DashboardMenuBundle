@@ -123,6 +123,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- DoctrineBundle 3.4: bundle entities resolved to the default manager when a dedicated manager is configured.
+  DoctrineBundle 3.4 `auto_discover_entities` (on by default for a manager without `mappings` and `auto_mapping`, with
+  Symfony 7.3+ and doctrine/orm 3.6+) gives that manager's metadata driver chain a default attribute driver, which
+  claims every `#[ORM\Entity]` class. With `doctrine.entity_manager` set, `getManagerForClass()` then answered the
+  host's default manager, and the menu repositories queried its database ("no such table: dashboard_menu"). The
+  compiler pass now also registers a driver that maps nothing for the menu entity namespace on every other manager
+  (`ExcludedEntityNamespaceDriver`, only the public `addDriver()` of the `doctrine.orm.<manager>_metadata_driver`
+  chain), so the entities resolve to the configured manager on DoctrineBundle 2.x, 3.3 and 3.4+. Affected in practice:
+  2.18.0 to 2.21.0 (every release with `doctrine.entity_manager`; all allow `doctrine/doctrine-bundle` `^3.0`) with
+  DoctrineBundle 3.4.0 or later.
+
 ### Changed
 
 - Demo uses the UiKit base style (REQ-DEMO-014)
