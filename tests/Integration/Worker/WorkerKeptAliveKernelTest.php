@@ -27,6 +27,8 @@ use Symfony\Component\HttpKernel\HttpKernel;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 
+use function array_filter;
+use function dirname;
 use function gc_collect_cycles;
 use function getmypid;
 use function json_decode;
@@ -63,11 +65,14 @@ final class WorkerKeptAliveKernelTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->kernel?->shutdown();
-        $this->kernel = null;
-        if ($this->directory !== '') {
-            (new Filesystem())->remove($this->directory);
+        $directories = [$this->directory];
+        if ($this->kernel instanceof WorkerTestKernel) {
+            // The compiled container of this boot (one cache directory per database directory).
+            $directories[] = dirname($this->kernel->getCacheDir());
+            $this->kernel->shutdown();
         }
+        $this->kernel = null;
+        (new Filesystem())->remove(array_filter($directories, static fn (string $directory): bool => $directory !== ''));
     }
 
     public function testTwoUsersAlternateOverManyRequestsWithIsolationAndFlatMemory(): void
