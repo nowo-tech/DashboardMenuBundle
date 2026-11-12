@@ -32,11 +32,11 @@ final class DashboardMenuOwnEntityManagerSubscriberTest extends TestCase
 
         self::assertSame(['onRequest', 4096], $events[KernelEvents::REQUEST]);
         self::assertSame(['onTerminate', -1024], $events[KernelEvents::TERMINATE]);
-        self::assertSame(['clearState', 4096], $events[UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_RECEIVED]);
-        self::assertSame(['clearState', -1024], $events[UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_HANDLED]);
-        self::assertSame(['clearState', -1024], $events[UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_FAILED]);
-        self::assertSame(['onConsoleBoundary', 4096], $events[UnitOfWorkBoundaries::CONSOLE_COMMAND]);
-        self::assertSame(['onConsoleBoundary', -1024], $events[UnitOfWorkBoundaries::CONSOLE_TERMINATE]);
+        self::assertSame(['onBoundary', 4096], $events[UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_RECEIVED]);
+        self::assertSame(['onBoundary', -1024], $events[UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_HANDLED]);
+        self::assertSame(['onBoundary', -1024], $events[UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_FAILED]);
+        self::assertSame(['onBoundary', 4096], $events[UnitOfWorkBoundaries::CONSOLE_COMMAND]);
+        self::assertSame(['onBoundary', -1024], $events[UnitOfWorkBoundaries::CONSOLE_TERMINATE]);
     }
 
     #[Test]

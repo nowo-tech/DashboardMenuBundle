@@ -134,6 +134,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `doctrine.entity_manager` must name a manager dedicated to the bundle. CHANGELOG 2.21.0, UPGRADING "To 2.21.0",
   CONFIGURATION and the subscriber docblock corrected. No code change.
 
+### Fixed
+
+- **Unit boundary tracker: per-worker message depth, request stack (audit NX CR1–CR3).** The tracker kept one
+  process-wide "message in flight" flag and judged a main request outermost without looking at other main requests.
+  A Messenger worker run in-process inside a message handler ended the outer message, so the inner worker's messages
+  and a main request handled later by the outer handler cleared the outer unit (CR1); a main request handled
+  in-process inside another main request cleared the outer one (CR2); a message skipped by a
+  `WorkerMessageReceivedEvent` listener (`shouldHandle(false)`) stayed in flight until the worker stopped (CR3). It now
+  keeps a stack of the running workers (`WorkerStartedEvent` / `WorkerRunningEvent` / `WorkerStoppedEvent`), each with
+  its own message, and a stack of the main requests in flight, popped by their own `kernel.finish_request` /
+  `kernel.terminate` (unbalanced events heal); a skipped message ends with its received event or at its worker's next
+  `WorkerRunningEvent`. Message boundaries clear only outside another message. No configuration change.
+  This supersedes the 2.21.0 / UPGRADING note: a second MAIN request handled in-process from a controller no longer
+  clears the own manager at its start (a `kernel.terminate` dispatched for it still counts as a top-level request end).
+
 ## [2.21.0] - 2026-11-12
 
 Target **2.21.0** (minor; REQ-RUNTIME-002, FrankenPHP worker mode with kernel reset false). Without

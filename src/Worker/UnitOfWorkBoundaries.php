@@ -11,43 +11,60 @@ use Symfony\Component\Console\Event\ConsoleTerminateEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\FinishRequestEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Symfony\Component\HttpKernel\Event\TerminateEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
+use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
+use Symfony\Component\Messenger\Event\WorkerMessageReceivedEvent;
+use Symfony\Component\Messenger\Event\WorkerMessageSkipEvent;
+use Symfony\Component\Messenger\Event\WorkerRunningEvent;
+use Symfony\Component\Messenger\Event\WorkerStartedEvent;
+use Symfony\Component\Messenger\Event\WorkerStoppedEvent;
 use WeakMap;
 
+use function array_key_last;
+use function array_pop;
 use function array_splice;
 use function count;
-use function max;
 
 use const PHP_INT_MAX;
+use const PHP_INT_MIN;
 
 /**
  * Tracks which unit of work is running in this process, so the bundle acts only at the OUTERMOST boundary of a
  * request, a Messenger message or a console command (2.21.0, REQ-RUNTIME-002 rule 4). Used by
  * {@see DashboardMenuOwnEntityManagerSubscriber} (clears the bundle's own manager) and
  * {@see DashboardMenuWorkerStateSubscriber} (empties the menu memos at the
- * console boundaries). Same tracker as PageBuilderKitBundle 1.15.1 (audits NL2, NL2-v, R1, NR-b).
+ * console boundaries). Same tracker as PageBuilderKitBundle 1.15.1 (audits NL2, NL2-v, R1, NR-b; NX CR1–CR3).
  *
  * The state changes at priority `PHP_INT_MAX`, before any other listener can throw:
  * - console: a stack of frames, one per running command, keyed by the Command AND its input (a command that runs
  *   itself in-process gets two frames). A frame remembers whether its command started as the outermost unit (no
- *   other frame, no message, no main request) and saves the message / request state of the moment it was pushed;
- *   removing the frame restores that state, so a message or request whose closing event never came (a throwing
+ *   other frame, no message, no main request) and saves the worker / request stacks of the moment it was pushed;
+ *   removing the frame restores them, so a message or request whose closing event never came (a throwing
  *   `WorkerMessageReceivedEvent` or `kernel.exception` listener inside the command) does not outlive the command;
  * - `console.terminate` removes ITS frame (and the frames above it, nested commands that never terminated); a
  *   terminate without a matching frame never removes another command's frame;
  * - `console.error` marks the frame as failing until its own terminate. When an error listener throws, Symfony
  *   never dispatches that terminate: the marked frame (and those above it) is dropped at the next request, message,
- *   command or worker stop (self-healing, so the process never stays "inside a command" for good);
- * - main requests in flight are counted (a main request handled in-process inside another one does not end it
- *   early); a top-level `kernel.terminate` (no command, no message) resets the count, so a request whose
- *   `kernel.finish_request` never came does not stay in flight;
- * - a Messenger message in flight: received → handled / failed / worker stopped. `WorkerMessageSkipEvent` (dispatched
- *   only by `messenger:failed:retry` when a message is skipped) also ends it.
+ *   command or worker event (self-healing, so the process never stays "inside a command" for good);
+ * - main requests: a STACK of the main `Request` objects in flight (audit NX CR2). A main request is the outermost
+ *   unit only when no other main request is in flight, so a main request handled in-process inside another one never
+ *   clears the outer one. `kernel.finish_request` / `kernel.terminate` pop their request and the requests above it
+ *   (nested requests whose end never came); an unknown request pops nothing. A top-level `kernel.terminate` (no
+ *   command) resets the request and worker stacks: the response went out, nothing started before it still runs;
+ * - Messenger: a STACK of the running workers (`WorkerStartedEvent` → `WorkerStoppedEvent`), each with its message in
+ *   flight (audit NX CR1). A worker run in-process inside a message handler gets its own entry, so its events never
+ *   end the outer message. A message ends at handled / failed / `WorkerMessageSkipEvent` (dispatched only by
+ *   `messenger:failed:retry`), at its worker's next `WorkerRunningEvent` (also dispatched after a message a listener
+ *   skipped with `shouldHandle(false)`, audit NX CR3) or its worker's stop; a received event whose final
+ *   `shouldHandle()` is false (read at `PHP_INT_MIN`) ends it too. A message received outside any worker the tracker
+ *   saw start gets an entry without a worker.
  *
  * Rule for every handler: failed frames are dropped FIRST (which restores the state saved with them), THEN the
- * handler applies its own change, so a restored flag never overrides the event being handled.
+ * handler applies its own change, so a restored state never overrides the event being handled.
  *
- * The verdict for each console event ("was this the outermost unit?") is kept per event object (`WeakMap`), so the
+ * The verdict for each boundary event ("was this the outermost unit?") is kept per event object (`WeakMap`), so the
  * late listeners that act on it read the value computed when the event started, whatever ran in between.
  *
  * Process-lifetime state, deliberately NOT reset by `kernel.reset`: it describes the units still running.
@@ -57,26 +74,29 @@ use const PHP_INT_MAX;
 final class UnitOfWorkBoundaries implements EventSubscriberInterface
 {
     /** Messenger event names (class names), subscribed without requiring symfony/messenger. */
-    public const MESSENGER_WORKER_MESSAGE_RECEIVED = 'Symfony\\Component\\Messenger\\Event\\WorkerMessageReceivedEvent';
-    public const MESSENGER_WORKER_MESSAGE_HANDLED  = 'Symfony\\Component\\Messenger\\Event\\WorkerMessageHandledEvent';
-    public const MESSENGER_WORKER_MESSAGE_FAILED   = 'Symfony\\Component\\Messenger\\Event\\WorkerMessageFailedEvent';
-    public const MESSENGER_WORKER_MESSAGE_SKIPPED  = 'Symfony\\Component\\Messenger\\Event\\WorkerMessageSkipEvent';
-    public const MESSENGER_WORKER_STOPPED          = 'Symfony\\Component\\Messenger\\Event\\WorkerStoppedEvent';
+    public const MESSENGER_WORKER_STARTED          = WorkerStartedEvent::class;
+    public const MESSENGER_WORKER_MESSAGE_RECEIVED = WorkerMessageReceivedEvent::class;
+    public const MESSENGER_WORKER_MESSAGE_HANDLED  = WorkerMessageHandledEvent::class;
+    public const MESSENGER_WORKER_MESSAGE_FAILED   = WorkerMessageFailedEvent::class;
+    public const MESSENGER_WORKER_MESSAGE_SKIPPED  = WorkerMessageSkipEvent::class;
+    public const MESSENGER_WORKER_RUNNING          = WorkerRunningEvent::class;
+    public const MESSENGER_WORKER_STOPPED          = WorkerStoppedEvent::class;
 
     /** Console event names (ConsoleEvents::COMMAND / ERROR / TERMINATE). */
     public const CONSOLE_COMMAND   = 'console.command';
     public const CONSOLE_ERROR     = 'console.error';
     public const CONSOLE_TERMINATE = 'console.terminate';
 
-    /** @var list<array{command: object, input: object|null, outermost: bool, failing: bool, message: bool, requests: int}> running commands, outermost first */
+    /** @var list<array{command: object, input: object|null, outermost: bool, failing: bool, workers: list<array{worker: object|null, message: bool}>, requests: list<object>}> running commands, outermost first */
     private array $frames = [];
 
-    private bool $messageInFlight = false;
+    /** @var list<array{worker: object|null, message: bool}> running Messenger workers and their message in flight, outermost first */
+    private array $workers = [];
 
-    /** Main requests in flight (main `kernel.request` → `kernel.finish_request`). */
-    private int $requests = 0;
+    /** @var list<object> main requests in flight (main `kernel.request` → `kernel.finish_request`), outermost first */
+    private array $requests = [];
 
-    /** @var WeakMap<object, bool> outermost verdict per console event */
+    /** @var WeakMap<object, bool> outermost verdict per boundary event */
     private WeakMap $verdicts;
 
     public function __construct()
@@ -85,7 +105,7 @@ final class UnitOfWorkBoundaries implements EventSubscriberInterface
     }
 
     /**
-     * @return array<string, array{0: string, 1: int}>
+     * @return array<string, array{0: string, 1: int}|list<array{0: string, 1: int}>>
      */
     public static function getSubscribedEvents(): array
     {
@@ -96,14 +116,19 @@ final class UnitOfWorkBoundaries implements EventSubscriberInterface
             self::CONSOLE_COMMAND                   => ['onCommand', PHP_INT_MAX],
             self::CONSOLE_ERROR                     => ['onError', PHP_INT_MAX],
             self::CONSOLE_TERMINATE                 => ['onTerminate', PHP_INT_MAX],
-            self::MESSENGER_WORKER_MESSAGE_RECEIVED => ['onMessageReceived', PHP_INT_MAX],
+            self::MESSENGER_WORKER_STARTED          => ['onWorkerStarted', PHP_INT_MAX],
+            self::MESSENGER_WORKER_MESSAGE_RECEIVED => [['onMessageReceived', PHP_INT_MAX], ['onMessageReceivedDecided', PHP_INT_MIN]],
             self::MESSENGER_WORKER_MESSAGE_HANDLED  => ['onMessageFinished', PHP_INT_MAX],
             self::MESSENGER_WORKER_MESSAGE_FAILED   => ['onMessageFinished', PHP_INT_MAX],
             self::MESSENGER_WORKER_MESSAGE_SKIPPED  => ['onMessageFinished', PHP_INT_MAX],
+            self::MESSENGER_WORKER_RUNNING          => ['onWorkerRunning', PHP_INT_MAX],
             self::MESSENGER_WORKER_STOPPED          => ['onWorkerStopped', PHP_INT_MAX],
         ];
     }
 
+    /**
+     * Main `kernel.request`: outermost only when nothing runs, not even another main request (audit NX CR2).
+     */
     public function onRequest(RequestEvent $event): void
     {
         if (!$event->isMainRequest()) {
@@ -111,28 +136,35 @@ final class UnitOfWorkBoundaries implements EventSubscriberInterface
         }
 
         $this->dropFailedFrames();
-        // @igor-ignore - Count of the main requests in flight (no request data).
-        ++$this->requests;
+        // @igor-ignore - Per-event verdict; the WeakMap entry dies with the event.
+        $this->verdicts[$event] = $this->isIdle();
+        // @igor-ignore - Stack of the main requests in flight, popped at their own finish_request / terminate.
+        $this->requests[] = $event->getRequest();
     }
 
     public function onFinishRequest(FinishRequestEvent $event): void
     {
         if ($event->isMainRequest()) {
             $this->dropFailedFrames();
-            // @igor-ignore - Count of the main requests in flight (no request data).
-            $this->requests = max(0, $this->requests - 1);
+            $this->endRequest($event->getRequest());
         }
     }
 
     /**
-     * End of a top-level request (no command, no message): no main request can still be in flight.
+     * End of a request. Without a command, it is a top-level request end (the response went out): no main request and
+     * no worker started before it can still run, even one whose closing event never came.
      */
-    public function onKernelTerminate(): void
+    public function onKernelTerminate(TerminateEvent $event): void
     {
         $this->dropFailedFrames();
-        if ($this->isHttpOutermost()) {
-            // @igor-ignore - Count of the main requests in flight (no request data).
-            $this->requests = 0;
+        $this->endRequest($event->getRequest());
+        // @igor-ignore - Per-event verdict; the WeakMap entry dies with the event.
+        $this->verdicts[$event] = $this->isHttpOutermost();
+        if ($this->frames === []) {
+            // @igor-ignore - Stack of the main requests in flight (no request data kept), reset at the top-level end.
+            $this->requests = [];
+            // @igor-ignore - Stack of the running workers (no message data kept), reset at the top-level end.
+            $this->workers = [];
         }
     }
 
@@ -148,7 +180,7 @@ final class UnitOfWorkBoundaries implements EventSubscriberInterface
             'input'     => $event->getInput(),
             'outermost' => $outermost,
             'failing'   => false,
-            'message'   => $this->messageInFlight,
+            'workers'   => $this->workers,
             'requests'  => $this->requests,
         ];
     }
@@ -190,42 +222,121 @@ final class UnitOfWorkBoundaries implements EventSubscriberInterface
         $this->removeFrames($index);
     }
 
-    public function onMessageReceived(): void
+    /**
+     * A worker starts: its own entry, so a worker run inside a message handler never ends the outer message.
+     */
+    public function onWorkerStarted(object $event): void
     {
         $this->dropFailedFrames();
-        // @igor-ignore - Unit-of-work flag, set and unset at the Messenger boundaries.
-        $this->messageInFlight = true;
-    }
+        if (!$event instanceof WorkerStartedEvent) {
+            return;
+        }
 
-    public function onMessageFinished(): void
-    {
-        $this->dropFailedFrames();
-        // @igor-ignore - Unit-of-work flag, set and unset at the Messenger boundaries.
-        $this->messageInFlight = false;
-    }
+        $worker = $event->getWorker();
+        $index  = $this->indexOfWorker($worker);
+        if ($index !== null) {
+            // A previous run of the same worker whose stop never came.
+            // @igor-ignore - Stack of the running workers (no message data).
+            array_splice($this->workers, $index);
+        }
 
-    public function onWorkerStopped(): void
-    {
-        $this->dropFailedFrames();
-        // @igor-ignore - Unit-of-work flag, set and unset at the Messenger boundaries.
-        $this->messageInFlight = false;
+        // @igor-ignore - Stack of the running workers (no message data), popped by their own stop.
+        $this->workers[] = ['worker' => $worker, 'message' => false];
     }
 
     /**
-     * Whether the console event started or ended the outermost unit of work. An event this tracker did not see is
+     * A message is received: outermost when no other message is in flight (audit NX CR1).
+     */
+    public function onMessageReceived(object $event): void
+    {
+        $this->dropFailedFrames();
+        // @igor-ignore - Per-event verdict; the WeakMap entry dies with the event.
+        $this->verdicts[$event] = !$this->messageInFlight();
+        $top                    = array_key_last($this->workers);
+        if ($top === null || $this->workers[$top]['message']) {
+            // @igor-ignore - A message received outside any worker the tracker saw start (no message data).
+            $this->workers[] = ['worker' => null, 'message' => true];
+
+            return;
+        }
+
+        // @igor-ignore - Unit-of-work flag of the worker, set and unset at the Messenger boundaries.
+        $this->workers[$top]['message'] = true;
+    }
+
+    /**
+     * End of the received event: a listener that called `shouldHandle(false)` skipped the message, which the Worker then
+     * never reports as handled or failed (audit NX CR3). Reads the final decision; marks nothing.
+     */
+    public function onMessageReceivedDecided(object $event): void
+    {
+        if ($event instanceof WorkerMessageReceivedEvent && !$event->shouldHandle()) {
+            $this->dropFailedFrames();
+            $this->endMessage();
+        }
+    }
+
+    /**
+     * Handled, failed or skipped message: outermost when no other message is still in flight.
+     */
+    public function onMessageFinished(object $event): void
+    {
+        $this->dropFailedFrames();
+        $this->endMessage();
+        // @igor-ignore - Per-event verdict; the WeakMap entry dies with the event.
+        $this->verdicts[$event] = !$this->messageInFlight();
+    }
+
+    /**
+     * Dispatched by the Worker after every message (handled, failed or skipped) and when idle: no message of that
+     * worker is in flight, and the workers started above it are gone.
+     */
+    public function onWorkerRunning(object $event): void
+    {
+        $this->dropFailedFrames();
+        $index = $this->indexOfWorker($event instanceof WorkerRunningEvent ? $event->getWorker() : null);
+        if ($index === null) {
+            $this->popWorkerlessMessages();
+
+            return;
+        }
+
+        // @igor-ignore - Stack of the running workers (no message data).
+        array_splice($this->workers, $index + 1);
+        // @igor-ignore - Unit-of-work flag of the worker, set and unset at the Messenger boundaries.
+        $this->workers[$index]['message'] = false;
+    }
+
+    public function onWorkerStopped(object $event): void
+    {
+        $this->dropFailedFrames();
+        $index = $this->indexOfWorker($event instanceof WorkerStoppedEvent ? $event->getWorker() : null);
+        if ($index === null) {
+            $this->popWorkerlessMessages();
+
+            return;
+        }
+
+        // Its own entry and the workers started above it that never stopped.
+        // @igor-ignore - Stack of the running workers (no message data).
+        array_splice($this->workers, $index);
+    }
+
+    /**
+     * Whether the boundary event started or ended the outermost unit of work. An event this tracker did not see is
      * judged on the current state.
      */
-    public function isOutermost(object $consoleEvent): bool
+    public function isOutermost(object $event): bool
     {
-        return $this->verdicts[$consoleEvent] ?? $this->isIdle();
+        return $this->verdicts[$event] ?? $this->isIdle();
     }
 
     /**
-     * A main request is the outermost unit unless a command or a message runs it in-process.
+     * Neither a command nor a message runs (the current state; boundary listeners use {@see isOutermost()}).
      */
     public function isHttpOutermost(): bool
     {
-        return $this->frames === [] && !$this->messageInFlight;
+        return $this->frames === [] && !$this->messageInFlight();
     }
 
     public function runningCommands(): int
@@ -233,9 +344,30 @@ final class UnitOfWorkBoundaries implements EventSubscriberInterface
         return count($this->frames);
     }
 
+    public function requestsInFlight(): int
+    {
+        return count($this->requests);
+    }
+
+    public function isMessageInFlight(): bool
+    {
+        return $this->messageInFlight();
+    }
+
     private function isIdle(): bool
     {
-        return $this->frames === [] && !$this->messageInFlight && $this->requests === 0;
+        return $this->frames === [] && !$this->messageInFlight() && $this->requests === [];
+    }
+
+    private function messageInFlight(): bool
+    {
+        foreach ($this->workers as $worker) {
+            if ($worker['message']) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function indexOf(?object $command, object $input): ?int
@@ -253,15 +385,84 @@ final class UnitOfWorkBoundaries implements EventSubscriberInterface
         return null;
     }
 
+    private function indexOfWorker(?object $worker): ?int
+    {
+        if ($worker === null) {
+            return null;
+        }
+
+        for ($i = count($this->workers) - 1; $i >= 0; --$i) {
+            if ($this->workers[$i]['worker'] === $worker) {
+                return $i;
+            }
+        }
+
+        return null;
+    }
+
     /**
-     * Removes the frame at $index and every frame above it, restoring the message / request state saved when that
+     * Pops $request and the requests above it (nested requests whose end never came); an unknown request pops nothing.
+     */
+    private function endRequest(object $request): void
+    {
+        for ($i = count($this->requests) - 1; $i >= 0; --$i) {
+            if ($this->requests[$i] === $request) {
+                // @igor-ignore - Stack of the main requests in flight (no request data kept).
+                array_splice($this->requests, $i);
+
+                return;
+            }
+        }
+    }
+
+    /**
+     * Ends the innermost message in flight: the workers started above it (never stopped) are gone, an entry without a
+     * worker is removed, a worker keeps running without a message.
+     */
+    private function endMessage(): void
+    {
+        for ($i = count($this->workers) - 1; $i >= 0; --$i) {
+            if (!$this->workers[$i]['message']) {
+                continue;
+            }
+
+            if ($this->workers[$i]['worker'] === null) {
+                // @igor-ignore - Stack of the running workers (no message data).
+                array_splice($this->workers, $i);
+
+                return;
+            }
+
+            // @igor-ignore - Stack of the running workers (no message data).
+            array_splice($this->workers, $i + 1);
+            // @igor-ignore - Unit-of-work flag of the worker, set and unset at the Messenger boundaries.
+            $this->workers[$i]['message'] = false;
+
+            return;
+        }
+    }
+
+    /**
+     * A running / stopped event of a worker the tracker never saw start: the messages received outside any known
+     * worker are over; another worker's entry is never touched.
+     */
+    private function popWorkerlessMessages(): void
+    {
+        while ($this->workers !== [] && $this->workers[array_key_last($this->workers)]['worker'] === null) {
+            // @igor-ignore - Stack of the running workers (no message data).
+            array_pop($this->workers);
+        }
+    }
+
+    /**
+     * Removes the frame at $index and every frame above it, restoring the worker / request stacks saved when that
      * frame was pushed.
      */
     private function removeFrames(int $index): void
     {
-        // @igor-ignore - Unit-of-work flag restored with the command frame.
-        $this->messageInFlight = $this->frames[$index]['message'];
-        // @igor-ignore - Count of the main requests in flight, restored with the command frame.
+        // @igor-ignore - Running workers restored with the command frame.
+        $this->workers = $this->frames[$index]['workers'];
+        // @igor-ignore - Main requests in flight, restored with the command frame.
         $this->requests = $this->frames[$index]['requests'];
         // @igor-ignore - Stack of the running commands (no request data).
         array_splice($this->frames, $index);
