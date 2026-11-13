@@ -6,6 +6,7 @@ namespace Nowo\DashboardMenuBundle\DependencyInjection\Compiler;
 
 use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Nowo\DashboardMenuBundle\DependencyInjection\DashboardMenuExtension;
+use Nowo\DashboardMenuBundle\Doctrine\ExcludedEntityNamespaceDriver;
 use Nowo\DashboardMenuBundle\Worker\DashboardMenuOwnEntityManagerSubscriber;
 use Nowo\DashboardMenuBundle\Worker\UnitOfWorkBoundaries;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
@@ -16,6 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
+use function array_unshift;
 use function dirname;
 use function is_array;
 use function is_string;
@@ -27,8 +29,12 @@ use function sprintf;
  *
  * The configured manager gets the attribute driver of the bundle entities; every other manager loses the bundle
  * namespace from its driver chain (DoctrineBundle's `auto_mapping`, the Flex default on the default manager, maps it
- * there too, and `getManagerForClass()` would answer the default manager). An unknown manager fails the build. Without
- * the option nothing changes (the entities are mapped by the host, usually through `auto_mapping`).
+ * there too, and `getManagerForClass()` would answer the default manager) and gets an
+ * {@see ExcludedEntityNamespaceDriver} for it instead, so a default driver of that chain cannot claim the entities
+ * either (DoctrineBundle 3.4 `auto_discover_entities`). Only the public `addDriver()` of the
+ * `doctrine.orm.<manager>_metadata_driver` chain is used, the extension point DoctrineBundle documents for other
+ * metadata drivers. An unknown manager fails the build. Without the option nothing changes (the entities are mapped
+ * by the host, usually through `auto_mapping`).
  *
  * 2.21.0 (REQ-RUNTIME-002 rule 4): when that manager is not the host's default manager, it is the bundle's own manager
  * and {@see DashboardMenuOwnEntityManagerSubscriber} clears it at the outermost unit-of-work boundaries. A manager that
@@ -71,9 +77,11 @@ final class DashboardMenuEntityManagerPass implements CompilerPassInterface
                 $calls[] = $call;
             }
 
-            if ($manager === $name) {
-                $calls[] = ['addDriver', [new Definition(AttributeDriver::class, [[dirname(__DIR__, 2) . '/Entity'], true]), self::ENTITY_NAMESPACE]];
-            }
+            // First in the chain: a chain asks its namespace drivers in order, then its default driver.
+            $driver = $manager === $name
+                ? new Definition(AttributeDriver::class, [[dirname(__DIR__, 2) . '/Entity'], true])
+                : new Definition(ExcludedEntityNamespaceDriver::class);
+            array_unshift($calls, ['addDriver', [$driver, self::ENTITY_NAMESPACE]]);
 
             $chain->setMethodCalls($calls);
         }
