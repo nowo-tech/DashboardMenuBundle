@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.21.1](#to-2211)
 - [To 2.21.0](#to-2210)
 - [To 2.20.0](#to-2200)
 - [To 2.19.0](#to-2190)
@@ -134,6 +135,14 @@
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## To 2.21.1
+
+From **2.21.0**:
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
 
 No configuration change. Worker mode (audits NX CR1–CR3 and OB): a second MAIN request handled in-process inside
 another main request (`HttpKernel::handle()` with `MAIN_REQUEST` from a controller) no longer clears the own manager,
