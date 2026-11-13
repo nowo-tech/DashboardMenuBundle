@@ -142,6 +142,12 @@ own end. This supersedes the "To 2.21.0" note below. A Messenger worker run in-p
 clears the outer message's manager either; in hosts with Messenger, DoctrineBundle's own subscriber still clears every
 manager after each message, so only the bundle's pending state is protected there, not the identity map.
 
+Behaviour change for nested main requests: code that relied on such a nested request detaching the outer request's
+entities (the old "judged outermost" behaviour) must now clear the bundle's manager itself; the clear at the outer
+request's start and end is unchanged. Audit OB2-L1: when host code leaves the `RequestStack` unbalanced (a push
+without a pop) and a later request throws out of `HttpKernel::handle()`, the next requests still clear the own
+manager at their start and end (before, they could stop clearing for the rest of the worker's life).
+
 ## To 2.21.0
 
 Target **2.21.0**, from **2.20.0** (no configuration change):

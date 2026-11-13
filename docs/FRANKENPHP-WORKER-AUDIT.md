@@ -86,6 +86,8 @@ Worker demo: `demo/symfony8/docker/frankenphp/Caddyfile` runs `php_server` with 
 | `DataCollector\MenuQueryCountMiddleware` + DBAL wrappers (dev only) | yes | none (`readonly`) | ✅ | ✅ |
 | `Command\GenerateDashboardMenuMigrationCommand`, `GoogleSyncTranslationsCommand` | CLI only | n/a | n/a | n/a |
 
+Note (audit OB2): with a custom asynchronous Messenger `MessageExecutionStrategyInterface` the tracker loses its nested-worker protection (a worker run inside a handler may clear the outer message's unit); the boundary clears still happen.
+
 Entities (`Menu`, `MenuItem`) and enums are value holders created per request by Doctrine or by `MenuTreeLoader`; the `MenuRepository` memo keeps them for one request at most (W-02).
 
 ## Findings

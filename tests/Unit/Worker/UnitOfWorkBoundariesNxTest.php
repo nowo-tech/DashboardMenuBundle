@@ -56,21 +56,24 @@ final class UnitOfWorkBoundariesNxTest extends TestCase
 
     private HttpKernel $kernel;
 
+    /** The HTTP kernel's request stack, shared with the tracker under test. */
+    private RequestStack $requestStack;
+
     private int $clears = 0;
 
     protected function setUp(): void
     {
-        $this->dispatcher = new EventDispatcher();
-        $requestStack     = new RequestStack();
-        $this->boundaries = new UnitOfWorkBoundaries($requestStack);
-        $manager          = $this->createStub(EntityManagerInterface::class);
+        $this->dispatcher   = new EventDispatcher();
+        $this->requestStack = new RequestStack();
+        $this->boundaries   = new UnitOfWorkBoundaries($this->requestStack);
+        $manager            = $this->createStub(EntityManagerInterface::class);
         $manager->method('isOpen')->willReturn(true);
         $manager->method('clear')->willReturnCallback(function (): void {
             ++$this->clears;
         });
         $this->dispatcher->addSubscriber($this->boundaries);
         $this->dispatcher->addSubscriber(new DashboardMenuOwnEntityManagerSubscriber($this->boundaries, [$manager], $this->createStub(ManagerRegistry::class), 'own'));
-        $this->kernel = new HttpKernel($this->dispatcher, new ControllerResolver(), $requestStack, new ArgumentResolver());
+        $this->kernel = new HttpKernel($this->dispatcher, new ControllerResolver(), $this->requestStack, new ArgumentResolver());
     }
 
     /**
@@ -462,6 +465,44 @@ final class UnitOfWorkBoundariesNxTest extends TestCase
         self::assertSame(0, $inside);
         self::assertSame(2, $this->clears);
         $this->assertRequestClears();
+    }
+
+    /**
+     * Audit OB2-L1 (S14): host code leaves the kernel's request stack unbalanced (a push without a pop), then a request
+     * throws out of `handle()` (no finish_request, no terminate). The kernel's main request is stuck from then on, yet
+     * the next top-level requests still clear at their start and at their terminate.
+     */
+    #[Test]
+    public function anUnbalancedRequestStackNeverStopsTheNextRequestsFromClearing(): void
+    {
+        $this->request(function (): void {
+            $this->requestStack->push(Request::create('/pushed-never-popped'));
+        });
+        $throw = static function (): never {
+            throw new RuntimeException('exception listener failed');
+        };
+        $this->dispatcher->addListener(KernelEvents::EXCEPTION, $throw);
+        try {
+            $this->request(static function (): never {
+                throw new RuntimeException('controller failed');
+            }, true, true);
+            self::fail('the kernel.exception listener throws');
+        } catch (RuntimeException) {
+        } finally {
+            $this->dispatcher->removeListener(KernelEvents::EXCEPTION, $throw);
+        }
+        self::assertNotNull($this->requestStack->getMainRequest(), 'the host left a request on the kernel stack');
+
+        for ($i = 0; $i < 2; ++$i) {
+            $before  = $this->clears;
+            $atStart = null;
+            $this->request(function () use ($before, &$atStart): void {
+                $atStart = $this->clears - $before;
+            });
+            self::assertSame(1, $atStart, 'a top-level request clears at its start');
+            self::assertSame(2, $this->clears - $before, 'and at its terminate');
+            self::assertSame(0, $this->boundaries->requestsInFlight());
+        }
     }
 
     private function assertRequestClears(): void
