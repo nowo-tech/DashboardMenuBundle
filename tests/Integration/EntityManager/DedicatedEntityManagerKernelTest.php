@@ -11,13 +11,16 @@ use Nowo\DashboardMenuBundle\Command\GenerateDashboardMenuMigrationCommand;
 use Nowo\DashboardMenuBundle\Controller\Dashboard\MenuDashboardController;
 use Nowo\DashboardMenuBundle\Doctrine\DashboardMenuEntityManagerResolver;
 use Nowo\DashboardMenuBundle\Entity\Menu;
+use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Event\MenuTreeBuiltEvent;
 use Nowo\DashboardMenuBundle\Model\MenuItemView;
 use Nowo\DashboardMenuBundle\Model\MenuNodeView;
 use Nowo\DashboardMenuBundle\Model\MenuView;
+use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 use Nowo\DashboardMenuBundle\Service\MenuImporter;
 use Nowo\DashboardMenuBundle\Service\MenuTreeLoader;
 use Nowo\DashboardMenuBundle\Tests\Integration\EntityManager\Entity\HostNote;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
@@ -135,6 +138,45 @@ final class DedicatedEntityManagerKernelTest extends TestCase
         self::assertNull($loader->loadMenuView('missing', 'en'));
     }
 
+    /**
+     * DoctrineBundle 3.4 regression: `auto_discover_entities` (on by default for a manager without `mappings` and
+     * `auto_mapping`) gives the host manager's chain a default attribute driver, which claims every `#[ORM\Entity]`
+     * class, so `getManagerForClass()` answered the host manager and the repositories queried its database. The
+     * explicit catch-all default driver reproduces it on every DoctrineBundle version.
+     */
+    #[DataProvider('hostManagersWithADefaultDriver')]
+    public function testDedicatedManagerWinsOverADefaultDriverOfTheHostManager(bool $explicitDefaultDriver): void
+    {
+        $doctrine = $this->dedicatedDoctrine();
+        unset($doctrine['orm']['entity_managers']['default']['auto_mapping'], $doctrine['orm']['entity_managers']['default']['mappings']);
+        $this->boot($doctrine, ['doctrine' => ['entity_manager' => 'dashboard_menu']], $explicitDefaultDriver);
+        $bundle = $this->registry()->getManager('dashboard_menu');
+
+        // Neither manager is initialized yet: DoctrineBundle 3.4 asks the metadata drivers.
+        self::assertSame($bundle, $this->registry()->getManagerForClass(Menu::class));
+        self::assertSame($bundle, $this->registry()->getManagerForClass(MenuItem::class));
+
+        [$host, $bundle] = $this->managersWithSchema();
+        self::assertTrue($host->getMetadataFactory()->isTransient(Menu::class), 'not mapped on the host manager');
+        self::assertSame($bundle, $this->registry()->getManagerForClass(Menu::class));
+
+        $importer = $this->container()->get(MenuImporter::class);
+        self::assertInstanceOf(MenuImporter::class, $importer);
+        self::assertSame(1, $importer->import(['menu' => ['code' => 'sidebar', 'name' => 'Sidebar'], 'items' => [['label' => 'Home', 'position' => 0]]])['created']);
+        $repository = $this->container()->get(MenuRepository::class);
+        self::assertInstanceOf(MenuRepository::class, $repository);
+        self::assertInstanceOf(Menu::class, $repository->findOneBy(['code' => 'sidebar']), 'the repository reads the bundle database');
+    }
+
+    /**
+     * @return iterable<string, array{bool}>
+     */
+    public static function hostManagersWithADefaultDriver(): iterable
+    {
+        yield 'host manager without mappings (DoctrineBundle 3.4 auto-discovery)' => [false];
+        yield 'host manager with a catch-all default driver' => [true];
+    }
+
     public function testHostWithoutADefaultManagerNameKeepsItsOwnDefault(): void
     {
         $this->boot($this->dedicatedDoctrine('main', false), ['doctrine' => ['entity_manager' => 'dashboard_menu']]);
@@ -194,9 +236,9 @@ final class DedicatedEntityManagerKernelTest extends TestCase
      * @param array<string, mixed> $doctrine
      * @param array<string, mixed> $menuConfig
      */
-    private function boot(array $doctrine, array $menuConfig = []): void
+    private function boot(array $doctrine, array $menuConfig = [], bool $hostDefaultDriver = false): void
     {
-        $this->kernel = new EntityManagerTestKernel($doctrine, $menuConfig);
+        $this->kernel = new EntityManagerTestKernel($doctrine, $menuConfig, $hostDefaultDriver);
         $this->kernel->boot();
     }
 
