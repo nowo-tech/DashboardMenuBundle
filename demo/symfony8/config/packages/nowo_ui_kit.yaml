@@ -4,3 +4,4 @@ nowo_ui_kit:
     # REQ-DEMO-014 / REQ-UI-003: UiKit's default theme, unchanged; every UiKit scaffold (the DashboardMenu admin pages) renders inside the demo base layout (UiKit admin layout + app shell).
     layouts:
         admin: 'base.html.twig'
+    base_stylesheet: true
