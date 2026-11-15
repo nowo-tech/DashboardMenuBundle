@@ -1,0 +1,26 @@
+{#
+  One hub card (2.22): a whole-card link to the menu item. Title = the item's label; intro, data-testid, data-tour
+  and badge from the card extras (hub.cards / MenuHubCardExtrasProviderInterface). Override this partial (or pass
+  card_template to hub.html.twig) to change the card markup.
+
+  Variables: card (MenuHubCard), intro_domain, bundle (UiKit theme bundle).
+#}
+{% set _bundle = bundle|default('NowoDashboardMenuBundle') %}
+{% set _badge = card.badge ? dashboard_menu_hub_badge(card) : 0 %}
+<a
+    class="{{ nowo_ui_class('card', _bundle) }} nowo-dashboard-menu-hub__card{{ card.current ? ' is-current' : '' }}"
+    href="{{ card.href }}"
+    data-hub-route="{{ card.route ?? '' }}"
+    data-testid="{{ card.testid }}"
+    {%- if card.tour %} data-tour="{{ card.tour }}"{% endif %}
+    {%- if card.item.targetBlank %} target="_blank" rel="noopener noreferrer"{% endif %}
+    {%- if card.current %} aria-current="page"{% endif %}
+>
+    <div class="{{ nowo_ui_class('card_body', _bundle) }}">
+        <h3 class="{{ nowo_ui_class('card_title', _bundle) }}">
+            {{ card.label }}
+            {% if _badge > 0 %}<span class="{{ nowo_ui_class('badge_warning', _bundle) }}" data-testid="{{ card.testid }}-badge">{{ _badge }}</span>{% endif %}
+        </h3>
+        {% if card.intro %}<p class="{{ nowo_ui_class('card_intro', _bundle) }}">{{ card.intro|trans({}, intro_domain|default('messages')) }}</p>{% endif %}
+    </div>
+</a>

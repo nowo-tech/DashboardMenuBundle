@@ -8,6 +8,9 @@ resolves the per-page templates (`web_ui.templates.<page>`) and the layout (`web
 
 The public menu rendering (`menu.html.twig`, `dashboard_menu_tree()`, `dashboard_menu_config()`,
 `dashboard_menu_href()`) is **host chrome**, not a page: it is not part of this contract and its API is unchanged.
+The hub body (2.22: `hub.html.twig` + `_hub_card.html.twig`, `dashboard_menu_hub()`) is host chrome too: it renders
+the UiKit theme slots `section`, `cards`, `card`, `card_body`, `card_title`, `card_intro`, `badge_warning` and `muted` of
+the `NowoDashboardMenuBundle` theme bundle inside the host page; see [Usage → Hub pages](USAGE.md#hub-pages).
 
 ## Table of contents
 

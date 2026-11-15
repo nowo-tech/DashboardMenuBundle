@@ -75,6 +75,8 @@ Worker demo: `demo/symfony8/docker/frankenphp/Caddyfile` runs `php_server` with 
 | `Service\MenuExporter`, `MenuImporter` | yes | none (`final readonly`) | ✅ | ✅ (closed manager recovered) |
 | `Repository\MenuItemRepository` | yes (public) | none | ✅ | ✅ |
 | `Twig\MenuExtension` | yes | none (`readonly` promoted properties; globals are compile-time config) | ✅ | ✅ |
+| `Service\MenuAreaResolver`, `RoleMenuAreaAccessChecker`, `ConfiguredRouteMenuCurrentMatcher`, `MenuHubBuilder` (2.22) | yes | none (`final readonly`; areas and rules are configuration built once) | ✅ | ✅ (`AreaKernelTest`: 1,000 alternating requests, two areas / users, flat memory) |
+| `Twig\MenuAreaExtension` (2.22) | yes | none (`readonly` promoted properties; reads the request stack per call) | ✅ | ✅ |
 | `Controller\Api\MenuApiController` | yes (public) | none (`final readonly`) | ✅ | ✅ |
 | `Controller\Dashboard\MenuDashboardController` | yes (public) | none (`readonly` promoted properties) | ✅ | ✅ (closed manager recovered) |
 | `EventSubscriber\DashboardAccessSubscriber`, `MenuCacheInvalidationSubscriber`, `TablePrefixSubscriber` | yes | none (`final readonly`) | ✅ | ✅ |

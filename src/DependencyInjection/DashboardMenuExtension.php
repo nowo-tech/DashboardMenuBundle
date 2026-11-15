@@ -17,12 +17,16 @@ use Nowo\DashboardMenuBundle\Security\AllowAllDashboardMenuAccessChecker;
 use Nowo\DashboardMenuBundle\Security\ConfigurableDashboardMenuAccessChecker;
 use Nowo\DashboardMenuBundle\Security\DashboardMenuAccessCheckerInterface;
 use Nowo\DashboardMenuBundle\Service\ConfiguredLocales;
+use Nowo\DashboardMenuBundle\Service\ConfiguredRouteMenuCurrentMatcher;
 use Nowo\DashboardMenuBundle\Service\DefaultMenuCodeResolver;
 use Nowo\DashboardMenuBundle\Service\ImportExportRateLimiter;
+use Nowo\DashboardMenuBundle\Service\MenuAreaAccessCheckerInterface;
 use Nowo\DashboardMenuBundle\Service\MenuCodeContextResolverInterface;
 use Nowo\DashboardMenuBundle\Service\MenuCodeResolverInterface;
 use Nowo\DashboardMenuBundle\Service\MenuConfigResolver;
 use Nowo\DashboardMenuBundle\Service\MenuCurrentMatcherInterface;
+use Nowo\DashboardMenuBundle\Service\MenuHubBadgeProviderInterface;
+use Nowo\DashboardMenuBundle\Service\MenuHubCardExtrasProviderInterface;
 use Nowo\DashboardMenuBundle\Service\MenuIconNameResolver;
 use Nowo\DashboardMenuBundle\Service\MenuItemContextCurrentMatcherInterface;
 use Nowo\DashboardMenuBundle\Service\MenuItemViewCurrentMatcherInterface;
@@ -33,6 +37,7 @@ use Nowo\DashboardMenuBundle\Twig\MenuExtension;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Asset\Package;
 use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -46,10 +51,13 @@ use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Throwable;
 
 use function array_key_exists;
+use function array_keys;
 use function array_reverse;
+use function implode;
 use function in_array;
 use function is_array;
 use function is_string;
+use function sprintf;
 use function trim;
 
 /**
@@ -273,6 +281,10 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
             ->addTag('nowo_dashboard_menu.current_matcher');
         $container->registerForAutoconfiguration(MenuItemContextCurrentMatcherInterface::class)
             ->addTag('nowo_dashboard_menu.current_matcher');
+        $container->registerForAutoconfiguration(MenuHubCardExtrasProviderInterface::class)
+            ->addTag('nowo_dashboard_menu.hub_card_extras_provider');
+        $container->registerForAutoconfiguration(MenuHubBadgeProviderInterface::class)
+            ->addTag('nowo_dashboard_menu.hub_badge_provider');
 
         $container->setParameter(
             Configuration::ALIAS . '.dashboard.item_form_live_component_enabled',
@@ -497,6 +509,7 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
         $legacyRole = $security['access_roles'][0] ?? null;
         $container->setParameter(Configuration::ALIAS . '.dashboard.required_role', $legacyRole);
         $this->registerAccessChecker($container, $security);
+        $this->registerAreas($container, $config);
 
         if (!$container->has('clock')) {
             $container->register('clock', NativeClock::class);
@@ -612,6 +625,50 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
         }
         $container->setDefinition($accessCheckerId, $definition);
         $container->setAlias(DashboardMenuAccessCheckerInterface::class, $accessCheckerId);
+    }
+
+    /**
+     * Areas, hub and configured current-item rules (2.22): parameters, the area access checker alias, and the
+     * configured matcher only when some rule exists (no extra matcher call per link otherwise).
+     *
+     * @param array<string, mixed> $config
+     */
+    private function registerAreas(ContainerBuilder $container, array $config): void
+    {
+        /** @var array<string, array<string, mixed>> $areas */
+        $areas = is_array($config['areas'] ?? null) ? $config['areas'] : [];
+        /** @var array<string, list<string>> $currentRoutes */
+        $currentRoutes = is_array($config['current_routes'] ?? null) ? $config['current_routes'] : [];
+        /** @var array{exclude_routes?: list<string>, testid_prefix?: string, cards?: array<string, array<string, string|null>>} $hub */
+        $hub = is_array($config['hub'] ?? null) ? $config['hub'] : [];
+
+        $container->setParameter(Configuration::ALIAS . '.areas', $areas);
+        $areaDefault = $config['area_default'] ?? null;
+        if (is_string($areaDefault) && $areaDefault !== '' && !isset($areas[$areaDefault])) {
+            throw new InvalidConfigurationException(sprintf('Invalid nowo_dashboard_menu.area_default "%s": it must be one of the declared areas (%s). Area names are normalised (my-area is my_area).', $areaDefault, $areas === [] ? 'none declared' : implode(', ', array_keys($areas))));
+        }
+        $container->setParameter(Configuration::ALIAS . '.area_default', $areaDefault === '' ? null : $areaDefault);
+        $container->setParameter(Configuration::ALIAS . '.area_fallback_when_denied', ($config['area_fallback_when_denied'] ?? false) === true);
+        $container->setParameter(Configuration::ALIAS . '.area_locale_pattern', $config['area_locale_pattern'] ?? null);
+        $container->setParameter(Configuration::ALIAS . '.current_routes', $currentRoutes);
+        $container->setParameter(Configuration::ALIAS . '.hub.exclude_routes', $hub['exclude_routes'] ?? []);
+        $container->setParameter(Configuration::ALIAS . '.hub.testid_prefix', $hub['testid_prefix'] ?? 'dashboard-menu-hub-');
+        $container->setParameter(Configuration::ALIAS . '.hub.cards', $hub['cards'] ?? []);
+
+        $accessChecker = $config['area_access_checker'] ?? null;
+        if (is_string($accessChecker) && $accessChecker !== '') {
+            $container->setAlias(MenuAreaAccessCheckerInterface::class, $accessChecker);
+        }
+
+        $hasRules = $currentRoutes !== [];
+        foreach ($areas as $area) {
+            if (is_array($area['current_routes'] ?? null) && $area['current_routes'] !== []) {
+                $hasRules = true;
+            }
+        }
+        if (!$hasRules) {
+            $container->removeDefinition(ConfiguredRouteMenuCurrentMatcher::class);
+        }
     }
 
     public function getAlias(): string

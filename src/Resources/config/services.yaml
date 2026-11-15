@@ -122,6 +122,41 @@ services:
       $currentMatchers: !tagged_iterator nowo_dashboard_menu.current_matcher
     public: false
 
+  # 2.22: areas (section resolver), area visibility port, configured current-item rules and hub pages.
+  Nowo\DashboardMenuBundle\Service\RoleMenuAreaAccessChecker:
+    arguments:
+      $authorizationChecker: '@?security.authorization_checker'
+
+  Nowo\DashboardMenuBundle\Service\MenuAreaAccessCheckerInterface:
+    alias: Nowo\DashboardMenuBundle\Service\RoleMenuAreaAccessChecker
+
+  Nowo\DashboardMenuBundle\Service\MenuAreaResolver:
+    arguments:
+      $areas: '%nowo_dashboard_menu.areas%'
+      $defaultArea: '%nowo_dashboard_menu.area_default%'
+      $localePattern: '%nowo_dashboard_menu.area_locale_pattern%'
+      $accessChecker: '@Nowo\DashboardMenuBundle\Service\MenuAreaAccessCheckerInterface'
+      $fallbackWhenDenied: '%nowo_dashboard_menu.area_fallback_when_denied%'
+
+  # Removed by the extension when no current_routes rule is configured.
+  Nowo\DashboardMenuBundle\Service\ConfiguredRouteMenuCurrentMatcher:
+    arguments:
+      $currentRoutes: '%nowo_dashboard_menu.current_routes%'
+
+  Nowo\DashboardMenuBundle\Service\MenuHubBuilder:
+    arguments:
+      $extrasProviders: !tagged_iterator nowo_dashboard_menu.hub_card_extras_provider
+      $cards: '%nowo_dashboard_menu.hub.cards%'
+      $excludeRoutes: '%nowo_dashboard_menu.hub.exclude_routes%'
+      $testidPrefix: '%nowo_dashboard_menu.hub.testid_prefix%'
+
+  Nowo\DashboardMenuBundle\Twig\MenuAreaExtension:
+    arguments:
+      $menuExtension: '@Nowo\DashboardMenuBundle\Twig\MenuExtension'
+      $badgeProviders: !tagged_iterator nowo_dashboard_menu.hub_badge_provider
+    tags:
+      - { name: twig.extension }
+
   # Deprecated 1.x admin chrome hooks (dashboard.ui, 2.3.0): still read by the page factory for one minor version.
   Nowo\DashboardMenuBundle\Service\DashboardUiConfig:
     arguments:

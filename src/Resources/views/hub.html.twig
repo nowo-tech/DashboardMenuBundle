@@ -1,0 +1,42 @@
+{#
+  Hub page body (2.22): the cards of an area, built from that area's menu tree (the same permission-filtered tree as
+  the sidebar), so the hub and the aside show the same entries, labels and order.
+
+  Usage: {% include '@NowoDashboardMenuBundle/hub.html.twig' with {menu_code: 'administration'} only %}
+
+  Variables:
+    - menu_code (required unless `sections` is given): menu whose tree is walked
+    - sections: list of MenuHubSection already built (dashboard_menu_hub()); skips the tree lookup
+    - permission_context / context_sets: passed to dashboard_menu_hub() like dashboard_menu_tree()
+    - testid: data-testid of the wrapper (default `dashboard-menu-hub`)
+    - intro_domain: translation domain of the card intros (default `messages`)
+    - card_template: partial rendered per card (default @NowoDashboardMenuBundle/_hub_card.html.twig)
+
+  Markup: UiKit theme slots (section, cards, card, card_body, card_title, card_intro, badge_warning, muted) of the
+  NowoDashboardMenuBundle theme bundle; data-hub-section / data-hub-group / data-hub-route for tests and tours.
+#}
+{% set _bundle = 'NowoDashboardMenuBundle' %}
+{% set _sections = sections is defined and sections is iterable ? sections : dashboard_menu_hub(menu_code, permission_context|default(null), context_sets|default(null)) %}
+{% set _card_template = card_template|default('@NowoDashboardMenuBundle/_hub_card.html.twig') %}
+{% set _intro_domain = intro_domain|default('messages') %}
+<div class="nowo-dashboard-menu-hub" data-testid="{{ testid|default('dashboard-menu-hub') }}">
+    {% for section in _sections %}
+        <section class="{{ nowo_ui_class('section', _bundle) }} nowo-dashboard-menu-hub__section"{% if section.label %} data-hub-section="{{ section.label }}"{% endif %}>
+            {% if section.label %}
+                <h2 class="nowo-dashboard-menu-hub__heading {{ nowo_ui_class('muted', _bundle) }}">{{ section.label }}</h2>
+            {% endif %}
+            {% for block in section.blocks %}
+                <div class="nowo-dashboard-menu-hub__block"{% if block.group %} data-hub-group="{{ block.group }}"{% endif %}>
+                    {% if block.group %}
+                        <h3 class="nowo-dashboard-menu-hub__group {{ nowo_ui_class('muted', _bundle) }}">{{ block.group }}</h3>
+                    {% endif %}
+                    <div class="{{ nowo_ui_class('cards', _bundle) }}">
+                        {% for card in block.cards %}
+                            {{ include(_card_template, {card: card, intro_domain: _intro_domain, bundle: _bundle}, with_context: false) }}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </section>
+    {% endfor %}
+</div>
