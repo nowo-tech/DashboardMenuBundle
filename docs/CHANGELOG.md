@@ -125,6 +125,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Targets **2.22.1** (patch).
+
+### Fixed
+
+- **Areas: `exclude_route_prefixes` now also vetoes an area at the path step.** In 2.22.0 the path step ran first and
+  only the route-name step read `exclude_route_prefixes`, so a kit mounted under another area's path (Beacon: API
+  Studio at `/organizations/{uuid}/api-studio/…` under `preferences.path_prefixes: [/account, /organizations]`)
+  always got that area's sidebar; the `{uuid}` segment made a literal path prefix impossible. A route whose name
+  matches an area's `exclude_route_prefixes` now never resolves to that area, by path or by route name: resolution
+  goes on with the other areas' paths, then the route step, then `area_default`. Order: exclude veto → path → route →
+  default. Routes that match no exclude list resolve exactly as before. Areas stay navigation only: this changes which
+  sidebar is shown, never who may open a page (`access_control` / voters).
+- **Areas: paths starting with an empty segment (QI-I7).** `//developer/x` (also `/%2Fdeveloper/x` and
+  `/es//developer/x`) was collapsed by `trim()` and matched `/developer` by path, while the router and `access_control`
+  do not see it as `/developer`. Such a path now matches no `path_prefixes` entry; the route step and `area_default`
+  still apply. Inner double slashes (`/developer//x`) are unchanged.
+- **`area_locale_pattern` must be anchored (QI-I6).** Besides compiling and carrying the `D` modifier, the pattern
+  must start with `^` (or `\A`), end with an unescaped `$` (or `\z`) and have no top-level `|`; otherwise the container
+  build fails with `InvalidConfigurationException`. An unanchored pattern such as `/[a-z]{2}/D` stripped real segments
+  (`/developer/x` lost `developer` as a "locale"). The default pattern is unchanged.
+
 ## [2.22.0] - 2026-11-15
 
 ### Added

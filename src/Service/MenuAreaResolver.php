@@ -25,11 +25,14 @@ use function trim;
  *
  * {@see resolveFor()}:
  * 1. a request without a route belongs to the default area (`area_default`);
- * 2. the path decides first: the area whose `path_prefixes` match the longest whole-segment prefix of the path wins
- *    (a leading locale segment matching `area_locale_pattern` is ignored: `/es/developer/…` is `/developer/…`);
- * 3. then the route name: the first area, in configuration order, with a matching `route_prefixes` entry and no
- *    matching `exclude_route_prefixes` entry (kit pages mounted outside the area's paths);
- * 4. otherwise the default area (null when `area_default` is not set).
+ * 2. exclude veto (2.22.1): an area whose `exclude_route_prefixes` match the route name is never a candidate, neither
+ *    by path nor by route name (a kit mounted under another area's paths, e.g. `/organizations/{uuid}/api-studio/…`);
+ * 3. the path: among the remaining areas, the one whose `path_prefixes` match the longest whole-segment prefix of the
+ *    path wins (a leading locale segment matching `area_locale_pattern` is ignored: `/es/developer/…` is
+ *    `/developer/…`; a path starting with an empty segment, such as `//developer`, matches no path prefix);
+ * 4. then the route name: the first remaining area, in configuration order, with a matching `route_prefixes` entry
+ *    (kit pages mounted outside the area's paths);
+ * 5. otherwise the default area (null when `area_default` is not set).
  *
  * The area is **navigation, not authorization**: resolving an area (or granting it) never protects a route; the
  * routes of an area must be protected with `access_control` or voters. With `area_fallback_when_denied` the resolver
@@ -132,11 +135,16 @@ final readonly class MenuAreaResolver
         $path    = $this->pathWithoutLocale($request->path);
         $best    = null;
         $bestLen = -1;
-        foreach ($this->areas as $area) {
-            foreach ($area->pathPrefixes as $prefix) {
-                if (strlen($prefix) > $bestLen && $this->pathMatches($path, $prefix)) {
-                    $best    = $area;
-                    $bestLen = strlen($prefix);
+        if ($path !== null) {
+            foreach ($this->areas as $area) {
+                if ($this->isExcluded($route, $area)) {
+                    continue;
+                }
+                foreach ($area->pathPrefixes as $prefix) {
+                    if (strlen($prefix) > $bestLen && $this->pathMatches($path, $prefix)) {
+                        $best    = $area;
+                        $bestLen = strlen($prefix);
+                    }
                 }
             }
         }
@@ -145,7 +153,7 @@ final readonly class MenuAreaResolver
         }
 
         foreach ($this->areas as $area) {
-            if ($this->startsWithAny($route, $area->routePrefixes) && !$this->startsWithAny($route, $area->excludeRoutePrefixes)) {
+            if ($this->startsWithAny($route, $area->routePrefixes) && !$this->isExcluded($route, $area)) {
                 return $area;
             }
         }
@@ -153,12 +161,30 @@ final readonly class MenuAreaResolver
         return $this->defaultArea();
     }
 
-    private function pathWithoutLocale(string $path): string
+    /** Whether the route name is vetoed for the area (`exclude_route_prefixes`), at the path and the route step. */
+    private function isExcluded(string $route, MenuArea $area): bool
+    {
+        return $this->startsWithAny($route, $area->excludeRoutePrefixes);
+    }
+
+    /**
+     * The decoded path without its locale segment, or null when it cannot match a path prefix: a path whose first
+     * segment (after the locale) is empty, such as `//developer/x` or `/es//developer/x`. The router and
+     * `access_control` do not see `//developer` as `/developer` either, so neither does the sidebar.
+     */
+    private function pathWithoutLocale(string $path): ?string
     {
         // The router and access_control match the decoded path (`/%64eveloper` is `/developer`): so do we.
-        $segments = explode('/', trim(rawurldecode($path), '/'));
+        $decoded = rawurldecode($path);
+        if (str_starts_with($decoded, '//')) {
+            return null;
+        }
+        $segments = explode('/', trim($decoded, '/'));
         if ($this->localePattern !== null && $this->localePattern !== '' && preg_match($this->localePattern, $segments[0]) === 1) {
             $segments = array_slice($segments, 1);
+            if (($segments[0] ?? null) === '') {
+                return null;
+            }
         }
 
         return '/' . implode('/', $segments);

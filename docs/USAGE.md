@@ -522,6 +522,7 @@ nowo_dashboard_menu:
             home_route: account_profile
             path_prefixes: [/account, /organizations]
             route_prefixes: [account_]
+            exclude_route_prefixes: [nowo_api_studio_, api_studio_]   # /organizations/{uuid}/api-studio/… → default
         organization:
             label: nav.organization
             icon: 'tabler:building'
@@ -547,13 +548,21 @@ Every option is described in [CONFIGURATION.md](CONFIGURATION.md#areas).
 `MenuAreaResolver::resolveFor(MenuRequestContext)` (Twig: `dashboard_menu_area()`):
 
 1. a request without a route belongs to `area_default`;
-2. the **path** decides first: the area with the longest matching `path_prefixes` entry wins. Prefixes match whole
-   segments (`/organization` does not match `/organizations/…`), and a leading locale segment matching
-   `area_locale_pattern` is skipped (`/es/developer/…` is `/developer/…`). So a route always gets the area of the URL it
-   lives under, whatever its name;
-3. then the **route name**, for pages mounted outside the area paths (kit dashboards): the first area, in configuration
-   order, with a matching `route_prefixes` entry and no matching `exclude_route_prefixes` entry;
-4. otherwise `area_default` (null when not set).
+2. **exclude veto** (2.22.1): an area whose `exclude_route_prefixes` match the route name is skipped in the next two
+   steps, by path and by route name. This is how a kit mounted under another area's path keeps its own sidebar:
+   API Studio at `/organizations/{uuid}/api-studio/…` (route `nowo_api_studio_dashboard`) with
+   `preferences.exclude_route_prefixes: [nowo_api_studio_]` gets the default area, not Preferences;
+3. the **path**: among the remaining areas, the one with the longest matching `path_prefixes` entry wins. Prefixes
+   match whole segments (`/organization` does not match `/organizations/…`), and a leading locale segment matching
+   `area_locale_pattern` is skipped (`/es/developer/…` is `/developer/…`). A path whose first segment is empty
+   (`//developer/…`) matches no prefix, like the router and `access_control`. So a route gets the area of the URL it
+   lives under, unless that area excludes it;
+4. then the **route name**, for pages mounted outside the area paths (kit dashboards): the first remaining area, in
+   configuration order, with a matching `route_prefixes` entry;
+5. otherwise `area_default` (null when not set).
+
+In short: **exclude veto → path → route → default**. The area only picks the sidebar: it is navigation, not
+authorization, so the routes stay protected by `access_control` or voters whatever area they resolve to.
 
 The resolver is stateless and takes the framework-free `MenuRequestContext`; build one from a Symfony request with
 `MenuRequestContextFactory::fromRequest()`.

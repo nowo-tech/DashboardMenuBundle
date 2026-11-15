@@ -181,6 +181,29 @@ final class AreaKernelTest extends TestCase
         self::assertLessThan($baseline + self::MEMORY_MARGIN, memory_get_usage());
     }
 
+    /**
+     * 2.22.1, Beacon API Studio: a kit mounted under `/organizations/{uuid}/` is vetoed from the preferences area by
+     * `exclude_route_prefixes`, in a kept-alive kernel alternating with plain preferences pages and `//` paths.
+     */
+    public function testWorkerExcludedKitPagesUnderAnotherAreaPathUseTheDefaultArea(): void
+    {
+        $container = $this->boot();
+        $extension = $this->extension($container);
+        for ($i = 0; $i < 200; ++$i) {
+            $this->push($container, '/organizations/0193f1b2-7c4e-7a51-9d2e-6b8a1f0c3d4e/api-studio/x', 'nowo_api_studio_dashboard', 'ROLE_USER');
+            $area = $extension->currentArea();
+            self::assertSame('dashboard', $area?->name);
+
+            $this->push($container, '/organizations/0193f1b2-7c4e-7a51-9d2e-6b8a1f0c3d4e/members', 'organizations_members', 'ROLE_USER');
+            $area = $extension->currentArea();
+            self::assertSame('preferences', $area?->name);
+
+            $this->push($container, 'http://localhost//developer/storage', 'page_show', 'ROLE_DEVELOPER');
+            $area = $extension->currentArea();
+            self::assertSame('dashboard', $area?->name);
+        }
+    }
+
     private function boot(bool $fallbackWhenDenied = false): ContainerInterface
     {
         $this->directory = sys_get_temp_dir() . '/nowo-dashboard-menu-area-db/' . getmypid() . '/' . uniqid('', true);
