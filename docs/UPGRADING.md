@@ -142,15 +142,24 @@ configured current-item rules are opt-in; without `areas`, `current_routes` and 
 Moving a host's own area code to the bundle (e.g. a `…SectionResolver` + `…Hub` + one route-prefix matcher per menu):
 
 1. Declare the areas under `nowo_dashboard_menu.areas` (menu, label, icon, home_route, roles, path_prefixes,
-   route_prefixes, exclude_route_prefixes) and `area_default`. Check `area_locale_pattern` against your locale segment.
+   route_prefixes, exclude_route_prefixes) and `area_default` (it must name a declared area; names are normalised,
+   `my-area` is `my_area`). Check `area_locale_pattern` against your locale segment (valid regex with the `D` modifier).
+   **Areas are navigation, not authorization:** `roles` only decide which areas are listed. They never protect a
+   route and do not filter the area menu or hub cards, so keep (or add) `access_control` rules or voters on the
+   routes of every role-gated area.
 2. Replace the host resolver in Twig with `dashboard_menu_area()` (`.menu`, `.label`, `.homeRoute`, `.name`) and the
    role checks of the area switcher with `dashboard_menu_areas()` / `dashboard_menu_area_granted()`.
+   `dashboard_menu_area()` resolves by path / route and ignores grants: render the sidebar with
+   `{% if area and dashboard_menu_area_granted(area) %}`, or set `area_fallback_when_denied: true` to get the default
+   (or first granted) area instead of a denied one. The default `false` keeps the previous behaviour.
 3. Move each `AbstractRoutePrefixMenuCurrentMatcher` subclass map to `areas.<name>.current_routes` (or `current_routes`
    for every menu) and delete the subclass. Rules with a trailing `_` keep their meaning (plain prefix match).
 4. Replace the hub walker with `{% include '@NowoDashboardMenuBundle/hub.html.twig' with {menu_code: '…'} %}` or a
    loop over `dashboard_menu_hub('…')`; move per-card extras to `hub.cards` and badge counts to a
    `MenuHubBadgeProviderInterface` service. Differences from a typical host walker: links without a route (external
-   URLs) also become cards, and top-level links outside sections are gathered under an unlabelled heading.
+   URLs) also become cards, and top-level links outside sections are gathered under an unlabelled heading. The hub
+   respects the menu `depth_limit` like the sidebar. Badge counts must be scoped to the current user (the provider runs
+   for every viewer who can see the card).
 
 ## To 2.21.1
 

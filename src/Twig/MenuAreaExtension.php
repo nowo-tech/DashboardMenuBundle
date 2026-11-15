@@ -25,6 +25,10 @@ use Twig\TwigFunction;
  *   the same tree `dashboard_menu_tree()` returns ({@see MenuHubBuilder});
  * - `dashboard_menu_hub_badge(card)`: the badge count of a card (0 = no badge; {@see MenuHubBadgeProviderInterface}).
  *
+ * Areas are navigation, not authorization: nothing here protects a route (use `access_control` or voters), and
+ * `dashboard_menu_area()` ignores grants unless `area_fallback_when_denied` is on (guard with
+ * `dashboard_menu_area_granted()`).
+ *
  * Nothing is kept between calls (FrankenPHP worker mode): every call reads the request stack.
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
@@ -83,7 +87,9 @@ final class MenuAreaExtension extends AbstractExtension
      */
     public function hub(string $menuCode, mixed $permissionContext = null, ?array $contextSets = null): array
     {
-        return $this->hubBuilder->build($this->menuExtension->getMenuTree($menuCode, $permissionContext, $contextSets));
+        $depthLimit = $this->menuExtension->getMenuConfig($menuCode, $contextSets)['depth_limit'];
+
+        return $this->hubBuilder->build($this->menuExtension->getMenuTree($menuCode, $permissionContext, $contextSets), $depthLimit);
     }
 
     public function badge(MenuHubCard $card): int

@@ -11,6 +11,10 @@ use Nowo\DashboardMenuBundle\Model\MenuHubCard;
  * name a badge key (`hub.cards.<route>.badge`). Implementations are tagged `nowo_dashboard_menu.hub_badge_provider`
  * automatically (autoconfigure); the first one that returns a number wins; no number (or 0) shows no badge.
  *
+ * The provider runs for every viewer who can see the card, so the count must be scoped to the current user (or tenant),
+ * never a global total: a global count leaks the size of data the viewer may not read. It is not called for cards
+ * hidden by the menu permissions.
+ *
  * Called while the hub renders: compute per call, never keep per-request state in properties (FrankenPHP worker mode).
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>

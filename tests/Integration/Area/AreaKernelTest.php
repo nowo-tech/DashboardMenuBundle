@@ -118,6 +118,29 @@ final class AreaKernelTest extends TestCase
         self::assertSame('dashboard', $this->extension($container)->currentArea()?->name);
     }
 
+    /** The USAGE sidebar snippet: the area menu is rendered only when the area is granted. */
+    public function testSidebarSnippetGuardsWithAreaGranted(): void
+    {
+        $container = $this->boot();
+        $template  = $this->twig($container)->createTemplate('{% set area = dashboard_menu_area() %}{% if area and dashboard_menu_area_granted(area) %}sidebar:{{ area.menu }}{% else %}none{% endif %}');
+
+        $this->push($container, '/developer/storage', 'admin_storage', 'ROLE_MANAGER');
+        self::assertSame('none', $template->render());
+        $this->push($container, '/developer/storage', 'admin_storage', 'ROLE_DEVELOPER');
+        self::assertSame('sidebar:administration', $template->render());
+    }
+
+    public function testAreaFallbackWhenDeniedOption(): void
+    {
+        $container = $this->boot(true);
+
+        // The user is not a developer: the 403 page of /developer renders in the default area, not the denied one.
+        $this->push($container, '/developer/storage', 'admin_storage', 'ROLE_MANAGER');
+        self::assertSame('dashboard', $this->extension($container)->currentArea()?->name);
+        $this->push($container, '/developer/storage', 'admin_storage', 'ROLE_DEVELOPER');
+        self::assertSame('development', $this->extension($container)->currentArea()?->name);
+    }
+
     public function testOutsideARequestTheDefaultAreaApplies(): void
     {
         $container = $this->boot();
@@ -158,11 +181,11 @@ final class AreaKernelTest extends TestCase
         self::assertLessThan($baseline + self::MEMORY_MARGIN, memory_get_usage());
     }
 
-    private function boot(): ContainerInterface
+    private function boot(bool $fallbackWhenDenied = false): ContainerInterface
     {
         $this->directory = sys_get_temp_dir() . '/nowo-dashboard-menu-area-db/' . getmypid() . '/' . uniqid('', true);
         (new Filesystem())->mkdir($this->directory);
-        $this->kernel = new AreaTestKernel($this->directory);
+        $this->kernel = new AreaTestKernel($this->directory, $fallbackWhenDenied);
         $this->kernel->boot();
         $container = $this->kernel->getContainer()->get('test.service_container');
         self::assertInstanceOf(ContainerInterface::class, $container);

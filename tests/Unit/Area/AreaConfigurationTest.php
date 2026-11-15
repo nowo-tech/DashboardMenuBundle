@@ -11,7 +11,9 @@ use Nowo\DashboardMenuBundle\Service\MenuAreaAccessCheckerInterface;
 use Nowo\DashboardMenuBundle\Service\MenuHubBadgeProviderInterface;
 use Nowo\DashboardMenuBundle\Service\MenuHubCardExtrasProviderInterface;
 use Nowo\DashboardMenuBundle\Service\RoleMenuAreaAccessChecker;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -67,6 +69,56 @@ final class AreaConfigurationTest extends TestCase
 
         self::assertTrue($this->load([['current_routes' => ['a' => ['a_']]]])->hasDefinition(ConfiguredRouteMenuCurrentMatcher::class));
         self::assertFalse($this->load([['areas' => ['org' => []]]])->hasDefinition(ConfiguredRouteMenuCurrentMatcher::class));
+    }
+
+    public function testFallbackWhenDeniedOptionDefaultsToFalse(): void
+    {
+        self::assertFalse((new Processor())->processConfiguration(new Configuration(), [])['area_fallback_when_denied']);
+        self::assertFalse($this->load([])->getParameter(Configuration::ALIAS . '.area_fallback_when_denied'));
+        self::assertTrue($this->load([['area_fallback_when_denied' => true]])->getParameter(Configuration::ALIAS . '.area_fallback_when_denied'));
+    }
+
+    #[DataProvider('invalidLocalePatterns')]
+    public function testInvalidLocalePatternIsRejected(string $pattern): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('area_locale_pattern');
+
+        (new Processor())->processConfiguration(new Configuration(), [['area_locale_pattern' => $pattern]]);
+    }
+
+    /** @return iterable<string, array{string}> */
+    public static function invalidLocalePatterns(): iterable
+    {
+        yield 'unclosed' => ['/[unclosed'];
+        yield 'no D modifier' => ['/^[a-z]{2}$/'];
+        yield 'other modifier' => ['/^[a-z]{2}$/i'];
+        yield 'not a regex' => ['es'];
+    }
+
+    public function testValidLocalePatternsAreAccepted(): void
+    {
+        foreach (['/^[a-z]{2}$/D', '#^[a-z]{2}$#Di', ''] as $pattern) {
+            self::assertSame($pattern, (new Processor())->processConfiguration(new Configuration(), [['area_locale_pattern' => $pattern]])['area_locale_pattern']);
+        }
+    }
+
+    public function testAreaDefaultMustBeADeclaredArea(): void
+    {
+        self::assertSame('org', $this->load([['areas' => ['org' => []], 'area_default' => 'org']])->getParameter(Configuration::ALIAS . '.area_default'));
+        self::assertNull($this->load([['area_default' => '']])->getParameter(Configuration::ALIAS . '.area_default'));
+
+        try {
+            $this->load([['areas' => ['my-area' => []], 'area_default' => 'my-area']]);
+            self::fail('Area names are normalised: my-area is declared as my_area.');
+        } catch (InvalidConfigurationException $e) {
+            self::assertStringContainsString('"my-area"', $e->getMessage());
+            self::assertStringContainsString('my_area', $e->getMessage());
+        }
+
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('none declared');
+        $this->load([['area_default' => 'org']]);
     }
 
     public function testHubPortsAreAutoconfigured(): void

@@ -501,6 +501,10 @@ visible only to some users. Since 2.22 the bundle provides all of it from config
   and the sidebar always show the same permission-filtered entries, labels and order;
 - `current_routes`: current-item rules for nested pages ([above](#configured-route-prefixes-current_routes)).
 
+> **Areas are navigation, not authorization.** An area decides which sidebar, switcher entry and hub a page shows. Its
+> `roles` never protect a route and do not filter the area menu tree or the hub cards (per-item permission keys do).
+> Protect every route of a role-gated area with `access_control` or voters.
+
 Nothing changes until you declare areas: with the defaults no area exists and no new service runs during rendering.
 
 ### Declaring the areas
@@ -585,7 +589,14 @@ Without SecurityBundle an area with roles is never granted (fail closed). To dec
 host), implement `MenuAreaAccessCheckerInterface::canAccessArea(MenuArea): bool` and set
 `area_access_checker: App\Navigation\AreaPolicy`.
 
-Visibility is only about listing the area: protect the area's routes with `access_control` or attributes as usual.
+Visibility is only about listing the area: it never authorizes a request. Protect the area's routes with
+`access_control` or attributes as usual.
+
+`dashboard_menu_area()` resolves the area by path / route and does **not** check the grant, so a user who is denied
+(for instance on a 403 page rendered in the area layout) would still get that area's sidebar. Guard it with
+`dashboard_menu_area_granted(area)` (below) or set `area_fallback_when_denied: true`, which makes
+`dashboard_menu_area()` return the default area (when granted), else the first granted area, else `null`.
+Area names are normalised like any config key (`my-area` is `my_area`).
 
 ### Area switcher and sidebar in Twig
 
@@ -593,16 +604,18 @@ Visibility is only about listing the area: protect the area's routes with `acces
 {% set area = dashboard_menu_area() %}
 
 {# Sidebar of the current area #}
-{% if area %}
+{% if area and dashboard_menu_area_granted(area) %}
     <p class="sidebar__label">{{ area.label|trans }}</p>
     {% include '@NowoDashboardMenuBundle/menu.html.twig' with {menuCode: area.menu} %}
 {% endif %}
 
 {# Area switcher (e.g. in the avatar menu) #}
 {% for a in dashboard_menu_areas() %}
-    <a href="{{ path(a.homeRoute) }}"{% if area and a.name == area.name %} aria-current="page"{% endif %}>
-        {% if a.icon %}{{ ux_icon(a.icon) }}{% endif %}{{ a.label|trans }}
-    </a>
+    {% if a.homeRoute %}
+        <a href="{{ path(a.homeRoute) }}"{% if area and a.name == area.name %} aria-current="page"{% endif %}>
+            {% if a.icon %}{{ ux_icon(a.icon) }}{% endif %}{{ a.label|trans }}
+        </a>
+    {% endif %}
 {% endfor %}
 ```
 
@@ -615,7 +628,8 @@ A hub page lists the area's entries as cards, walked from the same permission-fi
 (`dashboard_menu_tree()`): top-level sections become headings, nested sections (groups such as "Email") sub-headings,
 and links cards titled by their menu label, in menu order. Hidden entries, dividers, `#` links, the hub pages themselves
 (every area's `home_route` plus `hub.exclude_routes`) and empty headings are left out. Top-level links outside any
-section are gathered under a heading without a label.
+section are gathered under a heading without a label. The hub respects the menu's `depth_limit` like the sidebar
+(top-level entries are depth 1; deeper entries are left out of the hub too).
 
 ```twig
 {# templates/admin/hub.html.twig #}
@@ -650,19 +664,22 @@ For extras computed at runtime, implement `MenuHubCardExtrasProviderInterface::e
 
 **Badges.** A card whose extras name a `badge` key asks the `MenuHubBadgeProviderInterface` services for a number
 (autoconfigured; the first non-null answer wins; 0 or no answer shows no badge). Count per call, keep nothing in
-properties:
+properties. The provider runs for every viewer who can see the card, so **scope the count to the current user (or
+tenant)**; a global total leaks the size of data the viewer may not read:
 
 ```php
 use Nowo\DashboardMenuBundle\Model\MenuHubCard;
 use Nowo\DashboardMenuBundle\Service\MenuHubBadgeProviderInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 
 final readonly class HubBadges implements MenuHubBadgeProviderInterface
 {
-    public function __construct(private SupportInbox $inbox) {}
+    public function __construct(private SupportInbox $inbox, private Security $security) {}
 
     public function badgeCount(string $badge, MenuHubCard $card): ?int
     {
-        return $badge === 'support_open' ? $this->inbox->countOpen() : null;
+        // Scoped to the viewer, never a global count.
+        return $badge === 'support_open' ? $this->inbox->countOpenFor($this->security->getUser()) : null;
     }
 }
 ```

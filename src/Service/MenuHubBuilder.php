@@ -17,6 +17,7 @@ use function array_values;
 use function in_array;
 use function is_array;
 use function is_string;
+use function max;
 use function str_replace;
 
 /**
@@ -31,6 +32,8 @@ use function str_replace;
  * Skipped: dividers, links without a usable href (`#`), the hub pages themselves (`hub.exclude_routes` and every
  * area's `home_route`), and headings or groups left without cards. Card extras come from the
  * {@see MenuHubCardExtrasProviderInterface} services, then `hub.cards`.
+ *
+ * The hub respects the menu `depth_limit` like the sidebar does ({@see build()}).
  *
  * Stateless (FrankenPHP worker mode).
  *
@@ -67,11 +70,14 @@ final readonly class MenuHubBuilder
 
     /**
      * @param list<array<string, mixed>> $tree a menu tree (`dashboard_menu_tree()`)
+     * @param int|null $depthLimit the `depth_limit` of the menu (null = unlimited): top-level entries are depth 1 and
+     *                             deeper entries are left out, as `menu.html.twig` does
      *
      * @return list<MenuHubSection>
      */
-    public function build(array $tree): array
+    public function build(array $tree, ?int $depthLimit = null): array
     {
+        $limit    = $depthLimit === null ? null : max(1, $depthLimit);
         $sections = [];
         /** @var list<array<string, mixed>> $looseTop */
         $looseTop = [];
@@ -85,13 +91,13 @@ final readonly class MenuHubBuilder
 
                 continue;
             }
-            $this->flushLooseTop($sections, $looseTop);
-            $blocks = $this->blocks($this->childNodes($node));
+            $this->flushLooseTop($sections, $looseTop, $limit);
+            $blocks = $this->blocks($this->childNodes($node), 2, $limit);
             if ($blocks !== []) {
                 $sections[] = new MenuHubSection($item->getLabel(), $blocks);
             }
         }
-        $this->flushLooseTop($sections, $looseTop);
+        $this->flushLooseTop($sections, $looseTop, $limit);
 
         return $sections;
     }
@@ -100,12 +106,12 @@ final readonly class MenuHubBuilder
      * @param list<MenuHubSection> $sections
      * @param list<array<string, mixed>> $looseTop
      */
-    private function flushLooseTop(array &$sections, array &$looseTop): void
+    private function flushLooseTop(array &$sections, array &$looseTop, ?int $limit): void
     {
         if ($looseTop === []) {
             return;
         }
-        $blocks = $this->blocks($looseTop);
+        $blocks = $this->blocks($looseTop, 1, $limit);
         if ($blocks !== []) {
             $sections[] = new MenuHubSection(null, $blocks);
         }
@@ -113,22 +119,25 @@ final readonly class MenuHubBuilder
     }
 
     /**
-     * @param list<array<string, mixed>> $nodes
+     * @param list<array<string, mixed>> $nodes the nodes at that depth
      *
      * @return list<MenuHubBlock>
      */
-    private function blocks(array $nodes): array
+    private function blocks(array $nodes, int $depth, ?int $limit): array
     {
+        if ($limit !== null && $depth > $limit) {
+            return [];
+        }
         $blocks = [];
         $loose  = [];
         foreach ($nodes as $child) {
             $childItem = $child['item'] ?? null;
             if (!$childItem instanceof MenuItem || $childItem->getItemType() !== MenuItem::ITEM_TYPE_SECTION) {
-                array_push($loose, ...$this->cards([$child]));
+                array_push($loose, ...$this->cards([$child], $depth, $limit));
 
                 continue;
             }
-            $cards = $this->cards($this->childNodes($child));
+            $cards = $this->cards($this->childNodes($child), $depth + 1, $limit);
             if ($cards === []) {
                 continue;
             }
@@ -146,12 +155,15 @@ final readonly class MenuHubBuilder
     }
 
     /**
-     * @param list<array<string, mixed>> $nodes
+     * @param list<array<string, mixed>> $nodes the nodes at that depth
      *
      * @return list<MenuHubCard>
      */
-    private function cards(array $nodes): array
+    private function cards(array $nodes, int $depth, ?int $limit): array
     {
+        if ($limit !== null && $depth > $limit) {
+            return [];
+        }
         $cards = [];
         foreach ($nodes as $node) {
             $item = $node['item'] ?? null;
@@ -166,7 +178,7 @@ final readonly class MenuHubBuilder
                 }
             }
             if ($type !== MenuItem::ITEM_TYPE_SECTION) {
-                array_push($cards, ...$this->cards($this->childNodes($node)));
+                array_push($cards, ...$this->cards($this->childNodes($node), $depth + 1, $limit));
             }
         }
 

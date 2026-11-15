@@ -19,6 +19,7 @@ use function implode;
 use function is_array;
 use function is_string;
 use function preg_match;
+use function str_contains;
 
 /**
  * Configuration for Dashboard Menu Bundle.
@@ -158,6 +159,14 @@ final class Configuration implements ConfigurationInterface
                 ->scalarNode('area_locale_pattern')
                     ->info('Regex of a leading locale path segment ignored when matching areas.path_prefixes (/es/developer is /developer); null = paths have no locale segment (2.22).')
                     ->defaultValue('/^[a-z]{2}(?:[_-][A-Za-z]{2})?$/D')
+                    ->validate()
+                        ->ifTrue(static fn (mixed $v): bool => is_string($v) && $v !== '' && !self::isAnchoredRegex($v))
+                        ->thenInvalid('Invalid nowo_dashboard_menu.area_locale_pattern %s: it must be a valid regular expression with the D modifier (e.g. "/^[a-z]{2}$/D"), anchored so it matches a whole path segment.')
+                    ->end()
+                ->end()
+                ->booleanNode('area_fallback_when_denied')
+                    ->info('When true, dashboard_menu_area() never returns an area the user is not granted: it falls back to the default area (when granted), else the first granted area, else null. False (default) keeps resolving by path / route only. Areas are navigation, not authorization: protect the routes with access_control or voters either way (2.22).')
+                    ->defaultFalse()
                 ->end()
                 ->scalarNode('area_access_checker')
                     ->info('Service id of a MenuAreaAccessCheckerInterface that decides which areas a user may see; null = RoleMenuAreaAccessChecker (any of the area roles granted) (2.22).')
@@ -699,7 +708,7 @@ final class Configuration implements ConfigurationInterface
         /** @var ArrayNodeDefinition $node */
         $node = (new TreeBuilder('areas'))->getRootNode();
         $node
-            ->info('Application areas (2.22), e.g. dashboard, development, organization, preferences: each has its own sidebar menu, home page, visibility roles and the path / route rules that map a request to it. Empty = no areas (nothing changes).')
+            ->info('Application areas (2.22; names are normalised like any config key: my-area becomes my_area), e.g. dashboard, development, organization, preferences: each has its own sidebar menu, home page, visibility roles and the path / route rules that map a request to it. Empty = no areas (nothing changes).')
             ->useAttributeAsKey('name')
             ->arrayPrototype()
                 ->children()
@@ -708,7 +717,7 @@ final class Configuration implements ConfigurationInterface
                     ->scalarNode('icon')->info('Icon name (e.g. tabler:shield-cog).')->defaultNull()->end()
                     ->scalarNode('home_route')->info('Route of the area home page (its hub); never shown as a hub card.')->defaultNull()->end()
                     ->arrayNode('roles')
-                        ->info('isGranted() attributes (roles or voter attributes, subject = the MenuArea); any one grants the area. Empty = every user.')
+                        ->info('isGranted() attributes (roles or voter attributes, subject = the MenuArea); any one grants the area. Empty = every user. NAVIGATION ONLY: roles decide which areas are listed, they never authorize a request nor filter the area menu or hub cards; protect the area routes with access_control or voters.')
                         ->scalarPrototype()->end()
                     ->end()
                     ->arrayNode('path_prefixes')
@@ -778,6 +787,15 @@ final class Configuration implements ConfigurationInterface
             ->end();
 
         return $node;
+    }
+
+    private static function isAnchoredRegex(string $pattern): bool
+    {
+        if (@preg_match($pattern, '') === false) {
+            return false;
+        }
+
+        return preg_match('/([a-zA-Z]*)$/', $pattern, $m) === 1 && str_contains($m[1], 'D');
     }
 
     private static function isLocaleList(mixed $v): bool

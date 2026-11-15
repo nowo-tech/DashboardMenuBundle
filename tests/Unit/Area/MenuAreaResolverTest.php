@@ -59,6 +59,8 @@ final class MenuAreaResolverTest extends TestCase
         yield 'locale segment' => ['organization_hub', '/es/organization', 'organization'];
         yield 'locale with region' => ['organization_hub', '/pt_BR/organization/', 'organization'];
         yield 'organizations is preferences' => ['organizations_members', '/organizations/abc/members', 'preferences'];
+        yield 'encoded first letter' => ['x_page', '/%64eveloper/projects/1/config', 'development'];
+        yield 'encoded slash does not hide the locale' => ['x_page', '/es/%64eveloper', 'development'];
         yield 'segment boundary' => ['x_page', '/developerish', 'dashboard'];
         yield 'route prefix, area order' => ['account_security', '/somewhere', 'preferences'];
         yield 'route prefix organization' => ['admin_users_show', '/kit/users/1', 'organization'];
@@ -138,5 +140,53 @@ final class MenuAreaResolverTest extends TestCase
         $resolver = new MenuAreaResolver(self::beaconAreas());
 
         self::assertSame(['dashboard', 'preferences'], array_map(static fn (MenuArea $a): string => $a->name, $resolver->granted()));
+    }
+
+    public function testFallbackWhenDeniedIsOffByDefault(): void
+    {
+        $resolver = new MenuAreaResolver(self::beaconAreas(), 'dashboard', null, $this->denyDevelopers());
+
+        self::assertSame('development', $resolver->resolveFor(new MenuRequestContext('admin_hub', [], '/developer', 'en'))?->name);
+    }
+
+    public function testFallbackWhenDeniedUsesTheDefaultAreaThenTheFirstGrantedOne(): void
+    {
+        $request = new MenuRequestContext('admin_hub', [], '/developer', 'en');
+
+        $withDefault = new MenuAreaResolver(self::beaconAreas(), 'dashboard', null, $this->denyDevelopers(), true);
+        self::assertSame('dashboard', $withDefault->resolveFor($request)?->name);
+        // A granted area is returned as it is.
+        self::assertSame('organization', $withDefault->resolveFor(new MenuRequestContext('x', [], '/organization', 'en'))?->name);
+
+        // The default area is denied too: the first granted one.
+        $denyDashboard = new class implements MenuAreaAccessCheckerInterface {
+            public function canAccessArea(MenuArea $area): bool
+            {
+                return !in_array($area->name, ['development', 'dashboard'], true);
+            }
+        };
+        self::assertSame('preferences', (new MenuAreaResolver(self::beaconAreas(), 'dashboard', null, $denyDashboard, true))->resolveFor($request)?->name);
+        self::assertSame('preferences', (new MenuAreaResolver(self::beaconAreas(), null, null, $denyDashboard, true))->resolveFor($request)?->name);
+
+        // Nothing is granted: null.
+        $denyAll = new class implements MenuAreaAccessCheckerInterface {
+            public function canAccessArea(MenuArea $area): bool
+            {
+                return false;
+            }
+        };
+        self::assertNull((new MenuAreaResolver(self::beaconAreas(), 'dashboard', null, $denyAll, true))->resolveFor($request));
+        // No area at all matches and there is no default: still null.
+        self::assertNull((new MenuAreaResolver([], null, null, $denyAll, true))->resolveFor($request));
+    }
+
+    private function denyDevelopers(): MenuAreaAccessCheckerInterface
+    {
+        return new class implements MenuAreaAccessCheckerInterface {
+            public function canAccessArea(MenuArea $area): bool
+            {
+                return !in_array('ROLE_DEVELOPER', $area->roles, true);
+            }
+        };
     }
 }

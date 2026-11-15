@@ -161,6 +161,8 @@ nowo_dashboard_menu:
 ### areas
 
 Default `{}` (no areas; nothing changes). Application areas, keyed by name, in priority order for route-name matching.
+Area names are normalised like any Symfony configuration key (`my-area` becomes `my_area`): use that spelling in
+`area_default`, `dashboard_menu_area_granted()` and `MenuAreaResolver::get()`, or just avoid dashes.
 See [Usage → Areas and hub pages](USAGE.md#areas-and-hub-pages).
 
 | Key | Default | Description |
@@ -169,7 +171,7 @@ See [Usage → Areas and hub pages](USAGE.md#areas-and-hub-pages).
 | `label` | `null` | Label or translation key (the host template translates it). |
 | `icon` | `null` | Icon name, e.g. `tabler:shield-cog`. |
 | `home_route` | `null` | Route of the area home page (its hub). Never shown as a hub card. |
-| `roles` | `[]` | `isGranted()` attributes (roles or voter attributes; subject: the `MenuArea`). Any one grants the area; empty = every user. |
+| `roles` | `[]` | `isGranted()` attributes (roles or voter attributes; subject: the `MenuArea`). Any one grants the area; empty = every user. **Navigation only, not authorization:** `roles` decide which areas are listed (`dashboard_menu_areas()`, `dashboard_menu_area_granted()`); they never protect a route and do not filter the area menu tree or the hub cards (per-item permission keys do). Protect the area routes with `access_control` or voters. |
 | `path_prefixes` | `[]` | Path prefixes (`/developer`), matched on whole segments; the longest match wins and decides before route names. |
 | `route_prefixes` | `[]` | Route name prefixes of the area pages outside its paths (kit pages). Areas are tried in configuration order. |
 | `exclude_route_prefixes` | `[]` | Route name prefixes that never belong to the area, even when a `route_prefixes` entry matches. |
@@ -189,11 +191,18 @@ nowo_dashboard_menu:
                 admin_storage: admin_storage
 ```
 
-### area_default, area_locale_pattern, area_access_checker
+### area_default, area_locale_pattern, area_fallback_when_denied, area_access_checker
 
-- `area_default` (default `null`): name of the area of requests no rule matches and of requests without a route.
+- `area_default` (default `null`): name of the area of requests no rule matches and of requests without a route. It
+  must be one of the declared areas (checked when the container builds).
+- `area_fallback_when_denied` (default `false`): when `true`, `dashboard_menu_area()` never returns an area the user is
+  not granted: it falls back to the default area (when granted), else to the first granted area, else `null`. With
+  `false` the area is resolved by path / route only, so guard the sidebar with `dashboard_menu_area_granted(area)`.
 - `area_locale_pattern` (default `'/^[a-z]{2}(?:[_-][A-Za-z]{2})?$/D'`): regex of a leading locale path segment skipped
   when matching `path_prefixes` (`/es/developer` matches `/developer`). `null` when your paths have no locale segment.
+  It must be a valid regular expression with the `D` modifier (checked when the container builds); anchor it so it
+  matches a whole segment, because an unanchored pattern would strip real segments. The path is URL-decoded before
+  matching.
 - `area_access_checker` (default `null`): service id of a `MenuAreaAccessCheckerInterface` deciding which areas a user
   may see; `null` = `RoleMenuAreaAccessChecker` (any of the area `roles` granted; without SecurityBundle an area with
   roles is never granted).

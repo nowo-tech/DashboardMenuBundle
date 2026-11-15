@@ -15,6 +15,7 @@ use function implode;
 use function is_array;
 use function is_string;
 use function preg_match;
+use function rawurldecode;
 use function str_starts_with;
 use function strlen;
 use function trim;
@@ -30,6 +31,11 @@ use function trim;
  *    matching `exclude_route_prefixes` entry (kit pages mounted outside the area's paths);
  * 4. otherwise the default area (null when `area_default` is not set).
  *
+ * The area is **navigation, not authorization**: resolving an area (or granting it) never protects a route; the
+ * routes of an area must be protected with `access_control` or voters. With `area_fallback_when_denied` the resolver
+ * does not return an area the user is not granted: it falls back to the default area (when granted), else to the first
+ * granted area, else null.
+ *
  * Stateless: the areas are built once from the configuration; nothing is kept between calls (FrankenPHP worker mode).
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
@@ -44,12 +50,14 @@ final readonly class MenuAreaResolver
      * @param array<string, array<string, mixed>> $areas `nowo_dashboard_menu.areas`
      * @param string|null $defaultArea name of the area of requests no rule matches
      * @param string|null $localePattern regex of a leading locale path segment (null = no locale segment)
+     * @param bool $fallbackWhenDenied whether {@see resolveFor()} never returns an area the user is not granted
      */
     public function __construct(
         array $areas = [],
         private ?string $defaultArea = null,
         private ?string $localePattern = null,
         private MenuAreaAccessCheckerInterface $accessChecker = new RoleMenuAreaAccessChecker(),
+        private bool $fallbackWhenDenied = false,
     ) {
         $built = [];
         foreach ($areas as $name => $config) {
@@ -101,6 +109,21 @@ final readonly class MenuAreaResolver
     /** The area a request belongs to (see the class description), or null. */
     public function resolveFor(MenuRequestContext $request): ?MenuArea
     {
+        $area = $this->match($request);
+        if (!$this->fallbackWhenDenied || !$area instanceof MenuArea || $this->accessChecker->canAccessArea($area)) {
+            return $area;
+        }
+
+        $default = $this->defaultArea();
+        if ($default instanceof MenuArea && $this->accessChecker->canAccessArea($default)) {
+            return $default;
+        }
+
+        return $this->granted()[0] ?? null;
+    }
+
+    private function match(MenuRequestContext $request): ?MenuArea
+    {
         $route = $request->route;
         if ($route === null || $route === '') {
             return $this->defaultArea();
@@ -132,7 +155,8 @@ final readonly class MenuAreaResolver
 
     private function pathWithoutLocale(string $path): string
     {
-        $segments = explode('/', trim($path, '/'));
+        // The router and access_control match the decoded path (`/%64eveloper` is `/developer`): so do we.
+        $segments = explode('/', trim(rawurldecode($path), '/'));
         if ($this->localePattern !== null && $this->localePattern !== '' && preg_match($this->localePattern, $segments[0]) === 1) {
             $segments = array_slice($segments, 1);
         }

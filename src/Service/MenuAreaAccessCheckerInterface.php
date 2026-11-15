@@ -14,6 +14,9 @@ use Nowo\DashboardMenuBundle\Model\MenuArea;
  * Symfony Security (roles or voter attributes, with the {@see MenuArea} as subject). Point
  * `nowo_dashboard_menu.area_access_checker` at your own service to decide otherwise (a policy port of a DDD host).
  *
+ * Areas are navigation, not authorization: granting an area only decides what is listed. It never protects a route;
+ * protect the routes of an area with `access_control` or voters.
+ *
  * Implementations must not keep per-request state in properties (FrankenPHP worker mode).
  *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>

@@ -37,6 +37,7 @@ use Nowo\DashboardMenuBundle\Twig\MenuExtension;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Asset\Package;
 use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -50,10 +51,13 @@ use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Throwable;
 
 use function array_key_exists;
+use function array_keys;
 use function array_reverse;
+use function implode;
 use function in_array;
 use function is_array;
 use function is_string;
+use function sprintf;
 use function trim;
 
 /**
@@ -639,7 +643,12 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
         $hub = is_array($config['hub'] ?? null) ? $config['hub'] : [];
 
         $container->setParameter(Configuration::ALIAS . '.areas', $areas);
-        $container->setParameter(Configuration::ALIAS . '.area_default', $config['area_default'] ?? null);
+        $areaDefault = $config['area_default'] ?? null;
+        if (is_string($areaDefault) && $areaDefault !== '' && !isset($areas[$areaDefault])) {
+            throw new InvalidConfigurationException(sprintf('Invalid nowo_dashboard_menu.area_default "%s": it must be one of the declared areas (%s). Area names are normalised (my-area is my_area).', $areaDefault, $areas === [] ? 'none declared' : implode(', ', array_keys($areas))));
+        }
+        $container->setParameter(Configuration::ALIAS . '.area_default', $areaDefault === '' ? null : $areaDefault);
+        $container->setParameter(Configuration::ALIAS . '.area_fallback_when_denied', ($config['area_fallback_when_denied'] ?? false) === true);
         $container->setParameter(Configuration::ALIAS . '.area_locale_pattern', $config['area_locale_pattern'] ?? null);
         $container->setParameter(Configuration::ALIAS . '.current_routes', $currentRoutes);
         $container->setParameter(Configuration::ALIAS . '.hub.exclude_routes', $hub['exclude_routes'] ?? []);

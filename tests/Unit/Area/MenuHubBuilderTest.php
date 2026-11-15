@@ -22,6 +22,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 use function array_map;
+use function array_merge;
 use function count;
 
 /**
@@ -121,6 +122,34 @@ final class MenuHubBuilderTest extends TestCase
         $docs = $sections[0]->blocks[0]->cards[1];
         self::assertSame('https://example.com/docs', $docs->href);
         self::assertSame('admin-item-0', $docs->testid);
+    }
+
+    public function testHubRespectsTheMenuDepthLimit(): void
+    {
+        $tree = [
+            $this->node($this->section('S'), [
+                $this->node($this->link('A', 'a'), [
+                    $this->node($this->link('B', 'b'), [$this->node($this->link('C', 'c'))]),
+                ]),
+                $this->node($this->section('Group'), [
+                    $this->node($this->link('G', 'g'), [$this->node($this->link('G2', 'g2'))]),
+                ]),
+            ]),
+            $this->node($this->link('Top', 'top'), [$this->node($this->link('Under top', 'under_top'))]),
+        ];
+        $routes = fn (?int $limit): array => array_merge(...array_map(
+            static fn (MenuHubSection $section): array => array_merge(...array_map(static fn (MenuHubBlock $b): array => array_map(static fn (MenuHubCard $c): ?string => $c->route(), $b->cards), $section->blocks)),
+            $this->builder()->build($tree, $limit),
+        ));
+
+        // Top-level entries are depth 1, like menu.html.twig: a node deeper than the limit is not a card.
+        self::assertSame(['a', 'b', 'c', 'g', 'g2', 'top', 'under_top'], $routes(null));
+        self::assertSame(['a', 'b', 'c', 'g', 'g2', 'top', 'under_top'], $routes(4));
+        self::assertSame(['a', 'b', 'g', 'top', 'under_top'], $routes(3));
+        self::assertSame(['a', 'top', 'under_top'], $routes(2));
+        // Limit 1 (and 0, as the sidebar): top-level entries only; a section shows nothing.
+        self::assertSame(['top'], $routes(1));
+        self::assertSame(['top'], $routes(0));
     }
 
     public function testDefaultsWithoutAreasOrConfiguration(): void

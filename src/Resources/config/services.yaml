@@ -136,6 +136,7 @@ services:
       $defaultArea: '%nowo_dashboard_menu.area_default%'
       $localePattern: '%nowo_dashboard_menu.area_locale_pattern%'
       $accessChecker: '@Nowo\DashboardMenuBundle\Service\MenuAreaAccessCheckerInterface'
+      $fallbackWhenDenied: '%nowo_dashboard_menu.area_fallback_when_denied%'
 
   # Removed by the extension when no current_routes rule is configured.
   Nowo\DashboardMenuBundle\Service\ConfiguredRouteMenuCurrentMatcher:

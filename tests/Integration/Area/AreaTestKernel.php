@@ -30,6 +30,7 @@ final class AreaTestKernel extends Kernel
 
     public function __construct(
         private readonly string $directory,
+        private readonly bool $fallbackWhenDenied = false,
     ) {
         parent::__construct('test', false);
     }
@@ -51,7 +52,7 @@ final class AreaTestKernel extends Kernel
 
     public function getCacheDir(): string
     {
-        return sys_get_temp_dir() . '/nowo-dashboard-menu-area/' . getmypid() . '/' . hash('xxh128', $this->directory) . '/cache';
+        return sys_get_temp_dir() . '/nowo-dashboard-menu-area/' . getmypid() . '/' . hash('xxh128', $this->directory . ($this->fallbackWhenDenied ? 'f' : '')) . '/cache';
     }
 
     public function getLogDir(): string
@@ -93,9 +94,10 @@ final class AreaTestKernel extends Kernel
             'orm'  => ['auto_mapping' => true, 'naming_strategy' => 'doctrine.orm.naming_strategy.underscore_number_aware'],
         ]);
         $container->loadFromExtension('nowo_dashboard_menu', [
-            'locales'      => ['en'],
-            'area_default' => 'dashboard',
-            'areas'        => [
+            'locales'                   => ['en'],
+            'area_default'              => 'dashboard',
+            'area_fallback_when_denied' => $this->fallbackWhenDenied,
+            'areas'                     => [
                 'dashboard'    => ['label' => 'nav.dashboard', 'home_route' => 'dashboard_home'],
                 'preferences'  => ['label' => 'nav.preferences', 'home_route' => 'account_profile', 'path_prefixes' => ['/account']],
                 'organization' => [
