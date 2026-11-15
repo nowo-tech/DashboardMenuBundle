@@ -150,6 +150,21 @@ final class Configuration implements ConfigurationInterface
                     ->info('Fallback locale when the request locale is not in locales. If null, the first entry in locales is used.')
                     ->defaultNull()
                 ->end()
+                ->append($this->areasNode())
+                ->scalarNode('area_default')
+                    ->info('Area of the requests no area rule matches (and of requests without a route); null = no area (2.22).')
+                    ->defaultNull()
+                ->end()
+                ->scalarNode('area_locale_pattern')
+                    ->info('Regex of a leading locale path segment ignored when matching areas.path_prefixes (/es/developer is /developer); null = paths have no locale segment (2.22).')
+                    ->defaultValue('/^[a-z]{2}(?:[_-][A-Za-z]{2})?$/D')
+                ->end()
+                ->scalarNode('area_access_checker')
+                    ->info('Service id of a MenuAreaAccessCheckerInterface that decides which areas a user may see; null = RoleMenuAreaAccessChecker (any of the area roles granted) (2.22).')
+                    ->defaultNull()
+                ->end()
+                ->append($this->routePrefixMapNode('current_routes', 'Current-item rules for every menu: menu item route => request route prefixes that keep that link current (and its branch open) on nested pages (2.22). ORed with the built-in path match.'))
+                ->append($this->hubNode())
                 ->booleanNode('strict_permission_checker')
                     ->info('Throw a LogicException when a menu names a permission checker that cannot be resolved. Off by default: the menu then hides its keyed items, keeps keyless ones, logs an error and shows the fallback in the profiler (so a typo never locks you out of the dashboard).')
                     ->defaultFalse()
@@ -675,6 +690,92 @@ final class Configuration implements ConfigurationInterface
             $children->scalarNode($key)->defaultValue($default)->end();
         }
         $children->end();
+
+        return $node;
+    }
+
+    private function areasNode(): ArrayNodeDefinition
+    {
+        /** @var ArrayNodeDefinition $node */
+        $node = (new TreeBuilder('areas'))->getRootNode();
+        $node
+            ->info('Application areas (2.22), e.g. dashboard, development, organization, preferences: each has its own sidebar menu, home page, visibility roles and the path / route rules that map a request to it. Empty = no areas (nothing changes).')
+            ->useAttributeAsKey('name')
+            ->arrayPrototype()
+                ->children()
+                    ->scalarNode('menu')->info('Menu code of the area sidebar (default: the area name).')->defaultNull()->end()
+                    ->scalarNode('label')->info('Label or translation key (translated by the host template).')->defaultNull()->end()
+                    ->scalarNode('icon')->info('Icon name (e.g. tabler:shield-cog).')->defaultNull()->end()
+                    ->scalarNode('home_route')->info('Route of the area home page (its hub); never shown as a hub card.')->defaultNull()->end()
+                    ->arrayNode('roles')
+                        ->info('isGranted() attributes (roles or voter attributes, subject = the MenuArea); any one grants the area. Empty = every user.')
+                        ->scalarPrototype()->end()
+                    ->end()
+                    ->arrayNode('path_prefixes')
+                        ->info('Path prefixes of the area (/developer), matched on whole segments; the longest match wins and decides before route names.')
+                        ->scalarPrototype()->end()
+                    ->end()
+                    ->arrayNode('route_prefixes')
+                        ->info('Route name prefixes of the area pages outside its paths (kit pages); areas are tried in configuration order.')
+                        ->scalarPrototype()->end()
+                    ->end()
+                    ->arrayNode('exclude_route_prefixes')
+                        ->info('Route name prefixes that never belong to this area even when a route_prefixes entry matches.')
+                        ->scalarPrototype()->end()
+                    ->end()
+                ->end()
+                ->append($this->routePrefixMapNode('current_routes', 'Current-item rules for the links of this area menu: menu item route => request route prefixes.'))
+            ->end();
+
+        return $node;
+    }
+
+    private function routePrefixMapNode(string $name, string $info): ArrayNodeDefinition
+    {
+        /** @var ArrayNodeDefinition $node */
+        $node = (new TreeBuilder($name))->getRootNode();
+        $node
+            ->info($info)
+            ->useAttributeAsKey('route')
+            ->normalizeKeys(false)
+            ->arrayPrototype()
+                ->beforeNormalization()->ifString()->then(static fn (string $v): array => [$v])->end()
+                ->scalarPrototype()->end()
+            ->end();
+
+        return $node;
+    }
+
+    private function hubNode(): ArrayNodeDefinition
+    {
+        /** @var ArrayNodeDefinition $node */
+        $node = (new TreeBuilder('hub'))->getRootNode();
+        $node
+            ->info('Hub pages built from an area menu tree (dashboard_menu_hub(), @NowoDashboardMenuBundle/hub.html.twig) (2.22).')
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->arrayNode('exclude_routes')
+                    ->info('Routes never shown as cards (besides every areas.*.home_route).')
+                    ->scalarPrototype()->end()
+                ->end()
+                ->scalarNode('testid_prefix')
+                    ->info('Prefix of the default card data-testid (prefix + route with dashes).')
+                    ->defaultValue('dashboard-menu-hub-')
+                ->end()
+                ->arrayNode('cards')
+                    ->info('Hub-only card extras by menu item route: intro (text or translation key), testid, tour (data-tour), badge (key resolved by a MenuHubBadgeProviderInterface).')
+                    ->useAttributeAsKey('route')
+                    ->normalizeKeys(false)
+                    ->arrayPrototype()
+                        ->children()
+                            ->scalarNode('intro')->defaultNull()->end()
+                            ->scalarNode('testid')->defaultNull()->end()
+                            ->scalarNode('tour')->defaultNull()->end()
+                            ->scalarNode('badge')->defaultNull()->end()
+                        ->end()
+                    ->end()
+                ->end()
+            ->end();
 
         return $node;
     }
