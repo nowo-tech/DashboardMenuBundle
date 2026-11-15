@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.22.1](#to-2221)
 - [To 2.22.0](#to-2220)
 - [To 2.21.1](#to-2211)
 - [To 2.21.0](#to-2210)
@@ -136,6 +137,14 @@
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## To 2.22.1
+
+From **2.22.0**:
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
 
 Targets **2.22.1** (patch). From **2.22.0**:
 
