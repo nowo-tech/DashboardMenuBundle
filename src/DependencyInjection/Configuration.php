@@ -20,6 +20,12 @@ use function is_array;
 use function is_string;
 use function preg_match;
 use function str_contains;
+use function str_ends_with;
+use function str_starts_with;
+use function strlen;
+use function strpos;
+use function strrpos;
+use function substr;
 
 /**
  * Configuration for Dashboard Menu Bundle.
@@ -157,11 +163,11 @@ final class Configuration implements ConfigurationInterface
                     ->defaultNull()
                 ->end()
                 ->scalarNode('area_locale_pattern')
-                    ->info('Regex of a leading locale path segment ignored when matching areas.path_prefixes (/es/developer is /developer); null = paths have no locale segment (2.22).')
+                    ->info('Regex of a leading locale path segment ignored when matching areas.path_prefixes (/es/developer is /developer); null = paths have no locale segment (2.22). It must carry the D modifier and be anchored at both ends (^…$, no top-level alternation) (2.22.1).')
                     ->defaultValue('/^[a-z]{2}(?:[_-][A-Za-z]{2})?$/D')
                     ->validate()
                         ->ifTrue(static fn (mixed $v): bool => is_string($v) && $v !== '' && !self::isAnchoredRegex($v))
-                        ->thenInvalid('Invalid nowo_dashboard_menu.area_locale_pattern %s: it must be a valid regular expression with the D modifier (e.g. "/^[a-z]{2}$/D"), anchored so it matches a whole path segment.')
+                        ->thenInvalid('Invalid nowo_dashboard_menu.area_locale_pattern %s: it must be a valid regular expression with the D modifier, anchored at both ends (^ or \\A first, $ or \\z last, no top-level |), so it matches a whole path segment (e.g. "/^[a-z]{2}$/D").')
                     ->end()
                 ->end()
                 ->booleanNode('area_fallback_when_denied')
@@ -729,7 +735,7 @@ final class Configuration implements ConfigurationInterface
                         ->scalarPrototype()->end()
                     ->end()
                     ->arrayNode('exclude_route_prefixes')
-                        ->info('Route name prefixes that never belong to this area even when a route_prefixes entry matches.')
+                        ->info('Route name prefixes that never belong to this area, neither by path_prefixes nor by route_prefixes (2.22.1: vetoed at the path step too, e.g. a kit mounted under the area paths).')
                         ->scalarPrototype()->end()
                     ->end()
                 ->end()
@@ -789,13 +795,95 @@ final class Configuration implements ConfigurationInterface
         return $node;
     }
 
+    /**
+     * Whether the pattern compiles, carries the D modifier and is anchored at both ends: its body starts with `^` or
+     * `\A`, ends with an unescaped `$` or `\z`, and has no top-level `|` (`^es|fr$` is not anchored on both
+     * branches). An unanchored pattern such as `/[a-z]{2}/D` would strip `developer` as a "locale" (QI-I6).
+     */
     private static function isAnchoredRegex(string $pattern): bool
     {
         if (@preg_match($pattern, '') === false) {
             return false;
         }
+        if (preg_match('/([a-zA-Z]*)$/', $pattern, $m) !== 1 || !str_contains($m[1], 'D')) {
+            return false;
+        }
 
-        return preg_match('/([a-zA-Z]*)$/', $pattern, $m) === 1 && str_contains($m[1], 'D');
+        $open  = $pattern[0];
+        $close = ['(' => ')', '{' => '}', '[' => ']', '<' => '>'][$open] ?? $open;
+        $end   = strrpos($pattern, $close);
+        if ($end === false || $end < 1) {
+            return false;
+        }
+        $body = substr($pattern, 1, $end - 1);
+
+        return (str_starts_with($body, '^') || str_starts_with($body, '\\A'))
+            && self::endsWithAnchor($body)
+            && !self::hasTopLevelAlternation($body, str_contains($m[1], 'x'));
+    }
+
+    private static function endsWithAnchor(string $body): bool
+    {
+        $length = strlen($body);
+        if (str_ends_with($body, '$')) {
+            $anchor = $length - 1;
+        } elseif (str_ends_with($body, '\\z')) {
+            $anchor = $length - 2;
+        } else {
+            return false;
+        }
+        // The anchor must not be escaped: an odd number of backslashes before `$` makes it a literal.
+        $backslashes = 0;
+        for ($i = $anchor - 1; $i >= 0 && $body[$i] === '\\'; --$i) {
+            ++$backslashes;
+        }
+
+        return $backslashes % 2 === 0;
+    }
+
+    private static function hasTopLevelAlternation(string $body, bool $extended): bool
+    {
+        $depth   = 0;
+        $inClass = false;
+        $length  = strlen($body);
+        for ($i = 0; $i < $length; ++$i) {
+            $char = $body[$i];
+            if ($char === '\\') {
+                ++$i;
+
+                continue;
+            }
+            if ($inClass) {
+                $inClass = $char !== ']';
+
+                continue;
+            }
+            if ($char === '[') {
+                $inClass = true;
+                // A `]` right after `[` or `[^` is a literal member of the class.
+                if (($body[$i + 1] ?? '') === '^') {
+                    ++$i;
+                }
+                if (($body[$i + 1] ?? '') === ']') {
+                    ++$i;
+                }
+            } elseif ($char === '(') {
+                ++$depth;
+            } elseif ($char === ')') {
+                --$depth;
+            } elseif ($extended && $char === '#') {
+                // Under the x modifier, `#` starts a comment that runs to the next newline.
+                $newline = strpos($body, "\n", $i);
+                if ($newline === false) {
+                    break;
+                }
+                $i = $newline;
+            } elseif ($char === '|' && $depth === 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static function isLocaleList(mixed $v): bool

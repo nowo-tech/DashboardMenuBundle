@@ -94,11 +94,19 @@ final class AreaConfigurationTest extends TestCase
         yield 'no D modifier' => ['/^[a-z]{2}$/'];
         yield 'other modifier' => ['/^[a-z]{2}$/i'];
         yield 'not a regex' => ['es'];
+        // QI-I6: anchored at both ends.
+        yield 'unanchored' => ['/[a-z]{2}/D'];
+        yield 'no end anchor' => ['/^[a-z]{2}/D'];
+        yield 'no start anchor' => ['/[a-z]{2}$/D'];
+        yield 'escaped dollar' => ['/^[a-z]{2}\\$/D'];
+        yield 'top-level alternation' => ['/^es|fr$/D'];
+        yield 'empty body' => ['//D'];
+        yield 'top-level alternation, x modifier' => ['/^en|fr$/Dx'];
     }
 
     public function testValidLocalePatternsAreAccepted(): void
     {
-        foreach (['/^[a-z]{2}$/D', '#^[a-z]{2}$#Di', ''] as $pattern) {
+        foreach (['/^[a-z]{2}$/D', '#^[a-z]{2}$#Di', '', '/^(?:es|fr)$/D', '/\\A[a-z]{2}\\z/D', '{^[a-z]{2}$}D', '/^[|a-z]{2}$/D', '/^[]|a-z]{2}$/D', '/^[a-z]\\\\$/D', '/^[a-z]{2}(?:[_-][A-Za-z]{2})?$/D', "/^(?:en|fr) # supported: en|fr\n$/Dx"] as $pattern) {
             self::assertSame($pattern, (new Processor())->processConfiguration(new Configuration(), [['area_locale_pattern' => $pattern]])['area_locale_pattern']);
         }
     }

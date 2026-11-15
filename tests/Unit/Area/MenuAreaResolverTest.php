@@ -25,10 +25,11 @@ final class MenuAreaResolverTest extends TestCase
         return [
             'dashboard'   => ['menu' => 'dashboard', 'label' => 'nav.dashboard', 'home_route' => 'dashboard_home'],
             'preferences' => [
-                'label'          => 'nav.preferences',
-                'home_route'     => 'account_profile',
-                'path_prefixes'  => ['/account', '/organizations'],
-                'route_prefixes' => ['account_'],
+                'label'                  => 'nav.preferences',
+                'home_route'             => 'account_profile',
+                'path_prefixes'          => ['/account', '/organizations'],
+                'route_prefixes'         => ['account_'],
+                'exclude_route_prefixes' => ['nowo_api_studio_', 'api_studio_'],
             ],
             'organization' => [
                 'roles'                  => ['ROLE_MANAGER'],
@@ -67,6 +68,23 @@ final class MenuAreaResolverTest extends TestCase
         yield 'excluded falls through' => ['admin_project_roles_edit', '/kit/roles/1', 'development'];
         yield 'kit route' => ['nowo_dashboard_menu_dashboard_index', '/admin/menus', 'development'];
         yield 'nothing matches' => ['project_show', '/projects/1', 'dashboard'];
+        // 2.22.1: exclude_route_prefixes vetoes the area at the path step too (Beacon API Studio).
+        yield 'api studio under organizations is default' => ['nowo_api_studio_dashboard', '/organizations/0193f1b2-7c4e-7a51-9d2e-6b8a1f0c3d4e/api-studio/x', 'dashboard'];
+        yield 'api studio second exclude prefix' => ['api_studio_keys', '/organizations/0193f1b2-7c4e-7a51-9d2e-6b8a1f0c3d4e/api-studio/keys', 'dashboard'];
+        yield 'api studio with locale' => ['nowo_api_studio_dashboard', '/es/organizations/abc/api-studio', 'dashboard'];
+        yield 'api studio under account' => ['nowo_api_studio_dashboard', '/account/api-studio', 'dashboard'];
+        yield 'organizations page not excluded' => ['organizations_settings', '/organizations/abc/settings', 'preferences'];
+        yield 'excluded at path step, other area by route' => ['admin_project_roles_edit', '/organization/roles/1', 'development'];
+        yield 'excluded only for its own area' => ['nowo_api_studio_dashboard', '/developer/api-studio', 'development'];
+        // QI-I7: a path starting with an empty segment matches no path prefix (router and access_control parity).
+        yield 'double slash' => ['x_page', '//developer/x', 'dashboard'];
+        yield 'encoded double slash' => ['x_page', '/%2Fdeveloper/x', 'dashboard'];
+        yield 'double slash after locale' => ['x_page', '/es//developer/x', 'dashboard'];
+        yield 'double slash keeps route rules' => ['admin_hub', '//organization/x', 'development'];
+        yield 'inner double slash keeps the prefix' => ['x_page', '/developer//x', 'development'];
+        yield 'locale only' => ['x_page', '/es/', 'dashboard'];
+        yield 'locale then empty segment' => ['x_page', '/es//', 'dashboard'];
+        yield 'trailing double slash' => ['x_page', '/developer//', 'development'];
     }
 
     #[DataProvider('requests')]
@@ -88,6 +106,55 @@ final class MenuAreaResolverTest extends TestCase
         self::assertSame('deep', $resolver->resolveFor(new MenuRequestContext('r', [], '/admin/deep/x', 'en'))?->name);
         self::assertSame('admin', $resolver->resolveFor(new MenuRequestContext('r', [], '/admin', 'en'))?->name);
         self::assertSame('site', $resolver->resolveFor(new MenuRequestContext('r', [], '/', 'en'))?->name);
+    }
+
+    public function testExcludeVetoesARootPathAreaAndTheRouteStep(): void
+    {
+        $resolver = new MenuAreaResolver([
+            'site'  => ['path_prefixes' => ['/'], 'exclude_route_prefixes' => ['kit_']],
+            'admin' => ['path_prefixes' => ['/admin'], 'route_prefixes' => ['kit_', 'admin_'], 'exclude_route_prefixes' => ['admin_public_']],
+            'home'  => [],
+        ], 'home');
+
+        // The longest prefix is vetoed: the shorter one of another area still applies.
+        self::assertSame('site', $resolver->resolveFor(new MenuRequestContext('admin_public_page', [], '/admin/public', 'en'))?->name);
+        // Vetoed by path everywhere: the route step picks the area.
+        self::assertSame('admin', $resolver->resolveFor(new MenuRequestContext('kit_page', [], '/kit/x', 'en'))?->name);
+        // Not excluded: unchanged.
+        self::assertSame('admin', $resolver->resolveFor(new MenuRequestContext('admin_users', [], '/admin/users', 'en'))?->name);
+        self::assertSame('site', $resolver->resolveFor(new MenuRequestContext('page_show', [], '/about', 'en'))?->name);
+        // Double slash: no path match, the route step still applies, then the default.
+        self::assertSame('admin', $resolver->resolveFor(new MenuRequestContext('admin_users', [], '//admin/users', 'en'))?->name);
+        self::assertSame('home', $resolver->resolveFor(new MenuRequestContext('page_show', [], '//about', 'en'))?->name);
+
+        // Locale then an empty segment: no path match (the root `/` area does not catch it), the route rule applies.
+        $localized = new MenuAreaResolver([
+            'site'  => ['path_prefixes' => ['/']],
+            'admin' => ['route_prefixes' => ['admin_']],
+        ], null, '/^[a-z]{2}$/D');
+        self::assertSame('admin', $localized->resolveFor(new MenuRequestContext('admin_users', [], '/es//', 'en'))?->name);
+        self::assertSame('site', $localized->resolveFor(new MenuRequestContext('admin_users', [], '/es/', 'en'))?->name);
+        self::assertSame('site', $localized->resolveFor(new MenuRequestContext('admin_users', [], '/es', 'en'))?->name);
+    }
+
+    /**
+     * FrankenPHP worker mode (kernel reset false): one resolver instance serves alternating requests; an excluded
+     * request never changes the answer for the next one (nothing is memoised).
+     */
+    public function testWorkerAlternatingExcludedRequestsKeepNoState(): void
+    {
+        $resolver = new MenuAreaResolver(self::beaconAreas(), 'dashboard', '/^[a-z]{2}(?:[_-][A-Za-z]{2})?$/D');
+        $studio   = new MenuRequestContext('nowo_api_studio_dashboard', [], '/organizations/abc/api-studio/x', 'en');
+        $members  = new MenuRequestContext('organizations_members', [], '/organizations/abc/members', 'en');
+        $double   = new MenuRequestContext('x_page', [], '//developer/x', 'en');
+        $plain    = new MenuRequestContext('x_page', [], '/developer/x', 'en');
+
+        for ($i = 0; $i < 1000; ++$i) {
+            self::assertSame('dashboard', $resolver->resolveFor($studio)?->name);
+            self::assertSame('preferences', $resolver->resolveFor($members)?->name);
+            self::assertSame('dashboard', $resolver->resolveFor($double)?->name);
+            self::assertSame('development', $resolver->resolveFor($plain)?->name);
+        }
     }
 
     public function testWithoutLocalePatternOrDefault(): void

@@ -137,6 +137,33 @@
 
 ## Unreleased
 
+Targets **2.22.1** (patch). From **2.22.0**:
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
+
+- **`exclude_route_prefixes` vetoes the area by path too.** If a kit is mounted under another area's path (for
+  example `/organizations/{uuid}/api-studio/…` under `preferences.path_prefixes: [/organizations]`), list its route
+  prefixes in that area's `exclude_route_prefixes` and the page falls through to the next rule (other areas' paths,
+  then `route_prefixes`, then `area_default`):
+
+  ```yaml
+  nowo_dashboard_menu:
+      areas:
+          preferences:
+              path_prefixes: [/account, /organizations]
+              exclude_route_prefixes: [nowo_api_studio_, api_studio_]
+  ```
+
+  Check your existing exclude lists: a route they name no longer gets that area even when its path is under the area
+  `path_prefixes` (that was the 2.22.0 behaviour). Areas are navigation only; this never changes who may open a page,
+  so keep protecting the routes with `access_control` or voters.
+- **`//` paths.** A path whose first segment is empty (`//developer/x`, `/es//developer/x`) no longer matches
+  `path_prefixes`; it resolves by route name, then `area_default`.
+- **`area_locale_pattern` must be anchored at both ends** (`^…$` or `\A…\z`, no top-level `|`, `D` modifier). Wrap
+  alternatives in a group: `/^(?:es|fr)$/D`, not `/^es|fr$/D`. An unanchored pattern now fails the container build.
+
 ## To 2.22.0
 
 From **2.21.1**:

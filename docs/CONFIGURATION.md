@@ -172,9 +172,9 @@ See [Usage → Areas and hub pages](USAGE.md#areas-and-hub-pages).
 | `icon` | `null` | Icon name, e.g. `tabler:shield-cog`. |
 | `home_route` | `null` | Route of the area home page (its hub). Never shown as a hub card. |
 | `roles` | `[]` | `isGranted()` attributes (roles or voter attributes; subject: the `MenuArea`). Any one grants the area; empty = every user. **Navigation only, not authorization:** `roles` decide which areas are listed (`dashboard_menu_areas()`, `dashboard_menu_area_granted()`); they never protect a route and do not filter the area menu tree or the hub cards (per-item permission keys do). Protect the area routes with `access_control` or voters. |
-| `path_prefixes` | `[]` | Path prefixes (`/developer`), matched on whole segments; the longest match wins and decides before route names. |
+| `path_prefixes` | `[]` | Path prefixes (`/developer`), matched on whole segments; the longest match wins and decides before route names (but after the `exclude_route_prefixes` veto). A path starting with an empty segment (`//developer`) matches no prefix. |
 | `route_prefixes` | `[]` | Route name prefixes of the area pages outside its paths (kit pages). Areas are tried in configuration order. |
-| `exclude_route_prefixes` | `[]` | Route name prefixes that never belong to the area, even when a `route_prefixes` entry matches. |
+| `exclude_route_prefixes` | `[]` | Route name prefixes that never belong to the area, neither by `path_prefixes` nor by `route_prefixes` (2.22.1: also at the path step). Use it for a kit mounted under the area paths, e.g. `[nowo_api_studio_]` for `/organizations/{uuid}/api-studio/…`. |
 | `current_routes` | `{}` | Current-item rules for the links of this area menu: item route => request route prefixes (a string is a one-item list). |
 
 ```yaml
@@ -189,7 +189,15 @@ nowo_dashboard_menu:
             route_prefixes: [admin_, nowo_http_log_]
             current_routes:
                 admin_storage: admin_storage
+        preferences:
+            path_prefixes: [/account, /organizations]
+            exclude_route_prefixes: [nowo_api_studio_, api_studio_]   # API Studio keeps the default sidebar
 ```
+
+Precedence for a routed request: **exclude veto → path → route → default**. An area whose `exclude_route_prefixes`
+match the route name is skipped at both the path and the route step; among the others the longest `path_prefixes`
+match wins, then the first area (configuration order) with a matching `route_prefixes` entry, then `area_default`.
+Areas are navigation only: they choose the sidebar, they never authorize a request.
 
 ### area_default, area_locale_pattern, area_fallback_when_denied, area_access_checker
 
@@ -200,9 +208,9 @@ nowo_dashboard_menu:
   `false` the area is resolved by path / route only, so guard the sidebar with `dashboard_menu_area_granted(area)`.
 - `area_locale_pattern` (default `'/^[a-z]{2}(?:[_-][A-Za-z]{2})?$/D'`): regex of a leading locale path segment skipped
   when matching `path_prefixes` (`/es/developer` matches `/developer`). `null` when your paths have no locale segment.
-  It must be a valid regular expression with the `D` modifier (checked when the container builds); anchor it so it
-  matches a whole segment, because an unanchored pattern would strip real segments. The path is URL-decoded before
-  matching.
+  It must be a valid regular expression with the `D` modifier, anchored at both ends (`^` or `\A` first, `$` or `\z`
+  last, no top-level `|`: write `/^(?:es|fr)$/D`), checked when the container builds (2.22.1), because an unanchored
+  pattern would strip real segments. The path is URL-decoded before matching.
 - `area_access_checker` (default `null`): service id of a `MenuAreaAccessCheckerInterface` deciding which areas a user
   may see; `null` = `RoleMenuAreaAccessChecker` (any of the area `roles` granted; without SecurityBundle an area with
   roles is never granted).

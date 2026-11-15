@@ -98,8 +98,13 @@ final class AreaTestKernel extends Kernel
             'area_default'              => 'dashboard',
             'area_fallback_when_denied' => $this->fallbackWhenDenied,
             'areas'                     => [
-                'dashboard'    => ['label' => 'nav.dashboard', 'home_route' => 'dashboard_home'],
-                'preferences'  => ['label' => 'nav.preferences', 'home_route' => 'account_profile', 'path_prefixes' => ['/account']],
+                'dashboard'   => ['label' => 'nav.dashboard', 'home_route' => 'dashboard_home'],
+                'preferences' => [
+                    'label'                  => 'nav.preferences',
+                    'home_route'             => 'account_profile',
+                    'path_prefixes'          => ['/account', '/organizations'],
+                    'exclude_route_prefixes' => ['nowo_api_studio_', 'api_studio_'],
+                ],
                 'organization' => [
                     'label'          => 'nav.organization',
                     'roles'          => ['ROLE_MANAGER'],
