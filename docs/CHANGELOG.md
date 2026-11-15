@@ -124,6 +124,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Areas (section resolver)**: `nowo_dashboard_menu.areas` declares application areas (e.g. Dashboard, Development,
+  Organization, Preferences), each with its sidebar `menu`, `label`, `icon`, `home_route`, visibility `roles` and the
+  rules that map a request to it (`path_prefixes` on whole segments, longest first, with an optional locale segment
+  `area_locale_pattern`; then `route_prefixes` / `exclude_route_prefixes` in configuration order; then `area_default`).
+  New `MenuArea` value object and `MenuAreaResolver` service (framework-free `MenuRequestContext` in). Twig:
+  `dashboard_menu_area()`, `dashboard_menu_areas(grantedOnly = true)`, `dashboard_menu_area_granted(area)`.
+- **Area visibility port**: `MenuAreaAccessCheckerInterface`; the default `RoleMenuAreaAccessChecker` grants an area when
+  any of its roles is granted, calling `isGranted($role, $area)` so voter attributes work; `area_access_checker` points
+  at your own service. Without SecurityBundle an area with roles is never granted.
+- **Configured current-item rules**: `current_routes` (every menu) and `areas.<name>.current_routes` (that area menu
+  only): item route => request route prefixes, so hosts no longer subclass `AbstractRoutePrefixMenuCurrentMatcher` per
+  menu. `ConfiguredRouteMenuCurrentMatcher` is registered only when a rule exists.
+- **Hub pages from the menu tree**: `MenuHubBuilder`, `dashboard_menu_hub(menuCode, permissionContext?, contextSets?)`
+  and `@NowoDashboardMenuBundle/hub.html.twig` (UiKit theme slots; per-card partial `_hub_card.html.twig`) turn an area
+  menu tree into headings (sections), groups (nested sections) and cards (links), so a hub and its sidebar show the same
+  permission-filtered entries. Card extras by route (`hub.cards`: intro, testid, tour, badge) or from
+  `MenuHubCardExtrasProviderInterface` services; badge counts from `MenuHubBadgeProviderInterface` services
+  (`dashboard_menu_hub_badge(card)`). Value objects `MenuHubSection`, `MenuHubBlock`, `MenuHubCard`, `MenuHubCardExtras`.
+- All of it is stateless (FrankenPHP worker mode with the kernel kept alive; a 1,000-request alternating test covers it).
+  With the default configuration no area exists and the rendered menus are unchanged.
+
 ### Changed
 
 - docs: demo screenshots regenerated on the UiKit base style

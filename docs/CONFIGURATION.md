@@ -10,6 +10,10 @@
   - [icon_library_prefix_map](#icon_library_prefix_map)
   - [locales and default_locale](#locales-and-default_locale)
   - [strict_permission_checker](#strict_permission_checker)
+  - [areas](#areas)
+  - [area_default, area_locale_pattern, area_access_checker](#area_default-area_locale_pattern-area_access_checker)
+  - [current_routes](#current_routes)
+  - [hub](#hub)
   - [permission_checker_choices](#permission_checker_choices)
   - [menu_link_resolver_choices](#menu_link_resolver_choices)
   - [api](#api)
@@ -34,6 +38,9 @@ Menus are **defined in the database** (dashboard at `/admin/menus` or fixtures):
 - **icon_library_prefix_map**: Map full icon library names to short prefixes (e.g. `bootstrap-icons` → `bi`) for rendering.
 - **locales** / **default_locale**: Enabled locales for menu item labels and fallback.
 - **permission_checker_choices** (optional): List of service IDs (to order/filter) and/or map (service id → label) for the dashboard menu form dropdown; merged with tagged permission checkers.
+- **areas** / **area_default** / **area_locale_pattern** / **area_access_checker** (2.22, opt-in): application areas (own sidebar menu, home page, visibility, request → area rules).
+- **current_routes** (2.22): current-item rules by route prefix (also per area).
+- **hub** (2.22): hub pages built from an area menu tree (card extras, test ids).
 - **api**: Enable JSON API and path prefix.
 - **menu_collapse** (2.6.0, opt-in): nested collapse without Bootstrap JS (`js/menu-collapse.js`).
 - **dashboard**: Enable admin CRUD, path prefix, route exclude patterns, pagination, modals, CSS class options, icon selector script, configurable step for re-indexing item positions.
@@ -149,6 +156,77 @@ instead (useful in CI; not recommended in production, where a typo would break e
 ```yaml
 nowo_dashboard_menu:
     strict_permission_checker: false
+```
+
+### areas
+
+Default `{}` (no areas; nothing changes). Application areas, keyed by name, in priority order for route-name matching.
+See [Usage → Areas and hub pages](USAGE.md#areas-and-hub-pages).
+
+| Key | Default | Description |
+| --- | --- | --- |
+| `menu` | the area name | Menu code of the area sidebar. |
+| `label` | `null` | Label or translation key (the host template translates it). |
+| `icon` | `null` | Icon name, e.g. `tabler:shield-cog`. |
+| `home_route` | `null` | Route of the area home page (its hub). Never shown as a hub card. |
+| `roles` | `[]` | `isGranted()` attributes (roles or voter attributes; subject: the `MenuArea`). Any one grants the area; empty = every user. |
+| `path_prefixes` | `[]` | Path prefixes (`/developer`), matched on whole segments; the longest match wins and decides before route names. |
+| `route_prefixes` | `[]` | Route name prefixes of the area pages outside its paths (kit pages). Areas are tried in configuration order. |
+| `exclude_route_prefixes` | `[]` | Route name prefixes that never belong to the area, even when a `route_prefixes` entry matches. |
+| `current_routes` | `{}` | Current-item rules for the links of this area menu: item route => request route prefixes (a string is a one-item list). |
+
+```yaml
+nowo_dashboard_menu:
+    areas:
+        development:
+            menu: administration
+            label: nav.admin
+            roles: [ROLE_DEVELOPER]
+            home_route: admin_hub
+            path_prefixes: [/developer]
+            route_prefixes: [admin_, nowo_http_log_]
+            current_routes:
+                admin_storage: admin_storage
+```
+
+### area_default, area_locale_pattern, area_access_checker
+
+- `area_default` (default `null`): name of the area of requests no rule matches and of requests without a route.
+- `area_locale_pattern` (default `'/^[a-z]{2}(?:[_-][A-Za-z]{2})?$/D'`): regex of a leading locale path segment skipped
+  when matching `path_prefixes` (`/es/developer` matches `/developer`). `null` when your paths have no locale segment.
+- `area_access_checker` (default `null`): service id of a `MenuAreaAccessCheckerInterface` deciding which areas a user
+  may see; `null` = `RoleMenuAreaAccessChecker` (any of the area `roles` granted; without SecurityBundle an area with
+  roles is never granted).
+
+### current_routes
+
+Default `{}`. Current-item rules for every menu: menu item route => request route prefixes. A link stays current (and
+its branch open) while the request route starts with one of them; ORed with the built-in path match and the other
+matchers. Per-area rules go under `areas.<name>.current_routes`. The matcher is registered only when a rule exists.
+
+```yaml
+nowo_dashboard_menu:
+    current_routes:
+        nowo_manual_index: [nowo_manual_]
+```
+
+### hub
+
+Hub pages (`dashboard_menu_hub()`, `@NowoDashboardMenuBundle/hub.html.twig`).
+
+| Key | Default | Description |
+| --- | --- | --- |
+| `exclude_routes` | `[]` | Routes never shown as cards, besides every `areas.*.home_route`. |
+| `testid_prefix` | `dashboard-menu-hub-` | Prefix of the default card `data-testid` (prefix + route with dashes). |
+| `cards` | `{}` | Card extras by menu item route: `intro` (text or translation key), `testid`, `tour` (`data-tour`), `badge` (key resolved by a `MenuHubBadgeProviderInterface`). |
+
+```yaml
+nowo_dashboard_menu:
+    hub:
+        testid_prefix: 'admin-'
+        cards:
+            admin_users: { intro: admin.hub.users, testid: admin-users, tour: admin-users }
+            nowo_legal_kit_admin_index: { intro: admin.hub.legal_pages, badge: legal_outdated }
 ```
 
 ### permission_checker_choices

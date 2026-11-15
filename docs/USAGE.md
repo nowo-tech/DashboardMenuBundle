@@ -16,6 +16,13 @@
 - [Dashboard export and import](#dashboard-export-and-import)
 - [Resolving menu by criteria (operatorId, partnerId, menu name)](#resolving-menu-by-criteria-operatorid-partnerid-menu-name)
 - [Current item matchers](#current-item-matchers)
+  - [Configured route prefixes (`current_routes`)](#configured-route-prefixes-current_routes)
+- [Areas and hub pages](#areas-and-hub-pages)
+  - [Declaring the areas](#declaring-the-areas)
+  - [Which area a request belongs to](#which-area-a-request-belongs-to)
+  - [Who sees an area](#who-sees-an-area)
+  - [Area switcher and sidebar in Twig](#area-switcher-and-sidebar-in-twig)
+  - [Hub pages](#hub-pages)
 - [Request performance (menu lookup memo)](#request-performance-menu-lookup-memo)
 - [Permissions](#permissions)
   - [Demo expression syntax (AND / OR / parentheses)](#demo-expression-syntax-and--or--parentheses)
@@ -457,6 +464,211 @@ final class AdministrationMenuCurrentMatcher extends AbstractRoutePrefixMenuCurr
 only define `routePrefixes()` need no change now or in 3.0.
 
 `hasCurrentInBranch` still bubbles from children after custom matchers run, so nested collapsible sections stay open.
+
+### Configured route prefixes (`current_routes`)
+
+Since 2.22 the same rule needs no class: list the prefixes in configuration. `current_routes` at the root applies to
+every menu; `areas.<name>.current_routes` applies only to the links of that area's menu (so two areas can give one route
+different prefixes). A link stays current while the request route starts with one of its prefixes; single-page entries
+need no rule (the built-in path match already covers them).
+
+```yaml
+nowo_dashboard_menu:
+    current_routes:
+        nowo_manual_index: [nowo_manual_]
+    areas:
+        development:
+            menu: administration
+            current_routes:
+                admin_storage: [admin_storage]            # Storage and its "Test connection" page
+                nowo_instance_settings_index: [nowo_instance_settings_section]
+                nowo_http_log_admin_index: [nowo_http_log_]
+```
+
+The matcher behind it (`ConfiguredRouteMenuCurrentMatcher`) is registered only when some rule is configured, and is ORed
+with your own matchers and the path match like any other.
+
+## Areas and hub pages
+
+Many back offices split their chrome into **areas**: a Dashboard for everyone, a business area (Organization: people,
+projects, billing) for managers, a technical one (Development: settings, logs, tools) for developers, and the user's
+Preferences. Each area has its own sidebar menu, a home page that lists the area's entries as cards (a **hub**), and is
+visible only to some users. Since 2.22 the bundle provides all of it from configuration and the menus you already have:
+
+- `MenuAreaResolver`: which area a request belongs to (by path, then by route name);
+- `MenuAreaAccessCheckerInterface`: which areas a user may see (roles / voter attributes by default, or your own port);
+- `MenuHubBuilder` and `@NowoDashboardMenuBundle/hub.html.twig`: a hub page built from the area's menu tree, so the hub
+  and the sidebar always show the same permission-filtered entries, labels and order;
+- `current_routes`: current-item rules for nested pages ([above](#configured-route-prefixes-current_routes)).
+
+Nothing changes until you declare areas: with the defaults no area exists and no new service runs during rendering.
+
+### Declaring the areas
+
+```yaml
+nowo_dashboard_menu:
+    area_default: dashboard            # requests no rule matches (and requests without a route)
+    areas:
+        dashboard:
+            label: nav.dashboard
+            icon: 'tabler:layout-dashboard'
+            home_route: dashboard_home
+        preferences:
+            label: nav.preferences
+            home_route: account_profile
+            path_prefixes: [/account, /organizations]
+            route_prefixes: [account_]
+        organization:
+            label: nav.organization
+            icon: 'tabler:building'
+            roles: [ROLE_MANAGER]
+            home_route: organization_hub
+            path_prefixes: [/organization]
+            route_prefixes: [organization_, admin_users, admin_groups, admin_projects, admin_project_, admin_support_]
+            exclude_route_prefixes: [admin_project_roles]
+        development:
+            menu: administration       # menu code of the sidebar (default: the area name)
+            label: nav.admin
+            icon: 'tabler:shield-cog'
+            roles: [ROLE_DEVELOPER]
+            home_route: admin_hub
+            path_prefixes: [/developer]
+            route_prefixes: [admin_, nowo_dashboard_menu_, nowo_http_log_]
+```
+
+Every option is described in [CONFIGURATION.md](CONFIGURATION.md#areas).
+
+### Which area a request belongs to
+
+`MenuAreaResolver::resolveFor(MenuRequestContext)` (Twig: `dashboard_menu_area()`):
+
+1. a request without a route belongs to `area_default`;
+2. the **path** decides first: the area with the longest matching `path_prefixes` entry wins. Prefixes match whole
+   segments (`/organization` does not match `/organizations/…`), and a leading locale segment matching
+   `area_locale_pattern` is skipped (`/es/developer/…` is `/developer/…`). So a route always gets the area of the URL it
+   lives under, whatever its name;
+3. then the **route name**, for pages mounted outside the area paths (kit dashboards): the first area, in configuration
+   order, with a matching `route_prefixes` entry and no matching `exclude_route_prefixes` entry;
+4. otherwise `area_default` (null when not set).
+
+The resolver is stateless and takes the framework-free `MenuRequestContext`; build one from a Symfony request with
+`MenuRequestContextFactory::fromRequest()`.
+
+### Who sees an area
+
+`dashboard_menu_areas()` lists the areas the user may see; `dashboard_menu_area_granted('development')` asks for one.
+The default `RoleMenuAreaAccessChecker` grants an area without `roles` to everyone and otherwise when **any** role is
+granted. Each role goes through `isGranted($role, $area)` with the `MenuArea` as subject, so a voter attribute works too:
+
+```php
+use Nowo\DashboardMenuBundle\Model\MenuArea;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
+use Symfony\Component\Security\Core\Authorization\Voter\Voter;
+
+/** @extends Voter<string, MenuArea> */
+final class AreaVoter extends Voter
+{
+    protected function supports(string $attribute, mixed $subject): bool
+    {
+        return $attribute === 'AREA_ORGANIZATION' && $subject instanceof MenuArea;
+    }
+
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
+    {
+        return /* the user manages an organization */ true;
+    }
+}
+```
+
+Without SecurityBundle an area with roles is never granted (fail closed). To decide another way (a policy port of a DDD
+host), implement `MenuAreaAccessCheckerInterface::canAccessArea(MenuArea): bool` and set
+`area_access_checker: App\Navigation\AreaPolicy`.
+
+Visibility is only about listing the area: protect the area's routes with `access_control` or attributes as usual.
+
+### Area switcher and sidebar in Twig
+
+```twig
+{% set area = dashboard_menu_area() %}
+
+{# Sidebar of the current area #}
+{% if area %}
+    <p class="sidebar__label">{{ area.label|trans }}</p>
+    {% include '@NowoDashboardMenuBundle/menu.html.twig' with {menuCode: area.menu} %}
+{% endif %}
+
+{# Area switcher (e.g. in the avatar menu) #}
+{% for a in dashboard_menu_areas() %}
+    <a href="{{ path(a.homeRoute) }}"{% if area and a.name == area.name %} aria-current="page"{% endif %}>
+        {% if a.icon %}{{ ux_icon(a.icon) }}{% endif %}{{ a.label|trans }}
+    </a>
+{% endfor %}
+```
+
+`MenuArea` exposes `name`, `menu`, `label`, `icon`, `homeRoute`, `roles`, `pathPrefixes`, `routePrefixes`,
+`excludeRoutePrefixes` and `currentRoutes`. `dashboard_menu_areas(false)` lists every area regardless of the user.
+
+### Hub pages
+
+A hub page lists the area's entries as cards, walked from the same permission-filtered tree as the sidebar
+(`dashboard_menu_tree()`): top-level sections become headings, nested sections (groups such as "Email") sub-headings,
+and links cards titled by their menu label, in menu order. Hidden entries, dividers, `#` links, the hub pages themselves
+(every area's `home_route` plus `hub.exclude_routes`) and empty headings are left out. Top-level links outside any
+section are gathered under a heading without a label.
+
+```twig
+{# templates/admin/hub.html.twig #}
+{% include '@NowoDashboardMenuBundle/hub.html.twig' with {menu_code: 'administration', testid: 'admin-hub-sections'} only %}
+```
+
+Variables: `menu_code`, `testid` (wrapper `data-testid`), `intro_domain` (translation domain of the intros, default
+`messages`), `permission_context` / `context_sets` (as for `dashboard_menu_tree()`), `sections` (already built) and
+`card_template` (your partial per card; the default is `@NowoDashboardMenuBundle/_hub_card.html.twig`). The markup uses
+the UiKit theme slots `section`, `cards`, `card`, `card_body`, `card_title`, `card_intro`, `badge_warning` and `muted`
+of the `NowoDashboardMenuBundle` theme bundle, plus `data-hub-section`, `data-hub-group` and `data-hub-route` hooks.
+
+To render your own markup, walk `dashboard_menu_hub('administration')`: a list of `MenuHubSection` (`label`, `blocks`),
+each block a `MenuHubBlock` (`group`, `cards`), each card a `MenuHubCard` (`label`, `route`, `href`, `testid`, `intro`,
+`tour`, `badge`, `current`, `item` as a `MenuItemView`).
+
+**Card extras.** Title, link and order always come from the menu item. What the menu does not hold is configured per
+route:
+
+```yaml
+nowo_dashboard_menu:
+    hub:
+        testid_prefix: 'admin-'        # default card data-testid: prefix + route with dashes
+        exclude_routes: []             # besides every areas.*.home_route
+        cards:
+            admin_users: { intro: admin.hub.users, testid: admin-users, tour: admin-users }
+            admin_support_inbox: { intro: admin.hub.support_inbox, badge: support_open }
+```
+
+For extras computed at runtime, implement `MenuHubCardExtrasProviderInterface::extrasFor(MenuItemView): ?MenuHubCardExtras`
+(autoconfigured; the first provider that answers wins, then `hub.cards`).
+
+**Badges.** A card whose extras name a `badge` key asks the `MenuHubBadgeProviderInterface` services for a number
+(autoconfigured; the first non-null answer wins; 0 or no answer shows no badge). Count per call, keep nothing in
+properties:
+
+```php
+use Nowo\DashboardMenuBundle\Model\MenuHubCard;
+use Nowo\DashboardMenuBundle\Service\MenuHubBadgeProviderInterface;
+
+final readonly class HubBadges implements MenuHubBadgeProviderInterface
+{
+    public function __construct(private SupportInbox $inbox) {}
+
+    public function badgeCount(string $badge, MenuHubCard $card): ?int
+    {
+        return $badge === 'support_open' ? $this->inbox->countOpen() : null;
+    }
+}
+```
+
+All area and hub services are stateless (FrankenPHP worker mode with the kernel kept alive): every call reads the
+request stack, nothing is memoised between requests.
 
 ## Request performance (menu lookup memo)
 
