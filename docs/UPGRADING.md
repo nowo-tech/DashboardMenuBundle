@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.22.0](#to-2220)
 - [To 2.21.1](#to-2211)
 - [To 2.21.0](#to-2210)
 - [To 2.20.0](#to-2200)
@@ -135,6 +136,14 @@
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## To 2.22.0
+
+From **2.21.1**:
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
 
 Target **2.22.0**, from **2.21.1**: no breaking change, no configuration change required. Areas, the hub and the
 configured current-item rules are opt-in; without `areas`, `current_routes` and `hub` the rendered output is unchanged.
