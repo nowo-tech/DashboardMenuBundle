@@ -83,6 +83,8 @@ final class MenuAreaResolverTest extends TestCase
         yield 'double slash keeps route rules' => ['admin_hub', '//organization/x', 'development'];
         yield 'inner double slash keeps the prefix' => ['x_page', '/developer//x', 'development'];
         yield 'locale only' => ['x_page', '/es/', 'dashboard'];
+        yield 'locale then empty segment' => ['x_page', '/es//', 'dashboard'];
+        yield 'trailing double slash' => ['x_page', '/developer//', 'development'];
     }
 
     #[DataProvider('requests')]
@@ -124,6 +126,15 @@ final class MenuAreaResolverTest extends TestCase
         // Double slash: no path match, the route step still applies, then the default.
         self::assertSame('admin', $resolver->resolveFor(new MenuRequestContext('admin_users', [], '//admin/users', 'en'))?->name);
         self::assertSame('home', $resolver->resolveFor(new MenuRequestContext('page_show', [], '//about', 'en'))?->name);
+
+        // Locale then an empty segment: no path match (the root `/` area does not catch it), the route rule applies.
+        $localized = new MenuAreaResolver([
+            'site'  => ['path_prefixes' => ['/']],
+            'admin' => ['route_prefixes' => ['admin_']],
+        ], null, '/^[a-z]{2}$/D');
+        self::assertSame('admin', $localized->resolveFor(new MenuRequestContext('admin_users', [], '/es//', 'en'))?->name);
+        self::assertSame('site', $localized->resolveFor(new MenuRequestContext('admin_users', [], '/es/', 'en'))?->name);
+        self::assertSame('site', $localized->resolveFor(new MenuRequestContext('admin_users', [], '/es', 'en'))?->name);
     }
 
     /**

@@ -23,6 +23,7 @@ use function str_contains;
 use function str_ends_with;
 use function str_starts_with;
 use function strlen;
+use function strpos;
 use function strrpos;
 use function substr;
 
@@ -818,7 +819,7 @@ final class Configuration implements ConfigurationInterface
 
         return (str_starts_with($body, '^') || str_starts_with($body, '\\A'))
             && self::endsWithAnchor($body)
-            && !self::hasTopLevelAlternation($body);
+            && !self::hasTopLevelAlternation($body, str_contains($m[1], 'x'));
     }
 
     private static function endsWithAnchor(string $body): bool
@@ -840,7 +841,7 @@ final class Configuration implements ConfigurationInterface
         return $backslashes % 2 === 0;
     }
 
-    private static function hasTopLevelAlternation(string $body): bool
+    private static function hasTopLevelAlternation(string $body, bool $extended): bool
     {
         $depth   = 0;
         $inClass = false;
@@ -870,6 +871,13 @@ final class Configuration implements ConfigurationInterface
                 ++$depth;
             } elseif ($char === ')') {
                 --$depth;
+            } elseif ($extended && $char === '#') {
+                // Under the x modifier, `#` starts a comment that runs to the next newline.
+                $newline = strpos($body, "\n", $i);
+                if ($newline === false) {
+                    break;
+                }
+                $i = $newline;
             } elseif ($char === '|' && $depth === 0) {
                 return true;
             }

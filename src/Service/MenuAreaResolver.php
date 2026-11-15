@@ -10,15 +10,17 @@ use Nowo\DashboardMenuBundle\Model\MenuRequestContext;
 use function array_filter;
 use function array_slice;
 use function array_values;
+use function count;
 use function explode;
 use function implode;
 use function is_array;
 use function is_string;
 use function preg_match;
 use function rawurldecode;
+use function rtrim;
 use function str_starts_with;
 use function strlen;
-use function trim;
+use function substr;
 
 /**
  * The areas of `nowo_dashboard_menu.areas` and the request → area rule (2.22).
@@ -179,15 +181,16 @@ final readonly class MenuAreaResolver
         if (str_starts_with($decoded, '//')) {
             return null;
         }
-        $segments = explode('/', trim($decoded, '/'));
+        // Keep empty segments until the locale is checked: `/es//` must not collapse to `/es/` (= `/`).
+        $segments = explode('/', str_starts_with($decoded, '/') ? substr($decoded, 1) : $decoded);
         if ($this->localePattern !== null && $this->localePattern !== '' && preg_match($this->localePattern, $segments[0]) === 1) {
             $segments = array_slice($segments, 1);
-            if (($segments[0] ?? null) === '') {
+            if (count($segments) > 1 && $segments[0] === '') {
                 return null;
             }
         }
 
-        return '/' . implode('/', $segments);
+        return '/' . rtrim(implode('/', $segments), '/');
     }
 
     private function pathMatches(string $path, string $prefix): bool
