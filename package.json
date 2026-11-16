@@ -19,10 +19,10 @@
   },
   "devDependencies": {
     "@types/sortablejs": "^1.15.9",
-    "@vitest/coverage-v8": "^4.1.12",
-    "happy-dom": "^20.14.6",
+    "@vitest/coverage-v8": "^5.1.0",
+    "happy-dom": "^21.0.4",
     "typescript": "^5.9.3",
     "vite": "^8.3.4",
-    "vitest": "^4.1.12"
+    "vitest": "^5.1.0"
   }
 }
