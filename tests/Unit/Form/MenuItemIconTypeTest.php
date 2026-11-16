@@ -9,6 +9,7 @@ use Nowo\DashboardMenuBundle\Form\MenuItemIconType;
 use Nowo\DashboardMenuBundle\NowoDashboardMenuBundle;
 use Nowo\DashboardMenuBundle\Service\MenuIconNameResolver;
 use Nowo\DashboardMenuBundle\Tests\Unit\Form\FormKitMergerTestTrait;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -137,9 +138,7 @@ final class MenuItemIconTypeTest extends TestCase
         $listener($eventEmptyPosition);
     }
 
-    /**
-     * @runInSeparateProcess
-     */
+    #[RunInSeparateProcess]
     public function testBuildFormAddsTextIconFieldWhenIconSelectorBundleIsMissing(): void
     {
         // If the stub class from other tests is not available in this process,

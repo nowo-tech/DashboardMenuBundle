@@ -1,6 +1,6 @@
 # Nowo Dashboard Menu Bundle
 
-[![CI](https://github.com/nowo-tech/DashboardMenuBundle/actions/workflows/ci.yml/badge.svg)](https://github.com/nowo-tech/DashboardMenuBundle/actions/workflows/ci.yml) [![Packagist Version](https://img.shields.io/packagist/v/nowo-tech/dashboard-menu-bundle.svg?style=flat)](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) [![Packagist Downloads](https://img.shields.io/packagist/dt/nowo-tech/dashboard-menu-bundle.svg)](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php)](https://php.net) [![Symfony](https://img.shields.io/badge/Symfony-7%2B%20%7C%208-000000?logo=symfony)](https://symfony.com) [![GitHub stars](https://img.shields.io/github/stars/nowo-tech/DashboardMenuBundle.svg?style=social&label=Star)](https://github.com/nowo-tech/DashboardMenuBundle) [![Coverage](https://img.shields.io/badge/Coverage-99.32%25-brightgreen)](#tests-and-coverage)
+[![CI](https://github.com/nowo-tech/DashboardMenuBundle/actions/workflows/ci.yml/badge.svg)](https://github.com/nowo-tech/DashboardMenuBundle/actions/workflows/ci.yml) [![Packagist Version](https://img.shields.io/packagist/v/nowo-tech/dashboard-menu-bundle.svg?style=flat)](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) [![Packagist Downloads](https://img.shields.io/packagist/dt/nowo-tech/dashboard-menu-bundle.svg)](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php)](https://php.net) [![Symfony](https://img.shields.io/badge/Symfony-7.4%20%7C%208.0%20%7C%208.1%2B-000000?logo=symfony)](https://symfony.com) [![GitHub stars](https://img.shields.io/github/stars/nowo-tech/DashboardMenuBundle.svg?style=social&label=Star)](https://github.com/nowo-tech/DashboardMenuBundle) [![Coverage](https://img.shields.io/badge/Coverage-99.47%25-brightgreen)](#tests-and-coverage)
 
 > ⭐ **Found this useful?** [Install from Packagist](https://packagist.org/packages/nowo-tech/dashboard-menu-bundle) · Give it a **star** on [GitHub](https://github.com/nowo-tech/DashboardMenuBundle) so more developers can find it.
 
@@ -161,7 +161,7 @@ Then run `php bin/console assets:install` in the app so `public/bundles/nowodash
 
 - [Installation](docs/INSTALLATION.md)
 - [Configuration](docs/CONFIGURATION.md)
-- [Usage](docs/USAGE.md) — [Standard Symfony host](docs/USAGE.md#standard-symfony-host) and [DDD host](docs/USAGE.md#ddd-host)
+- [Usage](docs/USAGE.md)
 - [Contributing](docs/CONTRIBUTING.md)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Changelog](docs/CHANGELOG.md)
@@ -174,6 +174,8 @@ Then run `php bin/console assets:install` in the app so `public/bundles/nowodash
 
 ### Additional documentation
 
+- [Standard Symfony host](docs/USAGE.md#standard-symfony-host)
+- [DDD host](docs/USAGE.md#ddd-host)
 - [GitHub Actions CI requirements](docs/GITHUB_CI.md)
 - [PSR evaluation (REQ-CS-007)](docs/PSR.md)
 - [Templates (UiKit page contract)](docs/TEMPLATES.md)
@@ -185,8 +187,8 @@ Then run `php bin/console assets:install` in the app so `public/bundles/nowodash
 ## Tests and coverage
 
 - Tests: PHPUnit (unit and integration suites) + Vitest for TypeScript (`make test-ts`)
-- PHP (Lines): **99.32%** on the includable `src/` set — see [`docs/COVERAGE.md`](docs/COVERAGE.md). Run `make coverage-check` / `composer coverage-check`.
-- TS/JS: **100%** on `logger.ts` (Vitest + v8); run `make test-ts` (prints global TS coverage via `.scripts/ts-coverage-percent.sh`)
+- PHP (Lines): **99.47%** (CI `Code Coverage` job, gate 99%) on the includable `src/` set — see [`docs/COVERAGE.md`](docs/COVERAGE.md). Run `make coverage-check` / `composer coverage-check`.
+- TS/JS: **100%** on the unit-testable modules `logger.ts`, `config.ts` and `menu-collapse.ts` (Vitest + v8; `dashboard.ts` / `stimulus-live.ts` are integration-heavy and outside the gate); run `make test-ts` (prints global TS coverage via `.scripts/ts-coverage-percent.sh`)
 - Python: N/A
 
 ## License

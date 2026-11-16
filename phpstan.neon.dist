@@ -8,8 +8,8 @@ parameters:
     bootstrapFiles:
         - vendor/autoload.php
     reportUnmatchedIgnoredErrors: false
+    ignoreErrors: []
 
 includes:
-    - phpstan-baseline.neon
     - vendor/nowo-tech/phpstan-frankenphp/ruleset-classic.neon
     - vendor/nowo-tech/phpstan-frankenphp/ruleset-worker.neon
