@@ -1054,16 +1054,16 @@
         },
         {
             "name": "nowo-tech/ui-kit-bundle",
-            "version": "v2.42.1",
+            "version": "v2.51.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nowo-tech/UiKitBundle.git",
-                "reference": "9166d7374953104edd0bfaf69803ea1a015d6299"
+                "reference": "bd14774abdb7fb3bb755bf8fb2bf4aaee0258d15"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nowo-tech/UiKitBundle/zipball/9166d7374953104edd0bfaf69803ea1a015d6299",
-                "reference": "9166d7374953104edd0bfaf69803ea1a015d6299",
+                "url": "https://api.github.com/repos/nowo-tech/UiKitBundle/zipball/bd14774abdb7fb3bb755bf8fb2bf4aaee0258d15",
+                "reference": "bd14774abdb7fb3bb755bf8fb2bf4aaee0258d15",
                 "shasum": ""
             },
             "require": {
@@ -1152,7 +1152,7 @@
                 "issues": "https://github.com/nowo-tech/UiKitBundle/issues",
                 "source": "https://github.com/nowo-tech/UiKitBundle"
             },
-            "time": "2026-11-09T09:43:11+00:00"
+            "time": "2026-11-13T16:47:40+00:00"
         },
         {
             "name": "psr/cache",
@@ -7210,8 +7210,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-11-15T19:58:26+00:00",
-            "published-time": "2026-11-15T19:58:39+00:00"
+            "time": "2026-11-15T19:58:26+00:00"
         },
         {
             "name": "phpstan/phpstan-phpunit",
@@ -7269,8 +7268,7 @@
                 "issues": "https://github.com/phpstan/phpstan-phpunit/issues",
                 "source": "https://github.com/phpstan/phpstan-phpunit/tree/2.1.2"
             },
-            "time": "2026-11-12T15:27:53+00:00",
-            "published-time": "2026-11-12T16:07:51+00:00"
+            "time": "2026-11-12T15:27:53+00:00"
         },
         {
             "name": "phpstan/phpstan-symfony",
@@ -10149,5 +10147,5 @@
     "platform-overrides": {
         "php": "8.2"
     },
-    "plugin-api-version": "2.11.0"
+    "plugin-api-version": "2.9.0"
 }
