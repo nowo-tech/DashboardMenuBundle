@@ -2,9 +2,9 @@
 
 **Baseline spec**: [`spec.md`](spec.md)  
 **Package**: `nowo-tech/dashboard-menu-bundle`  
-**Last audited**: 2026-10-20
+**Last audited**: 2026-11-16 (REQ sweep: 2.17–2.22 additions mapped)
 
-Paths are relative to `src/`. This file proves that **every file tracked under `src/`** (`git ls-files src`, 155 files) is referenced by the baseline specification. Test-only files under `tests/` and demo trees are out of Packagist scope unless promoted in the spec.
+Paths are relative to `src/`. This file proves that **every file tracked under `src/`** (`git ls-files src`, 193 files) is referenced by the baseline specification. Test-only files under `tests/` and demo trees are out of Packagist scope unless promoted in the spec.
 
 ## Bundle & DI
 
@@ -298,6 +298,49 @@ Vitest specs live next to the TypeScript sources under `src/`; they are not load
 | `Resources/assets/src/menu-collapse.test.ts` | Vitest: nested collapse | FR-TEST-001 |
 
 
+## Additions 2.17–2.22 (VO ports, dedicated entity manager, areas and hub pages)
+
+| Source file | Spec section | Requirement IDs |
+| --- | --- | --- |
+| `DependencyInjection/Compiler/CsrfProtectionPass.php` | Additions 2.17–2.22 | FR-SEC-003 |
+| `DependencyInjection/Compiler/DashboardMenuEntityManagerPass.php` | Additions 2.17–2.22 | FR-ORM-003 |
+| `DependencyInjection/Compiler/MenuCodeResolverPass.php` | Additions 2.17–2.22 | FR-PORT-001 |
+| `DependencyInjection/Compiler/MultiVariantPortsPass.php` | Additions 2.17–2.22 | FR-PORT-001 |
+| `Doctrine/DashboardMenuEntityManagerResolver.php` | Additions 2.17–2.22 | FR-ORM-003 |
+| `Doctrine/ExcludedEntityNamespaceDriver.php` | Additions 2.17–2.22 | FR-ORM-003 |
+| `Event/MenuTreeBuiltEvent.php` | Additions 2.17–2.22 | FR-PORT-002 |
+| `Model/MenuArea.php` | Additions 2.17–2.22 | FR-AREA-001 |
+| `Model/MenuHubBlock.php` | Additions 2.17–2.22 | FR-HUB-001 |
+| `Model/MenuHubCard.php` | Additions 2.17–2.22 | FR-HUB-001 |
+| `Model/MenuHubCardExtras.php` | Additions 2.17–2.22 | FR-HUB-001 |
+| `Model/MenuHubSection.php` | Additions 2.17–2.22 | FR-HUB-001 |
+| `Model/MenuItemView.php` | Additions 2.17–2.22 | FR-PORT-001 |
+| `Model/MenuNodeView.php` | Additions 2.17–2.22 | FR-PORT-002 |
+| `Model/MenuPermissionContext.php` | Additions 2.17–2.22 | FR-PORT-001 |
+| `Model/MenuRequestContext.php` | Additions 2.17–2.22 | FR-PORT-001 |
+| `Model/MenuView.php` | Additions 2.17–2.22 | FR-PORT-002 |
+| `Resources/views/_hub_card.html.twig` | Additions 2.17–2.22 | FR-HUB-001 |
+| `Resources/views/hub.html.twig` | Additions 2.17–2.22 | FR-HUB-001 |
+| `Service/ConfiguredRouteMenuCurrentMatcher.php` | Additions 2.17–2.22 | FR-MENU-009 |
+| `Service/MenuAreaAccessCheckerInterface.php` | Additions 2.17–2.22 | FR-AREA-001 |
+| `Service/MenuAreaResolver.php` | Additions 2.17–2.22 | FR-AREA-001 |
+| `Service/MenuCodeContextResolverInterface.php` | Additions 2.17–2.22 | FR-PORT-001 |
+| `Service/MenuHubBadgeProviderInterface.php` | Additions 2.17–2.22 | FR-HUB-001 |
+| `Service/MenuHubBuilder.php` | Additions 2.17–2.22 | FR-HUB-001 |
+| `Service/MenuHubCardExtrasProviderInterface.php` | Additions 2.17–2.22 | FR-HUB-001 |
+| `Service/MenuItemContextCurrentMatcherInterface.php` | Additions 2.17–2.22 | FR-PORT-001 |
+| `Service/MenuItemContextLinkResolverInterface.php` | Additions 2.17–2.22 | FR-PORT-001 |
+| `Service/MenuItemContextPermissionCheckerInterface.php` | Additions 2.17–2.22 | FR-PORT-001 |
+| `Service/MenuItemViewAdapters.php` | Additions 2.17–2.22 | FR-PORT-001 |
+| `Service/MenuItemViewCurrentMatcherInterface.php` | Additions 2.17–2.22 | FR-PORT-001 |
+| `Service/MenuItemViewLinkResolverInterface.php` | Additions 2.17–2.22 | FR-PORT-001 |
+| `Service/MenuItemViewPermissionCheckerInterface.php` | Additions 2.17–2.22 | FR-PORT-001 |
+| `Service/MenuRequestContextFactory.php` | Additions 2.17–2.22 | FR-PORT-001 |
+| `Service/RoleMenuAreaAccessChecker.php` | Additions 2.17–2.22 | FR-AREA-001 |
+| `Twig/MenuAreaExtension.php` | Additions 2.17–2.22 | FR-AREA-001, FR-HUB-001 |
+| `Worker/DashboardMenuOwnEntityManagerSubscriber.php` | Additions 2.17–2.22 | FR-WORKER-001, FR-ORM-003 |
+| `Worker/UnitOfWorkBoundaries.php` | Additions 2.17–2.22 | FR-WORKER-001 |
+
 ## Coverage summary
 
 | Category | Files | Mapped |
@@ -329,6 +372,7 @@ Vitest specs live next to the TypeScript sources under `src/`; they are not load
 | Live Component template | 1 | 1 |
 | Web Profiler views | 2 | 2 |
 | Co-located Vitest sources (`FR-TEST-*`) | 3 | 3 |
-| **Total production files (`git ls-files src`)** | **155** | **155** |
+| Additions 2.17–2.22 | 38 | 38 |
+| **Total production files (`git ls-files src`)** | **193** | **193** |
 
 Built JavaScript is documented as published output of TypeScript sources; maintainers rebuild when TS changes.

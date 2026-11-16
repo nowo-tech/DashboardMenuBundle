@@ -126,6 +126,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- Spec Kit baseline maps all 193 tracked `src/` files; `spec.md` gains FR-SEC-003, FR-PORT-001/002, FR-ORM-003, FR-MENU-009, FR-AREA-001 and FR-HUB-001 for 2.17–2.22 (REQ-SPECKIT-001/003).
+- `docs/SECURITY.md`: scope and attack surface, threat model, secrets, logging policy and dependencies sections (REQ-SEC-001 / REQ-OBS-001).
+- README: Symfony badge lists 7.4 | 8.0 | 8.1+, coverage figures match CI (PHP 99.47%), plain Usage link in the base Documentation list (REQ-DOCS-002/004, REQ-TEST-007); TOC fixes in CONFIGURATION / USAGE (REQ-DOCS-005).
+
+### Changed (tooling)
+
+- PHPStan: dropped the empty `phpstan-baseline.neon`; `ignoreErrors: []` in `phpstan.neon.dist` (REQ-CS-006).
+- Tests: `@runInSeparateProcess` docblocks replaced by `#[RunInSeparateProcess]` (REQ-TEST-010).
+- Dependabot: npm updates for the root and demo e2e manifests (REQ-GH-002).
+
 ## [2.22.1] - 2026-11-15
 
 Targets **2.22.1** (patch).

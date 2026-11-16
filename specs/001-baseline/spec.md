@@ -253,6 +253,16 @@ As a bundle maintainer, I sync missing translation keys across locale files.
 
 ---
 
+### Additions 2.17–2.22
+
+- **FR-SEC-003**: `CsrfProtectionPass` fails the container build when the dashboard is enabled without Symfony form CSRF protection (REQ-SEC-005, fail closed).
+- **FR-PORT-001**: Framework-free host ports (REQ-ARCH-001): item permission / link / current-match ports typed with bundle-owned VOs (`MenuItemView`, `MenuPermissionContext`, `MenuRequestContext`) built by `MenuRequestContextFactory`; `MenuItemViewAdapters` calls the deprecated entity ports, the `MenuItemView` variants (2.17) or the context variants (2.18); `MultiVariantPortsPass` warns when a host service implements more than one variant; `MenuCodeContextResolverInterface` + `MenuCodeResolverPass` resolve the menu code without HttpFoundation types.
+- **FR-PORT-002**: Tree as read-only views (2.18): `MenuView` (render configuration) and `MenuNodeView` trees for hosts that consume menus outside Twig; `MenuTreeBuiltEvent` is dispatched after a view tree is built.
+- **FR-ORM-003**: Optional dedicated entity manager (`doctrine.entity_manager`, 2.18): `DashboardMenuEntityManagerPass` maps the menu entities only there and registers `ExcludedEntityNamespaceDriver` on every other manager; `DashboardMenuEntityManagerResolver` returns the manager to use; `DashboardMenuOwnEntityManagerSubscriber` + `UnitOfWorkBoundaries` keep that manager usable in a kept-alive kernel (2.21).
+- **FR-MENU-009**: `ConfiguredRouteMenuCurrentMatcher` marks the current item from configured route-prefix rules (`current_routes`, 2.22) instead of host subclasses.
+- **FR-AREA-001**: Areas (2.22, opt-in): `MenuArea` model, `MenuAreaResolver` (request → area by path then route prefix), `MenuAreaAccessCheckerInterface` with default `RoleMenuAreaAccessChecker`, Twig `dashboard_menu_area()` / `dashboard_menu_areas()` / `dashboard_menu_area_granted()` (`MenuAreaExtension`).
+- **FR-HUB-001**: Hub pages (2.22): `MenuHubBuilder` builds `MenuHubSection` / `MenuHubBlock` / `MenuHubCard` from the permission-filtered area tree; host extras via `MenuHubCardExtrasProviderInterface` (`MenuHubCardExtras`) and badges via `MenuHubBadgeProviderInterface`; rendered by `hub.html.twig` / `_hub_card.html.twig` and Twig `dashboard_menu_hub()` / `dashboard_menu_hub_badge()`.
+
 ## Key Entities
 
 - **Menu**: Identified by `code` + optional `context` JSON; stores render config, permission checker reference, collapsible/icon options.

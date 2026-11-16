@@ -31,6 +31,8 @@
   - [Using it from a DDD / hexagonal application](#using-it-from-a-ddd--hexagonal-application)
   - [Keeping your domain free of the bundle](#keeping-your-domain-free-of-the-bundle)
   - [Reading the tree without entities](#reading-the-tree-without-entities)
+  - [Domain-driven entries and render configuration (2.18)](#domain-driven-entries-and-render-configuration-218)
+  - [Dedicated entity manager (2.18)](#dedicated-entity-manager-218)
   - [Known limitations](#known-limitations)
 - [Item visibility rules](#item-visibility-rules)
   - [1. Permission check (per item, all types)](#1-permission-check-per-item-all-types)

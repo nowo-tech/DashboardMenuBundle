@@ -4,11 +4,54 @@ Report vulnerabilities to the maintainers privately. Do not open public issues f
 
 ## Table of contents
 
+- [Scope and attack surface](#scope-and-attack-surface)
+- [Threat model](#threat-model)
+- [Secrets](#secrets)
+- [Logging policy](#logging-policy)
+- [Dependencies](#dependencies)
 - [Dashboard in sensitive environments](#dashboard-in-sensitive-environments)
 - [Menu JSON API](#menu-json-api-apimenucode)
 - [Content Security Policy (CSP)](#content-security-policy-csp)
 - [AI security audit (REQ-SEC-004)](#ai-security-audit-req-sec-004)
 - [Release security checklist (12.4.1)](#release-security-checklist-1241)
+
+## Scope and attack surface
+
+| Surface | Exposure | Controls |
+| --- | --- | --- |
+| Admin dashboard (`dashboard.path_prefix`, default `/admin/menus`): CRUD, copy, reorder, import / export | Authenticated admins | `security.access_roles` / `access_checker` gate (fails closed), form CSRF (`CsrfProtectionPass`), `import_max_bytes`, optional `import_export_rate_limit` |
+| Menu JSON API `GET /api/menu/{code}` | Public unless the host restricts it | `api.enabled`, host `access_control`, menu permission checker, bounded `_context_sets` (400 above the limit) |
+| Twig functions / Live Component rendering menus | Every page that renders a menu | Menu permission checker per item, `ExternalUrlPolicy` on `externalUrl`, CSP nonces on inline blocks |
+| CLI `nowo_dashboard_menu:translations:google-sync` | Operators only | Google API key from option or env, never stored |
+| CLI `nowo_dashboard_menu:generate-migration` | Operators only | Writes a migration file; no network |
+
+## Threat model
+
+- **Unauthorised menu administration** — mitigated by the dashboard gate (default `ROLE_ADMIN`, fail-closed when misconfigured) and the `access_control` lock documented below.
+- **Cross-site request forgery** on dashboard mutations — Symfony form CSRF, build fails when CSRF is unavailable.
+- **Information disclosure** through the JSON API or rendered menus (admin links, route names) — host restricts the API path and assigns a real permission checker; `AllowAllMenuPermissionChecker` is for public menus only.
+- **Script injection via menu data** (`externalUrl`, labels, icons) — URL scheme allow-list, Twig auto-escaping, no inline event handlers.
+- **Denial of service** through large imports or repeated import / export — `import_max_bytes`, rate limiter (HTTP 429).
+- **Cross-request leaks under FrankenPHP worker mode** — request-scoped memos cleared at request boundaries (see [`FRANKENPHP-WORKER-AUDIT.md`](FRANKENPHP-WORKER-AUDIT.md)).
+
+## Secrets
+
+- The bundle ships no secrets. The only credential it reads is the Google Translate API key of the `google-sync` command, taken from `--api-key` or `GOOGLE_TRANSLATE_API_KEY` at runtime; it is never logged, cached or persisted.
+- Demo `.env.example` values are throwaway placeholders; real values belong in `.env.local` / the host secret store.
+
+## Logging policy
+
+| Event | Level | Context | Never logged |
+| --- | --- | --- | --- |
+| Import / export rate limit exceeded | `warning` | `bundle`, `action`, `limit`, `interval` | tokens, session ids, request bodies |
+| Permission-context values dropped for a value-object checker | `warning` | `bundle`, `menu`, dropped key names | the dropped values |
+
+Logging goes through the injected `Psr\Log\LoggerInterface` (no `dump` / `error_log`).
+
+## Dependencies
+
+- CI runs `composer audit --locked` on every push and pull request; Dependabot watches Composer, GitHub Actions and npm manifests.
+- Runtime dependencies are limited to Symfony components, Doctrine, `nowo-tech/ui-kit-bundle` and `nowo-tech/form-kit-bundle`; QA tools stay in `require-dev`.
 
 ## Dashboard in sensitive environments
 

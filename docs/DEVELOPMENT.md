@@ -73,7 +73,7 @@ make rector
 make phpstan
 ```
 
-`phpstan.neon.dist` includes an empty `phpstan-baseline.neon` and the **`nowo-tech/phpstan-frankenphp`** classic/worker rulesets (dev dependency). Prefer fixing findings over adding baseline ignores.
+`phpstan.neon.dist` has no baseline (`ignoreErrors: []`) and includes the **`nowo-tech/phpstan-frankenphp`** classic/worker rulesets (dev dependency). Prefer fixing findings over adding baseline ignores.
 
 ## Release checks
 

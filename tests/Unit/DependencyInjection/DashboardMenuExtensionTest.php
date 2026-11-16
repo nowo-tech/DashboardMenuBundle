@@ -18,6 +18,7 @@ use Nowo\DashboardMenuBundle\Twig\MenuExtension;
 use Nowo\DashboardMenuBundle\View\DashboardPages;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\IgnoreDeprecations;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -29,9 +30,7 @@ use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 
 final class DashboardMenuExtensionTest extends TestCase
 {
-    /**
-     * @runInSeparateProcess
-     */
+    #[RunInSeparateProcess]
     public function testAPrependReturnsEarlyWhenLiveComponentClassMissing(): void
     {
         $container = new ContainerBuilder();
@@ -41,9 +40,7 @@ final class DashboardMenuExtensionTest extends TestCase
         self::assertFalse($container->hasExtension('twig_component'));
     }
 
-    /**
-     * @runInSeparateProcess
-     */
+    #[RunInSeparateProcess]
     public function testBPrependRegistersLiveComponentTwigComponentDefaultsWhenClassExists(): void
     {
         if (!class_exists(AsLiveComponent::class)) {
@@ -138,9 +135,7 @@ final class DashboardMenuExtensionTest extends TestCase
         self::assertTrue($container->hasDefinition(DashboardUiConfig::class));
     }
 
-    /**
-     * @runInSeparateProcess
-     */
+    #[RunInSeparateProcess]
     public function testDLoadSetsStimulusScriptUrlWhenMissingAndLiveComponentEnabled(): void
     {
         if (!class_exists(AsLiveComponent::class)) {

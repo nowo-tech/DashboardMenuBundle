@@ -11,7 +11,7 @@
   - [locales and default_locale](#locales-and-default_locale)
   - [strict_permission_checker](#strict_permission_checker)
   - [areas](#areas)
-  - [area_default, area_locale_pattern, area_access_checker](#area_default-area_locale_pattern-area_access_checker)
+  - [area_default, area_locale_pattern, area_fallback_when_denied, area_access_checker](#area_default-area_locale_pattern-area_fallback_when_denied-area_access_checker)
   - [current_routes](#current_routes)
   - [hub](#hub)
   - [permission_checker_choices](#permission_checker_choices)
