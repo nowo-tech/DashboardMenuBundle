@@ -8,10 +8,9 @@ use Nowo\DashboardMenuBundle\DependencyInjection\Configuration;
 use Nowo\DashboardMenuBundle\Service\AllowAllMenuPermissionChecker;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use ReflectionClassConstant;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\Definition\Processor;
-
-use function strlen;
 
 final class ConfigurationTest extends TestCase
 {
@@ -300,7 +299,7 @@ final class ConfigurationTest extends TestCase
 
     public function testAliasConstant(): void
     {
-        self::assertGreaterThan(0, strlen(Configuration::ALIAS));
+        self::assertNotSame('', (new ReflectionClassConstant(Configuration::class, 'ALIAS'))->getValue());
     }
 
     public function testApiPathPrefixMustBeAString(): void
