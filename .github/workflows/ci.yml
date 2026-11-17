@@ -249,5 +249,28 @@ jobs:
           files: coverage.xml
           fail_ci_if_error: false
 
+  frontend-tests:
+    name: Frontend tests (Vitest, coverage gate)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Vitest with coverage thresholds (REQ-TEST-003)
+        run: pnpm run test:coverage
+
 # Maintainer: Héctor Franco Aceituno (@HecFranco)
 # Organization: nowo-tech (https://github.com/nowo-tech)

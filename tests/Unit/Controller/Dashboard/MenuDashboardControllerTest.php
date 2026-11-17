@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nowo\DashboardMenuBundle\Tests\Controller\Dashboard;
 
 use Doctrine\ORM\EntityManagerInterface;
+use InvalidArgumentException;
 use Nowo\DashboardMenuBundle\Controller\Dashboard\DashboardRoutes;
 use Nowo\DashboardMenuBundle\Controller\Dashboard\MenuDashboardController;
 use Nowo\DashboardMenuBundle\Entity\Menu;
@@ -16,6 +17,7 @@ use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 use Nowo\DashboardMenuBundle\Service\ImportExportRateLimiter;
 use Nowo\DashboardMenuBundle\Service\MenuExporter;
 use Nowo\DashboardMenuBundle\Service\MenuImporter;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -31,6 +33,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Route;
@@ -2247,6 +2250,405 @@ final class MenuDashboardControllerTest extends TestCase
 
         $controller->editItem($request, 1, 10);
         self::assertSame(6, $item->getPosition());
+    }
+
+    public function testIndexSkipsDeleteFormsForBaseMenusAndMenusWithoutId(): void
+    {
+        $base = new Menu();
+        $base->setCode('base');
+        $base->setBase(true);
+        $this->setId($base, 1);
+        $unsaved = new Menu();
+        $unsaved->setCode('unsaved');
+        $regular = new Menu();
+        $regular->setCode('regular');
+        $this->setId($regular, 2);
+
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('countForDashboard')->willReturn(3);
+        $menuRepo->method('findForDashboard')->willReturn([$base, $unsaved, $regular]);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->method('countForMenus')->willReturn([1 => 0, 2 => 0]);
+        $controller  = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
+        $deleteForms = 0;
+        $this->setControllerContainerWithDynamicFormFactory($controller, function (string $type) use (&$deleteForms): FormInterface {
+            if ($type === DashboardActionType::class) {
+                ++$deleteForms;
+            }
+
+            return $this->createDefaultFormStub();
+        });
+
+        $response = $controller->index(Request::create('/'));
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame(1, $deleteForms, 'only the regular, saved menu gets a delete form');
+    }
+
+    public function testShowBuildsMoveAndDeleteFormsForSiblingsOnly(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('nav');
+        $first = new MenuItem();
+        $first->setLabel('First');
+        $this->setId($first, 11);
+        $second = new MenuItem();
+        $second->setLabel('Second');
+        $this->setId($second, 12);
+        $third = new MenuItem();
+        $third->setLabel('Third');
+        $this->setId($third, 13);
+        $unsaved = new MenuItem();
+        $unsaved->setLabel('Unsaved');
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findOneById')->with(1)->willReturn($menu);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([$first, $second, $third, $unsaved]);
+        $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
+        $actions    = [];
+        $this->setControllerContainerWithDynamicFormFactory($controller, function (string $type, mixed $data = null, array $options = []) use (&$actions): FormInterface {
+            if ($type === DashboardActionType::class) {
+                $actions[] = $options['csrf_token_id'] ?? null;
+            }
+
+            return $this->createDefaultFormStub();
+        });
+
+        $response = $controller->show(1, Request::create('/'));
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertContains('item_move_down_11', $actions);
+        self::assertContains('item_move_up_13', $actions);
+        self::assertNotContains('item_move_up_11', $actions, 'the first item has no previous sibling');
+        self::assertNotContains('item_move_down_13', $actions, 'the last item has no next sibling');
+        self::assertContains('delete_item_12', $actions);
+    }
+
+    public function testItemsReindexPositionsReportsTheChangeOrThatNothingChanged(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('nav');
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findOneById')->with(1)->willReturn($menu);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->method('reindexPositionsWithStep')->with($menu, 100)->willReturnOnConsecutiveCalls(3, 0);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::exactly(2))->method('flush');
+        $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, entityManager: $em);
+        $this->setControllerContainer($controller, $this->createSubmittedValidFormStub());
+
+        self::assertSame(302, $controller->itemsReindexPositions($this->createPostRequestWithCsrf(), 1)->getStatusCode());
+        self::assertSame(302, $controller->itemsReindexPositions($this->createPostRequestWithCsrf(), 1)->getStatusCode());
+    }
+
+    public function testItemsReindexPositionsThrowsWhenMenuNotFound(): void
+    {
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findOneById')->willReturn(null);
+        $controller = $this->createController(menuRepository: $menuRepo);
+        $this->setControllerContainer($controller, $this->createSubmittedValidFormStub());
+
+        $this->expectException(NotFoundHttpException::class);
+        $controller->itemsReindexPositions($this->createPostRequestWithCsrf(), 9);
+    }
+
+    public function testItemsCheckParentCyclesReportsAnOkOrTheLoop(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('nav');
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findOneById')->with(1)->willReturn($menu);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->method('findFirstParentIdCycleChain')->with($menu)->willReturnOnConsecutiveCalls(null, [4, 5], []);
+        $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
+        $this->setControllerContainer($controller, $this->createSubmittedValidFormStub());
+
+        foreach ([1, 2, 3] as $ignored) {
+            self::assertSame(302, $controller->itemsCheckParentCycles($this->createPostRequestWithCsrf(), 1)->getStatusCode());
+        }
+    }
+
+    public function testItemsCheckParentCyclesThrowsWhenMenuNotFound(): void
+    {
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findOneById')->willReturn(null);
+        $controller = $this->createController(menuRepository: $menuRepo);
+        $this->setControllerContainer($controller, $this->createSubmittedValidFormStub());
+
+        $this->expectException(NotFoundHttpException::class);
+        $controller->itemsCheckParentCycles($this->createPostRequestWithCsrf(), 9);
+    }
+
+    public function testShowItemsReorderThrowsWhenMenuNotFound(): void
+    {
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findOneById')->willReturn(null);
+        $controller = $this->createController(menuRepository: $menuRepo);
+        $this->setControllerContainer($controller);
+
+        $this->expectException(NotFoundHttpException::class);
+        $controller->showItemsReorder(9);
+    }
+
+    /**
+     * @return array{MenuRepository&MockObject, MenuItemRepository&MockObject, Menu}
+     */
+    private function menuWithRepositories(): array
+    {
+        $menu = new Menu();
+        $menu->setCode('nav');
+        $this->setId($menu, 1);
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findOneById')->with(1)->willReturn($menu);
+        $menuRepo->method('countForDashboard')->willReturn(0);
+        $menuRepo->method('findForDashboard')->willReturn([]);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([]);
+
+        return [$menuRepo, $itemRepo, $menu];
+    }
+
+    private function routerWithRoutes(): RouterInterface
+    {
+        $router = $this->createMock(RouterInterface::class);
+        $router->method('getRouteCollection')->willReturn(new RouteCollection());
+        $router->method('generate')->willReturn('/generated');
+
+        return $router;
+    }
+
+    public function testDialogRequestsRenderTheFragmentsOfEveryForm(): void
+    {
+        [$menuRepo, $itemRepo, $menu] = $this->menuWithRepositories();
+        $item                         = new MenuItem();
+        $item->setMenu($menu);
+        $this->setId($item, 5);
+        $itemRepo->method('find')->with(5)->willReturn($item);
+        $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, router: $this->routerWithRoutes());
+        $this->setControllerContainer($controller);
+
+        foreach ([
+            static fn (): Response => $controller->newMenu(Request::create('/menu/new?_modal=1')),
+            static fn (): Response => $controller->editMenu(Request::create('/1/edit?_modal=1'), 1),
+            static fn (): Response => $controller->copyMenu(Request::create('/1/copy?_modal=1'), 1),
+            static fn (): Response => $controller->newItem(Request::create('/1/item/new?_modal=1'), 1),
+            static fn (): Response => $controller->editItem(Request::create('/1/item/5/edit?_modal=1'), 1, 5),
+            static fn (): Response => $controller->import(Request::create('/import?_modal=1')),
+        ] as $call) {
+            self::assertSame(200, $call()->getStatusCode());
+        }
+    }
+
+    public function testTheLiveComponentFormIsUsedForTheConfigSectionOfAnEditedItem(): void
+    {
+        [$menuRepo, $itemRepo, $menu] = $this->menuWithRepositories();
+        $item                         = new MenuItem();
+        $item->setMenu($menu);
+        $this->setId($item, 5);
+        $itemRepo->method('find')->with(5)->willReturn($item);
+        $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, router: $this->routerWithRoutes(), itemFormLiveComponentEnabled: true);
+        $this->setControllerContainer($controller);
+
+        self::assertSame(200, $controller->editItem(Request::create('/1/item/5/edit?_modal=1&section=config'), 1, 5)->getStatusCode(), 'the dialog fragment');
+        self::assertSame(200, $controller->editItem(Request::create('/1/item/5/edit?section=config'), 1, 5)->getStatusCode(), 'the full page');
+    }
+
+    public function testShowItemsReorderBuildsTheTreeOfNestedItems(): void
+    {
+        [$menuRepo, , $menu] = $this->menuWithRepositories();
+        $root                = new MenuItem();
+        $root->setMenu($menu);
+        $root->setPosition(2);
+        $this->setId($root, 1);
+        $first = new MenuItem();
+        $first->setMenu($menu);
+        $first->setParent($root);
+        $first->setPosition(5);
+        $this->setId($first, 2);
+        $second = new MenuItem();
+        $second->setMenu($menu);
+        $second->setParent($root);
+        $second->setPosition(5);
+        $this->setId($second, 3);
+        $unsaved = new MenuItem();
+        $unsaved->setMenu($menu);
+        $unsaved->setPosition(9);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([$second, $first, $root, $unsaved]);
+        $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo);
+        $this->setControllerContainer($controller);
+
+        self::assertSame(200, $controller->showItemsReorder(1)->getStatusCode());
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function reorderPayloads(): iterable
+    {
+        yield 'invalid JSON' => ['{nope', 'dashboard.reorder_tree_invalid_json'];
+        yield 'an object instead of a list' => ['{"a":1}', 'dashboard.reorder_tree_invalid_payload'];
+        yield 'a scalar node' => ['[1]', 'dashboard.reorder_tree_invalid_payload'];
+        yield 'a node without a valid id' => ['[{"id":0}]', 'dashboard.reorder_tree_invalid_payload'];
+    }
+
+    #[DataProvider('reorderPayloads')]
+    public function testItemsReorderTreeRefusesAMalformedPayload(string $tree, string $flash): void
+    {
+        [$menuRepo, $itemRepo] = $this->menuWithRepositories();
+        $itemRepo->expects(self::never())->method('applyTreeLayout');
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(static fn (string $id): string => $id);
+        $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, translator: $translator);
+        $this->setControllerContainer($controller, $this->createSubmittedValidFormStub(['tree' => $tree]));
+
+        self::assertSame(302, $controller->itemsReorderTree($this->createPostRequestWithCsrf(), 1)->getStatusCode());
+        $session = (new ReflectionProperty($controller, 'container'))->getValue($controller)->get('request_stack')->getCurrentRequest()->getSession();
+        self::assertContains($flash, $session->getFlashBag()->peek('error'));
+    }
+
+    public function testItemsReorderTreeKeepsParentAndPositionAndReportsLayoutErrors(): void
+    {
+        [$menuRepo, $itemRepo, $menu] = $this->menuWithRepositories();
+        $call                         = 0;
+        $itemRepo->method('applyTreeLayout')->willReturnCallback(static function (Menu $m, array $nodes) use (&$call): void {
+            ++$call;
+            if ($call === 1) {
+                self::assertSame([
+                    ['id' => 3, 'parent_id' => null, 'position' => 0],
+                    ['id' => 4, 'parent_id' => 3, 'position' => 7],
+                ], $nodes);
+            } elseif ($call === 2) {
+                throw new InvalidArgumentException(MenuItemRepository::TREE_LAYOUT_SECTION_MUST_BE_ROOT);
+            } else {
+                throw new InvalidArgumentException('anything else');
+            }
+        });
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(static fn (string $id): string => $id);
+        $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, translator: $translator);
+        $this->setControllerContainer($controller, $this->createSubmittedValidFormStub(['tree' => '[{"id":3,"parent_id":"","position":"x"},{"id":"4","parent_id":"3","position":7}]']));
+
+        foreach ([1, 2, 3] as $ignored) {
+            self::assertSame(302, $controller->itemsReorderTree($this->createPostRequestWithCsrf(), 1)->getStatusCode());
+        }
+        self::assertNotNull($menu->getId());
+    }
+
+    public function testItemsReorderTreeThrowsWhenMenuNotFound(): void
+    {
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findOneById')->willReturn(null);
+        $controller = $this->createController(menuRepository: $menuRepo);
+        $this->setControllerContainer($controller, $this->createSubmittedValidFormStub(['tree' => '[]']));
+
+        $this->expectException(NotFoundHttpException::class);
+        $controller->itemsReorderTree($this->createPostRequestWithCsrf(), 9);
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function importPayloads(): iterable
+    {
+        yield 'a list' => ['[1,2]', 'dashboard.import_format_invalid_root_array'];
+        yield 'an unknown object' => ['{"x":1}', 'dashboard.import_format_expected'];
+    }
+
+    #[DataProvider('importPayloads')]
+    public function testImportRefusesAPayloadOfTheWrongFormat(string $json, string $flash): void
+    {
+        $controller = $this->importController($json);
+
+        self::assertSame(302, $controller->import(Request::create('/import', 'POST'))->getStatusCode());
+        self::assertContains($flash, $this->flashes($controller, 'error'));
+    }
+
+    public function testImportRunsTheReplaceStrategyAndFlashesTheImporterErrors(): void
+    {
+        $controller = $this->importController('{"menus":[{"menu":{},"items":[]}]}', MenuImporter::STRATEGY_REPLACE);
+
+        self::assertSame(302, $controller->import(Request::create('/import', 'POST'))->getStatusCode());
+        self::assertNotEmpty($this->flashes($controller, 'error'));
+    }
+
+    public function testImportReportsTheCountsOnSuccess(): void
+    {
+        $controller = $this->importController('{"menus":[]}');
+
+        self::assertSame(302, $controller->import(Request::create('/import', 'POST'))->getStatusCode());
+        self::assertContains('dashboard.import_done', $this->flashes($controller, 'success'));
+    }
+
+    public function testImportWithoutAFileJustRedirectsAndAnInvalidFormShowsItAgain(): void
+    {
+        $form = $this->createMock(FormInterface::class);
+        $form->method('handleRequest')->willReturnSelf();
+        $form->method('isSubmitted')->willReturn(true);
+        $form->method('isValid')->willReturn(true);
+        $form->method('getData')->willReturn([]);
+        $form->method('createView')->willReturn($this->createFormViewStub());
+        $controller = $this->createController();
+        $this->setControllerContainer($controller, $form);
+        self::assertSame(302, $controller->import(Request::create('/import', 'POST'))->getStatusCode());
+
+        $invalid = $this->createMock(FormInterface::class);
+        $invalid->method('handleRequest')->willReturnSelf();
+        $invalid->method('isSubmitted')->willReturn(true);
+        $invalid->method('isValid')->willReturn(false);
+        $invalid->method('createView')->willReturn($this->createFormViewStub());
+        $controller = $this->createController();
+        $this->setControllerContainer($controller, $invalid);
+        self::assertSame(422, $controller->import(Request::create('/import', 'POST'))->getStatusCode());
+    }
+
+    private function importController(string $json, string $strategy = MenuImporter::STRATEGY_SKIP_EXISTING): MenuDashboardController
+    {
+        $tmpPath = tempnam(sys_get_temp_dir(), 'dmb');
+        file_put_contents($tmpPath, $json);
+        $form       = $this->createSubmittedValidFormStub(['file' => new UploadedFile($tmpPath, 'menu.json', 'application/json', null, true), 'strategy' => $strategy]);
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(static fn (string $id): string => $id);
+        $importer   = new MenuImporter($this->createMock(MenuItemRepository::class), $this->createMock(MenuRepository::class), $this->createMock(EntityManagerInterface::class));
+        $controller = $this->createController(translator: $translator, menuImporter: $importer);
+        $this->setControllerContainer($controller, $form);
+
+        return $controller;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function flashes(MenuDashboardController $controller, string $type): array
+    {
+        $container = (new ReflectionProperty($controller, 'container'))->getValue($controller);
+
+        return $container->get('request_stack')->getCurrentRequest()->getSession()->getFlashBag()->peek($type);
+    }
+
+    public function testRedirectToRefererOrHonoursOnlyASameHostReferer(): void
+    {
+        $controller = $this->createController();
+        $this->setControllerContainer($controller);
+        $redirect = static fn (string $referer, ?string $fragment = null): RedirectResponse => (new ReflectionMethod($controller, 'redirectToRefererOr'))->invoke(
+            $controller,
+            (static function () use ($referer): Request {
+                $request = Request::create('http://localhost/dashboard/menu/1');
+                $request->headers->set('Referer', $referer);
+
+                return $request;
+            })(),
+            DashboardRoutes::ROUTE_INDEX,
+            [],
+            $fragment,
+        );
+
+        self::assertSame('http://localhost/menus?page=2', $redirect('http://localhost/menus?page=2')->getTargetUrl());
+        self::assertSame('http://localhost/menus#items', $redirect('http://localhost/menus#old', 'items')->getTargetUrl(), 'the fragment of the referer is replaced');
+        self::assertSame('http://localhost/menus', $redirect('http://localhost/menus#old', '')->getTargetUrl(), 'without a fragment the referer loses its own');
+        self::assertSame('/generated', $redirect('http://evil.example/steal')->getTargetUrl(), 'a foreign referer is ignored');
+        self::assertSame('/generated', $redirect('/relative-without-host')->getTargetUrl());
+        self::assertSame('/generated', $redirect('', 'items')->getTargetUrl(), 'no referer: the route, with the fragment as a parameter');
     }
 
     /**

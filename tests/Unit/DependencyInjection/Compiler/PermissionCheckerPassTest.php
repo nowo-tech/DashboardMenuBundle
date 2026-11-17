@@ -167,4 +167,32 @@ final class PermissionCheckerPassTest extends TestCase
         self::assertSame('checker_a', $ids[0]);
         self::assertCount(1, $choices);
     }
+
+    public function testProcessReadsTheOrderKeyOfAMapConfig(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('nowo_dashboard_menu.permission_checker_choices', ['order' => ['z_first', 7, 'a_second']]);
+        $container->register('a_second')->addTag('nowo_dashboard_menu.permission_checker');
+        $container->register('z_first')->addTag('nowo_dashboard_menu.permission_checker');
+
+        (new PermissionCheckerPass())->process($container);
+
+        $choices = $container->getParameter('nowo_dashboard_menu.permission_checker_choices');
+        self::assertIsArray($choices);
+        self::assertSame(['z_first', 'a_second'], array_keys($choices));
+    }
+
+    public function testProcessIgnoresAMapConfigWithoutAnOrderList(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('nowo_dashboard_menu.permission_checker_choices', ['other' => 'x']);
+        $container->register('b_one')->addTag('nowo_dashboard_menu.permission_checker');
+        $container->register('a_one')->addTag('nowo_dashboard_menu.permission_checker');
+
+        (new PermissionCheckerPass())->process($container);
+
+        $choices = $container->getParameter('nowo_dashboard_menu.permission_checker_choices');
+        self::assertIsArray($choices);
+        self::assertSame(['a_one', 'b_one'], array_keys($choices));
+    }
 }
