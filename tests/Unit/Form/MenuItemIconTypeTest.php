@@ -16,6 +16,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 use function class_exists;
@@ -171,5 +172,32 @@ final class MenuItemIconTypeTest extends TestCase
         self::assertArrayHasKey('translation_domain', $iconCall['options']);
         self::assertSame(NowoDashboardMenuBundle::TRANSLATION_DOMAIN, $iconCall['options']['translation_domain']);
         self::assertSame('form.menu_item_type.icon.placeholder', $iconCall['options']['attr']['placeholder'] ?? null, 'Key: the form theme translates it once.');
+    }
+
+    public function testTheSubmitListenerDetachesASectionFromItsParentOnly(): void
+    {
+        $addCalls       = [];
+        $eventListeners = [];
+        $builder        = $this->createBuilderMockWithCaptures(new MenuItem(), $addCalls, $eventListeners);
+        $type           = new MenuItemIconType(new MenuIconNameResolver());
+        $this->injectFormKitMerger($type);
+        $type->buildForm($builder, []);
+        $listener = $eventListeners[FormEvents::SUBMIT];
+        $form     = $this->createMock(FormInterface::class);
+
+        $section = new MenuItem();
+        $section->setItemType(MenuItem::ITEM_TYPE_SECTION);
+        $section->setParent(new MenuItem());
+        $listener(new FormEvent($form, $section));
+        self::assertNull($section->getParent());
+
+        $link   = new MenuItem();
+        $parent = new MenuItem();
+        $link->setParent($parent);
+        $listener(new FormEvent($form, $link));
+        self::assertSame($parent, $link->getParent());
+
+        $listener(new FormEvent($form, ['not' => 'an item']));
+        self::addToAssertionCount(1);
     }
 }

@@ -14,21 +14,13 @@ Published README percentage must match the latest `coverage-output.txt` / CI art
 
 ## Justified exclusions
 
-Paths under `<source><exclude>` in `phpunit.xml.dist` are covered primarily by integration / demo smoke rather than aggregate Clover:
+None: `phpunit.xml.dist` no longer excludes any path from the PHP coverage set (REQ-TEST-003). The dashboard controller, the Compiler passes, the repositories, the tree loader, the form types, the Google sync and migration commands, `MenuItem` and `Configuration` are all measured.
 
-| Path | Reason |
-| --- | --- |
-| `src/Command/GoogleSyncTranslationsCommand.php` | External Google Translate REST CLI |
-| `src/Controller/Dashboard/` | Thin HTTP + CSRF dashboard UI |
-| `src/DependencyInjection/Compiler/` | Compile-time wiring (unit-tested separately) |
-| `src/Repository/MenuItemRepository.php` | Doctrine helpers |
-| `src/Service/MenuTreeLoader.php` | Tree load / cache; integration |
-| `src/Form/MenuItemConfigType.php`, `MenuItemIconType.php` | Form types coupled to UX |
-| `src/Entity/MenuItem.php` | Entity getters/setters |
-| `src/Command/GenerateDashboardMenuMigrationCommand.php` | Migration generator CLI |
-| `src/DependencyInjection/Configuration.php` | Config tree (covered via ConfigurationTest) |
+A few lines stay uncovered because they cannot be reached through the public API (defensive guards, e.g. `MenuItemRepository::findIdsInSubtreeStartingAt()` skipping a row that is not an array, `GoogleSyncTranslationsCommand` when the bundle has no translation file). `DashboardControllerTrait::redirectToRefererOr()` is shadowed by a method of the same name in `MenuDashboardController`; it is covered through its own test.
 
-Do **not** add new `@codeCoverageIgnore` in production code without updating this document.
+## TypeScript / JavaScript coverage gate
+
+`pnpm run test:coverage` (Vitest + v8, `make test-ts`, CI job `frontend-tests`) enforces per-file thresholds in `vitest.config.ts`: 100 % on `config.ts`, `logger.ts`, `menu-collapse.ts` and `menu-collapse-boot.ts`, and >= 95 % lines on the entries `dashboard.ts` and `stimulus-live.ts` (REQ-TEST-003 asks for >= 90 %). The CDN imports of the entries (Stimulus, UX Live, UX Autocomplete) and `sortablejs` are replaced by local doubles in `src/Resources/assets/test-support/`.
 
 ## How to refresh
 

@@ -136,4 +136,22 @@ final class GenerateDashboardMenuMigrationCommandTest extends KernelTestCase
             }
         }
     }
+
+    public function testUpdateAddsTheLinkResolverColumnOfAnOlderItemTable(): void
+    {
+        $conn = $this->entityManager->getConnection();
+        $conn->executeStatement('DROP TABLE IF EXISTS dashboard_menu_item');
+        $conn->executeStatement('DROP TABLE IF EXISTS dashboard_menu');
+        $conn->executeStatement('CREATE TABLE dashboard_menu (id INTEGER PRIMARY KEY AUTOINCREMENT, code VARCHAR(64) NOT NULL, attributes_key VARCHAR(512) NOT NULL)');
+        $conn->executeStatement('CREATE TABLE dashboard_menu_item (id INTEGER PRIMARY KEY AUTOINCREMENT)');
+
+        $tester = new CommandTester(new GenerateDashboardMenuMigrationCommand($this->entityManager, 'default', ''));
+        $status = $tester->execute(['--update' => true, '--dump' => true]);
+
+        self::assertSame(0, $status);
+        $output = $tester->getDisplay();
+        self::assertStringContainsString('ADD class_divider', $output);
+        self::assertStringContainsString('ADD ul_id', $output);
+        self::assertStringContainsString('ADD link_resolver', $output);
+    }
 }
