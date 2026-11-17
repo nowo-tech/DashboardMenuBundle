@@ -13,8 +13,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
- * REQ-TEST-003: the trait's own redirect helper. MenuDashboardController declares a method of the same name, which wins
- * over the trait's, so the trait is exercised through a controller that has no such method.
+ * REQ-TEST-003: the trait's redirect helper, the single implementation MenuDashboardController uses (it no longer
+ * declares a copy of its own).
  */
 final class DashboardControllerTraitTest extends TestCase
 {

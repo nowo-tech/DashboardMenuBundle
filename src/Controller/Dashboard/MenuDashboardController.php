@@ -1595,31 +1595,4 @@ final class MenuDashboardController extends AbstractController
         $menu->setNestedCollapsible(is_bool($snapshot['nestedCollapsible'] ?? null) ? $snapshot['nestedCollapsible'] : null);
         $menu->setNestedCollapsibleSections(is_bool($snapshot['nestedCollapsibleSections'] ?? null) ? $snapshot['nestedCollapsibleSections'] : null);
     }
-
-    /**
-     * Redirect to the request referer when it is a safe same-origin URL; otherwise to the given route.
-     *
-     * @param array<string, mixed> $routeParams
-     */
-    private function redirectToRefererOr(Request $request, string $route, array $routeParams = [], ?string $fragment = null): RedirectResponse
-    {
-        $referer = $request->headers->get('Referer');
-        if ($referer !== null && $referer !== '') {
-            $parsed = parse_url($referer);
-            $host   = $parsed['host'] ?? '';
-            if ($host !== '' && $host === $request->getHost()) {
-                $base = str_contains($referer, '#') ? explode('#', $referer, 2)[0] : $referer;
-                $url  = $fragment !== null && $fragment !== '' ? $base . '#' . $fragment : $base;
-
-                return new RedirectResponse($url);
-            }
-        }
-
-        $params = $routeParams;
-        if ($fragment !== null && $fragment !== '') {
-            $params['_fragment'] = $fragment;
-        }
-
-        return $this->redirectToRoute($route, $params);
-    }
 }

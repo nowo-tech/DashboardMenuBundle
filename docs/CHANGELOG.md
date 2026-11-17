@@ -131,6 +131,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Vitest DOM tests for `dashboard.ts`, `stimulus-live.ts` and `menu-collapse-boot.ts`, a `frontend-tests` CI job and per-file coverage thresholds (REQ-TEST-003).
 - PHP tests for the dashboard controller, Compiler passes, tree layout repository, tree loader dynamic children, Google sync command, form validators and configuration normalisation; every path is now measured (no `<exclude>` left in `phpunit.xml.dist`).
 
+### Fixed
+
+- `DashboardControllerTrait::redirectToRefererOr()` was dead code because `MenuDashboardController` declared an identical private method that shadowed it. The controller's duplicate is removed so the trait method (same behaviour, and the one the unit test covers) is the single implementation; the trait keeps the method, so hosts that use the trait are unaffected.
+
 ### Documentation
 
 - Spec Kit baseline maps all 193 tracked `src/` files; `spec.md` gains FR-SEC-003, FR-PORT-001/002, FR-ORM-003, FR-MENU-009, FR-AREA-001 and FR-HUB-001 for 2.17–2.22 (REQ-SPECKIT-001/003).
