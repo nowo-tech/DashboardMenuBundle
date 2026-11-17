@@ -77,7 +77,7 @@ final class MenuItemRepositoryTreeLayoutIntegrationTest extends KernelTestCase
     public function testReindexAndApplyTreeLayoutRejectAStepBelowOne(): void
     {
         foreach ([
-            fn () => $this->repository->reindexPositionsWithStep($this->menu, 0),
+            fn (): int => $this->repository->reindexPositionsWithStep($this->menu, 0),
             fn () => $this->repository->applyTreeLayout($this->menu, [], 0),
         ] as $call) {
             try {

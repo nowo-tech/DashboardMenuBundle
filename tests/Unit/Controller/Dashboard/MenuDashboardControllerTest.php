@@ -33,6 +33,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Route;
@@ -2427,12 +2428,12 @@ final class MenuDashboardControllerTest extends TestCase
         $this->setControllerContainer($controller);
 
         foreach ([
-            static fn () => $controller->newMenu(Request::create('/menu/new?_modal=1')),
-            static fn () => $controller->editMenu(Request::create('/1/edit?_modal=1'), 1),
-            static fn () => $controller->copyMenu(Request::create('/1/copy?_modal=1'), 1),
-            static fn () => $controller->newItem(Request::create('/1/item/new?_modal=1'), 1),
-            static fn () => $controller->editItem(Request::create('/1/item/5/edit?_modal=1'), 1, 5),
-            static fn () => $controller->import(Request::create('/import?_modal=1')),
+            static fn (): Response => $controller->newMenu(Request::create('/menu/new?_modal=1')),
+            static fn (): Response => $controller->editMenu(Request::create('/1/edit?_modal=1'), 1),
+            static fn (): Response => $controller->copyMenu(Request::create('/1/copy?_modal=1'), 1),
+            static fn (): Response => $controller->newItem(Request::create('/1/item/new?_modal=1'), 1),
+            static fn (): Response => $controller->editItem(Request::create('/1/item/5/edit?_modal=1'), 1, 5),
+            static fn (): Response => $controller->import(Request::create('/import?_modal=1')),
         ] as $call) {
             self::assertSame(200, $call()->getStatusCode());
         }

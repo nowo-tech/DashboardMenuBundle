@@ -25,7 +25,7 @@ final class DashboardControllerTraitTest extends TestCase
         self::assertSame('http://localhost/menus?page=2', $controller->go($this->request('http://localhost/menus?page=2'))->getTargetUrl());
         self::assertSame('http://localhost/menus#items', $controller->go($this->request('http://localhost/menus#old'), 'items')->getTargetUrl());
         self::assertSame('http://localhost/menus', $controller->go($this->request('http://localhost/menus#old'), '')->getTargetUrl());
-        self::assertSame('http://localhost/menus', $controller->go($this->request('http://localhost/menus'), null)->getTargetUrl());
+        self::assertSame('http://localhost/menus', $controller->go($this->request('http://localhost/menus'))->getTargetUrl());
         self::assertSame('/fallback', $controller->go($this->request('http://evil.example/x'))->getTargetUrl());
         self::assertSame('/fallback', $controller->go($this->request('/no-host'))->getTargetUrl());
         self::assertSame('/fallback', $controller->go($this->request(null))->getTargetUrl());

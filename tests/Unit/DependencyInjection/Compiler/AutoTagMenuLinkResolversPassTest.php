@@ -334,8 +334,13 @@ class StubNotAResolver
 #[MenuLinkResolverLabel('')]
 class StubResolverFallbackLabel implements MenuLinkResolverInterface
 {
-    /** @phpstan-ignore classConstant.unused */
     private const DASHBOARD_LABEL = 'private label';
+
+    /** The constant is private on purpose (the pass reads only a public one); this keeps it from being dropped as unused. */
+    public function privateLabel(): string
+    {
+        return self::DASHBOARD_LABEL;
+    }
 
     public function resolveHref(MenuItem $item, ?Request $request, mixed $permissionContext = null): string|array
     {
