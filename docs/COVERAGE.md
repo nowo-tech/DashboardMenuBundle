@@ -16,7 +16,7 @@ Published README percentage must match the latest `coverage-output.txt` / CI art
 
 None: `phpunit.xml.dist` no longer excludes any path from the PHP coverage set (REQ-TEST-003). The dashboard controller, the Compiler passes, the repositories, the tree loader, the form types, the Google sync and migration commands, `MenuItem` and `Configuration` are all measured.
 
-A few lines stay uncovered because they cannot be reached through the public API (defensive guards, e.g. `MenuItemRepository::findIdsInSubtreeStartingAt()` skipping a row that is not an array, `GoogleSyncTranslationsCommand` when the bundle has no translation file). `DashboardControllerTrait::redirectToRefererOr()` is shadowed by a method of the same name in `MenuDashboardController`; it is covered through its own test.
+A few lines stay uncovered because they cannot be reached through the public API (defensive guards, e.g. `MenuItemRepository::findIdsInSubtreeStartingAt()` skipping a row that is not an array, `GoogleSyncTranslationsCommand` when the bundle has no translation file).
 
 ## TypeScript / JavaScript coverage gate
 
