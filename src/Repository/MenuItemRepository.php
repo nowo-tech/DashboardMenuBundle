@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nowo\DashboardMenuBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use InvalidArgumentException;
@@ -83,6 +84,29 @@ class MenuItemRepository extends ServiceEntityRepository
             ->addOrderBy('i.id', SortDirection::Ascending);
 
         $result = $qb->getQuery()->getResult();
+        assert(is_array($result) && array_is_list($result));
+
+        /* @var list<MenuItem> $result */
+        return $result;
+    }
+
+    /**
+     * Every item of the menu, read and row-locked with `SELECT … FOR UPDATE` (2.23, REQ-RUNTIME-003): a locking read
+     * sees the latest committed rows even under MySQL / MariaDB REPEATABLE READ, so an import "replace" removes the
+     * tree another unit committed just before. Must run inside a transaction, after
+     * {@see MenuRepository::lockForWrite()} on the same menu.
+     *
+     * @return list<MenuItem>
+     */
+    public function findAllForMenuForUpdate(Menu $menu): array
+    {
+        $result = $this->createQueryBuilder('i')
+            ->where('i.menu = :menu')
+            ->setParameter('menu', $menu)
+            ->orderBy('i.id', SortDirection::Ascending)
+            ->getQuery()
+            ->setLockMode(LockMode::PESSIMISTIC_WRITE)
+            ->getResult();
         assert(is_array($result) && array_is_list($result));
 
         /* @var list<MenuItem> $result */

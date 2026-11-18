@@ -6,6 +6,7 @@ namespace Nowo\DashboardMenuBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Nowo\DashboardMenuBundle\Entity\Menu;
@@ -165,6 +166,38 @@ class MenuRepository extends ServiceEntityRepository implements ResetInterface
     private function quoteTableName(Connection $conn, string $tableName): string
     {
         return $conn->getDatabasePlatform()->quoteSingleIdentifier($tableName);
+    }
+
+    /**
+     * Takes the write lock of one menu row (`SELECT … FOR UPDATE`) until the current transaction ends (2.23,
+     * REQ-RUNTIME-003 rule 4). Every write to a menu's item tree (append, move, reorder, re-index, delete, import
+     * replace) takes it first, inside its write unit, so two writers of one menu run one after the other and
+     * the sibling position read after it (`MAX(position) + 1`) cannot be read twice. One lock per unit, always the
+     * menu row, so the bundle's own writers cannot deadlock each other. Waits at most the server's lock wait timeout
+     * (`innodb_lock_wait_timeout` / `lock_timeout`), then fails as a lock conflict (409 `CONFLICT_001`).
+     *
+     * Must run inside a transaction (Doctrine refuses a pessimistic lock outside one). No entity is hydrated, so a
+     * managed menu keeps its pending form edits. SQLite has no row locks (its writers are serialised by the database
+     * lock).
+     *
+     * @return bool false when the menu row does not exist (deleted meanwhile, or never flushed)
+     */
+    public function lockForWrite(Menu|int $menu): bool
+    {
+        $id = $menu instanceof Menu ? $menu->getId() : $menu;
+        if ($id === null) {
+            return false;
+        }
+
+        $row = $this->createQueryBuilder('m')
+            ->select('m.id')
+            ->where('m.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->setLockMode(LockMode::PESSIMISTIC_WRITE)
+            ->getOneOrNullResult();
+
+        return $row !== null;
     }
 
     /**

@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace Nowo\DashboardMenuBundle\Tests\LiveComponent;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Nowo\DashboardMenuBundle\Concurrency\DashboardMenuConflictAnswer;
+use Nowo\DashboardMenuBundle\Concurrency\DashboardMenuTransaction;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Form\MenuItemType;
 use Nowo\DashboardMenuBundle\LiveComponent\ItemFormLiveComponent;
+use Nowo\DashboardMenuBundle\Tests\Unit\Concurrency\StorageErrors;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
@@ -17,9 +20,11 @@ use stdClass;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 final class ItemFormLiveComponentTest extends TestCase
 {
@@ -444,6 +449,36 @@ final class ItemFormLiveComponentTest extends TestCase
         self::assertNull($menuItem->getIcon());
         self::assertNull($menuItem->getTranslations());
         self::assertNull($menuItem->getParent());
+    }
+
+    public function testSaveLockConflictAnswers409WithConflict001(): void
+    {
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('flush')->willThrowException(StorageErrors::deadlock());
+        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack->method('getCurrentRequest')->willReturn(new Request());
+        $requestStack->expects(self::never())->method('getSession');
+
+        $menuItem = new MenuItem();
+        $menuItem->setMenu(new Menu());
+        $formMock = $this->createMock(FormInterface::class);
+        $formMock->method('getName')->willReturn('live_name');
+        $formMock->method('getData')->willReturn($menuItem);
+        $formMock->method('isValid')->willReturn(true);
+        $formMock->method('createView')->willReturn($this->createEmptyFormView());
+
+        $component = new ItemFormLiveComponent($this->createMock(FormFactoryInterface::class), $em, $requestStack, new DashboardMenuTransaction($em), new DashboardMenuConflictAnswer());
+        $this->setPrivateTraitProperty($component, 'form', $formMock);
+        $component->menu       = new Menu();
+        $component->formValues = ['live_name' => ['basic' => [], 'config' => []]];
+
+        try {
+            $component->save();
+            self::fail('A deadlock must answer the conflict.');
+        } catch (HttpException $answer) {
+            self::assertSame(409, $answer->getStatusCode());
+            self::assertSame('CONFLICT_001', $answer->getHeaders()['X-Conflict-Code']);
+        }
     }
 
     public function testSaveResetsLinkFieldsWhenChildrenExistAndSetsMenuWhenMissing(): void

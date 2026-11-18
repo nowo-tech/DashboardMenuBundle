@@ -41,7 +41,7 @@ A bundle that is safe under **B** is safe under **A** and under classic mode / P
 
 | Area | Status | Notes |
 |------|--------|-------|
-| Mutable state in shared services | ✅ | `MenuUrlResolver::$hrefMemo` is a `WeakMap` keyed by the current `Request` and is also cleared at every main request; `MenuRepository::$byCodeContext` and `MenuTreeCacheInvalidator::$versionMemo` are cleared at every main request by `DashboardMenuWorkerStateSubscriber`; all other services are `readonly` or have no properties |
+| Mutable state in shared services | ✅ | `MenuUrlResolver::$hrefMemo` is a `WeakMap` keyed by the current `Request` and is also cleared at every main request; `MenuRepository::$byCodeContext` and `MenuTreeCacheInvalidator::$versionMemo` / `$pendingAfterCommit` are cleared at every main request by `DashboardMenuWorkerStateSubscriber`; all other services (including the 2.23 `Concurrency\DashboardMenuTransaction` and `DashboardMenuConflictAnswer`) are `readonly` or have no properties |
 | Static properties / `static` locals | ✅ | None. Only pure static helpers (`Menu::canonicalContextKey()`, `ParentRelationCycleDetector::findFirstCycle()`, `MenuTreeCacheInvalidator::versionKey()`) |
 | `ResetInterface` / `kernel.reset` coverage | ✅ | Every mutable service implements `ResetInterface` (scenario A) and is additionally reset per main request by a bundle-owned subscriber (scenario B) |
 | Request / user / locale captured in services | ✅ | `RequestStack` is read at call time; nothing is captured in constructors. Request-derived hrefs are memoized per request object only |
@@ -62,7 +62,7 @@ Worker demo: `demo/symfony8/docker/frankenphp/Caddyfile` runs `php_server` with 
 |---------|--------|---------------|------------|------------|
 | `Service\MenuUrlResolver` | yes (public) | `$hrefMemo` (`WeakMap<Request, …>`, items with id only); `ResetInterface` via autoconfigure; reset per main request | ✅ | ✅ |
 | `Repository\MenuRepository` | yes (public) | `$byCodeContext` (memoized `Menu` entities / `null`); explicit `kernel.reset` tag; reset per main request | ✅ | ✅ |
-| `Service\MenuTreeCacheInvalidator` | yes | `$versionMemo` (cache version per menu code); `ResetInterface` via autoconfigure; reset per main request | ✅ | ✅ |
+| `Service\MenuTreeCacheInvalidator` | yes | `$versionMemo` (cache version per menu code) and, since 2.23, `$pendingAfterCommit` (codes to bump again after the write unit commits, emptied by that pass); `ResetInterface` via autoconfigure; reset per main request | ✅ | ✅ |
 | `EventSubscriber\DashboardMenuWorkerStateSubscriber` | yes | none (`final readonly`); empties the memos at main request, Messenger received / handled / failed and outermost console command / terminate | ✅ | ✅ |
 | `Worker\UnitOfWorkBoundaries` | yes | process-lifetime tracker of the running units (command frames, message flag, main-request counter, per-event verdicts in a `WeakMap`); deliberately not reset, holds no request data; state changes at `PHP_INT_MAX`, failing frames dropped first | ✅ | ✅ |
 | `Worker\DashboardMenuOwnEntityManagerSubscriber` (only with a dedicated `doctrine.entity_manager`) | yes | none (`final readonly`); clears the own manager at outermost boundaries; never builds an uninitialized manager | ✅ | ✅ |

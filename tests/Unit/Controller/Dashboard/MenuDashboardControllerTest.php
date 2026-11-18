@@ -6,6 +6,8 @@ namespace Nowo\DashboardMenuBundle\Tests\Controller\Dashboard;
 
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
+use Nowo\DashboardMenuBundle\Concurrency\DashboardMenuConflictAnswer;
+use Nowo\DashboardMenuBundle\Concurrency\DashboardMenuTransaction;
 use Nowo\DashboardMenuBundle\Controller\Dashboard\DashboardRoutes;
 use Nowo\DashboardMenuBundle\Controller\Dashboard\MenuDashboardController;
 use Nowo\DashboardMenuBundle\Entity\Menu;
@@ -17,6 +19,8 @@ use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 use Nowo\DashboardMenuBundle\Service\ImportExportRateLimiter;
 use Nowo\DashboardMenuBundle\Service\MenuExporter;
 use Nowo\DashboardMenuBundle\Service\MenuImporter;
+use Nowo\DashboardMenuBundle\Tests\Unit\Concurrency\StorageErrors;
+use Nowo\TransactionDoctrine\Symfony\Conflict\ConflictResponsePolicy;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -35,6 +39,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
@@ -1066,7 +1071,7 @@ final class MenuDashboardControllerTest extends TestCase
         $router->method('generate')->willReturn('/generated');
         $em = $this->createMock(EntityManagerInterface::class);
         $em->expects(self::once())->method('persist')->with(self::callback(static fn ($e): bool => $e instanceof MenuItem));
-        $em->expects(self::once())->method('flush');
+        $em->expects(self::exactly(2))->method('flush'); // 2.23: the inner flush (ids for the re-index) + the write unit's own
         $form = $this->createMock(FormInterface::class);
         $form->method('handleRequest')->willReturnSelf();
         $form->method('isSubmitted')->willReturn(true);
@@ -1130,7 +1135,7 @@ final class MenuDashboardControllerTest extends TestCase
         $router->method('getRouteCollection')->willReturn(new RouteCollection());
         $router->method('generate')->willReturn('/generated');
         $em = $this->createMock(EntityManagerInterface::class);
-        $em->expects(self::once())->method('flush');
+        $em->expects(self::exactly(2))->method('flush'); // 2.23: the inner flush (ids for the re-index) + the write unit's own
         $form = $this->createMock(FormInterface::class);
         $form->method('handleRequest')->willReturnSelf();
         $form->method('isSubmitted')->willReturn(true);
@@ -1163,7 +1168,7 @@ final class MenuDashboardControllerTest extends TestCase
         $router->method('generate')->willReturn('/generated');
 
         $em = $this->createMock(EntityManagerInterface::class);
-        $em->expects(self::once())->method('flush');
+        $em->expects(self::exactly(2))->method('flush'); // 2.23: the inner flush (ids for the re-index) + the write unit's own
 
         $form = $this->createMock(FormInterface::class);
         $form->method('handleRequest')->willReturnSelf();
@@ -1224,7 +1229,7 @@ final class MenuDashboardControllerTest extends TestCase
         $router->method('generate')->willReturn('/generated');
 
         $em = $this->createMock(EntityManagerInterface::class);
-        $em->expects(self::once())->method('flush');
+        $em->expects(self::exactly(2))->method('flush'); // 2.23: the inner flush (ids for the re-index) + the write unit's own
 
         $form = $this->createMock(FormInterface::class);
         $form->method('handleRequest')->willReturnSelf();
@@ -2084,7 +2089,7 @@ final class MenuDashboardControllerTest extends TestCase
             ->willReturn([$root, $child]);
 
         $controller = $this->createController(menuItemRepository: $itemRepo, entityManager: $em);
-        $copy       = $this->invokePrivate($controller, 'cloneMenuWithItems', [$source, 'copied', 'Copied']);
+        $copy       = $this->invokePrivate($controller, 'cloneMenuWithItems', [$em, $source, 'copied', 'Copied']);
 
         self::assertInstanceOf(Menu::class, $copy);
         self::assertCount(2, $persistedItems);
@@ -2112,7 +2117,7 @@ final class MenuDashboardControllerTest extends TestCase
             ->willReturn([$itemWithoutId]);
 
         $controller = $this->createController(menuItemRepository: $itemRepo, entityManager: $em);
-        $copy       = $this->invokePrivate($controller, 'cloneMenuWithItems', [$source, 'copied', 'Copied']);
+        $copy       = $this->invokePrivate($controller, 'cloneMenuWithItems', [$em, $source, 'copied', 'Copied']);
 
         self::assertInstanceOf(Menu::class, $copy);
     }
@@ -2651,6 +2656,194 @@ final class MenuDashboardControllerTest extends TestCase
         self::assertSame('/generated', $redirect('', 'items')->getTargetUrl(), 'no referer: the route, with the fragment as a parameter');
     }
 
+    public function testNewMenuConcurrentDuplicateAnswersTheFormError(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('dup');
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('flush')->willThrowException(StorageErrors::uniqueViolation());
+        $form = $this->createMock(FormInterface::class);
+        $form->method('handleRequest')->willReturnSelf();
+        $form->method('isSubmitted')->willReturn(true);
+        $form->method('isValid')->willReturn(true);
+        $form->method('getData')->willReturn($menu);
+        $form->expects(self::once())->method('addError')->willReturnSelf();
+
+        $controller = $this->createController(menuRepository: $menuRepo, entityManager: $em);
+        $this->setControllerContainer($controller, $form);
+
+        $response = $controller->newMenu(Request::create('/menu/new', 'POST'));
+        self::assertFalse($response->headers->has('X-Conflict-Code'));
+        self::assertNotSame(302, $response->getStatusCode());
+    }
+
+    public function testEditMenuConcurrentDuplicateAnswersTheFormError(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('mine');
+        $this->setMenuId($menu, 1);
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findOneById')->with(1)->willReturn($menu);
+        $menuRepo->method('findOneByCodeAndContext')->willReturn($menu);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('flush')->willThrowException(StorageErrors::uniqueViolation());
+        $form = $this->createMock(FormInterface::class);
+        $form->method('handleRequest')->willReturnSelf();
+        $form->method('isSubmitted')->willReturn(true);
+        $form->method('isValid')->willReturn(true);
+        $form->expects(self::once())->method('addError')->willReturnSelf();
+
+        $controller = $this->createController(menuRepository: $menuRepo, entityManager: $em);
+        $this->setControllerContainer($controller, $form);
+
+        $response = $controller->editMenu(Request::create('/1/edit', 'POST'), 1);
+        self::assertNotSame(302, $response->getStatusCode());
+    }
+
+    public function testCopyMenuConcurrentDuplicateShowsTheFlashAndTheForm(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('orig');
+        $this->setMenuId($menu, 1);
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findOneById')->with(1)->willReturn($menu);
+        $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('flush')->willThrowException(StorageErrors::uniqueViolation());
+        $form = $this->createMock(FormInterface::class);
+        $form->method('handleRequest')->willReturnSelf();
+        $form->method('isSubmitted')->willReturn(true);
+        $form->method('isValid')->willReturn(true);
+        $form->method('getData')->willReturn(['code' => 'taken', 'name' => '']);
+
+        $controller = $this->createController(menuRepository: $menuRepo, entityManager: $em);
+        $this->setControllerContainer($controller, $form);
+
+        $response = $controller->copyMenu(Request::create('/1/copy', 'POST'), 1);
+        self::assertSame(200, $response->getStatusCode());
+    }
+
+    public function testALockConflictOnADashboardWriteAnswers409WithConflict001(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('del');
+        $this->setMenuId($menu, 1);
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findOneById')->with(1)->willReturn($menu);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('flush')->willThrowException(StorageErrors::deadlock());
+
+        $controller = $this->createController(menuRepository: $menuRepo, entityManager: $em);
+        $this->setControllerContainer($controller, $this->createSubmittedValidFormStub());
+
+        try {
+            $controller->deleteMenu($this->createPostRequestWithCsrf(), 1);
+            self::fail('A deadlock must answer the conflict.');
+        } catch (HttpException $answer) {
+            self::assertSame(409, $answer->getStatusCode());
+            self::assertSame(['X-Conflict-Code' => 'CONFLICT_001', 'Retry-After' => '1'], $answer->getHeaders());
+        }
+    }
+
+    public function testALockConflictDuringAnImportAnswers409(): void
+    {
+        $importer = new MenuImporter($this->createMock(MenuItemRepository::class), $this->createMock(MenuRepository::class), $this->failingFlushManager());
+        $form     = $this->createMock(FormInterface::class);
+        $form->method('handleRequest')->willReturnSelf();
+        $form->method('isSubmitted')->willReturn(true);
+        $form->method('isValid')->willReturn(true);
+        $file = $this->createMock(UploadedFile::class);
+        $file->method('getSize')->willReturn(10);
+        $file->method('getContent')->willReturn('{"menu":{"code":"x"},"items":[]}');
+        $form->method('getData')->willReturn(['file' => $file, 'strategy' => MenuImporter::STRATEGY_SKIP_EXISTING]);
+
+        $controller = $this->createController(menuImporter: $importer);
+        $this->setControllerContainer($controller, $form);
+
+        $this->expectException(HttpException::class);
+        $controller->import(Request::create('/import', 'POST'));
+    }
+
+    public function testAMenuDeletedMeanwhileAnswersNotFoundForAnItemWrite(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('m');
+        $this->setMenuId($menu, 1);
+        $item = new MenuItem();
+        $item->setMenu($menu);
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findOneById')->with(1)->willReturn($menu);
+        $menuRepo->method('lockForWrite')->willReturn(false);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->method('find')->willReturn($item);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::never())->method('remove');
+
+        $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, entityManager: $em, menuLock: false);
+        $this->setControllerContainer($controller, $this->createSubmittedValidFormStub());
+
+        $this->expectException(NotFoundHttpException::class);
+        $controller->deleteItem($this->createPostRequestWithCsrf(), 1, 5);
+    }
+
+    public function testInjectedUnitAndConflictAnswerAreUsed(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('del');
+        $this->setMenuId($menu, 1);
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findOneById')->with(1)->willReturn($menu);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('flush')->willThrowException(StorageErrors::deadlock());
+        $itemRepo   = $this->createMock(MenuItemRepository::class);
+        $controller = new MenuDashboardController(
+            $menuRepo,
+            $itemRepo,
+            $em,
+            $this->createMock(RouterInterface::class),
+            $this->createMock(TranslatorInterface::class),
+            new MenuExporter($menuRepo, $itemRepo),
+            new MenuImporter($itemRepo, $menuRepo, $em),
+            [],
+            [],
+            true,
+            20,
+            [],
+            null,
+            null,
+            2_097_152,
+            100,
+            new ImportExportRateLimiter(null, 0, 60, new MockClock()),
+            transaction: new DashboardMenuTransaction($em),
+            conflictAnswer: new DashboardMenuConflictAnswer(new ConflictResponsePolicy(503, 4)),
+        );
+        $menuRepo->method('lockForWrite')->willReturn(true);
+        $this->setControllerContainer($controller, $this->createSubmittedValidFormStub());
+
+        try {
+            $controller->deleteMenu($this->createPostRequestWithCsrf(), 1);
+            self::fail('A deadlock must answer the conflict.');
+        } catch (HttpException $answer) {
+            self::assertSame(503, $answer->getStatusCode());
+            self::assertSame('4', $answer->getHeaders()['Retry-After']);
+        }
+    }
+
+    private function failingFlushManager(): EntityManagerInterface
+    {
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('flush')->willThrowException(StorageErrors::lockWaitTimeout());
+
+        return $em;
+    }
+
+    private function setMenuId(Menu $menu, int $id): void
+    {
+        (new ReflectionProperty(Menu::class, 'id'))->setValue($menu, $id);
+    }
+
     /**
      * @param list<string> $routeNameExcludePatterns
      * @param list<string> $locales
@@ -2675,8 +2868,13 @@ final class MenuDashboardControllerTest extends TestCase
         int $positionStep = 100,
         ?ImportExportRateLimiter $importExportRateLimiter = null,
         bool $itemFormLiveComponentEnabled = false,
+        bool $menuLock = true,
     ): MenuDashboardController {
-        $menuRepo    = $menuRepository ?? $this->createMock(MenuRepository::class);
+        $menuRepo = $menuRepository ?? $this->createMock(MenuRepository::class);
+        if ($menuLock && $menuRepo instanceof MockObject) {
+            // 2.23: item-tree writes take the menu row lock first; the menu exists.
+            $menuRepo->method('lockForWrite')->willReturn(true);
+        }
         $itemRepo    = $menuItemRepository ?? $this->createMock(MenuItemRepository::class);
         $em          = $entityManager ?? $this->createMock(EntityManagerInterface::class);
         $exporter    = $menuExporter ?? new MenuExporter($menuRepo, $itemRepo);

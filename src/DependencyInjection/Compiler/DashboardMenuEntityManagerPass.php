@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nowo\DashboardMenuBundle\DependencyInjection\Compiler;
 
 use Doctrine\ORM\Mapping\Driver\AttributeDriver;
+use Nowo\DashboardMenuBundle\Concurrency\DashboardMenuTransaction;
 use Nowo\DashboardMenuBundle\DependencyInjection\DashboardMenuExtension;
 use Nowo\DashboardMenuBundle\Doctrine\ExcludedEntityNamespaceDriver;
 use Nowo\DashboardMenuBundle\Worker\DashboardMenuOwnEntityManagerSubscriber;
@@ -94,6 +95,11 @@ final class DashboardMenuEntityManagerPass implements CompilerPassInterface
         $default = $container->hasParameter('doctrine.default_entity_manager') ? $container->getParameter('doctrine.default_entity_manager') : null;
         if ($name === $default || !$container->has('doctrine')) {
             return;
+        }
+
+        // 2.23 (REQ-RUNTIME-003): the bundle's own manager may be reset after a failed write unit.
+        if ($container->hasDefinition(DashboardMenuTransaction::class)) {
+            $container->getDefinition(DashboardMenuTransaction::class)->setArgument('$ownManager', true);
         }
 
         // Only a manager the unit of work already built: a boundary never builds one.

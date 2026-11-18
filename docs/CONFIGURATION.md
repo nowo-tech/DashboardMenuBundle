@@ -6,6 +6,7 @@
 - [Root options](#root-options)
   - [project](#project)
   - [doctrine](#doctrine)
+  - [conflict_response](#conflict_response)
   - [cache](#cache)
   - [icon_library_prefix_map](#icon_library_prefix_map)
   - [locales and default_locale](#locales-and-default_locale)
@@ -90,6 +91,25 @@ php bin/console doctrine:migrations:migrate --conn=YOUR_CONNECTION
 ```
 
 The generated migration uses `Doctrine\Migrations\AbstractMigration`; your project must have `doctrine/doctrine-migrations-bundle` (or `doctrine/migrations`) to run it. Otherwise use `--dump` and run the SQL manually.
+
+### conflict_response
+
+**2.23 (REQ-RUNTIME-003).** Answer of a lock conflict (deadlock, lock wait timeout, serialization failure) on the
+dashboard routes and the Live item form: an `HttpException` rendered by your error page, with
+`X-Conflict-Code: CONFLICT_001` and `Retry-After` (nothing committed) or `CONFLICT_002` without `Retry-After` (part of
+the request committed). Details: [CONCURRENCY.md](CONCURRENCY.md).
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `status` | `null` | `409` or `503`. `null` = `nowo_transaction_doctrine.conflict_response.status` when that bundle is registered, else `409`. |
+| `retry_after` | `null` | Seconds of `Retry-After` on a `CONFLICT_001` answer (integer >= 0). `null` = transaction-doctrine's value, else `1`. |
+
+```yaml
+nowo_dashboard_menu:
+    conflict_response:
+        status: 503        # hosts that answer "busy" as 503
+        retry_after: 2
+```
 
 ### cache
 

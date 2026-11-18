@@ -47,6 +47,7 @@ Demo: `demo/symfony8` (Symfony 8, FrankenPHP, Bootstrap 5 host theme). UiKit pag
 - **Permissions**: `MenuPermissionCheckerInterface` — implement and tag to filter items per user/context
 - **Current item**: `MenuItemContextCurrentMatcherInterface` to mark the active item; route-prefix rules from configuration (`current_routes`, 2.22)
 - **Areas and hub pages** (2.22, opt-in): `areas` split the chrome into areas (own sidebar menu, home page, roles or a voter / port for visibility, request → area by path then route prefix) and `hub.html.twig` renders an area home page from that area's menu tree — see [Areas and hub pages](docs/USAGE.md#areas-and-hub-pages)
+- **Concurrency**: every dashboard write and import is one transaction; item-tree writes lock the menu row; lock conflicts answer 409 with `X-Conflict-Code: CONFLICT_001|CONFLICT_002` (see [CONCURRENCY.md](docs/CONCURRENCY.md))
 - **FrankenPHP worker**: request-scoped memos + `DashboardMenuWorkerStateSubscriber` so worker mode with `reset_kernel: false` stays correct without depending on `services_resetter` (see [FRANKENPHP-WORKER-AUDIT.md](docs/FRANKENPHP-WORKER-AUDIT.md))
 - **CLI**: `nowo_dashboard_menu:generate-migration`, `nowo_dashboard_menu:translations:google-sync`
 - **Twig**: `dashboard_menu_tree(menuCode, permissionContext?, contextSets?)`, `dashboard_menu_href(item)`, `dashboard_menu_config(menuCode, contextSets?)`; include `@NowoDashboardMenuBundle/menu.html.twig`; areas and hubs: `dashboard_menu_area()`, `dashboard_menu_areas()`, `dashboard_menu_area_granted()`, `dashboard_menu_hub()`, `dashboard_menu_hub_badge()`
@@ -181,6 +182,7 @@ Then run `php bin/console assets:install` in the app so `public/bundles/nowodash
 - [Templates (UiKit page contract)](docs/TEMPLATES.md)
 - [Demo with FrankenPHP (development and production)](docs/DEMO-FRANKENPHP.md)
 - [FrankenPHP worker audit (`reset_kernel: false`)](docs/FRANKENPHP-WORKER-AUDIT.md)
+- [Concurrency (REQ-RUNTIME-003)](docs/CONCURRENCY.md)
 - [Demo](docs/DEMO.md)
 - [Development](docs/DEVELOPMENT.md)
 
