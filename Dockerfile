@@ -1,9 +1,9 @@
 # Root Dockerfile: PHP CLI + PCOV + Node/pnpm for Vite asset builds (bundle full specs).
 FROM php:8.2-cli-alpine
 
-RUN apk add --no-cache git unzip bash icu-dev libzip-dev nodejs npm \
+RUN apk add --no-cache git unzip bash icu-dev libzip-dev libpq-dev nodejs npm \
     && docker-php-ext-configure intl \
-    && docker-php-ext-install intl pdo pdo_mysql zip \
+    && docker-php-ext-install intl pdo pdo_mysql pdo_pgsql zip \
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer \
     && npm install -g pnpm \
     && apk add --no-cache --virtual .phpize-deps $PHPIZE_DEPS \

@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Nowo\DashboardMenuBundle\Tests\Unit\DependencyInjection\Compiler;
 
 use Doctrine\ORM\Mapping\Driver\AttributeDriver;
+use Nowo\DashboardMenuBundle\Concurrency\DashboardMenuTransaction;
 use Nowo\DashboardMenuBundle\DependencyInjection\Compiler\DashboardMenuEntityManagerPass;
 use Nowo\DashboardMenuBundle\DependencyInjection\DashboardMenuExtension;
 use Nowo\DashboardMenuBundle\Doctrine\ExcludedEntityNamespaceDriver;
+use Nowo\DashboardMenuBundle\Worker\DashboardMenuOwnEntityManagerSubscriber;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -62,6 +64,34 @@ final class DashboardMenuEntityManagerPassTest extends TestCase
 
         $this->expectException(InvalidConfigurationException::class);
         (new DashboardMenuEntityManagerPass())->process($container);
+    }
+
+    public function testTheBundlesOwnManagerMarksTheWriteUnitAsOwn(): void
+    {
+        $container = $this->container('dashboard_menu');
+        $container->setParameter('doctrine.default_entity_manager', 'default');
+        $container->setDefinition('doctrine', new Definition());
+        $container->setDefinition(DashboardMenuTransaction::class, (new Definition(DashboardMenuTransaction::class))->setArgument('$ownManager', false));
+        (new DashboardMenuEntityManagerPass())->process($container);
+
+        self::assertTrue($container->getDefinition(DashboardMenuTransaction::class)->getArgument('$ownManager'));
+
+        // Without the unit (a partial container) the pass still registers the subscriber.
+        $partial = $this->container('dashboard_menu');
+        $partial->setDefinition('doctrine', new Definition());
+        (new DashboardMenuEntityManagerPass())->process($partial);
+        self::assertTrue($partial->hasDefinition(DashboardMenuOwnEntityManagerSubscriber::class));
+    }
+
+    public function testTheHostDefaultNamedManagerKeepsTheWriteUnitOnTheHostPath(): void
+    {
+        $container = $this->container('default');
+        $container->setParameter('doctrine.default_entity_manager', 'default');
+        $container->setDefinition('doctrine', new Definition());
+        $container->setDefinition(DashboardMenuTransaction::class, (new Definition(DashboardMenuTransaction::class))->setArgument('$ownManager', false));
+        (new DashboardMenuEntityManagerPass())->process($container);
+
+        self::assertFalse($container->getDefinition(DashboardMenuTransaction::class)->getArgument('$ownManager'));
     }
 
     private function container(?string $name): ContainerBuilder

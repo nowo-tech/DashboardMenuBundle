@@ -8,6 +8,12 @@
          beStrictAboutOutputDuringTests="true"
          failOnRisky="true"
 >
+    <!-- Real MySQL / MariaDB / PostgreSQL concurrency tests (2.23): CI job "Databases" runs them with -group database. -->
+    <groups>
+        <exclude>
+            <group>database</group>
+        </exclude>
+    </groups>
     <php>
         <!-- REQ-SF-005: fail on direct deprecations from this package -->
         <env name="SYMFONY_DEPRECATIONS_HELPER" value="max[direct]=0"/>

@@ -9,6 +9,8 @@ services:
       $formFactory: '@form.factory'
       $entityManager: '@nowo_dashboard_menu.entity_manager'
       $requestStack: '@request_stack'
+      $transaction: '@Nowo\DashboardMenuBundle\Concurrency\DashboardMenuTransaction'
+      $conflictAnswer: '@Nowo\DashboardMenuBundle\Concurrency\DashboardMenuConflictAnswer'
     tags:
       - { name: twig.component, key: dashboard_menu_item_form }
     public: true

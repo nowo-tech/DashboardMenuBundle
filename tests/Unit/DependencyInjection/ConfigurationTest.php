@@ -21,6 +21,33 @@ final class ConfigurationTest extends TestCase
         self::assertSame(Configuration::ALIAS, $treeBuilder->buildTree()->getName());
     }
 
+    public function testConflictResponseDefaultsToNullAndAccepts409Or503(): void
+    {
+        $processor = new Processor();
+        self::assertSame(['status' => null, 'retry_after' => null], $processor->processConfiguration(new Configuration(), [[]])['conflict_response']);
+        self::assertSame(['status' => 503, 'retry_after' => 0], $processor->processConfiguration(new Configuration(), [['conflict_response' => ['status' => 503, 'retry_after' => 0]]])['conflict_response']);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function invalidConflictResponses(): iterable
+    {
+        yield 'status 500' => [['status' => 500]];
+        yield 'negative retry_after' => [['retry_after' => -1]];
+        yield 'string retry_after' => [['retry_after' => 'soon']];
+    }
+
+    /**
+     * @param array<string, mixed> $conflictResponse
+     */
+    #[DataProvider('invalidConflictResponses')]
+    public function testInvalidConflictResponseIsRefused(array $conflictResponse): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        (new Processor())->processConfiguration(new Configuration(), [['conflict_response' => $conflictResponse]]);
+    }
+
     public function testProcessConfigurationWithEmptyConfigUsesDefaults(): void
     {
         $processor = new Processor();

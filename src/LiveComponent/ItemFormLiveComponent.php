@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace Nowo\DashboardMenuBundle\LiveComponent;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Nowo\DashboardMenuBundle\Concurrency\DashboardMenuConflictAnswer;
+use Nowo\DashboardMenuBundle\Concurrency\DashboardMenuTransaction;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Form\MenuItemType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
@@ -35,10 +38,16 @@ final class ItemFormLiveComponent
     use ComponentWithFormTrait;
     use DefaultActionTrait;
 
+    /**
+     * @param DashboardMenuTransaction|null $transaction the write unit of the save (2.23); null = one on $entityManager
+     * @param DashboardMenuConflictAnswer|null $conflictAnswer the 409 answer of a lock conflict (2.23); null = 409, Retry-After 1
+     */
     public function __construct(
         private readonly FormFactoryInterface $formFactory,
         private readonly EntityManagerInterface $entityManager,
         private readonly RequestStack $requestStack,
+        private readonly ?DashboardMenuTransaction $transaction = null,
+        private readonly ?DashboardMenuConflictAnswer $conflictAnswer = null,
     ) {
     }
 
@@ -356,9 +365,20 @@ final class ItemFormLiveComponent
             // @igor-ignore - UX Live Component holds request-scoped form state
             $item->setMenu($this->menu);
         }
-        $this->entityManager->persist($item);
-        // @igor-ignore - UX Live Component holds request-scoped form state
-        $this->entityManager->flush();
+        // One write unit (2.23, REQ-RUNTIME-003): a lock conflict answers 409 CONFLICT_001 / CONFLICT_002.
+        $transaction = $this->transaction ?? new DashboardMenuTransaction($this->entityManager);
+        // @igor-ignore - request-scoped closure, run at once and dropped (never stored in the shared service)
+        $save = static fn (): bool => $transaction->run(static function (EntityManagerInterface $em) use ($item): bool {
+            $em->persist($item);
+
+            return true;
+        });
+        $request = $this->requestStack->getCurrentRequest();
+        if ($request instanceof Request) {
+            ($this->conflictAnswer ?? new DashboardMenuConflictAnswer())->guard($request, $save);
+        } else {
+            $save();
+        }
 
         // @igor-ignore - UX Live Component holds request-scoped form state
         /** @var Session $session */

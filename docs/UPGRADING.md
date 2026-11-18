@@ -139,6 +139,29 @@
 
 ## Unreleased
 
+Concurrency (REQ-RUNTIME-003), a minor release; see [CONCURRENCY.md](CONCURRENCY.md).
+
+- **New dependency:** `nowo-tech/transaction-doctrine` ^1.6 (and `nowo-tech/transaction-contract`). Registering its
+  Symfony bundle (`Nowo\TransactionDoctrine\Symfony\NowoTransactionDoctrineBundle`) is optional; it adds the request
+  commit watermark (`CONFLICT_002` when the host committed earlier in the request) and one shared `conflict_response`.
+- **409 instead of 500 on lock conflicts.** A deadlock, lock wait timeout or serialization failure on a dashboard route
+  or the Live item form now answers 409 with `X-Conflict-Code` (`CONFLICT_001` + `Retry-After`, or `CONFLICT_002`).
+  To answer 503 instead, set `nowo_dashboard_menu.conflict_response.status: 503` (or transaction-doctrine's
+  `conflict_response.status`). Branded error pages: the status comes through the host's error page as an
+  `HttpException`.
+- **LogicException on unflushed host edits.** With the menu entities on the host's entity manager, a dashboard write,
+  a Live save and `MenuImporter::import()` throw `LogicException` (`DashboardMenuTransaction::HOST_PENDING_MESSAGE`)
+  when that manager has pending changes on other entities. Flush or clear your own changes before calling
+  `MenuImporter::import()` (pending changes on `Menu` / `MenuItem` are fine: they are flushed by the unit).
+- **`MenuImporter::import()`** is one transaction for the whole payload. A concurrent create of the same code and
+  context rolls the whole import back and returns `MenuImporter::CONCURRENT_CREATE_ERROR`; a lock conflict throws
+  `Nowo\TransactionContract\TransientStorageFailure` (nothing imported).
+- **Lock waits.** Item-tree writes lock the menu row. Set a lock wait for the web role so a held lock fails fast
+  (`innodb_lock_wait_timeout`, PostgreSQL `lock_timeout`).
+- Constructors: `MenuDashboardController`, `ItemFormLiveComponent` and `MenuImporter` take optional `$transaction`
+  (and `$conflictAnswer`) arguments at the end; DI wires them. Direct construction without them still works (a unit on
+  the given entity manager, 409 with Retry-After 1).
+
 ## To 2.22.2
 
 From **2.22.1**:

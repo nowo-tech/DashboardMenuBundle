@@ -8,6 +8,7 @@ use Nowo\DashboardMenuBundle\Enum\CssFramework;
 use Nowo\DashboardMenuBundle\Enum\IconSet;
 use Nowo\DashboardMenuBundle\Service\DashboardUiConfig;
 use Nowo\DashboardMenuBundle\View\DashboardWebUi;
+use Nowo\TransactionDoctrine\Symfony\Conflict\ConflictResponsePolicy;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -16,7 +17,9 @@ use function array_diff;
 use function array_key_exists;
 use function array_keys;
 use function implode;
+use function in_array;
 use function is_array;
+use function is_int;
 use function is_string;
 use function preg_match;
 use function str_contains;
@@ -120,6 +123,28 @@ final class Configuration implements ConfigurationInterface
                             ->validate()
                                 ->ifTrue(static fn (mixed $value): bool => $value !== null && (!is_string($value) || preg_match('/^[A-Za-z0-9_]+$/', $value) !== 1))
                                 ->thenInvalid('nowo_dashboard_menu.doctrine.entity_manager must be the name of a Doctrine entity manager (letters, digits and underscores).')
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('conflict_response')
+                    ->info('2.23 (REQ-RUNTIME-003): answer of a lock conflict (deadlock, lock wait timeout, serialization failure) on the dashboard routes and the Live item form. Unset: nowo-tech/transaction-doctrine\'s conflict_response when that bundle is registered, else 409 with Retry-After 1.')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->scalarNode('status')
+                            ->info('409 (default; CONFLICT_001 / CONFLICT_002 in X-Conflict-Code) or 503. Null: follow transaction-doctrine, else 409.')
+                            ->defaultNull()
+                            ->validate()
+                                ->ifTrue(static fn (mixed $v): bool => $v !== null && !in_array($v, ConflictResponsePolicy::STATUSES, true))
+                                ->thenInvalid('nowo_dashboard_menu.conflict_response.status must be 409 or 503, got %s.')
+                            ->end()
+                        ->end()
+                        ->scalarNode('retry_after')
+                            ->info('Retry-After seconds of a CONFLICT_001 answer. Null: follow transaction-doctrine, else 1.')
+                            ->defaultNull()
+                            ->validate()
+                                ->ifTrue(static fn (mixed $v): bool => $v !== null && (!is_int($v) || $v < 0))
+                                ->thenInvalid('nowo_dashboard_menu.conflict_response.retry_after must be null or an integer >= 0, got %s.')
                             ->end()
                         ->end()
                     ->end()

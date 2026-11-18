@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\Controller\Dashboard;
 
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use JsonException;
+use Nowo\DashboardMenuBundle\Concurrency\DashboardMenuConflictAnswer;
+use Nowo\DashboardMenuBundle\Concurrency\DashboardMenuTransaction;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Form\CopyMenuType;
@@ -112,6 +115,8 @@ final class MenuDashboardController extends AbstractController
      * @param DashboardUiConfig $dashboardUi Deprecated 1.x chrome hooks (dashboard.ui), read by the page factory
      * @param DashboardWebUi|null $webUi Page templates and layout (web_ui.*); null = built from the Twig service
      * @param DashboardPages|null $pages UiKit view-model factory; null = built from the router
+     * @param DashboardMenuTransaction|null $transaction the write unit of every action (2.23); null = one on $entityManager
+     * @param DashboardMenuConflictAnswer|null $conflictAnswer the 409 answer of a lock conflict (2.23); null = 409, Retry-After 1
      */
     public function __construct(
         private readonly MenuRepository $menuRepository,
@@ -135,7 +140,41 @@ final class MenuDashboardController extends AbstractController
         private readonly DashboardUiConfig $dashboardUi = new DashboardUiConfig(),
         private readonly ?DashboardWebUi $webUi = null,
         private readonly ?DashboardPages $pages = null,
+        private readonly ?DashboardMenuTransaction $transaction = null,
+        private readonly ?DashboardMenuConflictAnswer $conflictAnswer = null,
     ) {
+    }
+
+    /**
+     * Runs one write unit of a dashboard action (2.23, REQ-RUNTIME-003 rules 1 and 6): one transaction, flushed
+     * before the commit; a lock conflict leaves as the 409 `CONFLICT_001` / `CONFLICT_002` answer.
+     *
+     * @template T
+     *
+     * @param callable(EntityManagerInterface): T $operation
+     *
+     * @return T
+     */
+    private function write(Request $request, callable $operation): mixed
+    {
+        $transaction = $this->transaction ?? new DashboardMenuTransaction($this->entityManager);
+
+        return $this->conflicts()->guard($request, static fn (): mixed => $transaction->run($operation));
+    }
+
+    private function conflicts(): DashboardMenuConflictAnswer
+    {
+        return $this->conflictAnswer ?? new DashboardMenuConflictAnswer();
+    }
+
+    /**
+     * Takes the menu row lock inside a write unit (2.23): every item-tree write serialises on it.
+     */
+    private function lockMenu(Menu $menu): void
+    {
+        if (!$this->menuRepository->lockForWrite($menu)) {
+            throw $this->createNotFoundException('Menu not found.');
+        }
     }
 
     private function webUi(): DashboardWebUi
@@ -264,8 +303,16 @@ final class MenuDashboardController extends AbstractController
                 if ($existing instanceof Menu) {
                     $form->addError(new FormError($this->translator->trans('dashboard.unique_code_context_error', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN)));
                 } else {
-                    $this->entityManager->persist($menu);
-                    $this->entityManager->flush();
+                    try {
+                        $this->write($request, static function (EntityManagerInterface $em) use ($menu): void {
+                            $em->persist($menu);
+                        });
+                    } catch (UniqueConstraintViolationException) {
+                        // A concurrent request created the same code + context after the check: same answer as the check.
+                        $form->addError(new FormError($this->translator->trans('dashboard.unique_code_context_error', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN)));
+
+                        return $this->renderMenuForm($request, $form, false, null, null);
+                    }
                     $this->addFlash('success', 'Menu created.');
 
                     return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_INDEX, []);
@@ -390,8 +437,11 @@ final class MenuDashboardController extends AbstractController
         if (!$menu instanceof Menu) {
             throw $this->createNotFoundException('Menu not found.');
         }
-        $changed = $this->menuItemRepository->reindexPositionsWithStep($menu, $this->positionStep);
-        $this->entityManager->flush();
+        $changed = $this->write($request, function () use ($menu): int {
+            $this->lockMenu($menu);
+
+            return $this->menuItemRepository->reindexPositionsWithStep($menu, $this->positionStep);
+        });
         if ($changed > 0) {
             $this->addFlash(
                 'success',
@@ -502,7 +552,10 @@ final class MenuDashboardController extends AbstractController
             $nodes[]  = ['id' => $itemId, 'parent_id' => $parentId, 'position' => $position];
         }
         try {
-            $this->menuItemRepository->applyTreeLayout($menu, $nodes, $this->positionStep);
+            $this->write($request, function () use ($menu, $nodes): void {
+                $this->lockMenu($menu);
+                $this->menuItemRepository->applyTreeLayout($menu, $nodes, $this->positionStep);
+            });
         } catch (InvalidArgumentException $e) {
             $flashKey = $e->getMessage() === MenuItemRepository::TREE_LAYOUT_SECTION_MUST_BE_ROOT
                 ? 'dashboard.reorder_tree_section_not_root'
@@ -514,7 +567,6 @@ final class MenuDashboardController extends AbstractController
 
             return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
         }
-        $this->entityManager->flush();
         $this->addFlash(
             'success',
             $this->translator->trans('dashboard.reorder_tree_done', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN),
@@ -701,25 +753,11 @@ final class MenuDashboardController extends AbstractController
 
             return $this->redirectToRoute(DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
         }
-        $siblings = $this->menuItemRepository->findSiblingsByPosition($item);
-        $idx      = null;
-        foreach ($siblings as $i => $s) {
-            if ($s->getId() === $item->getId()) {
-                $idx = $i;
-                break;
-            }
-        }
-        if ($idx === null || $idx === 0) {
+        if (!$this->write($request, fn (EntityManagerInterface $em): bool => $this->swapWithSibling($em, $menu, $item, -1))) {
             $this->addFlash('info', 'Item is already first among its siblings.');
 
             return $this->redirectToRoute(DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
         }
-        $prev    = $siblings[$idx - 1];
-        $itemPos = $item->getPosition();
-        $prevPos = $prev->getPosition();
-        $item->setPosition($prevPos);
-        $prev->setPosition($itemPos);
-        $this->entityManager->flush();
         $this->addFlash('success', 'Item moved up.');
 
         return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_SHOW, ['id' => $id], 'item-' . $itemId);
@@ -744,28 +782,45 @@ final class MenuDashboardController extends AbstractController
 
             return $this->redirectToRoute(DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
         }
-        $siblings = $this->menuItemRepository->findSiblingsByPosition($item);
-        $idx      = null;
-        foreach ($siblings as $i => $s) {
-            if ($s->getId() === $item->getId()) {
-                $idx = $i;
-                break;
-            }
-        }
-        if ($idx === null || $idx === count($siblings) - 1) {
+        if (!$this->write($request, fn (EntityManagerInterface $em): bool => $this->swapWithSibling($em, $menu, $item, 1))) {
             $this->addFlash('info', 'Item is already last among its siblings.');
 
             return $this->redirectToRoute(DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
         }
-        $next    = $siblings[$idx + 1];
-        $itemPos = $item->getPosition();
-        $nextPos = $next->getPosition();
-        $item->setPosition($nextPos);
-        $next->setPosition($itemPos);
-        $this->entityManager->flush();
         $this->addFlash('success', 'Item moved down.');
 
         return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_SHOW, ['id' => $id], 'item-' . $itemId);
+    }
+
+    /**
+     * Swaps the item's position with its previous ($direction -1) or next (+1) sibling, under the menu lock and on
+     * positions read after it (2.23): two concurrent moves of one sibling group run one after the other.
+     *
+     * @return bool false when there is no sibling in that direction
+     */
+    private function swapWithSibling(EntityManagerInterface $em, Menu $menu, MenuItem $item, int $direction): bool
+    {
+        $this->lockMenu($menu);
+        // The item was read before the lock: take the committed position and parent.
+        $em->refresh($item);
+        $siblings = $this->menuItemRepository->findSiblingsByPosition($item);
+        $idx      = null;
+        foreach ($siblings as $i => $sibling) {
+            if ($sibling->getId() === $item->getId()) {
+                $idx = $i;
+                break;
+            }
+        }
+        $other = $idx === null ? null : ($siblings[$idx + $direction] ?? null);
+        if (!$other instanceof MenuItem) {
+            return false;
+        }
+
+        $itemPos = $item->getPosition();
+        $item->setPosition($other->getPosition());
+        $other->setPosition($itemPos);
+
+        return true;
     }
 
     #[Route(path: '/{id}/edit', name: 'menu_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
@@ -801,7 +856,14 @@ final class MenuDashboardController extends AbstractController
             if ($existing instanceof Menu && $existing->getId() !== $menu->getId()) {
                 $form->addError(new FormError($this->translator->trans('dashboard.unique_code_context_error', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN)));
             } else {
-                $this->entityManager->flush();
+                try {
+                    // The form bound into the managed menu: the unit flushes it.
+                    $this->write($request, static fn (): null => null);
+                } catch (UniqueConstraintViolationException) {
+                    $form->addError(new FormError($this->translator->trans('dashboard.unique_code_context_error', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN)));
+
+                    return $this->renderMenuForm($request, $form, true, $menu, is_string($sectionFocus) ? $sectionFocus : null);
+                }
                 $this->addFlash('success', 'Menu updated.');
 
                 return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
@@ -829,9 +891,10 @@ final class MenuDashboardController extends AbstractController
 
             return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_INDEX, []);
         }
-        $em = $this->entityManager;
-        $em->remove($menu);
-        $em->flush();
+        $this->write($request, function (EntityManagerInterface $em) use ($menu): void {
+            $this->lockMenu($menu);
+            $em->remove($menu);
+        });
         $this->addFlash('success', 'Menu deleted.');
 
         return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_INDEX, []);
@@ -924,7 +987,8 @@ final class MenuDashboardController extends AbstractController
                     $strategy = ($data['strategy'] ?? null) === MenuImporter::STRATEGY_REPLACE
                         ? MenuImporter::STRATEGY_REPLACE
                         : MenuImporter::STRATEGY_SKIP_EXISTING;
-                    $result = $this->menuImporter->import($decoded, $strategy);
+                    // One write unit for the whole file (MenuImporter); a lock conflict answers 409.
+                    $result = $this->conflicts()->guard($request, fn (): array => $this->menuImporter->import($decoded, $strategy));
                     foreach ($result['errors'] as $err) {
                         $this->addFlash('error', $err);
                     }
@@ -1008,13 +1072,28 @@ final class MenuDashboardController extends AbstractController
             if ($existing instanceof Menu) {
                 $this->addFlash('error', 'A menu with this code and context already exists.');
             } else {
-                $copy = $this->cloneMenuWithItems($menu, $newCode, $newName);
+                try {
+                    $copy = $this->write($request, fn (EntityManagerInterface $em): Menu => $this->cloneMenuWithItems($em, $menu, $newCode, $newName));
+                } catch (UniqueConstraintViolationException) {
+                    // A concurrent request took the code + context after the check.
+                    $this->addFlash('error', 'A menu with this code and context already exists.');
+
+                    return $this->renderCopyForm($request, $menu, $form);
+                }
                 $this->addFlash('success', 'Menu copied successfully.');
 
                 return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_SHOW, ['id' => $copy->getId()]);
             }
         }
 
+        return $this->renderCopyForm($request, $menu, $form);
+    }
+
+    /**
+     * @param FormInterface<mixed> $form
+     */
+    private function renderCopyForm(Request $request, Menu $menu, FormInterface $form): Response
+    {
         $view = $form->createView();
         if ($this->isDialogRequest($request)) {
             return $this->renderPage('copy_menu_partial', ['menu' => $menu, 'form' => $view], $form);
@@ -1026,7 +1105,7 @@ final class MenuDashboardController extends AbstractController
     /**
      * Clones a menu and all its items (recursively). New menu gets the given code and name; all other fields (including context) are copied from source.
      */
-    private function cloneMenuWithItems(Menu $source, string $newCode, ?string $newName): Menu
+    private function cloneMenuWithItems(EntityManagerInterface $em, Menu $source, string $newCode, ?string $newName): Menu
     {
         $copy = new Menu();
         $copy->setCode($newCode);
@@ -1052,7 +1131,6 @@ final class MenuDashboardController extends AbstractController
         $copy->setContext($source->getContext() ?? null);
         $copy->setBase(false);
 
-        $em = $this->entityManager;
         $em->persist($copy);
         $em->flush();
 
@@ -1157,19 +1235,18 @@ final class MenuDashboardController extends AbstractController
                 $item->normalizeDividerState();
             }
 
-            // Append new items at the end of their sibling group.
-            // This avoids `position = 0` for every new element.
-            $maxPosition = $this->menuItemRepository->findMaxPositionForParent($menu, $item->getParent());
-            $item->setPosition($maxPosition + 1);
+            $this->write($request, function (EntityManagerInterface $em) use ($menu, $item): void {
+                // Append new items at the end of their sibling group, under the menu lock (2.23): two concurrent
+                // appends cannot read the same MAX(position).
+                $this->lockMenu($menu);
+                $item->setPosition($this->menuItemRepository->findMaxPositionForParent($menu, $item->getParent()) + 1);
+                $em->persist($item);
+                $em->flush();
 
-            $this->entityManager->persist($item);
-            $this->entityManager->flush();
-
-            // If existing siblings have duplicated (e.g. all `0`) positions, reindex them
-            // so the table ordering becomes deterministic.
-            if ($this->reindexSiblingPositionsIfNeeded($menu, $item->getParent())) {
-                $this->entityManager->flush();
-            }
+                // If existing siblings have duplicated (e.g. all `0`) positions, reindex them
+                // so the table ordering becomes deterministic.
+                $this->reindexSiblingPositionsIfNeeded($menu, $item->getParent());
+            });
 
             $this->addFlash('success', 'Item created.');
 
@@ -1288,12 +1365,6 @@ final class MenuDashboardController extends AbstractController
                 $item->setExternalUrl(null);
             }
             $parentChanged = $originalParentId !== $item->getParent()?->getId();
-            // When moving an item between parents via the config (gear) section,
-            // the position field isn't part of that form submission, so we append it.
-            if ($sectionFocus === 'config' && $parentChanged) {
-                $maxPosition = $this->menuItemRepository->findMaxPositionForParent($menu, $item->getParent());
-                $item->setPosition($maxPosition + 1);
-            }
 
             // Guard against partial / unmapped form listeners: update translations directly
             // from Symfony form field values when editing labels identity.
@@ -1321,15 +1392,20 @@ final class MenuDashboardController extends AbstractController
                 }
             }
 
-            $this->entityManager->flush();
+            $this->write($request, function (EntityManagerInterface $em) use ($menu, $item, $sectionFocus, $parentChanged, $originalParent): void {
+                $this->lockMenu($menu);
+                // When moving an item between parents via the config (gear) section, the position field isn't part
+                // of that form submission, so we append it (read under the menu lock, 2.23).
+                if ($sectionFocus === 'config' && $parentChanged) {
+                    $item->setPosition($this->menuItemRepository->findMaxPositionForParent($menu, $item->getParent()) + 1);
+                }
+                $em->flush();
 
-            $changed = $this->reindexSiblingPositionsIfNeeded($menu, $item->getParent());
-            if ($parentChanged) {
-                $changed = $this->reindexSiblingPositionsIfNeeded($menu, $originalParent) || $changed;
-            }
-            if ($changed) {
-                $this->entityManager->flush();
-            }
+                $this->reindexSiblingPositionsIfNeeded($menu, $item->getParent());
+                if ($parentChanged) {
+                    $this->reindexSiblingPositionsIfNeeded($menu, $originalParent);
+                }
+            });
 
             $this->addFlash('success', 'Item updated.');
 
@@ -1374,9 +1450,10 @@ final class MenuDashboardController extends AbstractController
 
             return $this->redirectToRoute(DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
         }
-        $em = $this->entityManager;
-        $em->remove($item);
-        $em->flush();
+        $this->write($request, function (EntityManagerInterface $em) use ($menu, $item): void {
+            $this->lockMenu($menu);
+            $em->remove($item);
+        });
         $this->addFlash('success', 'Item deleted.');
 
         return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_SHOW, ['id' => $id]);

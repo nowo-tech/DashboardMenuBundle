@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Nowo\DashboardMenuBundle\Tests\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Nowo\DashboardMenuBundle\Concurrency\DashboardMenuTransaction;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 use Nowo\DashboardMenuBundle\Service\MenuImporter;
+use Nowo\DashboardMenuBundle\Tests\Unit\Concurrency\StorageErrors;
+use Nowo\TransactionContract\TransientStorageFailure;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionProperty;
@@ -29,6 +32,66 @@ final class MenuImporterTest extends TestCase
         self::assertSame('42', $m->invoke($importer, 42));
         self::assertNull($m->invoke($importer, ''));
         self::assertNull($m->invoke($importer, null));
+    }
+
+    public function testAConcurrentCreateRollsTheWholeImportBackWithTheConcurrentError(): void
+    {
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('flush')->willThrowException(StorageErrors::uniqueViolation());
+
+        $importer = new MenuImporter($this->createStub(MenuItemRepository::class), $menuRepo, $em, null, new DashboardMenuTransaction($em));
+        $result   = $importer->import(['menu' => ['code' => 'sidebar'], 'items' => []]);
+
+        self::assertSame(['created' => 0, 'updated' => 0, 'skipped' => 0, 'errors' => [MenuImporter::CONCURRENT_CREATE_ERROR]], $result);
+    }
+
+    public function testALockConflictLeavesAsATransientStorageFailure(): void
+    {
+        $menuRepo = $this->createStub(MenuRepository::class);
+        $menuRepo->method('findOneByCodeAndContext')->willReturn(null);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('flush')->willThrowException(StorageErrors::deadlock());
+
+        $this->expectException(TransientStorageFailure::class);
+        (new MenuImporter($this->createStub(MenuItemRepository::class), $menuRepo, $em))->import(['menu' => ['code' => 'sidebar'], 'items' => []]);
+    }
+
+    public function testReplaceLocksTheMenuAndReadsTheOldItemsWithALockingRead(): void
+    {
+        $existing = new Menu();
+        $existing->setCode('sidebar');
+        $old      = new MenuItem();
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findOneByCodeAndContext')->willReturn($existing);
+        $menuRepo->expects(self::once())->method('lockForWrite')->with($existing)->willReturn(true);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->expects(self::once())->method('findAllForMenuForUpdate')->with($existing)->willReturn([$old]);
+        $itemRepo->method('findAllForMenuOrderedByTreeForExport')->willReturn([]);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::once())->method('remove')->with($old);
+
+        $result = (new MenuImporter($itemRepo, $menuRepo, $em))->import(['menu' => ['code' => 'sidebar'], 'items' => []], MenuImporter::STRATEGY_REPLACE);
+
+        self::assertSame(1, $result['updated']);
+    }
+
+    public function testReplaceOfAMenuDeletedMeanwhileReportsAnError(): void
+    {
+        $existing = new Menu();
+        $existing->setCode('sidebar');
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findOneByCodeAndContext')->willReturn($existing);
+        $menuRepo->method('lockForWrite')->willReturn(false);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::never())->method('remove');
+        $em->expects(self::never())->method('persist');
+
+        $result = (new MenuImporter($this->createStub(MenuItemRepository::class), $menuRepo, $em))->import(['menu' => ['code' => 'sidebar'], 'items' => []], MenuImporter::STRATEGY_REPLACE);
+
+        self::assertSame(0, $result['updated']);
+        self::assertSame(['Menu "sidebar" was deleted by another request during the import; it was not imported.'], $result['errors']);
     }
 
     public function testImportInvalidFormatAddsError(): void
@@ -179,7 +242,8 @@ final class MenuImporterTest extends TestCase
         $menuRepo->method('findOneByCodeAndContext')->willReturn($existing);
         $em = $this->createMock(EntityManagerInterface::class);
         $em->expects(self::never())->method('persist');
-        $em->expects(self::never())->method('flush');
+        // 2.23: the write unit flushes once (nothing pending: no write).
+        $em->expects(self::once())->method('flush');
 
         $importer = new MenuImporter($this->createStub(MenuItemRepository::class), $menuRepo, $em);
         $result   = $importer->import([
@@ -204,9 +268,11 @@ final class MenuImporterTest extends TestCase
 
         $menuRepo = $this->createStub(MenuRepository::class);
         $menuRepo->method('findOneByCodeAndContext')->willReturn($existing);
+        $menuRepo->method('lockForWrite')->willReturn(true);
         $itemRepo = $this->createMock(MenuItemRepository::class);
-        $itemRepo->expects(self::atLeastOnce())
-            ->method('findAllForMenuOrderedByTreeForExport')
+        // 2.23: the old items are read with a locking read under the menu lock.
+        $itemRepo->expects(self::once())
+            ->method('findAllForMenuForUpdate')
             ->willReturn([$old]);
 
         $em = $this->createMock(EntityManagerInterface::class);
@@ -474,7 +540,8 @@ final class MenuImporterTest extends TestCase
         $em = $this->createMock(EntityManagerInterface::class);
         $em->expects(self::atLeastOnce())->method('persist');
         // create menu + after persist tree + after clear links + after reindex duplicates
-        $em->expects(self::exactly(4))->method('flush');
+        // 2.23: + the write unit's own flush before the commit.
+        $em->expects(self::exactly(5))->method('flush');
 
         $importer = new MenuImporter($itemRepo, $menuRepo, $em);
         $result   = $importer->import([

@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\Service;
 
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
+use LogicException;
+use Nowo\DashboardMenuBundle\Concurrency\DashboardMenuTransaction;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
 use Nowo\DashboardMenuBundle\Util\ExternalUrlPolicy;
+use Nowo\TransactionContract\TransientStorageFailure;
 
 use function array_key_exists;
 use function array_keys;
@@ -23,6 +27,13 @@ use function sprintf;
 /**
  * Imports menus and items from a JSON-serializable array (exported by MenuExporter).
  *
+ * 2.23 (REQ-RUNTIME-003 rule 1): one call is ONE write unit ({@see DashboardMenuTransaction}): every menu of the
+ * payload, the "replace" removal of the old items and the re-inserted tree commit together or not at all, so a
+ * failure never leaves a menu emptied or half imported. A replaced menu is locked first (its row, `FOR UPDATE`), so two
+ * imports of one menu run one after the other. When a concurrent request creates a menu with the same code and
+ * context first, the unique key refuses the insert and the whole import is rolled back: the result then carries
+ * {@see self::CONCURRENT_CREATE_ERROR} and nothing was imported (retrying sees the new menu).
+ *
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
  */
@@ -30,6 +41,9 @@ final readonly class MenuImporter
 {
     public const STRATEGY_SKIP_EXISTING = 'skip_existing';
     public const STRATEGY_REPLACE       = 'replace';
+
+    /** Error of an import rolled back because a concurrent request created one of its menus first (2.23). */
+    public const CONCURRENT_CREATE_ERROR = 'Another request created a menu with the same code and context during the import; nothing was imported. Import again.';
 
     public function __construct(
         private MenuItemRepository $menuItemRepository,
@@ -43,6 +57,8 @@ final readonly class MenuImporter
          * @var array<string, string>|null
          */
         private ?array $knownPermissionCheckers = null,
+        /** The write unit of one import (2.23); null = one on $entityManager. */
+        private ?DashboardMenuTransaction $transaction = null,
     ) {
     }
 
@@ -55,9 +71,28 @@ final readonly class MenuImporter
      * @param array<int|string, mixed> $data
      * @param self::STRATEGY_* $strategy skip_existing = do not overwrite menu with same code+context; replace = replace items of existing menu
      *
+     * @throws TransientStorageFailure on a deadlock, lock wait timeout or serialization failure (nothing imported)
+     * @throws LogicException when the host's entity manager has pending changes on other entities
+     *
      * @return array{created: int, updated: int, skipped: int, errors: list<string>}
      */
     public function import(array $data, string $strategy = self::STRATEGY_SKIP_EXISTING): array
+    {
+        $transaction = $this->transaction ?? new DashboardMenuTransaction($this->entityManager);
+
+        try {
+            return $transaction->run(fn (): array => $this->importUnit($data, $strategy));
+        } catch (UniqueConstraintViolationException) {
+            return ['created' => 0, 'updated' => 0, 'skipped' => 0, 'errors' => [self::CONCURRENT_CREATE_ERROR]];
+        }
+    }
+
+    /**
+     * @param array<int|string, mixed> $data
+     *
+     * @return array{created: int, updated: int, skipped: int, errors: list<string>}
+     */
+    private function importUnit(array $data, string $strategy): array
     {
         $data   = self::normalizeImportPayload($data);
         $result = ['created' => 0, 'updated' => 0, 'skipped' => 0, 'errors' => []];
@@ -161,10 +196,15 @@ final readonly class MenuImporter
 
                 return;
             }
-            // Replace: remove existing items and re-import.
+            // Replace: remove existing items and re-import, under the menu row lock (2.23).
             // Use repository lookup to guarantee we remove the full tree even when
             // the ORM collection isn't fully initialized in this request context.
-            $existingItems = $this->menuItemRepository->findAllForMenuOrderedByTreeForExport($existing);
+            if (!$this->menuRepository->lockForWrite($existing)) {
+                $result['errors'][] = sprintf('Menu "%s" was deleted by another request during the import; it was not imported.', $code);
+
+                return;
+            }
+            $existingItems = $this->menuItemRepository->findAllForMenuForUpdate($existing);
             foreach ($existingItems as $item) {
                 $this->entityManager->remove($item);
             }

@@ -127,6 +127,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Concurrency (REQ-RUNTIME-003):** every dashboard action, the Live item form save and every import run as ONE
+  write unit (`Concurrency\DashboardMenuTransaction`, on `nowo-tech/transaction-doctrine` ^1.6, now a dependency):
+  one transaction, flushed before the commit, nesting level repaired after a failure. See
+  [CONCURRENCY.md](CONCURRENCY.md).
+- Lock conflicts (deadlock, lock wait timeout, serialization failure) on the dashboard routes and the Live item form
+  answer **409** with `X-Conflict-Code: CONFLICT_001` and `Retry-After` when nothing was committed, or
+  `CONFLICT_002` without `Retry-After` when part of the request already was (transaction-doctrine's request watermark,
+  `ConflictCode::forRequest()`). New option `conflict_response.status` (409 or 503) / `conflict_response.retry_after`;
+  unset, they follow transaction-doctrine's `conflict_response` when that bundle is registered.
+- `MenuRepository::lockForWrite()` (menu row `SELECT … FOR UPDATE`) and `MenuItemRepository::findAllForMenuForUpdate()`.
+- `MenuImporter::CONCURRENT_CREATE_ERROR`, `MenuTreeCacheInvalidator::invalidatePendingAfterCommit()`.
+- CI job **Databases (MySQL 8.4, MariaDB 11.4, PostgreSQL 16)** on DBAL 4 and DBAL 3: two-connection race tests
+  (`tests/Integration/Database`, group `database`).
+- `docs/CONCURRENCY.md`: write paths, codes, host options, residual risks.
+
+### Changed
+
+- Every write to a menu's item tree (append, move, reorder, re-index, delete, import replace) takes the menu row lock
+  first, and the appended position (`MAX(position) + 1`) is read under it.
+- On the host's entity manager, a dashboard write refuses to start with a `LogicException` when the manager has pending
+  changes on entities that are not menu entities (they would otherwise be flushed inside the menu transaction).
+
+### Fixed
+
+- Import "replace" removed the old items and flushed before re-inserting the tree: a failure in between left the menu
+  emptied or half imported. The whole import is now one transaction, and the replaced menu is locked first.
+- Item create / edit / copy flushed several times without a transaction: a failure between the flushes left a
+  half-saved state.
+- Two concurrent appends to one sibling group could read the same `MAX(position)` and get the same position.
+- A concurrent create of the same menu code and context answered a 500 (unique violation): it now answers the same
+  form error as the pre-check (or the import error), with no conflict code.
+- The menu tree cache could keep the old tree after a write: a reader between the flush and the commit cached it under
+  the new version. The version is bumped again after the commit.
+- A lock conflict on a dashboard write answered a 500.
+- `MenuCacheInvalidationSubscriber` was never registered as a service (since 0.3.43): menu writes did not bump the tree
+  cache version (the old tree was served until the cache TTL) and did not clear the code lookup memo of the request.
+  It is now registered (every connection).
+
 ## [2.22.2] - 2026-11-17
 
 ### Added

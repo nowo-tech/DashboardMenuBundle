@@ -208,9 +208,25 @@ services:
     tags: [controller.service_arguments]
 
   Nowo\DashboardMenuBundle\Service\MenuExporter: ~
+  # 2.23 (REQ-RUNTIME-003): one write unit per dashboard action, Live save and import; 409 on a lock conflict.
+  # $ownManager is set by DashboardMenuEntityManagerPass when doctrine.entity_manager is the bundle's own manager.
+  Nowo\DashboardMenuBundle\Concurrency\DashboardMenuTransaction:
+    arguments:
+      $manager: '@Nowo\DashboardMenuBundle\Doctrine\DashboardMenuEntityManagerResolver'
+      $registry: '@doctrine'
+      $managerName: '%nowo_dashboard_menu.doctrine.entity_manager%'
+      $ownManager: false
+      $cacheInvalidator: '@Nowo\DashboardMenuBundle\Service\MenuTreeCacheInvalidator'
+      $menuRepository: '@Nowo\DashboardMenuBundle\Repository\MenuRepository'
+      $logger: '@?logger'
+
+  # $policy is set by DashboardMenuExtension from conflict_response (or transaction-doctrine's shared policy).
+  Nowo\DashboardMenuBundle\Concurrency\DashboardMenuConflictAnswer: ~
+
   Nowo\DashboardMenuBundle\Service\MenuImporter:
     arguments:
       $knownPermissionCheckers: '%nowo_dashboard_menu.permission_checker_choices%'
+      $transaction: '@Nowo\DashboardMenuBundle\Concurrency\DashboardMenuTransaction'
 
   # ItemFormLiveComponent is registered in services_live_component.yaml when symfony/ux-live-component is installed
 
@@ -218,6 +234,8 @@ services:
     arguments:
       $menuExporter: '@Nowo\DashboardMenuBundle\Service\MenuExporter'
       $menuImporter: '@Nowo\DashboardMenuBundle\Service\MenuImporter'
+      $transaction: '@Nowo\DashboardMenuBundle\Concurrency\DashboardMenuTransaction'
+      $conflictAnswer: '@Nowo\DashboardMenuBundle\Concurrency\DashboardMenuConflictAnswer'
       $routeNameExcludePatterns: '%nowo_dashboard_menu.dashboard.route_name_exclude_patterns%'
       $locales: '%nowo_dashboard_menu.locales%'
       $paginationEnabled: '%nowo_dashboard_menu.dashboard.pagination.enabled%'
@@ -247,6 +265,10 @@ services:
       $entityManagerName: '%nowo_dashboard_menu.doctrine.entity_manager%'
       $dataCollector: '@?Nowo\DashboardMenuBundle\DataCollector\DashboardMenuDataCollector'
       $menuQueryCounter: '@?Nowo\DashboardMenuBundle\DataCollector\MenuQueryCounter'
+
+  # 2.23: registered at last (since 0.3.43 the class existed but was never a service, so writes never bumped the tree
+  # cache version nor cleared the code lookup memo). Autoconfigured from #[AsDoctrineListener], on every connection.
+  Nowo\DashboardMenuBundle\EventSubscriber\MenuCacheInvalidationSubscriber: ~
 
   Nowo\DashboardMenuBundle\EventSubscriber\TablePrefixSubscriber:
     arguments:

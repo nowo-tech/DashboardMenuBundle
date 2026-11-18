@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nowo\DashboardMenuBundle\DependencyInjection;
 
 use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
+use Nowo\DashboardMenuBundle\Concurrency\DashboardMenuConflictAnswer;
 use Nowo\DashboardMenuBundle\DataCollector\DashboardMenuDataCollector;
 use Nowo\DashboardMenuBundle\DataCollector\MenuQueryCounter;
 use Nowo\DashboardMenuBundle\DataCollector\MenuQueryCountMiddleware;
@@ -34,6 +35,7 @@ use Nowo\DashboardMenuBundle\Service\MenuLocaleResolver;
 use Nowo\DashboardMenuBundle\Service\MenuTreeCacheInvalidator;
 use Nowo\DashboardMenuBundle\Service\MenuTreeLoader;
 use Nowo\DashboardMenuBundle\Twig\MenuExtension;
+use Nowo\TransactionDoctrine\Symfony\Conflict\ConflictResponsePolicy;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Asset\Package;
 use Symfony\Component\Clock\NativeClock;
@@ -476,6 +478,7 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
         $entityManagerName = $config['doctrine']['entity_manager'] ?? null;
         $container->setParameter(self::ENTITY_MANAGER_PARAMETER, is_string($entityManagerName) && $entityManagerName !== '' ? $entityManagerName : null);
         $container->setParameter(Configuration::ALIAS . '.doctrine.table_prefix', $config['doctrine']['table_prefix'] ?? '');
+        $this->configureConflictResponse($container, $config['conflict_response'] ?? []);
         $container->setParameter(Configuration::ALIAS . '.table_prefix', $config['doctrine']['table_prefix'] ?? '');
 
         $container->register(MenuConfigResolver::class, MenuConfigResolver::class)
@@ -562,6 +565,25 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
                 }
             }
         }
+    }
+
+    /**
+     * 2.23 (REQ-RUNTIME-003 rule 6): the status / Retry-After of the dashboard's lock-conflict answer. Both unset:
+     * transaction-doctrine's shared ConflictResponsePolicy when its bundle is registered, else 409 with Retry-After 1.
+     *
+     * @param array{status?: int|null, retry_after?: int|null} $conflictResponse
+     */
+    private function configureConflictResponse(ContainerBuilder $container, array $conflictResponse): void
+    {
+        $status     = $conflictResponse['status'] ?? null;
+        $retryAfter = $conflictResponse['retry_after'] ?? null;
+        $policy     = $status === null && $retryAfter === null
+            ? new Reference(ConflictResponsePolicy::class, ContainerInterface::NULL_ON_INVALID_REFERENCE)
+            : new Definition(ConflictResponsePolicy::class, [
+                $status ?? ConflictResponsePolicy::STATUS_CONFLICT,
+                $retryAfter ?? ConflictResponsePolicy::DEFAULT_RETRY_AFTER,
+            ]);
+        $container->getDefinition(DashboardMenuConflictAnswer::class)->setArgument('$policy', $policy);
     }
 
     /**

@@ -105,6 +105,68 @@ jobs:
           fi
           echo "✅ Coverage generated"
 
+  # REQ-RUNTIME-003 (2.23): two-connection concurrency tests on real servers; required on main.
+  databases:
+    name: Databases (MySQL 8.4, MariaDB 11.4, PostgreSQL 16) - DBAL ${{ matrix.dbal }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        dbal: ['4', '3']
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+          MYSQL_DATABASE: dm
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1" --health-interval=5s --health-timeout=5s --health-retries=30
+      mariadb:
+        image: mariadb:11.4
+        env:
+          MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: 'yes'
+          MARIADB_DATABASE: dm
+        ports: ['3307:3306']
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=5s --health-timeout=5s --health-retries=30
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_DB: dm
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd="pg_isready -U postgres" --health-interval=5s --health-timeout=5s --health-retries=30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: json, pdo_mysql, pdo_pgsql
+          coverage: none
+          tools: composer:v2
+
+      - name: Install dependencies (DBAL ${{ matrix.dbal }})
+        run: |
+          if [ "${{ matrix.dbal }}" = "3" ]; then
+            composer require doctrine/dbal:^3.8.2 --no-interaction --no-update
+          fi
+          composer update --prefer-dist --no-progress --no-interaction
+
+      - name: Concurrency tests on real servers (none may be skipped)
+        env:
+          DM_MYSQL_URL: mysql://root@127.0.0.1:3306/dm?serverVersion=8.4.0&charset=utf8mb4
+          DM_MARIADB_URL: mysql://root@127.0.0.1:3307/dm?serverVersion=11.4.0-MariaDB&charset=utf8mb4
+          DM_POSTGRES_URL: pgsql://postgres@127.0.0.1:5432/dm?serverVersion=16&charset=utf8
+        run: vendor/bin/phpunit --group database --no-coverage --fail-on-skipped
+
   static-analysis:
     name: Static analysis (PHPStan, Rector, Igor)
     runs-on: ubuntu-latest

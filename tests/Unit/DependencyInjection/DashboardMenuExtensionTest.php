@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\Tests\DependencyInjection;
 
+use Nowo\DashboardMenuBundle\Concurrency\DashboardMenuConflictAnswer;
 use Nowo\DashboardMenuBundle\DataCollector\DashboardMenuDataCollector;
 use Nowo\DashboardMenuBundle\DependencyInjection\Configuration;
 use Nowo\DashboardMenuBundle\DependencyInjection\DashboardMenuExtension;
@@ -16,12 +17,14 @@ use Nowo\DashboardMenuBundle\Service\DashboardUiConfig;
 use Nowo\DashboardMenuBundle\Service\ImportExportRateLimiter;
 use Nowo\DashboardMenuBundle\Twig\MenuExtension;
 use Nowo\DashboardMenuBundle\View\DashboardPages;
+use Nowo\TransactionDoctrine\Symfony\Conflict\ConflictResponsePolicy;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Reference;
@@ -95,6 +98,39 @@ final class DashboardMenuExtensionTest extends TestCase
         );
         $arguments = $container->getDefinition(MenuExtension::class)->getArguments();
         self::assertSame('%' . Configuration::ALIAS . '.menu_collapse%', $arguments['$menuCollapse']);
+    }
+
+    public function testConflictResponseFollowsTransactionDoctrineWhenUnset(): void
+    {
+        $policy = $this->conflictPolicyArgument([]);
+
+        self::assertInstanceOf(Reference::class, $policy);
+        self::assertSame(ConflictResponsePolicy::class, (string) $policy);
+        self::assertSame(ContainerInterface::NULL_ON_INVALID_REFERENCE, $policy->getInvalidBehavior());
+    }
+
+    public function testConflictResponseStatusAndRetryAfterBuildTheBundlesOwnPolicy(): void
+    {
+        $status = $this->conflictPolicyArgument(['status' => 503]);
+        self::assertInstanceOf(Definition::class, $status);
+        self::assertSame([503, 1], $status->getArguments());
+
+        $retry = $this->conflictPolicyArgument(['retry_after' => 5]);
+        self::assertInstanceOf(Definition::class, $retry);
+        self::assertSame([409, 5], $retry->getArguments());
+    }
+
+    /**
+     * @param array<string, mixed> $conflictResponse
+     */
+    private function conflictPolicyArgument(array $conflictResponse): mixed
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'prod');
+        $container->setParameter('kernel.bundles', []);
+        (new DashboardMenuExtension())->load([['conflict_response' => $conflictResponse]], $container);
+
+        return $container->getDefinition(DashboardMenuConflictAnswer::class)->getArgument('$policy');
     }
 
     public function testCLoadExposesMenuRenderParameter(): void
