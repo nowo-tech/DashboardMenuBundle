@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.23.0](#to-2230)
 - [To 2.22.2](#to-2222)
 - [To 2.22.1](#to-2221)
 - [To 2.22.0](#to-2220)
@@ -138,6 +139,14 @@
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## To 2.23.0
+
+From **2.22.2**:
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
 
 Concurrency (REQ-RUNTIME-003), a minor release; see [CONCURRENCY.md](CONCURRENCY.md).
 
