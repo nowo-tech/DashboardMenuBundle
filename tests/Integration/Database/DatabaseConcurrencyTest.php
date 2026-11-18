@@ -37,6 +37,7 @@ use function getenv;
 use function implode;
 use function is_string;
 use function json_encode;
+use function random_int;
 use function sort;
 use function str_ends_with;
 use function str_repeat;
@@ -323,7 +324,8 @@ final class DatabaseConcurrencyTest extends TestCase
             if ($menu->getCode() !== $code) {
                 return false;
             }
-            $other->insert('dashboard_menu', ['code' => $code, 'attributes_key' => Menu::canonicalContextKey(null)]);
+            // An explicit id: on PostgreSQL with DBAL 3 the id comes from a sequence the ORM reads, not a column default.
+            $other->insert('dashboard_menu', ['id' => 900_000 + random_int(1, 99_999), 'code' => $code, 'attributes_key' => Menu::canonicalContextKey(null)]);
 
             return true;
         });
