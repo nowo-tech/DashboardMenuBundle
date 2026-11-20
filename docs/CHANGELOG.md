@@ -141,7 +141,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The bootstrapped Tom Select stylesheets now come from UiKit's asset package (`css/vendor/tom-select.default.min.css`
   + `css/nowo-ui-tom-select.css`, config island `tomSelectCssUrls`) instead of jsDelivr; absolute or protocol-relative
-  URLs are refused. Needs UiKit 2.60 (older UiKit: the vendored file 404s, the token layer still loads).
+  URLs are refused.
+- Requires `nowo-tech/ui-kit-bundle` `^2.60` (the vendored Tom Select theme, the tree toggle classes).
 - Menu detail header: `edit_menu` defaults to the `secondary` variant, so `add_item` is the page's one primary action
   (`dashboard.header_action_variants.edit_menu: primary` restores it).
 - Demo: runs inside UiKit's shared demo platform shell (`@NowoUiKit/demo_platform/layout.html.twig`); the home shows
