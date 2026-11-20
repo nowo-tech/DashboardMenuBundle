@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% macro context_menu(tree, code, config) %}
-    {% set _classes = {menu: 'nowo-ui-aside__nav', item: '', link: 'nowo-ui-aside__link', children: 'nowo-ui-aside__nav'} %}
+    {% set _classes = {menu: 'nowo-ui-tree', item: '', link: 'nowo-ui-aside__link', children: 'nowo-ui-tree__group', section_children: 'nowo-ui-tree__group'} %}
     {% set _cfg = (config|default({}))|merge({ classes: ((config|default({})).classes|default({}))|merge(_classes) }) %}
     {% include '@NowoDashboardMenuBundle/menu.html.twig' with { menuTree: tree, menuCode: code, menuConfig: _cfg } %}
 {% endmacro %}
@@ -77,8 +77,8 @@
         <p class="nowo-ui-muted">{{ 'demo.render_options_intro'|trans({}, _demo_domain)|raw }}</p>
         {% set treeOptions = dashboard_menu_tree('sidebar') %}
         {% set _cfg3 = dashboard_menu_config('sidebar')|default({}) %}
-        {% set configOptions = _cfg3|merge({ nested_group_display: 'link_row', group_children_marker: 'dot', toggle_icon: 'bi:chevron-down', nested_default: 'current' }) %}
-        <nav class="nowo-ui-aside__nav demo-render-options">
+        {% set configOptions = _cfg3|merge({ classes: (_cfg3.classes|default({}))|merge({menu: 'nowo-ui-tree', link: 'nowo-ui-aside__link', children: 'nowo-ui-tree__group', section_children: 'nowo-ui-tree__group'}), nested_group_display: 'link_row', group_children_marker: 'dot', toggle_icon: 'bi:chevron-down', nested_default: 'current' }) %}
+        <nav class="nowo-ui-aside__nav">
             {% include '@NowoDashboardMenuBundle/menu.html.twig' with { menuTree: treeOptions, menuCode: 'sidebar-options', menuConfig: configOptions } %}
         </nav>
     </div>

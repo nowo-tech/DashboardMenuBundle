@@ -1,0 +1,7 @@
+{#- One DashboardMenu tree rendered with UiKit's semantic classes (REQ-DEMO-014): `aside` menus use UiKit's tree list classes with the aside link,
+    `bar` menus (header end, footer) lay the tree out in a row with the masthead link class. No demo CSS. -#}
+{% set _classes = variant == 'bar'
+    ? {menu: 'nowo-ui-tree nowo-ui-row-actions', item: '', link: 'nowo-ui-link', children: 'nowo-ui-tree__group', section_children: 'nowo-ui-tree__group'}
+    : {menu: 'nowo-ui-tree', item: '', link: 'nowo-ui-aside__link', children: 'nowo-ui-tree__group', section_children: 'nowo-ui-tree__group'} %}
+{% set _config = (config|default({}))|merge({classes: ((config|default({})).classes|default({}))|merge(_classes)}) %}
+{% include '@NowoDashboardMenuBundle/menu.html.twig' with {menuTree: tree, menuCode: code, menuConfig: _config} %}

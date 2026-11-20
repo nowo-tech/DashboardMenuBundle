@@ -1,12 +1,13 @@
-# REQ-DEMO-014: FormKit profile themed with UiKit's semantic classes (no Bootstrap classes).
+# REQ-DEMO-015: demo forms are FormKit forms themed by the `demo` profile on top of UiKit's semantic classes.
 nowo_form_kit:
-    default_profile: default
+    default_profile: demo
     profiles:
-        default:
-            alias: default
+        demo:
+            alias: demo
             translation_domain: messages
             defaults:
                 attr:
-                    class: nowo-ui-input
+                    class: 'nowo-ui-input'
                 row_attr:
-                    class: nowo-ui-form-row
+                    class: 'nowo-ui-form-row'
+            field_types: {}
