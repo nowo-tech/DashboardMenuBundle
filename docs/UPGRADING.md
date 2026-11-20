@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.24.0](#to-2240)
 - [To 2.23.0](#to-2230)
 - [To 2.22.2](#to-2222)
 - [To 2.22.1](#to-2221)
@@ -139,6 +140,14 @@
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## To 2.24.0
+
+From **2.23.0**:
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
 
 Schema change (REQ-RUNTIME-003 rule 4). **Deploy order: run the migration first, then deploy the code.** The migration is
 backward compatible (new columns with a default, a nullable column, a unique index that allows NULLs), so the old code
