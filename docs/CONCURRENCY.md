@@ -120,6 +120,10 @@ Rule 4 asks for a deliberate control on every read-modify-write. The tree positi
   a `StaleEditException`. Nothing is saved, the unsaved entity is detached (a later flush cannot store it; the manager
   is never cleared or reset), and the admin gets a flash and the menu page. This is a **domain answer**, not
   `CONFLICT_001` / `CONFLICT_002`: nothing failed, the form was simply older than the data.
+- For the same reason `item_edit` recomputes the item's change set (`recomputeSingleEntityChangeSet()`) after it appends
+  the moved item to its new sibling group, so the position adds to the form's changes (new parent, other fields)
+  instead of replacing them (it did replace them in 2.23). Any other operation that changes, inside the unit, an entity
+  the form already changed must do the same.
 - The version is bumped together with the form's own changes **before** the write unit starts. The unit computes the
   change sets of the managed menu entities when it begins (to refuse host changes), and Doctrine keeps only the latest
   change set of an entity: a bump made inside the unit would replace the form's changes.

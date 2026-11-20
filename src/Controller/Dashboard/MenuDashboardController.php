@@ -1446,6 +1446,10 @@ final class MenuDashboardController extends AbstractController
                     // of that form submission, so we append it (read under the menu lock, 2.23).
                     if ($sectionFocus === 'config' && $parentChanged) {
                         $item->setPosition($this->menuItemRepository->findMaxPositionForParent($menu, $item->getParent()) + 1);
+                        // The unit computed the change sets when it began, and Doctrine keeps only the latest one of an
+                        // entity: merge the position into the form's changes (the new parent, the other fields) instead
+                        // of letting it replace them at the flush below (2.24; lost in 2.23).
+                        $em->getUnitOfWork()->recomputeSingleEntityChangeSet($em->getClassMetadata(MenuItem::class), $item);
                     }
                     $em->flush();
 

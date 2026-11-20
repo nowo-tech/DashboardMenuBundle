@@ -356,6 +356,41 @@ final class DatabaseConcurrencyTest extends TestCase
         $this->assertUsable($kernel);
     }
 
+    /**
+     * Regression (2.23): the config (gear) section moves an item to another parent and the unit appends it to that
+     * sibling group (`setPosition()` inside the unit, after the unit computed the change sets). The form's own changes
+     * (the parent and the other fields) must be stored with the position, not replaced by it.
+     */
+    #[DataProvider('databases')]
+    public function testMovingAnItemWithTheConfigSectionStoresTheParentAndTheOtherFields(string $env): void
+    {
+        $url    = $this->url($env);
+        $kernel = $this->boot($url, DatabaseTestKernel::STANDARD);
+        $this->createSchema($kernel);
+        $menuId   = $this->createMenu($kernel, 'sidebar');
+        $parentId = $this->createItem($kernel, $menuId, 'Parent');
+        $itemId   = $this->createItem($kernel, $menuId, 'Child');
+        $client   = $this->client($kernel);
+
+        $crawler = $client->request('GET', '/admin/menus/' . $menuId . '/item/' . $itemId . '/edit?section=config');
+        self::assertSame(200, $client->getResponse()->getStatusCode());
+        $form = $crawler->filterXPath('//form')->form();
+        $form->setValues([
+            $this->fieldEndingWith($form->getValues(), '[parent]')      => (string) $parentId,
+            $this->fieldEndingWith($form->getValues(), '[externalUrl]') => 'https://moved.example/x',
+        ]);
+        $client->submit($form);
+
+        self::assertSame(302, $client->getResponse()->getStatusCode());
+        $row = $this->manager($kernel)->getConnection()->fetchAssociative('SELECT parent_id, external_url, position, edit_version FROM dashboard_menu_item WHERE id = ?', [$itemId]);
+        self::assertIsArray($row);
+        self::assertSame($parentId, (int) $row['parent_id'], 'the parent the form chose');
+        self::assertSame('https://moved.example/x', $row['external_url'], 'the other field of the same form');
+        self::assertSame(0, (int) $row['position'], 'first of the new sibling group (re-indexed from 0)');
+        self::assertSame(2, (int) $row['edit_version']);
+        $this->assertUsable($kernel);
+    }
+
     private function assertConcurrentAppends(string $url, string $mode): void
     {
         $first  = $this->boot($url, $mode, 'a');
