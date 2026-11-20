@@ -237,6 +237,11 @@ class MenuItem implements TranslatableInterface
 
     public function setParent(?self $parent): self
     {
+        if ($this->parent !== $parent) {
+            // A form built before this change must not write the old parent back (2.24, REQ-RUNTIME-003 rule 4).
+            // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
+            ++$this->editVersion;
+        }
         // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->parent = $parent;
 
@@ -258,6 +263,13 @@ class MenuItem implements TranslatableInterface
 
     public function setPosition(int $position): self
     {
+        if ($this->position !== $position) {
+            // Drag and drop, move up / down, re-index and append all end here: a form built before this change (the
+            // icon form posts the position, the config form the parent) is stale, so it cannot write the old value
+            // back (2.24, REQ-RUNTIME-003 rule 4).
+            // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
+            ++$this->editVersion;
+        }
         // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
         $this->position = $position;
 

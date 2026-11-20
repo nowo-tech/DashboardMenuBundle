@@ -127,9 +127,14 @@ Rule 4 asks for a deliberate control on every read-modify-write. The tree positi
 - The version is bumped together with the form's own changes **before** the write unit starts. The unit computes the
   change sets of the managed menu entities when it begins (to refuse host changes), and Doctrine keeps only the latest
   change set of an entity: a bump made inside the unit would replace the form's changes.
-- Item positions (move up / down, re-index, drag and drop, the append of a new item) do not change `edit_version`, so
-  reordering by one admin does not make another admin's open edit form stale. The import "replace" bumps the menu's
-  version (its fields are overwritten).
+- **One version per row.** The version covers the whole row, so two admins saving different sections of the same menu
+  or item (for example the labels and the gear) at the same time are not merged: the second save is refused as stale and
+  the admin reloads and applies it again.
+- Every change of an item's parent or position (drag and drop, move up / down, re-index, the append of a new item, an
+  edit that moves it) also bumps `edit_version` (`MenuItem::setParent()` / `setPosition()`). The config form posts the
+  parent and the icon form the position, so a form older than a tree write would otherwise write the old value back
+  (found by audit WB). The price is that a reorder makes another admin's open item form stale. The import "replace"
+  bumps the menu's version (its fields are overwritten).
 - **`submit_token`** (nullable, unique) on `dashboard_menu_item`. A new-item form carries a random one-time
   `_submit_token`; the created item stores it. Inside the unit, after the menu lock, a token that is already stored means
   the same form was posted before: nothing is added and the admin sees "Item already created". A unique violation of

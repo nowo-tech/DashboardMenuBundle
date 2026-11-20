@@ -320,7 +320,7 @@ final class DatabaseConcurrencyTest extends TestCase
         $client->submit($fresh);
         self::assertSame(302, $client->getResponse()->getStatusCode());
         self::assertSame(['Reloaded edit'], $this->labels($kernel, $menuId));
-        self::assertSame(3, (int) $this->manager($kernel)->getConnection()->fetchOne('SELECT edit_version FROM dashboard_menu_item WHERE id = ?', [$itemId]));
+        self::assertGreaterThan(2, (int) $this->manager($kernel)->getConnection()->fetchOne('SELECT edit_version FROM dashboard_menu_item WHERE id = ?', [$itemId]));
         $this->assertUsable($kernel);
     }
 
@@ -387,8 +387,97 @@ final class DatabaseConcurrencyTest extends TestCase
         self::assertSame($parentId, (int) $row['parent_id'], 'the parent the form chose');
         self::assertSame('https://moved.example/x', $row['external_url'], 'the other field of the same form');
         self::assertSame(0, (int) $row['position'], 'first of the new sibling group (re-indexed from 0)');
-        self::assertSame(2, (int) $row['edit_version']);
+        self::assertGreaterThan(1, (int) $row['edit_version']);
         $this->assertUsable($kernel);
+    }
+
+    /**
+     * 2.24 (WB-DashboardMenu-1): another admin's drag and drop moves the item to another parent after this admin opened
+     * the config form (which posts the parent). The tree write bumps the item's version, so the stale form is refused and
+     * the old parent is not written back.
+     */
+    #[DataProvider('databases')]
+    public function testAConfigFormOlderThanADragAndDropMoveIsRefused(string $env): void
+    {
+        $url    = $this->url($env);
+        $first  = $this->boot($url, DatabaseTestKernel::STANDARD, 'a');
+        $second = $this->boot($url, DatabaseTestKernel::STANDARD, 'b');
+        $this->createSchema($first);
+        $menuId   = $this->createMenu($first, 'sidebar');
+        $parentId = $this->createItem($first, $menuId, 'Parent');
+        $itemId   = $this->createItem($first, $menuId, 'Child');
+        $client   = $this->client($first);
+
+        $crawler = $client->request('GET', '/admin/menus/' . $menuId . '/item/' . $itemId . '/edit?section=config');
+        $stale   = $crawler->filterXPath('//form')->form();
+        $stale->setValues([$this->fieldEndingWith($stale->getValues(), '[externalUrl]') => 'https://stale.example']);
+
+        // The other admin drags the child under the parent (the real repository write, in the real write unit).
+        $this->inUnit($second, function (EntityManagerInterface $em) use ($second, $menuId, $parentId, $itemId): void {
+            $menu = $em->find(Menu::class, $menuId);
+            self::assertInstanceOf(Menu::class, $menu);
+            $items = $this->manager($second)->getRepository(MenuItem::class);
+            self::assertInstanceOf(MenuItemRepository::class, $items);
+            $items->applyTreeLayout($menu, [
+                ['id' => $parentId, 'parent_id' => null, 'position' => 1],
+                ['id' => $itemId, 'parent_id' => $parentId, 'position' => 1],
+            ], 100);
+        });
+
+        $client->submit($stale);
+        self::assertSame(302, $client->getResponse()->getStatusCode());
+        $row = $this->manager($first)->getConnection()->fetchAssociative('SELECT parent_id, external_url FROM dashboard_menu_item WHERE id = ?', [$itemId]);
+        self::assertIsArray($row);
+        self::assertSame($parentId, (int) $row['parent_id'], 'the old parent was not written back');
+        self::assertNull($row['external_url'], 'the stale form stored nothing');
+    }
+
+    /**
+     * 2.24 (WB-DashboardMenu-1): a re-index (or a move up / down) after this admin opened the icon form (which posts the
+     * position) refuses the stale form instead of writing the old position back.
+     */
+    #[DataProvider('databases')]
+    public function testAnIconFormOlderThanAReindexIsRefused(string $env): void
+    {
+        $url    = $this->url($env);
+        $first  = $this->boot($url, DatabaseTestKernel::STANDARD, 'a');
+        $second = $this->boot($url, DatabaseTestKernel::STANDARD, 'b');
+        $this->createSchema($first);
+        $menuId = $this->createMenu($first, 'sidebar');
+        $this->createItem($first, $menuId, 'One');
+        $itemId = $this->createItem($first, $menuId, 'Two');
+        $client = $this->client($first);
+
+        $crawler = $client->request('GET', '/admin/menus/' . $menuId . '/item/' . $itemId . '/edit?section=icon');
+        self::assertSame(200, $client->getResponse()->getStatusCode());
+        $stale  = $crawler->filterXPath('//form')->form();
+        $before = (int) $this->manager($first)->getConnection()->fetchOne('SELECT position FROM dashboard_menu_item WHERE id = ?', [$itemId]);
+
+        $this->inUnit($second, function (EntityManagerInterface $em) use ($second, $menuId): void {
+            $menu = $em->find(Menu::class, $menuId);
+            self::assertInstanceOf(Menu::class, $menu);
+            $items = $this->manager($second)->getRepository(MenuItem::class);
+            self::assertInstanceOf(MenuItemRepository::class, $items);
+            self::assertGreaterThan(0, $items->reindexPositionsWithStep($menu, 42));
+        });
+        $moved = (int) $this->manager($first)->getConnection()->fetchOne('SELECT position FROM dashboard_menu_item WHERE id = ?', [$itemId]);
+        self::assertNotSame($before, $moved);
+
+        $client->submit($stale);
+        self::assertSame(302, $client->getResponse()->getStatusCode());
+        self::assertSame($moved, (int) $this->manager($first)->getConnection()->fetchOne('SELECT position FROM dashboard_menu_item WHERE id = ?', [$itemId]), 'the old position was not written back');
+    }
+
+    /**
+     * @param callable(EntityManagerInterface): void $operation
+     */
+    private function inUnit(DatabaseTestKernel $kernel, callable $operation): void
+    {
+        $services = $kernel->getContainer()->get('test.service_container');
+        self::assertInstanceOf(ContainerInterface::class, $services);
+        $transaction = $services->get(DashboardMenuTransaction::class);
+        self::assertInstanceOf(DashboardMenuTransaction::class, $transaction);
+        $transaction->run($operation);
     }
 
     private function assertConcurrentAppends(string $url, string $mode): void

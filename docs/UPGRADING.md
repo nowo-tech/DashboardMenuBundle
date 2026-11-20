@@ -140,7 +140,10 @@
 
 ## Unreleased
 
-Schema change (REQ-RUNTIME-003 rule 4). Generate the migration with
+Schema change (REQ-RUNTIME-003 rule 4). **Deploy order: run the migration first, then deploy the code.** The migration is
+backward compatible (new columns with a default, a nullable column, a unique index that allows NULLs), so the old code
+keeps working on the migrated schema; the new code selects the new columns, so on an unmigrated database every menu
+render and dashboard page fails. Generate the migration with
 `bin/console nowo_dashboard_menu:generate-migration --update` (it only adds what is missing), review it and run it, or
 apply the SQL yourself (MySQL / MariaDB; with a table prefix, use your table names):
 
@@ -159,6 +162,9 @@ data to repair and no configuration change.
   has no version, so its first save is refused the same way (reload the page). If you override the dashboard form
   templates and render the fields one by one, render the whole form (or `_base_version` and `_submit_token`), otherwise
   every edit of that page is refused and a double submit is not detected.
+- **Moving or re-indexing items also makes an open edit form stale.** Every change of an item's parent or position
+  (drag and drop, move up / down, re-index, an edit that moves it) bumps its `edit_version`, because the config form
+  posts the parent and the icon form the position and a stale one would write the old value back.
 - **New items get a one-time token.** A form posted twice creates one item. Items created by the import, the copy and
   host code have no token.
 - If you saved `Menu` / `MenuItem` rows with your own SQL, set `edit_version` to a value that is not lower than the one
