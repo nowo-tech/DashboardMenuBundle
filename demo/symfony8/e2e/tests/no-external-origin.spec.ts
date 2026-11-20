@@ -24,6 +24,16 @@ test.describe('No external origin', () => {
   test('menus list, menu detail and the item dialog only talk to the demo origin', async ({ page, baseURL }) => {
     const origin = new URL(baseURL as string).origin;
     const urls = recordRequests(page);
+    // The demo turns autocomplete_bootstrap off (its own app registers the controller): switch it on in the config
+    // island of the served pages so the bundled module is the one that loads.
+    await page.route('**/admin/menus**', async (route) => {
+      if (route.request().resourceType() !== 'document') {
+        return route.continue();
+      }
+      const response = await route.fetch();
+      const body = (await response.text()).replace(/(autocompleteBootstrap(?:\\u0022|")\s*:\s*)false/, '$1true');
+      return route.fulfill({ response, body });
+    });
 
     await page.goto('/admin/menus');
     await openSettingsItemDialog(page);
@@ -42,6 +52,10 @@ test.describe('No external origin', () => {
     for (const file of ['autocomplete', 'stimulus-live', 'dashboard']) {
       const body = await (await request.get(`/bundles/nowodashboardmenu/js/${file}.js`)).text();
       expect(body, `${file}.js`).not.toMatch(/createElement\(["']style["']\)|insertRule|adoptedStyleSheets|esm\.sh|jsdelivr|unpkg\.com/);
+    }
+    // The Tom Select stylesheets of the config island are UiKit's local files and exist (UiKit 2.60).
+    for (const css of ['css/vendor/tom-select.default.min.css', 'css/nowo-ui-tom-select.css']) {
+      expect((await request.get(`/bundles/nowouikit/${css}`)).status(), css).toBe(200);
     }
     // Evaluating a fresh instance of the autocomplete module must not add a <style> element to the document.
     const added = await page.evaluate(async () => {
