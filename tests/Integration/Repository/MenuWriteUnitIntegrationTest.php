@@ -145,14 +145,14 @@ final class MenuWriteUnitIntegrationTest extends KernelTestCase
         $menu = new Menu();
         $menu->setCode('sidebar');
         $item = new MenuItem();
-        $item->setMenu($menu)->setLabel('One')->setSubmitToken('a1b2c3d4e5f60718293a4b5c6d7e8f90');
+        $item->setMenu($menu)->setLabel('One')->setSubmitToken('formtoken0000000000000000000001');
         $this->entityManager->persist($menu);
         $this->entityManager->persist($item);
         $this->entityManager->flush();
         $items = $this->entityManager->getRepository(MenuItem::class);
         self::assertInstanceOf(MenuItemRepository::class, $items);
 
-        self::assertTrue($items->submitTokenExists('a1b2c3d4e5f60718293a4b5c6d7e8f90'));
+        self::assertTrue($items->submitTokenExists('formtoken0000000000000000000001'));
         self::assertFalse($items->submitTokenExists('ffffffffffffffffffffffffffffffff'));
     }
 
@@ -163,7 +163,7 @@ final class MenuWriteUnitIntegrationTest extends KernelTestCase
         $this->entityManager->persist($menu);
         foreach (['One', 'Two'] as $label) {
             $item = new MenuItem();
-            $item->setMenu($menu)->setLabel($label)->setSubmitToken('a1b2c3d4e5f60718293a4b5c6d7e8f90');
+            $item->setMenu($menu)->setLabel($label)->setSubmitToken('formtoken0000000000000000000001');
             $this->entityManager->persist($item);
         }
 

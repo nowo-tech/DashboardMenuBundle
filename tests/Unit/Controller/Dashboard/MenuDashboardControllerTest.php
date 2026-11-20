@@ -1327,7 +1327,7 @@ final class MenuDashboardControllerTest extends TestCase
         self::assertFalse($response->headers->has('X-Conflict-Code'));
     }
 
-    private const TOKEN = 'a1b2c3d4e5f60718293a4b5c6d7e8f90';
+    private const TOKEN = 'formtoken0000000000000000000001';
 
     /**
      * A submitted, valid new-item form carrying a submit token.

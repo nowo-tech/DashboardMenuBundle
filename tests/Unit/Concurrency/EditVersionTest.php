@@ -44,7 +44,7 @@ final class EditVersionTest extends TestCase
      */
     public static function submitTokens(): iterable
     {
-        yield 'hex' => ['a1b2c3d4e5f60718293a4b5c6d7e8f90', 'a1b2c3d4e5f60718293a4b5c6d7e8f90'];
+        yield 'hex' => ['formtoken0000000000000000000001', 'formtoken0000000000000000000001'];
         yield 'longest' => [str_repeat('a', 64), str_repeat('a', 64)];
         yield 'too short' => ['abc', ''];
         yield 'too long' => [str_repeat('a', 65), ''];
@@ -103,7 +103,7 @@ final class EditVersionTest extends TestCase
         $item = new MenuItem();
         self::assertNull($item->getSubmitToken());
 
-        $item->setSubmitToken('a1b2c3d4e5f60718293a4b5c6d7e8f90');
-        self::assertSame('a1b2c3d4e5f60718293a4b5c6d7e8f90', $item->getSubmitToken());
+        $item->setSubmitToken('formtoken0000000000000000000001');
+        self::assertSame('formtoken0000000000000000000001', $item->getSubmitToken());
     }
 }

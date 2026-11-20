@@ -485,7 +485,7 @@ final class ItemFormLiveComponentTest extends TestCase
         }
     }
 
-    private const TOKEN = 'a1b2c3d4e5f60718293a4b5c6d7e8f90';
+    private const TOKEN = 'formtoken0000000000000000000001';
 
     /**
      * Saves $item through a component whose form returns it, and reports the flash it added.
