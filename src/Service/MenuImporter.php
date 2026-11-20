@@ -211,6 +211,8 @@ final readonly class MenuImporter
             $this->entityManager->flush();
             $menu = $existing;
             $this->applyMenuData($menu, $menuData);
+            // An edit form opened before the import is older than the replaced menu (2.24, REQ-RUNTIME-003 rule 4).
+            $menu->bumpEditVersion();
             ++$result['updated'];
         } else {
             $menu = new Menu();

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\Tests\Integration\Repository;
 
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\TransactionRequiredException;
@@ -111,6 +112,63 @@ final class MenuWriteUnitIntegrationTest extends KernelTestCase
 
         $this->expectException(TransactionRequiredException::class);
         $this->menus()->lockForWrite($menu);
+    }
+
+    public function testTheStoredEditVersionIsReadFromTheDatabaseUnderTheRowLock(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('sidebar');
+        $item = new MenuItem();
+        $item->setMenu($menu)->setLabel('One');
+        $this->entityManager->persist($menu);
+        $this->entityManager->persist($item);
+        $this->entityManager->flush();
+        $menuId = (int) $menu->getId();
+        $itemId = (int) $item->getId();
+        $unit   = self::getContainer()->get(DashboardMenuTransaction::class);
+        self::assertInstanceOf(DashboardMenuTransaction::class, $unit);
+        $items = $this->entityManager->getRepository(MenuItem::class);
+        self::assertInstanceOf(MenuItemRepository::class, $items);
+
+        // Another request saved: the row says 5 while the managed entity still says 1.
+        $this->entityManager->getConnection()->executeStatement('UPDATE dashboard_menu SET edit_version = 5 WHERE id = ?', [$menuId]);
+        $this->entityManager->getConnection()->executeStatement('UPDATE dashboard_menu_item SET edit_version = 6 WHERE id = ?', [$itemId]);
+
+        $read = $unit->run(fn (): array => [$this->menus()->storedEditVersion($menuId), $items->storedEditVersion($itemId), $this->menus()->storedEditVersion(999), $items->storedEditVersion(999)]);
+
+        self::assertSame([5, 6, null, null], $read);
+        self::assertSame(1, $menu->getEditVersion());
+    }
+
+    public function testASubmitTokenIsFoundOnceItsItemIsStored(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('sidebar');
+        $item = new MenuItem();
+        $item->setMenu($menu)->setLabel('One')->setSubmitToken('formtoken0000000000000000000001');
+        $this->entityManager->persist($menu);
+        $this->entityManager->persist($item);
+        $this->entityManager->flush();
+        $items = $this->entityManager->getRepository(MenuItem::class);
+        self::assertInstanceOf(MenuItemRepository::class, $items);
+
+        self::assertTrue($items->submitTokenExists('formtoken0000000000000000000001'));
+        self::assertFalse($items->submitTokenExists('ffffffffffffffffffffffffffffffff'));
+    }
+
+    public function testTheSubmitTokenOfTwoItemsIsUnique(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('sidebar');
+        $this->entityManager->persist($menu);
+        foreach (['One', 'Two'] as $label) {
+            $item = new MenuItem();
+            $item->setMenu($menu)->setLabel($label)->setSubmitToken('formtoken0000000000000000000001');
+            $this->entityManager->persist($item);
+        }
+
+        $this->expectException(UniqueConstraintViolationException::class);
+        $this->entityManager->flush();
     }
 
     public function testAFailedUnitRollsBackAndForgetsTheMenuEntitiesOnly(): void

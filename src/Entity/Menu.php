@@ -40,6 +40,12 @@ class Menu
     private string $code = '';
 
     /**
+     * Optimistic edit version (2.24): bumped by every save of the menu's own fields.
+     */
+    #[ORM\Column(name: 'edit_version', type: Types::INTEGER, options: ['default' => 1])]
+    private int $editVersion = 1;
+
+    /**
      * Canonical key for context (for unique constraint). Empty string when context is null or empty.
      */
     #[ORM\Column(name: 'attributes_key', type: Types::STRING, length: 512, options: ['default' => ''])]
@@ -222,6 +228,26 @@ class Menu
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    /**
+     * Version of the menu's own fields (2.24, REQ-RUNTIME-003 rule 4): the edit forms carry it, and the save
+     * refuses a form built from an older one. Item positions and items do not change it.
+     */
+    public function getEditVersion(): int
+    {
+        return $this->editVersion;
+    }
+
+    /**
+     * Called by the edit save (and the import "replace") once it has checked the form's version.
+     */
+    public function bumpEditVersion(): self
+    {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
+        ++$this->editVersion;
+
+        return $this;
     }
 
     public function getCode(): string

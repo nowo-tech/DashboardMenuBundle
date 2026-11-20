@@ -114,6 +114,38 @@ class MenuItemRepository extends ServiceEntityRepository
     }
 
     /**
+     * The stored `edit_version` of one item, read from the database (never the unit of work) under a `PESSIMISTIC_WRITE`
+     * lock of its row (2.24, REQ-RUNTIME-003 rule 4). Must run inside a write unit. Null when the row is gone.
+     */
+    public function storedEditVersion(int $id): ?int
+    {
+        $row = $this->createQueryBuilder('i')
+            ->select('i.editVersion')
+            ->where('i.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->setLockMode(LockMode::PESSIMISTIC_WRITE)
+            ->getOneOrNullResult();
+
+        return is_array($row) ? (int) $row['editVersion'] : null;
+    }
+
+    /**
+     * Whether an item was created by the form that carries this submit token (2.24, REQ-RUNTIME-003 rule 4). Read
+     * inside the write unit after the menu lock, so a form posted twice finds the first one's item.
+     */
+    public function submitTokenExists(string $token): bool
+    {
+        return $this->createQueryBuilder('i')
+            ->select('i.id')
+            ->where('i.submitToken = :token')
+            ->setParameter('token', $token)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult() !== null;
+    }
+
+    /**
      * Load all items for the given menus in one query, grouped by menu id.
      *
      * @param list<Menu> $menus

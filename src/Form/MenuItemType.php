@@ -13,7 +13,9 @@ use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+use function bin2hex;
 use function in_array;
+use function random_bytes;
 
 /**
  * Form type for creating/editing a menu item.
@@ -28,6 +30,9 @@ use function in_array;
 final class MenuItemType extends AbstractType
 {
     use FormOptionsTrait;
+
+    /** Unmapped hidden child carrying the new item's one-time submit token (2.24, REQ-RUNTIME-003 rule 4). */
+    public const SUBMIT_TOKEN_FIELD = '_submit_token';
 
     /**
      * Composes the menu item form depending on the requested section:
@@ -77,6 +82,13 @@ final class MenuItemType extends AbstractType
             ]);
         }
 
+        if ($data instanceof MenuItem && $data->getId() !== null) {
+            // The version the form was built from: the save refuses a form older than the stored item (2.24).
+            $builder->add(MenuType::BASE_VERSION_FIELD, HiddenType::class, ['mapped' => false, 'data' => (string) $data->getEditVersion(), 'empty_data' => '']);
+        } else {
+            // A new item: one token per rendered form, so the same form posted twice creates one item (2.24).
+            $builder->add(self::SUBMIT_TOKEN_FIELD, HiddenType::class, ['mapped' => false, 'data' => bin2hex(random_bytes(16)), 'empty_data' => '']);
+        }
         if ($section !== null) {
             // The focused section posts back with the form (REQ-TWIG-005: no raw hidden input in the views).
             $builder->add(MenuType::SECTION_FIELD, HiddenType::class, ['mapped' => false, 'data' => $section]);

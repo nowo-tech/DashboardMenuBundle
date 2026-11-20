@@ -132,11 +132,25 @@ PHP;
                     $quoted     = $platform->quoteSingleIdentifier($menuTable);
                     $alterSql[] = sprintf('ALTER TABLE %s ADD ul_id VARCHAR(255) DEFAULT NULL', $quoted);
                 }
+                // 2.24 (REQ-RUNTIME-003 rule 4): the optimistic edit version of menus and items.
+                if (!$table->hasColumn('edit_version')) {
+                    $quoted     = $platform->quoteSingleIdentifier($menuTable);
+                    $alterSql[] = sprintf('ALTER TABLE %s ADD edit_version INT DEFAULT 1 NOT NULL', $quoted);
+                }
                 if ($sm->tablesExist([$itemTable])) {
                     $itemSchema = $sm->introspectTable($itemTable);
                     if (!$itemSchema->hasColumn('link_resolver')) {
                         $quoted     = $platform->quoteSingleIdentifier($itemTable);
                         $alterSql[] = sprintf('ALTER TABLE %s ADD link_resolver VARCHAR(255) DEFAULT NULL', $quoted);
+                    }
+                    if (!$itemSchema->hasColumn('edit_version')) {
+                        $quoted     = $platform->quoteSingleIdentifier($itemTable);
+                        $alterSql[] = sprintf('ALTER TABLE %s ADD edit_version INT DEFAULT 1 NOT NULL', $quoted);
+                    }
+                    if (!$itemSchema->hasColumn('submit_token')) {
+                        $quoted     = $platform->quoteSingleIdentifier($itemTable);
+                        $alterSql[] = sprintf('ALTER TABLE %s ADD submit_token VARCHAR(64) DEFAULT NULL', $quoted);
+                        $alterSql[] = sprintf('CREATE UNIQUE INDEX uniq_menu_item_submit_token ON %s (submit_token)', $quoted);
                     }
                 }
                 // Only output ALTER statements for update mode.
