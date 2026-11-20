@@ -530,7 +530,7 @@ final class ItemFormLiveComponentTest extends TestCase
     {
         $item = new MenuItem();
         $item->setMenu(new Menu());
-        new ReflectionProperty(MenuItem::class, 'id')->setValue($item, $id);
+        (new ReflectionProperty(MenuItem::class, 'id'))->setValue($item, $id);
 
         return $item;
     }
@@ -618,7 +618,7 @@ final class ItemFormLiveComponentTest extends TestCase
     public function testInstantiateFormKeepsTheVersionOfTheFirstRender(): void
     {
         $fetched = new MenuItem();
-        new ReflectionProperty(MenuItem::class, 'editVersion')->setValue($fetched, 5);
+        (new ReflectionProperty(MenuItem::class, 'editVersion'))->setValue($fetched, 5);
         $em = $this->createMock(EntityManagerInterface::class);
         $em->method('find')->willReturn($fetched);
         $formFactory = $this->createMock(FormFactoryInterface::class);
@@ -628,13 +628,13 @@ final class ItemFormLiveComponentTest extends TestCase
         $component->itemId          = 9;
         $component->initialFormData = new MenuItem();
 
-        new ReflectionMethod($component, 'instantiateForm')->invoke($component);
+        (new ReflectionMethod($component, 'instantiateForm'))->invoke($component);
         self::assertSame(5, $component->baseVersion);
 
         // A later re-render reads a newer row: the version the admin saw stays.
-        new ReflectionProperty(MenuItem::class, 'editVersion')->setValue($fetched, 6);
+        (new ReflectionProperty(MenuItem::class, 'editVersion'))->setValue($fetched, 6);
         $component->hydratedItemId = null;
-        new ReflectionMethod($component, 'instantiateForm')->invoke($component);
+        (new ReflectionMethod($component, 'instantiateForm'))->invoke($component);
         self::assertSame(5, $component->baseVersion);
     }
 
@@ -645,9 +645,9 @@ final class ItemFormLiveComponentTest extends TestCase
         $component       = new ItemFormLiveComponent($formFactory, $this->createMock(EntityManagerInterface::class), $this->createMock(RequestStack::class));
         $component->menu = new Menu();
 
-        new ReflectionMethod($component, 'instantiateForm')->invoke($component);
+        (new ReflectionMethod($component, 'instantiateForm'))->invoke($component);
         $first = $component->submitToken;
-        new ReflectionMethod($component, 'instantiateForm')->invoke($component);
+        (new ReflectionMethod($component, 'instantiateForm'))->invoke($component);
 
         self::assertSame(32, strlen((string) $first));
         self::assertSame($first, $component->submitToken, 'one token per form life');

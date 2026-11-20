@@ -84,7 +84,7 @@ final class MenuItemTypeTest extends TestCase
         $addCalls = [];
         $builder  = $this->createFormBuilderMock($addCalls, new MenuItem());
 
-        new MenuItemType()->buildForm($builder, ['app_routes' => [], 'available_locales' => [], 'menu' => null, 'exclude_ids' => [], 'locale' => 'en']);
+        (new MenuItemType())->buildForm($builder, ['app_routes' => [], 'available_locales' => [], 'menu' => null, 'exclude_ids' => [], 'locale' => 'en']);
 
         $token = $this->findAddCall($addCalls, MenuItemType::SUBMIT_TOKEN_FIELD);
         self::assertNotNull($token);
@@ -95,12 +95,12 @@ final class MenuItemTypeTest extends TestCase
     public function testMenuItemTypeOfAStoredItemCarriesItsEditVersion(): void
     {
         $item = new MenuItem();
-        new ReflectionProperty(MenuItem::class, 'id')->setValue($item, 4);
-        new ReflectionProperty(MenuItem::class, 'editVersion')->setValue($item, 3);
+        (new ReflectionProperty(MenuItem::class, 'id'))->setValue($item, 4);
+        (new ReflectionProperty(MenuItem::class, 'editVersion'))->setValue($item, 3);
         $addCalls = [];
         $builder  = $this->createFormBuilderMock($addCalls, $item);
 
-        new MenuItemType()->buildForm($builder, ['app_routes' => [], 'available_locales' => [], 'menu' => null, 'exclude_ids' => [], 'locale' => 'en']);
+        (new MenuItemType())->buildForm($builder, ['app_routes' => [], 'available_locales' => [], 'menu' => null, 'exclude_ids' => [], 'locale' => 'en']);
 
         $version = $this->findAddCall($addCalls, MenuType::BASE_VERSION_FIELD);
         self::assertNotNull($version);

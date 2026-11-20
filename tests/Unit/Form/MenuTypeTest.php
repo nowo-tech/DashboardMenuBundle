@@ -51,12 +51,12 @@ final class MenuTypeTest extends TestCase
     public function testMenuTypeCarriesTheEditVersionOfAStoredMenu(): void
     {
         $menu = new Menu();
-        new ReflectionProperty(Menu::class, 'id')->setValue($menu, 4);
-        new ReflectionProperty(Menu::class, 'editVersion')->setValue($menu, 7);
+        (new ReflectionProperty(Menu::class, 'id'))->setValue($menu, 4);
+        (new ReflectionProperty(Menu::class, 'editVersion'))->setValue($menu, 7);
         $addCalls = [];
         $builder  = $this->createFormBuilderMock($addCalls, $menu);
 
-        new MenuType()->buildForm($builder, []);
+        (new MenuType())->buildForm($builder, []);
 
         $field = $this->findAddCall($addCalls, MenuType::BASE_VERSION_FIELD);
         self::assertNotNull($field);
@@ -68,7 +68,7 @@ final class MenuTypeTest extends TestCase
         $addCalls = [];
         $builder  = $this->createFormBuilderMock($addCalls, new Menu());
 
-        new MenuType()->buildForm($builder, []);
+        (new MenuType())->buildForm($builder, []);
 
         self::assertNull($this->findAddCall($addCalls, MenuType::BASE_VERSION_FIELD));
     }
