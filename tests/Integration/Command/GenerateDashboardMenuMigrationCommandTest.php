@@ -153,5 +153,9 @@ final class GenerateDashboardMenuMigrationCommandTest extends KernelTestCase
         self::assertStringContainsString('ADD class_divider', $output);
         self::assertStringContainsString('ADD ul_id', $output);
         self::assertStringContainsString('ADD link_resolver', $output);
+        // 2.24: the optimistic edit version of both tables and the unique submit token of the items.
+        self::assertSame(2, substr_count($output, 'ADD edit_version INT DEFAULT 1 NOT NULL'));
+        self::assertStringContainsString('ADD submit_token VARCHAR(64) DEFAULT NULL', $output);
+        self::assertStringContainsString('CREATE UNIQUE INDEX uniq_menu_item_submit_token', $output);
     }
 }

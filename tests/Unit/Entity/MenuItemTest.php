@@ -11,6 +11,25 @@ use ReflectionProperty;
 
 final class MenuItemTest extends TestCase
 {
+    public function testAChangeOfPositionOrParentBumpsTheEditVersionAndASameValueDoesNot(): void
+    {
+        $item   = new MenuItem();
+        $parent = new MenuItem();
+
+        $item->setPosition(0)->setParent(null);
+        self::assertSame(1, $item->getEditVersion(), 'same values: no bump');
+
+        $item->setPosition(5);
+        self::assertSame(2, $item->getEditVersion());
+        $item->setPosition(5);
+        self::assertSame(2, $item->getEditVersion());
+
+        $item->setParent($parent);
+        self::assertSame(3, $item->getEditVersion());
+        $item->setParent($parent);
+        self::assertSame(3, $item->getEditVersion());
+    }
+
     public function testIdStartsNull(): void
     {
         $item = new MenuItem();

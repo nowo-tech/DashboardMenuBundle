@@ -13,6 +13,7 @@ use Nowo\DashboardMenuBundle\Controller\Dashboard\MenuDashboardController;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Form\DashboardActionType;
+use Nowo\DashboardMenuBundle\Form\MenuType;
 use Nowo\DashboardMenuBundle\Form\SearchQueryType;
 use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use Nowo\DashboardMenuBundle\Repository\MenuRepository;
@@ -725,6 +726,7 @@ final class MenuDashboardControllerTest extends TestCase
         $form->method('handleRequest')->willReturnSelf();
         $form->method('isSubmitted')->willReturn(true);
         $form->method('isValid')->willReturn(true);
+        $this->withBaseVersion($form);
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, entityManager: $em);
         $this->setControllerContainer($controller, $form);
         $response = $controller->editMenu(Request::create('/1/edit', 'POST'), 1);
@@ -774,6 +776,7 @@ final class MenuDashboardControllerTest extends TestCase
         $form->method('handleRequest')->willReturnSelf();
         $form->method('isSubmitted')->willReturn(true);
         $form->method('isValid')->willReturn(true);
+        $this->withBaseVersion($form);
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, entityManager: $em);
         $this->setControllerContainer($controller, $form);
         $response = $controller->editMenu(Request::create('/1/edit', 'POST'), 1);
@@ -808,6 +811,7 @@ final class MenuDashboardControllerTest extends TestCase
         });
         $form->method('isSubmitted')->willReturn(true);
         $form->method('isValid')->willReturn(true);
+        $this->withBaseVersion($form);
 
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, entityManager: $em);
         $this->setControllerContainer($controller, $form);
@@ -1140,10 +1144,208 @@ final class MenuDashboardControllerTest extends TestCase
         $form->method('handleRequest')->willReturnSelf();
         $form->method('isSubmitted')->willReturn(true);
         $form->method('isValid')->willReturn(true);
+        $this->withBaseVersion($form);
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, entityManager: $em, router: $router);
         $this->setControllerContainer($controller, $form);
         $response = $controller->editItem(Request::create('/1/item/5/edit', 'POST'), 1, 5);
         self::assertSame(302, $response->getStatusCode());
+    }
+
+    public function testEditItemFromAStaleFormFlashesAndStoresNothing(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('m');
+        $this->setMenuId($menu, 1);
+        $item = new MenuItem();
+        $item->setMenu($menu);
+        $this->setId($item, 5);
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findOneById')->with(1)->willReturn($menu);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->method('find')->with(5)->willReturn($item);
+        $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([]);
+        $itemRepo->method('storedEditVersion')->willReturn(2); // another admin saved: the form carries 1
+        $router = $this->createMock(RouterInterface::class);
+        $router->method('getRouteCollection')->willReturn(new RouteCollection());
+        $router->method('generate')->willReturn('/generated');
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::never())->method('flush');
+        $em->expects(self::once())->method('contains')->with($item)->willReturn(true);
+        $em->expects(self::once())->method('detach')->with($item);
+        $form = $this->createMock(FormInterface::class);
+        $form->method('handleRequest')->willReturnSelf();
+        $form->method('isSubmitted')->willReturn(true);
+        $form->method('isValid')->willReturn(true);
+        $this->withBaseVersion($form);
+        $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, entityManager: $em, router: $router);
+        $this->setControllerContainer($controller, $form);
+
+        $response = $controller->editItem(Request::create('/1/item/5/edit', 'POST'), 1, 5);
+
+        self::assertSame(302, $response->getStatusCode());
+        self::assertFalse($response->headers->has('X-Conflict-Code'), 'a stale form is a domain answer, not a conflict');
+    }
+
+    public function testEditItemWithoutTheVersionFieldIsStale(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('m');
+        $this->setMenuId($menu, 1);
+        $item = new MenuItem();
+        $item->setMenu($menu);
+        $this->setId($item, 5);
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findOneById')->with(1)->willReturn($menu);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->method('find')->with(5)->willReturn($item);
+        $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([]);
+        $router = $this->createMock(RouterInterface::class);
+        $router->method('getRouteCollection')->willReturn(new RouteCollection());
+        $router->method('generate')->willReturn('/generated');
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::never())->method('flush');
+        $form = $this->createMock(FormInterface::class);
+        $form->method('handleRequest')->willReturnSelf();
+        $form->method('isSubmitted')->willReturn(true);
+        $form->method('isValid')->willReturn(true);
+        $form->method('has')->willReturn(false); // a form rendered before 2.24
+        $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, entityManager: $em, router: $router);
+        $this->setControllerContainer($controller, $form);
+
+        self::assertSame(302, $controller->editItem(Request::create('/1/item/5/edit', 'POST'), 1, 5)->getStatusCode());
+    }
+
+    public function testEditMenuFromAStaleFormFlashesAndStoresNothing(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('mine');
+        $this->setMenuId($menu, 1);
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findOneById')->with(1)->willReturn($menu);
+        $menuRepo->method('findOneByCodeAndContext')->willReturn($menu);
+        $menuRepo->method('storedEditVersion')->willReturn(4);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::never())->method('flush');
+        $em->method('contains')->willReturn(false);
+        $em->expects(self::never())->method('detach');
+        $form = $this->createMock(FormInterface::class);
+        $form->method('handleRequest')->willReturnSelf();
+        $form->method('isSubmitted')->willReturn(true);
+        $form->method('isValid')->willReturn(true);
+        $this->withBaseVersion($form, 3);
+        $controller = $this->createController(menuRepository: $menuRepo, entityManager: $em);
+        $this->setControllerContainer($controller, $form);
+
+        $response = $controller->editMenu(Request::create('/1/edit', 'POST'), 1);
+
+        self::assertSame(302, $response->getStatusCode());
+        self::assertFalse($response->headers->has('X-Conflict-Code'));
+    }
+
+    public function testEditMenuThatPassesTheVersionCheckBumpsTheVersion(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('mine');
+        $this->setMenuId($menu, 1);
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findOneById')->with(1)->willReturn($menu);
+        $menuRepo->method('findOneByCodeAndContext')->willReturn($menu);
+        $em   = $this->createMock(EntityManagerInterface::class);
+        $form = $this->createMock(FormInterface::class);
+        $form->method('handleRequest')->willReturnSelf();
+        $form->method('isSubmitted')->willReturn(true);
+        $form->method('isValid')->willReturn(true);
+        $this->withBaseVersion($form);
+        $controller = $this->createController(menuRepository: $menuRepo, entityManager: $em);
+        $this->setControllerContainer($controller, $form);
+
+        self::assertSame(302, $controller->editMenu(Request::create('/1/edit', 'POST'), 1)->getStatusCode());
+        self::assertSame(2, $menu->getEditVersion());
+    }
+
+    public function testNewItemWithASubmitTokenAlreadyUsedCreatesNothing(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('m');
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findOneById')->with(1)->willReturn($menu);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([]);
+        $itemRepo->method('submitTokenExists')->with(self::TOKEN)->willReturn(true);
+        $router = $this->createMock(RouterInterface::class);
+        $router->method('getRouteCollection')->willReturn(new RouteCollection());
+        $router->method('generate')->willReturn('/generated');
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::never())->method('persist');
+        $form       = $this->tokenForm();
+        $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, entityManager: $em, router: $router);
+        $this->setControllerContainer($controller, $form);
+
+        self::assertSame(302, $controller->newItem(Request::create('/1/item/new', 'POST'), 1)->getStatusCode());
+    }
+
+    public function testNewItemStoresItsSubmitToken(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('m');
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findOneById')->with(1)->willReturn($menu);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([]);
+        $itemRepo->method('submitTokenExists')->willReturn(false);
+        $router = $this->createMock(RouterInterface::class);
+        $router->method('getRouteCollection')->willReturn(new RouteCollection());
+        $router->method('generate')->willReturn('/generated');
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::once())->method('persist')->with(self::callback(static fn (MenuItem $item): bool => $item->getSubmitToken() === self::TOKEN));
+        $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, entityManager: $em, router: $router);
+        $this->setControllerContainer($controller, $this->tokenForm());
+
+        self::assertSame(302, $controller->newItem(Request::create('/1/item/new', 'POST'), 1)->getStatusCode());
+    }
+
+    public function testNewItemLosingTheTokensUniqueKeyAnswersAsAlreadyCreated(): void
+    {
+        $menu = new Menu();
+        $menu->setCode('m');
+        $menuRepo = $this->createMock(MenuRepository::class);
+        $menuRepo->method('findOneById')->with(1)->willReturn($menu);
+        $itemRepo = $this->createMock(MenuItemRepository::class);
+        $itemRepo->method('findAllForMenuOrderedByTree')->willReturn([]);
+        $itemRepo->method('submitTokenExists')->willReturn(false);
+        $router = $this->createMock(RouterInterface::class);
+        $router->method('getRouteCollection')->willReturn(new RouteCollection());
+        $router->method('generate')->willReturn('/generated');
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('flush')->willThrowException(StorageErrors::uniqueViolation());
+        $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, entityManager: $em, router: $router);
+        $this->setControllerContainer($controller, $this->tokenForm());
+
+        $response = $controller->newItem(Request::create('/1/item/new', 'POST'), 1);
+
+        self::assertSame(302, $response->getStatusCode());
+        self::assertFalse($response->headers->has('X-Conflict-Code'));
+    }
+
+    private const TOKEN = 'formtoken0000000000000000000001';
+
+    /**
+     * A submitted, valid new-item form carrying a submit token.
+     *
+     * @return FormInterface<mixed>&MockObject
+     */
+    private function tokenForm(): FormInterface
+    {
+        $field = $this->createMock(FormInterface::class);
+        $field->method('getData')->willReturn(self::TOKEN);
+        $form = $this->createMock(FormInterface::class);
+        $form->method('handleRequest')->willReturnSelf();
+        $form->method('isSubmitted')->willReturn(true);
+        $form->method('isValid')->willReturn(true);
+        $form->method('has')->willReturn(true);
+        $form->method('get')->willReturn($field);
+
+        return $form;
     }
 
     public function testEditItemUpdatesTranslationsFromBasicFormWhenSubmittedValidAndSectionFocusBasic(): void
@@ -1174,7 +1376,7 @@ final class MenuDashboardControllerTest extends TestCase
         $form->method('handleRequest')->willReturnSelf();
         $form->method('isSubmitted')->willReturn(true);
         $form->method('isValid')->willReturn(true);
-        $form->method('has')->willReturnCallback(static fn (string $name): bool => $name === 'basic');
+        $form->method('has')->willReturnCallback(static fn (string $name): bool => in_array($name, ['basic', MenuType::BASE_VERSION_FIELD], true));
 
         $fieldEn = $this->createMock(FormInterface::class);
         $fieldEn->method('getData')->willReturn('');
@@ -1186,7 +1388,8 @@ final class MenuDashboardControllerTest extends TestCase
         $basicForm->method('has')->willReturnCallback(static fn (string $name): bool => in_array($name, ['label_en', 'label_es'], true));
         $basicForm->method('get')->willReturnCallback(static fn (string $name): MockObject => $name === 'label_en' ? $fieldEn : $fieldEs);
 
-        $form->method('get')->willReturn($basicForm);
+        $versionField = $this->versionField();
+        $form->method('get')->willReturnCallback(static fn (string $name): FormInterface => $name === MenuType::BASE_VERSION_FIELD ? $versionField : $basicForm);
 
         $controller = $this->createController(
             menuRepository: $menuRepo,
@@ -1235,7 +1438,7 @@ final class MenuDashboardControllerTest extends TestCase
         $form->method('handleRequest')->willReturnSelf();
         $form->method('isSubmitted')->willReturn(true);
         $form->method('isValid')->willReturn(true);
-        $form->method('has')->willReturnCallback(static fn (string $name): bool => $name === 'basic');
+        $form->method('has')->willReturnCallback(static fn (string $name): bool => in_array($name, ['basic', MenuType::BASE_VERSION_FIELD], true));
 
         $fieldEn = $this->createMock(FormInterface::class);
         $fieldEn->method('getData')->willReturn('New EN');
@@ -1244,7 +1447,8 @@ final class MenuDashboardControllerTest extends TestCase
         $basicForm->method('has')->willReturnCallback(static fn (string $name): bool => $name === 'label_en');
         $basicForm->method('get')->willReturnCallback(static fn (string $name): MockObject => $fieldEn);
 
-        $form->method('get')->willReturn($basicForm);
+        $versionField = $this->versionField();
+        $form->method('get')->willReturnCallback(static fn (string $name): FormInterface => $name === MenuType::BASE_VERSION_FIELD ? $versionField : $basicForm);
 
         $controller = $this->createController(
             menuRepository: $menuRepo,
@@ -2239,7 +2443,7 @@ final class MenuDashboardControllerTest extends TestCase
         });
         $form->method('isSubmitted')->willReturn(true);
         $form->method('isValid')->willReturn(true);
-        $form->method('has')->willReturn(false);
+        $this->withBaseVersion($form);
 
         $controller = $this->createController(
             menuRepository: $menuRepo,
@@ -2693,6 +2897,7 @@ final class MenuDashboardControllerTest extends TestCase
         $form->method('handleRequest')->willReturnSelf();
         $form->method('isSubmitted')->willReturn(true);
         $form->method('isValid')->willReturn(true);
+        $this->withBaseVersion($form);
         $form->expects(self::once())->method('addError')->willReturnSelf();
 
         $controller = $this->createController(menuRepository: $menuRepo, entityManager: $em);
@@ -2845,6 +3050,30 @@ final class MenuDashboardControllerTest extends TestCase
     }
 
     /**
+     * The hidden `_base_version` field of an edit form: the version the form was built from (2.24).
+     *
+     * @return FormInterface<mixed>
+     */
+    private function versionField(?int $version = 1): FormInterface
+    {
+        $field = $this->createMock(FormInterface::class);
+        $field->method('getData')->willReturn($version === null ? null : (string) $version);
+
+        return $field;
+    }
+
+    /**
+     * Makes a form mock carry the `_base_version` field.
+     *
+     * @param FormInterface<mixed>&MockObject $form
+     */
+    private function withBaseVersion(MockObject $form, ?int $version = 1): void
+    {
+        $form->method('has')->willReturn(true);
+        $form->method('get')->willReturn($this->versionField($version));
+    }
+
+    /**
      * @param list<string> $routeNameExcludePatterns
      * @param list<string> $locales
      * @param array<string, string> $modalSizes
@@ -2875,7 +3104,14 @@ final class MenuDashboardControllerTest extends TestCase
             // 2.23: item-tree writes take the menu row lock first; the menu exists.
             $menuRepo->method('lockForWrite')->willReturn(true);
         }
-        $itemRepo    = $menuItemRepository ?? $this->createMock(MenuItemRepository::class);
+        if ($menuRepo instanceof MockObject) {
+            // 2.24: the stored edit version the forms were built from (new entities start at 1).
+            $menuRepo->method('storedEditVersion')->willReturn(1);
+        }
+        $itemRepo = $menuItemRepository ?? $this->createMock(MenuItemRepository::class);
+        if ($itemRepo instanceof MockObject) {
+            $itemRepo->method('storedEditVersion')->willReturn(1);
+        }
         $em          = $entityManager ?? $this->createMock(EntityManagerInterface::class);
         $exporter    = $menuExporter ?? new MenuExporter($menuRepo, $itemRepo);
         $importer    = $menuImporter ?? new MenuImporter($itemRepo, $menuRepo, $em);

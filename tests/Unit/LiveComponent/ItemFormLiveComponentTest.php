@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace Nowo\DashboardMenuBundle\Tests\LiveComponent;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityRepository;
 use Nowo\DashboardMenuBundle\Concurrency\DashboardMenuConflictAnswer;
 use Nowo\DashboardMenuBundle\Concurrency\DashboardMenuTransaction;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Form\MenuItemType;
 use Nowo\DashboardMenuBundle\LiveComponent\ItemFormLiveComponent;
+use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use Nowo\DashboardMenuBundle\Tests\Unit\Concurrency\StorageErrors;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -25,6 +27,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+
+use function strlen;
 
 final class ItemFormLiveComponentTest extends TestCase
 {
@@ -479,6 +483,174 @@ final class ItemFormLiveComponentTest extends TestCase
             self::assertSame(409, $answer->getStatusCode());
             self::assertSame('CONFLICT_001', $answer->getHeaders()['X-Conflict-Code']);
         }
+    }
+
+    private const TOKEN = 'formtoken0000000000000000000001';
+
+    /**
+     * Saves $item through a component whose form returns it, and reports the flash it added.
+     *
+     * @param EntityManagerInterface&MockObject $em
+     *
+     * @return array{0: string, 1: string} the flash type and message
+     */
+    private function saveWithFlash(MenuItem $item, MockObject $em, ?int $baseVersion, ?string $token, bool $isEdit): array
+    {
+        $flash = ['', ''];
+        $bag   = $this->createMock(FlashBagInterface::class);
+        $bag->method('add')->willReturnCallback(static function (string $type, mixed $message) use (&$flash): void {
+            $flash = [$type, (string) $message];
+        });
+        $session = $this->createMock(Session::class);
+        $session->method('getFlashBag')->willReturn($bag);
+        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack->method('getSession')->willReturn($session);
+
+        $formMock = $this->createMock(FormInterface::class);
+        $formMock->method('getName')->willReturn('live_name');
+        $formMock->method('getData')->willReturn($item);
+        $formMock->method('isValid')->willReturn(true);
+        $formMock->method('createView')->willReturn($this->createEmptyFormView());
+
+        $component = new ItemFormLiveComponent($this->createMock(FormFactoryInterface::class), $em, $requestStack, new DashboardMenuTransaction($em));
+        $this->setPrivateTraitProperty($component, 'form', $formMock);
+        $component->redirectToUrl = '/redirect';
+        $component->menu          = new Menu();
+        $component->isEdit        = $isEdit;
+        $component->baseVersion   = $baseVersion;
+        $component->submitToken   = $token;
+        $component->formValues    = ['live_name' => ['basic' => [], 'config' => []]];
+
+        self::assertSame('/redirect', $component->save()->getTargetUrl());
+
+        return $flash;
+    }
+
+    private function savedItem(int $id): MenuItem
+    {
+        $item = new MenuItem();
+        $item->setMenu(new Menu());
+        (new ReflectionProperty(MenuItem::class, 'id'))->setValue($item, $id);
+
+        return $item;
+    }
+
+    public function testSaveOfAnExistingItemChecksTheVersionTheAdminSawAndBumpsIt(): void
+    {
+        $repository = $this->createMock(MenuItemRepository::class);
+        $repository->expects(self::once())->method('storedEditVersion')->with(7)->willReturn(3);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('getRepository')->willReturn($repository);
+        $em->expects(self::once())->method('persist');
+        $item = $this->savedItem(7);
+
+        $flash = $this->saveWithFlash($item, $em, 3, null, true);
+
+        self::assertSame(['success', 'Item updated.'], $flash);
+        self::assertSame(2, $item->getEditVersion());
+    }
+
+    public function testSaveFromAStaleFormStoresNothingAndFlashesAnError(): void
+    {
+        $repository = $this->createMock(MenuItemRepository::class);
+        $repository->method('storedEditVersion')->willReturn(4);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('getRepository')->willReturn($repository);
+        $em->expects(self::never())->method('persist');
+        $em->expects(self::never())->method('flush');
+        $item = $this->savedItem(7);
+
+        $flash = $this->saveWithFlash($item, $em, 3, null, true);
+
+        self::assertSame('error', $flash[0]);
+        self::assertStringContainsString('changed by someone else', $flash[1]);
+    }
+
+    public function testSaveWithoutTheVersionTheFormWasBuiltFromIsStale(): void
+    {
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('getRepository')->willReturn($this->createMock(EntityRepository::class));
+        $em->expects(self::never())->method('persist');
+
+        self::assertSame('error', $this->saveWithFlash($this->savedItem(7), $em, null, null, true)[0]);
+    }
+
+    public function testSaveOfANewItemStoresItsSubmitToken(): void
+    {
+        $repository = $this->createMock(MenuItemRepository::class);
+        $repository->method('submitTokenExists')->with(self::TOKEN)->willReturn(false);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('getRepository')->willReturn($repository);
+        $em->expects(self::once())->method('persist');
+        $item = new MenuItem();
+
+        $flash = $this->saveWithFlash($item, $em, null, self::TOKEN, false);
+
+        self::assertSame(['success', 'Item created.'], $flash);
+        self::assertSame(self::TOKEN, $item->getSubmitToken());
+    }
+
+    public function testSaveOfAFormPostedTwiceCreatesNothingTheSecondTime(): void
+    {
+        $repository = $this->createMock(MenuItemRepository::class);
+        $repository->method('submitTokenExists')->willReturn(true);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('getRepository')->willReturn($repository);
+        $em->expects(self::never())->method('persist');
+
+        $flash = $this->saveWithFlash(new MenuItem(), $em, null, self::TOKEN, false);
+
+        self::assertSame('success', $flash[0]);
+        self::assertStringContainsString('already created', $flash[1]);
+    }
+
+    public function testSaveLosingTheTokensUniqueKeyAnswersAsAlreadyCreated(): void
+    {
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('getRepository')->willReturn($this->createMock(EntityRepository::class));
+        $em->method('flush')->willThrowException(StorageErrors::uniqueViolation());
+
+        $flash = $this->saveWithFlash(new MenuItem(), $em, null, self::TOKEN, false);
+
+        self::assertStringContainsString('already created', $flash[1]);
+    }
+
+    public function testInstantiateFormKeepsTheVersionOfTheFirstRender(): void
+    {
+        $fetched = new MenuItem();
+        (new ReflectionProperty(MenuItem::class, 'editVersion'))->setValue($fetched, 5);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('find')->willReturn($fetched);
+        $formFactory = $this->createMock(FormFactoryInterface::class);
+        $formFactory->method('create')->willReturn($this->createMock(FormInterface::class));
+        $component                  = new ItemFormLiveComponent($formFactory, $em, $this->createMock(RequestStack::class));
+        $component->menu            = new Menu();
+        $component->itemId          = 9;
+        $component->initialFormData = new MenuItem();
+
+        (new ReflectionMethod($component, 'instantiateForm'))->invoke($component);
+        self::assertSame(5, $component->baseVersion);
+
+        // A later re-render reads a newer row: the version the admin saw stays.
+        (new ReflectionProperty(MenuItem::class, 'editVersion'))->setValue($fetched, 6);
+        $component->hydratedItemId = null;
+        (new ReflectionMethod($component, 'instantiateForm'))->invoke($component);
+        self::assertSame(5, $component->baseVersion);
+    }
+
+    public function testInstantiateFormOfANewItemGetsOneSubmitToken(): void
+    {
+        $formFactory = $this->createMock(FormFactoryInterface::class);
+        $formFactory->method('create')->willReturn($this->createMock(FormInterface::class));
+        $component       = new ItemFormLiveComponent($formFactory, $this->createMock(EntityManagerInterface::class), $this->createMock(RequestStack::class));
+        $component->menu = new Menu();
+
+        (new ReflectionMethod($component, 'instantiateForm'))->invoke($component);
+        $first = $component->submitToken;
+        (new ReflectionMethod($component, 'instantiateForm'))->invoke($component);
+
+        self::assertSame(32, strlen((string) $first));
+        self::assertSame($first, $component->submitToken, 'one token per form life');
     }
 
     public function testSaveResetsLinkFieldsWhenChildrenExistAndSetsMenuWhenMissing(): void

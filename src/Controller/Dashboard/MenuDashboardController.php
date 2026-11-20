@@ -10,6 +10,8 @@ use InvalidArgumentException;
 use JsonException;
 use Nowo\DashboardMenuBundle\Concurrency\DashboardMenuConflictAnswer;
 use Nowo\DashboardMenuBundle\Concurrency\DashboardMenuTransaction;
+use Nowo\DashboardMenuBundle\Concurrency\EditVersion;
+use Nowo\DashboardMenuBundle\Concurrency\StaleEditException;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Form\CopyMenuType;
@@ -856,9 +858,19 @@ final class MenuDashboardController extends AbstractController
             if ($existing instanceof Menu && $existing->getId() !== $menu->getId()) {
                 $form->addError(new FormError($this->translator->trans('dashboard.unique_code_context_error', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN)));
             } else {
+                $baseVersion = $form->has(MenuType::BASE_VERSION_FIELD) ? EditVersion::posted($form->get(MenuType::BASE_VERSION_FIELD)->getData()) : null;
+                // Bumped with the form's changes, before the unit computes the change sets (2.24).
+                $menu->bumpEditVersion();
                 try {
-                    // The form bound into the managed menu: the unit flushes it.
-                    $this->write($request, static fn (): null => null);
+                    // The form bound into the managed menu: the unit flushes it, after the menu lock and the version
+                    // check (2.24, REQ-RUNTIME-003 rule 4: an admin who saved meanwhile wins; the stale answer drops
+                    // the entity, so the bump is never stored).
+                    $this->write($request, function () use ($menu, $baseVersion): void {
+                        $this->lockMenu($menu);
+                        EditVersion::assertCurrent($this->menuRepository->storedEditVersion((int) $menu->getId()), $baseVersion);
+                    });
+                } catch (StaleEditException) {
+                    return $this->staleEditAnswer($menu, $id, 'This menu was changed by someone else while you were editing it. Reload it and apply your change again.');
                 } catch (UniqueConstraintViolationException) {
                     $form->addError(new FormError($this->translator->trans('dashboard.unique_code_context_error', [], NowoDashboardMenuBundle::TRANSLATION_DOMAIN)));
 
@@ -871,6 +883,21 @@ final class MenuDashboardController extends AbstractController
         }
 
         return $this->renderMenuForm($request, $form, true, $menu, is_string($sectionFocus) ? $sectionFocus : null);
+    }
+
+    /**
+     * The domain answer of a stale edit (2.24, REQ-RUNTIME-003 rule 4): the unsaved form values are dropped from the
+     * manager (a later flush must not store them), the admin is told, and the menu page shows the stored state. No
+     * conflict code: nothing is locked or failed, the form was built from an older version.
+     */
+    private function staleEditAnswer(Menu|MenuItem $entity, int $menuId, string $message): RedirectResponse
+    {
+        if ($this->entityManager->contains($entity)) {
+            $this->entityManager->detach($entity);
+        }
+        $this->addFlash('error', $message);
+
+        return $this->redirectToRoute(DashboardRoutes::ROUTE_SHOW, ['id' => $menuId]);
     }
 
     #[Route(path: '/{id}/delete', name: 'menu_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
@@ -1235,20 +1262,33 @@ final class MenuDashboardController extends AbstractController
                 $item->normalizeDividerState();
             }
 
-            $this->write($request, function (EntityManagerInterface $em) use ($menu, $item): void {
-                // Append new items at the end of their sibling group, under the menu lock (2.23): two concurrent
-                // appends cannot read the same MAX(position).
-                $this->lockMenu($menu);
-                $item->setPosition($this->menuItemRepository->findMaxPositionForParent($menu, $item->getParent()) + 1);
-                $em->persist($item);
-                $em->flush();
+            // One token per rendered form (2.24, REQ-RUNTIME-003 rule 4): the same form posted twice creates one item.
+            $submitToken = $form->has(MenuItemType::SUBMIT_TOKEN_FIELD) ? EditVersion::submitToken($form->get(MenuItemType::SUBMIT_TOKEN_FIELD)->getData()) : '';
+            try {
+                $created = $this->write($request, function (EntityManagerInterface $em) use ($menu, $item, $submitToken): bool {
+                    // Append new items at the end of their sibling group, under the menu lock (2.23): two concurrent
+                    // appends cannot read the same MAX(position).
+                    $this->lockMenu($menu);
+                    if ($submitToken !== '' && $this->menuItemRepository->submitTokenExists($submitToken)) {
+                        return false;
+                    }
+                    $item->setSubmitToken($submitToken !== '' ? $submitToken : null);
+                    $item->setPosition($this->menuItemRepository->findMaxPositionForParent($menu, $item->getParent()) + 1);
+                    $em->persist($item);
+                    $em->flush();
 
-                // If existing siblings have duplicated (e.g. all `0`) positions, reindex them
-                // so the table ordering becomes deterministic.
-                $this->reindexSiblingPositionsIfNeeded($menu, $item->getParent());
-            });
+                    // If existing siblings have duplicated (e.g. all `0`) positions, reindex them
+                    // so the table ordering becomes deterministic.
+                    $this->reindexSiblingPositionsIfNeeded($menu, $item->getParent());
 
-            $this->addFlash('success', 'Item created.');
+                    return true;
+                });
+            } catch (UniqueConstraintViolationException) {
+                // The token's unique key closed a race the check could not see: the same answer as the check.
+                $created = false;
+            }
+
+            $this->addFlash('success', $created ? 'Item created.' : 'Item already created: the form was submitted twice, so only one item was added.');
 
             return $this->redirectToRefererOr($request, DashboardRoutes::ROUTE_SHOW, ['id' => $id]);
         }
@@ -1392,20 +1432,35 @@ final class MenuDashboardController extends AbstractController
                 }
             }
 
-            $this->write($request, function (EntityManagerInterface $em) use ($menu, $item, $sectionFocus, $parentChanged, $originalParent): void {
-                $this->lockMenu($menu);
-                // When moving an item between parents via the config (gear) section, the position field isn't part
-                // of that form submission, so we append it (read under the menu lock, 2.23).
-                if ($sectionFocus === 'config' && $parentChanged) {
-                    $item->setPosition($this->menuItemRepository->findMaxPositionForParent($menu, $item->getParent()) + 1);
-                }
-                $em->flush();
+            $baseVersion = $form->has(MenuType::BASE_VERSION_FIELD) ? EditVersion::posted($form->get(MenuType::BASE_VERSION_FIELD)->getData()) : null;
+            // Bumped before the unit starts, with the form's other changes: the unit computes the change sets of the
+            // managed entities when it begins, and a change made after that would replace them (2.24).
+            $item->bumpEditVersion();
+            try {
+                $this->write($request, function (EntityManagerInterface $em) use ($menu, $item, $sectionFocus, $parentChanged, $originalParent, $baseVersion): void {
+                    $this->lockMenu($menu);
+                    // The form was built from the stored version, read under the lock (2.24, rule 4): an admin who saved
+                    // meanwhile wins, and this save changes nothing (the stale answer drops the entity).
+                    EditVersion::assertCurrent($this->menuItemRepository->storedEditVersion((int) $item->getId()), $baseVersion);
+                    // When moving an item between parents via the config (gear) section, the position field isn't part
+                    // of that form submission, so we append it (read under the menu lock, 2.23).
+                    if ($sectionFocus === 'config' && $parentChanged) {
+                        $item->setPosition($this->menuItemRepository->findMaxPositionForParent($menu, $item->getParent()) + 1);
+                        // The unit computed the change sets when it began, and Doctrine keeps only the latest one of an
+                        // entity: merge the position into the form's changes (the new parent, the other fields) instead
+                        // of letting it replace them at the flush below (2.24; lost in 2.23).
+                        $em->getUnitOfWork()->recomputeSingleEntityChangeSet($em->getClassMetadata(MenuItem::class), $item);
+                    }
+                    $em->flush();
 
-                $this->reindexSiblingPositionsIfNeeded($menu, $item->getParent());
-                if ($parentChanged) {
-                    $this->reindexSiblingPositionsIfNeeded($menu, $originalParent);
-                }
-            });
+                    $this->reindexSiblingPositionsIfNeeded($menu, $item->getParent());
+                    if ($parentChanged) {
+                        $this->reindexSiblingPositionsIfNeeded($menu, $originalParent);
+                    }
+                });
+            } catch (StaleEditException) {
+                return $this->staleEditAnswer($item, $id, 'This item was changed by someone else while you were editing it. Reload it and apply your change again.');
+            }
 
             $this->addFlash('success', 'Item updated.');
 

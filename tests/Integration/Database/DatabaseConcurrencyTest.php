@@ -33,6 +33,7 @@ use Throwable;
 
 use function array_keys;
 use function array_map;
+use function array_walk_recursive;
 use function getenv;
 use function implode;
 use function is_string;
@@ -43,6 +44,7 @@ use function str_ends_with;
 use function str_repeat;
 use function str_replace;
 use function strip_tags;
+use function strlen;
 use function substr;
 
 /**
@@ -241,6 +243,243 @@ final class DatabaseConcurrencyTest extends TestCase
         $this->assertUsable($kernel);
     }
 
+    /**
+     * 2.24 (rule 4): the same new-item form posted twice creates one item. The second post waits while the first holds
+     * the menu (409 CONFLICT_001), and once it committed the retry is answered as already created: one row, never two.
+     */
+    #[DataProvider('databases')]
+    public function testADoubleSubmitOfTheNewItemFormCreatesOneItem(string $env): void
+    {
+        $url    = $this->url($env);
+        $first  = $this->boot($url, DatabaseTestKernel::STANDARD, 'a');
+        $second = $this->boot($url, DatabaseTestKernel::STANDARD, 'b');
+        $this->createSchema($first);
+        $menuId = $this->createMenu($first, 'sidebar');
+        $client = $this->client($first);
+        $fields = $this->newItemForm($client, $menuId);
+        $token  = $this->tokenOf($fields);
+
+        $services = $second->getContainer()->get('test.service_container');
+        self::assertInstanceOf(ContainerInterface::class, $services);
+        $transaction = $services->get(DashboardMenuTransaction::class);
+        self::assertInstanceOf(DashboardMenuTransaction::class, $transaction);
+        $repository = $this->manager($second)->getRepository(Menu::class);
+        self::assertInstanceOf(MenuRepository::class, $repository);
+        $transaction->run(static function (EntityManagerInterface $em) use ($client, $fields, $menuId, $repository, $token): void {
+            $menu = $em->find(Menu::class, $menuId);
+            self::assertInstanceOf(Menu::class, $menu);
+            self::assertTrue($repository->lockForWrite($menu));
+            $item = new MenuItem();
+            $item->setMenu($menu)->setLabel('first')->setSubmitToken($token);
+            $em->persist($item);
+            $em->flush();
+
+            // The second post of the same form waits for the menu the first one holds, then fails fast.
+            $client->request('POST', '/admin/menus/' . $menuId . '/item/new', $fields);
+            self::assertSame(409, $client->getResponse()->getStatusCode());
+            self::assertSame(ConflictCode::RETRY_SAFE, $client->getResponse()->headers->get('X-Conflict-Code'));
+        });
+
+        $client->request('POST', '/admin/menus/' . $menuId . '/item/new', $fields);
+        self::assertSame(302, $client->getResponse()->getStatusCode());
+        self::assertSame(['first'], $this->labels($first, $menuId), 'the retry of the same form found its item: one row');
+        self::assertSame(1, (int) $this->manager($first)->getConnection()->fetchOne('SELECT COUNT(*) FROM dashboard_menu_item WHERE submit_token = ?', [$token]));
+        $this->assertUsable($first);
+    }
+
+    /**
+     * 2.24 (rule 4): a field edit of an item from a stale form never overwrites the other admin's save; the admin gets
+     * the domain answer (a flash and the menu page), no conflict code. A form read after it saves.
+     */
+    #[DataProvider('databases')]
+    public function testAStaleItemEditNeverOverwritesTheOtherAdminsSave(string $env): void
+    {
+        $url    = $this->url($env);
+        $kernel = $this->boot($url, DatabaseTestKernel::STANDARD);
+        $this->createSchema($kernel);
+        $menuId = $this->createMenu($kernel, 'sidebar');
+        $itemId = $this->createItem($kernel, $menuId, 'Original');
+        $client = $this->client($kernel);
+
+        $crawler = $client->request('GET', '/admin/menus/' . $menuId . '/item/' . $itemId . '/edit');
+        self::assertSame(200, $client->getResponse()->getStatusCode());
+        $stale = $crawler->filterXPath('//form')->form();
+        $stale->setValues([$this->fieldEndingWith($stale->getValues(), '[label]') => 'Stale edit']);
+
+        // The other admin saves between this admin's page and this admin's post.
+        $this->connection($url)->executeStatement("UPDATE dashboard_menu_item SET label = 'Other admin', edit_version = edit_version + 1 WHERE id = ?", [$itemId]);
+        $client->submit($stale);
+        self::assertSame(302, $client->getResponse()->getStatusCode());
+        self::assertFalse($client->getResponse()->headers->has('X-Conflict-Code'));
+        self::assertSame(['Other admin'], $this->labels($kernel, $menuId));
+        self::assertSame('/admin/menus/' . $menuId, $client->getResponse()->headers->get('Location'));
+
+        $crawler = $client->request('GET', '/admin/menus/' . $menuId . '/item/' . $itemId . '/edit');
+        $fresh   = $crawler->filterXPath('//form')->form();
+        $fresh->setValues([$this->fieldEndingWith($fresh->getValues(), '[label]') => 'Reloaded edit']);
+        $client->submit($fresh);
+        self::assertSame(302, $client->getResponse()->getStatusCode());
+        self::assertSame(['Reloaded edit'], $this->labels($kernel, $menuId));
+        self::assertGreaterThan(2, (int) $this->manager($kernel)->getConnection()->fetchOne('SELECT edit_version FROM dashboard_menu_item WHERE id = ?', [$itemId]));
+        $this->assertUsable($kernel);
+    }
+
+    /**
+     * 2.24 (rule 4): the same for the fields of the menu.
+     */
+    #[DataProvider('databases')]
+    public function testAStaleMenuEditNeverOverwritesTheOtherAdminsSave(string $env): void
+    {
+        $url    = $this->url($env);
+        $kernel = $this->boot($url, DatabaseTestKernel::STANDARD);
+        $this->createSchema($kernel);
+        $menuId = $this->createMenu($kernel, 'sidebar');
+        $client = $this->client($kernel);
+
+        $crawler = $client->request('GET', '/admin/menus/' . $menuId . '/edit');
+        self::assertSame(200, $client->getResponse()->getStatusCode());
+        $stale = $crawler->filterXPath('//form')->form();
+        $stale->setValues([$this->fieldEndingWith($stale->getValues(), '[name]') => 'Stale name']);
+
+        $this->connection($url)->executeStatement("UPDATE dashboard_menu SET name = 'Other admin', edit_version = edit_version + 1 WHERE id = ?", [$menuId]);
+        $client->submit($stale);
+        self::assertSame(302, $client->getResponse()->getStatusCode());
+        self::assertSame('Other admin', $this->manager($kernel)->getConnection()->fetchOne('SELECT name FROM dashboard_menu WHERE id = ?', [$menuId]));
+
+        $crawler = $client->request('GET', '/admin/menus/' . $menuId . '/edit');
+        $fresh   = $crawler->filterXPath('//form')->form();
+        $fresh->setValues([$this->fieldEndingWith($fresh->getValues(), '[name]') => 'Reloaded name']);
+        $client->submit($fresh);
+        self::assertSame(302, $client->getResponse()->getStatusCode());
+        self::assertSame('Reloaded name', $this->manager($kernel)->getConnection()->fetchOne('SELECT name FROM dashboard_menu WHERE id = ?', [$menuId]));
+        self::assertSame(3, (int) $this->manager($kernel)->getConnection()->fetchOne('SELECT edit_version FROM dashboard_menu WHERE id = ?', [$menuId]));
+        $this->assertUsable($kernel);
+    }
+
+    /**
+     * Regression (2.23): the config (gear) section moves an item to another parent and the unit appends it to that
+     * sibling group (`setPosition()` inside the unit, after the unit computed the change sets). The form's own changes
+     * (the parent and the other fields) must be stored with the position, not replaced by it.
+     */
+    #[DataProvider('databases')]
+    public function testMovingAnItemWithTheConfigSectionStoresTheParentAndTheOtherFields(string $env): void
+    {
+        $url    = $this->url($env);
+        $kernel = $this->boot($url, DatabaseTestKernel::STANDARD);
+        $this->createSchema($kernel);
+        $menuId   = $this->createMenu($kernel, 'sidebar');
+        $parentId = $this->createItem($kernel, $menuId, 'Parent');
+        $itemId   = $this->createItem($kernel, $menuId, 'Child');
+        $client   = $this->client($kernel);
+
+        $crawler = $client->request('GET', '/admin/menus/' . $menuId . '/item/' . $itemId . '/edit?section=config');
+        self::assertSame(200, $client->getResponse()->getStatusCode());
+        $form = $crawler->filterXPath('//form')->form();
+        $form->setValues([
+            $this->fieldEndingWith($form->getValues(), '[parent]')      => (string) $parentId,
+            $this->fieldEndingWith($form->getValues(), '[externalUrl]') => 'https://moved.example/x',
+        ]);
+        $client->submit($form);
+
+        self::assertSame(302, $client->getResponse()->getStatusCode());
+        $row = $this->manager($kernel)->getConnection()->fetchAssociative('SELECT parent_id, external_url, position, edit_version FROM dashboard_menu_item WHERE id = ?', [$itemId]);
+        self::assertIsArray($row);
+        self::assertSame($parentId, (int) $row['parent_id'], 'the parent the form chose');
+        self::assertSame('https://moved.example/x', $row['external_url'], 'the other field of the same form');
+        self::assertSame(0, (int) $row['position'], 'first of the new sibling group (re-indexed from 0)');
+        self::assertGreaterThan(1, (int) $row['edit_version']);
+        $this->assertUsable($kernel);
+    }
+
+    /**
+     * 2.24 (WB-DashboardMenu-1): another admin's drag and drop moves the item to another parent after this admin opened
+     * the config form (which posts the parent). The tree write bumps the item's version, so the stale form is refused and
+     * the old parent is not written back.
+     */
+    #[DataProvider('databases')]
+    public function testAConfigFormOlderThanADragAndDropMoveIsRefused(string $env): void
+    {
+        $url    = $this->url($env);
+        $first  = $this->boot($url, DatabaseTestKernel::STANDARD, 'a');
+        $second = $this->boot($url, DatabaseTestKernel::STANDARD, 'b');
+        $this->createSchema($first);
+        $menuId   = $this->createMenu($first, 'sidebar');
+        $parentId = $this->createItem($first, $menuId, 'Parent');
+        $itemId   = $this->createItem($first, $menuId, 'Child');
+        $client   = $this->client($first);
+
+        $crawler = $client->request('GET', '/admin/menus/' . $menuId . '/item/' . $itemId . '/edit?section=config');
+        $stale   = $crawler->filterXPath('//form')->form();
+        $stale->setValues([$this->fieldEndingWith($stale->getValues(), '[externalUrl]') => 'https://stale.example']);
+
+        // The other admin drags the child under the parent (the real repository write, in the real write unit).
+        $this->inUnit($second, function (EntityManagerInterface $em) use ($second, $menuId, $parentId, $itemId): void {
+            $menu = $em->find(Menu::class, $menuId);
+            self::assertInstanceOf(Menu::class, $menu);
+            $items = $this->manager($second)->getRepository(MenuItem::class);
+            self::assertInstanceOf(MenuItemRepository::class, $items);
+            $items->applyTreeLayout($menu, [
+                ['id' => $parentId, 'parent_id' => null, 'position' => 1],
+                ['id' => $itemId, 'parent_id' => $parentId, 'position' => 1],
+            ], 100);
+        });
+
+        $client->submit($stale);
+        self::assertSame(302, $client->getResponse()->getStatusCode());
+        $row = $this->manager($first)->getConnection()->fetchAssociative('SELECT parent_id, external_url FROM dashboard_menu_item WHERE id = ?', [$itemId]);
+        self::assertIsArray($row);
+        self::assertSame($parentId, (int) $row['parent_id'], 'the old parent was not written back');
+        self::assertNull($row['external_url'], 'the stale form stored nothing');
+    }
+
+    /**
+     * 2.24 (WB-DashboardMenu-1): a re-index (or a move up / down) after this admin opened the icon form (which posts the
+     * position) refuses the stale form instead of writing the old position back.
+     */
+    #[DataProvider('databases')]
+    public function testAnIconFormOlderThanAReindexIsRefused(string $env): void
+    {
+        $url    = $this->url($env);
+        $first  = $this->boot($url, DatabaseTestKernel::STANDARD, 'a');
+        $second = $this->boot($url, DatabaseTestKernel::STANDARD, 'b');
+        $this->createSchema($first);
+        $menuId = $this->createMenu($first, 'sidebar');
+        $this->createItem($first, $menuId, 'One');
+        $itemId = $this->createItem($first, $menuId, 'Two');
+        $client = $this->client($first);
+
+        $crawler = $client->request('GET', '/admin/menus/' . $menuId . '/item/' . $itemId . '/edit?section=icon');
+        self::assertSame(200, $client->getResponse()->getStatusCode());
+        $stale  = $crawler->filterXPath('//form')->form();
+        $before = (int) $this->manager($first)->getConnection()->fetchOne('SELECT position FROM dashboard_menu_item WHERE id = ?', [$itemId]);
+
+        $this->inUnit($second, function (EntityManagerInterface $em) use ($second, $menuId): void {
+            $menu = $em->find(Menu::class, $menuId);
+            self::assertInstanceOf(Menu::class, $menu);
+            $items = $this->manager($second)->getRepository(MenuItem::class);
+            self::assertInstanceOf(MenuItemRepository::class, $items);
+            self::assertGreaterThan(0, $items->reindexPositionsWithStep($menu, 42));
+        });
+        $moved = (int) $this->manager($first)->getConnection()->fetchOne('SELECT position FROM dashboard_menu_item WHERE id = ?', [$itemId]);
+        self::assertNotSame($before, $moved);
+
+        $client->submit($stale);
+        self::assertSame(302, $client->getResponse()->getStatusCode());
+        self::assertSame($moved, (int) $this->manager($first)->getConnection()->fetchOne('SELECT position FROM dashboard_menu_item WHERE id = ?', [$itemId]), 'the old position was not written back');
+    }
+
+    /**
+     * @param callable(EntityManagerInterface): void $operation
+     */
+    private function inUnit(DatabaseTestKernel $kernel, callable $operation): void
+    {
+        $services = $kernel->getContainer()->get('test.service_container');
+        self::assertInstanceOf(ContainerInterface::class, $services);
+        $transaction = $services->get(DashboardMenuTransaction::class);
+        self::assertInstanceOf(DashboardMenuTransaction::class, $transaction);
+        $transaction->run($operation);
+    }
+
     private function assertConcurrentAppends(string $url, string $mode): void
     {
         $first  = $this->boot($url, $mode, 'a');
@@ -427,6 +666,40 @@ final class DatabaseConcurrencyTest extends TestCase
         $manager->clear();
 
         return $id;
+    }
+
+    private function createItem(DatabaseTestKernel $kernel, int $menuId, string $label): int
+    {
+        $manager = $this->manager($kernel);
+        $menu    = $manager->find(Menu::class, $menuId);
+        self::assertInstanceOf(Menu::class, $menu);
+        $item = new MenuItem();
+        $item->setMenu($menu)->setLabel($label)->setPosition(1);
+        $manager->persist($item);
+        $manager->flush();
+        $id = $item->getId();
+        self::assertNotNull($id);
+        $manager->clear();
+
+        return $id;
+    }
+
+    /**
+     * The submit token the new-item form carries.
+     *
+     * @param array<string, mixed> $fields
+     */
+    private function tokenOf(array $fields): string
+    {
+        $flat = [];
+        array_walk_recursive($fields, static function (mixed $value, string|int $key) use (&$flat): void {
+            $flat[(string) $key] = $value;
+        });
+        $token = $flat['_submit_token'] ?? null;
+        self::assertIsString($token);
+        self::assertSame(32, strlen($token));
+
+        return $token;
     }
 
     private function menuId(DatabaseTestKernel $kernel, string $code): int

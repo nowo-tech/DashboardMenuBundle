@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\LiveComponent;
 
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Nowo\DashboardMenuBundle\Concurrency\DashboardMenuConflictAnswer;
 use Nowo\DashboardMenuBundle\Concurrency\DashboardMenuTransaction;
+use Nowo\DashboardMenuBundle\Concurrency\EditVersion;
+use Nowo\DashboardMenuBundle\Concurrency\StaleEditException;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Entity\MenuItem;
 use Nowo\DashboardMenuBundle\Form\MenuItemType;
+use Nowo\DashboardMenuBundle\Repository\MenuItemRepository;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -22,7 +26,9 @@ use Symfony\UX\LiveComponent\Attribute\LiveProp;
 use Symfony\UX\LiveComponent\ComponentWithFormTrait;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
 
+use function bin2hex;
 use function is_array;
+use function random_bytes;
 
 /**
  * Live form for creating/editing a menu item. Toggles parent/link fields by itemType (divider = root only; sections can have a parent; link = show parent and link unless has children).
@@ -120,6 +126,17 @@ final class ItemFormLiveComponent
     public ?int $hydratedItemId = null;
 
     /**
+     * `edit_version` of the item when the form was first built (2.24, REQ-RUNTIME-003 rule 4): a LiveProp, so it is the
+     * version the admin saw and not the one a later re-render reads. The save refuses an older one.
+     */
+    #[LiveProp(writable: false)]
+    public ?int $baseVersion = null;
+
+    /** One token per new-item form (2.24): the same form saved twice creates one item. */
+    #[LiveProp(writable: false)]
+    public ?string $submitToken = null;
+
+    /**
      * @return FormInterface<MenuItem>
      */
     protected function instantiateForm(): FormInterface
@@ -156,7 +173,12 @@ final class ItemFormLiveComponent
 
                 // @igor-ignore - UX Live Component holds request-scoped form state
                 $this->hydratedItemId = $itemId;
+                // @igor-ignore - UX Live Component holds request-scoped form state
+                $this->baseVersion ??= $initialData->getEditVersion();
             }
+        } else {
+            // @igor-ignore - UX Live Component holds request-scoped form state
+            $this->submitToken ??= bin2hex(random_bytes(16));
         }
 
         return $this->formFactory->create(MenuItemType::class, $initialData, [
@@ -367,25 +389,57 @@ final class ItemFormLiveComponent
         }
         // One write unit (2.23, REQ-RUNTIME-003): a lock conflict answers 409 CONFLICT_001 / CONFLICT_002.
         $transaction = $this->transaction ?? new DashboardMenuTransaction($this->entityManager);
-        // @igor-ignore - request-scoped closure, run at once and dropped (never stored in the shared service)
-        $save = static fn (): bool => $transaction->run(static function (EntityManagerInterface $em) use ($item): bool {
-            $em->persist($item);
-
-            return true;
-        });
-        $request = $this->requestStack->getCurrentRequest();
-        if ($request instanceof Request) {
-            ($this->conflictAnswer ?? new DashboardMenuConflictAnswer())->guard($request, $save);
-        } else {
-            $save();
+        $baseVersion = $this->baseVersion;
+        $token       = $item->getId() === null ? EditVersion::submitToken($this->submitToken) : '';
+        if ($item->getId() !== null) {
+            // With the form's changes, before the unit computes the change sets (2.24); a stale save drops the entity.
+            $item->bumpEditVersion();
         }
+        // @igor-ignore - request-scoped closure, run at once and dropped (never stored in the shared service)
+        $save = static function () use ($transaction, $item, $baseVersion, $token): string {
+            try {
+                // @igor-ignore - request-scoped closure, run at once and dropped (never stored in the shared service)
+                return $transaction->run(static function (EntityManagerInterface $em) use ($item, $baseVersion, $token): string {
+                    if ($item->getId() !== null) {
+                        // The version the admin saw, read under a lock of the item row (2.24, REQ-RUNTIME-003 rule 4).
+                        $repository = $em->getRepository(MenuItem::class);
+                        EditVersion::assertCurrent($repository instanceof MenuItemRepository ? $repository->storedEditVersion($item->getId()) : null, $baseVersion);
+                    } elseif ($token !== '') {
+                        $repository = $em->getRepository(MenuItem::class);
+                        if ($repository instanceof MenuItemRepository && $repository->submitTokenExists($token)) {
+                            return 'duplicate';
+                        }
+                        // @igor-ignore - UX Live Component holds request-scoped form state
+                        $item->setSubmitToken($token);
+                    }
+                    $em->persist($item);
+
+                    return 'saved';
+                });
+                // @phpstan-ignore catch.neverThrown (thrown by the closure the write unit runs)
+            } catch (StaleEditException) {
+                return 'stale';
+            } catch (UniqueConstraintViolationException) {
+                // The token's unique key closed a race the check could not see.
+                return 'duplicate';
+            }
+        };
+        $request = $this->requestStack->getCurrentRequest();
+        $outcome = $request instanceof Request ? ($this->conflictAnswer ?? new DashboardMenuConflictAnswer())->guard($request, $save) : $save();
 
         // @igor-ignore - UX Live Component holds request-scoped form state
         /** @var Session $session */
         // @igor-ignore - UX Live Component holds request-scoped form state
         $session = $this->requestStack->getSession();
         // @igor-ignore - UX Live Component holds request-scoped form state
-        $session->getFlashBag()->add('success', $this->isEdit ? 'Item updated.' : 'Item created.');
+        $session->getFlashBag()->add(
+            $outcome === 'stale' ? 'error' : 'success',
+            match ($outcome) {
+                'stale'     => 'This item was changed by someone else while you were editing it. Reload it and apply your change again.',
+                'duplicate' => 'Item already created: the form was submitted twice, so only one item was added.',
+                default     => $this->isEdit ? 'Item updated.' : 'Item created.',
+            },
+        );
 
         return new RedirectResponse($this->redirectToUrl);
     }
