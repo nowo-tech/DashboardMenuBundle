@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d155647b5e3613638f8a5b0d3dc10298",
+    "content-hash": "8f89361d606e77521846fa25a02220e4",
     "packages": [
         {
             "name": "doctrine/collections",
@@ -1124,11 +1124,11 @@
         },
         {
             "name": "nowo-tech/dashboard-menu-bundle",
-            "version": "dev-chore/transaction-doctrine-1.8",
+            "version": "dev-chore/demo-platform-shell",
             "dist": {
                 "type": "path",
                 "url": "/var/dashboard-menu-bundle",
-                "reference": "afeb26bdfef593edfd0bb3e0ca710d5ffe7654c3"
+                "reference": "f546725e979648bae9e9df8a87a438607347549c"
             },
             "require": {
                 "doctrine/doctrine-bundle": "^2.8 || ^3.0",
@@ -1673,16 +1673,16 @@
         },
         {
             "name": "nowo-tech/ui-kit-bundle",
-            "version": "v2.51.0",
+            "version": "dev-feat/demo-platform-shell",
             "source": {
                 "type": "git",
-                "url": "https://github.com/nowo-tech/UiKitBundle.git",
-                "reference": "bd14774abdb7fb3bb755bf8fb2bf4aaee0258d15"
+                "url": "https://github.com/nowo-tech/UiKitBundle",
+                "reference": "1a9f2a624c29b30bc1a1071057341587972b1e61"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nowo-tech/UiKitBundle/zipball/bd14774abdb7fb3bb755bf8fb2bf4aaee0258d15",
-                "reference": "bd14774abdb7fb3bb755bf8fb2bf4aaee0258d15",
+                "url": "https://api.github.com/repos/nowo-tech/UiKitBundle/zipball/1a9f2a624c29b30bc1a1071057341587972b1e61",
+                "reference": "1a9f2a624c29b30bc1a1071057341587972b1e61",
                 "shasum": ""
             },
             "require": {
@@ -1729,7 +1729,8 @@
                 "symfony/validator": "Colour validation in the optional appearance forms"
             },
             "bin": [
-                "bin/nowo-ui-token-lint"
+                "bin/nowo-ui-token-lint",
+                "bin/nowo-ui-demo-style-lint"
             ],
             "type": "symfony-bundle",
             "autoload": {
@@ -1737,7 +1738,62 @@
                     "Nowo\\UiKitBundle\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "Nowo\\UiKitBundle\\Tests\\": "tests/"
+                }
+            },
+            "archive": {
+                "exclude": [
+                    "/demo",
+                    "/.cursor",
+                    "/.pnpm-store",
+                    "/coverage",
+                    "/node_modules"
+                ]
+            },
+            "scripts": {
+                "test": [
+                    "@php vendor/bin/phpunit --color=always"
+                ],
+                "test-coverage": [
+                    "@php vendor/bin/phpunit --color=always --coverage-html coverage --coverage-clover coverage.xml --coverage-text=coverage-output.txt"
+                ],
+                "coverage-check": [
+                    "@php vendor/bin/phpunit --colors=always --coverage-text=coverage-output.txt --coverage-clover coverage.xml && sh .scripts/coverage-fail-under.sh coverage-output.txt 100"
+                ],
+                "cs-check": [
+                    "@php vendor/bin/php-cs-fixer fix --dry-run --diff"
+                ],
+                "cs-fix": [
+                    "@php vendor/bin/php-cs-fixer fix"
+                ],
+                "rector": [
+                    "@php vendor/bin/rector process"
+                ],
+                "rector-dry": [
+                    "@php vendor/bin/rector process --dry-run --no-progress-bar"
+                ],
+                "phpstan": [
+                    "@php vendor/bin/phpstan analyse --memory-limit=512M"
+                ],
+                "qa": [
+                    "@cs-check",
+                    "@test"
+                ],
+                "twig:lint": [
+                    "twig-cs-fixer lint --config=.twig-cs-fixer.php"
+                ],
+                "twig:fix": [
+                    "twig-cs-fixer fix --config=.twig-cs-fixer.php"
+                ],
+                "twig:fix:check": [
+                    "twig-cs-fixer lint --config=.twig-cs-fixer.php --fix"
+                ],
+                "igor": [
+                    "igor-php --no-agent ."
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -1767,12 +1823,11 @@
                 "ui"
             ],
             "support": {
-                "docs": "https://github.com/nowo-tech/UiKitBundle/tree/main/docs",
                 "issues": "https://github.com/nowo-tech/UiKitBundle/issues",
-                "source": "https://github.com/nowo-tech/UiKitBundle"
+                "source": "https://github.com/nowo-tech/UiKitBundle",
+                "docs": "https://github.com/nowo-tech/UiKitBundle/tree/main/docs"
             },
-            "time": "2026-11-13T16:47:40+00:00",
-            "published-time": "2026-11-13T16:53:34+00:00"
+            "time": "2026-11-20T18:17:09+00:00"
         },
         {
             "name": "pentatrion/vite-bundle",
@@ -8001,10 +8056,18 @@
             "time": "2026-10-07T15:50:48+00:00"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "package": "nowo-tech/ui-kit-bundle",
+            "version": "dev-feat/demo-platform-shell",
+            "alias": "2.60.0",
+            "alias_normalized": "2.60.0.0"
+        }
+    ],
     "minimum-stability": "dev",
     "stability-flags": {
-        "nowo-tech/dashboard-menu-bundle": 20
+        "nowo-tech/dashboard-menu-bundle": 20,
+        "nowo-tech/ui-kit-bundle": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
