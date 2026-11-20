@@ -140,6 +140,30 @@
 
 ## Unreleased
 
+Schema change (REQ-RUNTIME-003 rule 4). Generate the migration with
+`bin/console nowo_dashboard_menu:generate-migration --update` (it only adds what is missing), review it and run it, or
+apply the SQL yourself (MySQL / MariaDB; with a table prefix, use your table names):
+
+```sql
+ALTER TABLE dashboard_menu ADD edit_version INT DEFAULT 1 NOT NULL;
+ALTER TABLE dashboard_menu_item ADD edit_version INT DEFAULT 1 NOT NULL, ADD submit_token VARCHAR(64) DEFAULT NULL;
+CREATE UNIQUE INDEX uniq_menu_item_submit_token ON dashboard_menu_item (submit_token);
+```
+
+PostgreSQL: `ALTER TABLE dashboard_menu_item ADD edit_version INT DEFAULT 1 NOT NULL, ADD submit_token VARCHAR(64) DEFAULT NULL;`
+works as is. Existing rows start at version 1 and `submit_token` NULL (the unique index allows many NULLs). There is no
+data to repair and no configuration change.
+
+- **Edit forms refuse a stale save.** The menu and item edit forms carry a hidden `_base_version`; a save from a form
+  older than the stored row shows "changed by someone else" and stores nothing. A form that was open during the deploy
+  has no version, so its first save is refused the same way (reload the page). If you override the dashboard form
+  templates and render the fields one by one, render the whole form (or `_base_version` and `_submit_token`), otherwise
+  every edit of that page is refused and a double submit is not detected.
+- **New items get a one-time token.** A form posted twice creates one item. Items created by the import, the copy and
+  host code have no token.
+- If you saved `Menu` / `MenuItem` rows with your own SQL, set `edit_version` to a value that is not lower than the one
+  stored (or leave it): only the dashboard forms read it.
+
 ## To 2.23.0
 
 From **2.22.2**:

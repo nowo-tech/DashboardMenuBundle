@@ -52,6 +52,12 @@
         {% if form._section is defined %}
             {{ form_widget(form._section) }}
         {% endif %}
+        {% if form._base_version is defined %}
+            {{ form_widget(form._base_version, {value: baseVersion|default(form._base_version.vars.value)}) }}
+        {% endif %}
+        {% if form._submit_token is defined %}
+            {{ form_widget(form._submit_token, {value: submitToken|default(form._submit_token.vars.value)}) }}
+        {% endif %}
         {% if _show_basic %}
         <div id="item_basic_section" class="nowo-dashboard-menu-fieldset">
             {% set formName = form.vars.name %}

@@ -25,6 +25,7 @@ use function trim;
 #[ORM\Table(name: 'dashboard_menu_item')]
 #[ORM\Index(name: 'idx_menu_position', columns: ['menu_id', 'position'])]
 #[ORM\Index(name: 'idx_parent_id', columns: ['parent_id'])]
+#[ORM\UniqueConstraint(name: 'uniq_menu_item_submit_token', columns: ['submit_token'])]
 #[ORM\HasLifecycleCallbacks]
 class MenuItem implements TranslatableInterface
 {
@@ -164,6 +165,19 @@ class MenuItem implements TranslatableInterface
     #[ORM\Column(name: 'section_collapsible', type: Types::BOOLEAN, nullable: true)]
     private ?bool $sectionCollapsible = null;
 
+    /**
+     * Optimistic edit version (2.24): bumped by every save of the item's own fields; position changes do not bump it.
+     */
+    #[ORM\Column(name: 'edit_version', type: Types::INTEGER, options: ['default' => 1])]
+    private int $editVersion = 1;
+
+    /**
+     * Token of the form that created the item (2.24): unique, so a form posted twice creates one item. Null for items
+     * created without a form token (import, copy, host code).
+     */
+    #[ORM\Column(name: 'submit_token', type: Types::STRING, length: 64, nullable: true)]
+    private ?string $submitToken = null;
+
     public function __construct()
     {
         $this->children = new ArrayCollection();
@@ -172,6 +186,35 @@ class MenuItem implements TranslatableInterface
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getEditVersion(): int
+    {
+        return $this->editVersion;
+    }
+
+    /**
+     * Called by the edit save once it has checked the form's version.
+     */
+    public function bumpEditVersion(): self
+    {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
+        ++$this->editVersion;
+
+        return $this;
+    }
+
+    public function getSubmitToken(): ?string
+    {
+        return $this->submitToken;
+    }
+
+    public function setSubmitToken(?string $submitToken): self
+    {
+        // @igor-ignore - Doctrine entity instance state; not a FrankenPHP shared service
+        $this->submitToken = $submitToken;
+
+        return $this;
     }
 
     public function getMenu(): ?Menu

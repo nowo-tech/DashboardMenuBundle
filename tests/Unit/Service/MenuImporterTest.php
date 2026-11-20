@@ -75,6 +75,7 @@ final class MenuImporterTest extends TestCase
         $result = (new MenuImporter($itemRepo, $menuRepo, $em))->import(['menu' => ['code' => 'sidebar'], 'items' => []], MenuImporter::STRATEGY_REPLACE);
 
         self::assertSame(1, $result['updated']);
+        self::assertSame(2, $existing->getEditVersion(), 'an edit form opened before the replace is now stale');
     }
 
     public function testReplaceOfAMenuDeletedMeanwhileReportsAnError(): void

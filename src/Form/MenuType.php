@@ -30,6 +30,9 @@ final class MenuType extends AbstractType
     /** Unmapped hidden child carrying the `section` option back on submit. */
     public const SECTION_FIELD = '_section';
 
+    /** Unmapped hidden child carrying the `edit_version` the form was built from (2.24, REQ-RUNTIME-003 rule 4). */
+    public const BASE_VERSION_FIELD = '_base_version';
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $section = $options['section'] ?? null;
@@ -43,6 +46,11 @@ final class MenuType extends AbstractType
             $builder->add('config', MenuConfigType::class, [
                 'inherit_data' => true,
             ]);
+        }
+        $menu = $builder->getData();
+        if ($menu instanceof Menu && $menu->getId() !== null) {
+            // The version the form was built from: the save refuses a form older than the stored menu.
+            $builder->add(self::BASE_VERSION_FIELD, HiddenType::class, ['mapped' => false, 'data' => (string) $menu->getEditVersion(), 'empty_data' => '']);
         }
         if ($section !== null) {
             // The focused section posts back with the form (REQ-TWIG-005: no raw hidden input in the views).

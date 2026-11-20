@@ -18,6 +18,7 @@ use Symfony\Contracts\Service\ResetInterface;
 
 use function array_key_exists;
 use function count;
+use function is_array;
 
 /**
  * @extends ServiceEntityRepository<Menu>
@@ -198,6 +199,23 @@ class MenuRepository extends ServiceEntityRepository implements ResetInterface
             ->getOneOrNullResult();
 
         return $row !== null;
+    }
+
+    /**
+     * The stored `edit_version` of one menu, read from the database (never the unit of work) under a `PESSIMISTIC_WRITE`
+     * lock of its row (2.24, REQ-RUNTIME-003 rule 4). Must run inside a write unit. Null when the row is gone.
+     */
+    public function storedEditVersion(int $id): ?int
+    {
+        $row = $this->createQueryBuilder('m')
+            ->select('m.editVersion')
+            ->where('m.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->setLockMode(LockMode::PESSIMISTIC_WRITE)
+            ->getOneOrNullResult();
+
+        return is_array($row) ? (int) $row['editVersion'] : null;
     }
 
     /**

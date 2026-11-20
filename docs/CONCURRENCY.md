@@ -9,6 +9,7 @@ How the bundle stays correct when two admins, two tabs or two imports write the 
 - [Write unit](#write-unit)
 - [Menu row lock](#menu-row-lock)
 - [Conflict answer and codes](#conflict-answer-and-codes)
+- [Stale edits and double submits (2.24)](#stale-edits-and-double-submits-224)
 - [Unique code and context](#unique-code-and-context)
 - [Host options](#host-options)
 - [Worker mode and the host entity manager](#worker-mode-and-the-host-entity-manager)
@@ -26,17 +27,17 @@ entities are `Menu` and `MenuItem`.
 | Path | Transaction | Control | Conflict answer |
 | --- | --- | --- | --- |
 | `menu_new` (create menu) | One write unit | Pre-check + unique key `uniq_menu_code_context` with the violation caught | Lock conflict: 409 `CONFLICT_001`. Duplicate: the form error (422), no conflict code |
-| `menu_edit` (form) | One write unit (the form binds into the managed menu) | Pre-check + unique key with the violation caught; last write wins on the other fields | As `menu_new` |
+| `menu_edit` (form) | One write unit (the form binds into the managed menu) | Pre-check + unique key with the violation caught; menu row lock, then the form's `_base_version` against the stored `edit_version` (2.24) | As `menu_new`; a stale form: flash "changed by someone else", nothing stored, no conflict code |
 | `menu_delete` | One write unit | Menu row lock | 409 `CONFLICT_001` / `CONFLICT_002` |
 | `menu_copy` (menu + every item, two flushes) | One write unit | Pre-check + unique key with the violation caught | Lock conflict: 409. Duplicate: the flash error and the form, no conflict code |
-| `item_new` (append) | One write unit (insert, then sibling re-index) | Menu row lock, then `MAX(position) + 1` read under it | 409 `CONFLICT_001` / `CONFLICT_002` |
-| `item_edit` (form; config section may move the item) | One write unit (save, then re-index of the old and new sibling groups) | Menu row lock; appended position read under it | 409 |
+| `item_new` (append) | One write unit (insert, then sibling re-index) | Menu row lock, then `MAX(position) + 1` read under it; the form's one-time `_submit_token` stored in the unique `submit_token`, checked under the lock (2.24) | 409 `CONFLICT_001` / `CONFLICT_002`; a form posted twice: "Item already created" flash, one item, no conflict code |
+| `item_edit` (form; config section may move the item) | One write unit (save, then re-index of the old and new sibling groups) | Menu row lock; appended position read under it; the form's `_base_version` against the stored `edit_version` (2.24) | 409; a stale form: flash "changed by someone else", nothing stored, no conflict code |
 | `item_delete` | One write unit | Menu row lock | 409 |
 | `item_move_up` / `item_move_down` | One write unit | Menu row lock; the item is refreshed and the siblings read after the lock | 409 |
 | `items_reindex_positions` | One write unit | Menu row lock | 409 |
 | `items_reorder_tree` (drag and drop) | One write unit | Menu row lock | 409; an invalid layout rolls back and shows its flash |
 | `import` (file of one or more menus, `skip_existing` / `replace`) | One write unit for the whole file (`MenuImporter::import()`) | Replace: menu row lock + the old items read with `FOR UPDATE`; create: unique key with the violation caught | Lock conflict: 409. Duplicate: the import error `MenuImporter::CONCURRENT_CREATE_ERROR`, nothing imported |
-| Live item form `save` | One write unit | Single row | 409 |
+| Live item form `save` | One write unit | Edit: `PESSIMISTIC_WRITE` on the item row, then the `baseVersion` LiveProp (the version of the first render) against the stored `edit_version`; new item: the `submitToken` LiveProp, unique `submit_token` (2.24) | 409; stale or posted twice: the same flashes as the forms |
 | `MenuImporter::import()` called by host code | One write unit | As `import` | `TransientStorageFailure` (the host answers) |
 
 `items_check_parent_cycles`, the exports and every GET page only read. `grep -rn "flush()" src/` finds only flushes
@@ -106,6 +107,31 @@ error page (rule 6):
   the logs; no SQL or value reaches the client.
 - Unique-constraint violations and lost connections are not conflicts: they are never mapped here (see below).
 
+## Stale edits and double submits (2.24)
+
+Rule 4 asks for a deliberate control on every read-modify-write. The tree positions are written under the menu lock
+(above); the form fields and the creation of items have their own, added in 2.24:
+
+- **`edit_version`** on `dashboard_menu` and `dashboard_menu_item` (integer, default 1). The edit forms carry the
+  version they were built from in the hidden `_base_version` (in the Live item form it is the `baseVersion` LiveProp, so
+  a re-render cannot refresh it). Inside the write unit, after the menu lock, the save reads the stored version from the
+  database, never from the unit of work (`MenuRepository::storedEditVersion()`, `MenuItemRepository::storedEditVersion()`,
+  `PESSIMISTIC_WRITE`), and `EditVersion::assertCurrent()` compares: any other value, a missing field or a missing row is
+  a `StaleEditException`. Nothing is saved, the unsaved entity is detached (a later flush cannot store it; the manager
+  is never cleared or reset), and the admin gets a flash and the menu page. This is a **domain answer**, not
+  `CONFLICT_001` / `CONFLICT_002`: nothing failed, the form was simply older than the data.
+- The version is bumped together with the form's own changes **before** the write unit starts. The unit computes the
+  change sets of the managed menu entities when it begins (to refuse host changes), and Doctrine keeps only the latest
+  change set of an entity: a bump made inside the unit would replace the form's changes.
+- Item positions (move up / down, re-index, drag and drop, the append of a new item) do not change `edit_version`, so
+  reordering by one admin does not make another admin's open edit form stale. The import "replace" bumps the menu's
+  version (its fields are overwritten).
+- **`submit_token`** (nullable, unique) on `dashboard_menu_item`. A new-item form carries a random one-time
+  `_submit_token`; the created item stores it. Inside the unit, after the menu lock, a token that is already stored means
+  the same form was posted before: nothing is added and the admin sees "Item already created". A unique violation of
+  the same key (two posts that both passed the check; the check cannot see an uncommitted row) gets the same answer.
+  Items created without a token (import, copy, host code, a form rendered before 2.24) are created as before.
+
 ## Unique code and context
 
 A menu is unique by code and context (`uniq_menu_code_context`). The dashboard and the importer check first, and the
@@ -166,7 +192,9 @@ With the bundle's own manager, that manager is closed and reset after a storage 
     nothing;
   - a concurrent create of the same code and context, from the importer and from the dashboard form: the domain answer,
     no conflict code, nothing half-imported;
-  - after every conflict the manager is open and the connection is usable at nesting level 0.
+  - after every conflict the manager is open and the connection is usable at nesting level 0;
+  - 2.24: a double submit of the new-item form while the first holds the menu (409 `CONFLICT_001`, then one item); a stale
+    item edit and a stale menu edit: the other admin's save stays, a form read afterwards saves, no conflict code.
 - CI job **Databases (MySQL 8.4, MariaDB 11.4, PostgreSQL 16)** on DBAL 4 and DBAL 3, run with
   `--group database --fail-on-skipped`, a required check on `main`. Locally:
   `DM_MYSQL_URL=… DM_MARIADB_URL=… DM_POSTGRES_URL=… vendor/bin/phpunit --group database`.
@@ -175,13 +203,8 @@ With the bundle's own manager, that manager is closed and reset after a storage 
 
 ## Residual risks
 
-- **Lost update on concurrent form edits.** Two admins editing the same menu or item fields at the same time: the last
-  save wins. There is no version column (it would need a schema migration); the forms are admin-only and rarely edited
-  at once. The tree positions are not affected (they are written under the menu lock).
 - **Writers outside the bundle.** Host code that writes `dashboard_menu_item` positions directly without
   `MenuRepository::lockForWrite()` is not serialised with the dashboard.
 - **Nested in a host transaction.** When the host runs a dashboard write inside its own open transaction, the unit is a
   savepoint: the menu lock is held until the host commits, the after-commit cache bump waits for a later unit (or the
   cache TTL), and under REPEATABLE READ the positions come from the host transaction's snapshot.
-- **Double submit.** A form posted twice (double click, browser retry) creates two items: the dashboard has no
-  idempotency key (admin-only HTML forms).

@@ -128,6 +128,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **A form posted twice no longer creates two items** (REQ-RUNTIME-003 rule 4). The new-item form (dashboard, and the Live form for a new item) carries a one-time `_submit_token`; the item stores it in the unique `submit_token`. Inside the write unit, after the menu lock, a token already stored answers "Item already created" (a flash, nothing added), and a unique violation of the same key (a race the check cannot see) gets the same answer. No conflict code: it is a domain answer.
+- **Field edits are no longer last-save-wins.** `dashboard_menu` and `dashboard_menu_item` get an `edit_version`. The edit forms (menu, item, and the Live item form) carry the version they were built from (`_base_version`, a LiveProp in the Live form), and the save compares it, inside the write unit with the row locked, to the stored version read from the database. A different one means another admin saved meanwhile: nothing is saved, the unsaved entity is dropped from the manager, the admin sees "changed by someone else" and the menu page shows the stored state (a domain answer, no `CONFLICT_*` code). Item positions (move, re-index, drag and drop) do not change the version; the import "replace" bumps the menu's.
+- The version is bumped together with the form's own changes, before the write unit starts: the unit computes the managed entities' change sets when it begins, and a change made after that would replace them.
+
+### Added
+
+- `Concurrency\EditVersion` (posted-version and token parsing, the stale check) and `Concurrency\StaleEditException`; `MenuRepository::storedEditVersion()`, `MenuItemRepository::storedEditVersion()` (read under `PESSIMISTIC_WRITE`) and `MenuItemRepository::submitTokenExists()`.
+- Schema (see UPGRADING): `dashboard_menu.edit_version`, `dashboard_menu_item.edit_version`, `dashboard_menu_item.submit_token` with the unique index `uniq_menu_item_submit_token`; `nowo_dashboard_menu:generate-migration --update` adds them; the demo gets a migration.
+
+### Tests
+
+- `tests/Integration/Database/DatabaseConcurrencyTest.php` (group `database`, MySQL, MariaDB, PostgreSQL, two connections): a double submit of the new-item form while the first holds the menu (409 `CONFLICT_001`, then one item), a stale item edit and a stale menu edit (the other admin's save stays, a form read afterwards saves).
+
 ## [2.23.0] - 2026-11-18
 
 ### Added
