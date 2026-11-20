@@ -13,14 +13,14 @@
         {% set localeTree = dashboard_menu_tree('locale_switcher') %}
         {% if localeTree is not empty %}
             <nav aria-label="{{ 'demo.language'|trans({}, _demo_domain) }}">
-                {% include '@NowoDashboardMenuBundle/menu.html.twig' with { menuTree: localeTree, menuCode: 'locale_switcher', menuConfig: dashboard_menu_config('locale_switcher') } %}
+                {% include '_menu.html.twig' with {tree: localeTree, code: 'locale_switcher', config: dashboard_menu_config('locale_switcher'), variant: 'bar'} %}
             </nav>
         {% endif %}
         <a href="{{ path('nowo_dashboard_menu_dashboard_index') }}" class="nowo-ui-btn nowo-ui-btn--outline nowo-ui-btn--sm">{{ 'demo.edit_menus'|trans({}, _demo_domain) }}</a>
         <details class="nowo-ui-menu">
             <summary class="nowo-ui-btn nowo-ui-btn--outline nowo-ui-btn--sm">{{ 'demo.user_menu'|trans({}, _demo_domain) }}</summary>
             <div class="nowo-ui-menu__panel nowo-ui-menu__panel--end">
-                {% include '@NowoDashboardMenuBundle/menu.html.twig' with { menuTree: dashboard_menu_tree('dropdown'), menuCode: 'dropdown', menuConfig: dashboard_menu_config('dropdown') } %}
+                {% include '_menu.html.twig' with {tree: dashboard_menu_tree('dropdown'), code: 'dropdown', config: dashboard_menu_config('dropdown'), variant: 'aside'} %}
             </div>
         </details>
     {% endset %}
@@ -28,11 +28,11 @@
         <div class="nowo-ui-aside__inner">
             <p class="nowo-ui-aside__label">{{ 'demo.sidebar'|trans({}, _demo_domain) }}</p>
             <nav class="nowo-ui-aside__nav" aria-label="{{ 'demo.sidebar'|trans({}, _demo_domain) }}">
-                {% include '@NowoDashboardMenuBundle/menu.html.twig' with { menuTree: dashboard_menu_tree('sidebar'), menuCode: 'sidebar', menuConfig: dashboard_menu_config('sidebar') } %}
+                {% include '_menu.html.twig' with {tree: dashboard_menu_tree('sidebar'), code: 'sidebar', config: dashboard_menu_config('sidebar'), variant: 'aside'} %}
             </nav>
             <p class="nowo-ui-aside__label">{{ 'demo.aside'|trans({}, _demo_domain) }}</p>
             <nav class="nowo-ui-aside__nav" aria-label="{{ 'demo.aside'|trans({}, _demo_domain) }}">
-                {% include '@NowoDashboardMenuBundle/menu.html.twig' with { menuTree: dashboard_menu_tree('aside'), menuCode: 'aside', menuConfig: dashboard_menu_config('aside') } %}
+                {% include '_menu.html.twig' with {tree: dashboard_menu_tree('aside'), code: 'aside', config: dashboard_menu_config('aside'), variant: 'aside'} %}
             </nav>
             <p class="nowo-ui-aside__label">{{ 'demo.admin'|trans({}, _demo_domain) }}</p>
             <nav class="nowo-ui-aside__nav">
@@ -42,7 +42,7 @@
     {% endset %}
     {% set _footer %}
         <footer class="nowo-ui-footer" role="contentinfo">
-            {% include '@NowoDashboardMenuBundle/menu.html.twig' with { menuTree: dashboard_menu_tree('footer'), menuCode: 'footer', menuConfig: dashboard_menu_config('footer') } %}
+            {% include '_menu.html.twig' with {tree: dashboard_menu_tree('footer'), code: 'footer', config: dashboard_menu_config('footer'), variant: 'bar'} %}
         </footer>
     {% endset %}
 
@@ -56,11 +56,6 @@
         </div>
     {{ include(nowo_ui_partial('app_shell_close'), {footer_html: _footer}) }}
     {% block nowo_ui_modals %}{% endblock %}
-{% endblock %}
-
-{% block nowo_ui_styles %}
-    {{ parent() }}
-    <link rel="stylesheet" href="{{ asset('demo-menu.css') }}">
 {% endblock %}
 
 {% block nowo_ui_scripts %}
