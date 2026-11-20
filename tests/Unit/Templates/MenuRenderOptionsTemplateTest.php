@@ -14,6 +14,7 @@ use function substr_count;
 
 /**
  * menu.html.twig render options (2.15.0): nested_group_display, group_children_marker, toggle_icon, group_classes;
+ * toggle_style (2.25.0: default | kit, UiKit's tree toggles);
  * nested_default (2.16.0, menu_collapse.nested_default): initial state of the nested collapsible groups.
  * With the defaults (or the options absent from menuConfig) the markup is byte-identical to the 2.14.2 template,
  * kept as tests/Fixtures/menu-2.14.2.html.twig: DashboardMenu is pinned by host apps that assert on that markup.
@@ -135,6 +136,36 @@ final class MenuRenderOptionsTemplateTest extends TestCase
         ]));
         self::assertStringNotContainsString('<path d="M2.5 5.5L8 11l5.5-5.5H2.5z"/>', $html);
         self::assertSame(4, substr_count($html, '<svg data-icon="tabler:chevron-down"></svg>'));
+    }
+
+    public function testKitToggleStyleUsesTheUiKitTreeToggles(): void
+    {
+        $html = $this->renderer()->render(self::MENU, self::context(true, false, true, ['toggle_style' => 'kit']));
+
+        // Nested toggles: UiKit's tree toggle draws the chevron (no framework classes, no inline SVG).
+        self::assertSame(4, substr_count($html, 'class="nowo-ui-tree__toggle menu-nested-toggle'));
+        self::assertStringNotContainsString('btn btn-link', $html);
+        self::assertSame(4, substr_count($html, '<span class="menu-nested-toggle-icon" aria-hidden="true"></span>'));
+        self::assertStringNotContainsString('<path d="M2.5 5.5L8 11l5.5-5.5H2.5z"/>', $html);
+        // Panels are hidden by UiKit until the collapse script (or the server) adds .show; aria-expanded is unchanged.
+        self::assertSame(4, substr_count($html, 'class="collapse nowo-ui-collapse show"'));
+        self::assertStringContainsString('aria-expanded="true"', $html);
+
+        // Link rows and a collapsible menu heading use the same chevron; the kit wins over toggle_icon.
+        $context                              = self::context(true, false, true, ['toggle_style' => 'kit', 'nested_group_display' => 'link_row', 'toggle_icon' => 'tabler:chevron-down']);
+        $context['menuConfig']['collapsible'] = true;
+        $html                                 = $this->renderer()->render(self::MENU, $context);
+        self::assertStringContainsString('<span class="nowo-ui-tree__toggle menu-group-chevron" aria-hidden="true"></span>', $html);
+        self::assertStringNotContainsString('data-icon="tabler:chevron-down"', $html);
+        self::assertStringContainsString('class="dashboard-menu-toggle nowo-ui-tree__disclosure"', $html);
+        self::assertStringContainsString('<span class="dashboard-menu-toggle-icon nowo-ui-tree__toggle" aria-hidden="true"></span>', $html);
+        self::assertStringNotContainsString('btn btn-link', $html);
+
+        // Any other value keeps the default markup.
+        self::assertSame(
+            $this->renderer()->render(self::MENU, self::context(true, false, true)),
+            $this->renderer()->render(self::MENU, self::context(true, false, true, ['toggle_style' => 'default'])),
+        );
     }
 
     public function testExpandedGlobalDefaultKeepsTheLegacyBytes(): void

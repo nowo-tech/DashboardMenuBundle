@@ -627,19 +627,21 @@ describe('dashboard entry', () => {
   });
 
   describe('UX Autocomplete bootstrap', () => {
-    it('registers the controller from the CDN once and injects the Tom Select stylesheet', async () => {
+    it('registers the controller from the CDN once and injects the Tom Select stylesheets of the config (no CDN CSS)', async () => {
       const register = vi.fn();
       window.Stimulus = { register, router: { elementConnected: vi.fn(), modulesByIdentifier: new Map() } };
       document.body.innerHTML = formHtml();
 
-      const { mod } = await boot({ itemFormPage: true });
+      const { mod } = await boot({ itemFormPage: true, tomSelectCssUrls: ['/bundles/nowouikit/css/vendor/tom-select.default.min.css', '/bundles/nowouikit/css/nowo-ui-tom-select.css', 'https://cdn.jsdelivr.net/x.css', '//cdn.example/x.css'] });
       await vi.waitFor(() => expect(register).toHaveBeenCalledTimes(1));
       mod.connectStimulusControllersInContainer(document.getElementById('modal-item-form-container'));
       await flush();
 
       expect(register).toHaveBeenCalledTimes(1);
       expect(register.mock.calls[0][0]).toBe('symfony--ux-autocomplete--autocomplete');
-      expect(document.querySelectorAll('link[data-dm-autocomplete-css="1"]')).toHaveLength(1);
+      const links = [...document.querySelectorAll<HTMLLinkElement>('link[data-dm-autocomplete-css="1"]')].map((l) => l.getAttribute('href'));
+      expect(links).toEqual(['/bundles/nowouikit/css/vendor/tom-select.default.min.css', '/bundles/nowouikit/css/nowo-ui-tom-select.css']);
+      expect(document.querySelector('link[href*="jsdelivr"]')).toBeNull();
     });
 
     it('does not inject the stylesheet when the host already has the Tom Select link', async () => {
@@ -647,10 +649,10 @@ describe('dashboard entry', () => {
       window.Stimulus = { register, router: { modulesByIdentifier: new Map() } };
       const host = document.createElement('link');
       host.rel = 'stylesheet';
-      host.href = 'https://cdn.jsdelivr.net/npm/tom-select@2.5.2/dist/css/tom-select.bootstrap5.css';
+      host.setAttribute('href', '/bundles/nowouikit/css/vendor/tom-select.default.min.css');
       document.head.appendChild(host);
 
-      await boot({});
+      await boot({ tomSelectCssUrls: ['/bundles/nowouikit/css/vendor/tom-select.default.min.css'] });
       await vi.waitFor(() => expect(register).toHaveBeenCalled());
 
       expect(document.querySelectorAll('link[data-dm-autocomplete-css="1"]')).toHaveLength(0);
