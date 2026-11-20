@@ -4,12 +4,13 @@
   "private": true,
   "packageManager": "pnpm@9.15.0",
   "scripts": {
-    "build": "VITE_ENTRY=dashboard vite build && VITE_ENTRY=stimulus-live vite build && VITE_ENTRY=menu-collapse vite build",
+    "build": "VITE_ENTRY=dashboard vite build && VITE_ENTRY=stimulus-live vite build && VITE_ENTRY=menu-collapse vite build && VITE_ENTRY=autocomplete vite build",
     "dev": "VITE_ENTRY=dashboard vite build --watch",
     "watch": "VITE_ENTRY=dashboard vite build --watch",
     "build:dashboard": "VITE_ENTRY=dashboard vite build",
     "build:stimulus-live": "VITE_ENTRY=stimulus-live vite build",
     "build:menu-collapse": "VITE_ENTRY=menu-collapse vite build",
+    "build:autocomplete": "VITE_ENTRY=autocomplete vite build",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest"
@@ -18,9 +19,13 @@
     "sortablejs": "^1.15.7"
   },
   "devDependencies": {
+    "@hotwired/stimulus": "3.2.2",
+    "@symfony/ux-autocomplete": "2.36.2",
+    "@symfony/ux-live-component": "2.36.2",
     "@types/sortablejs": "^1.15.9",
     "@vitest/coverage-v8": "^5.1.0",
     "happy-dom": "^21.0.4",
+    "tom-select": "2.7.0",
     "typescript": "^5.9.3",
     "vite": "^8.3.4",
     "vitest": "^5.1.0"

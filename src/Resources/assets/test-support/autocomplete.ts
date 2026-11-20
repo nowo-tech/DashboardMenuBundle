@@ -1,2 +1,2 @@
-/** Test double of `https://esm.sh/@symfony/ux-autocomplete@2` (aliased in vitest.config.ts). */
+/** Test double of `/bundles/nowodashboardmenu/js/autocomplete.js` (aliased in vitest.config.ts). */
 export default class AutocompleteController {}

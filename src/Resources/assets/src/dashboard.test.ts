@@ -627,19 +627,35 @@ describe('dashboard entry', () => {
   });
 
   describe('UX Autocomplete bootstrap', () => {
-    it('registers the controller from the CDN once and injects the Tom Select stylesheet', async () => {
+    const SCRIPT = '/bundles/nowodashboardmenu/js/autocomplete.js';
+    const CSS = ['/bundles/nowouikit/css/vendor/tom-select.default.min.css', '/bundles/nowouikit/css/nowo-ui-tom-select.css'];
+
+    it('registers the bundled controller once and injects the local Tom Select stylesheets (no CDN)', async () => {
       const register = vi.fn();
       window.Stimulus = { register, router: { elementConnected: vi.fn(), modulesByIdentifier: new Map() } };
       document.body.innerHTML = formHtml();
 
-      const { mod } = await boot({ itemFormPage: true });
+      const { mod } = await boot({ itemFormPage: true, autocompleteScriptUrl: SCRIPT, tomSelectCssUrls: [...CSS, 'https://cdn.jsdelivr.net/x.css', '//cdn.example/x.css'] });
       await vi.waitFor(() => expect(register).toHaveBeenCalledTimes(1));
       mod.connectStimulusControllersInContainer(document.getElementById('modal-item-form-container'));
       await flush();
 
       expect(register).toHaveBeenCalledTimes(1);
       expect(register.mock.calls[0][0]).toBe('symfony--ux-autocomplete--autocomplete');
-      expect(document.querySelectorAll('link[data-dm-autocomplete-css="1"]')).toHaveLength(1);
+      expect(register.mock.calls[0][1].name).toBe('AutocompleteController');
+      const links = [...document.querySelectorAll<HTMLLinkElement>('link[data-dm-autocomplete-css="1"]')].map((l) => l.getAttribute('href'));
+      expect(links).toEqual(CSS);
+      expect(document.querySelector('link[href*="jsdelivr"], link[href*="esm.sh"], style')).toBeNull();
+    });
+
+    it('refuses an absolute or protocol-relative script URL and never imports it', async () => {
+      const register = vi.fn();
+      window.Stimulus = { register, router: { modulesByIdentifier: new Map() } };
+      for (const url of ['https://esm.sh/@symfony/ux-autocomplete@2', '//cdn.example/a.js', 'data:text/javascript,1']) {
+        await boot({ autocompleteScriptUrl: url });
+        await flush();
+      }
+      expect(register).not.toHaveBeenCalled();
     });
 
     it('does not inject the stylesheet when the host already has the Tom Select link', async () => {
@@ -647,10 +663,10 @@ describe('dashboard entry', () => {
       window.Stimulus = { register, router: { modulesByIdentifier: new Map() } };
       const host = document.createElement('link');
       host.rel = 'stylesheet';
-      host.href = 'https://cdn.jsdelivr.net/npm/tom-select@2.5.2/dist/css/tom-select.bootstrap5.css';
+      host.setAttribute('href', CSS[0]);
       document.head.appendChild(host);
 
-      await boot({});
+      await boot({ autocompleteScriptUrl: SCRIPT, tomSelectCssUrls: [CSS[0]] });
       await vi.waitFor(() => expect(register).toHaveBeenCalled());
 
       expect(document.querySelectorAll('link[data-dm-autocomplete-css="1"]')).toHaveLength(0);
@@ -663,7 +679,7 @@ describe('dashboard entry', () => {
       const register = vi.fn();
       window.Stimulus = { register, router: { modulesByIdentifier: new Map() } };
 
-      await boot({});
+      await boot({ autocompleteScriptUrl: SCRIPT, tomSelectCssUrls: CSS });
       await vi.waitFor(() => expect(register).toHaveBeenCalled());
 
       expect(document.querySelectorAll('link[data-dm-autocomplete-css="1"]')).toHaveLength(1);
@@ -682,23 +698,43 @@ describe('dashboard entry', () => {
     it('skips the bootstrap when it is disabled or the app cannot register yet', async () => {
       const register = vi.fn();
       window.Stimulus = { register, router: {} };
-      await boot({ autocompleteBootstrap: false });
+      await boot({ autocompleteBootstrap: false, autocompleteScriptUrl: '/bundles/nowodashboardmenu/js/autocomplete.js' });
       await flush();
       expect(register).not.toHaveBeenCalled();
 
       window.Stimulus = { router: {} };
+      await boot({ autocompleteScriptUrl: '/bundles/nowodashboardmenu/js/autocomplete.js' });
+      await flush();
+      expect(register).not.toHaveBeenCalled();
+    });
+
+    it('registers nothing when the bundled module has no controller as default export', async () => {
+      const register = vi.fn();
+      window.Stimulus = { register, router: { modulesByIdentifier: new Map() } };
+      vi.resetModules();
+      vi.doMock('../test-support/autocomplete', () => ({ default: undefined }));
+      island({ debug: true, autocompleteScriptUrl: '/bundles/nowodashboardmenu/js/autocomplete.js' });
+      await import('./dashboard');
+      await vi.waitFor(() => expect(console.warn).toHaveBeenCalled());
+      expect(register).not.toHaveBeenCalled();
+      vi.doUnmock('../test-support/autocomplete');
+    });
+
+    it('skips the bootstrap when the island carries no script URL', async () => {
+      const register = vi.fn();
+      window.Stimulus = { register, router: { modulesByIdentifier: new Map() } };
       await boot({});
       await flush();
       expect(register).not.toHaveBeenCalled();
     });
 
-    it('warns instead of failing when the CDN module cannot be loaded', async () => {
+    it('warns instead of failing when the bundled module cannot be loaded', async () => {
       window.Stimulus = { register: vi.fn(), router: {} };
       vi.resetModules();
       vi.doMock('../test-support/autocomplete', () => {
-        throw new Error('cdn down');
+        throw new Error('module unavailable');
       });
-      island({ debug: true });
+      island({ debug: true, autocompleteScriptUrl: '/bundles/nowodashboardmenu/js/autocomplete.js' });
       await import('./dashboard');
       await vi.waitFor(() => expect(console.warn).toHaveBeenCalled());
       vi.doUnmock('../test-support/autocomplete');

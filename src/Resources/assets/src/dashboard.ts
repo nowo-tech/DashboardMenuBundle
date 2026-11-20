@@ -51,8 +51,12 @@ export interface NowoDashboardMenuConfig {
   appRoutes?: Record<string, { params?: string[] }>;
   debug?: boolean;
   cssFramework?: string;
-  /** dashboard.autocomplete_bootstrap (2.3.2): false = never load UX Autocomplete / Tom Select CSS from a CDN. */
+  /** dashboard.autocomplete_bootstrap (2.3.2): false = never register the bundled UX Autocomplete controller. */
   autocompleteBootstrap?: boolean;
+  /** 2.25.0: same-origin URL of the bundled UX Autocomplete module (js/autocomplete.js); no CDN. */
+  autocompleteScriptUrl?: string;
+  /** 2.25.0: Tom Select stylesheets injected with the bootstrapped controller (UiKit's asset package; no CDN). */
+  tomSelectCssUrls?: string[];
   /** 2.7: translated dialog strings (loading, errorLoadingForm). */
   i18n?: Record<string, string>;
   /** 2.7: icon-selector script URL (dashboard.icon_selector_script_url) for re-init in loaded dialog bodies. */
@@ -81,24 +85,29 @@ function describeStimulusAppLike(app: StimulusAppLike | null): Record<string, bo
   };
 }
 
+let tomSelectCssUrls: string[] = [];
+let autocompleteScriptUrl = '';
+
+/** Only same-origin (relative or root-relative) URLs are accepted: absolute and protocol-relative ones are refused. */
+const isLocalUrl = (u: unknown): u is string => typeof u === 'string' && u !== '' && !/^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(u);
+
+/** 2.25.0: injects the Tom Select stylesheets of the config island (UiKit's vendored theme + its token layer), never a CDN. */
 function ensureTomSelectCssLoaded(): void {
   if (typeof document === 'undefined') return;
-  const existing = document.querySelector('link[data-dm-autocomplete-css="1"]');
-  if (existing) {
+  if (document.querySelector('link[data-dm-autocomplete-css="1"]')) {
     log.debug('Tom Select CSS already loaded.');
     return;
   }
-  const href = 'https://cdn.jsdelivr.net/npm/tom-select@2.5.2/dist/css/tom-select.bootstrap5.css';
-  if (document.querySelector(`link[href="${href}"]`)) {
-    log.debug('Tom Select CSS found in document head.');
-    return;
+  const head = document.head ?? document.documentElement;
+  for (const href of tomSelectCssUrls) {
+    if (document.querySelector(`link[href="${href}"]`)) continue;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = href;
+    link.dataset.dmAutocompleteCss = '1';
+    head.appendChild(link);
+    log.debug('Tom Select CSS injected by dashboard script.', { href });
   }
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = href;
-  link.dataset.dmAutocompleteCss = '1';
-  (document.head ?? document.documentElement).appendChild(link);
-  log.debug('Tom Select CSS injected by dashboard script.', { href });
 }
 
 async function ensureAutocompleteControllerRegistered(): Promise<void> {
@@ -120,9 +129,16 @@ async function ensureAutocompleteControllerRegistered(): Promise<void> {
         return;
       }
 
-      const mod = await import('https://esm.sh/@symfony/ux-autocomplete@2');
-      const controllerCtor = (mod as { default?: unknown }).default ?? mod;
-      if (!controllerCtor) return;
+      if (!autocompleteScriptUrl) {
+        log.debug('Autocomplete bootstrap skipped: no local autocomplete script URL in the config island.');
+        return;
+      }
+      const mod = await import(/* @vite-ignore */ autocompleteScriptUrl);
+      const controllerCtor = (mod as { default?: unknown }).default;
+      if (typeof controllerCtor !== 'function') {
+        log.warn('Autocomplete bootstrap skipped: the bundled module has no controller as default export.');
+        return;
+      }
 
       app.register(AUTOCOMPLETE_IDENTIFIER, controllerCtor);
       ensureTomSelectCssLoaded();
@@ -678,6 +694,8 @@ function run(): void {
   );
   if (!config) return;
   autocompleteBootstrapEnabled = config.autocompleteBootstrap !== false;
+  autocompleteScriptUrl = isLocalUrl(config.autocompleteScriptUrl) ? config.autocompleteScriptUrl : '';
+  tomSelectCssUrls = Array.isArray(config.tomSelectCssUrls) ? config.tomSelectCssUrls.filter(isLocalUrl) : [];
   if (typeof document !== 'undefined' && !window.__dmTomSelectModalPatchBound) {
     window.__dmTomSelectModalPatchBound = true;
     document.addEventListener('dashboard-menu:modal-content-loaded', (ev) => {

@@ -2,13 +2,16 @@
   Scripts of every dashboard page (rendered in nowo_ui_scripts after the layout's own scripts): the CSP-safe JSON
   config island (#nowo-dashboard-menu-config, REQ-CSP-001: page data + translated dialog strings), the optional
   Stimulus / icon-selector scripts (dashboard.stimulus_script_url, dashboard.icon_selector_script_url) and
-  dashboard.js (dialog openers, item form toggles, sortable tree). No inline code, no CDN by default.
+  dashboard.js (dialog openers, item form toggles, sortable tree). No inline code, no CDN: the UX Autocomplete module
+  is the bundle's own js/autocomplete.js and the Tom Select stylesheets come from UiKit's asset package (2.25.0).
 
   Variables: page_config (map merged into the island), stimulus_script_url, icon_selector_script_url.
 #}
 {% set _dm_nonce = app is defined and app and app.request ? app.request.attributes.get('csp_nonce')|default('') : '' %}
 {% set _dm_config = {
     autocompleteBootstrap: nowo_dashboard_menu_autocomplete_bootstrap ?? true,
+    autocompleteScriptUrl: asset('js/autocomplete.js', 'nowo_dashboard_menu'),
+    tomSelectCssUrls: [asset('css/vendor/tom-select.default.min.css', 'nowo_ui_kit'), asset('css/nowo-ui-tom-select.css', 'nowo_ui_kit')],
     iconSelectorScriptUrl: icon_selector_script_url|default(null) ? ((icon_selector_script_url starts with 'http') ? icon_selector_script_url : asset(icon_selector_script_url)) : null,
     i18n: {
         loading: 'dashboard.loading'|trans({}, 'NowoDashboardMenuBundle'),

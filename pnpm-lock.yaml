@@ -12,6 +12,15 @@ importers:
         specifier: ^1.15.7
         version: 1.15.7
     devDependencies:
+      '@hotwired/stimulus':
+        specifier: 3.2.2
+        version: 3.2.2
+      '@symfony/ux-autocomplete':
+        specifier: 2.36.2
+        version: 2.36.2(@hotwired/stimulus@3.2.2)(tom-select@2.7.0)
+      '@symfony/ux-live-component':
+        specifier: 2.36.2
+        version: 2.36.2(@hotwired/stimulus@3.2.2)
       '@types/sortablejs':
         specifier: ^1.15.9
         version: 1.15.9
@@ -21,6 +30,9 @@ importers:
       happy-dom:
         specifier: ^21.0.4
         version: 21.0.4
+      tom-select:
+        specifier: 2.7.0
+        version: 2.7.0
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -54,6 +66,9 @@ packages:
     resolution: {integrity: sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA==}
     engines: {node: '>=18'}
 
+  '@hotwired/stimulus@3.2.2':
+    resolution: {integrity: sha512-eGeIqNOQpXoPAIP7tC1+1Yc1yl1xnwYqg+3mzqxyrbE5pg5YFBZcA6YoTiByJB6DKAEsiWtl6tjTJS4IYtbB7A==}
+
   '@jridgewell/resolve-uri@3.1.3':
     resolution: {integrity: sha512-lhTtjtoEArWBjismtfS761S9Hlyn+nIZqOZVYoZ1Xn82PMNMVnk+jj/NhC4fAXGTs7ydONcJiR5vyQBTMDu27g==}
     engines: {node: '>=6.0.0'}
@@ -63,6 +78,12 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@orchidjs/sifter@1.1.0':
+    resolution: {integrity: sha512-mYwHCfr736cIWWdhhSZvDbf90AKt2xyrJspKFC3qyIJG1LtrJeJunYEqCGG4Aq2ijENbc4WkOjszcvNaIAS/pQ==}
+
+  '@orchidjs/unicode-variants@1.2.2':
+    resolution: {integrity: sha512-Tfdm/fa2NN+75KwtkjpdOvUeaBOgZlyo08Ngb3m6UXe4ACPcKlgnX32vAI5lp39tlLdv2tXiRW0PPdbWyM5ieA==}
 
   '@oxc-project/types@0.154.0':
     resolution: {integrity: sha512-KYOUGQFlLWR+s4QMV2Q9ko38TZm7EdO87Qm7rvZLqk/webse/cDjtyxKhg/47l0byCbs/k46LT8qc4PKjAikzA==}
@@ -159,6 +180,17 @@ packages:
 
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
+
+  '@symfony/ux-autocomplete@2.36.2':
+    resolution: {integrity: sha512-/YjKXMQaGoO8joXNTtOqIWrHZa30HttYsazcDRCkwj9PYOq5gP/r/ZxcsL23xIvmhNXk6q4uYsORf8oDWRtyzQ==}
+    peerDependencies:
+      '@hotwired/stimulus': ^3.0.0
+      tom-select: ^2.2.2
+
+  '@symfony/ux-live-component@2.36.2':
+    resolution: {integrity: sha512-hK6YRg1/AqJSocyaVZOW7zCkMmhY/8eIFO/KpViC/H62BEs4tznBTaEvFrqN15I/YYb4EVQ0+5rGMhcuxjcE2Q==}
+    peerDependencies:
+      '@hotwired/stimulus': ^3.0.0
 
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
@@ -393,6 +425,9 @@ packages:
     resolution: {integrity: sha512-LgO3D9yZJjApUiuUfl9iFAwrtaX4+lok3wJIqttGoKCHlWUqHqbQpnxCf82L8FjgKsh4iGo78hqJwgL8F6To2A==}
     engines: {node: '>=14.0.0'}
 
+  tom-select@2.7.0:
+    resolution: {integrity: sha512-i/iuTfrzYfGPAILfgPdU9/CCSm8XcnomjO2bHjAcFQPV7od0ghVngjaMfB5x5Agkrpe+49/tK6soegrwWyi6Lg==}
+
   typescript@5.9.3:
     resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
     engines: {node: '>=14.17'}
@@ -523,6 +558,8 @@ snapshots:
 
   '@bcoe/v8-coverage@1.0.2': {}
 
+  '@hotwired/stimulus@3.2.2': {}
+
   '@jridgewell/resolve-uri@3.1.3': {}
 
   '@jridgewell/sourcemap-codec@1.6.0': {}
@@ -531,6 +568,12 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.3
       '@jridgewell/sourcemap-codec': 1.6.0
+
+  '@orchidjs/sifter@1.1.0':
+    dependencies:
+      '@orchidjs/unicode-variants': 1.2.2
+
+  '@orchidjs/unicode-variants@1.2.2': {}
 
   '@oxc-project/types@0.154.0': {}
 
@@ -580,6 +623,15 @@ snapshots:
     optional: true
 
   '@rolldown/pluginutils@1.0.1': {}
+
+  '@symfony/ux-autocomplete@2.36.2(@hotwired/stimulus@3.2.2)(tom-select@2.7.0)':
+    dependencies:
+      '@hotwired/stimulus': 3.2.2
+      tom-select: 2.7.0
+
+  '@symfony/ux-live-component@2.36.2(@hotwired/stimulus@3.2.2)':
+    dependencies:
+      '@hotwired/stimulus': 3.2.2
 
   '@types/chai@5.2.3':
     dependencies:
@@ -789,6 +841,11 @@ snapshots:
       picomatch: 4.0.7
 
   tinyrainbow@3.2.0: {}
+
+  tom-select@2.7.0:
+    dependencies:
+      '@orchidjs/sifter': 1.1.0
+      '@orchidjs/unicode-variants': 1.2.2
 
   typescript@5.9.3: {}
 

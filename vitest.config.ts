@@ -9,11 +9,13 @@ const stub = (file: string): string => fileURLToPath(new URL(`./src/Resources/as
  */
 export default defineConfig({
   resolve: {
-    // The entries import Stimulus and the UX controllers from esm.sh at runtime: tests use local doubles.
+    // The entries bundle Stimulus and the UX controllers at build time; tests use local doubles. The autocomplete module is
+    // imported by its published (same-origin) URL at runtime, so that URL is aliased to the double too.
     alias: {
-      'https://esm.sh/@hotwired/stimulus@3': stub('stimulus.ts'),
-      'https://esm.sh/@symfony/ux-live-component@2': stub('live-controller.ts'),
-      'https://esm.sh/@symfony/ux-autocomplete@2': stub('autocomplete.ts'),
+      '@hotwired/stimulus': stub('stimulus.ts'),
+      '@symfony/ux-live-component': stub('live-controller.ts'),
+      '/bundles/nowodashboardmenu/js/autocomplete.js': stub('autocomplete.ts'),
+      '@symfony/ux-autocomplete': stub('autocomplete.ts'),
       sortablejs: stub('sortable.ts'),
     },
   },

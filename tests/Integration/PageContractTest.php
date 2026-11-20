@@ -25,9 +25,15 @@ use function array_values;
 use function assert;
 use function dirname;
 use function htmlspecialchars;
+use function json_decode;
 use function json_encode;
+use function ltrim;
+use function preg_match;
+use function str_contains;
 use function strpos;
 use function substr_count;
+
+use const JSON_THROW_ON_ERROR;
 
 /**
  * REQ-UI-003: every dashboard page extends a UiKit scaffold (or is the declared unique reorder page), fills the
@@ -115,6 +121,34 @@ final class PageContractTest extends PageContractTestCase
         self::assertStringContainsString('"dashboardBase":"/admin/menus"', $html);
         self::assertStringContainsString('js/dashboard.js', $html);
         self::assertStringContainsString('css/dashboard.css', $html);
+    }
+
+    /**
+     * 2.25.0: the autocomplete module and the Tom Select stylesheets are local assets; no page loads code or styles
+     * from another origin and none adds a <style> element of its own.
+     */
+    #[DataProvider('translationPages')]
+    public function testPageLoadsNoExternalOriginAndInjectsNoStyle(PageFixture $fixture): void
+    {
+        $html = $this->renderPage($fixture)->html;
+
+        self::assertSame(0, preg_match('#<(?:script|link|iframe|img)\b[^>]*\b(?:src|href)="(?:[a-z][a-z0-9+.-]*:)?//#i', $html), 'No external script, stylesheet or frame.');
+        self::assertStringNotContainsString('esm.sh', $html);
+        self::assertStringNotContainsString('jsdelivr', $html);
+        // The only <style> a page may carry is UiKit's own theme-token block; the bundle adds none.
+        self::assertSame(0, preg_match('#<style\b(?![^>]*data-nowo-ui-theme-tokens)#i', $html), 'No <style> element besides the UiKit theme tokens.');
+
+        if (str_contains($html, 'id="nowo-dashboard-menu-config"')) {
+            self::assertSame(1, preg_match('#id="nowo-dashboard-menu-config">(.*?)</script>#s', $html, $m));
+            $config = json_decode($m[1], true, flags: JSON_THROW_ON_ERROR);
+            self::assertIsArray($config);
+            self::assertStringContainsString('js/autocomplete.js', (string) $config['autocompleteScriptUrl']);
+            self::assertStringNotContainsString('//', ltrim((string) $config['autocompleteScriptUrl'], '/'));
+            foreach ($config['tomSelectCssUrls'] as $url) {
+                self::assertStringStartsWith('/', (string) $url);
+                self::assertStringNotContainsString('//', ltrim((string) $url, '/'));
+            }
+        }
     }
 
     public function testMenusListRendersTheConfiguredIntroInThePageHeader(): void

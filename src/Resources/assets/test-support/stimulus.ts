@@ -1,4 +1,4 @@
-/** Test double of `https://esm.sh/@hotwired/stimulus@3` (aliased in vitest.config.ts). */
+/** Test double of `@hotwired/stimulus` (aliased in vitest.config.ts). */
 export class Application {
   static started: Application[] = [];
   readonly registered: Array<[string, unknown]> = [];
