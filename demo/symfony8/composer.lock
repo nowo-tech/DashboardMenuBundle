@@ -1128,7 +1128,7 @@
             "dist": {
                 "type": "path",
                 "url": "/var/dashboard-menu-bundle",
-                "reference": "f546725e979648bae9e9df8a87a438607347549c"
+                "reference": "97f94e08403c4dc8ca7834f42a838a16745251a0"
             },
             "require": {
                 "doctrine/doctrine-bundle": "^2.8 || ^3.0",
@@ -1677,12 +1677,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/nowo-tech/UiKitBundle",
-                "reference": "1a9f2a624c29b30bc1a1071057341587972b1e61"
+                "reference": "eb45f2352d47d04d6a6c9b96a432cefc0595c76a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nowo-tech/UiKitBundle/zipball/1a9f2a624c29b30bc1a1071057341587972b1e61",
-                "reference": "1a9f2a624c29b30bc1a1071057341587972b1e61",
+                "url": "https://api.github.com/repos/nowo-tech/UiKitBundle/zipball/eb45f2352d47d04d6a6c9b96a432cefc0595c76a",
+                "reference": "eb45f2352d47d04d6a6c9b96a432cefc0595c76a",
                 "shasum": ""
             },
             "require": {
@@ -1827,7 +1827,7 @@
                 "source": "https://github.com/nowo-tech/UiKitBundle",
                 "docs": "https://github.com/nowo-tech/UiKitBundle/tree/main/docs"
             },
-            "time": "2026-11-20T18:17:09+00:00"
+            "time": "2026-11-20T19:25:38+00:00"
         },
         {
             "name": "pentatrion/vite-bundle",
