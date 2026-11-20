@@ -1,62 +1,39 @@
-{#- REQ-DEMO-014: the demo shell is UiKit's admin layout with UiKit's signed-in app shell (header, aside, footer) and
-    UiKit's default theme (nowo-ui.css from the bundle's own asset package, no CSS framework, no CDN). The DashboardMenu
-    menus (sidebar, aside, footer, user dropdown, locale switcher) are rendered by the bundle's own menu template with
-    UiKit's semantic classes; the same layout also hosts the bundle's admin pages (nowo_ui_kit.layouts.admin, REQ-UI-003). -#}
-{% extends '@NowoUiKit/layout/admin.html.twig' %}
+{#- REQ-DEMO-014: the demo runs inside UiKit's shared demo platform shell (@NowoUiKit/demo_platform/layout.html.twig):
+    the same top bar, aside, content width, theme and footer as every other nowo-tech bundle demo. This file only
+    declares the demo (nowo_ui_demo_platform) and drops the menus this bundle renders into the shell's extension
+    block: the `dropdown` (user) menu in the top bar. The other menus render on the home page. The same layout
+    hosts the bundle's admin pages (nowo_ui_kit.layouts.admin, REQ-UI-003). -#}
+{% extends '@NowoUiKit/demo_platform/layout.html.twig' %}
 {% set _demo_domain = 'messages' %}
+{% set nowo_ui_demo_platform = {
+    bundle: 'Dashboard Menu',
+    home_route: 'app_home',
+    repository: 'https://github.com/nowo-tech/DashboardMenuBundle',
+    translation_domain: _demo_domain,
+    locales: [
+        {code: 'en', href: path('app_switch_locale', {_locale: 'en'})},
+        {code: 'es', href: path('app_switch_locale', {_locale: 'es'})},
+        {code: 'fr', href: path('app_switch_locale', {_locale: 'fr'})},
+    ],
+    nav: [
+        {label: 'demo.home', route: 'app_home'},
+        {label: 'demo.manage_menus', route: 'nowo_dashboard_menu_dashboard_index', active: ['nowo_dashboard_menu_dashboard*'], section: 'demo.admin'},
+        {label: 'demo.new_menu', route: 'nowo_dashboard_menu_dashboard_menu_new', active: [], section: 'demo.admin'},
+        {label: 'demo.api_sidebar', href: path('nowo_dashboard_menu_api', {code: 'sidebar'}), section: 'demo.admin'},
+    ],
+} %}
 
 {% block nowo_ui_document_title %}{% block title %}{{ 'demo.app_title'|trans({}, _demo_domain) }}{% endblock %}{% endblock %}
 
-{% block nowo_ui_body %}
-    {% set _brand %}<a class="nowo-ui-brand" href="{{ path('app_home') }}">{{ 'demo.app_title_version'|trans({}, _demo_domain) }}</a>{% endset %}
-    {% set _header_end %}
-        {% set localeTree = dashboard_menu_tree('locale_switcher') %}
-        {% if localeTree is not empty %}
-            <nav aria-label="{{ 'demo.language'|trans({}, _demo_domain) }}">
-                {% include '_menu.html.twig' with {tree: localeTree, code: 'locale_switcher', config: dashboard_menu_config('locale_switcher'), variant: 'bar'} %}
-            </nav>
-        {% endif %}
-        <a href="{{ path('nowo_dashboard_menu_dashboard_index') }}" class="nowo-ui-btn nowo-ui-btn--outline nowo-ui-btn--sm">{{ 'demo.edit_menus'|trans({}, _demo_domain) }}</a>
-        <details class="nowo-ui-menu">
-            <summary class="nowo-ui-btn nowo-ui-btn--outline nowo-ui-btn--sm">{{ 'demo.user_menu'|trans({}, _demo_domain) }}</summary>
-            <div class="nowo-ui-menu__panel nowo-ui-menu__panel--end">
-                {% include '_menu.html.twig' with {tree: dashboard_menu_tree('dropdown'), code: 'dropdown', config: dashboard_menu_config('dropdown'), variant: 'aside'} %}
-            </div>
-        </details>
-    {% endset %}
-    {% set _aside %}
-        <div class="nowo-ui-aside__inner">
-            <p class="nowo-ui-aside__label">{{ 'demo.sidebar'|trans({}, _demo_domain) }}</p>
-            <nav class="nowo-ui-aside__nav" aria-label="{{ 'demo.sidebar'|trans({}, _demo_domain) }}">
-                {% include '_menu.html.twig' with {tree: dashboard_menu_tree('sidebar'), code: 'sidebar', config: dashboard_menu_config('sidebar'), variant: 'aside'} %}
-            </nav>
-            <p class="nowo-ui-aside__label">{{ 'demo.aside'|trans({}, _demo_domain) }}</p>
-            <nav class="nowo-ui-aside__nav" aria-label="{{ 'demo.aside'|trans({}, _demo_domain) }}">
-                {% include '_menu.html.twig' with {tree: dashboard_menu_tree('aside'), code: 'aside', config: dashboard_menu_config('aside'), variant: 'aside'} %}
-            </nav>
-            <p class="nowo-ui-aside__label">{{ 'demo.admin'|trans({}, _demo_domain) }}</p>
-            <nav class="nowo-ui-aside__nav">
-                <a class="nowo-ui-aside__link" href="{{ path('nowo_dashboard_menu_dashboard_index') }}">{{ 'demo.manage_menus'|trans({}, _demo_domain) }}</a>
-            </nav>
+{% block nowo_ui_demo_platform_header_end %}
+    <details class="nowo-ui-menu" data-testid="demo-user-menu">
+        <summary class="nowo-ui-btn nowo-ui-btn--outline nowo-ui-btn--sm">{{ 'demo.user_menu'|trans({}, _demo_domain) }}</summary>
+        <div class="nowo-ui-menu__panel nowo-ui-menu__panel--end">
+            {% include '_menu.html.twig' with {tree: dashboard_menu_tree('dropdown'), code: 'dropdown', config: dashboard_menu_config('dropdown'), variant: 'aside'} %}
         </div>
-    {% endset %}
-    {% set _footer %}
-        <footer class="nowo-ui-footer" role="contentinfo">
-            {% include '_menu.html.twig' with {tree: dashboard_menu_tree('footer'), code: 'footer', config: dashboard_menu_config('footer'), variant: 'bar'} %}
-        </footer>
-    {% endset %}
-
-    {{ include(nowo_ui_partial('app_shell_open'), {brand_html: _brand, header_end: _header_end, aside_html: _aside, content_width: 'full'}) }}
-        <div class="nowo-ui-content" id="nowo-ui-content"{% if nowo_ui_bundle|default(null) %} data-nowo-ui-bundle="{{ nowo_ui_bundle }}"{% endif %}>
-            {% block nowo_ui_page_header %}{% endblock %}
-            {% block nowo_ui_flashes %}
-                {{ include(nowo_ui_partial('flashes', nowo_ui_bundle|default(null)), {bundle: nowo_ui_bundle|default(null)}) }}
-            {% endblock %}
-            {% block nowo_ui_content %}{% block body %}{% endblock %}{% endblock %}
-        </div>
-    {{ include(nowo_ui_partial('app_shell_close'), {footer_html: _footer}) }}
-    {% block nowo_ui_modals %}{% endblock %}
+    </details>
 {% endblock %}
+
 
 {% block nowo_ui_scripts %}
     {{ parent() }}

@@ -419,7 +419,7 @@ final readonly class DashboardPages
         $actions = [
             new Action('export', $this->label('dashboard.export'), $this->url(DashboardRoutes::ROUTE_EXPORT_MENU, ['id' => $id]), variant: $this->variant('export'), attributes: ['target' => '_blank', 'rel' => 'noopener noreferrer']),
             $this->dialogAction('copy', 'dashboard.copy', $this->url(DashboardRoutes::ROUTE_MENU_COPY, ['id' => $id]), self::DIALOG_COPY, $this->variant('copy')),
-            $this->dialogAction('edit', 'dashboard.edit_menu', $this->url(DashboardRoutes::ROUTE_MENU_EDIT, ['id' => $id, 'section' => 'basic']), self::DIALOG_MENU, $this->variant('edit_menu', 'primary')),
+            $this->dialogAction('edit', 'dashboard.edit_menu', $this->url(DashboardRoutes::ROUTE_MENU_EDIT, ['id' => $id, 'section' => 'basic']), self::DIALOG_MENU, $this->variant('edit_menu', 'secondary')),
         ];
         if (!$menu->isBase()) {
             $actions[] = $this->dialogAction('config', 'dashboard.edit_config', $this->url(DashboardRoutes::ROUTE_MENU_EDIT, ['id' => $id, 'section' => 'config']), self::DIALOG_MENU, $this->variant('edit_config'));

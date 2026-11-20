@@ -1,5 +1,4 @@
 import './bootstrap.ts';
-import './app.css';
 
 // Re-expose Stimulus app so dashboard menu bundle (and any code running after this entry) can find it.
 if (typeof window !== 'undefined') {
