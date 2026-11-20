@@ -130,6 +130,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Menu render option `toggle_style` (`default` | `kit`, per include in `menuConfig`): `kit` renders the nested
+  toggles, the link-row chevrons and a collapsible menu heading with UiKit's tree toggle (`nowo-ui-tree__toggle`,
+  `nowo-ui-tree__disclosure`) and marks the panels `nowo-ui-collapse`, so hosts without Bootstrap get styled toggles
+  (needs UiKit 2.60 CSS). The default markup is byte-identical. See [USAGE](USAGE.md).
+
+### Changed
+
+- The bootstrapped Tom Select stylesheets now come from UiKit's asset package (`css/vendor/tom-select.default.min.css`
+  + `css/nowo-ui-tom-select.css`, config island `tomSelectCssUrls`) instead of jsDelivr; absolute or protocol-relative
+  URLs are refused.
+- Requires `nowo-tech/ui-kit-bundle` `^2.60` (the vendored Tom Select theme, the tree toggle classes).
+- Menu detail header: `edit_menu` defaults to the `secondary` variant, so `add_item` is the page's one primary action
+  (`dashboard.header_action_variants.edit_menu: primary` restores it).
+- Demo: runs inside UiKit's shared demo platform shell (`@NowoUiKit/demo_platform/layout.html.twig`); the home shows
+  one rendered menu example at a time in UiKit tabs, with the kit toggles.
+
 ## [2.24.1] - 2026-11-20
 
 ### Changed
