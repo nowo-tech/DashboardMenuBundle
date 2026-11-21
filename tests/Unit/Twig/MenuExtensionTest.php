@@ -39,12 +39,15 @@ final class MenuExtensionTest extends TestCase
     {
         $extension = $this->createExtension();
         $functions = $extension->getFunctions();
-        self::assertCount(4, $functions);
+        self::assertCount(7, $functions);
         $names = array_map(static fn (TwigFunction $f): string => $f->getName(), $functions);
         self::assertContains('dashboard_menu_tree', $names);
         self::assertContains('dashboard_menu_href', $names);
         self::assertContains('dashboard_menu_config', $names);
         self::assertContains('dashboard_menu_ui_class', $names);
+        self::assertContains('dashboard_menu_main', $names);
+        self::assertContains('dashboard_menu_footer', $names);
+        self::assertContains('dashboard_menu_section', $names);
     }
 
     public function testUiClassFallsBackToDefaultWithoutDashboardUiConfig(): void

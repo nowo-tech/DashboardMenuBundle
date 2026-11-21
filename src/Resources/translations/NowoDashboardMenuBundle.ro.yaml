@@ -98,6 +98,7 @@ dashboard:
   base: 'De bază'
   base_badge_title: 'Meniu de bază: codul nu poate fi modificat după creare.'
   toggle: 'Comută'
+  menu_footer_label: "Subsolul meniului"
   yes: 'Da'
   no: 'Nu'
   export: 'Exportă'

@@ -98,6 +98,7 @@ dashboard:
   base: 'Базове'
   base_badge_title: 'Базове меню: код не можна змінити після створення.'
   toggle: 'Перемкнути'
+  menu_footer_label: "Нижня частина меню"
   yes: 'Так'
   no: 'Ні'
   export: 'Експорт'

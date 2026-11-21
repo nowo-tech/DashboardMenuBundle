@@ -98,6 +98,7 @@ dashboard:
   base: Base
   base_badge_title: "Menu de base : le code ne peut pas être modifié après la création."
   toggle: Basculer
+  menu_footer_label: "Pied du menu"
   yes: Oui
   no: Non
   export: Exporter

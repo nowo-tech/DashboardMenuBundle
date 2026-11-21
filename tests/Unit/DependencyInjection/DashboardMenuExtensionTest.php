@@ -100,6 +100,20 @@ final class DashboardMenuExtensionTest extends TestCase
         self::assertSame('%' . Configuration::ALIAS . '.menu_collapse%', $arguments['$menuCollapse']);
     }
 
+    public function testMenuLayoutIsExposedAsAParameterAndInjectedIntoTheTwigExtension(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'prod');
+        $container->setParameter('kernel.bundles', []);
+
+        (new DashboardMenuExtension())->load([['menu_layout' => ['sidebar' => ['footer' => [['route' => 'app_help']]]]]], $container);
+
+        $layout = $container->getParameter(Configuration::ALIAS . '.menu_layout');
+        self::assertIsArray($layout);
+        self::assertSame('app_help', $layout['sidebar']['footer'][0]['route']);
+        self::assertSame('%' . Configuration::ALIAS . '.menu_layout%', $container->getDefinition(MenuExtension::class)->getArguments()['$menuLayout']);
+    }
+
     public function testConflictResponseFollowsTransactionDoctrineWhenUnset(): void
     {
         $policy = $this->conflictPolicyArgument([]);

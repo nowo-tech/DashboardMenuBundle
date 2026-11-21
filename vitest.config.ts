@@ -38,7 +38,7 @@ export default defineConfig({
       include: ['src/Resources/assets/src/**/*.ts'],
       exclude: ['**/*.test.ts', '**/node_modules/**', 'src/Resources/assets/test-support/**'],
       thresholds: {
-        'src/Resources/assets/src/{config,logger,menu-collapse,menu-collapse-boot}.ts': { lines: 100, functions: 100, branches: 100, statements: 100 },
+        'src/Resources/assets/src/{config,logger,menu-collapse,menu-collapse-boot,section-collapse}.ts': { lines: 100, functions: 100, branches: 100, statements: 100 },
         'src/Resources/assets/src/dashboard.ts': { lines: 95, functions: 95, branches: 85, statements: 95 },
         'src/Resources/assets/src/stimulus-live.ts': { lines: 95, functions: 95, branches: 70, statements: 90 },
       },

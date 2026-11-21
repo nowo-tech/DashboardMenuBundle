@@ -103,6 +103,15 @@ nowo_dashboard_menu:
             has_children: ['has-children', '']
             expanded: ['expanded', '']
             collapsed: ['collapsed', '']
+    # 2.26 layout: the "Footer links" section is pinned in a footer slot below the sidebar (menu_footer.html.twig),
+    # "Resources" starts collapsed and "External" open; the person's choice is remembered in localStorage.
+    menu_layout:
+        sidebar:
+            footer:
+                - { label: 'Footer links' }
+            sections:
+                - { label: 'Resources', collapsible: true, collapsed: true }
+                - { label: 'External', collapsible: true, collapsed: false }
     api:
         enabled: true
         path_prefix: /api/menu

@@ -98,6 +98,7 @@ dashboard:
   base: '기본'
   base_badge_title: '기본 메뉴: 생성 후에는 코드를 변경할 수 없습니다.'
   toggle: '전환'
+  menu_footer_label: "메뉴 푸터"
   yes: '예'
   no: '아니요'
   export: '내보내기'

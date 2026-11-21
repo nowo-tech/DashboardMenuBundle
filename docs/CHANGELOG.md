@@ -131,6 +131,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Footer slot: `nowo_dashboard_menu.menu_layout.<menu code>.footer` lists top-level items (selected by `route`, `label`
+  or `id`; a section moves with its children) that `menu.html.twig` leaves out and the new `menu_footer.html.twig`
+  renders in its own `<nav aria-label>` region, so a host can pin them (e.g. "Help") at the bottom of the sidebar
+  outside the scrolling sections. Twig helpers `dashboard_menu_main()`, `dashboard_menu_footer()`.
+- Per-section collapse: `menu_layout.<menu code>.sections` makes the selected sections collapsible
+  (`collapsible`, `collapsed` default state). The header is a `<button aria-expanded aria-controls>`, the panel gets
+  `hidden` when collapsed (the configured default is rendered server-side, no layout shift), and the person's choice is
+  remembered in `localStorage` (key `menu_layout.<code>.storage_key`, entries `<menu code>:<section id>`, every access
+  in try/catch, `""` disables it). A section holding the current item always opens on load. The script is the existing
+  `public/js/menu-collapse.js`. New Vitest and PHPUnit coverage; everything is opt-in and the default markup is unchanged.
+
 ## [2.25.0] - 2026-11-21
 
 ### Added

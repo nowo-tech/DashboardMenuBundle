@@ -10,6 +10,7 @@
 - [Nested collapse without Bootstrap JS](#nested-collapse-without-bootstrap-js)
   - [Initial state of nested groups (`nested_default`)](#initial-state-of-nested-groups-nested_default)
 - [Menu render options (link-row groups, dotted links, chevron icon)](#menu-render-options-link-row-groups-dotted-links-chevron-icon)
+- [Footer slot and collapsible sections](#footer-slot-and-collapsible-sections)
 - [Items with children (parent, link vs section)](#items-with-children-parent-link-vs-section)
 - [Resolving by context (context sets)](#resolving-by-context-context-sets)
 - [JSON API](#json-api)
@@ -300,6 +301,64 @@ button.menu-group-toggle[aria-expanded="false"] .menu-group-chevron { transform:
 ```
 
 The demo home page shows the sidebar menu with the three options (card "Render options").
+
+## Footer slot and collapsible sections
+
+Since **2.26.0**. Two opt-in layout features, configured per menu code under `nowo_dashboard_menu.menu_layout` (menus are
+stored in the database, so the config selects items by `route`, `label` or `id`). Without an entry for a menu, its
+markup is unchanged.
+
+```yaml
+nowo_dashboard_menu:
+    menu_layout:
+        sidebar:                     # menu code
+            footer:                  # pinned at the bottom of the sidebar
+                - { route: app_help }
+                - { label: Support }     # default label or any translation
+            sections:                # collapsible sections
+                - { label: Tools, collapsible: true, collapsed: true }
+                - { id: 12, collapsed: false }
+            storage_key: app.sidebar.sections   # default nowo.dashboardMenu.sectionCollapse; "" = do not remember
+```
+
+A selector may set `id`, `route` and `label`; all the keys it sets must match (at least one is required).
+
+### Footer slot
+
+`footer` takes top-level items (a link, or a whole section with its children). `menu.html.twig` leaves them out;
+`menu_footer.html.twig` renders them in `<nav class="dashboard-menu-footer" aria-label="...">` with a `<ul>` of the same
+item markup, so the host can keep them outside the scrolling region:
+
+```twig
+{% set tree = dashboard_menu_tree('sidebar') %}
+<aside class="sidebar d-flex flex-column vh-100">
+    <div class="sidebar-scroll flex-grow-1 overflow-auto">
+        {{ include('@NowoDashboardMenuBundle/menu.html.twig', { menuTree: tree, menuCode: 'sidebar' }) }}
+    </div>
+    {{ include('@NowoDashboardMenuBundle/menu_footer.html.twig', { menuTree: tree, menuCode: 'sidebar' }) }}
+</aside>
+```
+
+Pass the same `menuTree` to both. The footer renders nothing when no footer is configured. The accessible name is the
+`dashboard.menu_footer_label` translation ("Menu footer"), or the `menuFooterLabel` include variable. The footer uses the
+same links, icons and classes as the main list, so a collapsed (icon-only) or off-canvas mobile sidebar needs no
+special markup: put the footer inside whatever container the host collapses, as in the example.
+
+### Collapsible sections
+
+A listed section renders a heading `<button type="button" class="menu-section-label menu-section-toggle"
+aria-expanded aria-controls>` and a `<ul id="...-section">` panel, `hidden` while collapsed. Rules:
+
+- `collapsed` is the default state, rendered by the server (no layout shift); the person's choice is stored client-side
+  in `localStorage` under `storage_key` as `{ "<menu code>:<section id>": collapsed }` and wins over the default. Every
+  storage access is in try / catch (private mode, quota): without storage the configured default applies.
+- A section that holds the current item always opens on load, so a remembered "collapsed" never hides the current page.
+- The toggle is a native `<button>` (Enter / Space) and fires `dashboard-menu:section-toggle` (`detail: { key, collapsed }`).
+- The behaviour is in `public/js/menu-collapse.js` (include `_menu_collapse_script.html.twig` once per page, run
+  `assets:install`); it needs neither Bootstrap nor `menu_collapse.enabled`.
+- Style the state with `.menu-section-toggle.is-collapsed` (e.g. rotate `.menu-section-toggle-chevron`).
+- This is independent of the database-driven nested collapse (`sectionCollapsible`, `nested_collapsible`): a section
+  listed in `menu_layout` uses the markup above.
 
 ## Items with children (parent, link vs section)
 

@@ -98,6 +98,7 @@ dashboard:
   base: 'Bazowe'
   base_badge_title: 'Menu bazowe: kodu nie można zmienić po utworzeniu.'
   toggle: 'Przełącz'
+  menu_footer_label: "Stopka menu"
   yes: 'Tak'
   no: 'Nie'
   export: 'Eksportuj'

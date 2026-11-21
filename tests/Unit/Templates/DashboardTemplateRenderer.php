@@ -78,8 +78,9 @@ final readonly class DashboardTemplateRenderer
      * @param array<string, mixed> $ui dashboard.ui config
      * @param array<string, string> $hostTemplates extra templates (name => source), e.g. a host modal shell
      * @param array{enabled?: bool, mode?: string, storage_key?: string, nested_default?: string} $menuCollapse menu_collapse config (2.6.0)
+     * @param array<string, array<string, mixed>> $menuLayout menu_layout config (2.26.0)
      */
-    public function __construct(array $ui = [], array $hostTemplates = [], string $locale = 'en', ?string $viewsRoot = null, array $menuCollapse = [])
+    public function __construct(array $ui = [], array $hostTemplates = [], string $locale = 'en', ?string $viewsRoot = null, array $menuCollapse = [], array $menuLayout = [])
     {
         $root = dirname(__DIR__, 3);
 
@@ -177,7 +178,7 @@ final readonly class DashboardTemplateRenderer
         $app->setDebug(false);
         $this->twig->addGlobal('app', $app);
 
-        $this->twig->addExtension($this->menuExtension(new DashboardUiConfig($ui), $menuCollapse));
+        $this->twig->addExtension($this->menuExtension(new DashboardUiConfig($ui), $menuCollapse, $menuLayout));
         $this->twig->addGlobal('nowo_ui_kit_css_framework', 'bootstrap5');
 
         $this->formFactory = Forms::createFormFactory();
@@ -306,8 +307,9 @@ final readonly class DashboardTemplateRenderer
 
     /**
      * @param array{enabled?: bool, mode?: string, storage_key?: string, nested_default?: string} $menuCollapse
+     * @param array<string, array<string, mixed>> $menuLayout
      */
-    private function menuExtension(DashboardUiConfig $ui, array $menuCollapse = []): MenuExtension
+    private function menuExtension(DashboardUiConfig $ui, array $menuCollapse = [], array $menuLayout = []): MenuExtension
     {
         $menuRepo  = (new ReflectionClass(MenuRepository::class))->newInstanceWithoutConstructor();
         $itemRepo  = (new ReflectionClass(MenuItemRepository::class))->newInstanceWithoutConstructor();
@@ -372,6 +374,8 @@ final readonly class DashboardTemplateRenderer
             $ui,
             true,
             $menuCollapse,
+            [],
+            $menuLayout,
         );
     }
 }

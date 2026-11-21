@@ -19,6 +19,7 @@
   - [menu_link_resolver_choices](#menu_link_resolver_choices)
   - [api](#api)
   - [menu_collapse](#menu_collapse)
+  - [menu_layout](#menu_layout)
   - [web_ui](#web_ui)
   - [dashboard](#dashboard)
   - [css_class_options](#css_class_options)
@@ -363,6 +364,25 @@ nowo_dashboard_menu:
 ```
 
 The Twig global `nowo_dashboard_menu_collapse` exposes the resolved values (`enabled`, `mode`, `storage_key`, `nested_default`); `dashboard_menu_config()` also returns `nested_default`.
+
+### menu_layout
+
+Since **2.26.0**. Per menu code, an opt-in footer slot and per-section collapse. Default: empty (markup unchanged). See
+[USAGE.md — Footer slot and collapsible sections](USAGE.md#footer-slot-and-collapsible-sections).
+
+| Option (under `menu_layout.<menu code>`) | Default | Description |
+|---|---|---|
+| `footer` | `[]` | List of selectors (`id`, `route`, `label`; at least one) of top-level items pinned in the footer slot (`menu_footer.html.twig`) and removed from `menu.html.twig`. |
+| `sections` | `[]` | List of selectors (`id`, `label`; plus `collapsible` default `true`, `collapsed` default `false`) of sections rendered with a collapse toggle. |
+| `storage_key` | `nowo.dashboardMenu.sectionCollapse` | `localStorage` key of the remembered choices (`"<menu code>:<section id>": collapsed`). `""` disables persistence. |
+
+```yaml
+nowo_dashboard_menu:
+    menu_layout:
+        sidebar:
+            footer:   [{ route: app_help }]
+            sections: [{ label: Tools, collapsed: true }]
+```
 
 ### web_ui
 

@@ -143,6 +143,12 @@
 
 ## Unreleased
 
+Next minor (**2.26.0**), from **2.25.0**: nothing is required. `menu_layout` (footer slot and collapsible sections) is
+opt-in and empty by default, so the markup of existing menus is unchanged. To use it, see
+[USAGE.md — Footer slot and collapsible sections](USAGE.md#footer-slot-and-collapsible-sections); hosts that already
+include `_menu_collapse_script.html.twig` get the section script with no further step (it is part of
+`menu-collapse.js`; run `assets:install` after updating).
+
 ## To 2.25.0
 
 From **2.24.1**:
