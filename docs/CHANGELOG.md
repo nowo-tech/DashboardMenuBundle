@@ -132,6 +132,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Sidebar item badges (opt-in): `MenuBadgeProviderInterface::badge(string $itemKey): ?int`, registered with
+  `#[AsMenuBadgeProvider(item: 'route_name')]` (autoconfigured) or the `nowo_dashboard_menu.menu_badge_provider` tag with an
+  `item` attribute. `menu.html.twig` and `menu_footer.html.twig` render a `<span class="nowo-dashboard-menu__badge">` with
+  the hub card `badge_warning` tokens and a translated `aria-label` (`dashboard.badge_pending`, added to all 31 locales)
+  after the label of links whose route has a provider; null / 0 / a failure shows nothing. The provider is resolved
+  lazily, at most once per item and request (memo on the main request, `ResetInterface`, safe with FrankenPHP worker mode
+  and kernel reset off), never for items hidden by permissions or inside a collapsed `menu_layout` section; an exception
+  is logged and the badge hidden. Twig function `dashboard_menu_item_badge()`. No provider, no change in the markup.
+
 ## [2.26.0] - 2026-11-21
 
 ### Added

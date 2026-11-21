@@ -99,6 +99,7 @@ dashboard:
   base_badge_title: 'Základné menu: kód nie je možné po vytvorení zmeniť.'
   toggle: 'Prepnúť'
   menu_footer_label: "Pätička ponuky"
+  badge_pending: "Čaká na vybavenie: %number%"
   yes: 'Áno'
   no: 'Nie'
   export: 'Exportovať'

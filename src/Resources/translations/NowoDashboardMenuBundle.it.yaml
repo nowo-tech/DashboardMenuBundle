@@ -99,6 +99,7 @@ dashboard:
   base_badge_title: "Menu base: il codice non può essere modificato dopo la creazione."
   toggle: Attiva/disattiva
   menu_footer_label: "Piè di pagina del menu"
+  badge_pending: "In sospeso: %number%"
   yes: Sì
   no: No
   export: Esporta

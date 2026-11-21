@@ -99,6 +99,7 @@ dashboard:
   base_badge_title: 'Βασικό μενού: ο κωδικός δεν μπορεί να αλλάξει μετά τη δημιουργία.'
   toggle: 'Εναλλαγή'
   menu_footer_label: "Υποσέλιδο μενού"
+  badge_pending: "Σε εκκρεμότητα: %number%"
   yes: 'Ναι'
   no: 'Όχι'
   export: 'Εξαγωγή'

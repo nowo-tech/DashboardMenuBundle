@@ -99,6 +99,7 @@ dashboard:
   base_badge_title: '基礎選單：建立後無法變更代碼。'
   toggle: '切換'
   menu_footer_label: "選單頁尾"
+  badge_pending: "待處理：%number%"
   yes: '是'
   no: '否'
   export: '匯出'

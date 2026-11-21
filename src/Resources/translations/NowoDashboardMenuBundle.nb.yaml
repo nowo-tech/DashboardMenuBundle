@@ -99,6 +99,7 @@ dashboard:
   base_badge_title: 'Grunnmeny: koden kan ikke endres etter opprettelse.'
   toggle: 'Veksle'
   menu_footer_label: "Menybunn"
+  badge_pending: "Venter: %number%"
   yes: 'Ja'
   no: 'Nei'
   export: 'Eksporter'

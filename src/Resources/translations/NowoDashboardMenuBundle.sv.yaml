@@ -99,6 +99,7 @@ dashboard:
   base_badge_title: 'Basmeny: koden kan inte ändras efter att menyn skapats.'
   toggle: 'Växla'
   menu_footer_label: "Menyns sidfot"
+  badge_pending: "Väntande: %number%"
   yes: 'Ja'
   no: 'Nej'
   export: 'Exportera'

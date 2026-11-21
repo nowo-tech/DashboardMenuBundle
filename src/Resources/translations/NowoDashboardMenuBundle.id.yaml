@@ -99,6 +99,7 @@ dashboard:
   base_badge_title: 'Menu dasar: kode tidak dapat diubah setelah dibuat.'
   toggle: 'Alihkan'
   menu_footer_label: "Footer menu"
+  badge_pending: "Tertunda: %number%"
   yes: 'Ya'
   no: 'Tidak'
   export: 'Ekspor'

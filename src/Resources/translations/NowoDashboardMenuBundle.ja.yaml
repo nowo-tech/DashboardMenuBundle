@@ -99,6 +99,7 @@ dashboard:
   base_badge_title: '基本メニュー: 作成後にコードを変更することはできません。'
   toggle: '切り替え'
   menu_footer_label: "メニューのフッター"
+  badge_pending: "保留中: %number%"
   yes: 'はい'
   no: 'いいえ'
   export: 'エクスポート'

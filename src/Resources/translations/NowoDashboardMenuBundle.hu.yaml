@@ -99,6 +99,7 @@ dashboard:
   base_badge_title: 'Alapmenü: a kód a létrehozás után nem módosítható.'
   toggle: 'Váltás'
   menu_footer_label: "Menü lábléc"
+  badge_pending: "Függőben: %number%"
   yes: 'Igen'
   no: 'Nem'
   export: 'Exportálás'

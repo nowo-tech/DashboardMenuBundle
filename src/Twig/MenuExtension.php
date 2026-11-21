@@ -15,6 +15,7 @@ use Nowo\DashboardMenuBundle\Service\MenuCodeContextResolverInterface;
 use Nowo\DashboardMenuBundle\Service\MenuCodeResolverInterface;
 use Nowo\DashboardMenuBundle\Service\MenuConfigResolver;
 use Nowo\DashboardMenuBundle\Service\MenuIconNameResolver;
+use Nowo\DashboardMenuBundle\Service\MenuItemBadgeResolver;
 use Nowo\DashboardMenuBundle\Service\MenuItemViewAdapters;
 use Nowo\DashboardMenuBundle\Service\MenuLayout;
 use Nowo\DashboardMenuBundle\Service\MenuLocaleResolver;
@@ -74,6 +75,7 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
         private readonly array $menuCollapse = [],
         private readonly array $menuRender = [],
         array $menuLayout = [],
+        private readonly ?MenuItemBadgeResolver $itemBadges = null,
     ) {
         $this->layout = new MenuLayout($menuLayout);
     }
@@ -110,7 +112,17 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('dashboard_menu_main', $this->layout->main(...)),
             new TwigFunction('dashboard_menu_footer', $this->layout->footer(...)),
             new TwigFunction('dashboard_menu_section', $this->layout->section(...)),
+            // Item badges (2.27.0): 0 = no badge (no provider, null, 0, failure).
+            new TwigFunction('dashboard_menu_item_badge', $this->itemBadge(...)),
         ];
+    }
+
+    /**
+     * Badge count of a menu item (2.27.0), 0 when there is none ({@see MenuItemBadgeResolver}).
+     */
+    public function itemBadge(mixed $item): int
+    {
+        return $this->itemBadges?->count($item) ?? 0;
     }
 
     /**

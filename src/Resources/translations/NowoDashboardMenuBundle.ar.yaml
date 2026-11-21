@@ -99,6 +99,7 @@ dashboard:
   base_badge_title: 'قائمة أساسية: لا يمكن تغيير الرمز بعد الإنشاء.'
   toggle: 'تبديل'
   menu_footer_label: "تذييل القائمة"
+  badge_pending: "قيد الانتظار: %number%"
   yes: 'نعم'
   no: 'لا'
   export: 'تصدير'

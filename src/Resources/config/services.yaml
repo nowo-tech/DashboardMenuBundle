@@ -177,6 +177,12 @@ services:
       $indexIntro: '%nowo_dashboard_menu.web_ui.index.intro%'
       $indexIntroDomain: '%nowo_dashboard_menu.web_ui.index.intro_domain%'
 
+  # 2.27: sidebar item badges. Providers (#[AsMenuBadgeProvider] / tag with `item`) are resolved lazily, once per item per request.
+  Nowo\DashboardMenuBundle\Service\MenuItemBadgeResolver:
+    arguments:
+      $providers: !tagged_locator { tag: 'nowo_dashboard_menu.menu_badge_provider', index_by: 'item' }
+      $logger: '@?logger'
+
   Nowo\DashboardMenuBundle\Twig\MenuExtension:
     arguments:
       $menuCodeResolver: '@nowo_dashboard_menu.internal.menu_code_resolver'
@@ -194,6 +200,7 @@ services:
       $menuCollapse: '%nowo_dashboard_menu.menu_collapse%'
       $menuRender: '%nowo_dashboard_menu.dashboard.menu_render%'
       $menuLayout: '%nowo_dashboard_menu.menu_layout%'
+      $itemBadges: '@Nowo\DashboardMenuBundle\Service\MenuItemBadgeResolver'
     tags:
       - { name: twig.extension }
     public: false

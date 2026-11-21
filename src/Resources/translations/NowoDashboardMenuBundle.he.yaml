@@ -99,6 +99,7 @@ dashboard:
   base_badge_title: 'תפריט בסיס: לא ניתן לשנות את הקוד לאחר היצירה.'
   toggle: 'הצגה/הסתרה'
   menu_footer_label: "תחתית התפריט"
+  badge_pending: "ממתינים: %number%"
   yes: 'כן'
   no: 'לא'
   export: 'ייצוא'

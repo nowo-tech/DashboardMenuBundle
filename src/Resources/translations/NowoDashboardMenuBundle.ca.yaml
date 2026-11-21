@@ -99,6 +99,7 @@ dashboard:
   base_badge_title: 'Menú base: el codi no es pot canviar després de crear-lo.'
   toggle: 'Commuta'
   menu_footer_label: "Peu del menú"
+  badge_pending: "Pendents: %number%"
   yes: 'Sí'
   no: 'No'
   export: 'Exporta'
