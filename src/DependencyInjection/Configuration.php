@@ -481,7 +481,7 @@ final class Configuration implements ConfigurationInterface
                     ->defaultValue('1em')
                 ->end()
                 ->booleanNode('autocomplete_bootstrap')
-                    ->info('When true (default), dashboard.js registers Symfony UX Autocomplete from esm.sh and injects the Tom Select CDN stylesheet if the host Stimulus app has not registered the controller. Set false when the host app ships UX Autocomplete and its own Tom Select styles (CSP without third-party origins). The script never re-registers a controller the host already registered.')
+                    ->info('When true (default), dashboard.js registers Symfony UX Autocomplete (the built-in, bundled js/autocomplete.js, served from the bundle assets: no CDN) and injects the UiKit local Tom Select stylesheets if the host Stimulus app has not registered the controller. Set false when the host app ships UX Autocomplete and its own Tom Select styles. The script never re-registers a controller the host already registered.')
                     ->defaultTrue()
                 ->end()
                 ->booleanNode('item_span_active')

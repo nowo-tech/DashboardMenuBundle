@@ -139,6 +139,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The dashboard no longer loads code from a CDN. With `autocomplete_bootstrap: true` (default, unchanged) `dashboard.js`
+  now imports the bundle's own built `js/autocomplete.js` (Symfony UX Autocomplete + Tom Select + Stimulus, pinned and
+  bundled, served with `asset('js/autocomplete.js', 'nowo_dashboard_menu')`) instead of esm.sh; the same controller is
+  registered under the same identifier, so widgets and events are identical, and a controller the host already
+  registered is still never overridden. The default `js/stimulus-live.js` (Stimulus + Live controller) is bundled too
+  instead of importing both from esm.sh. Vendored packages and licenses: [THIRD_PARTY](../THIRD_PARTY.md).
+- Run `assets:install` after upgrading (new file `js/autocomplete.js`); a strict CSP no longer needs esm.sh or jsDelivr.
 - The bootstrapped Tom Select stylesheets now come from UiKit's asset package (`css/vendor/tom-select.default.min.css`
   + `css/nowo-ui-tom-select.css`, config island `tomSelectCssUrls`) instead of jsDelivr; absolute or protocol-relative
   URLs are refused.

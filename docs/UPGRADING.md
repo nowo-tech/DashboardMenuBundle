@@ -142,6 +142,11 @@
 
 ## Unreleased
 
+- New built asset `js/autocomplete.js` and rebuilt `dashboard.js` / `stimulus-live.js`: re-run `assets:install`.
+- No configuration change: `autocomplete_bootstrap` keeps its default and meaning, but nothing is loaded from esm.sh or
+  jsDelivr any more, so the CSP no longer needs those origins for the dashboard. The Tom Select stylesheets come from
+  UiKit 2.60 (`bundles/nowouikit/css/vendor/tom-select.default.min.css`).
+
 ## To 2.24.1
 
 From **2.24.0**:

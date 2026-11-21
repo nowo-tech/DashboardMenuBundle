@@ -51,8 +51,10 @@ export interface NowoDashboardMenuConfig {
   appRoutes?: Record<string, { params?: string[] }>;
   debug?: boolean;
   cssFramework?: string;
-  /** dashboard.autocomplete_bootstrap (2.3.2): false = never load UX Autocomplete from a CDN. */
+  /** dashboard.autocomplete_bootstrap (2.3.2): false = never register the bundled UX Autocomplete controller. */
   autocompleteBootstrap?: boolean;
+  /** 2.25.0: same-origin URL of the bundled UX Autocomplete module (js/autocomplete.js); no CDN. */
+  autocompleteScriptUrl?: string;
   /** 2.25.0: Tom Select stylesheets injected with the bootstrapped controller (UiKit's asset package; no CDN). */
   tomSelectCssUrls?: string[];
   /** 2.7: translated dialog strings (loading, errorLoadingForm). */
@@ -84,6 +86,10 @@ function describeStimulusAppLike(app: StimulusAppLike | null): Record<string, bo
 }
 
 let tomSelectCssUrls: string[] = [];
+let autocompleteScriptUrl = '';
+
+/** Only same-origin (relative or root-relative) URLs are accepted: absolute and protocol-relative ones are refused. */
+const isLocalUrl = (u: unknown): u is string => typeof u === 'string' && u !== '' && !/^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(u);
 
 /** 2.25.0: injects the Tom Select stylesheets of the config island (UiKit's vendored theme + its token layer), never a CDN. */
 function ensureTomSelectCssLoaded(): void {
@@ -123,9 +129,16 @@ async function ensureAutocompleteControllerRegistered(): Promise<void> {
         return;
       }
 
-      const mod = await import('https://esm.sh/@symfony/ux-autocomplete@2');
-      const controllerCtor = (mod as { default?: unknown }).default ?? mod;
-      if (!controllerCtor) return;
+      if (!autocompleteScriptUrl) {
+        log.debug('Autocomplete bootstrap skipped: no local autocomplete script URL in the config island.');
+        return;
+      }
+      const mod = await import(/* @vite-ignore */ autocompleteScriptUrl);
+      const controllerCtor = (mod as { default?: unknown }).default;
+      if (typeof controllerCtor !== 'function') {
+        log.warn('Autocomplete bootstrap skipped: the bundled module has no controller as default export.');
+        return;
+      }
 
       app.register(AUTOCOMPLETE_IDENTIFIER, controllerCtor);
       ensureTomSelectCssLoaded();
@@ -681,7 +694,8 @@ function run(): void {
   );
   if (!config) return;
   autocompleteBootstrapEnabled = config.autocompleteBootstrap !== false;
-  tomSelectCssUrls = Array.isArray(config.tomSelectCssUrls) ? config.tomSelectCssUrls.filter((u): u is string => typeof u === 'string' && u !== '' && !/^(?:[a-z]+:)?\/\//i.test(u)) : [];
+  autocompleteScriptUrl = isLocalUrl(config.autocompleteScriptUrl) ? config.autocompleteScriptUrl : '';
+  tomSelectCssUrls = Array.isArray(config.tomSelectCssUrls) ? config.tomSelectCssUrls.filter(isLocalUrl) : [];
   if (typeof document !== 'undefined' && !window.__dmTomSelectModalPatchBound) {
     window.__dmTomSelectModalPatchBound = true;
     document.addEventListener('dashboard-menu:modal-content-loaded', (ev) => {

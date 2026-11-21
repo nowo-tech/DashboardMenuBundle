@@ -149,11 +149,12 @@ Run tests and QA with Docker: `make up && make install && make test` (or `make t
 
 ```bash
 pnpm install
-pnpm run build    # production build (dashboard.js + stimulus-live.js + menu-collapse.js)
+pnpm run build    # production build (dashboard.js + stimulus-live.js + menu-collapse.js + autocomplete.js)
 pnpm run dev     # watch dashboard.js
 pnpm run build:dashboard    # only dashboard.js
 pnpm run build:stimulus-live  # only stimulus-live.js
 pnpm run build:menu-collapse  # only menu-collapse.js
+pnpm run build:autocomplete   # only autocomplete.js (UX Autocomplete + Tom Select, bundled; no CDN)
 ```
 
 Then run `php bin/console assets:install` in the app so `public/bundles/nowodashboardmenu/js/` is updated.

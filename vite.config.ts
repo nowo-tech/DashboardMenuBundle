@@ -21,7 +21,7 @@ function sourceBuildId(dir: string): string {
   return hash.digest('hex').slice(0, 12);
 }
 
-const entry = process.env.VITE_ENTRY as 'dashboard' | 'stimulus-live' | 'menu-collapse' | undefined;
+const entry = process.env.VITE_ENTRY as 'dashboard' | 'stimulus-live' | 'menu-collapse' | 'autocomplete' | undefined;
 
 const configs = {
   dashboard: {
@@ -62,6 +62,24 @@ const configs = {
       sourcemap: false,
     },
   },
+  autocomplete: {
+    build: {
+      outDir: 'src/Resources/public',
+      emptyOutDir: false,
+      rollupOptions: {
+        input: 'src/Resources/assets/src/autocomplete.ts',
+        // The module is imported at runtime and its default export is the controller: keep the entry's exports.
+        preserveEntrySignatures: 'strict' as const,
+        output: {
+          format: 'es' as const,
+          entryFileNames: 'js/autocomplete.js',
+          assetFileNames: 'js/autocomplete.[ext]',
+        },
+      },
+      minify: true,
+      sourcemap: false,
+    },
+  },
   'menu-collapse': {
     build: {
       outDir: 'src/Resources/public',
@@ -88,6 +106,7 @@ const effectiveEntry = entry && configs[entry] ? entry : 'dashboard';
  * - VITE_ENTRY=dashboard → IIFE → src/Resources/public/js/dashboard.js
  * - VITE_ENTRY=stimulus-live → ESM → src/Resources/public/js/stimulus-live.js
  * - VITE_ENTRY=menu-collapse → IIFE → src/Resources/public/js/menu-collapse.js (Bootstrap-free nested collapse, 2.6.0)
+ * - VITE_ENTRY=autocomplete → ESM → src/Resources/public/js/autocomplete.js (UX Autocomplete + Tom Select, lazy-loaded by dashboard.js, 2.25.0)
  * Default (no VITE_ENTRY): dashboard. Run all with: pnpm run build
  */
 export default defineConfig(configs[effectiveEntry]);
