@@ -382,6 +382,7 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
             'storage_key'    => 'nowo.dashboardMenu.navCollapse',
             'nested_default' => 'expanded',
         ]);
+        $container->setParameter(Configuration::ALIAS . '.menu_layout', $config['menu_layout'] ?? []);
         $container->setParameter(Configuration::ALIAS . '.api.enabled', $config['api']['enabled']);
         $container->setParameter(Configuration::ALIAS . '.api.path_prefix', $config['api']['path_prefix']);
         $webUi = $config['web_ui'] ?? [];

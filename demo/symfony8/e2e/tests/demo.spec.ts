@@ -29,4 +29,39 @@ test.describe('Dashboard Menu demo', () => {
     await dialog.getByText('ES', { exact: true }).first().click();
     await expect(dialog.getByText('Label (es)')).toBeVisible();
   });
+
+  /** 2.26 menu_layout: collapsible sections (remembered per person) and the footer slot of the sidebar example. */
+  test('sidebar sections collapse, remember the choice, and the footer slot has its own landmark', async ({ page }) => {
+    await page.goto('/?example=sidebar');
+    const menu = page.getByTestId('demo-menu-sidebar');
+    const resources = menu.getByRole('button', { name: 'Resources' });
+    const external = menu.getByRole('button', { name: 'External' });
+
+    // Configured defaults: Resources collapsed, External open.
+    await expect(resources).toHaveAttribute('aria-expanded', 'false');
+    await expect(external).toHaveAttribute('aria-expanded', 'true');
+    const resourcesPanel = page.locator(`#${await resources.getAttribute('aria-controls')}`);
+    await expect(resourcesPanel).toBeHidden();
+
+    // Keyboard: Space toggles the native button.
+    await resources.focus();
+    await page.keyboard.press('Space');
+    await expect(resources).toHaveAttribute('aria-expanded', 'true');
+    await expect(resourcesPanel).toBeVisible();
+    await external.click();
+    await expect(external).toHaveAttribute('aria-expanded', 'false');
+
+    // The choice survives a reload and wins over the configured default.
+    await page.reload();
+    await expect(menu.getByRole('button', { name: 'Resources' })).toHaveAttribute('aria-expanded', 'true');
+    await expect(menu.getByRole('button', { name: 'External' })).toHaveAttribute('aria-expanded', 'false');
+
+    // Footer slot: a separate <nav>, outside the main menu, holding the "Footer links" items.
+    const footer = page.locator('nav.dashboard-menu-footer');
+    await expect(footer).toHaveCount(1);
+    await expect(footer).toHaveAttribute('aria-label', 'Menu footer');
+    await expect(footer.getByRole('link', { name: 'Support' })).toBeVisible();
+    await expect(menu.getByRole('link', { name: 'Support' })).toHaveCount(0);
+    await expect(menu.locator('nav.dashboard-menu-footer')).toHaveCount(0);
+  });
 });

@@ -98,6 +98,7 @@ dashboard:
   base: 'Základní'
   base_badge_title: 'Základní menu: kód nelze po vytvoření změnit.'
   toggle: 'Přepnout'
+  menu_footer_label: "Patička nabídky"
   yes: 'Ano'
   no: 'Ne'
   export: 'Exportovat'

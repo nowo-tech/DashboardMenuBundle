@@ -37,6 +37,9 @@
     {% set nestedCollapsibleSections = menuConfig.nested_collapsible_sections|default(true) %}
     {% set menuDefaultSectionCollapsible = nestedCollapsible and nestedCollapsibleSections %}
     {% set hasChildren = not maxReached and node.children|length > 0 %}
+    {#- 2.26.0 menu_layout: a section listed under menu_layout.<code>.sections renders a <button aria-expanded aria-controls> header and a panel (hidden when collapsed); a section that holds the current item always opens. null (default) = markup unchanged. -#}
+    {%~ set layoutSection = itemType == 'section' and hasChildren ? dashboard_menu_section(item, idPrefix) : null %}
+    {%~ set layoutCollapsed = layoutSection is not null and layoutSection.collapsed and not hasCurrentInBranch %}
     {# Per-section override: null falls back to menu default; non-section nodes are never "section collapsible". #}
     {% if itemType == 'section' %}
         {% set sectionChildrenCollapsible = item.sectionCollapsible is null ? menuDefaultSectionCollapsible : item.sectionCollapsible %}
@@ -54,7 +57,7 @@
     {%~ set groupOpen = nestedDefault not in ['collapsed', 'current'] or (nestedDefault == 'current' and hasCurrentInBranch) %}
     {%~ set groupMarkCurrent = menuConfig._collapse_markers|default(false) and hasCurrentInBranch %}
     {# Section with sectionCollapsible explicitly false: render children as sibling <li> under the parent <ul>, not in a nested sub-list. #}
-    {% set flattenSectionChildren = itemType == 'section' and item.sectionCollapsible is same as(false) and hasChildren %}
+    {% set flattenSectionChildren = itemType == 'section' and item.sectionCollapsible is same as(false) and hasChildren and layoutSection is null %}
     {# Extra <li> classes reflecting branch state (current in subtree, has children, expanded vs collapsed). #}
     {% set liExtra = (hasCurrentInBranch ? classBranchExpanded : '') %}
     {% set liExtra = liExtra ~ (hasChildren and classHasChildren is not empty ? ' ' ~ classHasChildren : '') %}
@@ -70,7 +73,12 @@
             <hr>
         {% elseif itemType == 'section' %}
             {# Collapsible section with children: same DOM pattern as link rows (<a> + toggle), label styled as heading via sectionLabelClasses + menu-section-label-link. #}
-            {% if linkRowGroup %}
+            {% if layoutSection is not null %}
+                <button type="button" class="{{ sectionLabelClasses }} menu-section-toggle{{ layoutCollapsed ? ' is-collapsed' : '' }}" aria-expanded="{{ layoutCollapsed ? 'false' : 'true' }}" aria-controls="{{ collapseId }}-section" data-dashboard-menu-section="{{ layoutSection.key }}" data-dashboard-menu-section-default="{{ layoutSection.collapsed ? 'collapsed' : 'expanded' }}" data-dashboard-menu-section-storage-key="{{ layoutSection.storage_key }}"{% if hasCurrentInBranch %} data-dashboard-menu-section-current{% endif %}>
+                    <span class="menu-section-toggle-label">{{ item.label }}</span>
+                    <svg class="menu-section-toggle-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M2.5 5.5L8 11l5.5-5.5H2.5z"/></svg>
+                </button>
+            {% elseif linkRowGroup %}
                 {%~ set groupToggleClass = menuConfig.group_classes.toggle|default('menu-group-toggle') %}
                 {%~ set groupChevronClass = menuConfig.group_classes.chevron|default('menu-group-chevron') %}
                 <button type="button" class="{{ linkClasses }} {{ groupToggleClass }}{{ hasCurrentInBranch and classBranchExpanded is not empty ? ' ' ~ classBranchExpanded : '' }}{{ groupOpen ? '' : ' collapsed' }}" data-bs-toggle="collapse" data-bs-target="#{{ collapseId }}" aria-expanded="{{ groupOpen ? 'true' : 'false' }}" aria-controls="{{ collapseId }}">
@@ -134,7 +142,13 @@
         {% endif %}
         {% if hasChildren and not flattenSectionChildren %}
             {% set childUlClasses = itemType == 'section' and sectionDirectChildrenClasses|trim != '' ? sectionDirectChildrenClasses : childrenClasses %}
-            {% if useNestedCollapsibleForChildren %}
+            {% if layoutSection is not null %}
+                <ul id="{{ collapseId }}-section"{% if childUlClasses %} class="{{ childUlClasses }}"{% endif %}{% if layoutCollapsed %} hidden{% endif %}>
+                    {% for child in node.children %}
+                        {{ _self.render_node(child, menuConfig, depth + 1, idPrefix, itemType) }}
+                    {% endfor %}
+                </ul>
+            {% elseif useNestedCollapsibleForChildren %}
                 <div id="{{ collapseId }}" class="collapse{{ kitToggle ? ' nowo-ui-collapse' }}{{ groupOpen ? ' show' : '' }}"{% if groupMarkCurrent %} data-dashboard-menu-collapse-current{% endif %}>
                     <ul{% if childUlClasses %} class="{{ childUlClasses }}"{% endif %}>
                         {% for child in node.children %}
@@ -158,6 +172,7 @@
     {% endif %}
 {% endmacro %}
 
+{% if menuTree is defined %}{% set menuTree = dashboard_menu_main(menuTree, menuCode|default('main')) %}{% endif %}
 {% if menuTree is defined and menuTree|length > 0 %}
 {# Lazy fallback (|default() would evaluate dashboard_menu_config() even when menuConfig is passed). #}
 {% set menuConfig = menuConfig is defined and menuConfig is not empty ? menuConfig : dashboard_menu_config(menuCode|default('main')) %}

@@ -98,6 +98,7 @@ dashboard:
   base: 'Alap'
   base_badge_title: 'Alapmenü: a kód a létrehozás után nem módosítható.'
   toggle: 'Váltás'
+  menu_footer_label: "Menü lábléc"
   yes: 'Igen'
   no: 'Nem'
   export: 'Exportálás'

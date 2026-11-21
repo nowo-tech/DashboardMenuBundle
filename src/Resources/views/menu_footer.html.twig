@@ -1,0 +1,22 @@
+{#- Footer slot (2.26.0): the items listed under nowo_dashboard_menu.menu_layout.<code>.footer, in their own non-scrolling region.
+    Usage (the host sidebar is a flex column; the main menu scrolls, the footer stays at the bottom):
+      <aside class="sidebar d-flex flex-column">
+          <div class="sidebar-scroll flex-grow-1 overflow-auto">{{ include('@NowoDashboardMenuBundle/menu.html.twig', {menuTree: tree, menuCode: 'sidebar'}) }}</div>
+          {{ include('@NowoDashboardMenuBundle/menu_footer.html.twig', {menuTree: tree, menuCode: 'sidebar'}) }}
+      </aside>
+    Pass the same menuTree as for menu.html.twig (the footer items are filtered out of one and picked by the other).
+    Renders nothing when no footer is configured. Optional: menuFooterLabel (accessible name of the <nav>). -#}
+{% import '@NowoDashboardMenuBundle/menu.html.twig' as menuMacros %}
+{% set code = menuCode|default('main') %}
+{% set footerNodes = menuTree is defined ? dashboard_menu_footer(menuTree, code) : [] %}
+{% if footerNodes|length > 0 %}
+{% set menuConfig = menuConfig is defined and menuConfig is not empty ? menuConfig : dashboard_menu_config(code) %}
+{% set rootClasses = menuConfig.classes.menu is defined ? menuConfig.classes.menu : 'dashboard-menu' %}
+<nav class="dashboard-menu-footer" aria-label="{{ menuFooterLabel|default('dashboard.menu_footer_label'|trans({}, 'NowoDashboardMenuBundle')) }}" data-dashboard-menu-footer="{{ code }}">
+    <ul class="{{ rootClasses }} {{ code }} dashboard-menu-footer-list">
+        {% for node in footerNodes %}
+            {{ menuMacros.render_node(node, menuConfig, 1, code, '') }}
+        {% endfor %}
+    </ul>
+</nav>
+{% endif %}

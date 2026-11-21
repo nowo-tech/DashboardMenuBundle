@@ -98,6 +98,7 @@ dashboard:
   base: '基礎'
   base_badge_title: '基礎選單：建立後無法變更代碼。'
   toggle: '切換'
+  menu_footer_label: "選單頁尾"
   yes: '是'
   no: '否'
   export: '匯出'

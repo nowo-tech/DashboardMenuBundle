@@ -98,6 +98,7 @@ dashboard:
   base: '基本'
   base_badge_title: '基本メニュー: 作成後にコードを変更することはできません。'
   toggle: '切り替え'
+  menu_footer_label: "メニューのフッター"
   yes: 'はい'
   no: 'いいえ'
   export: 'エクスポート'

@@ -98,6 +98,7 @@ dashboard:
   base: Base
   base_badge_title: "Menu base: o código não pode ser alterado após a criação."
   toggle: Alternar
+  menu_footer_label: "Rodapé do menu"
   yes: Sim
   no: Não
   export: Exportar

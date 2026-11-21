@@ -98,6 +98,7 @@ dashboard:
   base: 'أساسية'
   base_badge_title: 'قائمة أساسية: لا يمكن تغيير الرمز بعد الإنشاء.'
   toggle: 'تبديل'
+  menu_footer_label: "تذييل القائمة"
   yes: 'نعم'
   no: 'لا'
   export: 'تصدير'

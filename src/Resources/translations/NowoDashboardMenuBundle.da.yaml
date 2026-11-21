@@ -98,6 +98,7 @@ dashboard:
   base: 'Basis'
   base_badge_title: 'Basismenu: koden kan ikke ændres efter oprettelse.'
   toggle: 'Skift'
+  menu_footer_label: "Menuens bund"
   yes: 'Ja'
   no: 'Nej'
   export: 'Eksportér'

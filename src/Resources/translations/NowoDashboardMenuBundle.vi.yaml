@@ -98,6 +98,7 @@ dashboard:
   base: 'Cơ sở'
   base_badge_title: 'Menu cơ sở: không thể thay đổi mã sau khi tạo.'
   toggle: 'Bật/tắt'
+  menu_footer_label: "Chân menu"
   yes: 'Có'
   no: 'Không'
   export: 'Xuất'

@@ -98,6 +98,7 @@ dashboard:
   base: 'พื้นฐาน'
   base_badge_title: 'เมนูพื้นฐาน: ไม่สามารถเปลี่ยนรหัสได้หลังจากสร้างแล้ว'
   toggle: 'สลับ'
+  menu_footer_label: "ส่วนท้ายของเมนู"
   yes: 'ใช่'
   no: 'ไม่ใช่'
   export: 'ส่งออก'

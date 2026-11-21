@@ -166,6 +166,48 @@ final class ConfigurationTest extends TestCase
         ]);
     }
 
+    public function testMenuLayoutDefaultsToEmptyAndNormalisesSelectors(): void
+    {
+        self::assertSame([], (new Processor())->processConfiguration(new Configuration(), [[]])['menu_layout']);
+
+        $layout = (new Processor())->processConfiguration(new Configuration(), [[
+            'menu_layout' => ['sidebar' => [
+                'footer'   => [['route' => 'app_help'], ['label' => 'Help'], ['id' => 4]],
+                'sections' => [['label' => 'Tools', 'collapsed' => true], ['id' => 7, 'collapsible' => false]],
+            ]],
+        ]])['menu_layout'];
+
+        self::assertEquals([
+            'storage_key' => 'nowo.dashboardMenu.sectionCollapse',
+            'footer'      => [
+                ['id' => null, 'route' => 'app_help', 'label' => null],
+                ['id' => null, 'route' => null, 'label' => 'Help'],
+                ['id' => 4, 'route' => null, 'label' => null],
+            ],
+            'sections' => [
+                ['id' => null, 'route' => null, 'label' => 'Tools', 'collapsible' => true, 'collapsed' => true],
+                ['id' => 7, 'route' => null, 'label' => null, 'collapsible' => false, 'collapsed' => false],
+            ],
+        ], $layout['sidebar']);
+
+        $layout = (new Processor())->processConfiguration(new Configuration(), [['menu_layout' => ['main' => ['storage_key' => '']]]])['menu_layout'];
+        self::assertEquals(['storage_key' => '', 'footer' => [], 'sections' => []], $layout['main']);
+    }
+
+    public function testMenuLayoutRejectsAnEmptySelectorAndANonStringStorageKey(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('at least one of "id", "route" or "label"');
+        (new Processor())->processConfiguration(new Configuration(), [['menu_layout' => ['sidebar' => ['footer' => [[]]]]]]);
+    }
+
+    public function testMenuLayoutStorageKeyMustBeAString(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('storage_key must be a string');
+        (new Processor())->processConfiguration(new Configuration(), [['menu_layout' => ['sidebar' => ['storage_key' => 12]]]]);
+    }
+
     public function testMenuCollapseCanBeConfigured(): void
     {
         $config = (new Processor())->processConfiguration(new Configuration(), [

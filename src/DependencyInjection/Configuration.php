@@ -102,6 +102,7 @@ final class Configuration implements ConfigurationInterface
             ->end();
         $this->addProjectToAreaFallbackWhenDeniedSections($root);
         $this->addAreaAccessCheckerToMenuCollapseSections($root);
+        $this->addMenuLayoutSection($root);
         $this->addDashboardSection($root);
         $this->addWebUiToSecuritySections($root);
 
@@ -214,6 +215,53 @@ final class Configuration implements ConfigurationInterface
                     ->defaultFalse()
                 ->end()
             ->end();
+    }
+
+    /**
+     * Adds the `menu_layout` section (2.26.0): per menu code, a footer slot and per-section collapse.
+     */
+    private function addMenuLayoutSection(ArrayNodeDefinition $rootNode): void
+    {
+        $menu = $rootNode
+            ->children()
+                ->arrayNode('menu_layout')
+                    ->info('Layout options per menu code (2.26.0), all opt-in: "footer" pins top-level items at the bottom of the sidebar, outside the scrolling sections (rendered by menu_footer.html.twig, removed from menu.html.twig); "sections" makes sections collapsible with a default state, remembered per person in localStorage. Default: empty, markup unchanged. See docs/USAGE.md "Footer slot and collapsible sections".')
+                    ->useAttributeAsKey('code')
+                    ->normalizeKeys(false)
+                    ->arrayPrototype()
+                        ->children()
+                            ->scalarNode('storage_key')
+                                ->info('localStorage key holding { "<menu code>:<section id>": collapsed }. Empty string disables persistence (the config default always applies).')
+                                ->defaultValue('nowo.dashboardMenu.sectionCollapse')
+                                ->validate()
+                                    ->ifTrue(static fn (mixed $v): bool => !is_string($v))
+                                    ->thenInvalid('menu_layout.<code>.storage_key must be a string (use "" to disable persistence), got %s.')
+                                ->end()
+                            ->end();
+        $this->addLayoutSelectors($menu->arrayNode('footer')->info('Top-level items (links, or whole sections with their children) pinned in the footer slot.'), false);
+        $this->addLayoutSelectors($menu->arrayNode('sections')->info('Sections that get a collapse toggle.'), true);
+    }
+
+    /**
+     * Adds the item selector prototype shared by `menu_layout.<code>.footer` and `.sections`.
+     */
+    private function addLayoutSelectors(ArrayNodeDefinition $list, bool $withState): void
+    {
+        $item     = $list->arrayPrototype();
+        $children = $item
+            ->validate()
+                ->ifTrue(static fn (array $v): bool => $v['id'] === null && $v['route'] === null && $v['label'] === null)
+                ->thenInvalid('Each selector needs at least one of "id", "route" or "label".')
+            ->end()
+            ->children()
+                ->integerNode('id')->info('Item id (database id of the menu item).')->defaultNull()->end()
+                ->scalarNode('route')->info('Route name of the item (links only).')->defaultNull()->end()
+                ->scalarNode('label')->info('Label of the item: the default label or any of its translations.')->defaultNull()->end();
+        if ($withState) {
+            $children
+                ->booleanNode('collapsible')->info('Render the section with a collapse toggle button.')->defaultTrue()->end()
+                ->booleanNode('collapsed')->info('Initial state when the person has no remembered choice. A section that holds the current item always opens.')->defaultFalse()->end();
+        }
     }
 
     /**

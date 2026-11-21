@@ -28,6 +28,8 @@
             <nav class="nowo-ui-aside__nav" aria-label="{{ ('demo.tab_' ~ _example)|trans({}, _demo_domain) }}" data-testid="demo-menu-{{ _example }}">
                 {% include '_menu.html.twig' with {tree: dashboard_menu_tree(_example), code: _example, config: dashboard_menu_config(_example), variant: 'aside'} %}
             </nav>
+            {#- 2.26 footer slot: its own <nav> landmark below the menu (nothing unless menu_layout.<code>.footer is configured). -#}
+            {% include '@NowoDashboardMenuBundle/menu_footer.html.twig' with {menuTree: dashboard_menu_tree(_example), menuCode: _example} %}
         {% elseif _example == 'footer' %}
             <h3 id="demo-menu-footer">{{ 'demo.footer_menu'|trans({}, _demo_domain) }}</h3>
             <nav aria-labelledby="demo-menu-footer" data-testid="demo-menu-footer">

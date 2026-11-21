@@ -16,6 +16,7 @@ use Nowo\DashboardMenuBundle\Service\MenuCodeResolverInterface;
 use Nowo\DashboardMenuBundle\Service\MenuConfigResolver;
 use Nowo\DashboardMenuBundle\Service\MenuIconNameResolver;
 use Nowo\DashboardMenuBundle\Service\MenuItemViewAdapters;
+use Nowo\DashboardMenuBundle\Service\MenuLayout;
 use Nowo\DashboardMenuBundle\Service\MenuLocaleResolver;
 use Nowo\DashboardMenuBundle\Service\MenuTreeLoader;
 use Nowo\DashboardMenuBundle\Service\MenuUrlResolver;
@@ -42,9 +43,12 @@ use Twig\TwigFunction;
  */
 final class MenuExtension extends AbstractExtension implements GlobalsInterface
 {
+    private readonly MenuLayout $layout;
+
     /**
      * @param array{enabled?: bool, mode?: string, storage_key?: string, nested_default?: string} $menuCollapse menu_collapse config (2.6.0)
      * @param array{nested_group_display?: string, group_children_marker?: string, toggle_icon?: string|null, group_classes?: array<string, string>} $menuRender menu.html.twig render options (2.15.0)
+     * @param array<string, array<string, mixed>> $menuLayout menu_layout config: footer slot and collapsible sections per menu code (2.26.0)
      */
     public function __construct(
         private readonly MenuTreeLoader $menuTreeLoader,
@@ -69,7 +73,9 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
         private readonly bool $autocompleteBootstrap = true,
         private readonly array $menuCollapse = [],
         private readonly array $menuRender = [],
+        array $menuLayout = [],
     ) {
+        $this->layout = new MenuLayout($menuLayout);
     }
 
     public function getGlobals(): array
@@ -100,6 +106,10 @@ final class MenuExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('dashboard_menu_href', $this->getHref(...)),
             new TwigFunction('dashboard_menu_config', $this->getMenuConfig(...)),
             new TwigFunction('dashboard_menu_ui_class', $this->getUiClass(...)),
+            // menu_layout (2.26.0): footer slot and collapsible sections; identity for menus without a menu_layout entry.
+            new TwigFunction('dashboard_menu_main', $this->layout->main(...)),
+            new TwigFunction('dashboard_menu_footer', $this->layout->footer(...)),
+            new TwigFunction('dashboard_menu_section', $this->layout->section(...)),
         ];
     }
 

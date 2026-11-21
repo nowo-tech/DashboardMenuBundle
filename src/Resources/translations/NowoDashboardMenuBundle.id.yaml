@@ -98,6 +98,7 @@ dashboard:
   base: 'Dasar'
   base_badge_title: 'Menu dasar: kode tidak dapat diubah setelah dibuat.'
   toggle: 'Alihkan'
+  menu_footer_label: "Footer menu"
   yes: 'Ya'
   no: 'Tidak'
   export: 'Ekspor'
