@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.25.0](#to-2250)
 - [To 2.24.1](#to-2241)
 - [To 2.24.0](#to-2240)
 - [To 2.23.0](#to-2230)
@@ -141,6 +142,14 @@
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## To 2.25.0
+
+From **2.24.1**:
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
 
 - New built asset `js/autocomplete.js` and rebuilt `dashboard.js` / `stimulus-live.js`: re-run `assets:install`.
 - No configuration change: `autocomplete_bootstrap` keeps its default and meaning, but nothing is loaded from esm.sh or
