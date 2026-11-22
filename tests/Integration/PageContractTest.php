@@ -9,6 +9,9 @@ use Nowo\DashboardMenuBundle\Tests\Support\DashboardPageFixtures;
 use Nowo\FormKitBundle\Twig\LocaleTabsTwigExtension;
 use Nowo\UiKitBundle\Test\PageContractTestCase;
 use Nowo\UiKitBundle\Test\PageFixture;
+use Nowo\UiKitBundle\Test\RenderedPage;
+use Nowo\UiKitBundle\Test\StubHost;
+use Nowo\UiKitBundle\Theme\Theme;
 use Nowo\UiKitBundle\View\FormPage;
 use Nowo\UiKitBundle\View\Label;
 use Nowo\UiKitBundle\View\PageHeader;
@@ -361,6 +364,78 @@ final class PageContractTest extends PageContractTestCase
         self::assertStringContainsString('data-nowo-ui-tabs data-nowo-ui-tabs-upgrade data-nowo-ui-tabs-active="' . $id . '-en"', $html);
     }
 
+    /**
+     * UiKit 2.66.1 (owner decision 2026-11-22): the full-page forms follow theme.form_actions_order (the stub theme's
+     * order: primary_first by default since 2.66.1, cancel_first on 2.66.0), the dialog fragments keep Cancel first.
+     */
+    public function testFormActionsFollowTheConfiguredOrderAndDialogsKeepCancelFirst(): void
+    {
+        $page = Theme::fromConfig('none', StubHost::theme())->formActionsOrder() === 'primary_first' ? [['primary', 'cancel']] : [['cancel', 'primary']];
+        foreach ([
+            'menu_form' => DashboardPageFixtures::menuForm(true),
+            'item_form' => DashboardPageFixtures::itemForm(true),
+            'copy_menu' => DashboardPageFixtures::copyForm(),
+            'import'    => DashboardPageFixtures::importForm(),
+        ] as $name => $context) {
+            self::assertSame($page, $this->renderPage(new PageFixture(self::VIEWS . $name . '.html.twig', $context))->formActionsRows(), $name);
+        }
+
+        $twig = $this->createTwig();
+        foreach ([
+            '_menu_form_partial' => DashboardPageFixtures::menuForm(true, 'basic'),
+            '_item_form_partial' => DashboardPageFixtures::itemForm(false),
+            '_copy_menu_partial' => DashboardPageFixtures::copyForm(),
+            '_import_partial'    => DashboardPageFixtures::importForm(),
+        ] as $name => $context) {
+            $html = $twig->render(self::VIEWS . $name . '.html.twig', $context);
+            self::assertSame([['cancel', 'primary']], (new RenderedPage($name, $html, 'none'))->formActionsRows(), $name . ': a dialog keeps Cancel first.');
+        }
+
+        // the Live item form: its own row follows the option on the page (Cancel link), Cancel first in a dialog
+        self::assertSame($page, (new RenderedPage('live', $this->renderLiveItemForm('/admin/menus/1'), 'none'))->formActionsRows());
+        self::assertSame([['cancel', 'primary']], (new RenderedPage('live', $this->renderLiveItemForm(null), 'none'))->formActionsRows());
+    }
+
+    private function renderLiveItemForm(?string $cancelHref): string
+    {
+        $form = DashboardPageFixtures::formFactory()->create(MenuItemType::class, DashboardPageFixtures::items()[1], [
+            'available_locales' => ['en', 'es'],
+            'csrf_token_id'     => 'submit',
+            'section'           => 'basic',
+            'live_model'        => true,
+        ]);
+
+        return $this->createTwig()->render('@NowoDashboardMenuBundle/components/ItemFormLiveComponent.html.twig', [
+            'form' => $form->createView(),
+            'this' => new class {
+                public string $actionUrl = '/admin/menus/1/item/11/edit';
+
+                public function getItemType(): string
+                {
+                    return 'link';
+                }
+
+                /** @param list<mixed> $arguments */
+                public function __call(string $name, array $arguments): mixed
+                {
+                    return null;
+                }
+            },
+            'attributes' => new class {
+                /** @param array<string, string> $defaults */
+                public function defaults(array $defaults): Markup
+                {
+                    return new Markup('class="' . $defaults['class'] . '"', 'UTF-8');
+                }
+            },
+            'isEdit'       => true,
+            'locales'      => ['en', 'es'],
+            'sectionFocus' => 'basic',
+            'embedded'     => false,
+            'cancelHref'   => $cancelHref,
+        ]);
+    }
+
     public function testLiveItemPageIsABodyOnlyFormPage(): void
     {
         $html = $this->renderPage(new PageFixture(self::VIEWS . 'item_form.html.twig', DashboardPageFixtures::itemFormLive()))->html;
@@ -476,7 +551,10 @@ final class PageContractTest extends PageContractTestCase
         return dirname(__DIR__, 2) . '/docs/TEMPLATES.md';
     }
 
-    /** UiKit 2.66 (UX-017): every form actions row puts Cancel first, then the primary. */
+    /**
+     * UiKit 2.66 (UX-017): every form actions row is checked. On UiKit 2.66.1 the rule follows the configured order (page
+     * forms in theme.form_actions_order, dialogs Cancel first); on 2.66.0 it checks Cancel first everywhere.
+     */
     protected static function formActionsOrderChecked(): bool
     {
         return true;

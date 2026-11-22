@@ -202,13 +202,15 @@
             {% endif %}
         {% endfor %}
         {% if not _embedded %}
-        {#- UiKit form_actions partial (2.66, UX-017): Cancel first (link on the page, dialog close in a dialog), then the primary -#}
+        {#- UiKit form_actions partial (2.66, UX-017): on the page (Cancel link) the row follows theme.form_actions_order
+            (UiKit default: the primary first); in a dialog (Cancel closes it) Cancel first, then the primary -#}
         {{ include(nowo_ui_partial('form_actions', _b), {
             submit_label: (isEdit ? 'dashboard.update' : 'dashboard.create')|trans({}, 'NowoDashboardMenuBundle'),
             submit_attrs: {'data-action': 'live#action:prevent', 'data-live-action-param': 'save'},
             cancel_href: cancelHref|default(null),
             cancel_dialog: true,
             cancel_label: 'dashboard.cancel'|trans({}, 'NowoDashboardMenuBundle'),
+            order: cancelHref|default(null) ? null : 'cancel_first',
             bundle: _b,
         }, false) }}
         {% endif %}

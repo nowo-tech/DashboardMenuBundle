@@ -1,3 +1,4 @@
-{#- Cancel + submit of a dialog form fragment through the UiKit `form_actions` partial (UiKit 2.66, UX-017): Cancel first
-    (closes the UiKit dialog: data-nowo-ui-dialog-close), then the primary on the right. Variables: submit_label, bundle. -#}
-{{ include(nowo_ui_partial('form_actions', bundle), {submit_label: submit_label, cancel_dialog: true, cancel_label: 'dashboard.cancel'|trans({}, 'NowoDashboardMenuBundle'), bundle: bundle}, false) }}
+{#- Cancel + submit of a dialog form fragment through the UiKit `form_actions` partial (UiKit 2.66, UX-017). A dialog
+    keeps Cancel first (closes the UiKit dialog: data-nowo-ui-dialog-close), then the primary on the right, whatever
+    theme.form_actions_order says (that option only orders the page forms). Variables: submit_label, bundle. -#}
+{{ include(nowo_ui_partial('form_actions', bundle), {submit_label: submit_label, cancel_dialog: true, cancel_label: 'dashboard.cancel'|trans({}, 'NowoDashboardMenuBundle'), order: 'cancel_first', bundle: bundle}, false) }}
