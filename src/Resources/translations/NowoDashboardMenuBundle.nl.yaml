@@ -83,7 +83,7 @@ dashboard:
   collapsible_expanded: Inklapbaar uitgevouwen
   nested_collapsible: Genest inklapbaar
   css_classes: CSS-klassen
-  root: "— Root —"
+  root: "— Hoofdniveau —"
   no_label: "(geen label)"
   # 2.3.0 — admin chrome (index table view, item permission badges)
   table_code: "Code"
@@ -93,7 +93,7 @@ dashboard:
   no_permission_keys: "Geen rechtensleutels"
   unanimous: "Unaniem"
   non_unanimous: "Niet unaniem"
-  position_short: "Pos"
+  position_short: "Pos."
   unique_code_context_error: Er bestaat al een menu met deze code en context.
   base: Basis
   base_badge_title: "Basismenu: code kan na aanmaak niet worden gewijzigd."
