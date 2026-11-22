@@ -1,0 +1,4 @@
+form:
+  copy_menu_type:
+    code:
+      regex_message: 'Koodi saa sisältää vain kirjaimia, numeroita, alaviivoja ja yhdysmerkkejä.'

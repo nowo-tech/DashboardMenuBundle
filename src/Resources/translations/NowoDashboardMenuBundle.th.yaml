@@ -291,7 +291,6 @@ form:
     code:
       label: 'รหัส'
       placeholder: 'เช่น sidebar_copy'
-      regex_message: 'รหัสต้องประกอบด้วยตัวอักษร ตัวเลข ขีดล่าง และยัติภังค์เท่านั้น'
     name:
       label: 'ชื่อ'
       placeholder: 'เช่น แถบด้านข้าง (สำเนา)'

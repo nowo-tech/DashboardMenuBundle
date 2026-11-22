@@ -1,0 +1,4 @@
+form:
+  copy_menu_type:
+    code:
+      regex_message: "Il codice deve contenere solo lettere, numeri, underscore e trattino."

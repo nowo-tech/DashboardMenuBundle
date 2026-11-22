@@ -291,7 +291,6 @@ form:
     code:
       label: 'Kod'
       placeholder: 'np. sidebar_copy'
-      regex_message: 'Kod może zawierać wyłącznie litery, cyfry, podkreślenia i łączniki.'
     name:
       label: 'Nazwa'
       placeholder: 'np. Pasek boczny (kopia)'

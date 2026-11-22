@@ -291,7 +291,6 @@ form:
     code:
       label: '代碼'
       placeholder: '例如 sidebar_copy'
-      regex_message: '代碼只能包含字母、數字、底線與連字號。'
     name:
       label: '名稱'
       placeholder: '例如 側邊欄（副本）'

@@ -1,0 +1,4 @@
+form:
+  copy_menu_type:
+    code:
+      regex_message: 'הקוד יכול להכיל רק אותיות, ספרות, קו תחתון ומקף.'

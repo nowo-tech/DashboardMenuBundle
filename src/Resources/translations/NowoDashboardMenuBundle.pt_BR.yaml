@@ -291,7 +291,6 @@ form:
     code:
       label: 'Código'
       placeholder: 'ex.: sidebar_copy'
-      regex_message: 'O código deve conter apenas letras, números, sublinhado e hífen.'
     name:
       label: 'Nome'
       placeholder: 'ex.: Barra lateral (cópia)'

@@ -291,7 +291,6 @@ form:
     code:
       label: 'コード'
       placeholder: '例: sidebar_copy'
-      regex_message: 'コードには英字、数字、アンダースコア、ハイフンのみ使用できます。'
     name:
       label: '名前'
       placeholder: '例: サイドバー（コピー）'

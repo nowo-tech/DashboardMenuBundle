@@ -291,7 +291,6 @@ form:
     code:
       label: 'Kód'
       placeholder: 'pl. sidebar_copy'
-      regex_message: 'A kód csak betűket, számokat, aláhúzásjelet és kötőjelet tartalmazhat.'
     name:
       label: 'Név'
       placeholder: 'pl. Oldalsáv (másolat)'

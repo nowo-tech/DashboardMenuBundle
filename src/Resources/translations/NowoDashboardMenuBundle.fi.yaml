@@ -291,7 +291,6 @@ form:
     code:
       label: 'Koodi'
       placeholder: 'esim. sidebar_copy'
-      regex_message: 'Koodi saa sisältää vain kirjaimia, numeroita, alaviivoja ja yhdysmerkkejä.'
     name:
       label: 'Nimi'
       placeholder: 'esim. Sivupalkki (kopio)'

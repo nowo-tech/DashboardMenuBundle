@@ -1,0 +1,4 @@
+form:
+  copy_menu_type:
+    code:
+      regex_message: '코드에는 문자, 숫자, 밑줄, 하이픈만 사용할 수 있습니다.'
