@@ -136,6 +136,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Form actions order follows UiKit again (UiKit 2.66.1, owner decision 2026-11-22):** the full pages (import, new /
+  edit menu, new / edit item, copy) and the Live item form on its page (Cancel link) follow UiKit's
+  `theme.form_actions_order`: from UiKit 2.66.1 the primary first, then Cancel (the 2.28 order), unless the host sets
+  `form_actions_order: cancel_first`. The dialog fragments (`dashboard/_dialog_form_actions.html.twig`) and the Live
+  item form in a dialog keep Cancel first (`order: 'cancel_first'`), whatever the option says. Still
+  `nowo-tech/ui-kit-bundle` **^2.66**.
+- Tests: the page contract test no longer hard-codes Cancel first; a new test checks the full pages in the stub
+  theme's configured order and the dialog fragments Cancel first, on UiKit 2.66.0 and 2.66.1.
+
 ## [2.29.0] - 2026-11-22
 
 ### Changed
