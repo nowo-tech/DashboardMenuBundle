@@ -291,7 +291,6 @@ form:
     code:
       label: 'Код'
       placeholder: 'напр. sidebar_copy'
-      regex_message: 'Код може містити лише літери, цифри, підкреслення та дефіс.'
     name:
       label: 'Назва'
       placeholder: 'напр. Бічна панель (копія)'

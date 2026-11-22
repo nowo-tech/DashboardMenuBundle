@@ -291,7 +291,6 @@ form:
     code:
       label: 'קוד'
       placeholder: 'לדוגמה sidebar_copy'
-      regex_message: 'הקוד יכול להכיל רק אותיות, ספרות, קו תחתון ומקף.'
     name:
       label: 'שם'
       placeholder: 'לדוגמה סרגל צד (עותק)'

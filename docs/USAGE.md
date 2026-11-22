@@ -108,7 +108,7 @@ After adding or changing template overrides, clear the Twig cache if needed: `ph
 
 The bundle uses the translation domain **NowoDashboardMenuBundle** for all its strings: dashboard UI (titles, buttons, labels, pagination), form labels and validation messages. Translation files in the bundle are named `NowoDashboardMenuBundle.{locale}.yaml` (e.g. `NowoDashboardMenuBundle.en.yaml`, `NowoDashboardMenuBundle.es.yaml`).
 
-Keys are structured in YAML under `dashboard` (e.g. `dashboard.title`, `dashboard.new_menu`) and under `form` for form labels and validation (e.g. `form.copy_menu_type.code.regex_message`). To override a string, add the same key in your app's translation files for that domain; your app's translations take precedence.
+Keys are structured in YAML under `dashboard` (e.g. `dashboard.title`, `dashboard.new_menu`) and under `form` for form labels (e.g. `form.copy_menu_type.code.label`). The one constraint message passed as a plain key (`form.copy_menu_type.code.regex_message`) is translated by Symfony's validator in the `validators` domain, so it ships in `validators.{locale}.yaml` and is overridden there (see below). To override a string, add the same key in your app's translation files for that domain; your app's translations take precedence.
 
 **Override bundle strings** — create or edit `translations/NowoDashboardMenuBundle.{locale}.yaml` in your project (e.g. `NowoDashboardMenuBundle.en.yaml`, `NowoDashboardMenuBundle.es.yaml`):
 
@@ -121,6 +121,15 @@ dashboard:
   new_menu: Create menu
   search_placeholder: "Search…"
 
+form:
+  copy_menu_type:
+    code:
+      label: Menu code
+```
+
+The copy-menu code message lives in the `validators` domain: override it in `translations/validators.{locale}.yaml`.
+
+```yaml
 form:
   copy_menu_type:
     code:

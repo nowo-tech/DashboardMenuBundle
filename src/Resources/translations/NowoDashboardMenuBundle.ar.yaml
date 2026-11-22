@@ -291,7 +291,6 @@ form:
     code:
       label: 'الرمز'
       placeholder: 'مثال: sidebar_copy'
-      regex_message: 'يجب أن يحتوي الرمز على حروف وأرقام وشرطة سفلية وشرطة فقط.'
     name:
       label: 'الاسم'
       placeholder: 'مثال: الشريط الجانبي (نسخة)'

@@ -137,6 +137,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- The copy-menu form showed the raw key `form.copy_menu_type.code.regex_message` instead of text when the code held a character outside letters, digits, `_` and `-`: Symfony translates constraint messages in the `validators` domain, and the text only existed in `NowoDashboardMenuBundle.<locale>.yaml`. It now ships in `validators.<locale>.yaml` for all 31 locales (text unchanged) and is removed from the bundle domain. **Overrides:** a host that overrode `form.copy_menu_type.code.regex_message` in `NowoDashboardMenuBundle.<locale>.yaml` never took effect on this message; put it in `validators.<locale>.yaml`. (The key lost its `validators` catalogue in 0.3.5, when `validators.*` was merged into the bundle domain.)
+
+### Tests
+
+- Regression test: every dotted literal passed as a constraint message in `src/` exists in the `validators` catalogue of every shipped locale, and the copy-menu form renders translated text for a bad code in each locale.
+
 ## [2.29.1] - 2026-11-22
 
 ### Changed

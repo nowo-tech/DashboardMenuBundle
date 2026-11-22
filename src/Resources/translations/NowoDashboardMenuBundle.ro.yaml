@@ -291,7 +291,6 @@ form:
     code:
       label: 'Cod'
       placeholder: 'ex. sidebar_copy'
-      regex_message: 'Codul poate conține doar litere, cifre, liniuță jos și cratimă.'
     name:
       label: 'Nume'
       placeholder: 'ex. Bară laterală (copie)'

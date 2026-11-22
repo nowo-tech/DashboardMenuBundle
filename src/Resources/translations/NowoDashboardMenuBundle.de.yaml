@@ -291,7 +291,6 @@ form:
     code:
       label: Code
       placeholder: "z. B. sidebar_kopie"
-      regex_message: "Der Code darf nur Buchstaben, Zahlen, Unterstrich und Bindestrich enthalten."
     name:
       label: Name
       placeholder: "z. B. Sidebar (Kopie)"

@@ -1,0 +1,4 @@
+form:
+  copy_menu_type:
+    code:
+      regex_message: 'El codi només pot contenir lletres, números, guions baixos i guions.'

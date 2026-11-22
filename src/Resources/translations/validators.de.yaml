@@ -1,0 +1,4 @@
+form:
+  copy_menu_type:
+    code:
+      regex_message: "Der Code darf nur Buchstaben, Zahlen, Unterstrich und Bindestrich enthalten."

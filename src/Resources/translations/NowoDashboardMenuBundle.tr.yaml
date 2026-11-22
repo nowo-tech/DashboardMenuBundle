@@ -291,7 +291,6 @@ form:
     code:
       label: 'Kod'
       placeholder: 'ör. sidebar_copy'
-      regex_message: 'Kod yalnızca harf, rakam, alt çizgi ve kısa çizgi içerebilir.'
     name:
       label: 'Ad'
       placeholder: 'ör. Kenar çubuğu (kopya)'

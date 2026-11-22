@@ -291,7 +291,6 @@ form:
     code:
       label: 'Κωδικός'
       placeholder: 'π.χ. sidebar_copy'
-      regex_message: 'Ο κωδικός πρέπει να περιέχει μόνο γράμματα, αριθμούς, κάτω παύλα και ενωτικό.'
     name:
       label: 'Όνομα'
       placeholder: 'π.χ. Πλευρική στήλη (αντίγραφο)'

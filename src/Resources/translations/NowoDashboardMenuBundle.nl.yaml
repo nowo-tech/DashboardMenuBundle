@@ -291,7 +291,6 @@ form:
     code:
       label: Code
       placeholder: "bijv. sidebar_kopie"
-      regex_message: "Code mag alleen letters, cijfers, underscore en koppelteken bevatten."
     name:
       label: Naam
       placeholder: "bijv. Sidebar (kopie)"

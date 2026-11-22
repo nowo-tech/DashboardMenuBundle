@@ -291,7 +291,6 @@ form:
     code:
       label: 'Kod'
       placeholder: 't.ex. sidebar_copy'
-      regex_message: 'Koden får endast innehålla bokstäver, siffror, understreck och bindestreck.'
     name:
       label: 'Namn'
       placeholder: 't.ex. Sidofält (kopia)'

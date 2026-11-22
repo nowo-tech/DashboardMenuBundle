@@ -291,7 +291,6 @@ form:
     code:
       label: '代码'
       placeholder: '例如 sidebar_copy'
-      regex_message: '代码只能包含字母、数字、下划线和连字符。'
     name:
       label: '名称'
       placeholder: '例如 侧边栏（副本）'

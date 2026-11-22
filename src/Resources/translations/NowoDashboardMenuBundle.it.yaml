@@ -291,7 +291,6 @@ form:
     code:
       label: Codice
       placeholder: "es. sidebar_copia"
-      regex_message: "Il codice deve contenere solo lettere, numeri, underscore e trattino."
     name:
       label: Nome
       placeholder: "es. Sidebar (copia)"

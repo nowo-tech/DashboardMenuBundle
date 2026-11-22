@@ -291,7 +291,6 @@ form:
     code:
       label: 'Kode'
       placeholder: 'f.eks. sidebar_copy'
-      regex_message: 'Koden kan bare inneholde bokstaver, tall, understrek og bindestrek.'
     name:
       label: 'Navn'
       placeholder: 'f.eks. Sidepanel (kopi)'

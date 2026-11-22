@@ -291,7 +291,6 @@ form:
     code:
       label: 'Codi'
       placeholder: 'p. ex. sidebar_copy'
-      regex_message: 'El codi només pot contenir lletres, números, guions baixos i guions.'
     name:
       label: 'Nom'
       placeholder: 'p. ex. Barra lateral (còpia)'

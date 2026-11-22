@@ -291,7 +291,6 @@ form:
     code:
       label: 'Kód'
       placeholder: 'napr. sidebar_copy'
-      regex_message: 'Kód môže obsahovať iba písmená, číslice, podčiarkovník a spojovník.'
     name:
       label: 'Názov'
       placeholder: 'napr. Bočný panel (kópia)'

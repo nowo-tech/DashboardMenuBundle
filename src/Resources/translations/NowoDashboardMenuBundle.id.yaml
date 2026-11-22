@@ -291,7 +291,6 @@ form:
     code:
       label: 'Kode'
       placeholder: 'mis. sidebar_copy'
-      regex_message: 'Kode hanya boleh berisi huruf, angka, garis bawah, dan tanda hubung.'
     name:
       label: 'Nama'
       placeholder: 'mis. Bilah samping (salinan)'

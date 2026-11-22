@@ -1,0 +1,4 @@
+form:
+  copy_menu_type:
+    code:
+      regex_message: 'Kod yalnızca harf, rakam, alt çizgi ve kısa çizgi içerebilir.'

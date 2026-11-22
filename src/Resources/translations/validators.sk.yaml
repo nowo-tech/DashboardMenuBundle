@@ -1,0 +1,4 @@
+form:
+  copy_menu_type:
+    code:
+      regex_message: 'Kód môže obsahovať iba písmená, číslice, podčiarkovník a spojovník.'
