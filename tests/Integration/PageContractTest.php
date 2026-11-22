@@ -11,6 +11,7 @@ use Nowo\UiKitBundle\Test\PageContractTestCase;
 use Nowo\UiKitBundle\Test\PageFixture;
 use Nowo\UiKitBundle\View\FormPage;
 use Nowo\UiKitBundle\View\Label;
+use Nowo\UiKitBundle\View\PageHeader;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Symfony\Component\Translation\DataCollectorTranslator;
@@ -48,6 +49,7 @@ final class PageContractTest extends PageContractTestCase
     {
         yield 'menus list' => new PageFixture(self::VIEWS . 'index.html.twig', DashboardPageFixtures::index());
         yield 'menus list (search)' => new PageFixture(self::VIEWS . 'index.html.twig', DashboardPageFixtures::index(false, 'side'));
+        yield 'menus list (header actions in the page-actions menu)' => new PageFixture(self::VIEWS . 'index.html.twig', DashboardPageFixtures::index(headerActions: 'page_actions'));
         yield 'menus list (empty)' => new PageFixture(self::VIEWS . 'index.html.twig', DashboardPageFixtures::index(true));
         yield 'menus list (intro)' => new PageFixture(self::VIEWS . 'index.html.twig', DashboardPageFixtures::index(false, '', 'dashboard.menus_intro'));
         yield 'menu detail' => new PageFixture(self::VIEWS . 'show.html.twig', DashboardPageFixtures::show());
@@ -93,6 +95,47 @@ final class PageContractTest extends PageContractTestCase
             static fn (array $message): bool => $message['state'] === DataCollectorTranslator::MESSAGE_MISSING,
         );
         self::assertSame([], array_values(array_map(static fn (array $message): string => $message['domain'] . ': ' . $message['id'], $missing)));
+    }
+
+    /**
+     * The header actions the way UiKit's page header draws a split header (the contract test's stub theme replaces the
+     * page header partial, so the real `header_actions` partial is rendered on the header's actions).
+     */
+    private function headerHtml(PageHeader $header): string
+    {
+        return $this->renderPage(new PageFixture('@NowoUiKitBundle/partials/_header_actions.html.twig', ['actions' => $header->actions, 'bundle' => 'NowoDashboardMenuBundle']))->html;
+    }
+
+    public function testMenusListHeaderActionsAreButtonsByDefault(): void
+    {
+        $header = DashboardPageFixtures::index()['page']->header;
+
+        self::assertSame('toolbar', $header->actionsLayout);
+        self::assertSame('primary', $header->actions[2]->resolvedVariant(), 'New menu stays the primary button.');
+    }
+
+    public function testMenusListHeaderActionsGoToThePageActionsMenuOnRequest(): void
+    {
+        $header = DashboardPageFixtures::index(headerActions: 'page_actions')['page']->header;
+        self::assertSame('split', $header->actionsLayout);
+        $html = $this->headerHtml($header);
+
+        self::assertStringContainsString('data-nowo-ui-header-more', $html, 'The square page-actions menu replaces the header buttons.');
+        self::assertStringContainsString('href="/admin/menus/menu/new"', $html, 'New menu is a menu item.');
+        self::assertStringContainsString('href="/admin/menus/export"', $html);
+        self::assertStringContainsString('href="/admin/menus/import"', $html, 'Import keeps its dialog opener link.');
+        self::assertStringNotContainsString('nowo-ui-btn--primary', substr($html, 0, (int) strpos($html, 'data-nowo-ui-header-more')), 'No filled primary button in the header.');
+    }
+
+    public function testShowAndReorderHeaderActionsGoToThePageActionsMenuOnRequest(): void
+    {
+        $show = $this->headerHtml(DashboardPageFixtures::show(headerActions: 'page_actions')['page']->header);
+        self::assertStringContainsString('data-nowo-ui-header-more', $show);
+        self::assertStringContainsString('dashboard-menu-open-reorder', $show);
+
+        $header = DashboardPageFixtures::reorder(headerActions: 'page_actions')['header'];
+        self::assertSame('split', $header->actionsLayout);
+        self::assertNotContains('primary', array_map(static fn ($action): string => $action->resolvedVariant(), $header->actions));
     }
 
     public function testMenusListRendersCellsRowActionsAndDialogs(): void

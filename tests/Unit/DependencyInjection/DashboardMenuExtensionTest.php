@@ -810,6 +810,22 @@ final class DashboardMenuExtensionTest extends TestCase
         self::assertSame(['index' => 'admin/menus.html.twig'], $container->getParameter('nowo_dashboard_menu.web_ui.templates'));
     }
 
+    public function testLoadSetsTheHeaderActionsPlacement(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'prod');
+        $container->setParameter('kernel.bundles', []);
+        (new DashboardMenuExtension())->load([[]], $container);
+        self::assertSame('buttons', $container->getParameter('nowo_dashboard_menu.web_ui.header_actions'));
+        self::assertSame('%nowo_dashboard_menu.web_ui.header_actions%', $container->getDefinition(DashboardPages::class)->getArgument('$headerActions'));
+
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'prod');
+        $container->setParameter('kernel.bundles', []);
+        (new DashboardMenuExtension())->load([['web_ui' => ['header_actions' => 'page_actions']]], $container);
+        self::assertSame('page_actions', $container->getParameter('nowo_dashboard_menu.web_ui.header_actions'));
+    }
+
     public function testLoadSetsTheIndexIntroParameters(): void
     {
         $container = new ContainerBuilder();
