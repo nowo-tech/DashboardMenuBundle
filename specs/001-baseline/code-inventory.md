@@ -2,9 +2,9 @@
 
 **Baseline spec**: [`spec.md`](spec.md)  
 **Package**: `nowo-tech/dashboard-menu-bundle`  
-**Last audited**: 2026-11-16 (REQ sweep: 2.17–2.22 additions mapped)
+**Last audited**: 2026-11-22 (REQ sweeps: 2.17–2.22 additions mapped 2026-11-16; 2.23–2.28 additions 2026-11-22)
 
-Paths are relative to `src/`. This file proves that **every file tracked under `src/`** (`git ls-files src`, 193 files) is referenced by the baseline specification. Test-only files under `tests/` and demo trees are out of Packagist scope unless promoted in the spec.
+Paths are relative to `src/`. This file proves that **every file tracked under `src/`** (`git ls-files src`, 215 files) is referenced by the baseline specification. Test-only files under `tests/` and demo trees are out of Packagist scope unless promoted in the spec.
 
 ## Bundle & DI
 
@@ -341,6 +341,33 @@ Vitest specs live next to the TypeScript sources under `src/`; they are not load
 | `Worker/DashboardMenuOwnEntityManagerSubscriber.php` | Additions 2.17–2.22 | FR-WORKER-001, FR-ORM-003 |
 | `Worker/UnitOfWorkBoundaries.php` | Additions 2.17–2.22 | FR-WORKER-001 |
 
+## Sources added 2.23–2.28 (sweep 2026-11-22)
+
+| Source file | Spec section | Requirement IDs |
+| --- | --- | --- |
+| `Attribute/AsMenuBadgeProvider.php` | Registers a `MenuBadgeProviderInterface` for one or more menu item keys (the route name of the item). | FR-BADGE-001 |
+| `Concurrency/DashboardMenuConflictAnswer.php` | The answer of a lock conflict on the bundle's own dashboard routes and Live component (2.23, REQ-RUNTIME-003 rule 6). | FR-CONC-001 |
+| `Concurrency/DashboardMenuTransaction.php` | One write unit of the menu entities (2.23, REQ-RUNTIME-003 rule 1): every dashboard action, Live save and import runs its writes here, in ONE transaction on the | FR-CONC-001 |
+| `Concurrency/EditVersion.php` | The optimistic check of the dashboard edit forms (2.24, REQ-RUNTIME-003 rule 4). | FR-CONC-001 |
+| `Concurrency/StaleEditException.php` | A form was built from an older version of a menu or an item than the one stored now (2.24, REQ-RUNTIME-003 rule 4): another admin saved meanwhile, or the row is | FR-CONC-001 |
+| `Resources/assets/src/autocomplete.test.ts` | UX Autocomplete registration (Vitest) | FR-TEST-001, FR-AUTO-001 |
+| `Resources/assets/src/autocomplete.ts` | UX Autocomplete registration for the dashboard (TypeScript source) | FR-AUTO-001 |
+| `Resources/assets/src/dashboard.test.ts` | dashboard modals and reorder (Vitest) | FR-TEST-001, FR-UI-001 |
+| `Resources/assets/src/menu-collapse-boot.test.ts` | collapse state boot (Vitest) | FR-TEST-001, FR-LAYOUT-001 |
+| `Resources/assets/src/section-collapse.test.ts` | per-section collapse (Vitest) | FR-TEST-001, FR-LAYOUT-001 |
+| `Resources/assets/src/section-collapse.ts` | per-section collapse of the sidebar menu (2.26, `menu_layout`) | FR-LAYOUT-001 |
+| `Resources/assets/src/stimulus-live.test.ts` | Stimulus bootstrap for the Live modal (Vitest) | FR-TEST-001, FR-UI-003 |
+| `Resources/assets/test-support/autocomplete.ts` | Vitest support: UX Autocomplete stub | FR-TEST-001 |
+| `Resources/assets/test-support/live-controller.ts` | Vitest support: Live Component controller stub | FR-TEST-001 |
+| `Resources/assets/test-support/sortable.ts` | Vitest support: SortableJS stub | FR-TEST-001 |
+| `Resources/assets/test-support/stimulus.ts` | Vitest support: Stimulus stub | FR-TEST-001 |
+| `Resources/public/js/autocomplete.js` | built JavaScript of `autocomplete.ts` (published output) | FR-BUILD-001, FR-AUTO-001 |
+| `Resources/views/menu_footer.html.twig` | footer slot of the frontend menu (2.26, `menu_layout`) | FR-LAYOUT-001 |
+| `Service/MenuBadgeProviderInterface.php` | Resolves the number shown as a badge on a sidebar menu item (2.27). | FR-BADGE-001 |
+| `Service/MenuItemBadgeResolver.php` | The badge count of a sidebar menu item (2.27), from the `MenuBadgeProviderInterface` registered for the item's key (its route name). | FR-BADGE-001 |
+| `Service/MenuLayout.php` | Menu layout (2.26.0): footer slot and per-section collapse, read from `nowo_dashboard_menu.menu_layout`. | FR-LAYOUT-001 |
+| `View/HeaderActionsPlacement.php` | Where the header actions of the dashboard pages (New, Import, Export, Edit, Add item) are placed (`web_ui.header_actions`). | FR-UI-005 |
+
 ## Coverage summary
 
 | Category | Files | Mapped |
@@ -373,6 +400,7 @@ Vitest specs live next to the TypeScript sources under `src/`; they are not load
 | Web Profiler views | 2 | 2 |
 | Co-located Vitest sources (`FR-TEST-*`) | 3 | 3 |
 | Additions 2.17–2.22 | 38 | 38 |
-| **Total production files (`git ls-files src`)** | **193** | **193** |
+| Additions 2.23–2.28 (sweep 2026-11-22) | 22 | 22 |
+| **Total production files (`git ls-files src`)** | **215** | **215** |
 
 Built JavaScript is documented as published output of TypeScript sources; maintainers rebuild when TS changes.
