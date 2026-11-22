@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.29.1](#to-2291)
 - [To 2.29.0](#to-2290)
 - [To 2.28.1](#to-2281)
 - [To 2.28.0](#to-2280)
@@ -147,6 +148,14 @@
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## To 2.29.1
+
+From **2.29.0**:
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
 
 - **Form actions order.** With UiKit **2.66.1** the full-page forms put the primary first again, then Cancel (UiKit's
   default `theme.form_actions_order: primary_first`). Hosts that want Cancel first in the page forms set
