@@ -14,10 +14,13 @@ use Nowo\DashboardMenuBundle\Service\DashboardUiConfig;
 use Nowo\DashboardMenuBundle\Service\DefaultMenuCodeResolver;
 use Nowo\DashboardMenuBundle\Service\MenuConfigResolver;
 use Nowo\DashboardMenuBundle\Service\MenuIconNameResolver;
+use Nowo\DashboardMenuBundle\Service\MenuItemBadgeResolver;
 use Nowo\DashboardMenuBundle\Service\MenuLocaleResolver;
 use Nowo\DashboardMenuBundle\Service\MenuTreeLoader;
 use Nowo\DashboardMenuBundle\Service\MenuUrlResolver;
 use Nowo\DashboardMenuBundle\Twig\MenuExtension;
+use Nowo\UiKitBundle\Theme\Theme;
+use Nowo\UiKitBundle\Twig\ThemeExtension;
 use ReflectionClass;
 use ReflectionProperty;
 use SensitiveParameter;
@@ -80,7 +83,7 @@ final readonly class DashboardTemplateRenderer
      * @param array{enabled?: bool, mode?: string, storage_key?: string, nested_default?: string} $menuCollapse menu_collapse config (2.6.0)
      * @param array<string, array<string, mixed>> $menuLayout menu_layout config (2.26.0)
      */
-    public function __construct(array $ui = [], array $hostTemplates = [], string $locale = 'en', ?string $viewsRoot = null, array $menuCollapse = [], array $menuLayout = [])
+    public function __construct(array $ui = [], array $hostTemplates = [], string $locale = 'en', ?string $viewsRoot = null, array $menuCollapse = [], array $menuLayout = [], ?MenuItemBadgeResolver $itemBadges = null)
     {
         $root = dirname(__DIR__, 3);
 
@@ -178,8 +181,9 @@ final readonly class DashboardTemplateRenderer
         $app->setDebug(false);
         $this->twig->addGlobal('app', $app);
 
-        $this->twig->addExtension($this->menuExtension(new DashboardUiConfig($ui), $menuCollapse, $menuLayout));
+        $this->twig->addExtension($this->menuExtension(new DashboardUiConfig($ui), $menuCollapse, $menuLayout, $itemBadges));
         $this->twig->addGlobal('nowo_ui_kit_css_framework', 'bootstrap5');
+        $this->twig->addExtension(new ThemeExtension(new Theme()));
 
         $this->formFactory = Forms::createFormFactory();
     }
@@ -309,7 +313,7 @@ final readonly class DashboardTemplateRenderer
      * @param array{enabled?: bool, mode?: string, storage_key?: string, nested_default?: string} $menuCollapse
      * @param array<string, array<string, mixed>> $menuLayout
      */
-    private function menuExtension(DashboardUiConfig $ui, array $menuCollapse = [], array $menuLayout = []): MenuExtension
+    private function menuExtension(DashboardUiConfig $ui, array $menuCollapse = [], array $menuLayout = [], ?MenuItemBadgeResolver $itemBadges = null): MenuExtension
     {
         $menuRepo  = (new ReflectionClass(MenuRepository::class))->newInstanceWithoutConstructor();
         $itemRepo  = (new ReflectionClass(MenuItemRepository::class))->newInstanceWithoutConstructor();
@@ -376,6 +380,7 @@ final readonly class DashboardTemplateRenderer
             $menuCollapse,
             [],
             $menuLayout,
+            $itemBadges,
         );
     }
 }

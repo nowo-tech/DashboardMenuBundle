@@ -360,6 +360,52 @@ aria-expanded aria-controls>` and a `<ul id="...-section">` panel, `hidden` whil
 - This is independent of the database-driven nested collapse (`sectionCollapsible`, `nested_collapsible`): a section
   listed in `menu_layout` uses the markup above.
 
+## Sidebar item badges
+
+Since **2.27.0**. A sidebar (or footer) link can show a count, e.g. the pending questions next to "Customers → Questions".
+Opt-in: with no provider registered the markup is unchanged. The item key is the **route name** of the menu item (the
+same key as `hub.cards.<route>`); items without a route name (external URLs, sections) never get a badge.
+
+```php
+use Nowo\DashboardMenuBundle\Attribute\AsMenuBadgeProvider;
+use Nowo\DashboardMenuBundle\Service\MenuBadgeProviderInterface;
+
+#[AsMenuBadgeProvider(item: 'customers_questions')] // or item: ['orders_open', 'orders_late']
+final readonly class QuestionBadges implements MenuBadgeProviderInterface
+{
+    public function __construct(private QuestionRepository $questions, private Security $security)
+    {
+    }
+
+    public function badge(string $itemKey): ?int
+    {
+        // Scoped to the viewer (or tenant), never a global total.
+        return $this->questions->countPendingFor($this->security->getUser());
+    }
+}
+```
+
+Without the attribute, tag the service for each key:
+
+```yaml
+services:
+  App\Menu\QuestionBadges:
+    tags:
+      - { name: nowo_dashboard_menu.menu_badge_provider, item: customers_questions }
+```
+
+- `null` or `0` (or a failure) shows no badge; otherwise a `<span class="nowo-dashboard-menu__badge">` with the UiKit
+  `badge_warning` slot classes (the same as the hub card badges) and an `aria-label` (`dashboard.badge_pending`,
+  "Pending: %number%", translated in every shipped locale; override it in your own catalogue for another wording).
+- The provider is asked **lazily** and **at most once per item and request**, however many times the item renders
+  (sidebar and footer). The memo hangs on the main request object, so it works with FrankenPHP worker mode and kernel
+  reset off; it is also a `ResetInterface` service. Never keep per-request state in the provider.
+- It is **not called** for items hidden by the menu permissions (they are not in the tree), items past `depth_limit`,
+  nor items inside a section collapsed by `menu_layout` (the panel is hidden); a section that holds the current item
+  opens and is asked. A second provider for the same key replaces the first.
+- An exception in a provider is logged (`error`, with `item` and `exception`) and the badge is hidden; the menu still renders.
+- Twig: `dashboard_menu_item_badge(item)` returns the count (0 = none) for custom menu templates.
+
 ## Items with children (parent, link vs section)
 
 Hierarchy is defined by the **Parent** field when creating or editing an item in the dashboard: each item can have a parent (or “— Root —” for top-level). No extra “type” is needed to mark something as a parent; if any item has this one as parent, it will have children in the tree.

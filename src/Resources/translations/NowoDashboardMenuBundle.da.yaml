@@ -99,6 +99,7 @@ dashboard:
   base_badge_title: 'Basismenu: koden kan ikke ændres efter oprettelse.'
   toggle: 'Skift'
   menu_footer_label: "Menuens bund"
+  badge_pending: "Afventer: %number%"
   yes: 'Ja'
   no: 'Nej'
   export: 'Eksportér'

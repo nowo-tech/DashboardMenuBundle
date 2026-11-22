@@ -99,6 +99,7 @@ dashboard:
   base_badge_title: 'Базовое меню: код нельзя изменить после создания.'
   toggle: 'Переключить'
   menu_footer_label: "Нижняя часть меню"
+  badge_pending: "В ожидании: %number%"
   yes: 'Да'
   no: 'Нет'
   export: 'Экспорт'

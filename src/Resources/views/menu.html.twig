@@ -1,6 +1,7 @@
 {# Renders a dashboard menu tree. Optional: pass menuConfig or use dashboard_menu_config(menuCode). #}
 {# Usage: {% set tree = dashboard_menu_tree('sidebar') %} {% set menuConfig = menuConfig|default(dashboard_menu_config('sidebar')) %} {{ include('@NowoDashboardMenuBundle/menu.html.twig', { menuTree: tree, menuCode: menuCode|default('sidebar'), menuConfig: menuConfig }) }} #}
-{% macro render_node(node, menuConfig, depth, idPrefix, parentItemType) %}
+{#- 2.27.0 item badges: `badges` is false below a collapsed layout section (its panel is hidden, so its providers are not asked); a link whose route has a MenuBadgeProviderInterface shows the count after its label, nothing when null / 0 / failed. -#}
+{% macro render_node(node, menuConfig, depth, idPrefix, parentItemType, badges = true) %}
     {# Macro arguments and defaults (idPrefix scopes collapse IDs; parentItemType drives section-child styling). #}
     {% set idPrefix = idPrefix|default('menu') %}
     {% set parentItemType = parentItemType|default('') %}
@@ -130,6 +131,8 @@
                         {% endif %}
                     {% endif %}
                     {{ item.label }}
+                    {%~ set itemBadge = badges ? dashboard_menu_item_badge(item) : 0 %}
+                    {%~ if itemBadge > 0 %}<span class="{{ nowo_ui_class('badge_warning', 'NowoDashboardMenuBundle') }} nowo-dashboard-menu__badge" role="img" aria-label="{{ 'dashboard.badge_pending'|trans({'%number%': itemBadge}, 'NowoDashboardMenuBundle') }}" data-testid="menu-badge-{{ item.routeName }}">{{ itemBadge }}</span>{% endif %}
                 </a>
                 {% if useNestedCollapsibleForChildren and hasChildren %}
                     <button type="button" class="{{ kitToggle ? 'nowo-ui-tree__toggle' : 'btn btn-link btn-sm p-0 ms-1' }} menu-nested-toggle{{ groupOpen ? '' : ' collapsed' }}" data-bs-toggle="collapse" data-bs-target="#{{ collapseId }}" aria-expanded="{{ groupOpen ? 'true' : 'false' }}" aria-controls="{{ collapseId }}" title="{{ 'dashboard.toggle'|trans({}, 'NowoDashboardMenuBundle') }}">
@@ -145,21 +148,21 @@
             {% if layoutSection is not null %}
                 <ul id="{{ collapseId }}-section"{% if childUlClasses %} class="{{ childUlClasses }}"{% endif %}{% if layoutCollapsed %} hidden{% endif %}>
                     {% for child in node.children %}
-                        {{ _self.render_node(child, menuConfig, depth + 1, idPrefix, itemType) }}
+                        {{ _self.render_node(child, menuConfig, depth + 1, idPrefix, itemType, badges and not layoutCollapsed) }}
                     {% endfor %}
                 </ul>
             {% elseif useNestedCollapsibleForChildren %}
                 <div id="{{ collapseId }}" class="collapse{{ kitToggle ? ' nowo-ui-collapse' }}{{ groupOpen ? ' show' : '' }}"{% if groupMarkCurrent %} data-dashboard-menu-collapse-current{% endif %}>
                     <ul{% if childUlClasses %} class="{{ childUlClasses }}"{% endif %}>
                         {% for child in node.children %}
-                            {{ _self.render_node(child, menuConfig, depth + 1, idPrefix, itemType) }}
+                            {{ _self.render_node(child, menuConfig, depth + 1, idPrefix, itemType, badges and not layoutCollapsed) }}
                         {% endfor %}
                     </ul>
                 </div>
             {% else %}
                 <ul{% if childUlClasses %} class="{{ childUlClasses }}"{% endif %}>
                     {% for child in node.children %}
-                        {{ _self.render_node(child, menuConfig, depth + 1, idPrefix, itemType) }}
+                        {{ _self.render_node(child, menuConfig, depth + 1, idPrefix, itemType, badges and not layoutCollapsed) }}
                     {% endfor %}
                 </ul>
             {% endif %}
@@ -167,7 +170,7 @@
     </li>
     {% if hasChildren and flattenSectionChildren %}
         {% for child in node.children %}
-            {{ _self.render_node(child, menuConfig, depth + 1, idPrefix, '') }}
+            {{ _self.render_node(child, menuConfig, depth + 1, idPrefix, '', badges) }}
         {% endfor %}
     {% endif %}
 {% endmacro %}

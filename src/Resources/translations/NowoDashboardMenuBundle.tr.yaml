@@ -99,6 +99,7 @@ dashboard:
   base_badge_title: 'Temel menü: kod, oluşturulduktan sonra değiştirilemez.'
   toggle: 'Aç/kapat'
   menu_footer_label: "Menü alt bilgisi"
+  badge_pending: "Bekleyen: %number%"
   yes: 'Evet'
   no: 'Hayır'
   export: 'Dışa aktar'

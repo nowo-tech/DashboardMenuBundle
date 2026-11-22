@@ -99,6 +99,7 @@ dashboard:
   base_badge_title: "Menu de base : le code ne peut pas être modifié après la création."
   toggle: Basculer
   menu_footer_label: "Pied du menu"
+  badge_pending: "En attente : %number%"
   yes: Oui
   no: Non
   export: Exporter

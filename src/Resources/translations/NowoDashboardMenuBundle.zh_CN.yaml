@@ -99,6 +99,7 @@ dashboard:
   base_badge_title: '基础菜单：创建后无法更改代码。'
   toggle: '切换'
   menu_footer_label: "菜单页脚"
+  badge_pending: "待处理：%number%"
   yes: '是'
   no: '否'
   export: '导出'

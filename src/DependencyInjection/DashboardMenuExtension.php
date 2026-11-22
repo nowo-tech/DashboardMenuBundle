@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nowo\DashboardMenuBundle\DependencyInjection;
 
 use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
+use Nowo\DashboardMenuBundle\Attribute\AsMenuBadgeProvider;
 use Nowo\DashboardMenuBundle\Concurrency\DashboardMenuConflictAnswer;
 use Nowo\DashboardMenuBundle\DataCollector\DashboardMenuDataCollector;
 use Nowo\DashboardMenuBundle\DataCollector\MenuQueryCounter;
@@ -41,6 +42,7 @@ use Symfony\Component\Asset\Package;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Definition;
@@ -287,6 +289,15 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
             ->addTag('nowo_dashboard_menu.hub_card_extras_provider');
         $container->registerForAutoconfiguration(MenuHubBadgeProviderInterface::class)
             ->addTag('nowo_dashboard_menu.hub_badge_provider');
+        // 2.27: one tag per item key, so the resolver's locator is indexed by item.
+        $container->registerAttributeForAutoconfiguration(
+            AsMenuBadgeProvider::class,
+            static function (ChildDefinition $definition, AsMenuBadgeProvider $attribute): void {
+                foreach ($attribute->items() as $item) {
+                    $definition->addTag(AsMenuBadgeProvider::TAG, ['item' => $item]);
+                }
+            },
+        );
 
         $container->setParameter(
             Configuration::ALIAS . '.dashboard.item_form_live_component_enabled',

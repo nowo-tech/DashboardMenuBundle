@@ -99,6 +99,7 @@ dashboard:
   base_badge_title: "Basismenu: code kan na aanmaak niet worden gewijzigd."
   toggle: Schakelen
   menu_footer_label: "Menuvoettekst"
+  badge_pending: "In behandeling: %number%"
   yes: Ja
   no: Nee
   export: Exporteren

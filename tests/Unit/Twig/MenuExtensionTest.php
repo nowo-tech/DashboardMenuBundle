@@ -35,11 +35,16 @@ use Twig\TwigFunction;
 
 final class MenuExtensionTest extends TestCase
 {
+    public function testItemBadgeIsZeroWithoutAResolver(): void
+    {
+        self::assertSame(0, $this->createExtension()->itemBadge(new MenuItem()));
+    }
+
     public function testGetFunctionsReturnsExpectedTwigFunctions(): void
     {
         $extension = $this->createExtension();
         $functions = $extension->getFunctions();
-        self::assertCount(7, $functions);
+        self::assertCount(8, $functions);
         $names = array_map(static fn (TwigFunction $f): string => $f->getName(), $functions);
         self::assertContains('dashboard_menu_tree', $names);
         self::assertContains('dashboard_menu_href', $names);
@@ -48,6 +53,7 @@ final class MenuExtensionTest extends TestCase
         self::assertContains('dashboard_menu_main', $names);
         self::assertContains('dashboard_menu_footer', $names);
         self::assertContains('dashboard_menu_section', $names);
+        self::assertContains('dashboard_menu_item_badge', $names);
     }
 
     public function testUiClassFallsBackToDefaultWithoutDashboardUiConfig(): void

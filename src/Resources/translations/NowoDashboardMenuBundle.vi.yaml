@@ -99,6 +99,7 @@ dashboard:
   base_badge_title: 'Menu cơ sở: không thể thay đổi mã sau khi tạo.'
   toggle: 'Bật/tắt'
   menu_footer_label: "Chân menu"
+  badge_pending: "Đang chờ: %number%"
   yes: 'Có'
   no: 'Không'
   export: 'Xuất'

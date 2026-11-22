@@ -99,6 +99,7 @@ dashboard:
   base_badge_title: 'Perusvalikko: koodia ei voi muuttaa luomisen jälkeen.'
   toggle: 'Vaihda'
   menu_footer_label: "Valikon alaosa"
+  badge_pending: "Odottaa: %number%"
   yes: 'Kyllä'
   no: 'Ei'
   export: 'Vie'

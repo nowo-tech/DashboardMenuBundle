@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\Tests\DependencyInjection;
 
+use Nowo\DashboardMenuBundle\Attribute\AsMenuBadgeProvider;
 use Nowo\DashboardMenuBundle\Concurrency\DashboardMenuConflictAnswer;
 use Nowo\DashboardMenuBundle\DataCollector\DashboardMenuDataCollector;
 use Nowo\DashboardMenuBundle\DependencyInjection\Configuration;
@@ -15,6 +16,8 @@ use Nowo\DashboardMenuBundle\Security\ConfigurableDashboardMenuAccessChecker;
 use Nowo\DashboardMenuBundle\Security\DashboardMenuAccessCheckerInterface;
 use Nowo\DashboardMenuBundle\Service\DashboardUiConfig;
 use Nowo\DashboardMenuBundle\Service\ImportExportRateLimiter;
+use Nowo\DashboardMenuBundle\Service\MenuItemBadgeResolver;
+use Nowo\DashboardMenuBundle\Tests\Fixtures\MenuBadgeProviderFixture;
 use Nowo\DashboardMenuBundle\Twig\MenuExtension;
 use Nowo\DashboardMenuBundle\View\DashboardPages;
 use Nowo\TransactionDoctrine\Symfony\Conflict\ConflictResponsePolicy;
@@ -23,6 +26,9 @@ use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use stdClass;
+use Symfony\Component\DependencyInjection\Argument\ServiceLocatorArgument;
+use Symfony\Component\DependencyInjection\Compiler\AttributeAutoconfigurationPass;
+use Symfony\Component\DependencyInjection\Compiler\ResolveInstanceofConditionalsPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Definition;
@@ -112,6 +118,32 @@ final class DashboardMenuExtensionTest extends TestCase
         self::assertIsArray($layout);
         self::assertSame('app_help', $layout['sidebar']['footer'][0]['route']);
         self::assertSame('%' . Configuration::ALIAS . '.menu_layout%', $container->getDefinition(MenuExtension::class)->getArguments()['$menuLayout']);
+    }
+
+    public function testMenuBadgeProviderAttributeTagsTheServiceOncePerItemKey(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'prod');
+        $container->setParameter('kernel.bundles', []);
+
+        (new DashboardMenuExtension())->load([[]], $container);
+
+        $container->register('app.badges', MenuBadgeProviderFixture::class)->setAutoconfigured(true);
+        (new AttributeAutoconfigurationPass())->process($container);
+        (new ResolveInstanceofConditionalsPass())->process($container);
+
+        self::assertSame(
+            [['item' => 'a'], ['item' => 'b']],
+            $container->getDefinition('app.badges')->getTag(AsMenuBadgeProvider::TAG),
+        );
+
+        $locator = $container->getDefinition(MenuItemBadgeResolver::class)->getArguments()['$providers'];
+        self::assertInstanceOf(ServiceLocatorArgument::class, $locator);
+        $tagged = $locator->getTaggedIteratorArgument();
+        self::assertNotNull($tagged);
+        self::assertSame(AsMenuBadgeProvider::TAG, $tagged->getTag());
+        self::assertSame('item', $tagged->getIndexAttribute());
+        self::assertSame(MenuItemBadgeResolver::class, (string) $container->getDefinition(MenuExtension::class)->getArguments()['$itemBadges']);
     }
 
     public function testConflictResponseFollowsTransactionDoctrineWhenUnset(): void
