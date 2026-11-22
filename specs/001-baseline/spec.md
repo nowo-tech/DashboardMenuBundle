@@ -263,6 +263,14 @@ As a bundle maintainer, I sync missing translation keys across locale files.
 - **FR-AREA-001**: Areas (2.22, opt-in): `MenuArea` model, `MenuAreaResolver` (request → area by path then route prefix), `MenuAreaAccessCheckerInterface` with default `RoleMenuAreaAccessChecker`, Twig `dashboard_menu_area()` / `dashboard_menu_areas()` / `dashboard_menu_area_granted()` (`MenuAreaExtension`).
 - **FR-HUB-001**: Hub pages (2.22): `MenuHubBuilder` builds `MenuHubSection` / `MenuHubBlock` / `MenuHubCard` from the permission-filtered area tree; host extras via `MenuHubCardExtrasProviderInterface` (`MenuHubCardExtras`) and badges via `MenuHubBadgeProviderInterface`; rendered by `hub.html.twig` / `_hub_card.html.twig` and Twig `dashboard_menu_hub()` / `dashboard_menu_hub_badge()`.
 
+### Additions 2.23–2.28
+
+- **FR-CONC-001**: Write safety (REQ-RUNTIME-003): `DashboardMenuTransaction` runs every dashboard action, Live save and import in one transaction (2.23), `DashboardMenuConflictAnswer` answers a lock conflict on the bundle's routes and Live component (2.23), and `EditVersion` / `StaleEditException` refuse an edit form built from an older version of a menu or item than the stored one (2.24).
+- **FR-AUTO-001**: `autocomplete.ts` (built to `Resources/public/js/autocomplete.js`) registers UX Autocomplete for the dashboard forms.
+- **FR-LAYOUT-001**: Menu layout (2.26, `nowo_dashboard_menu.menu_layout`): `MenuLayout` reads the footer slot (`menu_footer.html.twig`) and per-section collapse (`section-collapse.ts`).
+- **FR-BADGE-001**: Item badges (2.27): `MenuBadgeProviderInterface` providers, registered per item key with `#[AsMenuBadgeProvider]`, give the number `MenuItemBadgeResolver` shows on a sidebar item.
+- **FR-UI-005**: `HeaderActionsPlacement` (`web_ui.header_actions`) places the header actions of the dashboard pages (New, Import, Export, Edit, Add item).
+
 ## Key Entities
 
 - **Menu**: Identified by `code` + optional `context` JSON; stores render config, permission checker reference, collapsible/icon options.
@@ -274,7 +282,7 @@ As a bundle maintainer, I sync missing translation keys across locale files.
 
 ## Success Criteria
 
-- **SC-001**: 100% of production files in `src/` appear in [`code-inventory.md`](code-inventory.md) with requirement IDs (**155/155** mapped, `git ls-files src`).
+- **SC-001**: 100% of production files in `src/` appear in [`code-inventory.md`](code-inventory.md) with requirement IDs (**215/215** mapped, `git ls-files src`, 2026-11-22).
 - **SC-002**: Twig render and JSON API return equivalent tree structures for the same code/locale/context in demo apps.
 - **SC-003**: Configuration keys in [`docs/CONFIGURATION.md`](../../docs/CONFIGURATION.md) match `Configuration.php`.
 - **SC-004**: PHPUnit, PHPStan, and documented QA targets pass in CI (`composer qa`, `make release-check`).
