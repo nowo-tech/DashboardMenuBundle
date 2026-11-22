@@ -36,6 +36,7 @@ use Nowo\DashboardMenuBundle\Service\MenuLocaleResolver;
 use Nowo\DashboardMenuBundle\Service\MenuTreeCacheInvalidator;
 use Nowo\DashboardMenuBundle\Service\MenuTreeLoader;
 use Nowo\DashboardMenuBundle\Twig\MenuExtension;
+use Nowo\DashboardMenuBundle\View\HeaderActionsPlacement;
 use Nowo\TransactionDoctrine\Symfony\Conflict\ConflictResponsePolicy;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Asset\Package;
@@ -401,6 +402,7 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
         $container->setParameter(Configuration::ALIAS . '.web_ui.path_prefix', $webUi['path_prefix'] ?? '/admin/menus');
         $container->setParameter(Configuration::ALIAS . '.web_ui.layout_template', $webUi['layout_template'] ?? null);
         $container->setParameter(Configuration::ALIAS . '.web_ui.templates', $webUi['templates'] ?? []);
+        $container->setParameter(Configuration::ALIAS . '.web_ui.header_actions', $webUi['header_actions'] ?? HeaderActionsPlacement::BUTTONS);
         $indexIntro = $webUi['index']['intro'] ?? null;
         $container->setParameter(Configuration::ALIAS . '.web_ui.index.intro', is_string($indexIntro) && trim($indexIntro) !== '' ? $indexIntro : null);
         $container->setParameter(Configuration::ALIAS . '.web_ui.index.intro_domain', $webUi['index']['intro_domain'] ?? NowoDashboardMenuBundle::TRANSLATION_DOMAIN);

@@ -144,6 +144,11 @@ scaffold (`page/list`, `page/show`, `page/form`; the drag reorder page is a decl
    `nowo_ui_kit.theme.bundles.NowoDashboardMenuBundle`.
 3. **Per-page override** (rare): `nowo_dashboard_menu.web_ui.templates.<page>` → a template that extends
    `@!NowoDashboardMenuBundle/dashboard/<page>.html.twig` and overrides a data block.
+4. **Header actions in the page-actions menu** (opt-in): `nowo_dashboard_menu.web_ui.header_actions: page_actions`
+   (default `buttons`) puts New menu / Import / Export (menus list), Export / Copy / Edit / Add item (menu and reorder
+   pages) into UiKit's square page-actions menu (UiKit 2.21+ split header) instead of a row of header buttons. The
+   actions stay `View\Action` objects (`PageHeader::$actions`), so a host with the compact header
+   (`nowo_ui_kit.header.compact_actions: bar`) renders the same list in its own page-actions menu.
 
 ```yaml
 nowo_ui_kit:

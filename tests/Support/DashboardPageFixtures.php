@@ -89,9 +89,9 @@ final class DashboardPageFixtures
         return new UrlGenerator($routes, new RequestContext());
     }
 
-    public static function pages(?DashboardUiConfig $legacyUi = null, ?string $indexIntro = null, string $indexIntroDomain = DashboardPages::DOMAIN): DashboardPages
+    public static function pages(?DashboardUiConfig $legacyUi = null, ?string $indexIntro = null, string $indexIntroDomain = DashboardPages::DOMAIN, string $headerActions = 'buttons'): DashboardPages
     {
-        return new DashboardPages(self::urls(), $legacyUi ?? new DashboardUiConfig(), ['menu_form' => 'lg', 'item_form' => 'lg'], $indexIntro, $indexIntroDomain);
+        return new DashboardPages(self::urls(), $legacyUi ?? new DashboardUiConfig(), ['menu_form' => 'lg', 'item_form' => 'lg'], $indexIntro, $indexIntroDomain, $headerActions);
     }
 
     public static function translator(): Translator
@@ -205,10 +205,10 @@ final class DashboardPageFixtures
     /**
      * @return array<string, mixed>
      */
-    public static function index(bool $empty = false, string $search = '', ?string $intro = null): array
+    public static function index(bool $empty = false, string $search = '', ?string $intro = null, string $headerActions = 'buttons'): array
     {
         $menus = $empty ? [] : [self::sidebar(), self::footer()];
-        $pages = self::pages(null, $intro);
+        $pages = self::pages(null, $intro, headerActions: $headerActions);
 
         return [
             'page' => $pages->indexPage(
@@ -226,11 +226,11 @@ final class DashboardPageFixtures
     /**
      * @return array<string, mixed>
      */
-    public static function show(bool $empty = false): array
+    public static function show(bool $empty = false, string $headerActions = 'buttons'): array
     {
         $menu  = self::sidebar();
         $items = $empty ? [] : self::items();
-        $pages = self::pages();
+        $pages = self::pages(headerActions: $headerActions);
         $up    = [];
         $down  = [];
         $del   = [];
@@ -258,7 +258,7 @@ final class DashboardPageFixtures
     /**
      * @return array<string, mixed>
      */
-    public static function reorder(bool $empty = false): array
+    public static function reorder(bool $empty = false, string $headerActions = 'buttons'): array
     {
         $menu  = self::sidebar();
         $items = self::items();
@@ -270,7 +270,7 @@ final class DashboardPageFixtures
         ];
 
         return [
-            'header'       => self::pages()->reorderHeader($menu),
+            'header'       => self::pages(headerActions: $headerActions)->reorderHeader($menu),
             'layout'       => null,
             'bundle'       => DashboardPages::BUNDLE,
             'menu'         => $menu,

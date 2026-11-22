@@ -176,6 +176,7 @@ services:
       $modalSizes: '%nowo_dashboard_menu.dashboard.modals%'
       $indexIntro: '%nowo_dashboard_menu.web_ui.index.intro%'
       $indexIntroDomain: '%nowo_dashboard_menu.web_ui.index.intro_domain%'
+      $headerActions: '%nowo_dashboard_menu.web_ui.header_actions%'
 
   # 2.27: sidebar item badges. Providers (#[AsMenuBadgeProvider] / tag with `item`) are resolved lazily, once per item per request.
   Nowo\DashboardMenuBundle\Service\MenuItemBadgeResolver:

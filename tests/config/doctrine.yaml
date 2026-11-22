@@ -10,4 +10,3 @@ doctrine:
                 type: attribute
                 dir: '%kernel.project_dir%/src/Entity'
                 prefix: 'Nowo\DashboardMenuBundle\Entity'
-                alias: NowoDashboardMenuBundle

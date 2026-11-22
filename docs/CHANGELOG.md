@@ -133,6 +133,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `web_ui.header_actions` (`buttons` | `page_actions`, default `buttons`): with `page_actions` the header actions of the menus list, the menu page and the reorder page (New menu, Import, Export, Copy, Edit, Add item…) are UiKit `View\Action` items of the square page-actions menu (the page header uses UiKit's split layout and no action stays a filled primary button), instead of a row of header buttons. The actions keep their kind, target, POST form and dialog opener (the legacy `headerActionVariant` mapping still applies to the variants it sets), and `PageHeader::$actions` is the same list a host compact header reads for its own page-actions menu. With the UiKit compact header and `nowo_ui_kit.header.compact_actions: bar` the option is a no-op for placement: UiKit leaves `header.actions` out of the page and the host fills its top-bar menu from `page.header.actions`, so no second page-actions menu is rendered. Needs UiKit 2.21+ (an older UiKit keeps the buttons). Nothing changes with the default. `Nowo\DashboardMenuBundle\View\HeaderActionsPlacement`, constructor argument `DashboardPages::$headerActions`.
+
 ## [2.27.0] - 2026-11-22
 
 ### Added

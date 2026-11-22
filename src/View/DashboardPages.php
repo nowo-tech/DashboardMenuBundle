@@ -80,6 +80,7 @@ final readonly class DashboardPages
         private array $modalSizes = [],
         private ?string $indexIntro = null,
         private string $indexIntroDomain = self::DOMAIN,
+        private string $headerActions = HeaderActionsPlacement::BUTTONS,
     ) {
     }
 
@@ -113,11 +114,11 @@ final readonly class DashboardPages
         $newMenu = $this->dialogAction('create', 'dashboard.new_menu', $this->url(DashboardRoutes::ROUTE_MENU_NEW), self::DIALOG_MENU, $this->variant('new_menu', 'primary'));
 
         return new ListPage(
-            new PageHeader($this->label('dashboard.menus'), $this->indexIntro(), [
+            HeaderActionsPlacement::apply($this->headerActions, new PageHeader($this->label('dashboard.menus'), $this->indexIntro(), [
                 new Action('export', $this->label('dashboard.export_all'), $this->url(DashboardRoutes::ROUTE_EXPORT_ALL), variant: $this->variant('export_all'), attributes: ['target' => '_blank', 'rel' => 'noopener noreferrer']),
                 $this->dialogAction('import', 'dashboard.import', $this->url(DashboardRoutes::ROUTE_IMPORT), self::DIALOG_IMPORT, $this->variant('import')),
                 $newMenu,
-            ]),
+            ])),
             [
                 new Column('code', $this->label('dashboard.table_code'), required: true),
                 new Column('name', $this->label('dashboard.table_name')),
@@ -178,7 +179,7 @@ final readonly class DashboardPages
         }
 
         return new ShowPage(
-            new PageHeader($menu->getCode(), $menu->getName(), $actions, $this->menuCrumbs($menu)),
+            HeaderActionsPlacement::apply($this->headerActions, new PageHeader($menu->getCode(), $menu->getName(), $actions, $this->menuCrumbs($menu))),
             $sections,
             bundle: self::BUNDLE,
             layout: $layout,
@@ -243,7 +244,7 @@ final readonly class DashboardPages
         $crumbs[1] = new Crumb($menu->getCode(), $showUrl);
         $crumbs[]  = new Crumb($this->label('dashboard.sortable_page_heading'));
 
-        return new PageHeader(
+        return HeaderActionsPlacement::apply($this->headerActions, new PageHeader(
             $menu->getCode(),
             $this->label('dashboard.sortable_page_heading'),
             [
@@ -252,7 +253,7 @@ final readonly class DashboardPages
                 $this->addItemAction($menu),
             ],
             $crumbs,
-        );
+        ));
     }
 
     /**

@@ -8,6 +8,7 @@ use Nowo\DashboardMenuBundle\Enum\CssFramework;
 use Nowo\DashboardMenuBundle\Enum\IconSet;
 use Nowo\DashboardMenuBundle\Service\DashboardUiConfig;
 use Nowo\DashboardMenuBundle\View\DashboardWebUi;
+use Nowo\DashboardMenuBundle\View\HeaderActionsPlacement;
 use Nowo\TransactionDoctrine\Symfony\Conflict\ConflictResponsePolicy;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -705,6 +706,11 @@ final class Configuration implements ConfigurationInterface
                         ->scalarNode('layout_template')
                             ->info('Layout the dashboard scaffolds extend instead of nowo_ui_kit.layouts.admin (null = UiKit layout). It must render the UiKit canonical blocks (nowo_ui_content…); a 1.x layout that renders "nowo_dashboard_menu_content" is bridged (deprecated).')
                             ->defaultNull()
+                        ->end()
+                        ->enumNode('header_actions')
+                            ->info('Where the header actions (New menu, Import, Export, Edit, Add item…) go: "buttons" (default) = one button per action in the page header; "page_actions" = UiKit View\\Action items in the square page-actions menu (UiKit split header; the compact header of the host reads the same PageHeader actions). Needs UiKit 2.21+.')
+                            ->values(HeaderActionsPlacement::MODES)
+                            ->defaultValue(HeaderActionsPlacement::BUTTONS)
                         ->end()
                         ->arrayNode('index')
                             ->info('Menus list page (2.10+).')
