@@ -7,6 +7,9 @@ namespace Nowo\DashboardMenuBundle\Tests\Unit\Form;
 use Nowo\DashboardMenuBundle\Form\CopyMenuType;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use RegexIterator;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\Form\Forms;
 use Symfony\Component\Translation\Loader\YamlFileLoader;
@@ -14,13 +17,15 @@ use Symfony\Component\Translation\Translator;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Yaml\Yaml;
 
+use function count;
 use function dirname;
 use function is_array;
+use function sprintf;
 
 /**
  * Symfony translates constraint messages (`message:`, `mimeTypesMessage:` ...) in the `validators` domain, whatever
  * `translation_domain` the form declares. A dotted key that lives only in `NowoDashboardMenuBundle.<locale>.yaml` would
- * reach the user as raw text. (`buildViolation(...)->setTranslationDomain(...)` is the other, correct way.)
+ * reach the user as raw text. (`buildViolation(...)->setTranslationDomain(...)` is the other, correct way.).
  */
 #[CoversNothing]
 final class ConstraintMessagesTest extends TestCase
@@ -32,7 +37,7 @@ final class ConstraintMessagesTest extends TestCase
     /**
      * @return list<string>
      */
-    private static function shippedLocales(): array
+    private function shippedLocales(): array
     {
         $locales = [];
         foreach (glob(dirname(__DIR__, 3) . self::TRANSLATIONS . '/NowoDashboardMenuBundle.*.yaml') ?: [] as $file) {
@@ -49,10 +54,10 @@ final class ConstraintMessagesTest extends TestCase
      *
      * @return list<string>
      */
-    private static function dottedConstraintMessages(): array
+    private function dottedConstraintMessages(): array
     {
         $found = [];
-        $files = new \RegexIterator(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(dirname(__DIR__, 3) . '/src')), '/\.php$/');
+        $files = new RegexIterator(new RecursiveIteratorIterator(new RecursiveDirectoryIterator(dirname(__DIR__, 3) . '/src')), '/\.php$/');
         foreach ($files as $file) {
             $source = (string) file_get_contents((string) $file);
             if (preg_match_all('/[mM]essage\w*\s*(?::|=>)\s*\'([a-z_0-9]+(?:\.[a-z_0-9]+)+)\'/', $source, $m) > 0) {
@@ -65,10 +70,10 @@ final class ConstraintMessagesTest extends TestCase
 
     public function testEveryDottedConstraintMessageExistsInValidatorsForEveryShippedLocale(): void
     {
-        $messages = self::dottedConstraintMessages();
+        $messages = $this->dottedConstraintMessages();
         self::assertContains('form.copy_menu_type.code.regex_message', $messages);
 
-        $locales = self::shippedLocales();
+        $locales = $this->shippedLocales();
         self::assertGreaterThanOrEqual(30, count($locales));
         foreach ($locales as $locale) {
             $file = dirname(__DIR__, 3) . self::TRANSLATIONS . '/validators.' . $locale . '.yaml';
@@ -84,7 +89,7 @@ final class ConstraintMessagesTest extends TestCase
 
     public function testCopyMenuFormShowsTranslatedTextForABadCodeInEveryShippedLocale(): void
     {
-        foreach (self::shippedLocales() as $locale) {
+        foreach ($this->shippedLocales() as $locale) {
             // The way FrameworkBundle wires it: every catalogue in its own domain, constraint messages in `validators`.
             $translator = new Translator($locale);
             $translator->addLoader('yaml', new YamlFileLoader());
