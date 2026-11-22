@@ -134,6 +134,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Translations: `dashboard.edit_menu`, `dashboard.edit_item` and `dashboard.edit` read "Ubah menu", "Ubah item" and "Ubah" (id), `dashboard.root` reads "— Hoofdniveau —" (nl), and `dashboard.position_short` reads "Pos." in de, es, fr, it, nl and pt. A new strict `TranslationCatalogueTest` (also covers `pt_BR`/`zh_CN`/`zh_TW`) fails on a non-en locale missing a key, on a non-en value identical to English (any length, placeholders included; values without letters are skipped) unless allow-listed per locale (brands, units, protocols, loanwords, true cognates), on a non-es value identical to the Spanish one (longer than 12 characters, different from English) unless allow-listed as genuinely shared, and on stale entries in either allow-list.
+
 ## [2.28.0] - 2026-11-22
 
 ### Added

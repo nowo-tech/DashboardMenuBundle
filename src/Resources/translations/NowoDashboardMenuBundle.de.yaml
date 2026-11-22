@@ -93,7 +93,7 @@ dashboard:
   no_permission_keys: "Keine Berechtigungsschlüssel"
   unanimous: "Einstimmig"
   non_unanimous: "Nicht einstimmig"
-  position_short: "Pos"
+  position_short: "Pos."
   unique_code_context_error: Ein Menü mit diesem Code und Kontext existiert bereits.
   base: Basis
   base_badge_title: "Basis-Menü: Code kann nach der Erstellung nicht geändert werden."
