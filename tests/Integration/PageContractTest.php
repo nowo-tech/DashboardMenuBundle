@@ -475,4 +475,10 @@ final class PageContractTest extends PageContractTestCase
     {
         return dirname(__DIR__, 2) . '/docs/TEMPLATES.md';
     }
+
+    /** UiKit 2.66 (UX-017): every form actions row puts Cancel first, then the primary. */
+    protected static function formActionsOrderChecked(): bool
+    {
+        return true;
+    }
 }

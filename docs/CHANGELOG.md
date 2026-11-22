@@ -135,6 +135,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Form actions order (Beacon UX-017):** every form puts Cancel first, then the primary on the right, like the UiKit
+  dialogs. The import, menu, item and copy forms render their actions through the UiKit `form_actions` partial: the
+  dialog fragments (`dashboard/_dialog_form_actions.html.twig`) and the Live item form (Cancel link on the page, dialog
+  close in a dialog). The full pages (import, new / edit menu, new / edit item, copy) get the order from the UiKit form
+  scaffold. Requires `nowo-tech/ui-kit-bundle` **^2.66** (was ^2.60). The page contract test checks the order
+  (`formActionsOrderChecked()`).
+
 ## [2.28.1] - 2026-11-22
 
 ### Fixed
