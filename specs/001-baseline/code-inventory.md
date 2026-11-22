@@ -267,7 +267,7 @@ Paths are relative to `src/`. This file proves that **every file tracked under `
 | `Resources/views/dashboard/_sortable_tree_macro.html.twig` | Reorder tree macro | FR-DASH-003 |
 | `Resources/views/dashboard/_dashboard_item_icon.html.twig` | Dashboard item icon partial | FR-DASH-003 |
 | `Resources/views/dashboard/_dialogs.html.twig` | UiKit `dialog`s the form openers load into | FR-DASH-003, FR-WEBUI-001 |
-| `Resources/views/dashboard/_dialog_form_actions.html.twig` | Dialog form submit/cancel actions | FR-DASH-003, FR-WEBUI-001 |
+| `Resources/views/dashboard/_dialog_form_actions.html.twig` | Dialog form actions through the UiKit `form_actions` partial (Cancel first, then the primary) | FR-DASH-003, FR-WEBUI-001 |
 | `Resources/views/dashboard/_menu_form_fields.html.twig` | Menu form fields (page body and dialog fragment) | FR-DASH-003, FR-FORM-001 |
 | `Resources/views/dashboard/_item_form_fields.html.twig` | Item form fields with locale tabs (page body and dialog fragment) | FR-DASH-003, FR-FORM-001 |
 | `Resources/views/dashboard/_page_scripts.html.twig` | CSP-safe JSON config island + dashboard scripts | FR-DASH-003, FR-TWIG-004, FR-UI-004 |

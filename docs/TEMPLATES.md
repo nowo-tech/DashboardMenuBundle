@@ -89,6 +89,10 @@ Internal (not theme partials): `_page_scripts.html.twig` (JSON config island + S
 `_sortable_tree_macro.html.twig`, `_legacy_layout.html.twig` (deprecated bridge around a 1.x layout that renders
 `nowo_dashboard_menu_content`).
 
+Form actions (UiKit 2.66, Beacon UX-017): every form puts Cancel first, then the primary on the right.
+`_dialog_form_actions.html.twig` and the Live item form include the UiKit `form_actions` partial (a host override of
+that theme partial applies here too); the full pages get the order from the UiKit form scaffold.
+
 ## Allowed exceptions
 
 - (none) — `allowedClasses()` is not overridden in the contract test.
