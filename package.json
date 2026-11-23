@@ -23,11 +23,11 @@
     "@symfony/ux-autocomplete": "2.36.2",
     "@symfony/ux-live-component": "2.36.2",
     "@types/sortablejs": "^1.15.9",
-    "@vitest/coverage-v8": "^5.1.0",
+    "@vitest/coverage-v8": "^5.1.1",
     "happy-dom": "^21.0.4",
     "tom-select": "2.7.0",
     "typescript": "^5.9.3",
     "vite": "^8.3.4",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.1"
   }
 }
