@@ -4,5 +4,12 @@
  * lazily from the bundle's own asset path (config island `autocompleteScriptUrl`); nothing is fetched from a CDN.
  */
 import AutocompleteController from '@symfony/ux-autocomplete';
+import { createBundleLogger } from './logger';
+
+declare const __DASHBOARD_MENU_BUILD_TIME__: string;
+
+createBundleLogger('dashboard-menu/autocomplete', {
+  buildTime: typeof __DASHBOARD_MENU_BUILD_TIME__ !== 'undefined' ? __DASHBOARD_MENU_BUILD_TIME__ : undefined,
+}).scriptLoaded();
 
 export default AutocompleteController;

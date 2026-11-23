@@ -43,6 +43,7 @@
   - [5. Divider — visible when the checker allows](#5-divider--visible-when-the-checker-allows)
   - [Summary table](#summary-table)
 - [Web Profiler diagnostics](#web-profiler-diagnostics)
+- [Browser console](#browser-console)
 
 ## Twig
 
@@ -1145,3 +1146,7 @@ In `dev`, the **Dashboard menus** profiler panel includes:
 - **Tab deep-linking**: collector tabs persist in the URL hash (`#nowo-dm-tab-menus`, `#nowo-dm-tab-configuration`, `#nowo-dm-tab-permission-checks`) and are restored after refresh.
 
 These diagnostics are request-scoped and intended for troubleshooting runtime selection (e.g. checker fallback, context resolution, visibility pruning).
+
+## Browser console
+
+The bundle's script logs one line when it loads (`📦 [dashboard-menu] script loaded, build: 2026-11-23 14:05 UTC`) so a developer can tell which build a page runs. To silence it, set `<html data-nowo-console="quiet">` or `globalThis.NOWO_CONSOLE = 'quiet'` before the script loads; nothing is printed then. The default is unchanged.
