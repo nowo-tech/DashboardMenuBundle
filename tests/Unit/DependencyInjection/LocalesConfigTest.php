@@ -9,6 +9,7 @@ use Nowo\DashboardMenuBundle\Form\MenuItemBasicType;
 use Nowo\DashboardMenuBundle\Form\MenuItemConfigType;
 use Nowo\DashboardMenuBundle\Service\ConfiguredLocales;
 use Nowo\DashboardMenuBundle\Service\MenuLocaleResolver;
+use Nowo\DashboardMenuBundle\View\DashboardWebUi;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -93,7 +94,7 @@ final class LocalesConfigTest extends TestCase
 
         $extension->prepend($container);
 
-        self::assertSame([['css_framework' => 'tailwind']], $container->getExtensionConfig('nowo_ui_kit'));
+        self::assertSame([['css_framework' => 'tailwind', 'theme' => ['bundles' => [DashboardWebUi::BUNDLE => ['partials' => ['table' => DashboardWebUi::TABLE_PARTIAL]]]]]], $container->getExtensionConfig('nowo_ui_kit'));
     }
 
     private function container(): ContainerBuilder

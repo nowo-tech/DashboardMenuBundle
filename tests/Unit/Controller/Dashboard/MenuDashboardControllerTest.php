@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\DashboardMenuBundle\Tests\Controller\Dashboard;
 
+use ArrayObject;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Nowo\DashboardMenuBundle\Concurrency\DashboardMenuConflictAnswer;
@@ -21,8 +22,11 @@ use Nowo\DashboardMenuBundle\Service\ImportExportRateLimiter;
 use Nowo\DashboardMenuBundle\Service\MenuExporter;
 use Nowo\DashboardMenuBundle\Service\MenuImporter;
 use Nowo\DashboardMenuBundle\Tests\Unit\Concurrency\StorageErrors;
+use Nowo\DashboardMenuBundle\View\DashboardWebUi;
 use Nowo\TransactionDoctrine\Symfony\Conflict\ConflictResponsePolicy;
+use Nowo\UiKitBundle\Dialog\RemoteDialog;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -2634,18 +2638,71 @@ final class MenuDashboardControllerTest extends TestCase
         $this->setId($item, 5);
         $itemRepo->method('find')->with(5)->willReturn($item);
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, router: $this->routerWithRoutes());
-        $this->setControllerContainer($controller);
 
+        /** @var ArrayObject<int, string> $templates */
+        $templates = new ArrayObject();
+        $twig      = $this->createMock(Environment::class);
+        $twig->method('render')->willReturnCallback(static function (string $template) use ($templates): string {
+            $templates->append($template);
+
+            return '<p>' . $template . '</p>';
+        });
+        $this->setControllerContainer($controller, twig: $twig);
+        $dialog = static function (string $uri): Request {
+            $request = Request::create($uri);
+            $request->headers->set(RemoteDialog::REQUEST_HEADER, '1');
+
+            return $request;
+        };
+
+        // The UiKit remote dialog header selects the fragment; the same URL without it answers the full page.
         foreach ([
-            static fn (): Response => $controller->newMenu(Request::create('/menu/new?_modal=1')),
-            static fn (): Response => $controller->editMenu(Request::create('/1/edit?_modal=1'), 1),
-            static fn (): Response => $controller->copyMenu(Request::create('/1/copy?_modal=1'), 1),
-            static fn (): Response => $controller->newItem(Request::create('/1/item/new?_modal=1'), 1),
-            static fn (): Response => $controller->editItem(Request::create('/1/item/5/edit?_modal=1'), 1, 5),
-            static fn (): Response => $controller->import(Request::create('/import?_modal=1')),
-        ] as $call) {
-            self::assertSame(200, $call()->getStatusCode());
+            ['menu_form_partial', $controller->newMenu(...), '/menu/new'],
+            ['menu_form_partial', static fn (Request $r): Response => $controller->editMenu($r, 1), '/1/edit'],
+            ['copy_menu_partial', static fn (Request $r): Response => $controller->copyMenu($r, 1), '/1/copy'],
+            ['item_form_partial', static fn (Request $r): Response => $controller->newItem($r, 1), '/1/item/new'],
+            ['item_form_partial', static fn (Request $r): Response => $controller->editItem($r, 1, 5), '/1/item/5/edit'],
+            ['import_partial', $controller->import(...), '/import'],
+        ] as [$fragment, $call, $uri]) {
+            $templates->exchangeArray([]);
+            $response = $call($dialog($uri));
+            self::assertSame(200, $response->getStatusCode());
+            self::assertSame([DashboardWebUi::TEMPLATES[$fragment]], $templates->getArrayCopy(), $uri . ' with the header');
+            self::assertContains(RemoteDialog::REQUEST_HEADER, $response->getVary(), 'Vary keeps the fragment and the page apart.');
+
+            $templates->exchangeArray([]);
+            $page = $call(Request::create($uri));
+            self::assertSame(200, $page->getStatusCode());
+            self::assertNotSame([DashboardWebUi::TEMPLATES[$fragment]], $templates->getArrayCopy(), $uri . ' without the header');
+            self::assertContains(RemoteDialog::REQUEST_HEADER, $page->getVary());
         }
+
+        // A POST never answers the fragment because of the header (it is not a security signal).
+        $templates->exchangeArray([]);
+        $post = Request::create('/menu/new', 'POST');
+        $post->headers->set(RemoteDialog::REQUEST_HEADER, '1');
+        $controller->newMenu($post);
+        self::assertNotContains(DashboardWebUi::TEMPLATES['menu_form_partial'], $templates->getArrayCopy());
+    }
+
+    #[IgnoreDeprecations]
+    public function testTheModalQueryParameterIsADeprecatedAliasOfTheDialogHeader(): void
+    {
+        [$menuRepo, $itemRepo, $menu] = $this->menuWithRepositories();
+        $controller                   = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, router: $this->routerWithRoutes());
+        /** @var ArrayObject<int, string> $templates */
+        $templates = new ArrayObject();
+        $twig      = $this->createMock(Environment::class);
+        $twig->method('render')->willReturnCallback(static function (string $template) use ($templates): string {
+            $templates->append($template);
+
+            return '';
+        });
+        $this->setControllerContainer($controller, twig: $twig);
+
+        $this->expectUserDeprecationMessageMatches('/"\?_modal=1" query parameter is deprecated, send the "X-Nowo-Dialog: 1" request header/');
+        self::assertSame(200, $controller->copyMenu(Request::create('/1/copy?_modal=1'), 1)->getStatusCode());
+        self::assertSame([DashboardWebUi::TEMPLATES['copy_menu_partial']], $templates->getArrayCopy());
     }
 
     public function testTheLiveComponentFormIsUsedForTheConfigSectionOfAnEditedItem(): void
@@ -2658,7 +2715,9 @@ final class MenuDashboardControllerTest extends TestCase
         $controller = $this->createController(menuRepository: $menuRepo, menuItemRepository: $itemRepo, router: $this->routerWithRoutes(), itemFormLiveComponentEnabled: true);
         $this->setControllerContainer($controller);
 
-        self::assertSame(200, $controller->editItem(Request::create('/1/item/5/edit?_modal=1&section=config'), 1, 5)->getStatusCode(), 'the dialog fragment');
+        $fragment = Request::create('/1/item/5/edit?section=config');
+        $fragment->headers->set(RemoteDialog::REQUEST_HEADER, '1');
+        self::assertSame(200, $controller->editItem($fragment, 1, 5)->getStatusCode(), 'the dialog fragment');
         self::assertSame(200, $controller->editItem(Request::create('/1/item/5/edit?section=config'), 1, 5)->getStatusCode(), 'the full page');
     }
 
@@ -3142,7 +3201,7 @@ final class MenuDashboardControllerTest extends TestCase
     /**
      * @param FormInterface<mixed>|null $form
      */
-    private function setControllerContainer(MenuDashboardController $controller, ?FormInterface $form = null): void
+    private function setControllerContainer(MenuDashboardController $controller, ?FormInterface $form = null, ?Environment $twig = null): void
     {
         $router = $this->createMock(RouterInterface::class);
         $router->method('getRouteCollection')->willReturn(new RouteCollection());
@@ -3154,8 +3213,10 @@ final class MenuDashboardControllerTest extends TestCase
 
         $session = new Session();
 
-        $twig = $this->createMock(Environment::class);
-        $twig->method('render')->willReturn('<html></html>');
+        if (!$twig instanceof Environment) {
+            $twig = $this->createMock(Environment::class);
+            $twig->method('render')->willReturn('<html></html>');
+        }
 
         $requestStack = new RequestStack();
         $request      = Request::create('/');

@@ -36,8 +36,16 @@ final readonly class DashboardWebUi
     public const LEGACY_LAYOUT_BRIDGE = '@NowoDashboardMenuBundle/dashboard/_legacy_layout.html.twig';
 
     /**
+     * UiKit {@code table} partial of the dashboard pages ({@code nowo_ui_kit.theme.bundles.NowoDashboardMenuBundle.partials.table},
+     * prepended by the bundle; a host value wins): extends the host / kit partial with {@code confirm_shared} on, so a
+     * list prints one confirm dialog, not one per row (lazy dialogs, UiKit 2.68).
+     */
+    public const TABLE_PARTIAL = '@NowoDashboardMenuBundle/ui/_table.html.twig';
+
+    /**
      * Page / fragment id => default template (override with {@code web_ui.templates.<page>}). The {@code *_partial}
-     * templates are the dialog bodies the dashboard script loads with {@code ?_modal=1}.
+     * templates are the dialog bodies the dashboard script loads with the {@code X-Nowo-Dialog: 1} request header
+     * (the 2.x {@code ?_modal=1} query parameter still works, deprecated).
      *
      * @var array<string, string>
      */

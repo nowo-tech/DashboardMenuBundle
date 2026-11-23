@@ -1,4 +1,4 @@
-{#- Copy menu dialog fragment (GET ?_modal=1). Variables: form, menu. Override: web_ui.templates.copy_menu_partial. -#}
+{#- Copy menu dialog fragment (GET with X-Nowo-Dialog: 1; deprecated alias ?_modal=1). Variables: form, menu. Override: web_ui.templates.copy_menu_partial. -#}
 {% set _b = 'NowoDashboardMenuBundle' %}
 <p class="{{ nowo_ui_class('muted', _b) }}">{{ 'dashboard.copy_menu_help'|trans({}, 'NowoDashboardMenuBundle') }}</p>
 {{ form_start(form, {attr: {class: nowo_ui_class('form', _b) ~ ' nowo-dashboard-menu-form'}}) }}

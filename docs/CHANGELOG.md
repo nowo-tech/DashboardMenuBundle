@@ -138,6 +138,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Lazy dialogs (symfony-beacon rule 2026-11-23, "every dialog loads its content on demand"): the menu detail no longer prints one confirm `<dialog>` (title, message, POST form + CSRF) per item row. The items table prints ONE shared confirm dialog (UiKit 2.68 `confirm_shared`, id `nowo-dashboard-menu-item-confirm`) filled from the row's Delete toggle when it opens; each row keeps its own hidden POST form, target and CSRF token. The menus list follows through the new bundle `table` partial `@NowoDashboardMenuBundle/ui/_table.html.twig` (`DashboardWebUi::TABLE_PARTIAL`, prepended as `nowo_ui_kit.theme.bundles.NowoDashboardMenuBundle.partials.table`; it extends the host / kit `table` partial with `confirm_shared` on, a host value wins). Menu detail with 50 items: 53 dialogs → 4 (the three empty form dialog shells + the shared confirm), 444,801 → 391,762 bytes. CSRF, access checks and the REQ-RUNTIME-003 behaviour are unchanged. Requires `nowo-tech/ui-kit-bundle` `^2.68`.
+- Dialog fragments use the UiKit remote dialog request header: `dashboard.js` fetches a form dialog with `X-Nowo-Dialog: 1` (`RemoteDialog::REQUEST_HEADER`) instead of appending `?_modal=1`, and every dashboard page answers `Vary: X-Nowo-Dialog`, so a cache never serves the fragment for the page URL. The header only selects the fragment on `GET`; it is not a security signal.
+
+### Deprecated
+
+- Loading a dashboard dialog fragment with the `?_modal=1` query parameter: it still works in 2.x (the controller triggers a deprecation) and is removed in 3.0. Send `X-Nowo-Dialog: 1` instead.
+
 ## [2.29.2] - 2026-11-22
 
 ### Fixed

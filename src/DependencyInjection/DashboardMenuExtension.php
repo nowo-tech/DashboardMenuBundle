@@ -36,6 +36,7 @@ use Nowo\DashboardMenuBundle\Service\MenuLocaleResolver;
 use Nowo\DashboardMenuBundle\Service\MenuTreeCacheInvalidator;
 use Nowo\DashboardMenuBundle\Service\MenuTreeLoader;
 use Nowo\DashboardMenuBundle\Twig\MenuExtension;
+use Nowo\DashboardMenuBundle\View\DashboardWebUi;
 use Nowo\DashboardMenuBundle\View\HeaderActionsPlacement;
 use Nowo\TransactionDoctrine\Symfony\Conflict\ConflictResponsePolicy;
 use Psr\Clock\ClockInterface;
@@ -234,13 +235,12 @@ final class DashboardMenuExtension extends Extension implements PrependExtension
         /** @var array<string, mixed> $ui */
         $ui    = is_array($config['dashboard']['ui'] ?? null) ? $config['dashboard']['ui'] : [];
         $theme = LegacyThemeBridge::themeException($ui);
-        if ($theme !== []) {
-            $defaults['theme'] = ['bundles' => [LegacyThemeBridge::BUNDLE => $theme]];
-        }
+        // Lazy dialogs: the bundle `table` partial prints ONE shared confirm dialog per table (UiKit 2.68
+        // confirm_shared) instead of one per row. A host value for this bundle partial wins (prepended config).
+        $theme['partials'] = ($theme['partials'] ?? []) + ['table' => DashboardWebUi::TABLE_PARTIAL];
+        $defaults['theme'] = ['bundles' => [LegacyThemeBridge::BUNDLE => $theme]];
 
-        if ($defaults !== []) {
-            $container->prependExtensionConfig('nowo_ui_kit', $defaults);
-        }
+        $container->prependExtensionConfig('nowo_ui_kit', $defaults);
     }
 
     /**

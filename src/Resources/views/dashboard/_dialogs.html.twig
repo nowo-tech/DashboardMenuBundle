@@ -1,7 +1,8 @@
 {#
   UiKit dialogs (nowo_ui_partial('dialog'), native <dialog>) the form openers of the page load into. An opener is a
-  link to the full form page with data-nowo-dashboard-menu-dialog="<dialog id>": dashboard.js fetches it with
-  ?_modal=1 into [data-nowo-dashboard-menu-dialog-body] and opens the dialog (without JavaScript the link opens the
+  link to the full form page with data-nowo-dashboard-menu-dialog="<dialog id>": dashboard.js fetches it with the
+  UiKit remote dialog header (X-Nowo-Dialog: 1; ?_modal=1 is a deprecated alias) into
+  [data-nowo-dashboard-menu-dialog-body] and opens the dialog when it is opened, never before (without JavaScript the link opens the
   form page). Variables: dialogs (list of {id, title, size} from DashboardPages::dialogs()), bundle.
 #}
 {% for _dialog in dialogs|default([]) %}

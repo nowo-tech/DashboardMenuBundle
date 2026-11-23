@@ -4,13 +4,15 @@
   item_rows (DashboardPages::itemRows(): item, depth, parentLabel, actions), add_item (Action), current_locale,
   dialogs. Data blocks: nowo_ui_show_after → nowo_dashboard_menu_items (items table, theme slots of the list
   scaffold) with nowo_dashboard_menu_item_cells (cells of one row: row, item, depth). Override per page:
-  nowo_dashboard_menu.web_ui.templates.show.
+  nowo_dashboard_menu.web_ui.templates.show. Lazy dialogs: the items table prints ONE shared confirm dialog
+  (id nowo-dashboard-menu-item-confirm, UiKit confirm_shared) for every row Delete, never one per row.
 #}
 {% extends '@NowoUiKit/page/show.html.twig' %}
 
 {% block nowo_ui_show_after %}
     {% block nowo_dashboard_menu_items %}
         {% set _b = page.bundle %}
+        {% set _items_confirm = 'nowo-dashboard-menu-item-confirm' %}
         <section class="{{ nowo_ui_class('section', _b) }} nowo-dashboard-menu-items" data-testid="dashboard-menu-items">
             {% if item_rows is empty %}
                 <div class="{{ nowo_ui_class('empty', _b) }}" data-nowo-ui-region="empty"{{ nowo_ui_attrs('empty', _b) }}>
@@ -75,13 +77,16 @@
                                         </td>
                                     {% endblock %}
                                     <td class="{{ nowo_ui_class('table_cell', _b) }} {{ nowo_ui_class('table_actions_cell', _b) }} nowo-ui-cell--end">
-                                        {{ include(nowo_ui_partial('row_actions', _b), {actions: row.actions|map(a => a.withConfirmScope(row_key)), bundle: _b}, false) }}
+                                        {#- lazy dialogs: the Delete confirm opens the ONE shared dialog below; the row keeps its hidden POST form (target + CSRF) -#}
+                                        {{ include(nowo_ui_partial('row_actions', _b), {actions: row.actions|map(a => a.withConfirmScope(row_key)), bundle: _b, confirm_shared: {id: _items_confirm, row: loop.index}}, false) }}
                                     </td>
                                 </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
+                {#- the one confirm dialog of the items table (UiKit 2.68 confirm_shared), filled from the row toggle when it opens -#}
+                {{ include(nowo_ui_partial('confirm_shared', _b), {id: _items_confirm, bundle: _b, nowo_ui_page_type: nowo_ui_page_type|default(null)}, false) }}
             {% endif %}
         </section>
     {% endblock %}

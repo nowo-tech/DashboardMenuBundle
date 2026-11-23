@@ -20,6 +20,7 @@ use Nowo\DashboardMenuBundle\Service\MenuItemBadgeResolver;
 use Nowo\DashboardMenuBundle\Tests\Fixtures\MenuBadgeProviderFixture;
 use Nowo\DashboardMenuBundle\Twig\MenuExtension;
 use Nowo\DashboardMenuBundle\View\DashboardPages;
+use Nowo\DashboardMenuBundle\View\DashboardWebUi;
 use Nowo\TransactionDoctrine\Symfony\Conflict\ConflictResponsePolicy;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\IgnoreDeprecations;
@@ -599,8 +600,10 @@ final class DashboardMenuExtensionTest extends TestCase
                 self::fail('Dashboard must not prepend UiKit defaults when host set nowo_ui_kit explicitly.');
             }
         }
-        self::assertSame('custom', $uiKitConfigs[0]['css_framework'] ?? null);
-        self::assertSame('ux_icon', $uiKitConfigs[0]['icon_set'] ?? null);
+        // Only the bundle table partial (lazy dialogs) is prepended; the host values stay as configured.
+        self::assertSame(['theme' => ['bundles' => [DashboardWebUi::BUNDLE => ['partials' => ['table' => DashboardWebUi::TABLE_PARTIAL]]]]], $uiKitConfigs[0]);
+        self::assertSame('custom', $uiKitConfigs[1]['css_framework'] ?? null);
+        self::assertSame('ux_icon', $uiKitConfigs[1]['icon_set'] ?? null);
     }
 
     public function testPrependSkipsUiKitWhenExtensionMissing(): void

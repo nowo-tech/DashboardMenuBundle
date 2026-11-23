@@ -277,7 +277,8 @@ describe('dashboard entry', () => {
       expect(body.textContent).toBe('Cargando…');
       expect(document.getElementById('dlg-title')?.textContent).toBe('New item');
       expect(open).toHaveBeenCalledWith(dialog, opener);
-      expect(fetchMock).toHaveBeenCalledWith('/dashboard/items/new?section=config&_modal=1', { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+      // UiKit remote dialog protocol: the header selects the fragment, the URL stays the page URL (no ?_modal=1).
+      expect(fetchMock).toHaveBeenCalledWith('/dashboard/items/new?section=config', { headers: { 'X-Nowo-Dialog': '1', 'X-Requested-With': 'XMLHttpRequest', Accept: 'text/html' } });
 
       await flush();
       expect(body.querySelector('#modal-item-form-container')).not.toBeNull();

@@ -1,4 +1,4 @@
-{#- Import dialog fragment (GET ?_modal=1). Keep data-import-form (dashboard.js disables a double submit). Variables: form. Override: web_ui.templates.import_partial. -#}
+{#- Import dialog fragment (GET with X-Nowo-Dialog: 1; deprecated alias ?_modal=1). Keep data-import-form (dashboard.js disables a double submit). Variables: form. Override: web_ui.templates.import_partial. -#}
 {% set _b = 'NowoDashboardMenuBundle' %}
 <p class="{{ nowo_ui_class('muted', _b) }}">{{ 'dashboard.import_help'|trans({}, 'NowoDashboardMenuBundle') }}</p>
 {{ form_start(form, {attr: {class: nowo_ui_class('form', _b) ~ ' nowo-dashboard-menu-form import-form', 'data-import-form': '1'}}) }}
