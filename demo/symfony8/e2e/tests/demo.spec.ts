@@ -30,6 +30,27 @@ test.describe('Dashboard Menu demo', () => {
     await expect(dialog.getByText('Label (es)')).toBeVisible();
   });
 
+  /** Lazy dialogs: one shared Delete confirm for the whole items table, and form dialogs fetched with X-Nowo-Dialog. */
+  test('item rows share one delete confirm and the item dialog is fetched on open', async ({ page }) => {
+    const items = await openUserMenu(page);
+    await expect(page.locator('dialog[data-nowo-confirm-shared]')).toHaveCount(1);
+    await expect(items.locator('table dialog')).toHaveCount(0);
+    const row = items.locator('tr', { hasText: 'Help' }).first();
+    await row.locator('.nowo-ui-action--delete').click();
+    const confirm = page.locator('dialog[open][data-nowo-confirm-shared]');
+    await expect(confirm).toBeVisible();
+    await expect(confirm).toContainText('Help');
+    await confirm.getByRole('button', { name: 'Cancel' }).click();
+    await expect(page.locator('dialog[open]')).toHaveCount(0);
+    await expect(items.locator('tr', { hasText: 'Help' }).first()).toBeVisible();
+
+    const fragment = page.waitForRequest((request) => request.headers()['x-nowo-dialog'] === '1');
+    await items.locator('tr', { hasText: 'Settings' }).first().locator('.nowo-ui-action--edit').click();
+    const request = await fragment;
+    expect(new URL(request.url()).searchParams.has('_modal')).toBe(false);
+    await expect(page.locator('dialog[open]').filter({ hasText: 'Edit label and translations' })).toBeVisible({ timeout: 15_000 });
+  });
+
   /** 2.26 menu_layout: collapsible sections (remembered per person) and the footer slot of the sidebar example. */
   test('sidebar sections collapse, remember the choice, and the footer slot has its own landmark', async ({ page }) => {
     await page.goto('/?example=sidebar');

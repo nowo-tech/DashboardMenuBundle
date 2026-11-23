@@ -28,16 +28,23 @@ use function array_map;
 use function array_values;
 use function assert;
 use function dirname;
+use function fwrite;
+use function getenv;
 use function htmlspecialchars;
 use function json_decode;
 use function json_encode;
 use function ltrim;
 use function preg_match;
+use function preg_match_all;
+use function sprintf;
 use function str_contains;
+use function strlen;
 use function strpos;
+use function substr;
 use function substr_count;
 
 use const JSON_THROW_ON_ERROR;
+use const STDERR;
 
 /**
  * REQ-UI-003: every dashboard page extends a UiKit scaffold (or is the declared unique reorder page), fills the
@@ -240,6 +247,50 @@ final class PageContractTest extends PageContractTestCase
         self::assertStringContainsString('Delete &quot;Latest post&quot; and its children?', $html);
         self::assertStringContainsString('href="/admin/menus/1/items/reorder"', $html);
         self::assertStringContainsString('"menuId":1', $html);
+    }
+
+    /**
+     * Lazy dialogs (symfony-beacon rule 2026-11-23): N item rows print ONE shared confirm dialog, not N. Each row keeps
+     * its own hidden delete form (target + CSRF token) that the shared dialog submits through `form="…"`.
+     */
+    public function testMenuDetailItemsShareOneConfirmDialog(): void
+    {
+        $html = $this->renderPage(new PageFixture(self::VIEWS . 'show.html.twig', DashboardPageFixtures::showMany(50)))->html;
+        if (getenv('DM_LAZY_MEASURE') !== false) {
+            fwrite(STDERR, sprintf("\n[lazy-dialogs] dashboard-menu detail, 50 items: %d bytes, %d dialogs\n", strlen($html), preg_match_all('/<dialog\b/', $html)));
+        }
+
+        self::assertSame(1, substr_count($html, 'data-nowo-confirm-shared'), 'One shared confirm dialog for 50 rows.');
+        self::assertSame(1, preg_match_all('/<dialog [^>]*class="nowo-ui-confirm/', $html));
+        self::assertStringContainsString('<dialog id="nowo-dashboard-menu-item-confirm"', $html);
+        self::assertSame(50, substr_count($html, 'data-nowo-confirm-target="nowo-dashboard-menu-item-confirm"'));
+        $dialog = substr($html, (int) strpos($html, '<dialog id="nowo-dashboard-menu-item-confirm"'));
+        self::assertStringNotContainsString('<form', substr($dialog, 0, (int) strpos($dialog, '</dialog>')), 'The shared dialog carries no form.');
+        for ($id = 100; $id < 150; ++$id) {
+            self::assertSame(1, preg_match('/<form [^>]*action="\/admin\/menus\/1\/item\/' . $id . '\/delete"[^>]*>/', $html, $form), 'Row ' . $id . ' keeps its delete form.');
+            self::assertSame(1, preg_match('/ id="([^"]+)"/', $form[0], $formId));
+            self::assertStringContainsString('data-nowo-confirm-form="' . $formId[1] . '"', $html, 'Its toggle names its own form.');
+            self::assertStringContainsString('value="token-delete_item_' . $id . '"', $html, 'Its own CSRF token.');
+        }
+        self::assertStringContainsString('data-nowo-confirm-message="Delete &quot;Link 7&quot; and its children?"', $html);
+    }
+
+    /**
+     * The bundle `table` partial (menus list) turns the UiKit shared confirm dialog on: one dialog per table.
+     */
+    public function testBundleTablePartialSharesOneConfirmDialog(): void
+    {
+        $index = DashboardPageFixtures::index();
+        $html  = $this->renderPage(new PageFixture('@NowoDashboardMenuBundle/ui/_table.html.twig', ['table' => $index['page']->table, 'bundle' => 'NowoDashboardMenuBundle']))->html;
+
+        self::assertStringContainsString('<dialog id="nowo-ui-table-confirm"', $html);
+        self::assertSame(1, substr_count($html, 'data-nowo-confirm-shared'));
+        self::assertMatchesRegularExpression('/<form [^>]*action="\/admin\/menus\/1\/delete"/', $html);
+        self::assertStringContainsString('value="token-delete_menu_1"', $html);
+        self::assertStringContainsString('data-nowo-confirm-target="nowo-ui-table-confirm"', $html);
+
+        $perRow = $this->renderPage(new PageFixture('@NowoDashboardMenuBundle/ui/_table.html.twig', ['table' => $index['page']->table, 'bundle' => 'NowoDashboardMenuBundle', 'confirm_shared' => false]))->html;
+        self::assertStringNotContainsString('data-nowo-confirm-shared', $perRow, 'confirm_shared: false keeps the per-row dialogs.');
     }
 
     public function testMenuDetailWithoutItemsOffersAddItem(): void

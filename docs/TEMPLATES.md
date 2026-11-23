@@ -51,13 +51,17 @@ form container (`nowo-dashboard-menu-form`), the sections (`nowo-dashboard-menu-
 (`nowo-dashboard-menu-rows`) are flex columns with the UiKit row gap `--nowo-ui-form-row-gap`.
 
 Forms open in UiKit dialogs (`nowo_ui_partial('dialog')`, native `<dialog>`): the openers are links to the full form
-page with `data-nowo-dashboard-menu-dialog="<dialog id>"`; `js/dashboard.js` loads the link with `?_modal=1` into the
+page with `data-nowo-dashboard-menu-dialog="<dialog id>"`; `js/dashboard.js` loads the link with the `X-Nowo-Dialog: 1` request header (the 2.x `?_modal=1` query parameter is a deprecated alias) into the
 dialog (dialog ids `nowo-dashboard-menu-dialog-menu`, `-copy`, `-item`, `-import`; sizes from `dashboard.modals`).
-Without JavaScript the link opens the page. Deletes use the UiKit confirm contract (`nowo-ui-confirm.js`).
+Without JavaScript the link opens the page. Deletes use the UiKit confirm contract (`nowo-ui-confirm.js`) with ONE
+shared confirm dialog per table (UiKit 2.68 `confirm_shared`): `nowo-dashboard-menu-item-confirm` on the menu detail,
+`nowo-ui-table-confirm` on the menus list through the bundle `table` partial `ui/_table.html.twig` (prepended as
+`nowo_ui_kit.theme.bundles.NowoDashboardMenuBundle.partials.table`, extends the host / kit partial; a host value
+wins). Each row keeps its own hidden POST form and CSRF token.
 
 ## Dialog fragments
 
-Rendered alone (no layout) for `GET …?_modal=1`; not pages, so not in the contract test fixtures (render-tested in it).
+Rendered alone (no layout) for `GET` with `X-Nowo-Dialog: 1` (or the deprecated `?_modal=1`); not pages, so not in the contract test fixtures (render-tested in it).
 
 | Fragment | Template | Override key |
 | --- | --- | --- |

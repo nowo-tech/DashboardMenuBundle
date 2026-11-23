@@ -30,6 +30,7 @@ use Nowo\DashboardMenuBundle\Service\MenuExporter;
 use Nowo\DashboardMenuBundle\Service\MenuImporter;
 use Nowo\DashboardMenuBundle\View\DashboardPages;
 use Nowo\DashboardMenuBundle\View\DashboardWebUi;
+use Nowo\UiKitBundle\Dialog\RemoteDialog;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -54,6 +55,7 @@ use function is_int;
 use function is_string;
 use function json_encode;
 use function strlen;
+use function trigger_deprecation;
 
 use const JSON_PRETTY_PRINT;
 use const JSON_THROW_ON_ERROR;
@@ -206,19 +208,35 @@ final class MenuDashboardController extends AbstractController
     {
         $response = $form instanceof FormInterface && $form->isSubmitted() && !$form->isValid() ? new Response(null, Response::HTTP_UNPROCESSABLE_ENTITY) : null;
 
-        return $this->render($this->webUi()->template($page), $context + [
+        // The same URL answers the dialog fragment (X-Nowo-Dialog: 1) and the full page: caches must keep them apart.
+        return RemoteDialog::vary($this->render($this->webUi()->template($page), $context + [
             'dashboard_routes'         => $this->getDashboardRoutes(),
             'icon_selector_script_url' => $this->iconSelectorScriptUrl,
             'stimulus_script_url'      => $this->stimulusScriptUrl,
-        ] + $this->webUi()->context(), $response);
+        ] + $this->webUi()->context(), $response));
     }
 
     /**
-     * True when the dashboard script loads the form into a dialog ({@code ?_modal=1}): render the fragment only.
+     * True when the dashboard script loads the form into a dialog: render the fragment only. The request carries the
+     * UiKit remote dialog header ({@code X-Nowo-Dialog: 1}, {@see RemoteDialog::REQUEST_HEADER}); the 2.x
+     * {@code ?_modal=1} query parameter is a deprecated alias (removed in 3.0). Not a security signal: CSRF, access
+     * checks and validation apply to the fragment and the page alike.
      */
     private function isDialogRequest(Request $request): bool
     {
-        return $request->isMethod('GET') && $request->query->has('_modal');
+        if (!$request->isMethod('GET')) {
+            return false;
+        }
+        if (RemoteDialog::isRequest($request)) {
+            return true;
+        }
+        if ($request->query->has('_modal')) {
+            trigger_deprecation('nowo-tech/dashboard-menu-bundle', '2.30', 'Loading a dashboard dialog fragment with the "?_modal=1" query parameter is deprecated, send the "%s: 1" request header instead (UiKit remote dialog protocol).', RemoteDialog::REQUEST_HEADER);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -973,7 +991,7 @@ final class MenuDashboardController extends AbstractController
             'action' => $this->generateUrl(DashboardRoutes::ROUTE_IMPORT),
         ]);
         $form->handleRequest($request);
-        // GET (dialog fetch) sends ?_modal=1: render the dialog fragment; anything else renders the page.
+        // GET (dialog fetch) sends X-Nowo-Dialog: 1 (or the deprecated ?_modal=1): render the dialog fragment; anything else renders the page.
         $isModal = $this->isDialogRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

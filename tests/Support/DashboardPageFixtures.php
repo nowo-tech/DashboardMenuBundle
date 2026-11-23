@@ -256,6 +256,46 @@ final class DashboardPageFixtures
     }
 
     /**
+     * Menu detail with `$count` root link items, each with its move / delete forms (lazy dialogs: N rows, 1 dialog).
+     *
+     * @return array<string, mixed>
+     */
+    public static function showMany(int $count): array
+    {
+        $menu   = self::sidebar();
+        $pages  = self::pages();
+        $items  = [];
+        $depths = [];
+        $labels = [];
+        $up     = [];
+        $down   = [];
+        $del    = [];
+        for ($i = 0; $i < $count; ++$i) {
+            $id          = 100 + $i;
+            $items[]     = self::withId((new MenuItem())->setMenu($menu)->setLabel('Link ' . $i)->setLinkType(MenuItem::LINK_TYPE_ROUTE)->setRouteName('app_home')->setPosition($i), $id);
+            $depths[$id] = 0;
+            $labels[$id] = '— Root —';
+            if ($i > 0) {
+                $up[$id] = self::actionForm('/admin/menus/1/item/' . $id . '/move-up', 'item_move_up_' . $id);
+            }
+            if ($i < $count - 1) {
+                $down[$id] = self::actionForm('/admin/menus/1/item/' . $id . '/move-down', 'item_move_down_' . $id);
+            }
+            $del[$id] = self::actionForm('/admin/menus/1/item/' . $id . '/delete', 'delete_item_' . $id);
+        }
+
+        return [
+            'page'           => $pages->showPage($menu, true, self::actionForm('/admin/menus/1/items/reindex-positions', 'reindex_positions_1'), self::actionForm('/admin/menus/1/items/check-parent-cycles', 'check_parent_cycles_1'), 100),
+            'menu'           => $menu,
+            'item_columns'   => $pages->itemColumns('en'),
+            'item_rows'      => $pages->itemRows($menu, $items, $depths, $labels, $up, $down, $del, 'en'),
+            'add_item'       => $pages->addItemAction($menu),
+            'current_locale' => 'en',
+            'dialogs'        => $pages->dialogs([DashboardPages::DIALOG_MENU, DashboardPages::DIALOG_COPY, DashboardPages::DIALOG_ITEM]),
+        ];
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public static function reorder(bool $empty = false, string $headerActions = 'buttons'): array

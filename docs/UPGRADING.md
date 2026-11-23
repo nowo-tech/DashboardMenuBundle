@@ -150,6 +150,28 @@
 
 ## Unreleased
 
+```bash
+composer update nowo-tech/dashboard-menu-bundle nowo-tech/ui-kit-bundle
+```
+
+- **Lazy dialogs: one confirm dialog per table.** `nowo-tech/ui-kit-bundle` must be `^2.68`. The menu detail items table
+  prints ONE shared confirm dialog (`nowo-dashboard-menu-item-confirm`) and the menus list one more
+  (`nowo-ui-table-confirm`) instead of one `<dialog>` per row. Check host tests and overrides that rely on the per-row
+  markup:
+  - a row Delete toggle's `data-nowo-confirm-target` is the shared id, not `confirmId()`; the row's POST form (target +
+    CSRF) sits hidden next to its toggle (`data-nowo-confirm-form` names it) instead of inside a per-row dialog;
+  - an override of `show.html.twig` (`web_ui.templates.show`) that re-renders the items table should pass
+    `confirm_shared: {id: …, row: loop.index}` to `row_actions` and include `nowo_ui_partial('confirm_shared')` once;
+  - a host override of the UiKit `action`, `row_actions` or `menu` partials must handle and forward `confirm_shared`
+    (UiKit 2.68), or the toggles open nothing;
+  - the bundle now prepends `nowo_ui_kit.theme.bundles.NowoDashboardMenuBundle.partials.table:
+    '@NowoDashboardMenuBundle/ui/_table.html.twig'` (it extends your global `table` partial). To keep the per-row
+    dialogs on the menus list, set that key to your own partial or to `'@NowoUiKitBundle/partials/_table.html.twig'`.
+- **Dialog fragments: `X-Nowo-Dialog: 1` replaces `?_modal=1`.** `dashboard.js` sends the UiKit remote dialog header
+  (and no longer appends `?_modal=1`); the controller still answers `?_modal=1` with the fragment but triggers a
+  deprecation (removed in 3.0). A host script that loads a dashboard form fragment itself should send
+  `X-Nowo-Dialog: 1`. Responses carry `Vary: X-Nowo-Dialog`.
+
 ## To 2.29.2
 
 From **2.29.1**:

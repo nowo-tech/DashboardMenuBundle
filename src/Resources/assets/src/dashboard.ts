@@ -481,10 +481,14 @@ function wireFormBody(body: Element, section: string, inDialog = true): void {
   });
 }
 
+/** Request headers of a dialog fragment fetch (UiKit remote dialog protocol: X-Nowo-Dialog, RemoteDialog::REQUEST_HEADER). */
+const DIALOG_REQUEST_HEADERS: Record<string, string> = { 'X-Nowo-Dialog': '1', 'X-Requested-With': 'XMLHttpRequest', Accept: 'text/html' };
+
 /**
  * Dialog openers (2.7): links to a form page carrying data-nowo-dashboard-menu-dialog="<dialog id>". The link is
- * fetched with ?_modal=1 into the dialog body and the UiKit dialog opens; without JavaScript (or without the
- * dialog on the page) the link opens the full form page.
+ * fetched with the UiKit remote dialog header (X-Nowo-Dialog: 1; the server still accepts the deprecated ?_modal=1)
+ * into the dialog body and the UiKit dialog opens; without JavaScript (or without the dialog on the page) the link
+ * opens the full form page.
  */
 function initDialogOpeners(): void {
   if (typeof window !== 'undefined' && window.__dmDashboardMenuIndexBound) {
@@ -509,7 +513,6 @@ function initDialogOpeners(): void {
       const titleText = dialogTitleOf(opener);
       if (title && titleText) title.textContent = titleText;
       const url = new URL(href, window.location.href);
-      url.searchParams.set('_modal', '1');
       const section = url.searchParams.get('section') ?? '';
       if (body) {
         const loading = document.createElement('p');
@@ -519,7 +522,7 @@ function initDialogOpeners(): void {
       }
       openNativeDialog(dialog, opener);
       if (!body) return;
-      fetch(url.pathname + url.search, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+      fetch(url.pathname + url.search, { headers: DIALOG_REQUEST_HEADERS })
         .then((r) => {
           if (!r.ok) throw new Error(String(r.status));
           return r.text();
