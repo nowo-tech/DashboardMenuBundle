@@ -139,6 +139,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Igor 0.11: the `$_SERVER` environment fallback of `GoogleSyncTranslationsCommand` (a console command reading `GOOGLE_TRANSLATE_API_KEY`) is annotated `@igor-ignore` with the reason. No behaviour change.
+
 ## [2.30.0] - 2026-11-23
 
 ### Changed

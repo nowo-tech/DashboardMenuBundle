@@ -166,6 +166,7 @@ final class GoogleSyncTranslationsCommand extends Command
         }
 
         $timeout = max(0.1, (float) $input->getOption('timeout'));
+        // @igor-ignore - Console command: one process per run, reads an environment variable as the --api-key fallback; no request data.
         $apiKey  = trim((string) ($input->getOption('api-key') ?: ($_SERVER['GOOGLE_TRANSLATE_API_KEY'] ?? getenv('GOOGLE_TRANSLATE_API_KEY') ?: '')));
         if ($apiKey === '') {
             $io->error('Google API key required. Use --api-key or GOOGLE_TRANSLATE_API_KEY.');
