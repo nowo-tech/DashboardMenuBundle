@@ -143,6 +143,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Console**: the script-loaded line of `dashboard.js` and `stimulus-live.js` now reads `📦 [dashboard-menu] script loaded, build: 2026-11-23 14:05 UTC`: a readable UTC build time instead of the opaque source hash. The time comes from the committed `build-info.json` (`{sourceHash, builtAt}`): the source hash stays the change detector, `builtAt` is reused while the sources are unchanged and renewed only when they change, so rebuilding unchanged sources never rewrites the committed assets (no wall-clock stamp, no git date).
 
+- Igor 0.11: the `$_SERVER` environment fallback of `GoogleSyncTranslationsCommand` (a console command reading `GOOGLE_TRANSLATE_API_KEY`) is annotated `@igor-ignore` with the reason. No behaviour change.
+
 ### Added
 
 - **Console**: quiet switch for the script-loaded line: `<html data-nowo-console="quiet">` or `globalThis.NOWO_CONSOLE = 'quiet'` prints nothing. The default is unchanged.
