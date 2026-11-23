@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.31.0](#to-2310)
 - [To 2.30.0](#to-2300)
 - [To 2.29.2](#to-2292)
 - [To 2.29.1](#to-2291)
@@ -150,6 +151,14 @@
 - [0.0.1 (first release)](#001-first-release)
 
 ## Unreleased
+
+## To 2.31.0
+
+From **2.30.0**:
+
+```bash
+composer update nowo-tech/dashboard-menu-bundle
+```
 
 ## To 2.30.0
 
