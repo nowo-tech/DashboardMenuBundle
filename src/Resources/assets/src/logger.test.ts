@@ -80,7 +80,7 @@ describe('createBundleLogger', () => {
     log.setDebug(true);
     log.debug({ foo: 1 });
     expect(consoleDebug).toHaveBeenCalled();
-    expect(consoleDebug.mock.calls[0].slice(2)).toContain('{"foo":1}');
+    expect(consoleDebug.mock.calls[0]?.slice(2)).toContain('{"foo":1}');
   });
 
   it('announce() always logs even when debug disabled', () => {
@@ -97,7 +97,7 @@ describe('createBundleLogger', () => {
     log.announce('feature on', { count: 3 });
     expect(consoleLog).toHaveBeenCalledTimes(1);
     expect(consoleLog.mock.calls[0][0]).toContain('feature on');
-    expect(consoleLog.mock.calls[0].slice(3)).toContain('{"count":3}');
+    expect(consoleLog.mock.calls[0]?.slice(3)).toContain('{"count":3}');
   });
 
   it('info() logs when debug enabled', () => {
@@ -145,7 +145,7 @@ describe('createBundleLogger', () => {
     const err = new Error('fail');
     log.error(err);
     expect(consoleError).toHaveBeenCalled();
-    expect(consoleError.mock.calls[0].slice(2)).toContain(err);
+    expect(consoleError.mock.calls[0]?.slice(2)).toContain(err);
   });
 
   it('info() with no args calls console.info with prefix only', () => {
@@ -174,6 +174,6 @@ describe('createBundleLogger', () => {
     log.setDebug(true);
     log.debug(null);
     expect(consoleDebug).toHaveBeenCalled();
-    expect(consoleDebug.mock.calls[0].slice(2)).toContain(null);
+    expect(consoleDebug.mock.calls[0]?.slice(2)).toContain(null);
   });
 });
