@@ -2,7 +2,7 @@
 
 **Baseline spec**: [`spec.md`](spec.md)  
 **Package**: `nowo-tech/dashboard-menu-bundle`  
-**Last audited**: 2026-11-25 (REQ sweeps: 2.17–2.22 additions mapped 2026-11-16; 2.23–2.28 additions 2026-11-22; 2.29–2.30 additions 2026-11-25)
+**Last audited**: 2026-11-25 (REQ sweeps: 2.17–2.22 additions mapped 2026-11-16; 2.23–2.28 additions 2026-11-22; 2.29–2.31 additions 2026-11-25)
 
 Paths are relative to `src/`. This file proves that **every file tracked under `src/`** (`git ls-files src`, 249 files) is referenced by the baseline specification. Test-only files under `tests/` and demo trees are out of Packagist scope unless promoted in the spec.
 
@@ -368,7 +368,7 @@ Vitest specs live next to the TypeScript sources under `src/`; they are not load
 | `Service/MenuLayout.php` | Menu layout (2.26.0): footer slot and per-section collapse, read from `nowo_dashboard_menu.menu_layout`. | FR-LAYOUT-001 |
 | `View/HeaderActionsPlacement.php` | Where the header actions of the dashboard pages (New, Import, Export, Edit, Add item) are placed (`web_ui.header_actions`). | FR-UI-005 |
 
-## Sources added 2.29–2.30 (sweep 2026-11-25)
+## Sources added 2.29–2.31 (sweep 2026-11-25)
 
 | Source file | Spec section | Requirement IDs |
 | --- | --- | --- |
@@ -440,7 +440,7 @@ Vitest specs live next to the TypeScript sources under `src/`; they are not load
 | Co-located Vitest sources (`FR-TEST-*`) | 3 | 3 |
 | Additions 2.17–2.22 | 38 | 38 |
 | Additions 2.23–2.28 (sweep 2026-11-22) | 22 | 22 |
-| Additions 2.29–2.30 (sweep 2026-11-25) | 34 | 34 |
+| Additions 2.29–2.31 (sweep 2026-11-25) | 34 | 34 |
 | **Total production files (`git ls-files src`)** | **249** | **249** |
 
 Built JavaScript is documented as published output of TypeScript sources; maintainers rebuild when TS changes.
