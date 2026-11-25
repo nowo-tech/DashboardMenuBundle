@@ -241,7 +241,7 @@ As a bundle maintainer, I sync missing translation keys across locale files.
 ### Frontend assets
 
 - **FR-UI-001**: `dashboard.ts` MUST power dashboard modals, SortableJS reorder UX, and optional UX Autocomplete registration.
-- **FR-UI-002**: `logger.ts` MUST provide namespaced debug logging for dashboard scripts.
+- **FR-UI-002**: `logger.ts` MUST provide namespaced debug logging for dashboard scripts. It also prints one `📦 [name] script loaded, build: <date> UTC` console line per entry (`menu-collapse-boot.ts` as `dashboard-menu/menu-collapse`, `autocomplete.ts` as `dashboard-menu/autocomplete`), with the build label injected as `__DASHBOARD_MENU_BUILD_TIME__`; `<html data-nowo-console="quiet">` or `globalThis.NOWO_CONSOLE = 'quiet'` silences it (2.29, REQ-ASSETS-005).
 - **FR-UI-003**: `stimulus-live.ts` MUST bootstrap Stimulus for Live Component modal when no custom `stimulus_script_url` is configured.
 - **FR-UI-004**: `config.ts` MUST read page configuration from the CSP-safe JSON island `#nowo-dashboard-menu-config` (REQ-CSP-001), falling back to the deprecated `window.__nowoDashboardMenuConfig` global.
 - **FR-BUILD-001**: Published `Resources/public/js/*.js` MUST be kept in sync with TypeScript sources before release.
@@ -249,7 +249,8 @@ As a bundle maintainer, I sync missing translation keys across locale files.
 
 ### Internationalization
 
-- **FR-I18N-001**: Translation files `NowoDashboardMenuBundle.{locale}.yaml` MUST cover dashboard UI, form labels, and validation messages for all bundled locales (31 files).
+- **FR-I18N-001**: Translation files `NowoDashboardMenuBundle.{locale}.yaml` MUST cover dashboard UI and form labels for all bundled locales (31 files).
+- **FR-I18N-002**: Constraint messages live in the Symfony `validators` domain, not the bundle domain: `validators.{locale}.yaml` (31 files, same locales) holds `form.copy_menu_type.code.regex_message`, the message of the `Regex` constraint of `CopyMenuType` (2.x fix #151; the key was removed from the bundle-domain catalogues).
 
 ---
 
@@ -269,6 +270,9 @@ As a bundle maintainer, I sync missing translation keys across locale files.
 - **FR-AUTO-001**: `autocomplete.ts` (built to `Resources/public/js/autocomplete.js`) registers UX Autocomplete for the dashboard forms.
 - **FR-LAYOUT-001**: Menu layout (2.26, `nowo_dashboard_menu.menu_layout`): `MenuLayout` reads the footer slot (`menu_footer.html.twig`) and per-section collapse (`section-collapse.ts`).
 - **FR-BADGE-001**: Item badges (2.27): `MenuBadgeProviderInterface` providers, registered per item key with `#[AsMenuBadgeProvider]`, give the number `MenuItemBadgeResolver` shows on a sidebar item.
+- **FR-UI-006**: Dialog fragments (2.30, lazy dialogs): `dashboard.js` fetches form dialog bodies with the UiKit remote dialog header `X-Nowo-Dialog: 1`; `MenuDashboardController::isDialogRequest()` renders the fragment for a GET carrying it, accepts the legacy `?_modal=1` query as a deprecated alias (`trigger_deprecation`, removed in 3.0) and every dashboard page answers `Vary: X-Nowo-Dialog` (`RemoteDialog::vary()`). The header is not a security signal.
+- **FR-UI-007**: Shared confirm dialog (2.30): the extension prepends `nowo_ui_kit.theme.bundles.NowoDashboardMenuBundle.partials.table` = `DashboardWebUi::TABLE_PARTIAL` (`ui/_table.html.twig`, extends the host / kit `table` partial with `confirm_shared` on unless the caller passes it; a host value wins), and `show.html.twig` prints ONE confirm dialog (`nowo-dashboard-menu-item-confirm`) for the items table instead of one per row; each row keeps its hidden POST form and CSRF token.
+- **FR-UI-008**: Dialog actions (2.28, UX-017): `_dialog_form_actions.html.twig` renders through the UiKit `form_actions` partial with Cancel first, then the primary, whatever `theme.form_actions_order` says (that option only orders the page forms).
 - **FR-UI-005**: `HeaderActionsPlacement` (`web_ui.header_actions`) places the header actions of the dashboard pages (New, Import, Export, Edit, Add item).
 
 ## Key Entities
@@ -282,7 +286,7 @@ As a bundle maintainer, I sync missing translation keys across locale files.
 
 ## Success Criteria
 
-- **SC-001**: 100% of production files in `src/` appear in [`code-inventory.md`](code-inventory.md) with requirement IDs (**215/215** mapped, `git ls-files src`, 2026-11-22).
+- **SC-001**: 100% of production files in `src/` appear in [`code-inventory.md`](code-inventory.md) with requirement IDs (**249/249** mapped, `git ls-files src`, 2026-11-25).
 - **SC-002**: Twig render and JSON API return equivalent tree structures for the same code/locale/context in demo apps.
 - **SC-003**: Configuration keys in [`docs/CONFIGURATION.md`](../../docs/CONFIGURATION.md) match `Configuration.php`.
 - **SC-004**: PHPUnit, PHPStan, and documented QA targets pass in CI (`composer qa`, `make release-check`).

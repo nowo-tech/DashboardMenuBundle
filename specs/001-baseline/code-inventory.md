@@ -2,9 +2,9 @@
 
 **Baseline spec**: [`spec.md`](spec.md)  
 **Package**: `nowo-tech/dashboard-menu-bundle`  
-**Last audited**: 2026-11-22 (REQ sweeps: 2.17–2.22 additions mapped 2026-11-16; 2.23–2.28 additions 2026-11-22)
+**Last audited**: 2026-11-25 (REQ sweeps: 2.17–2.22 additions mapped 2026-11-16; 2.23–2.28 additions 2026-11-22; 2.29–2.30 additions 2026-11-25)
 
-Paths are relative to `src/`. This file proves that **every file tracked under `src/`** (`git ls-files src`, 215 files) is referenced by the baseline specification. Test-only files under `tests/` and demo trees are out of Packagist scope unless promoted in the spec.
+Paths are relative to `src/`. This file proves that **every file tracked under `src/`** (`git ls-files src`, 249 files) is referenced by the baseline specification. Test-only files under `tests/` and demo trees are out of Packagist scope unless promoted in the spec.
 
 ## Bundle & DI
 
@@ -190,8 +190,8 @@ Paths are relative to `src/`. This file proves that **every file tracked under `
 
 | Source file | Spec section | Requirement IDs |
 | --- | --- | --- |
-| `Resources/assets/src/dashboard.ts` | Dashboard UX (modals, SortableJS) | FR-UI-001 |
-| `Resources/assets/src/logger.ts` | Namespaced debug logger | FR-UI-002 |
+| `Resources/assets/src/dashboard.ts` | Dashboard UX (modals, SortableJS, `X-Nowo-Dialog` fragment fetch) | FR-UI-001, FR-UI-006 |
+| `Resources/assets/src/logger.ts` | Namespaced debug logger, `scriptLoaded()` banner, quiet switch | FR-UI-002 |
 | `Resources/assets/src/stimulus-live.ts` | Stimulus bootstrap for Live modal | FR-UI-003 |
 | `Resources/assets/src/config.ts` | CSP-safe JSON config island reader (legacy global fallback) | FR-UI-004 |
 | `Resources/assets/src/menu-collapse.ts`, `Resources/assets/src/menu-collapse-boot.ts` | Nested collapse without Bootstrap JS (`js/menu-collapse.js`) | [003](../003-menu-collapse-without-bootstrap/spec.md) |
@@ -267,7 +267,7 @@ Paths are relative to `src/`. This file proves that **every file tracked under `
 | `Resources/views/dashboard/_sortable_tree_macro.html.twig` | Reorder tree macro | FR-DASH-003 |
 | `Resources/views/dashboard/_dashboard_item_icon.html.twig` | Dashboard item icon partial | FR-DASH-003 |
 | `Resources/views/dashboard/_dialogs.html.twig` | UiKit `dialog`s the form openers load into | FR-DASH-003, FR-WEBUI-001 |
-| `Resources/views/dashboard/_dialog_form_actions.html.twig` | Dialog form actions through the UiKit `form_actions` partial (Cancel first, then the primary) | FR-DASH-003, FR-WEBUI-001 |
+| `Resources/views/dashboard/_dialog_form_actions.html.twig` | Dialog form actions through the UiKit `form_actions` partial (Cancel first, then the primary) | FR-DASH-003, FR-WEBUI-001, FR-UI-008 |
 | `Resources/views/dashboard/_menu_form_fields.html.twig` | Menu form fields (page body and dialog fragment) | FR-DASH-003, FR-FORM-001 |
 | `Resources/views/dashboard/_item_form_fields.html.twig` | Item form fields with locale tabs (page body and dialog fragment) | FR-DASH-003, FR-FORM-001 |
 | `Resources/views/dashboard/_page_scripts.html.twig` | CSP-safe JSON config island + dashboard scripts | FR-DASH-003, FR-TWIG-004, FR-UI-004 |
@@ -368,6 +368,45 @@ Vitest specs live next to the TypeScript sources under `src/`; they are not load
 | `Service/MenuLayout.php` | Menu layout (2.26.0): footer slot and per-section collapse, read from `nowo_dashboard_menu.menu_layout`. | FR-LAYOUT-001 |
 | `View/HeaderActionsPlacement.php` | Where the header actions of the dashboard pages (New, Import, Export, Edit, Add item) are placed (`web_ui.header_actions`). | FR-UI-005 |
 
+## Sources added 2.29–2.30 (sweep 2026-11-25)
+
+| Source file | Spec section | Requirement IDs |
+| --- | --- | --- |
+| `Resources/translations/validators.ar.yaml` | `validators` domain: copy-menu code regex message (ar) | FR-I18N-002 |
+| `Resources/translations/validators.ca.yaml` | `validators` domain: copy-menu code regex message (ca) | FR-I18N-002 |
+| `Resources/translations/validators.cs.yaml` | `validators` domain: copy-menu code regex message (cs) | FR-I18N-002 |
+| `Resources/translations/validators.da.yaml` | `validators` domain: copy-menu code regex message (da) | FR-I18N-002 |
+| `Resources/translations/validators.de.yaml` | `validators` domain: copy-menu code regex message (de) | FR-I18N-002 |
+| `Resources/translations/validators.el.yaml` | `validators` domain: copy-menu code regex message (el) | FR-I18N-002 |
+| `Resources/translations/validators.en.yaml` | `validators` domain: copy-menu code regex message (en) | FR-I18N-002 |
+| `Resources/translations/validators.es.yaml` | `validators` domain: copy-menu code regex message (es) | FR-I18N-002 |
+| `Resources/translations/validators.fi.yaml` | `validators` domain: copy-menu code regex message (fi) | FR-I18N-002 |
+| `Resources/translations/validators.fr.yaml` | `validators` domain: copy-menu code regex message (fr) | FR-I18N-002 |
+| `Resources/translations/validators.he.yaml` | `validators` domain: copy-menu code regex message (he) | FR-I18N-002 |
+| `Resources/translations/validators.hu.yaml` | `validators` domain: copy-menu code regex message (hu) | FR-I18N-002 |
+| `Resources/translations/validators.id.yaml` | `validators` domain: copy-menu code regex message (id) | FR-I18N-002 |
+| `Resources/translations/validators.it.yaml` | `validators` domain: copy-menu code regex message (it) | FR-I18N-002 |
+| `Resources/translations/validators.ja.yaml` | `validators` domain: copy-menu code regex message (ja) | FR-I18N-002 |
+| `Resources/translations/validators.ko.yaml` | `validators` domain: copy-menu code regex message (ko) | FR-I18N-002 |
+| `Resources/translations/validators.nb.yaml` | `validators` domain: copy-menu code regex message (nb) | FR-I18N-002 |
+| `Resources/translations/validators.nl.yaml` | `validators` domain: copy-menu code regex message (nl) | FR-I18N-002 |
+| `Resources/translations/validators.pl.yaml` | `validators` domain: copy-menu code regex message (pl) | FR-I18N-002 |
+| `Resources/translations/validators.pt.yaml` | `validators` domain: copy-menu code regex message (pt) | FR-I18N-002 |
+| `Resources/translations/validators.pt_BR.yaml` | `validators` domain: copy-menu code regex message (pt_BR) | FR-I18N-002 |
+| `Resources/translations/validators.ro.yaml` | `validators` domain: copy-menu code regex message (ro) | FR-I18N-002 |
+| `Resources/translations/validators.ru.yaml` | `validators` domain: copy-menu code regex message (ru) | FR-I18N-002 |
+| `Resources/translations/validators.sk.yaml` | `validators` domain: copy-menu code regex message (sk) | FR-I18N-002 |
+| `Resources/translations/validators.sv.yaml` | `validators` domain: copy-menu code regex message (sv) | FR-I18N-002 |
+| `Resources/translations/validators.th.yaml` | `validators` domain: copy-menu code regex message (th) | FR-I18N-002 |
+| `Resources/translations/validators.tr.yaml` | `validators` domain: copy-menu code regex message (tr) | FR-I18N-002 |
+| `Resources/translations/validators.uk.yaml` | `validators` domain: copy-menu code regex message (uk) | FR-I18N-002 |
+| `Resources/translations/validators.vi.yaml` | `validators` domain: copy-menu code regex message (vi) | FR-I18N-002 |
+| `Resources/translations/validators.zh_CN.yaml` | `validators` domain: copy-menu code regex message (zh_CN) | FR-I18N-002 |
+| `Resources/translations/validators.zh_TW.yaml` | `validators` domain: copy-menu code regex message (zh_TW) | FR-I18N-002 |
+| `Resources/views/ui/_table.html.twig` | UiKit `table` partial of the dashboard pages: extends the host / kit partial with `confirm_shared` on (`DashboardWebUi::TABLE_PARTIAL`) | FR-UI-007 |
+| `Resources/assets/src/logger-quiet.test.ts` | Vitest: quiet switch of the `scriptLoaded()` line (`data-nowo-console`, `NOWO_CONSOLE`) | FR-TEST-001, FR-UI-002 |
+| `Resources/assets/src/script-loaded.test.ts` | Vitest: menu-collapse and autocomplete entries log `script loaded` once, build time injected | FR-TEST-001, FR-UI-002 |
+
 ## Coverage summary
 
 | Category | Files | Mapped |
@@ -401,6 +440,7 @@ Vitest specs live next to the TypeScript sources under `src/`; they are not load
 | Co-located Vitest sources (`FR-TEST-*`) | 3 | 3 |
 | Additions 2.17–2.22 | 38 | 38 |
 | Additions 2.23–2.28 (sweep 2026-11-22) | 22 | 22 |
-| **Total production files (`git ls-files src`)** | **215** | **215** |
+| Additions 2.29–2.30 (sweep 2026-11-25) | 34 | 34 |
+| **Total production files (`git ls-files src`)** | **249** | **249** |
 
 Built JavaScript is documented as published output of TypeScript sources; maintainers rebuild when TS changes.
