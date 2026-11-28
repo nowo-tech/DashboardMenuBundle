@@ -683,8 +683,10 @@ final class MenuDashboardController extends AbstractController
         $next = [];
         foreach ($byParent as $group) {
             foreach ($group as $i => $item) {
-                $prev[$item->getId()] = $i > 0 ? $group[$i - 1]->getId() : null;
-                $next[$item->getId()] = $i < count($group) - 1 ? $group[$i + 1]->getId() : null;
+                // An unsaved item (null id) keys '' as before; PHP 8.6 deprecates null as an array offset.
+                $id        = $item->getId() ?? '';
+                $prev[$id] = $i > 0 ? $group[$i - 1]->getId() : null;
+                $next[$id] = $i < count($group) - 1 ? $group[$i + 1]->getId() : null;
             }
         }
 

@@ -2,4 +2,5 @@ framework:
     secret: test-secret
     test: true
     router:
-        resource: null
+        # Symfony 8.2 refuses a null resource once the router is enabled: an empty routes file keeps it route-less.
+        resource: '%kernel.project_dir%/tests/config/routes.yaml'

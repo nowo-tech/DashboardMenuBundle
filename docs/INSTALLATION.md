@@ -19,7 +19,7 @@ This guide covers installing Dashboard Menu Bundle in a Symfony application.
 
 ## Requirements
 
-- **PHP** >= 8.2, < 8.6
+- **PHP** >= 8.2, < 8.7
 - **Symfony** 7.4+ or 8.x (`^7.4 || ^8.0`) — Symfony **7** floor is **7.4** (REQ-SF-001)
 - **Doctrine ORM** ^3.7 (no Gedmo/Stof or other ORM extensions required)
 - **UiKitBundle** (`nowo-tech/ui-kit-bundle` `^1.4`) — required for dashboard Twig macros and `nowo-ui.css` (REQ-UI-001-kit)

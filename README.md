@@ -71,7 +71,7 @@ With **Symfony Flex**, the recipe (if available) registers the bundle and adds c
 
 ## Requirements
 
-- PHP >= 8.2, < 8.6
+- PHP >= 8.2, < 8.7
 - Symfony 7.4+ or 8.x (`^7.4 || ^8.0`) — Symfony **7** floor is **7.4** (REQ-SF-001; FormKit `^2.0`)
 - Doctrine ORM ^3.7 (no Gedmo/Stof required)
 - **UiKitBundle** + **FormKitBundle** (required hard dependencies for the dashboard UI)

@@ -10,6 +10,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Nowo\DashboardMenuBundle\Entity\Menu;
 use Nowo\DashboardMenuBundle\Service\MenuImporter;
 use Nowo\DashboardMenuBundle\Tests\Integration\EntityManager\Entity\HostNote;
+use Nowo\DashboardMenuBundle\Tests\Support\KernelListeners;
 use Nowo\DashboardMenuBundle\Worker\DashboardMenuOwnEntityManagerSubscriber;
 use Nowo\DashboardMenuBundle\Worker\UnitOfWorkBoundaries;
 use PHPUnit\Framework\TestCase;
@@ -26,6 +27,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpKernel;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
+use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
+use Symfony\Component\Messenger\Event\WorkerMessageReceivedEvent;
 
 use function array_filter;
 use function dirname;
@@ -73,6 +78,25 @@ final class WorkerKeptAliveKernelTest extends TestCase
         }
         $this->kernel = null;
         (new Filesystem())->remove(array_filter($directories, static fn (string $directory): bool => $directory !== ''));
+    }
+
+    /**
+     * Real Messenger events: the framework's own worker listeners (Symfony 8.2 reset the memory usage on a received
+     * message) are typed on them, so the dispatcher refuses a stand-in object.
+     */
+    private static function received(): WorkerMessageReceivedEvent
+    {
+        return new WorkerMessageReceivedEvent(new Envelope(new stdClass()), 'async');
+    }
+
+    private function handled(): WorkerMessageHandledEvent
+    {
+        return new WorkerMessageHandledEvent(new Envelope(new stdClass()), 'async');
+    }
+
+    private function failed(): WorkerMessageFailedEvent
+    {
+        return new WorkerMessageFailedEvent(new Envelope(new stdClass()), 'async', new RuntimeException('failed message'));
     }
 
     public function testTwoUsersAlternateOverManyRequestsWithIsolationAndFlatMemory(): void
@@ -157,11 +181,11 @@ final class WorkerKeptAliveKernelTest extends TestCase
         self::assertSame(0, $application->run($this->input('app:outer'), new NullOutput()));
         self::assertSame(0, $bundle->getUnitOfWork()->size(), 'the outermost command clears at terminate');
 
-        $dispatcher->dispatch(new stdClass(), UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_RECEIVED);
+        $dispatcher->dispatch(self::received(), UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_RECEIVED);
         $this->loadMenu($bundle);
         self::assertSame(0, $application->run($this->input('app:nested'), new NullOutput()));
         self::assertGreaterThan(0, $bundle->getUnitOfWork()->size(), 'a command run from the handler keeps the message entities');
-        $dispatcher->dispatch(new stdClass(), UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_HANDLED);
+        $dispatcher->dispatch($this->handled(), UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_HANDLED);
         self::assertSame(0, $bundle->getUnitOfWork()->size(), 'the message boundary clears');
     }
 
@@ -178,9 +202,9 @@ final class WorkerKeptAliveKernelTest extends TestCase
         }));
 
         foreach ([[ConsoleEvents::TERMINATE, 'app:ok', 0], [ConsoleEvents::ERROR, 'app:fail', 0], [ConsoleEvents::ERROR, 'app:fail', PHP_INT_MIN], [ConsoleEvents::TERMINATE, 'app:ok', PHP_INT_MAX]] as [$eventName, $commandName, $priority]) {
-            $dispatcher->addListener($eventName, $throw, $priority);
+            KernelListeners::add($dispatcher, $eventName, $throw, $priority);
             self::assertNotSame(0, $application->run($this->input($commandName), new NullOutput()));
-            $dispatcher->removeListener($eventName, $throw);
+            KernelListeners::remove($dispatcher, $eventName, $throw);
 
             $this->assertRequestClears($container, $bundle, 'after a throwing ' . $eventName . ' listener (priority ' . $priority . ')');
         }
@@ -197,9 +221,9 @@ final class WorkerKeptAliveKernelTest extends TestCase
         $application->addCommand(new CallbackCommand('app:rec', function () use ($application, &$depth, $dispatcher, $throw): int {
             ++$depth;
             if ($depth === 1) {
-                $dispatcher->addListener(ConsoleEvents::ERROR, $throw);
+                KernelListeners::add($dispatcher, ConsoleEvents::ERROR, $throw);
                 $application->run($this->input('app:rec'), new NullOutput());
-                $dispatcher->removeListener(ConsoleEvents::ERROR, $throw);
+                KernelListeners::remove($dispatcher, ConsoleEvents::ERROR, $throw);
 
                 return 0;
             }
@@ -210,9 +234,9 @@ final class WorkerKeptAliveKernelTest extends TestCase
             throw new RuntimeException('inner failed');
         }));
         $application->addCommand(new CallbackCommand('app:outer', function () use ($application, $dispatcher, $throw): int {
-            $dispatcher->addListener(ConsoleEvents::ERROR, $throw);
+            KernelListeners::add($dispatcher, ConsoleEvents::ERROR, $throw);
             $application->run($this->input('app:inner'), new NullOutput());
-            $dispatcher->removeListener(ConsoleEvents::ERROR, $throw);
+            KernelListeners::remove($dispatcher, ConsoleEvents::ERROR, $throw);
 
             return 0;
         }));
@@ -246,11 +270,11 @@ final class WorkerKeptAliveKernelTest extends TestCase
         };
         $application = $this->application();
         $application->addCommand(new CallbackCommand('app:consume', static function () use ($dispatcher, $throw): int {
-            $dispatcher->addListener(UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_RECEIVED, $throw);
+            KernelListeners::add($dispatcher, UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_RECEIVED, $throw);
             try {
-                $dispatcher->dispatch(new stdClass(), UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_RECEIVED);
+                $dispatcher->dispatch(self::received(), UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_RECEIVED);
             } finally {
-                $dispatcher->removeListener(UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_RECEIVED, $throw);
+                KernelListeners::remove($dispatcher, UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_RECEIVED, $throw);
             }
 
             return 0;
@@ -275,11 +299,11 @@ final class WorkerKeptAliveKernelTest extends TestCase
             throw new RuntimeException('command failed');
         }));
 
-        $dispatcher->dispatch(new stdClass(), UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_RECEIVED);
-        $dispatcher->addListener(ConsoleEvents::ERROR, $throw);
+        $dispatcher->dispatch(self::received(), UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_RECEIVED);
+        KernelListeners::add($dispatcher, ConsoleEvents::ERROR, $throw);
         $application->run($this->input('app:fail'), new NullOutput());
-        $dispatcher->removeListener(ConsoleEvents::ERROR, $throw);
-        $dispatcher->dispatch(new stdClass(), UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_FAILED);
+        KernelListeners::remove($dispatcher, ConsoleEvents::ERROR, $throw);
+        $dispatcher->dispatch($this->failed(), UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_FAILED);
         $dispatcher->dispatch(new stdClass(), UnitOfWorkBoundaries::MESSENGER_WORKER_STOPPED);
 
         $this->assertRequestClears($container, $bundle, 'failed command inside a failed message, then worker stopped');
@@ -296,14 +320,14 @@ final class WorkerKeptAliveKernelTest extends TestCase
             throw new RuntimeException('exception listener failed');
         };
         $kernel = $this->httpKernel($container);
-        $dispatcher->addListener(KernelEvents::EXCEPTION, $throw, PHP_INT_MAX);
+        KernelListeners::add($dispatcher, KernelEvents::EXCEPTION, $throw, PHP_INT_MAX);
         try {
             $kernel->handle(Request::create('/w/boom'), HttpKernelInterface::MAIN_REQUEST, true);
             self::fail('the exception listener throws');
         } catch (RuntimeException $exception) {
             self::assertSame('exception listener failed', $exception->getMessage());
         } finally {
-            $dispatcher->removeListener(KernelEvents::EXCEPTION, $throw);
+            KernelListeners::remove($dispatcher, KernelEvents::EXCEPTION, $throw);
         }
 
         $this->assertRequestClears($container, $bundle, 'normal request after a throwing kernel.exception listener');
