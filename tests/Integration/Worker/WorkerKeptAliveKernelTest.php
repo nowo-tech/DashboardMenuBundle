@@ -26,6 +26,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpKernel;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
+use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
+use Symfony\Component\Messenger\Event\WorkerMessageReceivedEvent;
 
 use function array_filter;
 use function dirname;
@@ -73,6 +77,25 @@ final class WorkerKeptAliveKernelTest extends TestCase
         }
         $this->kernel = null;
         (new Filesystem())->remove(array_filter($directories, static fn (string $directory): bool => $directory !== ''));
+    }
+
+    /**
+     * Real Messenger events: the framework's own worker listeners (Symfony 8.2 reset the memory usage on a received
+     * message) are typed on them, so the dispatcher refuses a stand-in object.
+     */
+    private static function received(): WorkerMessageReceivedEvent
+    {
+        return new WorkerMessageReceivedEvent(new Envelope(new stdClass()), 'async');
+    }
+
+    private static function handled(): WorkerMessageHandledEvent
+    {
+        return new WorkerMessageHandledEvent(new Envelope(new stdClass()), 'async');
+    }
+
+    private static function failed(): WorkerMessageFailedEvent
+    {
+        return new WorkerMessageFailedEvent(new Envelope(new stdClass()), 'async', new RuntimeException('failed message'));
     }
 
     public function testTwoUsersAlternateOverManyRequestsWithIsolationAndFlatMemory(): void
@@ -157,11 +180,11 @@ final class WorkerKeptAliveKernelTest extends TestCase
         self::assertSame(0, $application->run($this->input('app:outer'), new NullOutput()));
         self::assertSame(0, $bundle->getUnitOfWork()->size(), 'the outermost command clears at terminate');
 
-        $dispatcher->dispatch(new stdClass(), UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_RECEIVED);
+        $dispatcher->dispatch(self::received(), UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_RECEIVED);
         $this->loadMenu($bundle);
         self::assertSame(0, $application->run($this->input('app:nested'), new NullOutput()));
         self::assertGreaterThan(0, $bundle->getUnitOfWork()->size(), 'a command run from the handler keeps the message entities');
-        $dispatcher->dispatch(new stdClass(), UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_HANDLED);
+        $dispatcher->dispatch(self::handled(), UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_HANDLED);
         self::assertSame(0, $bundle->getUnitOfWork()->size(), 'the message boundary clears');
     }
 
@@ -248,7 +271,7 @@ final class WorkerKeptAliveKernelTest extends TestCase
         $application->addCommand(new CallbackCommand('app:consume', static function () use ($dispatcher, $throw): int {
             $dispatcher->addListener(UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_RECEIVED, $throw);
             try {
-                $dispatcher->dispatch(new stdClass(), UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_RECEIVED);
+                $dispatcher->dispatch(self::received(), UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_RECEIVED);
             } finally {
                 $dispatcher->removeListener(UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_RECEIVED, $throw);
             }
@@ -275,11 +298,11 @@ final class WorkerKeptAliveKernelTest extends TestCase
             throw new RuntimeException('command failed');
         }));
 
-        $dispatcher->dispatch(new stdClass(), UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_RECEIVED);
+        $dispatcher->dispatch(self::received(), UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_RECEIVED);
         $dispatcher->addListener(ConsoleEvents::ERROR, $throw);
         $application->run($this->input('app:fail'), new NullOutput());
         $dispatcher->removeListener(ConsoleEvents::ERROR, $throw);
-        $dispatcher->dispatch(new stdClass(), UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_FAILED);
+        $dispatcher->dispatch(self::failed(), UnitOfWorkBoundaries::MESSENGER_WORKER_MESSAGE_FAILED);
         $dispatcher->dispatch(new stdClass(), UnitOfWorkBoundaries::MESSENGER_WORKER_STOPPED);
 
         $this->assertRequestClears($container, $bundle, 'failed command inside a failed message, then worker stopped');
