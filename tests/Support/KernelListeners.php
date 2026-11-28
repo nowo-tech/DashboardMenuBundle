@@ -37,7 +37,7 @@ final class KernelListeners
 
     private static function quietly(callable $call): void
     {
-        set_error_handler(static fn (int $level, string $message): bool => str_contains($message, 'ScopedEventDispatcher'), E_USER_DEPRECATED);
+        set_error_handler(static fn (int $level, string $message): bool => str_contains($message, 'ScopedEventDispatcher'), E_USER_DEPRECATED); // @phpstan-ignore frankenphp.worker.noSetErrorExceptionHandler (test helper; restored in finally)
 
         try {
             $call();
